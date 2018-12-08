@@ -1,13 +1,15 @@
-apply plugin: 'com.android.application'
+if (Boolean.valueOf(rootProject.ext.isModule)) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-
     compileSdkVersion rootProject.ext.versions["compileSdkVersion"]
 
     defaultConfig {
-        applicationId rootProject.ext.versions["applicationId"]
         minSdkVersion rootProject.ext.versions["minSdkVersion"]
         targetSdkVersion rootProject.ext.versions["targetSdkVersion"]
         versionCode rootProject.ext.versions["versionCode"]
@@ -28,18 +30,31 @@ android {
         // 关闭Google Search提示
         disable 'GoogleAppIndexingWarning'
     }
+
+    /*指定不同情况下需要编译的文件*/
+    sourceSets {
+        main {
+            if (Boolean.valueOf(rootProject.ext.isModule)) {
+                manifest.srcFile "src/main/AndroidManifest2Module.xml"
+            } else {
+                manifest.srcFile "src/main/AndroidManifest.xml"
+                java {
+                    /*排除module文件夹下的所有文件*/
+                    exclude "/module/*"
+                    exclude "src/main/AndroidManifest2Module.xml"
+                }
+            }
+        }
+    }
+
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     implementation project(':common_base')
-
-    if (!Boolean.valueOf(rootProject.ext.isModule)) {
-        implementation project(':module_main')
-    }
 }
