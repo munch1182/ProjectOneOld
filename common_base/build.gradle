@@ -35,5 +35,8 @@ dependencies {
     api rootProject.ext.dependencies["constraint"]
     api rootProject.ext.dependencies["kotlin"]
 
+    api rootProject.ext.dependencies["immersionBar"]
+    api rootProject.ext.dependencies["logger"]
+
 
 }

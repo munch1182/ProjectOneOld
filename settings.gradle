@@ -1,1 +1,1 @@
-include ':app', ':common_base', ':module_main'
+include ':app', ':common_base', ':module_main', ':libNative'

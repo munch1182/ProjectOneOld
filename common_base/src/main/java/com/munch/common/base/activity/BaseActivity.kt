@@ -1,4 +1,4 @@
-package com.munch.common.base
+package com.munch.common.base.activity
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -9,13 +9,16 @@ import android.support.v7.app.AppCompatActivity
 open class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        initFirst(savedInstanceState)
         super.onCreate(savedInstanceState)
         initView(savedInstanceState)
         initData(savedInstanceState)
     }
 
-    open fun initData(bundle: Bundle?) {
+    open fun initFirst(bundle: Bundle?) {
+    }
 
+    open fun initData(bundle: Bundle?) {
     }
 
     open fun initView(bundle: Bundle?) {

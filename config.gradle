@@ -1,10 +1,11 @@
 /*全局配置文件，避免重复依赖的问题，所以需要打进正式包的依赖都应放在common_base中*/
+/*并非所有的都被使用，具体查看common_base的build.gradle*/
 
 ext {
     // true即单独模块化开发
     // false即整体开发
     // 修改后需要sync
-    isModule = false
+    isModule = true
 
     versions = [
             compileSdkVersion       : 28,
@@ -47,7 +48,9 @@ ext {
             arouterapiVersion       : "1.4.4",
             aroutercompilerVersion  : "1.2.2",
 
-            objectboxVersion        : "2.2.0"
+            objectboxVersion        : "2.2.0",
+
+            glideVerison            : "4.8.0"
     ]
 
     dependencies = [
@@ -56,7 +59,7 @@ ext {
 
             "appcompat"           : "com.android.support:appcompat-v7:${versions["androidSupportSdkVersion"]}",
             "constraint"          : "com.android.support.constraint:constraint-layout:${versions["constraintVersion"]}",
-            "design"             : "com.android.support:design:${versions["androidSupportSdkVersion"]}",
+            "design"              : "com.android.support:design:${versions["androidSupportSdkVersion"]}",
             "cardview"            : "com.android.support:cardview-v7:${versions["androidSupportSdkVersion"]}",
             "recyclerview"        : "com.android.support:recyclerview-v7:${versions["androidSupportSdkVersion"]}",
 
@@ -124,7 +127,13 @@ ext {
             /*ObjectBox*/
             /*https://github.com/objectbox/objectbox-java*/
             /*在应用层的build.gradle设置*/
-            "objectbox"           : "io.objectbox:objectbox-gradle-plugin:${versions["objectboxVersion"]}"
+            "objectbox"           : "io.objectbox:objectbox-gradle-plugin:${versions["objectboxVersion"]}",
+
+            /*Glide*/
+            /*https://github.com/bumptech/glide*/
+            "glide"               : "com.github.bumptech.glide:glide:${versions["glideVerison"]}",
+            "glide_compiler"      : "com.github.bumptech.glide:compiler:${versions["glideVerison"]}",
+            "glide_integration"   : "com.github.bumptech.glide:okhttp3-integration:${versions["glideVerison"]}"
 
     ]
 }
