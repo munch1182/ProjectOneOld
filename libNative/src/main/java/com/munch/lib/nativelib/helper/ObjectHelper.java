@@ -9,7 +9,26 @@ public class ObjectHelper {
         return null == obj;
     }
 
-    public static boolean isNotEmpty(Object obj) {
+    /**
+     * @return qi
+     */
+    public static boolean haveEmpty(Object... objs) {
+        for (Object obj : objs) {
+            if (isEmpty(obj)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return qi
+     */
+    public static boolean haveNonEmpty(Object... objs) {
+        return !haveEmpty(objs);
+    }
+
+    public static boolean isNonEmpty(Object obj) {
         return !isEmpty(obj);
     }
 

@@ -25,18 +25,14 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
     api rootProject.ext.dependencies["design"]
     api rootProject.ext.dependencies["constraint"]
     api rootProject.ext.dependencies["kotlin"]
-
     api rootProject.ext.dependencies["immersionBar"]
     api rootProject.ext.dependencies["logger"]
-
-
+    api project(':libNative')
 }

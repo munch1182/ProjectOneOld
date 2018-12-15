@@ -1,4 +1,4 @@
-package com.munch.lib.nativelib.base;
+package com.munch.lib.nativelib.base.bean;
 
 /**
  * 不需要数据的类可以直接调用此类做bean
