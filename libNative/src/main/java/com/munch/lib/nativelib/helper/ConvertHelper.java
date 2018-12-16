@@ -1,6 +1,7 @@
 package com.munch.lib.nativelib.helper;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,6 +28,13 @@ public class ConvertHelper {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    /**
+     * 将参数转换为bean类
+     */
+    public static  <T> T dataConvert(int type, @Nullable Object... parameters) {
         return null;
     }
 }

@@ -1,8 +1,8 @@
 package com.munch.module.main.splash;
 
-import com.munch.lib.nativelib.base.model.IModel;
-import com.munch.lib.nativelib.base.presenter.IPresenter;
-import com.munch.lib.nativelib.base.view.IView;
+import com.munch.lib.nativelib.mpvpack.IModel;
+import com.munch.lib.nativelib.mpvpack.IPresenter;
+import com.munch.lib.nativelib.mpvpack.IView;
 
 /**
  * Created by Munch on 2018/12/16.
@@ -15,7 +15,7 @@ public class SplashContract {
     interface View extends IView<SplashBean> {
     }
 
-    interface Present extends IPresenter {
+    interface Present extends IPresenter<SplashBean,View, Model> {
     }
 
     public static class Type {
