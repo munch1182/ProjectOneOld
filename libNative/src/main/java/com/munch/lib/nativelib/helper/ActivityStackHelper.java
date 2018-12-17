@@ -107,10 +107,10 @@ public class ActivityStackHelper {
 
 
     public static ActivityStackHelper getInstance() {
-        return Singleton.sHelper;
+        return Singleton.INSTANCE;
     }
 
     private static class Singleton {
-        private static final ActivityStackHelper sHelper = new ActivityStackHelper();
+        private static final ActivityStackHelper INSTANCE = new ActivityStackHelper();
     }
 }

@@ -50,7 +50,9 @@ ext {
 
             objectboxVersion        : "2.2.0",
 
-            glideVerison            : "4.8.0"
+            glideVerison            : "4.8.0",
+
+            okHttpVersion           : "3.12.0"
     ]
 
     dependencies = [
@@ -94,6 +96,12 @@ ext {
             /*Gson*/
             /*https://github.com/google/gson*/
             "gson"                : "com.google.code.gson:gson:${versions["gsonVersion"]}",
+
+            /*okhttp*/
+            /*https://github.com/square/okhttp*/
+            "okHttp"              : "com.squareup.okhttp3:okhttp:${versions["okHttpVersion"]}",
+            /*https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor*/
+            "okHttp_interceptor"  : "com.squareup.okhttp3:logging-interceptor:${versions["okHttpVersion"]}",
 
             /*Fastjson*/
             /*https://github.com/alibaba/fastjson*/
