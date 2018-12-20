@@ -13,7 +13,7 @@ import com.munch.lib.nativelib.mpvpack.IBasePresenter;
 import com.munch.lib.nativelib.mpvpack.IView;
 
 /**
- * Created by Munch on 2018/12/16.
+ * Created by  Munch on 2018/12/16.
  */
 public abstract class BaseRootActivity<T, P extends IBasePresenter>
         extends AppCompatActivity implements IView<T>, IViewExpand {

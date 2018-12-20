@@ -1,6 +1,7 @@
 package com.munch.libapp.data;
 
 /**
+ * @author
  * Created by Munch on 2018/12/17.
  */
 public class BaseResBean<T> {
