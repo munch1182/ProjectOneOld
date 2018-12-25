@@ -1,0 +1,12 @@
+apply from: '../modulebuild.gradle'
+android {
+    defaultConfig {
+        if (isModule.toBoolean()) {
+            applicationId "com.munch.module.main"
+        }
+    }
+}
+
+dependencies {
+    implementation project(':libNative')
+}

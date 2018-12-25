@@ -1,0 +1,30 @@
+if (isModule.toBoolean()) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
+
+apply from: '../commonbuild.gradle'
+
+android {
+
+    defaultConfig {
+        //统一资源前缀，会有AS提醒而不会自动更改
+        resourcePrefix "lib_"
+    }
+
+    sourceSets {
+        main {
+            if (isModule.toBoolean()) {
+                manifest.srcFile 'src/main/AndroidManifest4Module.xml'
+            } else {
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+                resources {
+                    exclude 'src/main/module'
+                    exclude 'src/main/AndroidManifest4Module.xml'
+                }
+            }
+        }
+    }
+
+}

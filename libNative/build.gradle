@@ -1,0 +1,10 @@
+apply plugin: 'com.android.library'
+
+apply from: '../commonbuild.gradle'
+
+dependencies {
+
+    api rootProject.ext.dependencies["design"]
+
+    api rootProject.ext.dependencies["constraint"]
+}

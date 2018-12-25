@@ -1,0 +1,8 @@
+apply plugin: 'com.android.library'
+
+apply from: '../commonbuild.gradle'
+
+dependencies {
+
+    implementation project(':libNative')
+}

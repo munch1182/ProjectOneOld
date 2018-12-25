@@ -1,0 +1,143 @@
+/*全局配置文件，避免重复依赖的问题，可以将需要打进正式包的依赖都应放在一个公共依赖包中*/
+/*并非所有的都被使用，具体查看公共依赖包的build.gradle*/
+
+ext {
+
+    versions = [
+            compileSdkVersion       : 28,
+            minSdkVersion           : 15,
+            targetSdkVersion        : 28,
+
+            applicationId           : "com.munch.projectone",
+
+            versionCode             : 1,
+            versionName             : "1.0",
+
+            androidSupportSdkVersion: "28.0.0",
+            constraintVersion       : "1.1.3",
+
+            kotlinVersion           : "1.2.61",
+
+            multidexVersion         : "1.0.3",
+
+            loggerVersion           : "2.2.0",
+
+            retrofitVersion         : "2.5.0",
+
+            butterknifeVersion      : "9.0.0-rc2",
+
+            rxjavaVersion           : "2.2.4",
+            rxandroidVersion        : "2.0.1",
+
+            gsonVersion             : "2.8.5",
+
+            fastjsonVersion         : "1.1.70",
+
+            immersionbarVersion     : "2.3.3-beta09",
+
+            leakcanaryVersion       : "1.6.2",
+
+            buglyVersion            : "2.8.6",
+
+            arvahVersion            : "2.9.30",
+
+            arouterapiVersion       : "1.4.4",
+            aroutercompilerVersion  : "1.2.2",
+
+            objectboxVersion        : "2.2.0",
+
+            glideVerison            : "4.8.0",
+
+            okHttpVersion           : "3.12.0"
+    ]
+
+    dependencies = [
+
+            "kotlin"              : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions["kotlinVersion"]}",
+
+            "appcompat"           : "com.android.support:appcompat-v7:${versions["androidSupportSdkVersion"]}",
+            "constraint"          : "com.android.support.constraint:constraint-layout:${versions["constraintVersion"]}",
+            "design"              : "com.android.support:design:${versions["androidSupportSdkVersion"]}",
+            "cardview"            : "com.android.support:cardview-v7:${versions["androidSupportSdkVersion"]}",
+            "recyclerview"        : "com.android.support:recyclerview-v7:${versions["androidSupportSdkVersion"]}",
+
+            /*Multidex*/
+            /*https://developer.android.com/studio/build/multidex#about*/
+            "multidex"            : "com.android.support:multidex:${versions["multidexVersion"]}",
+
+            /*Logger*/
+            /*https://github.com/orhanobut/logger*/
+            "logger"              : "com.orhanobut:logger:${versions["loggerVersion"]}",
+
+            /*ButterKnife*/
+            /*https://github.com/JakeWharton/butterknife*/
+            /*在library中的使用需要plugin */
+            "butterknife"         : "com.jakewharton:butterknife:${versions["butterknifeVersion"]}",
+            "butterknife_compiler": "com.jakewharton:butterknife-compiler:${versions["butterknifeVersion"]}",
+
+            /*Retrofit*/
+            /*https://github.com/square/retrofit*/
+            "retrofit"            : "com.squareup.retrofit2:retrofit:${versions["retrofitVersion"]}",
+            /*https://github.com/square/retrofit/tree/master/retrofit-adapters/rxjava2*/
+            "retrofit2rxjava"     : "com.squareup.retrofit2:adapter-rxjava2:${versions["retrofitVersion"]}",
+            /*https://github.com/square/retrofit/tree/master/retrofit-converters/gson*/
+            "retrofit2gson"       : "com.squareup.retrofit2:converter-gson:${versions["retrofitVersion"]}",
+
+            /*RxJava*/
+            /*https://github.com/ReactiveX/RxJava*/
+            "rxjava"              : "io.reactivex.rxjava2:rxjava:${versions["rxjavaVersion"]}",
+            /*https://github.com/ReactiveX/RxAndroid*/
+            "rxandroid"           : "io.reactivex.rxjava2:rxandroid:${versions["rxandroidVersion"]}",
+
+            /*Gson*/
+            /*https://github.com/google/gson*/
+            "gson"                : "com.google.code.gson:gson:${versions["gsonVersion"]}",
+
+            /*okhttp*/
+            /*https://github.com/square/okhttp*/
+            "okHttp"              : "com.squareup.okhttp3:okhttp:${versions["okHttpVersion"]}",
+            /*https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor*/
+            "okHttp_interceptor"  : "com.squareup.okhttp3:logging-interceptor:${versions["okHttpVersion"]}",
+
+            /*Fastjson*/
+            /*https://github.com/alibaba/fastjson*/
+            "fastjson"            : "com.alibaba:fastjson:${versions["fastjsonVersion"]}.android",
+
+            /*ImmersionBar*/
+            /*https://github.com/gyf-dev/ImmersionBar*/
+            "immersionBar"        : "com.gyf.immersionbar:immersionbar:${versions["immersionbarVersion"]}",
+
+            /*LeakCanary*/
+            /*https://github.com/square/leakcanary*/
+            "leakcanary"          : "com.squareup.leakcanary:leakcanary-android:${versions["immersionbarVersion"]}",
+            /*"leakcanary_release"  : "com.squareup.leakcanary:leakcanary-android-no-op:${versions["immersionbarVersion"]}",*/
+            "leakcanary_fragment" : "com.squareup.leakcanary:leakcanary-support-fragment:${versions["immersionbarVersion"]}",
+
+            /*Bugly*/
+            /*https://bugly.qq.com/docs/user-guide/instruction-manual-android/?v=20180709165613*/
+            /*https://bugly.qq.com/docs/release-notes/release-android-bugly/?v=20180709165613*/
+            "bugly"               : "com.tencent.bugly:crashreport:${versions["buglyVersion"]}",
+
+            /*BaseRecyclerViewAdapterHelper*/
+            /*https://github.com/CymChad/BaseRecyclerViewAdapterHelper*/
+            "arvah"               : "com.github.CymChad:BaseRecyclerViewAdapterHelper:${versions["arvahVersion"]}",
+
+            /*ARouter*/
+            /*https://github.com/alibaba/ARouter*/
+            /*需要进行配置*/
+            "arouter"             : "com.alibaba:arouter-api:${versions["arouterapiVersion"]}",
+            "arouter_compiler"    : "com.alibaba:arouter-compiler:${versions["aroutercompilerVersion"]}",
+
+            /*ObjectBox*/
+            /*https://github.com/objectbox/objectbox-java*/
+            /*在应用层的build.gradle设置*/
+            "objectbox"           : "io.objectbox:objectbox-gradle-plugin:${versions["objectboxVersion"]}",
+
+            /*Glide*/
+            /*https://github.com/bumptech/glide*/
+            "glide"               : "com.github.bumptech.glide:glide:${versions["glideVerison"]}",
+            "glide_compiler"      : "com.github.bumptech.glide:compiler:${versions["glideVerison"]}",
+            "glide_integration"   : "com.github.bumptech.glide:okhttp3-integration:${versions["glideVerison"]}"
+
+    ]
+}
