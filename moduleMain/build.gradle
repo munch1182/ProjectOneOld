@@ -9,4 +9,5 @@ android {
 
 dependencies {
     implementation project(':libNative')
+    implementation project(':libApp')
 }

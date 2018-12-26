@@ -1,4 +1,4 @@
-package com.munch.lib.libnative;
+package com.munch.lib.libnative.helper;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
@@ -9,7 +9,5 @@ import android.support.annotation.Nullable;
 public interface IContextHelper {
 
     @Nullable
-    default Context getViewContext() {
-        return null;
-    }
+    Context getViewContext();
 }

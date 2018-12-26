@@ -28,4 +28,8 @@ public class MethodException extends RuntimeException {
     public static MethodException wrongTimeException(String reason) {
         return new MethodException("在错误的时机调用此方法触发了此异常:" + reason);
     }
+
+    public static MethodException unkownException() {
+        return new MethodException("不知道发生了啥触发了此异常.");
+    }
 }
