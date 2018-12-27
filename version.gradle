@@ -1,0 +1,48 @@
+/**
+ * 获取当前git分支commit次数
+ * @return 例如：14
+ */
+static def getGitCommitCount() {
+    def cmd = 'git rev-list HEAD --first-parent --count'
+    return cmd.execute().text.trim().toInteger()
+}
+
+/**
+ * 获取当前tag
+ * @return 例如：v0.0.1-13-gaea3ee6
+ */
+static def getGitTagName() {
+    def cmd = 'git describe --tags'
+    return cmd.execute().text.trim()
+}
+
+
+static def getVersionCode() {
+    return getGitCommitCount()
+}
+
+static def getVersionName() {
+    def versionName = getGitTagName()
+    def pattern = "-(\\d+)-g"
+    def matcher = versionName =~ pattern
+
+    if (matcher) {
+        versionName = versionName.substring(0, matcher.start()) + "." + matcher[0][1]
+    } else {
+        versionName = versionName + ".0"
+    }
+
+    return versionName
+}
+
+static def updateFileName(output) {
+//    def outputFile = output.outputFile
+//    if (outputFile != null && outputFile.name.endsWith('.apk')) {
+//        def name = "${releaseTime()}_${defaultConfig.versionName}_${defaultConfig.versionCode}"
+//        output.outputFile = new File(outputFile.parent, name)
+//    }
+}
+
+static def releaseTime() {
+    return new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("UTC"))
+}

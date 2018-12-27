@@ -1,1 +1,1 @@
-include ':app', ':libNative', ':moduleMain', ':libExpand', ':libApp'
+include ':app', ':libNative', ':moduleMain', ':libExpand', ':libApp', ':moduleSet'

@@ -7,13 +7,11 @@ android {
         if (isModule.toBoolean()) {
 
             applicationId "com.munch.module.main"
-
         }
     }
 }
 
 dependencies {
-
     implementation project(':libExpand')
     implementation project(':libApp')
 }

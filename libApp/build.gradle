@@ -4,5 +4,5 @@ apply from: '../commonbuild.gradle'
 
 dependencies {
 
-    implementation project(':libNative')
+    implementation project(':libExpand')
 }

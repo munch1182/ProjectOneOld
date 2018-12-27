@@ -1,4 +1,4 @@
-package com.munch.lib.libnative;
+package com.munch.lib.libnative.exception;
 
 /**
  * Created by Munch on 2018/12/25 23:59.
@@ -31,5 +31,9 @@ public class MethodException extends RuntimeException {
 
     public static MethodException unkownException() {
         return new MethodException("不知道发生了啥触发了此异常.");
+    }
+
+    public static MethodException unkownException(String reason) {
+        return new MethodException("不知道发生了啥触发了此异常:" + reason);
     }
 }

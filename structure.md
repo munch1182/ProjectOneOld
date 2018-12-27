@@ -22,3 +22,4 @@
 - [Android之点击Home键后再次打开导致APP重启问题](https://blog.csdn.net/LVXIANGAN/article/details/82870762?tdsourcetag=s_pctim_aiomsg)
 - [Google官方推出的Android架构组件系列文章（一）App架构指南](https://www.jianshu.com/p/fe509262a1f7)
 
+- [Android Build Variants 为项目设置变种版本](https://blog.csdn.net/mq2553299/article/details/71429657?locationNum=13&fps=1)

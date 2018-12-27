@@ -8,7 +8,7 @@ import com.munch.lib.libnative.helper.IContextHelper;
 /**
  * Created by Munch on 2018/12/25 23:48.
  */
-public interface IRootView<T> extends IContextHelper {
+public interface IRootView extends IContextHelper {
     @Nullable
     @Override
     default Context getViewContext() {

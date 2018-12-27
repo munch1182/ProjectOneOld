@@ -4,5 +4,6 @@ apply from: '../commonbuild.gradle'
 
 dependencies {
 
-    implementation project(':libNative')
+    api project(':libNative')
+    api rootProject.ext.dependencies['logger']
 }
