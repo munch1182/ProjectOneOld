@@ -3,7 +3,7 @@
  * @return 例如：14
  */
 static def getGitCommitCount() {
-    def cmd = 'git rev-list HEAD --first-parent --count'
+    def cmd = 'git rev-list HEAD --count'
     return cmd.execute().text.trim().toInteger()
 }
 
@@ -43,6 +43,14 @@ static def updateFileName(output) {
 //    }
 }
 
-static def releaseTime() {
+static def buildTime() {
     return new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("UTC"))
+}
+
+ext {
+    versions = [
+            versionCode: getVersionCode(),
+            versionName: getVersionName(),
+            buildTime  : buildTime()
+    ]
 }

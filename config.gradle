@@ -1,5 +1,6 @@
 /*全局配置文件，避免重复依赖的问题，可以将需要打进正式包的依赖都应放在一个公共依赖包中*/
 /*并非所有的都被使用，具体查看公共依赖包的build.gradle*/
+apply from: 'version.gradle'
 
 ext {
 
@@ -10,8 +11,8 @@ ext {
 
             applicationId           : "com.munch.projectone",
 
-            versionCode             : 1,
-            versionName             : "1.0",
+//            versionCode             : 1,
+//            versionName             : "1.0",
 
             androidSupportSdkVersion: "28.0.0",
             constraintVersion       : "1.1.3",

@@ -1,5 +1,3 @@
-apply from: '../version.gradle'
-
 android {
 
     compileSdkVersion rootProject.ext.versions["compileSdkVersion"]
@@ -8,8 +6,8 @@ android {
 
         minSdkVersion rootProject.ext.versions["minSdkVersion"]
         targetSdkVersion rootProject.ext.versions["targetSdkVersion"]
-        versionCode getVersionCode()
-        versionName getVersionName()
+        versionCode rootProject.ext.versions['versionCode']
+        versionName rootProject.ext.versions['versionName']
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

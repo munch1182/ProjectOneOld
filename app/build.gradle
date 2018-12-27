@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 
 apply from: '../commonbuild.gradle'
-apply from: '../version.gradle'
 
 def keyProperties = null
 
