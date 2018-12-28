@@ -1,3 +1,16 @@
+def keyProperties = null
+
+try {
+    def keyFile = file('../key/key.properties')
+
+    if (keyFile) {
+        keyProperties = new Properties()
+        keyProperties.load(new FileInputStream(keyFile))
+    }
+} catch (Ignored) {
+    println "READ KEY FILE FAIL"
+}
+
 android {
 
     compileSdkVersion rootProject.ext.versions["compileSdkVersion"]
@@ -10,6 +23,18 @@ android {
         versionName rootProject.ext.versions['versionName']
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+
+        release {
+            if (null != keyProperties) {
+                keyAlias keyProperties['keyAlias']
+                keyPassword keyProperties['keyPassword']
+                storeFile file(keyProperties['storeFile'])
+                storePassword keyProperties['storePassword']
+            }
+        }
     }
 
     compileOptions {

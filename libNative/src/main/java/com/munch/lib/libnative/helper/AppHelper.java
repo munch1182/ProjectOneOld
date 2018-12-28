@@ -38,10 +38,13 @@ public class AppHelper {
     }
 
     /**
+     * 手动设置则依照手动设置
+     * <p>
      * 未手动设置debug状态时根据编译时的状态判断是否处于开发状态
      *
      * @return 未设置时当Build Variant或BuildType为release时返回true，未签名或者选择debug时返回false
      * @see #init(Application)
+     * @see #setIsDebug(Boolean)
      */
     public static Boolean isDebug() {
         if (ObjectHelper.isNull(sIsDebug)) {

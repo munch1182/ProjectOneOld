@@ -2,32 +2,7 @@ apply plugin: 'com.android.application'
 
 apply from: '../commonbuild.gradle'
 
-def keyProperties = null
-
-try {
-    def keyFile = rootProject.file('key.properties')
-
-    if (keyFile) {
-        keyProperties = new Properties()
-        keyProperties.load(new FileInputStream(keyFile))
-    }
-} catch (Ignored) {
-    println "READ KEY FILE FAIL"
-}
-
 android {
-
-    signingConfigs {
-
-        release {
-            if (null != keyProperties) {
-                keyAlias keyProperties['alias']
-                keyPassword keyProperties['password']
-                storeFile file(keyProperties['path'])
-                storePassword keyProperties['alias_password']
-            }
-        }
-    }
 
     buildTypes {
 
@@ -40,11 +15,9 @@ android {
 
             applicationVariants.all { variant ->
                 variant.outputs.all { output ->
-//                    updateFileName(output)
                     def outputFile = output.outputFile
                     if (outputFile != null && outputFile.name.endsWith('.apk')) {
-//                        outputFileName = "${variant.productFlavors[0].name}_${releaseTime()}_${defaultConfig.versionName}_${defaultConfig.versionCode}.apk"
-                        outputFileName = "${releaseTime()}_${defaultConfig.versionName}_${defaultConfig.versionCode}.apk"
+                        outputFileName = "${defaultConfig.versionName}_${defaultConfig.versionCode}_${releaseTime()}.apk"
                     }
                 }
             }
