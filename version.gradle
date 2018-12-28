@@ -17,11 +17,11 @@ static def getGitTagName() {
 }
 
 
-static def getVersionCode() {
+static def getVersionCodeByGit() {
     return getGitCommitCount()
 }
 
-static def getVersionName() {
+static def getVersionNameByGit() {
     def versionName = getGitTagName()
     def pattern = "-(\\d+)-g"
     def matcher = versionName =~ pattern
@@ -45,12 +45,4 @@ static def updateFileName(output) {
 
 static def buildTime() {
     return new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("UTC"))
-}
-
-ext {
-    versions = [
-            versionCode: getVersionCode(),
-            versionName: getVersionName(),
-            buildTime  : buildTime()
-    ]
 }

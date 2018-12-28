@@ -93,9 +93,6 @@ public class ActivitySupportStack {
         mStack.clear();
     }
 
-
-    // TODO: 2018/12/28 有没有这个必要？
-
     /**
      * 注意：根据类型判断无法精确寻找被启动多次的实例
      * <p>
