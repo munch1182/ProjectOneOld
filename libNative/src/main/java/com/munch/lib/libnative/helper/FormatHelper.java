@@ -62,7 +62,7 @@ public class FormatHelper {
     public static final int LEVEL_MB = 3;
     public static final int LEVEL_GB = 4;
     public static final int LEVEL_TB = 5;
-    public static final int LEVEL_AUTO = 6;
+    public static final int LEVEL_AUTO = 0;
 
     @IntDef({LEVEL_AUTO, LEVEL_TB, LEVEL_GB, LEVEL_MB, LEVEL_KB, LEVEL_BYTE})
     public @interface Level {
@@ -72,14 +72,16 @@ public class FormatHelper {
      * 将数字格式化为单字节格式
      *
      * @param bytes 大小
-     * @param level 最大显示层级 5/0: TB, 4：GB,  3:MB,  2:KB,  1:Byte=》分布对应等级，若不够返回小数
-     *              6: =>最大等级，不够则自动下降
+     * @param level 最大显示层级 5: TB, 4：GB,  3:MB,  2:KB,  1:Byte=》分布对应等级，若不够返回小数
+     *              0: =>最大等级，不够则自动下降
      * @return 根据层级显示大小，如传入3，则可能返回1025MB而不会返回1GB
      * @see String#toLowerCase()
      * @see String#toUpperCase()
      */
     public static String num2Kb(BigDecimal bytes, @Level int level) {
-        return num2Kb(bytes, level, level != LEVEL_AUTO);
+        List<BigDecimal> decimals = getDecimalVals(bytes, level, level != LEVEL_AUTO);
+        int size = decimals.size();
+        return decimals.get(size - 1).toString() + getUnit(size);
     }
 
     /**
@@ -90,7 +92,30 @@ public class FormatHelper {
         return num2Kb(bytes, LEVEL_AUTO);
     }
 
-    private static String num2Kb(BigDecimal bytes, @Level int level, boolean allowLetter) {
+    /**
+     * 将数字格式化为全数据格式
+     * 例：107479040445 --> 100GB100MB445BYTE
+     *
+     * @param bytes 大小
+     * @return 将bytes大小转为对应的最大单位
+     */
+    public static String num2KbAll(BigDecimal bytes) {
+        List<BigDecimal> decimalVals = getDecimalVals(bytes, LEVEL_AUTO, false);
+        int size = decimalVals.size();
+        StringBuilder builder = new StringBuilder();
+        for (int i = size - 1; i >= 0; i--) {
+            BigDecimal decimal = decimalVals.get(i);
+            if (decimal.toString().equals("0")) {
+                continue;
+            }
+            builder.append(decimal)
+                    .append(getUnit(i + 1));
+        }
+        return builder.toString();
+    }
+
+    @NonNull
+    private static List<BigDecimal> getDecimalVals(BigDecimal bytes, @Level int level, boolean allowLetter) {
         List<BigDecimal> bigDecimalArray = new ArrayList<>();
         switch (level) {
             case LEVEL_AUTO:
@@ -108,15 +133,14 @@ public class FormatHelper {
             default:
                 throw MethodException.defaultException("level参数错误");
         }
-        List<BigDecimal> decimals = str2Kb(bytes, bigDecimalArray, allowLetter);
-        return decimals.get(decimals.size() - 1).toString() + getUnit(decimals.size());
+        return num2Kb(bytes, bigDecimalArray, allowLetter);
     }
 
     /**
      * @param size BYTE:1 ==> TB:5
      * @return 单位值
      */
-    public static String getUnit(@IntRange(from = 1, to = 5) int size) {
+    private static String getUnit(@IntRange(from = 1, to = 5) int size) {
         String unit = "";
         switch (size) {
             case 5:
@@ -148,15 +172,19 @@ public class FormatHelper {
      * 例：1024*35+1024*1024*34+1024*1024*1024*67 = 71976389632 -> [0, 35, 34, 67]即67G34M35K0BYTE
      *
      * @param bytes       数据大小
-     * @param bigDecimals 比较的单位的集合
-     * @param allowLitter 当数比单位小时允许返回小数如0.0654TB，最大返回值小数点后4位，且四舍五入
-     * @return 根据数据大小返回的值的集合, 从KB到TB排列，若无对应位置的数则表示比其小
+     * @param bigDecimals 比较的单位的集合，用来里面的值来控制比较对象并得出不同的返回值
+     * @param allowLitter 当对象数比单位小时允许返回小数如0.0654TB，最大返回值小数点后4位，且四舍五入
+     * @return 根据数据大小返回的单位值的集合, 从KB到TB排列，若无对应位置的数则表示比其小
      */
     @NonNull
-    public static List<BigDecimal> str2Kb(BigDecimal bytes, List<BigDecimal> bigDecimals, boolean allowLitter) {
+    private static List<BigDecimal> num2Kb(BigDecimal bytes, List<BigDecimal> bigDecimals, boolean allowLitter) {
         List<BigDecimal> val = new ArrayList<>();
         for (BigDecimal unit : bigDecimals) {
             bytes = downLevel(val, bytes, unit, allowLitter);
+        }
+        //去掉高单位占位
+        while (val.get(0).toString().equals("0")) {
+            val.remove(0);
         }
         Collections.reverse(val);
         return val;
@@ -169,7 +197,7 @@ public class FormatHelper {
      * @param allowLitter 允许返回小数
      * @return 经当前单位后剩余的值的大小
      */
-    public static BigDecimal downLevel(List<BigDecimal> val, BigDecimal lastVal, BigDecimal unit, boolean allowLitter) {
+    private static BigDecimal downLevel(List<BigDecimal> val, BigDecimal lastVal, BigDecimal unit, boolean allowLitter) {
         //已经除尽，用来补充位数
         if (lastVal.compareTo(BigDecimal.ZERO) == 0) {
             val.add(lastVal);
@@ -182,11 +210,17 @@ public class FormatHelper {
             val.add(divide);
             //去掉单位部分
             lastVal = lastVal.subtract(divide.multiply(unit));
+            //当小于时
+        } else {
+            BigDecimal divide;
             //当允许返回小于1的小数时
-        } else if (allowLitter) {
-            BigDecimal divide = lastVal.divide(unit, 4, BigDecimal.ROUND_UP);
+            if (allowLitter) {
+                divide = lastVal.divide(unit, 4, BigDecimal.ROUND_UP);
+                //不允许返回小于1的数时返回0补充位置
+            } else {
+                divide = BigDecimal.ZERO;
+            }
             val.add(divide);
-            return lastVal;
         }
         return lastVal;
     }

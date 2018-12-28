@@ -22,7 +22,7 @@ public class ViewHelper {
      * 一般用于一个页面需要多个输入的值的判断和获取，注意，返回值是根据传入的顺序返回的
      * <p>
      * 对传入的TextView或其子类的getText()值进行判断，
-     * 如不为空，已照TextView传入的顺序放入{@link OnCheckTextViewListener#onNoEmpty(List)}的参数中并在检查完后回调
+     * 如不为空，依照TextView传入的顺序放入{@link OnCheckTextViewListener#onNoEmpty(List)}的参数中并在检查完后回调
      * 如有值为空，则回调{@link OnCheckTextViewListener#onCheckEmpty(TextView)}并根据其返回值判断是否跳出
      *
      * @param listener 处理回调

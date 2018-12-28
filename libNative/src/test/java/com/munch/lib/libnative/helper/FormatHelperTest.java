@@ -3,8 +3,17 @@ package com.munch.lib.libnative.helper;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+
+import static com.munch.lib.libnative.helper.FormatHelper.BYTE;
+import static com.munch.lib.libnative.helper.FormatHelper.GB;
+import static com.munch.lib.libnative.helper.FormatHelper.KB;
+import static com.munch.lib.libnative.helper.FormatHelper.LEVEL_AUTO;
+import static com.munch.lib.libnative.helper.FormatHelper.MB;
+import static com.munch.lib.libnative.helper.FormatHelper.TB;
 
 /**
  * Created by Munch on 2018/12/28 15:23.
@@ -40,7 +49,8 @@ public class FormatHelperTest extends BaseTest {
 
     @Test
     public void str2Time() {
-        log(FormatHelper.num2Kb(new BigDecimal("719763"),7));
+        log(FormatHelper.num2KbAll(new BigDecimal("107479040445")).toLowerCase());
+        log(FormatHelper.num2Kb(new BigDecimal("107479040445"),3).toLowerCase());
     }
 
 
