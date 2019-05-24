@@ -1,0 +1,78 @@
+/*
+ 需要先对git设置全局用户名
+ 需要git命令行支持
+
+ 通过git提交的次数和tag当作versionCode和VersionName
+ */
+
+/**
+ * 获取当前分支的提交次数
+ * @return
+ * @throws IOException
+ */
+static def getGitCommitCount() throws IOException, NumberFormatException {
+    retutn 'git rev-list HEAD --count'.execute().text.trim().toInteger()
+}
+
+/**
+ * 获取当前git的tag的个数
+ * @return
+ * @throws IOException
+ * @throws NumberFormatException
+ */
+static def getGitTagCount() throws IOException, NumberFormatException {
+    return 'git tag --list'.execute().text.trim().size()
+}
+
+/**
+ * 获取离当前提交最近的tag描述
+ * 将返回tag的内容
+ * git tag命令：git tag -a "[tag_name]" -m "[tag_message]"
+ * @return
+ */
+static def getGitTagName() throws IOException {
+    return 'git describe --tags'.execute().text.trim()
+}
+
+/**
+ * 将git提交的tag次数转换为versionCode
+ * 如果出错，将默认1.0
+ * @return
+ */
+static def getGitVersionCode() {
+    def versionCode = 1.0
+    try {
+        versionCode = getGitTagCount()
+    } catch (IOException e) {
+        e.printStackTrace()
+    } catch (NumberFormatException e) {
+        e.printStackTrace()
+    }
+    return versionCode
+}
+
+/**
+ * 拼凑versionName
+ * 结果如"v0.1.1.33" => v0.1.1为tag，33为此tag的提交次数
+ * @return
+ */
+static def getGitVersionName() {
+    def versionName = "1.0"
+    try {
+        versionName = getGitTagName()
+    } catch (IOException e) {
+        e.printStackTrace()
+    }
+    def matcher = versionName =~ "-(\\d+)-g" //进行局部匹配，返回java.util.regex.Matcher对象
+    if (matcher) { //调用的是matcher.find()方法
+        versionName = versionName.substring(0, matcher.start()) + "." + matcher[0][1]
+    }
+    return versionName
+}
+
+ext {
+    gitVersion = [
+            versionCode: getGitVersionCode(),
+            versionName: getGitVersionName()
+    ]
+}

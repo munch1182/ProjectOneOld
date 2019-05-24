@@ -1,0 +1,48 @@
+// 提取的公共build文件，用于统一版本和配置
+// 使用此文件使用 apply from: '[路径/文件名]'
+// 各个library或module可以覆盖配置
+// 注意文件路径
+
+//versions及dependencies定义在gradle文件夹下version.gradle中，调用在project的build.gradle的buildscript内
+
+android {
+
+    compileSdkVersion rootProject.ext.versions['compileSdkVersion']
+
+    defaultConfig {
+        /*library不能设置applicationId，而module可以不设置使用默认值*/
+        /*applicationId rootProject.ext.versions['applicationId']*/
+        minSdkVersion rootProject.ext.versions['minSdkVersion']
+        targetSdkVersion rootProject.ext.versions['targetSdkVersion']
+        versionCode rootProject.ext.versions['versionCode']
+        versionName rootProject.ext.versions['versionName']
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    /*去掉google search提示*/
+    lintOptions {
+        disable 'GoogleAppIndexingWarning'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation rootProject.ext.dependencies['appcompat']
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:core:1.1.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+}
