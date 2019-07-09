@@ -1,0 +1,9 @@
+apply plugin: 'com.android.application'
+
+apply from: '../gradle/commonbuildktx.gradle'
+
+dependencies {
+
+    implementation project(':libresult')
+    implementation project(':liblog')
+}

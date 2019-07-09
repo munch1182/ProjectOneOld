@@ -18,7 +18,7 @@ ext {
             versionCode      : gitVersion['versionCode'],
             versionName      : gitVersion['versionName'],
 
-            kotlinVersion    : "1.3.31",
+            kotlinVersion    : "1.3.40",
 
 
             androidxVersion  : "1.0.2",
