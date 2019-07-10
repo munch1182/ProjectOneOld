@@ -9,9 +9,9 @@ import android.support.v4.app.FragmentManager
 /**
  * Created by Munch on 2019/7/9 10:46
  */
-object ResultHelper {
+object ResultHelperCompat {
 
-    private const val PROXY_FRAGMENT_TAG = "com.munch.lib.result.ResultHelper.PROXY_FRAGMENT_TAG"
+    private const val PROXY_FRAGMENT_TAG = "com.munch.lib.loop.ResultHelperCompat.PROXY_FRAGMENT_TAG"
 
     @JvmStatic
     fun start4Result(context: FragmentActivity, target: Class<*>, requestCode: Int) =
@@ -40,9 +40,7 @@ object ResultHelper {
     private fun requestPermission(
         manager: FragmentManager,
         requestCode: Int, @NonNull permissions: Array<out String>
-    ) {
-        getFragment(manager).requestPermissions(requestCode, permissions)
-    }
+    ) = getFragment(manager).requestPermissions(requestCode, permissions)
 
     private fun start4Result(manager: FragmentManager, intent: Intent, requestCode: Int): Result =
         getFragment(manager).start4Result(intent, requestCode)

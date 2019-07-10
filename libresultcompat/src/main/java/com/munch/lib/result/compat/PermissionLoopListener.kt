@@ -5,5 +5,5 @@ package com.munch.lib.result.compat
  */
 interface PermissionLoopListener {
 
-    fun result(permissions: String, grantResults: Int): Boolean
+    fun loop(permissions: String, grantResults: Int): Boolean
 }

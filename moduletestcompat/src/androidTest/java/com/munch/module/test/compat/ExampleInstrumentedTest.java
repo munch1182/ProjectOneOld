@@ -1,4 +1,4 @@
-package com.munch.lib.result.compat;
+package com.munch.module.test.compat;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.munch.lib.loop.compat.test", appContext.getPackageName());
+        assertEquals("com.munch.module.test.compat", appContext.getPackageName());
     }
 }
