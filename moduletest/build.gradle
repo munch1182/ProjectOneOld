@@ -6,4 +6,6 @@ dependencies {
 
     implementation project(':libresult')
     implementation project(':liblog')
+    implementation project(':weight')
+    implementation project(':libimageglide')
 }

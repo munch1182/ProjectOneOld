@@ -4,12 +4,13 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         tools:context=".MainActivity">
 
-    <TextView
-            android:id="@+id/tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello World!"/>
+    <ImageView
+            android:id="@+id/iv"
+            android:background="@color/colorPrimary"
+            android:layout_width="260dp"
+            android:layout_height="260dp"/>
 
 </LinearLayout>

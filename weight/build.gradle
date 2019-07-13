@@ -1,3 +1,8 @@
 apply plugin: 'com.android.library'
 
 apply from: '../gradle/commonbuildktx.gradle'
+
+dependencies {
+
+    implementation project(':liblog')
+}

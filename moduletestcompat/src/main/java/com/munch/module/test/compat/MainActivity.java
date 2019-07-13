@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ResultHelperCompat.requestPermission(MainActivity.this, 11, Manifest.permission.CALL_PHONE,
                         Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS)
-                        .isLoop(true)
+                        .isLoop(false)
                         .loop(new PermissionLoopListener() {
                             @Override
                             public boolean loop(String permissions, int grantResults) {

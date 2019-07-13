@@ -1,0 +1,12 @@
+apply plugin: 'com.android.library'
+
+apply from: '../gradle/commonbuildktx.gradle'
+
+
+dependencies {
+
+    api(rootProject.ext.dependencies['glide']) {
+        exclude group: 'com.android.support'
+    }
+    api project(':libimage')
+}

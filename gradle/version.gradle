@@ -44,6 +44,7 @@ ext {
             "viewpager"                       : "androidx.viewpager:viewpager:${versions['androidxVersion']}",
 
             "v4"                              : "androidx.legacy:legacy-support-v4:1.0.0",
+            "annotation"                      : "androidx.annotation:annotation:${versions['androidxVersion']}",
 
             "multidex"                        : "androidx.multidex:multidex:2.0.0",
 

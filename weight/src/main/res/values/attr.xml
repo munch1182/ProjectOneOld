@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="SwitchBottom">
+        <!--未选中颜色-->
+        <attr name="switch_bg_uncheck_color" format="color"/>
+        <attr name="switch_bg_check_color" format="color"/>
+        <!--选中颜色-->
+        <attr name="switch_ball_color" format="color"/>
+    </declare-styleable>
+
+</resources>

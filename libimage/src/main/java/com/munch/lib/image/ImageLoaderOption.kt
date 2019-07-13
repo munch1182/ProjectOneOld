@@ -9,6 +9,10 @@ import android.view.View
 class ImageLoaderOption {
 
     /**
+     * 该次请求的加载策略
+     */
+    var strategy: ImageLoaderStrategy? = null
+    /**
      * 加载的图片
      */
     var res: Any? = null
@@ -39,13 +43,9 @@ class ImageLoaderOption {
      */
     var parameter3: Any? = null
     /**
-     * 更改单次的加载策略，注意其生命周期
+     * 图片transformation,可以传多个
      */
-    var strategy: ImageLoaderStrategy? = null
-    /**
-     * 图片ScaleType
-     */
-    var transformation: Any? = null
+    var transformations: Array<out Any>? = null
 
     /**
      * 缩略比
@@ -58,6 +58,8 @@ class ImageLoaderOption {
     var isGif: Boolean = false
 
     var asBitmap: Boolean = false
+
+    var asFile: Boolean = false
 
 
     /**
@@ -78,7 +80,7 @@ class ImageLoaderOption {
          * view不应该是[ImageLoaderOption]的属性
          */
         fun into(targetView: View) {
-            ImageHelper.load(targetView).into(targetView)
+            ImageHelper.loadRes(options.strategy ?: ImageHelper.getStrategy(), targetView, options)
         }
 
         /**
@@ -86,19 +88,11 @@ class ImageLoaderOption {
          * @param context 请求所绑定的生命周期，终止后仍未完成则会取消请求
          */
         fun preload(context: Context) {
-            ImageHelper.preLoad(context, options)
+            ImageHelper.preload(options.strategy ?: ImageHelper.getStrategy(),context, options)
         }
 
         fun placeHolder(placeHolder: Any?): Builder {
             options.placeHolder = placeHolder
-            return this
-        }
-
-        /**
-         * 设置单次加载策略
-         */
-        fun strategy(strategy: ImageLoaderStrategy?): Builder {
-            options.strategy = strategy
             return this
         }
 
@@ -128,8 +122,8 @@ class ImageLoaderOption {
             return this
         }
 
-        fun transformation(transformation: Any): Builder {
-            options.transformation = transformation
+        fun transformation(vararg transformation: Any): Builder {
+            options.transformations = transformation
             return this
         }
 
@@ -148,13 +142,23 @@ class ImageLoaderOption {
             return this
         }
 
-        fun asGif(): Builder {
-            options.isGif = true
+        fun asGif(isGif: Boolean = true): Builder {
+            options.isGif = isGif
             return this
         }
 
-        fun asBitmap(): Builder {
-            options.asBitmap = true
+        fun asBitmap(asBitmap: Boolean = true): Builder {
+            options.asBitmap = asBitmap
+            return this
+        }
+
+        fun asFile(asFile: Boolean = true): Builder {
+            options.asBitmap = asFile
+            return this
+        }
+
+        fun strategy(strategy: ImageLoaderStrategy): Builder {
+            options.strategy = strategy
             return this
         }
 

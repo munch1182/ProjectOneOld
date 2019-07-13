@@ -11,15 +11,16 @@ interface ImageLoaderStrategy {
     /**
      * 加载方法
      */
-    fun loadImg(targetView: View, options: ImageLoaderOption)
+    fun load(targetView: View, options: ImageLoaderOption)
 
     /**
      * 预加载
+     * @param context 生命周期，周期结束时取消加载
      */
     fun preload(context: Context, options: ImageLoaderOption)
 
     /**
      * 清除资源
      */
-    fun clearRes()
+    fun clearRes(context: Context, res: Any)
 }
