@@ -39,7 +39,7 @@ ext {
             "appcompat"                       : "androidx.appcompat:appcompat:${versions['androidxVersion']}",
             "recyclerview"                    : "androidx.recyclerview:recyclerview:${versions['androidxVersion']}",
             "core_ktx"                        : "androidx.core:core-ktx:${versions['androidxVersion']}",
-            "material"                        : "com.google.android.material:material:${versions['androidxVersion']}",
+            "material"                        : "com.google.android.material:material:1.0.0",
             "cardview"                        : "androidx.cardview:cardview:${versions['androidxVersion']}",
             "viewpager"                       : "androidx.viewpager:viewpager:${versions['androidxVersion']}",
 

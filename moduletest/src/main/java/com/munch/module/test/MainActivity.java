@@ -1,13 +1,18 @@
 package com.munch.module.test;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import com.google.android.material.tabs.TabLayout;
 import com.munch.lib.image.ImageHelper;
 import com.munch.lib.image.glide.GlideStrategy;
+import com.munch.module.test.fragments.*;
+import com.munhc.lib.libnative.RootActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends RootActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,11 +21,53 @@ public class MainActivity extends AppCompatActivity {
 
         ImageHelper.setupStrategy(new GlideStrategy());
 
-        String res = "http://www.ratoo.net/uploads/allimg/170823/15-1FR31H604.jpg";
-        String gif = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1562996738387&di=83afac842b45b901decc0bcc9a13cb16&imgtype=0&src=http%3A%2F%2Fpic.962.net%2Fup%2F2018-5%2F15262691097592176.gif";
-        ImageHelper.res(gif)
-                .asGif(true)
-                .transformation(new CenterCrop(), new RoundedCorners(90))
-                .into(findViewById(R.id.iv));
+        ViewPager viewPager = findViewById(R.id.vp);
+        TabLayout tab = findViewById(R.id.tl);
+
+        viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int position) {
+                position++;
+                switch (position) {
+                    case 1:
+                        return new Fragment1();
+                    case 2:
+                        return new Fragment2();
+                    case 3:
+                        return new Fragment3();
+                    case 4:
+                        return new Fragment4();
+                    case 5:
+                        return new Fragment5();
+                }
+                return null;
+            }
+
+            @Override
+            public int getCount() {
+                return 5;
+            }
+
+            @Nullable
+            @Override
+            public CharSequence getPageTitle(int position) {
+                position++;
+                switch (position) {
+                    case 1:
+                        return "首页";
+                    case 2:
+                        return "会员";
+                    case 3:
+                        return "主页";
+                    case 4:
+                        return "其它";
+                    case 5:
+                        return "我的";
+                }
+                return null;
+            }
+        });
+
+        tab.setupWithViewPager(viewPager);
     }
 }
