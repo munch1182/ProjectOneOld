@@ -11,7 +11,6 @@ import com.munch.lib.log.LogLog
 import com.munch.module.test.R
 import com.munch.module.test.ResultActivity
 import com.munhc.lib.libnative.RootFragment
-import java.security.Key
 
 /**
  * Created by Munch on 2019/7/13 14:28
@@ -57,13 +56,13 @@ class Fragment1 : RootFragment() {
         LogLog.log()
     }
 
-    override fun resumeLoad() {
-        super.resumeLoad()
+    override fun onStartLoad() {
+        super.onStartLoad()
         LogLog.log("====================================")
     }
 
-    override fun pauseLoad() {
-        super.pauseLoad()
+    override fun onStopLoad() {
+        super.onStopLoad()
         LogLog.log("/////////////////////////////////////")
     }
 

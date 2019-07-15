@@ -3,6 +3,7 @@ package com.munhc.lib.libnative
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import com.munhc.lib.libnative.backpressed.IFragmentBackPressedHandle
 
 /**
  * Fragment在viewpager中的显示与隐藏：
@@ -12,7 +13,7 @@ import androidx.fragment.app.Fragment
  *
  * Created by Munch on 2019/7/13 14:10
  */
-open class RootFragment : Fragment(), INext {
+open class RootFragment : Fragment(), INext, IFragmentBackPressedHandle {
 
     override fun getContext(): Context? {
         return super<Fragment>.getContext()
@@ -54,12 +55,12 @@ open class RootFragment : Fragment(), INext {
     }
 
     /**
-     * 只有当可见的时候，变为不可见才调用[pauseLoad]，当作为相邻Fragment只调用生命周期时不调用[pauseLoad]
+     * 只有当可见的时候，变为不可见才调用[onStopLoad]，当作为相邻Fragment只调用生命周期时不调用[onStopLoad]
      */
     override fun onStop() {
         super.onStop()
         if (isVisible2User) {
-            pauseLoad()
+            onStopLoad()
         }
     }
 
@@ -67,25 +68,25 @@ open class RootFragment : Fragment(), INext {
         if (!isPrepared || !isVisible2User) {
             return
         }
-        resumeLoad()
+        onStartLoad()
     }
 
     private fun judgeInvisible2User() {
         if (isPrepared && !isVisible2User) {
-            pauseLoad()
+            onStopLoad()
         }
     }
 
     /**
-     * 每次不可见都调用，注意调用时机
+     * 每次不可见都调用，注意此方法被调用时机，并非与onStop相对应
      */
-    open fun pauseLoad() {
+    open fun onStopLoad() {
     }
 
     /**
-     * 每次可见都调用，注意调用时机
+     * 每次可见都调用，注意此方法被调用时机，并非与onStart相对应
      */
-    open fun resumeLoad() {
+    open fun onStartLoad() {
     }
 
     /**
@@ -95,5 +96,7 @@ open class RootFragment : Fragment(), INext {
         super.onDestroyView()
         isPrepared = false
     }
+
+    override fun onFragmentBackPressed() = true
 
 }

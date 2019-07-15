@@ -4,7 +4,6 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 import com.munch.lib.image.ImageHelper;
@@ -69,5 +68,10 @@ public class MainActivity extends RootActivity {
         });
 
         tab.setupWithViewPager(viewPager);
+    }
+
+    @Override
+    public boolean judgeHandleByFragment() {
+        return true;
     }
 }
