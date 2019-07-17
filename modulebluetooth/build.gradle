@@ -1,0 +1,17 @@
+apply plugin: 'com.android.application'
+
+apply from: '../gradle/commonbuildktx.gradle'
+
+android {
+
+    defaultConfig {
+        minSdkVersion 18
+    }
+}
+
+dependencies {
+
+    implementation project(':libtest')
+
+    implementation 'com.github.karlwe:YscocoBle:v1.0.3'
+}

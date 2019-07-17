@@ -1,0 +1,14 @@
+apply plugin: 'com.android.library'
+
+apply from: '../gradle/commonbuildktx.gradle'
+
+dependencies {
+
+    api project(':libnative')
+    api project(':libresult')
+    api project(':liblog')
+
+    api rootProject.ext.dependencies['material']
+
+    api rootProject.ext.dependencies['base_recyclerview_adapter_helepr']
+}

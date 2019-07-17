@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">libTest</string>
+
+    <string name="test_url">http://gank.io/api/today</string>
+</resources>

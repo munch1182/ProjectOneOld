@@ -6,12 +6,10 @@ dependencies {
 
     implementation project(':libresult')
     implementation project(':liblog')
-    implementation project(':weight')
-    implementation project(':libimageglide')
     implementation project(':libnative')
+    implementation project(':libtest')
+
     implementation rootProject.ext.dependencies['material']
-    implementation rootProject.ext.dependencies['leakcanary_fragment']
-    implementation rootProject.ext.dependencies['leakcanary']
 
     implementation rootProject.ext.dependencies['rxjava']
     implementation rootProject.ext.dependencies['rxandroid']
