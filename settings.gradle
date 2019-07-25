@@ -1,1 +1,1 @@
-include ':app', ':libnative', ':liblog', ':libimage', ':libresult', ':moduletest', ':libresultcompat', ':moduletestcompat', ':weight', ':libimageglide', ':modulebluetooth', ':libtest', ':modulerxjava'
+include ':app', ':libnative', ':liblog', ':libimage', ':libresult', ':moduletest', ':libresultcompat', ':moduletestcompat', ':weight', ':libimageglide', ':modulebluetooth', ':libtest', ':modulerxjava', ':liblogcompat'

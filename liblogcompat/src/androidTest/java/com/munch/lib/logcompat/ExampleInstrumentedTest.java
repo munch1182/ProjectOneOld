@@ -1,11 +1,9 @@
-package com.munch.lib.log;
+package com.munch.lib.logcompat;
 
 import android.content.Context;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -23,15 +21,21 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getContext();
 
-        assertEquals("com.munch.lib.log.test", appContext.getPackageName());
+        assertEquals("com.munch.lib.logcompat.test", appContext.getPackageName());
     }
 
     @Test
     public void test() {
-        try {
-            LogLog.log(new JSONObject("{\"a\":1,\"b\":2}").toString(4));
-        } catch (JSONException e) {
-            e.printStackTrace();
+        log.log();
+        log.log(1);
+        log.log(1, 2, "ad", 5.0);
+        log.log(new String[]{"1", "2"}, new int[]{1, 2, 3}, new char[]{'1', 'b', 'f'});
+    }
+
+    private static class log{
+
+        public static void log(Object...objects){
+            LogLog.log(new LogLog.Builder().stackClass(log.class),objects);
         }
     }
 }
