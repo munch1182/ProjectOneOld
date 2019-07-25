@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">moduleTemplate</string>
+    <string name="app_name_test">TestModuleTemplate</string>
+    <string name="app_name_dev">DevModuleTemplate</string>
+
+    <string name="str_login">登录</string>
+    <string name="str_input_num_or_email">请输入手机号码/邮箱</string>
+    <string name="str_input_anything">请输入%s</string>
+    <string name="str_input_phone">请输入手机号码</string>
+    <string name="str_input_sms_code">请输入验证码</string>
+    <string name="str_require_sms_code">获取验证码</string>
+    <string name="str_input_pwd">请输入密码</string>
+    <string name="str_input_new_pwd">请输入新密码</string>
+    <string name="str_forget_pwd">忘记密码?</string>
+    <string name="str_register">注册</string>
+    <string name="str_login_by_wx">微信登录</string>
+    <string name="str_input_pwd_again">请再次确认密码</string>
+    <string name="str_register_agree">注册即同意</string>
+    <string name="str_input_right_phone">请输入正确的手机号码</string>
+    <string name="str_input_new_phone">请输入新的手机号码</string>
+    <string name="str_sms_code_had_sended">验证码已发送，请注意查收</string>
+    <string name="str_send_sms_code">发送验证码</string>
+    <string name="str_seconds_to_retry">%ss后重试</string>
+    <string name="str_retry">重试</string>
+    <string name="str_pwd_confirm_fail">两次输入的密码不一致</string>
+    <string name="str_agree_agreement">请同意注册协议</string>
+    <string name="str_confirm">确认</string>
+    <string name="str_confirm2">确定</string>
+    <string name="str_find_out_pwd">找回密码</string>
+    <string name="str_input_register_phone">请输入注册时使用的手机号码</string>
+    <string name="str_use_new_pwd">密码已更改，请使用新密码重新登录</string>
+</resources>

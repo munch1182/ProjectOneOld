@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--页面背景色，必须主动设置，避免手机差异、以及方便后期更改-->
+    <color name="colorBgPage">#f0f0f0</color>
+
+    <!--主题色-->
+    <color name="colorMain">@color/colorPrimary</color>
+
+    <!--内容色，用于与页面背景色形成色差，需要主动设置在内容控件上，方便后期更改-->
+    <color name="colorContent">#fff</color>
+
+    <!--默认文字颜色-->
+    <color name="colorText">#000</color>
+
+</resources>

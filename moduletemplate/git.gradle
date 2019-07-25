@@ -1,0 +1,93 @@
+/**
+ * 通过git提交的次数和tag当作versionCode和versionName
+ *
+ * 需要先对git进行全局设置
+ */
+
+/**
+ * 获取当前分支的提交次数
+ * @return 当前分支的提交次数的Integer值
+ */
+static def getGitCommitCount() {
+    return 'git rev-list HEAD --count'.execute().text.trim().toInteger()
+}
+
+/**
+ * 获取git中的tag的数量
+ * <p>
+ * 可以当作正式版的版本号
+ * <p>
+ * @return git中的tag的数量
+ */
+static def getGitTagCount() {
+    return 'git tag --list'.execute().text.trim().size()
+}
+
+/**
+ * 获取离当前最近的tag的描述
+ * @return 当前最近的tag的描述
+ */
+static def getGitTagName() {
+    return 'git describe --tags'.execute().text.trim()
+}
+
+/**
+ * 将git提交的tag次数转换为versionCode
+ * <p>
+ * 如果出错，将默认为 1.0
+ * <p>
+ * @return versionCode，如果出错，则为1.0
+ */
+static def getGitVersionCode4Production() {
+    def versionCode = 1.0
+    try {
+        versionCode = getGitTagCount()
+    } catch (IOException e) {//git执行出错
+        e.printStackTrace()
+    } catch (NumberFormatException e) {//不能转换为Integer值
+        e.printStackTrace()
+    }
+    return versionCode
+}
+
+static def getGitVersionCode4Dev() {
+    def versionCode = 1.0
+    try {
+        versionCode = getGitCommitCount()
+    } catch (IOException e) {//git执行出错
+        e.printStackTrace()
+    } catch (NumberFormatException e) {//不能转换为Integer值
+        e.printStackTrace()
+    }
+    return versionCode
+}
+
+/**
+ * 拼凑versionName，
+ * 结果如 "v0.1.33" => v0.1为tag，33为此tag的提交次数
+ * <p>
+ * 具体见BuildConfig
+ * @return versionName
+ */
+static def getGitVersionName() {
+    def versionName
+    try {
+        versionName = getGitTagName()
+    } catch (IOException e) {//git执行出错
+        e.printStackTrace()
+        versionName = "1.0"
+    }
+    def matcher = versionName =~ "-(\\d+)-g"//进行局部匹配，返回java.util.regex.Matcher对象
+    if (matcher) {//调用的是matcher.find()方法
+        versionName = versionName.substring(0, matcher.start()) + "." + matcher[0][1]
+    }
+    return versionName
+}
+
+ext {
+    gitVersion = [
+            versionCodeDev       : getGitVersionCode4Dev(),
+            versionCodeProduction: getGitVersionCode4Production(),
+            versionName          : getGitVersionName()
+    ]
+}

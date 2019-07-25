@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--单纯的点击波纹效果-->
+    <style name="StyleClickBg">
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <!--未点击时为内容色，点击时有波纹效果-->
+    <style name="StyleClickContentBg">
+        <item name="android:background">@drawable/layer_bg_click</item>
+    </style>
+</resources>

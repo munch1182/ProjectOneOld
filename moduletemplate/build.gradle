@@ -1,0 +1,62 @@
+apply plugin: 'com.android.application'
+
+//需要git并且配置了全局设置且有tag才有用，如果没有注释掉这行并手动更改versionCode和versionName
+apply from: 'git.gradle'
+
+android {
+    compileSdkVersion 28
+
+
+    defaultConfig {
+        applicationId "com.munch.module.template"
+        minSdkVersion 16
+        targetSdkVersion 28
+
+        /*versionCode gitVersion['versionCodeProduction']
+        versionName gitVersion['versionName']*/
+
+        versionCode 1
+        versionName "1.0"
+
+        flavorDimensions "app"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    productFlavors {
+        //区别在于应用名称不同，以及有些引用的lib不同
+        //正式发布版本
+        production {
+            manifestPlaceholders = [APP_NAME: "@string/app_name"]
+            dimension "app"
+        }
+        //测试版本
+        versionfortest {
+            manifestPlaceholders = [APP_NAME: "@string/app_name_test"]
+            dimension "app"
+        }
+        //开发版本
+        dev {
+            manifestPlaceholders = [APP_NAME: "@string/app_name_dev"]
+            dimension "app"
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}

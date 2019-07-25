@@ -2,22 +2,20 @@ package com.munch.module.rxjava
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.NetworkOnMainThreadException
-import android.widget.Toast
 import com.munch.lib.log.LogLog
 import com.munch.lib.test.TestBaseActivity
-import com.munch.lib.test.app.TestApp
-import io.reactivex.*
+import io.reactivex.Observable
+import io.reactivex.ObservableOperator
+import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.exceptions.OnErrorNotImplementedException
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import org.reactivestreams.Subscription
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
+import retrofit2.http.POST
 import java.lang.RuntimeException
 
 /**
@@ -33,72 +31,73 @@ class MainActivity : TestBaseActivity() {
         setContentView(R.layout.activity_main)
 
         request.setOnClickListener {
-            service.today()
-                .compose {
-                    it.subscribeOn(Schedulers.io())
-                        .map { res -> res.toString() }
-                        .lift(OperatorHttpResult<Boolean, String>())
-                        .observeOn(AndroidSchedulers.mainThread())
-                }
+            service.getRegAgreement()
+                .subscribeOn(Schedulers.io())
+                .lift(ObservableOperator<Any, BData<Any>> { observer -> ResDtoObserver(observer) })
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { res -> LogLog.log(res) }
 
         }
     }
 
-    class OperatorHttpResult<D, U> : ObservableOperator<D, U> {
-
-        override fun apply(observer: Observer<in D>): Observer<in U> {
-            return HttpResultSubscriber<D, U>(observer)
-        }
+    class BData<T> {
+        var code = "1"
+        var msg = "成功"
+        var data: T? = null
     }
 
-    class HttpResultSubscriber<D, U>(private val observer: Observer<in D>) : Observer<U> {
-        override fun onComplete() {
-            try {
-                observer.onComplete()
-            } finally {
+    class CodeE : RuntimeException() {}
 
-            }
+    class ResDtoObserver<T, D>(val downObserver: Observer<in T>) : Observer<D> {
+
+        override fun onComplete() {
+            downObserver.onComplete()
         }
 
         override fun onSubscribe(d: Disposable) {
-            observer.onSubscribe(d)
+            downObserver.onSubscribe(d)
         }
 
-        override fun onNext(t: U) {
-            val contains = (t as String).contains("munch")
-            if (!contains) {
-                throw RuntimeException("没找到")
+        override fun onNext(t: D) {
+            if (t is BData<*>) {
+                if (t.code != "0") {
+                    onError(CodeE())
+                    return
+                }
+                val t1 = t.data as? T?
+                if (t1 == null) {
+                    downObserver.onComplete()
+                } else {
+                    downObserver.onNext(t1)
+                }
             } else {
-                observer.onNext(contains as D)
+                throw CodeE()
             }
         }
 
         override fun onError(e: Throwable) {
-            LogLog.log(e)
             try {
-                when (e) {
-                    is RuntimeException -> LogLog.log(e.message)
-                    is OnErrorNotImplementedException -> {
+                //拦截上游的错误，让下游的OnErrorNotImplementedException不触发，
+                //但同时这两个上游的错误也不会触发下游的onError，因此要区别对待
+                if (e is CodeE) {
+                    LogLog.log(e)
+                } else if (e is OnErrorNotImplementedException) {
 
-                    }
-                    else -> observer.onError(e)
+                } else {
+                    downObserver.onError(e)
                 }
             } catch (e: OnErrorNotImplementedException) {
-
-            } finally {
-
+                e.printStackTrace()
             }
         }
     }
-
 
     object NetManager {
 
         private val retrofit = Retrofit.Builder()
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("http://gank.io/api/")
+            .baseUrl("http://120.79.241.184:8081/WalkieTalkie/")
             .build()
 
         fun getService() = retrofit.create(Gank::class.java)
@@ -106,7 +105,7 @@ class MainActivity : TestBaseActivity() {
 
     interface Gank {
 
-        @GET("today")
-        fun today(): Observable<Any>
+        @POST("cus/language/getLanguageList")
+        fun getRegAgreement(): Observable<BData<Any>>
     }
 }
