@@ -1,4 +1,4 @@
-package com.munhc.lib.libnative
+package com.munhc.lib.libnative.root
 
 import android.content.Context
 import android.os.Bundle

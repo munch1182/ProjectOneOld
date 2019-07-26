@@ -10,7 +10,7 @@ import com.munch.lib.image.ImageHelper
 import com.munch.lib.log.LogLog
 import com.munch.module.test.R
 import com.munch.module.test.ResultActivity
-import com.munhc.lib.libnative.RootFragment
+import com.munhc.lib.libnative.root.RootFragment
 
 /**
  * Created by Munch on 2019/7/13 14:28

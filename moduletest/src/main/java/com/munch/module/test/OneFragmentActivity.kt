@@ -1,13 +1,9 @@
 package com.munch.module.test
 
-import android.app.Activity
 import android.os.Bundle
-import android.widget.TableLayout
-import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayout
 import com.munch.module.test.fragments.*
-import com.munhc.lib.libnative.RootActivity
-import android.widget.FrameLayout as FrameLayout1
+import com.munhc.lib.libnative.root.RootActivity
 
 /**
  * Created by Munch on 2019/7/13 17:02

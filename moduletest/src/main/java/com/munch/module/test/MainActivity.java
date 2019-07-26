@@ -9,7 +9,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.munch.lib.image.ImageHelper;
 import com.munch.lib.image.glide.GlideStrategy;
 import com.munch.module.test.fragments.*;
-import com.munhc.lib.libnative.RootActivity;
+import com.munhc.lib.libnative.root.RootActivity;
 
 public class MainActivity extends RootActivity {
 

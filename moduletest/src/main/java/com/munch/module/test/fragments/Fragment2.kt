@@ -5,9 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.munch.lib.image.ImageHelper
-import com.munch.lib.log.LogLog
 import com.munch.module.test.R
-import com.munhc.lib.libnative.RootFragment
+import com.munhc.lib.libnative.root.RootFragment
 
 /**
  * Created by Munch on 2019/7/13 14:28

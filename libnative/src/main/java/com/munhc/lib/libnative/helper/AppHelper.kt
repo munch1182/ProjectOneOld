@@ -15,6 +15,8 @@ class AppHelper private constructor() {
 
     fun getApp() = app
 
+    fun debug() = true
+
     companion object {
 
         @JvmStatic
@@ -22,6 +24,9 @@ class AppHelper private constructor() {
 
         @JvmStatic
         fun getContext() = getInstance().getApp()
+
+        @JvmStatic
+        fun isDebug() = getInstance().debug()
     }
 
     private class Singleton {

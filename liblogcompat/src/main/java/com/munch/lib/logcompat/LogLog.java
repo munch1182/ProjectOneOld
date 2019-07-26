@@ -22,7 +22,7 @@ public class LogLog {
         printFinMessage(getFinBuilder(builder), objects);
     }
 
-    static class Builder {
+    public static class Builder {
 
         final static String DEF_TAG = "LogLog";
 
