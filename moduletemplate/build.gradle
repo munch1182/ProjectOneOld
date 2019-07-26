@@ -55,6 +55,11 @@ android {
             outputFileName = "${defaultConfig.applicationId}_${productFlavors[0].name}_${defaultConfig.versionName}_${defaultConfig.versionCode}_${releaseTime()}.apk"
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 static def releaseTime() {

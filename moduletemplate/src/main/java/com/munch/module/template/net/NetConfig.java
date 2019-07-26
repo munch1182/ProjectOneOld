@@ -23,4 +23,8 @@ public class NetConfig {
     public static String getBaseUrl() {
         return isTest ? BASE_URL_4_TEST : BASE_URL;
     }
+
+    public static class Code {
+        public static final String SUCCESS = "0";
+    }
 }

@@ -2,16 +2,13 @@ package com.munch.module.template.net;
 
 import com.munch.lib.logcompat.LogLog;
 import com.munhc.lib.libnative.helper.AppHelper;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,39 +18,38 @@ public class NetManager {
 
     private OkHttpClient mOkHttpClient;
     private Retrofit mRetrofit;
+    private final Service mService;
 
+    /**
+     * 请求的取消：{@link retrofit2.adapter.rxjava2.CallEnqueueObservable.CallCallback#dispose()}
+     */
+    @SuppressWarnings("JavadocReference")
     private NetManager() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .writeTimeout(NetConfig.WRITE_TIMEOUT, TimeUnit.MILLISECONDS)
                 .readTimeout(NetConfig.READ_TIMEOUT, TimeUnit.MILLISECONDS)
                 .connectTimeout(NetConfig.WRITE_TIMEOUT, TimeUnit.MILLISECONDS)
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request request = chain.request();
-                        Request.Builder requestBuilder = request.newBuilder();
-                        /*添加公共参数*/
-                        /*requestBuilder.addHeader(NetConfig.Parameter.LANGUAGE, LanguageHelper.getLanguageStr4Request());
-                        String token = App.getInstance().getToken();
-                        if (StringHelper.isEmpty(token)) {
-                            token = App.getInstance().getTempToken();
-                        }
-                        if (!StringHelper.isEmpty(token)) {
-                            requestBuilder = requestBuilder.url(request.url().newBuilder()
-                                    .addQueryParameter(NetConfig.Parameter.TOKEN, token)
-                                    .build());
-                        }*/
-                        return chain.proceed(requestBuilder.build());
+                .addInterceptor(chain -> {
+                    Request request = chain.request();
+                    Request.Builder requestBuilder = request.newBuilder();
+                    /*添加公共参数*/
+                    /*requestBuilder.addHeader(NetConfig.Parameter.LANGUAGE, LanguageHelper.getLanguageStr4Request());
+                    String token = App.getInstance().getToken();
+                    if (StringHelper.isEmpty(token)) {
+                        token = App.getInstance().getTempToken();
                     }
+                    if (!StringHelper.isEmpty(token)) {
+                        requestBuilder = requestBuilder.url(request.url().newBuilder()
+                                .addQueryParameter(NetConfig.Parameter.TOKEN, token)
+                                .build());
+                    }*/
+                    return chain.proceed(requestBuilder.build());
                 });
 
         if (AppHelper.isDebug()) {
-            builder.addInterceptor(new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-                @Override
-                public void log(@SuppressWarnings("NullableProblems") String message) {
-                    LogLog.log(new LogLog.Builder().logBorder(false).logStack(false), message);
-                }
-            }));
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(message -> LogLog.log(new LogLog.Builder().logBorder(false).logStack(false), message));
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            builder.addInterceptor(loggingInterceptor);
         }
         mOkHttpClient = builder.build();
         mRetrofit = new Retrofit.Builder()
@@ -62,10 +58,11 @@ public class NetManager {
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+        mService = getRetrofit().create(Service.class);
     }
 
     public Service getService() {
-        return getRetrofit().create(Service.class);
+        return mService;
     }
 
     public OkHttpClient getOkHttpClient() {
