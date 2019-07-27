@@ -18,7 +18,7 @@ public class NetConfig {
     /**
      * 通过编译环境取值
      */
-    private static final boolean isTest = BuildConfig.BUILD_TYPE == "test";
+    private static final boolean isTest = "test".equals(BuildConfig.BUILD_TYPE);
 
     public static String getBaseUrl() {
         return isTest ? BASE_URL_4_TEST : BASE_URL;

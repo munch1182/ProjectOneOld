@@ -28,7 +28,7 @@ public class NetManager {
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .writeTimeout(NetConfig.WRITE_TIMEOUT, TimeUnit.MILLISECONDS)
                 .readTimeout(NetConfig.READ_TIMEOUT, TimeUnit.MILLISECONDS)
-                .connectTimeout(NetConfig.WRITE_TIMEOUT, TimeUnit.MILLISECONDS)
+                .connectTimeout(NetConfig.CONNECT_TIMEOUT, TimeUnit.MILLISECONDS)
                 .addInterceptor(chain -> {
                     Request request = chain.request();
                     Request.Builder requestBuilder = request.newBuilder();

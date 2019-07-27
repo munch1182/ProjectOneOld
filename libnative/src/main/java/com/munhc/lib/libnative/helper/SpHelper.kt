@@ -16,16 +16,19 @@ object SpHelper {
      */
     private var spName: String? = null
 
-    fun put(key: String, any: Any) {
+    @JvmStatic
+    fun put(key: String, any: Any?) {
         val edit = getSp().edit()
         putVal(key, any, edit)
         edit.apply()
     }
 
+    @JvmStatic
     fun remove(key: String) {
         getSp().edit().remove(key).apply()
     }
 
+    @JvmStatic
     fun hasKey(key: String): Boolean {
         return getSp().contains(key)
     }
@@ -33,16 +36,19 @@ object SpHelper {
     /**
      * 同步调用，移除并在移除成功或失败之后再继续执行
      */
+    @JvmStatic
     fun remove2knowEnd(key: String): Boolean {
         return getSp().edit().remove(key).commit()
     }
 
+    @JvmStatic
     fun clear() {
         getSp().edit().clear().apply()
     }
 
+    @JvmStatic
     @Suppress("UNCHECKED_CAST")
-    fun <T> getVal(key: String, defVal: T): T? {
+    fun <T> getVal(key: String, defVal: T?): T? {
         val obj: Any? = when (defVal) {
             is String -> getSp().getString(key, defVal as String)
             is Int -> getSp().getInt(key, defVal as Int)
@@ -55,7 +61,7 @@ object SpHelper {
         return obj as T?
     }
 
-    private fun putVal(key: String, any: Any, edit: SharedPreferences.Editor) {
+    private fun putVal(key: String, any: Any?, edit: SharedPreferences.Editor) {
         @Suppress("UNCHECKED_CAST")
         when (any) {
             is Int -> edit.putInt(key, any)

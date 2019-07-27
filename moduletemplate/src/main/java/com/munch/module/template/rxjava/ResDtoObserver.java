@@ -13,6 +13,10 @@ public class ResDtoObserver<D> implements Observer<BDto<D>> {
 
     private final Observer<? super D> mDownObserver;
 
+    public static <D> ResDtoObserver<D> newInstance(Observer<? super D> observer) {
+        return new ResDtoObserver<>(observer);
+    }
+
     public ResDtoObserver(Observer<? super D> observer) {
         mDownObserver = observer;
     }

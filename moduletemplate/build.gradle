@@ -51,7 +51,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.outputs.all {
-        // gradle 4.10.1之后
+            // gradle 4.10.1之后
             outputFileName = "${defaultConfig.applicationId}_${productFlavors[0].name}_${defaultConfig.versionName}_${defaultConfig.versionCode}_${releaseTime()}.apk"
         }
     }
@@ -75,6 +75,8 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+    /*用于编译*/
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.40'
     /*https://github.com/JessYanCoding/AndroidAutoSize*/
     implementation 'me.jessyan:autosize:1.1.2'
     /*https://github.com/ReactiveX/RxAndroid*/
