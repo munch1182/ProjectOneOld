@@ -1,5 +1,6 @@
 package com.munch.module.template.dto;
 
+import androidx.annotation.Nullable;
 import com.munch.module.template.net.NetConfig;
 
 /**
@@ -27,6 +28,7 @@ public class BDto<T> {
         this.msg = msg;
     }
 
+    @Nullable
     public T getData() {
         return data;
     }

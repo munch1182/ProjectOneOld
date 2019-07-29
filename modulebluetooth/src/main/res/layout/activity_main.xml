@@ -40,6 +40,13 @@
                 android:layout_height="wrap_content"
                 tools:ignore="HardcodedText"/>
 
+        <Button
+                android:id="@+id/ble_btn_read"
+                android:text="发送"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:ignore="HardcodedText"/>
+
         <TextView
                 android:id="@+id/ble_tv_receive"
                 android:layout_width="match_parent"

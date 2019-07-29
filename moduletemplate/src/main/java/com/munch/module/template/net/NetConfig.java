@@ -27,4 +27,9 @@ public class NetConfig {
     public static class Code {
         public static final String SUCCESS = "0";
     }
+
+    public static class Str {
+        public static final String Y = "Y";
+        public static final String N = "N";
+    }
 }
