@@ -1,5 +1,6 @@
 package com.munch.module.test;
 
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -9,18 +10,39 @@ import com.google.android.material.tabs.TabLayout;
 import com.munch.lib.image.ImageHelper;
 import com.munch.lib.image.glide.GlideStrategy;
 import com.munch.module.test.fragments.*;
+import com.munhc.lib.libnative.helper.BarHelper;
+import com.munhc.lib.libnative.helper.PhoneHelper;
+import com.munhc.lib.libnative.helper.SpHelper;
+import com.munhc.lib.libnative.helper.ViewHelper;
 import com.munhc.lib.libnative.root.RootActivity;
 
 public class MainActivity extends RootActivity {
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            trans = SpHelper.<Boolean>getVal("BAR", false);
+            trans = !trans;
+            SpHelper.put("BAR", trans);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                /*BarHelper.with(this).isTranslucentNavigation(trans).setColor(ResHelper.getColor(R.color.colorPrimaryDark));*/
+                BarHelper.with(this).isTranslucentNavigation(trans).setDarkMode(trans);
+            }
+        }
+
+
         ImageHelper.setupStrategy(new GlideStrategy());
 
         ViewPager viewPager = findViewById(R.id.vp);
+
+        int height = PhoneHelper.getStatusBarHeight();
+        ViewHelper.addViewMargin(viewPager, 0, height, 0, 0);
+
+
         TabLayout tab = findViewById(R.id.tl);
 
         viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
@@ -73,5 +95,11 @@ public class MainActivity extends RootActivity {
     @Override
     public boolean judgeHandleByFragment() {
         return true;
+    }
+
+    private boolean trans = false;
+
+    public void setTrans() {
+        recreate();
     }
 }

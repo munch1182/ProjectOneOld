@@ -9,6 +9,7 @@ dependencies {
     implementation project(':weight')
     implementation project(':libimageglide')
     implementation project(':libnative')
+
     implementation rootProject.ext.dependencies['material']
     implementation rootProject.ext.dependencies['leakcanary_fragment']
     implementation rootProject.ext.dependencies['leakcanary']
@@ -21,4 +22,5 @@ dependencies {
     implementation rootProject.ext.dependencies['retrofit_gson']
 
     implementation rootProject.ext.dependencies['gson']
+
 }

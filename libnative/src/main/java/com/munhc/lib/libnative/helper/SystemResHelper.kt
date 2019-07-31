@@ -20,6 +20,7 @@ object SystemResHelper {
         this.color = Color.WHITE
     }
 
+    @JvmStatic
     fun getBackIcon(context: Context): Drawable? {
         return if (Build.VERSION.SDK_INT >= 18) {
             val a = context.obtainStyledAttributes(
@@ -37,11 +38,13 @@ object SystemResHelper {
         }
     }
 
+    @JvmStatic
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun getBackIconWhite(context: Context): Drawable? = getBackIcon(context)?.apply {
         setTint(Color.WHITE)
     }
 
+    @JvmStatic
     fun getListDivider(context: Context): Drawable? {
         val a = context.obtainStyledAttributes(intArrayOf(android.R.attr.listDivider))
         val divider = a.getDrawable(0)

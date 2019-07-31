@@ -1,6 +1,7 @@
 package com.munch.module.test
 
 import android.app.Application
+import com.munhc.lib.libnative.helper.AppHelper
 import com.squareup.leakcanary.LeakCanary
 
 /**
@@ -14,5 +15,6 @@ class App : Application() {
             return
         }
         LeakCanary.install(this)
+        AppHelper.getInstance().init(this)
     }
 }

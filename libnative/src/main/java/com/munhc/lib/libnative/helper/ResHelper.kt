@@ -52,6 +52,12 @@ object ResHelper {
         return ContextCompat.getColor(context, resId)
     }
 
+    @JvmStatic
+    @ColorInt
+    fun getColor(resId: String): Int {
+        return Color.parseColor(resId)
+    }
+
     @JvmOverloads
     @JvmStatic
     fun dp2Px(context: Context = AppHelper.getContext(), dpVal: Float): Float {

@@ -1,6 +1,7 @@
 package com.munch.module.test.fragments
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import com.munch.lib.image.ImageHelper
 import com.munch.lib.log.LogLog
+import com.munch.module.test.MainActivity
 import com.munch.module.test.R
 import com.munch.module.test.ResultActivity
 import com.munhc.lib.libnative.root.RootFragment
@@ -38,8 +40,12 @@ class Fragment1 : RootFragment() {
         val targetView = view.findViewById<View>(R.id.iv)
         ImageHelper.res(res).into(targetView)
         targetView.setOnClickListener { startActivity(ResultActivity::class.java) }
+        view.findViewById<View>(R.id.btn).setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                (activity!! as MainActivity).setTrans()
+            }
+        }
     }
-
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
         super.setUserVisibleHint(isVisibleToUser)
