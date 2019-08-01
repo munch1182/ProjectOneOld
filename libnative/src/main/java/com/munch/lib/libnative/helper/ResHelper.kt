@@ -1,4 +1,4 @@
-package com.munhc.lib.libnative.helper
+package com.munch.lib.libnative.helper
 
 import android.content.Context
 import android.graphics.Color
@@ -78,19 +78,19 @@ object ResHelper {
     @JvmOverloads
     @JvmStatic
     fun getStringArray(context: Context = AppHelper.getContext(), @ArrayRes resId: Int): Array<String> {
-        return ArrayResHelper.getStringArray(context, resId)
+        return ResHelper.ArrayResHelper.getStringArray(context, resId)
     }
 
     @JvmOverloads
     @JvmStatic
     fun getResIdArray(context: Context = AppHelper.getContext(), @ArrayRes resId: Int): IntArray {
-        return ArrayResHelper.getResIdArray(context, resId)
+        return ResHelper.ArrayResHelper.getResIdArray(context, resId)
     }
 
     @JvmOverloads
     @JvmStatic
     fun getIntArray(context: Context = AppHelper.getContext(), @ArrayRes resId: Int): IntArray {
-        return ArrayResHelper.getIntArray(context, resId)
+        return ResHelper.ArrayResHelper.getIntArray(context, resId)
     }
 
     @JvmOverloads

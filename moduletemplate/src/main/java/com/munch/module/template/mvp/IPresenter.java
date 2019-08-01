@@ -7,12 +7,12 @@ import androidx.annotation.Nullable;
  */
 public interface IPresenter<V extends IView> {
 
-    V takeView(V v);
+    V attachView(V v);
 
-    void dropView();
+    void detachView();
 
     @Nullable
     V getView();
 
-    boolean hasView();
+    boolean isViewAttach();
 }

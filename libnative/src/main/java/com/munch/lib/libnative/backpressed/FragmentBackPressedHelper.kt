@@ -1,4 +1,4 @@
-package com.munhc.lib.libnative.backpressed
+package com.munch.lib.libnative.backpressed
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -9,9 +9,11 @@ import androidx.fragment.app.FragmentManager
  */
 object FragmentBackPressedHelper {
 
-    fun handleBackPressed(activity: FragmentActivity) = handleBackPressed(activity.supportFragmentManager)
+    fun handleBackPressed(activity: FragmentActivity) =
+        handleBackPressed(activity.supportFragmentManager)
 
-    fun handleBackPressed(fragment: Fragment) = handleBackPressed(fragment.childFragmentManager)
+    fun handleBackPressed(fragment: Fragment) =
+        handleBackPressed(fragment.childFragmentManager)
 
     fun handleBackPressed(manager: FragmentManager): Boolean {
         val fragments = manager.fragments

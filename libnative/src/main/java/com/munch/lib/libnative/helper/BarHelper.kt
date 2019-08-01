@@ -1,4 +1,4 @@
-package com.munhc.lib.libnative.helper
+package com.munch.lib.libnative.helper
 
 import android.app.Activity
 import android.content.Context
@@ -11,6 +11,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.core.view.isGone
+import com.munch.lib.libnative.helper.BarHelper.Companion.ID_CONTENT
 
 /**
  * <p>
@@ -84,7 +85,14 @@ class BarHelper private constructor(val activity: Activity) {
     }
 
     fun setColor(a: Int, r: Int, g: Int, b: Int) {
-        setColor(argb(a.toFloat(), r.toFloat(), g.toFloat(), b.toFloat()))
+        setColor(
+            argb(
+                a.toFloat(),
+                r.toFloat(),
+                g.toFloat(),
+                b.toFloat()
+            )
+        )
     }
 
     private fun translucentBar(): BarHelper {
@@ -144,7 +152,9 @@ class BarHelper private constructor(val activity: Activity) {
         val layout = activity.window.decorView.findViewById<FrameLayout>(ID_CONTENT)
         return layout.findViewWithTag<View>(TAG) ?: View(activity).apply {
             tag = TAG
-            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, getStatusBarHeight(activity))
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                getStatusBarHeight(activity)
+            )
             layout.addView(this)
         }
     }

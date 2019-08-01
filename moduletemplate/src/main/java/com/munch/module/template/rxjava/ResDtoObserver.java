@@ -55,11 +55,11 @@ public class ResDtoObserver<D> implements Observer<BDto<D>> {
     }
 
     /**
-     * P与V已经分离，此时无需传递数据
+     * 判读P与V是否已经分离，如果已经分离，则无需传递数据
      * 理论上来说绑定了生命周期在生命周期结束时取消Disposable会取消rxJava而不触发P与V的空指针
      */
     private boolean noView() {
-        return mPresenter != null && !mPresenter.hasView();
+        return mPresenter != null && mPresenter.isViewAttach();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

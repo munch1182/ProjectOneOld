@@ -4,7 +4,6 @@ import com.munch.module.template.dto.BDto;
 import com.munch.module.template.mvp.BasePresenter;
 import io.reactivex.ObservableOperator;
 import io.reactivex.ObservableTransformer;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -24,6 +23,7 @@ public class RxTransHelper {
     /**
      * 将非成功的请求回调到onError中统一处理，并拦截因此的{@link io.reactivex.exceptions.OnErrorNotImplementedException}
      * 将成功的请求去除外部包装，转换为真实的类型数据
+     * 此外，还判断了P与V的联系，{@link ResDtoObserver#noView()}
      *
      * @see DefErrorHandle
      * @see ResDtoObserver

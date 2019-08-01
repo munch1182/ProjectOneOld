@@ -1,7 +1,7 @@
 package com.munch.module.test
 
 import android.app.Application
-import com.munhc.lib.libnative.helper.AppHelper
+import com.munch.lib.libnative.helper.AppHelper
 import com.squareup.leakcanary.LeakCanary
 
 /**

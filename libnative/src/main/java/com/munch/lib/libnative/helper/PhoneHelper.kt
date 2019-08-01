@@ -1,4 +1,4 @@
-package com.munhc.lib.libnative.helper
+package com.munch.lib.libnative.helper
 
 import android.content.Context
 import android.graphics.Point
@@ -32,7 +32,8 @@ class PhoneHelper private constructor() {
 
     private fun getActionBar(): Int {
         if (isUnGet(actionBarSize)) {
-            actionBarSize = ResHelper.getActionBarSize(AppHelper.getContext())
+            actionBarSize =
+                ResHelper.getActionBarSize(AppHelper.getContext())
         }
         return actionBarSize
     }
@@ -63,7 +64,8 @@ class PhoneHelper private constructor() {
 
     fun getStatusBar(): Int {
         if (isUnGet(statusBarViewHeight)) {
-            statusBarViewHeight = ResHelper.getStatusBarHeight(AppHelper.getContext())
+            statusBarViewHeight =
+                ResHelper.getStatusBarHeight(AppHelper.getContext())
         }
         return statusBarViewHeight
     }

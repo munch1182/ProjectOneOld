@@ -1,4 +1,4 @@
-package com.munhc.lib.libnative.root
+package com.munch.lib.libnative.root
 
 import android.app.Activity
 import android.content.Context
@@ -11,6 +11,8 @@ import android.os.Bundle
 interface INext : IContext {
 
     companion object {
+
+        @JvmOverloads
         fun startActivity(context: Context, target: Class<out Activity>, bundle: Bundle? = null) {
             context.startActivity(Intent(context, target).apply {
                 bundle ?: return@apply
@@ -22,6 +24,10 @@ interface INext : IContext {
 
     fun startActivity(target: Class<out Activity>, bundle: Bundle? = null) {
         startActivity(getContext() ?: return, target, bundle)
+    }
+
+    fun startActivity(target: Class<out Activity>) {
+        startActivity(getContext() ?: return, target, null)
     }
 
 }

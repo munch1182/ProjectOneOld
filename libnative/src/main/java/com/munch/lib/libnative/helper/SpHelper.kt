@@ -1,8 +1,8 @@
-package com.munhc.lib.libnative.helper
+package com.munch.lib.libnative.helper
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.munhc.lib.libnative.excetion.MethodEcxception
+import com.munch.lib.libnative.excetion.MethodException
 
 /**
  * Created by Munch on 2019/7/26 14:37
@@ -70,7 +70,7 @@ object SpHelper {
             is Long -> edit.putLong(key, any)
             is String -> edit.putString(key, any)
             is MutableSet<*> -> edit.putStringSet(key, any as MutableSet<String>)
-            else -> throw MethodEcxception.unSupport()
+            else -> throw MethodException.unSupport()
         }
     }
 
@@ -83,7 +83,8 @@ object SpHelper {
     }
 
     private fun getSp(): SharedPreferences {
-        return sSharedPreferences ?: switchSp(AppHelper.getContext(), SP_NAME).sSharedPreferences!!
+        return sSharedPreferences
+            ?: sSharedPreferences!!
     }
 
     /**

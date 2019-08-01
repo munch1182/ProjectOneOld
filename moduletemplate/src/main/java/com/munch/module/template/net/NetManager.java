@@ -1,7 +1,7 @@
 package com.munch.module.template.net;
 
+import com.munch.lib.libnative.helper.AppHelper;
 import com.munch.lib.logcompat.LogLog;
-import com.munhc.lib.libnative.helper.AppHelper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -19,6 +19,8 @@ public class NetManager {
     private OkHttpClient mOkHttpClient;
     private Retrofit mRetrofit;
     private final Service mService;
+    private LogLog.Builder mLogBuilder = new LogLog.Builder().logBorder(false).logStack(false);
+
 
     /**
      * 请求的取消：{@link retrofit2.adapter.rxjava2.CallEnqueueObservable.CallCallback#dispose()}
@@ -29,7 +31,7 @@ public class NetManager {
                 .writeTimeout(NetConfig.WRITE_TIMEOUT, TimeUnit.MILLISECONDS)
                 .readTimeout(NetConfig.READ_TIMEOUT, TimeUnit.MILLISECONDS)
                 .connectTimeout(NetConfig.CONNECT_TIMEOUT, TimeUnit.MILLISECONDS)
-                .addInterceptor(chain -> {
+                .addNetworkInterceptor(chain -> {
                     Request request = chain.request();
                     Request.Builder requestBuilder = request.newBuilder();
                     /*添加公共参数*/
@@ -47,7 +49,8 @@ public class NetManager {
                 });
 
         if (AppHelper.isDebug()) {
-            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(message -> LogLog.log(new LogLog.Builder().logBorder(false).logStack(false), message));
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(message ->
+                    LogLog.log(mLogBuilder, message));
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             builder.addInterceptor(loggingInterceptor);
         }

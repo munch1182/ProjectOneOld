@@ -6,7 +6,7 @@ import io.reactivex.disposables.Disposable;
 /**
  * Created by Munch on 2019/7/29 17:59
  */
-public class DisposableManager {
+public class DisposableManager implements IDisposableManager{
 
     private final CompositeDisposable mCompositeDisposable;
 
@@ -14,10 +14,12 @@ public class DisposableManager {
         mCompositeDisposable = new CompositeDisposable();
     }
 
+    @Override
     public void add(Disposable... disposable) {
         mCompositeDisposable.addAll(disposable);
     }
 
+    @Override
     public void clear() {
         mCompositeDisposable.clear();
     }

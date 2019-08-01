@@ -1,9 +1,8 @@
-package com.munhc.lib.libnative.root
+package com.munch.lib.libnative.root
 
 import android.app.Activity
 import android.content.Context
 import androidx.fragment.app.Fragment
-import java.lang.RuntimeException
 
 /**
  * Created by Munch on 2019/7/13 14:00

@@ -1,7 +1,7 @@
 package com.munch.module.template.app;
 
 import android.app.Application;
-import com.munhc.lib.libnative.helper.AppHelper;
+import com.munch.lib.libnative.helper.AppHelper;
 
 /**
  * Created by Munch on 2019/7/26 16:01

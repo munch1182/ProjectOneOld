@@ -1,4 +1,4 @@
-package com.munhc.lib.libnative.helper
+package com.munch.lib.libnative.helper
 
 import android.content.Context
 import android.graphics.Color
@@ -40,7 +40,9 @@ object SystemResHelper {
 
     @JvmStatic
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun getBackIconWhite(context: Context): Drawable? = getBackIcon(context)?.apply {
+    fun getBackIconWhite(context: Context): Drawable? = getBackIcon(
+        context
+    )?.apply {
         setTint(Color.WHITE)
     }
 

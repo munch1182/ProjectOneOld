@@ -1,9 +1,9 @@
-package com.munhc.lib.libnative.root
+package com.munch.lib.libnative.root
 
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import com.munhc.lib.libnative.backpressed.IFragmentBackPressedHandle
+import com.munch.lib.libnative.backpressed.IFragmentBackPressedHandle
 
 /**
  * Fragment在viewpager中的显示与隐藏：
@@ -13,7 +13,8 @@ import com.munhc.lib.libnative.backpressed.IFragmentBackPressedHandle
  *
  * Created by Munch on 2019/7/13 14:10
  */
-open class RootFragment : Fragment(), INext, IFragmentBackPressedHandle {
+open class RootFragment : Fragment(), INext,
+    IFragmentBackPressedHandle {
 
     override fun getContext(): Context? {
         return super<Fragment>.getContext()

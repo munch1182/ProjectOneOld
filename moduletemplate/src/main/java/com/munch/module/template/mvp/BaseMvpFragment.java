@@ -1,15 +1,13 @@
 package com.munch.module.template.mvp;
 
-import android.content.Context;
 import androidx.annotation.Nullable;
-import com.munch.lib.libnative.root.RootActivity;
+import com.munch.lib.libnative.root.RootFragment;
 import com.munch.module.template.rxjava.DisposableManager;
-import com.munch.module.template.rxjava.IDisposableManager;
 
 /**
- * Created by Munch on 2019/7/29 17:18
+ * Created by Munch on 2019/8/1 15:27
  */
-public abstract class BaseMvpActivity<P extends IPresenter> extends RootActivity implements LceView<P> {
+public class BaseMvpFragment<P extends IPresenter> extends RootFragment implements LceView<P> {
 
     private P p;
     private DisposableManager mManager;
@@ -22,14 +20,6 @@ public abstract class BaseMvpActivity<P extends IPresenter> extends RootActivity
         return this.p;
     }
 
-    @Override
-    public IDisposableManager getManager() {
-        if (null == mManager) {
-            mManager = DisposableManager.getInstance();
-        }
-        return mManager;
-    }
-
     @Nullable
     @Override
     public P getPresenter() {
@@ -37,17 +27,20 @@ public abstract class BaseMvpActivity<P extends IPresenter> extends RootActivity
     }
 
     @Override
-    public Context getContext() {
-        return this;
+    public DisposableManager getManager() {
+        if (null == mManager) {
+            mManager = DisposableManager.getInstance();
+        }
+        return mManager;
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         if (this.p != null) {
             this.p.detachView();
         }
-        if (mManager != null) {
+        if (null != mManager) {
             mManager.clear();
         }
     }

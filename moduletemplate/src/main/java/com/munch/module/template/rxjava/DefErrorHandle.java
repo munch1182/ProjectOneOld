@@ -15,6 +15,7 @@ public class DefErrorHandle {
     /**
      * @return true：拦截错误，不会传递到subscribe；
      * false：传递错误到最后的subscribe
+     * 需要根据项目处理逻辑
      */
     public static boolean handle(BDto dto) {
         return false;
@@ -23,6 +24,7 @@ public class DefErrorHandle {
     /**
      * @return true，拦截错误，不会传递到subscribe；
      * false：传递错误到最后的subscribe
+     * 需要根据项目处理逻辑
      */
     public static boolean handle(Throwable e) {
         return true;

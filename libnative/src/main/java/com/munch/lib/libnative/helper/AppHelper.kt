@@ -1,4 +1,4 @@
-package com.munhc.lib.libnative.helper
+package com.munch.lib.libnative.helper
 
 import android.app.Application
 

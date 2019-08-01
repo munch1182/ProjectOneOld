@@ -1,6 +1,7 @@
 package com.munch.module.template.account;
 
-import com.munhc.lib.libnative.helper.SpHelper;
+
+import com.munch.lib.libnative.helper.SpHelper;
 
 /**
  * Created by Munch on 2019/7/27 9:45
@@ -13,6 +14,10 @@ public class AccountManager {
     public void login(AccountBean bean) {
         SpHelper.put(KEY_ACCOUNT, convertBean2Str(bean));
         this.mAccount = bean;
+    }
+
+    public void update(AccountBean bean) {
+        login(bean);
     }
 
     public void logout() {

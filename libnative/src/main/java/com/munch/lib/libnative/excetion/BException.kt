@@ -1,6 +1,4 @@
-package com.munhc.lib.libnative.excetion
-
-import java.lang.RuntimeException
+package com.munch.lib.libnative.excetion
 
 /**
  * Created by Munch on 2019/7/26 14:28

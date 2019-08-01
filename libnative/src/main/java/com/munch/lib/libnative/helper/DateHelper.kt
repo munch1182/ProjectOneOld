@@ -1,4 +1,4 @@
-package com.munhc.lib.libnative.helper
+package com.munch.lib.libnative.helper
 
 import android.annotation.SuppressLint
 import android.text.format.DateUtils
@@ -35,8 +35,14 @@ object DateHelper {
      */
     fun getDateStr2NowFromNoTime(date: String, type: Int): CharSequence {
         val strings = date.split("-".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        sCalendar.set(toInt(strings[0]), toInt(strings[1]), toInt(strings[2]), 0, 0, 0)
-        return getDateStr2Now(sCalendar.timeInMillis, type)
+        sCalendar.set(
+            toInt(strings[0]),
+            toInt(strings[1]),
+            toInt(strings[2]), 0, 0, 0)
+        return getDateStr2Now(
+            sCalendar.timeInMillis,
+            type
+        )
     }
 
     /**
@@ -46,10 +52,17 @@ object DateHelper {
         val strings =
             date.replace(" ", "-").replace(":", "-").split("-".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         sCalendar.set(
-            toInt(strings[0]), toInt(strings[1]), toInt(strings[2]),
-            toInt(strings[3]), toInt(strings[4]), toInt(strings[5])
+            toInt(strings[0]),
+            toInt(strings[1]),
+            toInt(strings[2]),
+            toInt(strings[3]),
+            toInt(strings[4]),
+            toInt(strings[5])
         )
-        return getDateStr2Now(sCalendar.timeInMillis, type)
+        return getDateStr2Now(
+            sCalendar.timeInMillis,
+            type
+        )
     }
 
     fun toInt(str: String): Int {

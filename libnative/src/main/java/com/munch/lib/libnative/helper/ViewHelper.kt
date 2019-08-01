@@ -1,12 +1,11 @@
-package com.munhc.lib.libnative.helper
+package com.munch.lib.libnative.helper
 
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.view.children
-import androidx.lifecycle.ViewModelProvider
-import com.munhc.lib.libnative.excetion.MethodEcxception
+import com.munch.lib.libnative.excetion.MethodException
 
 /**
  * Created by Munch on 2019/7/15 13:50
@@ -99,7 +98,7 @@ object ViewHelper {
     @JvmStatic
     fun setTextViewNonVal(views: Array<TextView>, strs: Array<String?>) {
         if (views.size != strs.size) {
-            throw MethodEcxception.wrongParameter()
+            throw MethodException.wrongParameter()
         }
         views.forEachIndexed { index, textView ->
             textView.text = strs[index] ?: ""

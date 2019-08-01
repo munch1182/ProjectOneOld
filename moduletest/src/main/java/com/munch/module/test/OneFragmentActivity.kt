@@ -2,8 +2,8 @@ package com.munch.module.test
 
 import android.os.Bundle
 import com.google.android.material.tabs.TabLayout
+import com.munch.lib.libnative.root.RootActivity
 import com.munch.module.test.fragments.*
-import com.munhc.lib.libnative.root.RootActivity
 
 /**
  * Created by Munch on 2019/7/13 17:02
