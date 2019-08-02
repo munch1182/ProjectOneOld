@@ -83,8 +83,10 @@ object SpHelper {
     }
 
     private fun getSp(): SharedPreferences {
-        return sSharedPreferences
-            ?: sSharedPreferences!!
+        if (null == sSharedPreferences) {
+            switchSp(name = SP_NAME)
+        }
+        return sSharedPreferences!!
     }
 
     /**

@@ -12,7 +12,6 @@ import com.munch.lib.image.glide.GlideStrategy;
 import com.munch.lib.libnative.helper.BarHelper;
 import com.munch.lib.libnative.helper.PhoneHelper;
 import com.munch.lib.libnative.helper.SpHelper;
-import com.munch.lib.libnative.helper.ViewHelper;
 import com.munch.lib.libnative.root.RootActivity;
 import com.munch.module.test.fragments.*;
 
@@ -40,7 +39,7 @@ public class MainActivity extends RootActivity {
         ViewPager viewPager = findViewById(R.id.vp);
 
         int height = PhoneHelper.getStatusBarHeight();
-        ViewHelper.addViewMargin(viewPager, 0, height, 0, 0);
+        /*ViewHelper.addViewMargin(viewPager, 0, height, 0, 0);*/
 
 
         TabLayout tab = findViewById(R.id.tl);

@@ -52,23 +52,20 @@ class BarHelper private constructor(val activity: Activity) {
 
     /**
      * 切换状态栏模式，显示效果为状态栏文字白色或者黑色
-     *
      */
     @RequiresApi(Build.VERSION_CODES.M)
     @JvmOverloads
     fun setDarkMode(darkMode: Boolean = true, @ColorInt color: Int = Color.TRANSPARENT) {
         val window = activity.window
         if (darkMode) {
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 
             /*设置状态栏背景色，与非light status模式保持一致*/
             window.statusBarColor = color
             getFakeView().visibility = View.GONE
             setNavigation()
         } else {
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_VISIBLE
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
             /*将内容延伸到状态栏，与light status模式保持一致*/
             setColor(color)
         }
@@ -152,7 +149,8 @@ class BarHelper private constructor(val activity: Activity) {
         val layout = activity.window.decorView.findViewById<FrameLayout>(ID_CONTENT)
         return layout.findViewWithTag<View>(TAG) ?: View(activity).apply {
             tag = TAG
-            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
                 getStatusBarHeight(activity)
             )
             layout.addView(this)

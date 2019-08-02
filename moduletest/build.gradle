@@ -2,6 +2,12 @@ apply plugin: 'com.android.application'
 
 apply from: '../gradle/commonbuildktx.gradle'
 
+android {
+
+    defaultConfig {
+        minSdkVersion 16
+    }
+}
 dependencies {
 
     implementation project(':libresult')
@@ -23,4 +29,5 @@ dependencies {
 
     implementation rootProject.ext.dependencies['gson']
 
+    implementation 'com.github.XXQAQ:FasterDialog:1.25.0'
 }
