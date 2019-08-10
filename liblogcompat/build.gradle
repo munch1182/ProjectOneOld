@@ -1,3 +1,20 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
-apply from: '../gradle/commonbuild.gradle'
+apply from: '../gradle/commonbuildktx.gradle'
+
+android {
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+publish {
+    userOrg = 'munch'
+    groupId = 'munch'
+    artifactId = 'logcompat'
+    publishVersion = '1.0'
+    desc = ''
+    website = 'https://github.com/munch1182/ProjectOne'
+}

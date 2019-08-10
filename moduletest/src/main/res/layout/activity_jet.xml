@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              tools:context=".jatpack.JetActivity"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+            android:id="@+id/tv_jet_name"
+            android:layout_width="wrap_content"
+            tools:text="2333454"
+            android:layout_height="wrap_content"/>
+
+    <Button
+            android:id="@+id/btn_jet_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <com.munch.weight.itemview.ItemView
+            android:layout_width="match_parent"
+            app:start_icon="@mipmap/ic_launcher"
+            app:start_text="2333"
+            app:start_text_style="@style/StyleStartText"
+            app:start_icon_style="@style/StyleStartIcon"
+            android:layout_height="wrap_content"/>
+
+</LinearLayout>

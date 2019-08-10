@@ -16,16 +16,15 @@
             android:usesCleartextTraffic="true"
             android:theme="@style/AppTheme"
             tools:ignore="UnusedAttribute">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"/>
+        <activity android:name=".ResultActivity"/>
+        <activity android:name=".OneFragmentActivity"/>
+        <activity android:name=".jatpack.JetActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </activity>
-        <activity android:name=".ResultActivity"/>
-        <activity android:name=".OneFragmentActivity">
-
         </activity>
     </application>
 
