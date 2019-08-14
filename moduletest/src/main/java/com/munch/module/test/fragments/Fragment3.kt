@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.munch.lib.image.ImageHelper
+import com.munch.lib.image.ImageLoadHelper
 import com.munch.lib.libnative.root.RootFragment
 import com.munch.module.test.R
 
@@ -21,6 +21,6 @@ class Fragment3 : RootFragment() {
         super.onViewCreated(view, savedInstanceState)
         val gif =
             "http://gss0.baidu.com/7Po3dSag_xI4khGko9WTAnF6hhy/zhidao/pic/item/f703738da9773912445bbabcff198618377ae2ea.jpg"
-        ImageHelper.res(gif).into(view.findViewById(R.id.iv))
+        ImageLoadHelper.res(gif).into(view.findViewById(R.id.iv))
     }
 }

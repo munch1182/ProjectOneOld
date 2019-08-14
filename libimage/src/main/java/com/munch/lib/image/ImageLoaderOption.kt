@@ -80,7 +80,7 @@ class ImageLoaderOption {
          * view不应该是[ImageLoaderOption]的属性
          */
         fun into(targetView: View) {
-            ImageHelper.loadRes(options.strategy ?: ImageHelper.getStrategy(), targetView, options)
+            ImageLoadHelper.loadRes(options.strategy ?: ImageLoadHelper.getStrategy(), targetView, options)
         }
 
         /**
@@ -88,7 +88,7 @@ class ImageLoaderOption {
          * @param context 请求所绑定的生命周期，终止后仍未完成则会取消请求
          */
         fun preload(context: Context) {
-            ImageHelper.preload(options.strategy ?: ImageHelper.getStrategy(),context, options)
+            ImageLoadHelper.preload(options.strategy ?: ImageLoadHelper.getStrategy(),context, options)
         }
 
         fun placeHolder(placeHolder: Any?): Builder {

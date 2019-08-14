@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import com.munch.lib.image.ImageHelper
+import com.munch.lib.image.ImageLoadHelper
 import com.munch.lib.libnative.root.RootFragment
 import com.munch.lib.log.LogLog
 import com.munch.module.test.MainActivity
@@ -39,7 +39,7 @@ class Fragment1 : RootFragment() {
         LogLog.log(savedInstanceState)
         val res = "http://www.ratoo.net/uploads/allimg/170823/15-1FR31H604.jpg"
         val targetView = view.findViewById<View>(R.id.iv)
-        ImageHelper.res(res).transformation(CenterCrop()).into(targetView)
+        ImageLoadHelper.res(res).transformation(CenterCrop()).into(targetView)
         targetView.setOnClickListener { startActivity(ResultActivity::class.java) }
         view.findViewById<View>(R.id.btn).setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {

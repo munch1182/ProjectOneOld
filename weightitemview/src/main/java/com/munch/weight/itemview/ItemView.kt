@@ -1,7 +1,6 @@
 package com.munch.weight.itemview
 
 import android.content.Context
-import android.content.ContextWrapper
 import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -13,6 +12,7 @@ import androidx.core.content.ContextCompat
 import com.munch.lib.log.LogLog
 
 /**
+ * 失败：原因：无法通过自定义属性传递style集合，若是单个设置不如在xml中设置style
  * Created by Munch on 2019/8/10 16:19
  */
 class ItemView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : FrameLayout(context, attrs, defStyleAttr) {

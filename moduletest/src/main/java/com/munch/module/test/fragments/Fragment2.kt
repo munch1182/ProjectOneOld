@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import com.munch.lib.image.ImageHelper
+import com.munch.lib.image.ImageLoadHelper
 import com.munch.lib.libnative.root.RootFragment
 import com.munch.module.test.R
 import com.xq.fasterdialog.dialog.LoadingDialog
@@ -26,7 +26,7 @@ class Fragment2 : RootFragment() {
         super.onViewCreated(view, savedInstanceState)
         val gif =
             "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1562996738387&di=83afac842b45b901decc0bcc9a13cb16&imgtype=0&src=http%3A%2F%2Fpic.962.net%2Fup%2F2018-5%2F15262691097592176.gif"
-        ImageHelper.res(gif).into(view.findViewById(R.id.iv))
+        ImageLoadHelper.res(gif).into(view.findViewById(R.id.iv))
 
         view.findViewById<Button>(R.id.btn).setOnClickListener {
             LoadingDialog(context)

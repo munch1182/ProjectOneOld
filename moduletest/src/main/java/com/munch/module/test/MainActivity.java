@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
-import com.munch.lib.image.ImageHelper;
+import com.munch.lib.image.ImageLoadHelper;
 import com.munch.lib.image.glide.GlideStrategy;
 import com.munch.lib.libnative.helper.BarHelper;
 import com.munch.lib.libnative.helper.PhoneHelper;
@@ -34,7 +34,7 @@ public class MainActivity extends RootActivity {
         }
 
 
-        ImageHelper.setupStrategy(new GlideStrategy());
+        ImageLoadHelper.setupStrategy(new GlideStrategy());
 
         ViewPager viewPager = findViewById(R.id.vp);
 
