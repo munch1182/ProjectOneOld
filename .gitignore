@@ -1,0 +1,11 @@
+*.iml
+.gradle
+.idea
+build
+/local.properties
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/captures
+.externalNativeBuild
+*.li
