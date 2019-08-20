@@ -31,10 +31,12 @@ object ImageLoadHelper {
         return strategy!!
     }
 
+    @JvmStatic
     fun loadRes(@NonNull strategy: ImageLoaderStrategy, @NonNull targetView: View, @NonNull options: ImageLoaderOption) {
         strategy.load(targetView, options)
     }
 
+    @JvmStatic
     fun preload(@NonNull strategy: ImageLoaderStrategy, @NonNull context: Context, @NonNull options: ImageLoaderOption) {
         strategy.preload(context, options)
     }
