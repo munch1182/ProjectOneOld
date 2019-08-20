@@ -19,7 +19,8 @@ android {
         minSdkVersion rootProject.ext.versions['minSdkVersion']
         targetSdkVersion rootProject.ext.versions['targetSdkVersion']
         //默认的versionCode是debug，在输出release包时可以取消applicationVariants.all的注释以自动更改release的versionCode
-        versionCode versionCode4Debug
+        /*versionCode versionCode4Debug*/
+        versionCode versionCode4Release
         versionName rootProject.ext.versions['versionName']
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -40,11 +41,11 @@ android {
         }
     }
 
-    def versionCodeNotice = '"注意：打包出来的apk的versionCode可能会被更改，应从PackageManager中获取"'
+    def versionCodeNotice = '"注意：打包出来的文件的versionCode可能会被更改，应从PackageManager中获取"'
 
     buildTypes {
         release {
-            //只是为了编译时不报错，但是运行时仍会失败
+            //只是为了编译时不报错，但如果没有配置key文件，运行时仍会失败
             if (keyProperties != null) {
                 signingConfig signingConfigs.release
             }
@@ -52,19 +53,19 @@ android {
             zipAlignEnabled true
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
+            /*buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
             buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
-            buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"
+            buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"*/
         }
         debug {
-            //只是为了编译时不报错，但是运行时仍会失败
+            //只是为了编译时不报错，但如果没有配置key文件，运行时仍会失败
             if (keyProperties != null) {
                 signingConfig signingConfigs.release
             }
             debuggable true
-            buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
+            /*buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
             buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
-            buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"
+            buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"*/
         }
     }
 
