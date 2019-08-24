@@ -1,0 +1,7 @@
+apply plugin: 'com.android.application'
+
+apply from: '../gradle/commonbuildktx.gradle'
+
+dependencies {
+    implementation 'com.github.munch1182:library:1.0.2'
+}
