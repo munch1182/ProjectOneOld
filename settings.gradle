@@ -1,1 +1,1 @@
-include ':app', ':log', ':result', ':imageload', ':glideimageload'
+include ':app', ':log', ':result', ':imageload', ':glideimageload', ':libnative'

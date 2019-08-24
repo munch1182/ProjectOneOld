@@ -12,9 +12,9 @@ import com.munch.lib.imageload.ImageLoaderOption
 object GlideImageLoadHelper {
 
     @JvmStatic
-    fun res(res: Any) {
+    fun res(res: Any): ImageLoaderOption.Builder {
         checkStrategy()
-        ImageLoadHelper.res(res)
+        return ImageLoadHelper.res(res)
     }
 
     private fun checkStrategy() {
