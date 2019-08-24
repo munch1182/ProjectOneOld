@@ -2,9 +2,13 @@ package com.munch.project.one;
 
 import android.os.Bundle;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.munch.project.one.base.BaseActivity;
 
-public class MainActivity extends AppCompatActivity {
+
+/**
+ * Created by Munch on 2019/8/24
+ */
+public class MainActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
