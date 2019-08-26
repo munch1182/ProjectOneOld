@@ -7,5 +7,5 @@ interface ILoading {
 
     fun show()
 
-    fun cancle()
+    fun cancel()
 }
