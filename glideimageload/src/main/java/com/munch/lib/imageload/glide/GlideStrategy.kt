@@ -62,7 +62,7 @@ class GlideStrategy : ImageLoaderStrategy {
             val array = options.transformations
             if (array != null) {
                 manager = if (array.size == 1) {
-                    manager.transform(array as Transformation<Bitmap>)
+                    manager.transform(array[0] as Transformation<Bitmap>)
                 } else {
                     manager.transform(*(array as Array<out Transformation<Bitmap>>))
                 }
