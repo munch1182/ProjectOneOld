@@ -37,6 +37,10 @@ class BarHelper private constructor(val activity: Activity) {
     private var isTranslucentNavigation: Boolean = false
     private var navigationBarColor: Int? = null
 
+    fun fullScreen() {
+        activity.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+    }
+
     /**
      * 可以动态更改，然后调用[android.app.Activity.recreate]，但是变量要保存到activity外
      */
@@ -60,10 +64,10 @@ class BarHelper private constructor(val activity: Activity) {
         val window = activity.window
         if (darkMode) {
             window.decorView.systemUiVisibility =
-                    window.decorView.systemUiVisibility or
-                            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
-                            //设置模式的时候默认将内容延伸到状态栏以与其他方法保持一致
-                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                window.decorView.systemUiVisibility or
+                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or
+                        //设置模式的时候默认将内容延伸到状态栏以与其他方法保持一致
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 
             /*设置状态栏背景色，与非light status模式保持一致*/
             window.statusBarColor = color
@@ -71,9 +75,9 @@ class BarHelper private constructor(val activity: Activity) {
             setNavigation()
         } else {
             window.decorView.systemUiVisibility =
-                    window.decorView.systemUiVisibility and
-                            //清除该模式
-                            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+                window.decorView.systemUiVisibility and
+                        //清除该模式
+                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
             /*将内容延伸到状态栏，与light status模式保持一致*/
             setColor(color)
         }
@@ -91,12 +95,12 @@ class BarHelper private constructor(val activity: Activity) {
 
     fun setColor(a: Int, r: Int, g: Int, b: Int) {
         setColor(
-                argb(
-                        a.toFloat(),
-                        r.toFloat(),
-                        g.toFloat(),
-                        b.toFloat()
-                )
+            argb(
+                a.toFloat(),
+                r.toFloat(),
+                g.toFloat(),
+                b.toFloat()
+            )
         )
     }
 
@@ -105,8 +109,8 @@ class BarHelper private constructor(val activity: Activity) {
             val window = activity.window
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.clearFlags(
-                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
-                            or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
+                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+                        or WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
             )
             /*将内容延伸到Status */
             var visibility = window.decorView.visibility
@@ -158,8 +162,8 @@ class BarHelper private constructor(val activity: Activity) {
         return layout.findViewWithTag<View>(TAG) ?: View(activity).apply {
             tag = TAG
             layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    getStatusBarHeight(activity)
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                getStatusBarHeight(activity)
             )
             layout.addView(this)
         }
