@@ -59,14 +59,13 @@ class GlideStrategy : ImageLoaderStrategy {
 
         @Suppress("UNCHECKED_CAST")
         if (options.transformations is Array<*>) {
-            val array = options.transformations as Array<*>
-            manager = if (array.size == 1) {
-                manager.transform(array[0] as Transformation<Bitmap>)
-            } else {
-                val list = array.map {
-                    it as Transformation<Bitmap>
+            val array = options.transformations
+            if (array != null) {
+                manager = if (array.size == 1) {
+                    manager.transform(array as Transformation<Bitmap>)
+                } else {
+                    manager.transform(*(array as Array<out Transformation<Bitmap>>))
                 }
-                manager.transform(*(Array(list.size) { i -> list[i] }))
             }
         }
 

@@ -31,7 +31,6 @@ import com.munch.lib.libnative.helper.BarHelper.Companion.ID_CONTENT
  *
  * Created by Munch on 2019/7/31 8:45
  */
-@RequiresApi(Build.VERSION_CODES.KITKAT)
 class BarHelper private constructor(val activity: Activity) {
 
     private var isTranslucentNavigation: Boolean = false
