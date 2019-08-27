@@ -65,7 +65,11 @@ class GlideStrategy : ImageLoaderStrategy {
                 manager = if (array.size == 1) {
                     manager.transform(array[0] as Transformation<Bitmap>)
                 } else {
-                    manager.transform(*(array as Array<out Transformation<Bitmap>>))
+                    /*manager.transform(*(array as Array<out Transformation<Bitmap>>))*/
+                    val list = array.map {
+                        it as Transformation<Bitmap>
+                    }
+                    manager.transform(*(Array(list.size) { i -> list[i] }))
                 }
             }
         }
@@ -76,7 +80,7 @@ class GlideStrategy : ImageLoaderStrategy {
 
         manager = if (false == options.cacheLocal) {
             manager.diskCacheStrategy(DiskCacheStrategy.NONE)
-        }else{
+        } else {
             manager.diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
         }
 
