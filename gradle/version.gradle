@@ -119,7 +119,7 @@ ext {
             "aspectjx_hujiang"                : "org.aspectj:aspectjrt:1.8.9",
 
             /*https://github.com/CymChad/BaseRecyclerViewAdapterHelper*/
-            "base_recyclerview_adapter_helepr": "com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.46",
+            "base_recyclerview_adapter_helepr": "com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.50",
 
             /*https://github.com/Curzibn/Luban*/
             "luban"                           : "top.zibin:Luban:1.1.8",
