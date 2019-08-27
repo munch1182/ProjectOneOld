@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.Key
 import com.bumptech.glide.load.Transformation
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.Target
 import com.munch.lib.imageload.ImageLoaderOption
 import com.munch.lib.imageload.ImageLoaderStrategy
@@ -71,6 +72,12 @@ class GlideStrategy : ImageLoaderStrategy {
 
         if (options.thumbnail != null) {
             manager = manager.thumbnail(options.thumbnail!!)
+        }
+
+        manager = if (false == options.cacheLocal) {
+            manager.diskCacheStrategy(DiskCacheStrategy.NONE)
+        }else{
+            manager.diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
         }
 
         return manager
