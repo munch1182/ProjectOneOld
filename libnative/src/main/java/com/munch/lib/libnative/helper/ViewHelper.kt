@@ -78,7 +78,7 @@ object ViewHelper {
     }
 
     @JvmStatic
-    fun clickItem(vg: ViewGroup, listener: View.OnClickListener, vararg clazz: Class<out View>) {
+    fun clickItem(vg: ViewGroup, listener: View.OnClickListener, vararg clazz: Class<*>) {
         vg.children.forEachIndexed { index, view ->
             if (clazz.isNotEmpty()) {
                 clazz.forEach {
