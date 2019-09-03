@@ -79,17 +79,20 @@ object ViewHelper {
 
     @JvmStatic
     fun clickItem(vg: ViewGroup, listener: View.OnClickListener, vararg clazz: Class<*>) {
-        vg.children.forEachIndexed { index, view ->
+        var index = 0
+        vg.children.forEach { view ->
             if (clazz.isNotEmpty()) {
                 clazz.forEach {
                     if (it.isAssignableFrom(view::class.java)) {
                         view.tag = index
                         view.setOnClickListener(listener)
+                        index++
                     }
                 }
             } else {
                 view.tag = index
                 view.setOnClickListener(listener)
+                index++
             }
         }
 
