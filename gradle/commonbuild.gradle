@@ -53,9 +53,9 @@ android {
             zipAlignEnabled true
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            /*buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
+            buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
             buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
-            buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"*/
+            buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"
         }
         debug {
             //只是为了编译时不报错，但如果没有配置key文件，运行时仍会失败
@@ -63,9 +63,9 @@ android {
                 signingConfig signingConfigs.release
             }
             debuggable true
-            /*buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
+            buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
             buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
-            buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"*/
+            buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"
         }
     }
 
@@ -134,9 +134,9 @@ dependencies {
 
     implementation rootProject.ext.dependencies['appcompat']
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test:core:1.2.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation 'junit:junit:4.13'
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test:core:1.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }

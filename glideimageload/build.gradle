@@ -1,9 +1,5 @@
 apply plugin: 'com.android.library'
 
-// 添加以下两行
-apply plugin: 'com.github.dcendents.android-maven'
-group = 'com.github.munch1182'
-
 apply from: '../gradle/commonbuildktx.gradle'
 
 dependencies {
