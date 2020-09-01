@@ -8,7 +8,7 @@
  * 获取当前分支的提交次数
  * @return
  * @throws IOException
- * @throws NumberFormatException
+ * @throws NumberFormatException //项目未加入git会报错
  */
 static def getGitCommitCount() throws IOException, NumberFormatException {
     /*return */ 'git rev-list HEAD --count'.execute().text.toInteger()
