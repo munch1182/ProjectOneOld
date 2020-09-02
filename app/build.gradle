@@ -1,8 +1,13 @@
 apply plugin: 'com.android.application'
 
 apply from: '../gradle/commonbuildktx.gradle'
+apply plugin: 'kotlin-android'
 
 dependencies {
     implementation 'com.github.munch1182:library:0.1.2'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation rootProject.ext.dependencies['constraintlayout']
+    implementation rootProject.ext.dependencies['material']
+    implementation rootProject.ext.dependencies['base_recyclerview_adapter_helepr']
+
 }

@@ -1,10 +1,10 @@
 <resources>
-    <string name="test_short">测试文字</string>
-    <string name="test_line">海上生明月，天涯共此时。</string>
-    <string name="test_paragraph">大江东去，浪淘尽，千古风流人物。故垒西边，人道是，三国周郎赤壁。
+    <string name="test_text">测试文字</string>
+    <string name="test_text_line">海上生明月，天涯共此时。</string>
+    <string name="test_text_paragraph">大江东去，浪淘尽，千古风流人物。故垒西边，人道是，三国周郎赤壁。
         乱石穿空，惊涛拍岸，卷起千堆雪。江山如画，一时多少豪杰。遥想公瑾当年，小乔初嫁了，雄姿英发。
         羽扇纶巾，谈笑间，樯橹灰飞烟灭。故国神游，多情应笑我，早生华发。人生如梦，一尊还酹江月。</string>
-    <string name="test_page">\t\t这几天心里颇不宁静。今晚在院子里坐着乘凉，忽然想起日日走过的荷塘，
+    <string name="test_text_page">\t\t这几天心里颇不宁静。今晚在院子里坐着乘凉，忽然想起日日走过的荷塘，
         在这满月的光里，总该另有一番样子吧。月亮渐渐地升高了，墙外马路上孩子们的欢笑，已经听不见了；
         妻在屋里拍着闰儿⑴，迷迷糊糊地哼着眠歌。我悄悄地披了大衫，带上门出去。\n
         \t\t沿着荷塘，是一条曲折的小煤屑路。这是一条幽僻的路；白天也少人走，夜晚更加寂寞。
