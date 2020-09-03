@@ -37,6 +37,11 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_def"
+            android:paddingTop="@dimen/padding_def"
+            android:paddingLeft="@dimen/padding_def"
+            android:paddingEnd="@dimen/padding_def"
+            android:paddingRight="@dimen/padding_def"
             android:text="@string/test_text_page" />
     </androidx.core.widget.NestedScrollView>
 

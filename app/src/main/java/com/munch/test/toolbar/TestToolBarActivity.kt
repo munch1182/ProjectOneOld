@@ -15,16 +15,18 @@ class TestToolBarActivity : RvActivity() {
             when (position) {
                 0 -> startActivity(TestToolBar1Activity::class.java)
                 1 -> startActivity(TestToolBar2Activity::class.java)
+                2 -> startActivity(TestToolBar3Activity::class.java)
                 else -> return@setOnItemClickListener
             }
         }
 
-        setToolBar(rv_tb,"ToolBar")
+        setToolBar(rv_tb, "ToolBar")
     }
 
     override fun addItemList(list: ArrayList<String>) {
         super.addItemList(list)
         list.add("一般使用")
         list.add("头图滑动")
+        list.add("顶部图标")
     }
 }

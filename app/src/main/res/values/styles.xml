@@ -8,4 +8,16 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="styleToolBar3MenuContainer">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">135dp</item>
+        <item name="minHeight">85dp</item>
+        <item name="android:background">?android:selectableItemBackground</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">@dimen/padding_def</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
 </resources>
