@@ -1,5 +1,5 @@
 <resources>
-    <string name="test_short">测试文字</string>
+    <string name="test_str">测试文字</string>
     <string name="test_line">海上生明月，天涯共此时。</string>
     <string name="test_paragraph">大江东去，浪淘尽，千古风流人物。故垒西边，人道是，三国周郎赤壁。
         乱石穿空，惊涛拍岸，卷起千堆雪。江山如画，一时多少豪杰。遥想公瑾当年，小乔初嫁了，雄姿英发。
