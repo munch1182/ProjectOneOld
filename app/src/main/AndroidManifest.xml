@@ -15,6 +15,8 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
+        <activity android:name=".view.TestView1Activity"/>
+        <activity android:name=".view.TestViewActivity"/>
         <activity android:name=".toolbar.TestToolBar3Activity" />
         <activity android:name=".toolbar.TestToolBar2Activity" />
         <activity android:name=".toolbar.TestToolBar1Activity" />

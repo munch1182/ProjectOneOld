@@ -9,5 +9,6 @@ dependencies {
     implementation rootProject.ext.dependencies['constraintlayout']
     implementation rootProject.ext.dependencies['material']
     implementation rootProject.ext.dependencies['base_recyclerview_adapter_helepr']
+    implementation rootProject.ext.dependencies['kotlinx']
 
 }

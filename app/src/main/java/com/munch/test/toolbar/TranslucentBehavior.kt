@@ -44,7 +44,7 @@ class TranslucentBehavior(context: Context?, attrs: AttributeSet?) :
 
         val alpha = percent * 255
 
-        child.setBackgroundColor(Color.argb(alpha.toInt(), 0, 133, 119))
+        child.setBackgroundColor(Color.argb(alpha.toInt(), 3, 169, 244))
 
         return true
     }

@@ -37,6 +37,7 @@ ext {
 
             "kotlin"                          : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions['kotlinVersion']}",
             "kotlin_gradle"                   : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions['kotlinVersion']}",
+            "kotlinx"                         : "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9",
 
             "appcompat"                       : "androidx.appcompat:appcompat:${versions['androidxVersion']}",
             // For loading and tinting drawables on older versions of the platform
