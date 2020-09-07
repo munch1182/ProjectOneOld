@@ -13,7 +13,8 @@ class TestViewActivity : RvActivity() {
         adapter.setOnItemClickListener { _, _, position ->
             when (position) {
                 0 -> startActivity(TestView1Activity::class.java)
-                else -> return@setOnItemClickListener
+                1 -> startActivity(TestView2Activity::class.java)
+                else -> startActivity(TestViewOtherActivity::class.java)
             }
         }
 
@@ -23,5 +24,7 @@ class TestViewActivity : RvActivity() {
     override fun addItemList(list: ArrayList<String>) {
         super.addItemList(list)
         list.add("圆形进度")
+        list.add("流式布局")
+        list.add("其它")
     }
 }

@@ -1,4 +1,4 @@
-package com.munch.test.view
+package com.munch.test.view.weight
 
 import android.content.Context
 import android.graphics.Canvas

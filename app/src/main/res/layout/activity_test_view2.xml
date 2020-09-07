@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".view.TestView1Activity">
+    tools:context=".view.TestView2Activity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/view_tb"
@@ -12,10 +12,9 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@color/colorPrimary" />
 
-    <com.munch.test.view.weight.CircleProgressBar
-        android:id="@+id/view_circle_progress"
+    <com.munch.test.view.weight.FlowLayout
+        android:id="@+id/view_flow"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="30dp" />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
