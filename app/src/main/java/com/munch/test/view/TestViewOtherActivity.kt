@@ -3,6 +3,7 @@ package com.munch.test.view
 import android.os.Bundle
 import com.munch.test.R
 import com.munch.test.base.BaseActivity
+import com.munch.test.view.weight.RulerView
 import kotlinx.android.synthetic.main.activity_test_view_other.*
 
 /**
@@ -25,5 +26,10 @@ class TestViewOtherActivity : BaseActivity() {
         }
 
         view_ruler_view.target = 45f
+        view_ruler_view.setUpdateListener(object : RulerView.UpdateListener {
+            override fun update(num: Float) {
+                view_ruler_tv.text = num.toString()
+            }
+        })
     }
 }
