@@ -25,10 +25,10 @@
         android:paddingEnd="10dp"
         android:paddingBottom="30dp"
         app:count="998"
+        app:cv_text_size="50sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view_tb"
-        app:textColor="#bfbfbf"
-        app:text_size="50sp" />
+        app:textColor="#bfbfbf" />
 
     <CheckBox
         android:id="@+id/view_cb"
@@ -44,5 +44,14 @@
         app:layout_constraintStart_toEndOf="@id/view_count"
         app:layout_constraintTop_toTopOf="@id/view_count"
         tools:ignore="HardcodedText" />
+
+    <com.munch.test.view.weight.RulerView
+        android:id="@+id/view_ruler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#f6f9f6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_count" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

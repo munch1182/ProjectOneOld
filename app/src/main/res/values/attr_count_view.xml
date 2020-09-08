@@ -2,7 +2,7 @@
 <resources>
     <declare-styleable name="CountView">
         <attr name="count" format="integer" />
-        <attr name="text_size" format="dimension" />
+        <attr name="cv_text_size" format="dimension" />
         <attr name="textColor" format="color" />
     </declare-styleable>
 </resources>

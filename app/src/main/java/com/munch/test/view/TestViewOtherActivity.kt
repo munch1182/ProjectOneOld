@@ -23,5 +23,7 @@ class TestViewOtherActivity : BaseActivity() {
                 view_count.countAdd()
             }
         }
+
+        view_ruler_view.target = 45f
     }
 }

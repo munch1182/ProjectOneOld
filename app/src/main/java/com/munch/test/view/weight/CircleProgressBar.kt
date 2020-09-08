@@ -52,7 +52,7 @@ class CircleProgressBar(context: Context, attrs: AttributeSet?, defStyleAttr: In
         }
         strokeWidth = attributes.getDimension(R.styleable.CircleProgressBar_strokeWidth, 20f)
         progress = attributes.getFloat(R.styleable.CircleProgressBar_progress, 0f)
-        textSize = attributes.getDimension(R.styleable.CircleProgressBar_textSize, 130f)
+        textSize = attributes.getDimension(R.styleable.CircleProgressBar_cpb_text_size, 130f)
         attributes.recycle()
 
         paintCircle.style = Paint.Style.STROKE

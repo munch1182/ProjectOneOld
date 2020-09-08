@@ -4,7 +4,7 @@
         <attr name="colorText" format="color" />
         <attr name="colorCircleComplete" format="color" />
         <attr name="colorCircleBorder" format="color" />
-        <attr name="textSize" format="dimension" />
+        <attr name="cpb_text_size" format="dimension" />
         <attr name="startAngle" format="integer" />
         <attr name="strokeWidth" format="dimension" />
         <attr name="progress" format="float" />

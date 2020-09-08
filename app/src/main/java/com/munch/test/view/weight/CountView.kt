@@ -41,7 +41,7 @@ class CountView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.CountView)
         paint.color = typedArray.getColor(R.styleable.CountView_textColor, Color.GRAY)
-        paint.textSize = typedArray.getDimension(R.styleable.CountView_text_size, 50f)
+        paint.textSize = typedArray.getDimension(R.styleable.CountView_cv_text_size, 50f)
         curCount = typedArray.getInt(R.styleable.CountView_count, 0)
         typedArray.recycle()
         stableStr = curCount.toString()
