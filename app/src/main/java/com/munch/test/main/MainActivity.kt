@@ -3,6 +3,7 @@ package com.munch.test.main
 import android.os.Bundle
 import com.munch.test.R
 import com.munch.test.base.RvActivity
+import com.munch.test.other.TestOtherActivity
 import com.munch.test.toolbar.TestToolBarActivity
 import com.munch.test.view.TestViewActivity
 
@@ -18,6 +19,7 @@ class MainActivity : RvActivity() {
             when (position) {
                 0 -> startActivity(TestToolBarActivity::class.java)
                 1 -> startActivity(TestViewActivity::class.java)
+                2 -> startActivity(TestOtherActivity::class.java)
                 else -> return@setOnItemClickListener
             }
         }
@@ -29,7 +31,7 @@ class MainActivity : RvActivity() {
         super.addItemList(list)
         list.add("toolbar")
         list.add("view")
-        list.add("333333333333333")
+        list.add("other")
         list.add("444444444444")
         list.add("555555555555")
     }
