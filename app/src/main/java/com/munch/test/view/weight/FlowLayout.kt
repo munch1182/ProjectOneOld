@@ -30,7 +30,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
         //可用宽度
         val rowsMaxWidth = widthSize - paddingLeft - paddingRight
         //已用宽度
-        var rowsUsedWidth = paddingLeft
+        var rowsUsedWidth = paddingLeft + paddingRight
         //已有高度
         var columnHeight = paddingTop
         var lastRowHeight = paddingTop
@@ -49,10 +49,6 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
             childWidth += params.leftMargin + params.rightMargin
             childHeight += params.topMargin + params.bottomMargin
 
-            if (i == 0) {
-                helper.lineNum = 0
-                helper.lineViewCount = 1
-            }
             leftWidth = rowsMaxWidth - rowsUsedWidth
             //不换行
             //i==0时走上面的判断，否则如果第一个宽度过大会显示错位
@@ -62,7 +58,10 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
                 if (lastRowHeight + childHeight > columnHeight) {
                     columnHeight = lastRowHeight + childHeight
                 }
-                if (i != 0) {
+                if (i == 0) {
+                    helper.lineNum = 0
+                    helper.lineViewCount = 1
+                } else {
                     helper.lineViewCount++
                 }
                 //换行
@@ -71,7 +70,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
                 helper.spaceLeft = leftWidth
                 helper.updateLines()
                 //下一行
-                rowsUsedWidth = paddingLeft + childWidth
+                rowsUsedWidth = paddingLeft + childWidth + paddingRight
                 lastRowHeight = columnHeight
                 columnHeight += childHeight
 
@@ -101,13 +100,11 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
         //补足数据
         if (oneLine) {
             helper.lineCenterY = heightSize / 2
-            helper.spaceLeft = 0
-            helper.updateLines()
         } else {
             helper.lineCenterY = lastRowHeight + (columnHeight - lastRowHeight) / 2
-            helper.spaceLeft = rowsMaxWidth - rowsUsedWidth
-            helper.updateLines()
         }
+        helper.spaceLeft = rowsMaxWidth - rowsUsedWidth
+        helper.updateLines()
 
         setMeasuredDimension(width, height)
     }
