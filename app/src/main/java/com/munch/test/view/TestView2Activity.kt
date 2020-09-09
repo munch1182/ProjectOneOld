@@ -1,9 +1,18 @@
 package com.munch.test.view
 
+import android.graphics.drawable.RippleDrawable
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import com.google.android.material.ripple.RippleDrawableCompat
+import com.munch.lib.libnative.helper.ResHelper
+import com.munch.lib.libnative.helper.ViewHelper
+import com.munch.lib.log.LogLog
 import com.munch.test.R
 import com.munch.test.base.BaseActivity
+import com.munch.test.view.weight.BgTextView
 import com.munch.test.view.weight.FlowLayout
 import kotlinx.android.synthetic.main.activity_test_view2.*
 
@@ -38,5 +47,30 @@ class TestView2Activity : BaseActivity() {
         view_b5.setOnClickListener(listener)
         view_b6.setOnClickListener(listener)
 
+        var textView: TextView
+        val dp5 = ResHelper.dp2Px(dpVal = 5f).toInt()
+
+        /*view_flow2.setGravity(FlowLayout.CENTER)*/
+        for (i in 0..30) {
+            textView = BgTextView(this)
+            textView.text = ((30..5000).random() * 0.3f).toString()
+            textView.setPadding(dp5 * 2, dp5, dp5 * 2, dp5)
+            ViewHelper.setViewMargin(textView, dp5, dp5 / 2, dp5, dp5 / 2)
+            textView.isClickable = true
+            textView.background =
+                ResHelper.getSystemDrawable(resId = android.R.attr.selectableItemBackground)
+            view_flow2.addView(textView)
+        }
+
+        view_btn_del.setOnClickListener {
+            if (view_flow2.childCount == 0) {
+                return@setOnClickListener
+            }
+            view_flow2.removeViewAt(0)
+            if (view_flow2.childCount == 0) {
+                (view_btn_del.parent as View).visibility = View.GONE
+                return@setOnClickListener
+            }
+        }
     }
 }
