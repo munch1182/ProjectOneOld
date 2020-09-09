@@ -55,7 +55,8 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
             }
             leftWidth = rowsMaxWidth - rowsUsedWidth
             //不换行
-            if (leftWidth >= childWidth) {
+            //i==0时走上面的判断，否则如果第一个宽度过大会显示错位
+            if (i == 0 || leftWidth >= childWidth) {
                 rowsUsedWidth += childWidth
                 //某些单个控件更高则更新高度
                 if (lastRowHeight + childHeight > columnHeight) {
@@ -97,11 +98,11 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
             width = widthSize
         }
 
+        //补足数据
         if (oneLine) {
             helper.lineCenterY = heightSize / 2
             helper.spaceLeft = 0
             helper.updateLines()
-            //补足最后一行的数据
         } else {
             helper.lineCenterY = lastRowHeight + (columnHeight - lastRowHeight) / 2
             helper.spaceLeft = rowsMaxWidth - rowsUsedWidth
@@ -152,7 +153,16 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
         @Gravity
         var gravity = START
 
+        /**
+         * 每一个子view的位置信息，4个为一组，以l、t、r、b顺序储存
+         * @see LayoutHelper.updateRect
+         */
         var rectArray = ArrayList<Int>()
+
+        /**
+         * 每一行信息，4个数据一组
+         * @see LayoutHelper.updateLines
+         */
         var lineArray = ArrayList<Int>()
 
         var l = 0
@@ -222,6 +232,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
                         lineCenterY + view.measuredHeight / 2
                     )
                 }
+                else -> view.layout(l, t, r, b)
             }
         }
 

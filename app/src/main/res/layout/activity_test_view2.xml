@@ -22,13 +22,14 @@
         android:layout_width="200dp"
         android:layout_height="300dp"
         android:background="@color/color_bg"
+        android:padding="@dimen/padding_def"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view_tb">
 
         <TextView
-            android:layout_width="100dp"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:background="?android:selectableItemBackground"

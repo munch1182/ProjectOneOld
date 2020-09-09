@@ -37,5 +37,6 @@ class TestView2Activity : BaseActivity() {
         view_b4.setOnClickListener(listener)
         view_b5.setOnClickListener(listener)
         view_b6.setOnClickListener(listener)
+
     }
 }
