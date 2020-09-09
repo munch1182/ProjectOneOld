@@ -3,6 +3,7 @@ package com.munch.test.base
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.module.DraggableModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.munch.test.R
 import kotlinx.android.synthetic.main.activity_rv.*
@@ -26,7 +27,8 @@ open class RvActivity : BaseActivity() {
             addItemList(this)
         }
         adapter =
-            object : BaseQuickAdapter<String, BaseViewHolder>(R.layout.item_rv_main, itemList) {
+            object : BaseQuickAdapter<String, BaseViewHolder>(R.layout.item_rv_main, itemList),
+                DraggableModule {
                 override fun convert(holder: BaseViewHolder, item: String) {
                     holder.setText(R.id.item_tv, item)
                 }

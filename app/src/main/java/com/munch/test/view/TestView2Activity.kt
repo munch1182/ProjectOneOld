@@ -1,18 +1,17 @@
 package com.munch.test.view
 
-import android.graphics.drawable.RippleDrawable
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import com.google.android.material.ripple.RippleDrawableCompat
-import com.munch.lib.libnative.helper.ResHelper
-import com.munch.lib.libnative.helper.ViewHelper
-import com.munch.lib.log.LogLog
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.module.DraggableModule
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexWrap
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.material.chip.Chip
 import com.munch.test.R
 import com.munch.test.base.BaseActivity
-import com.munch.test.view.weight.BgTextView
 import com.munch.test.view.weight.FlowLayout
 import kotlinx.android.synthetic.main.activity_test_view2.*
 
@@ -47,30 +46,36 @@ class TestView2Activity : BaseActivity() {
         view_b5.setOnClickListener(listener)
         view_b6.setOnClickListener(listener)
 
-        var textView: TextView
-        val dp5 = ResHelper.dp2Px(dpVal = 5f).toInt()
-
-        /*view_flow2.setGravity(FlowLayout.CENTER)*/
-        for (i in 0..30) {
-            textView = BgTextView(this)
-            textView.text = ((30..5000).random() * 0.3f).toString()
-            textView.setPadding(dp5 * 2, dp5, dp5 * 2, dp5)
-            ViewHelper.setViewMargin(textView, dp5, dp5 / 2, dp5, dp5 / 2)
-            textView.isClickable = true
-            textView.background =
-                ResHelper.getSystemDrawable(resId = android.R.attr.selectableItemBackground)
-            view_flow2.addView(textView)
+        val listener2 = View.OnClickListener {
+            (view_chip.parent as ViewGroup).removeView(it)
         }
+        view_chip.setOnCloseIconClickListener(listener2)
+        view_chip2.setOnCloseIconClickListener(listener2)
 
-        view_btn_del.setOnClickListener {
-            if (view_flow2.childCount == 0) {
-                return@setOnClickListener
+        view_rv.layoutManager = FlexboxLayoutManager(this, FlexDirection.ROW).apply {
+            flexWrap = FlexWrap.WRAP
+        }
+        val adapter = object : BaseQuickAdapter<String, BaseViewHolder>(0),
+            DraggableModule {
+
+            override fun onCreateDefViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+                return createBaseViewHolder(Chip(parent.context))
             }
-            view_flow2.removeViewAt(0)
-            if (view_flow2.childCount == 0) {
-                (view_btn_del.parent as View).visibility = View.GONE
-                return@setOnClickListener
+
+            override fun convert(holder: BaseViewHolder, item: String) {
+                if (holder.itemView is Chip) {
+                    (holder.itemView as Chip).text = item
+                }
             }
         }
+        adapter.draggableModule.isDragEnabled = true
+        view_rv.adapter = adapter
+
+        val list = ArrayList<String>(49)
+        for (i in 0..50) {
+            list.add(((55..888).random() * 0.1f).toString())
+        }
+        adapter.setList(list)
     }
+
 }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.munch.test.R
 import com.munch.test.base.RvActivity
 import com.munch.test.other.TestOtherActivity
+import com.munch.test.recyclerview.TestRecyclerViewActivity
 import com.munch.test.toolbar.TestToolBarActivity
 import com.munch.test.view.TestViewActivity
 
@@ -20,6 +21,7 @@ class MainActivity : RvActivity() {
                 0 -> startActivity(TestToolBarActivity::class.java)
                 1 -> startActivity(TestViewActivity::class.java)
                 2 -> startActivity(TestOtherActivity::class.java)
+                3 -> startActivity(TestRecyclerViewActivity::class.java)
                 else -> return@setOnItemClickListener
             }
         }
@@ -32,7 +34,7 @@ class MainActivity : RvActivity() {
         list.add("toolbar")
         list.add("view")
         list.add("other")
-        list.add("444444444444")
+        list.add("recyclerview")
         list.add("555555555555")
     }
 

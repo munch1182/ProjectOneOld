@@ -8,6 +8,8 @@ import androidx.annotation.IntDef
 
 /**
  * 没有写宽高间距因为可以用内部View的margin和padding实现
+ * 需要简单的FlowLayout可以直接用{@see com.google.android.material.internal.FlowLayout}
+ * 此类相比实现了{@see com.munch.test.view.weight.FlowLayout.Gravity}
  * Create by munch on 2020/9/4 13:32
  */
 class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
@@ -16,7 +18,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    private var helper = LayoutHelper()
+    private var layoutHelper = LayoutHelper()
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         /*super.onMeasure(widthMeasureSpec, heightMeasureSpec)*/
@@ -24,7 +26,7 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
         val widthSize = MeasureSpec.getSize(widthMeasureSpec)
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
         val heightSize = MeasureSpec.getSize(heightMeasureSpec)
-        helper.reset()
+        layoutHelper.reset()
 
         var child: View?
         //可用宽度
@@ -44,10 +46,20 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
 
             var childWidth = child.measuredWidth
             var childHeight = child.measuredHeight
-            //需要重写generateLayoutParams(attrs: AttributeSet?)方法
-            val params = child.layoutParams as MarginLayoutParams
-            childWidth += params.leftMargin + params.rightMargin
-            childHeight += params.topMargin + params.bottomMargin
+            var leftMargin = 0
+            var rightMargin = 0
+            var topMargin = 0
+            var bottomMargin = 0
+            //需要重写generateLayoutParams
+            if (child.layoutParams is MarginLayoutParams) {
+                val params = child.layoutParams as MarginLayoutParams
+                leftMargin = params.leftMargin
+                rightMargin = params.rightMargin
+                topMargin = params.topMargin
+                bottomMargin = params.bottomMargin
+            }
+            childWidth += leftMargin + rightMargin
+            childHeight += topMargin + bottomMargin
 
             leftWidth = rowsMaxWidth - rowsUsedWidth
             //不换行
@@ -59,33 +71,33 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
                     columnHeight = lastRowHeight + childHeight
                 }
                 if (i == 0) {
-                    helper.lineNum = 0
-                    helper.lineViewCount = 1
+                    layoutHelper.lineNum = 0
+                    layoutHelper.lineViewCount = 1
                 } else {
-                    helper.lineViewCount++
+                    layoutHelper.lineViewCount++
                 }
                 //换行
             } else {
-                helper.lineCenterY = lastRowHeight + (columnHeight - lastRowHeight) / 2
-                helper.spaceLeft = leftWidth
-                helper.updateLines()
+                layoutHelper.lineCenterY = lastRowHeight + (columnHeight - lastRowHeight) / 2
+                layoutHelper.spaceLeft = leftWidth
+                layoutHelper.updateLines()
                 //下一行
                 rowsUsedWidth = paddingLeft + childWidth + paddingRight
                 lastRowHeight = columnHeight
                 columnHeight += childHeight
 
-                helper.lineNum++
-                helper.lineViewCount = 1
+                layoutHelper.lineNum++
+                layoutHelper.lineViewCount = 1
             }
 
-            helper.l = rowsUsedWidth - childWidth + params.leftMargin
-            helper.t = lastRowHeight + params.topMargin
-            helper.r = rowsUsedWidth - params.rightMargin
-            helper.b = lastRowHeight + childHeight - params.bottomMargin
-            helper.updateRect()
+            layoutHelper.l = rowsUsedWidth - childWidth + leftMargin
+            layoutHelper.t = lastRowHeight + topMargin
+            layoutHelper.r = rowsUsedWidth - rightMargin
+            layoutHelper.b = lastRowHeight + childHeight - bottomMargin
+            layoutHelper.updateRect()
         }
         //是否只有一行
-        val oneLine = helper.lineArray.size == 0
+        val oneLine = layoutHelper.lineArray.size == 0
 
         var width = if (!oneLine) widthSize else rowsUsedWidth
         var height = columnHeight + paddingBottom
@@ -99,39 +111,47 @@ class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
 
         //补足数据
         if (oneLine) {
-            helper.lineCenterY = heightSize / 2
+            layoutHelper.lineCenterY = heightSize / 2
         } else {
-            helper.lineCenterY = lastRowHeight + (columnHeight - lastRowHeight) / 2
+            layoutHelper.lineCenterY = lastRowHeight + (columnHeight - lastRowHeight) / 2
         }
-        helper.spaceLeft = rowsMaxWidth - rowsUsedWidth
-        helper.updateLines()
+        layoutHelper.spaceLeft = rowsMaxWidth - rowsUsedWidth
+        layoutHelper.updateLines()
 
         setMeasuredDimension(width, height)
     }
 
     override fun onLayout(change: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        helper.startLayout(0)
-        var lineCount = helper.lineViewCount
+        layoutHelper.startLayout(0)
+        var lineCount = layoutHelper.lineViewCount
         var lineIndex = 0
         for (i in 0..childCount) {
             //获取下一行数据
             if (i >= lineCount) {
-                helper.startLayout(helper.lineNum + 1)
-                lineCount += helper.lineViewCount
+                layoutHelper.startLayout(layoutHelper.lineNum + 1)
+                lineCount += layoutHelper.lineViewCount
                 lineIndex = 0
             }
-            helper.layout(getChildAt(i), i, lineIndex)
+            layoutHelper.layout(getChildAt(i), i, lineIndex)
             lineIndex++
         }
+    }
+
+    fun setGravity(@Gravity gravity: Int) {
+        layoutHelper.gravity = gravity
+        requestLayout()
     }
 
     override fun generateLayoutParams(attrs: AttributeSet?): LayoutParams {
         return MarginLayoutParams(context, attrs)
     }
 
-    fun setGravity(@Gravity gravity: Int) {
-        helper.gravity = gravity
-        requestLayout()
+    override fun generateLayoutParams(p: LayoutParams?): LayoutParams {
+        return MarginLayoutParams(p)
+    }
+
+    override fun generateDefaultLayoutParams(): LayoutParams {
+        return MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
     }
 
     @IntDef(START, END, CENTER, CENTER_VERTICAL, CENTER_HORIZONTAL)

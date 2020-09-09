@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -24,84 +24,83 @@
 
         <com.munch.test.view.weight.FlowLayout
             android:id="@+id/view_flow"
-            android:layout_width="200dp"
+            android:layout_width="0dp"
             android:layout_height="300dp"
+            android:animateLayoutChanges="true"
             android:background="@color/color_bg"
             android:padding="@dimen/padding_def"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/view_b1"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/view_tb">
 
-            <TextView
-                android:layout_width="200dp"
+            <com.google.android.material.chip.Chip
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:background="?android:selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
+                android:text="123" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/view_chip"
+                style="@style/Widget.MaterialComponents.Chip.Entry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="123" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/view_chip2"
+                style="@style/Widget.MaterialComponents.Chip.Entry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding_def"
+                android:text="321" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="123444444" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12344444422342asssd" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="123444444" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:background="#e5e5e5"
                 android:gravity="center"
-                android:text="测试文字1" />
+                android:padding="@dimen/padding_def"
+                android:text="\?" />
 
-            <TextView
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
-                android:text="测试文字2" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/colorAccent"
-                android:text="测试文字3" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:background="@color/colorPrimary"
-                android:gravity="center"
-                android:text="测试4" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimaryDark"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:text="55555555" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="233"
-                tools:ignore="HardcodedText" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:background="@color/colorAccent"
-                android:gravity="center"
-                android:text="测试文字7" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/colorAccent"
-                android:text="测试文字8" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/colorAccent"
-                android:text="测试文字9" />
+                android:text="12" />
         </com.munch.test.view.weight.FlowLayout>
 
         <Button
             android:id="@+id/view_b1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:layout_marginEnd="@dimen/padding_def"
             android:tag="0"
-            android:text="start"
+            android:text="1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/view_flow"
             app:layout_constraintTop_toTopOf="@id/view_flow" />
@@ -111,7 +110,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:tag="1"
-            android:text="end"
+            android:text="2"
             app:layout_constraintEnd_toEndOf="@id/view_b1"
             app:layout_constraintStart_toStartOf="@id/view_b1"
             app:layout_constraintTop_toBottomOf="@id/view_b1" />
@@ -121,7 +120,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:tag="2"
-            android:text="center_horizontal"
+            android:text="3"
             app:layout_constraintEnd_toEndOf="@id/view_b2"
             app:layout_constraintStart_toStartOf="@id/view_b2"
             app:layout_constraintTop_toBottomOf="@id/view_b2" />
@@ -131,7 +130,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:tag="3"
-            android:text="center_vertical"
+            android:text="4"
             app:layout_constraintEnd_toEndOf="@id/view_b3"
             app:layout_constraintStart_toStartOf="@id/view_b3"
             app:layout_constraintTop_toBottomOf="@id/view_b3" />
@@ -141,7 +140,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:tag="4"
-            android:text="center"
+            android:text="5"
             app:layout_constraintEnd_toEndOf="@id/view_b4"
             app:layout_constraintStart_toStartOf="@id/view_b4"
             app:layout_constraintTop_toBottomOf="@id/view_b4" />
@@ -151,31 +150,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:tag="5"
-            android:text="END_CENTER_VERTICAL"
+            android:text="6"
             app:layout_constraintEnd_toEndOf="@id/view_b5"
             app:layout_constraintStart_toStartOf="@id/view_b5"
             app:layout_constraintTop_toBottomOf="@id/view_b5" />
 
-        <Button
-            android:id="@+id/view_btn_del"
-            android:layout_width="wrap_content"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/view_rv"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="remove"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/view_flow" />
-
-        <com.munch.test.view.weight.FlowLayout
-            android:id="@+id/view_flow2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:background="@color/color_bg"
             android:padding="@dimen/padding_def"
-            app:layout_constraintEnd_toStartOf="@id/view_btn_del"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/view_flow" />
-
+            app:layout_constraintTop_toBottomOf="@id/view_flow"
+            tools:listitem="@layout/item_rv_main" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</ScrollView>
+</androidx.core.widget.NestedScrollView>
