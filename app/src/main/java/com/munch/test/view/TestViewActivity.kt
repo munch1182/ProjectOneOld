@@ -14,6 +14,7 @@ class TestViewActivity : RvActivity() {
             when (position) {
                 0 -> startActivity(TestView1Activity::class.java)
                 1 -> startActivity(TestView2Activity::class.java)
+                2 -> startActivity(TestView3Activity::class.java)
                 else -> startActivity(TestViewOtherActivity::class.java)
             }
         }
@@ -25,6 +26,7 @@ class TestViewActivity : RvActivity() {
         super.addItemList(list)
         list.add("圆形进度")
         list.add("流式布局")
+        list.add("触摸事件")
         list.add("其它")
     }
 }

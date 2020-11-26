@@ -80,7 +80,6 @@ class CircleProgressBar(context: Context, attrs: AttributeSet?, defStyleAttr: In
         super.onSizeChanged(w, h, oldw, oldh)
         radius = w.coerceAtMost(h) / 2f
         val minSize = radius / 3
-        LogLog.log(textSize, minSize)
         if (textSize > minSize) {
             textSize = minSize
             paintText.textSize = textSize

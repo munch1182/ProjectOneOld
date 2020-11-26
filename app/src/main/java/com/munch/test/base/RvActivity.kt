@@ -22,12 +22,17 @@ open class RvActivity : BaseActivity() {
         setSupportActionBar(rv_tb)
         supportActionBar!!.elevation = 15f
 
-        rv_rv.layoutManager = LinearLayoutManager(this)
         val itemList = ArrayList<String>().apply {
             addItemList(this)
         }
+        setRv(itemList)
+    }
+
+    open fun setRv(list: ArrayList<String>) {
+        rv_rv.layoutManager = LinearLayoutManager(this)
+
         adapter =
-            object : BaseQuickAdapter<String, BaseViewHolder>(R.layout.item_rv_main, itemList),
+            object : BaseQuickAdapter<String, BaseViewHolder>(R.layout.item_rv_main, list),
                 DraggableModule {
                 override fun convert(holder: BaseViewHolder, item: String) {
                     holder.setText(R.id.item_tv, item)

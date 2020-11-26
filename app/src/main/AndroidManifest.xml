@@ -15,11 +15,13 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
+        <activity android:name=".recyclerview.TestRv2Activity"/>
         <activity android:name=".recyclerview.TestRv1Activity"/>
         <activity android:name=".recyclerview.TestRecyclerViewActivity" />
         <activity android:name=".other.TestOtherFloatActivity" />
         <activity android:name=".other.TestOtherActivity" />
         <activity android:name=".view.TestViewOtherActivity" />
+        <activity android:name=".view.TestView3Activity" />
         <activity android:name=".view.TestView2Activity" />
         <activity android:name=".view.TestView1Activity" />
         <activity android:name=".view.TestViewActivity" />

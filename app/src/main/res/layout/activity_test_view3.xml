@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:scrollbars="none"
+    tools:context=".view.TestView3Activity"
+    tools:ignore="HardcodedText,UselessParent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/view_tb"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary" />
+
+        <FrameLayout
+            android:id="@+id/view_lv1"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:clickable="true"
+            android:focusable="true"
+            tools:background="@android:color/holo_red_light">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/sw_lv1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="3dp"
+                android:checked="true"
+                android:text="clickable"
+                android:textColor="@color/color_white" />
+
+            <FrameLayout
+                android:id="@+id/view_lv2"
+                android:layout_width="300dp"
+                android:layout_height="400dp"
+                tools:background="@android:color/holo_orange_light">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/sw_lv2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="3dp"
+                    android:checked="true"
+                    android:text="clickable"
+                    android:textColor="@color/color_white" />
+
+                <FrameLayout
+                    android:id="@+id/view_lv3"
+                    android:layout_width="200dp"
+                    android:layout_height="300dp"
+                    tools:background="@android:color/holo_blue_bright">
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/sw_lv3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|end"
+                        android:layout_margin="3dp"
+                        android:checked="true"
+                        android:text="clickable"
+                        android:textColor="@color/color_white" />
+
+                    <Button
+                        android:id="@+id/view_lv4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/padding_def"
+                        android:text="123" />
+                </FrameLayout>
+            </FrameLayout>
+        </FrameLayout>
+    </FrameLayout>
+
+</androidx.core.widget.NestedScrollView>

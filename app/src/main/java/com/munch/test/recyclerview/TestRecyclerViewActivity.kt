@@ -13,6 +13,7 @@ class TestRecyclerViewActivity : RvActivity() {
         adapter.setOnItemClickListener { _, _, position ->
             when (position) {
                 0 -> startActivity(TestRv1Activity::class.java)
+                1 -> startActivity(TestRv2Activity::class.java)
                 else -> return@setOnItemClickListener
             }
         }
@@ -22,6 +23,7 @@ class TestRecyclerViewActivity : RvActivity() {
 
     override fun addItemList(list: ArrayList<String>) {
         super.addItemList(list)
-        list.add("rv")
+        list.add("滑动顺序的rv")
+        list.add("不规则的rv")
     }
 }

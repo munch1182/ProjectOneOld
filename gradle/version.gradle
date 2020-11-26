@@ -110,6 +110,8 @@ ext {
             "rxandroid"                       : "io.reactivex.rxjava2:rxandroid:3.0.0",
             /*https://github.com/JakeWharton/RxRelay*/
             "rxrelay"                         : 'com.jakewharton.rxrelay2:rxrelay:3.0.0',
+            /*https://github.com/pwittchen/ReactiveNetwork/tree/RxJava3.x*/
+            "reactivenetwork"                 : "com.github.pwittchen:reactivenetwork-rx3:3.0.8",
 
             /*https://github.com/square/retrofit*/
             "retrofit"                        : "com.squareup.retrofit2:retrofit:${versions['retrofitVersion']}",

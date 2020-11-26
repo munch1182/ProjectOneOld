@@ -2,8 +2,6 @@ package com.munch.test.recyclerview
 
 import android.os.Bundle
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
 import com.munch.test.base.RvActivity
 import kotlinx.android.synthetic.main.activity_rv.*
 
