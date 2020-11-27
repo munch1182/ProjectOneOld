@@ -9,7 +9,7 @@ apply from: './gradle/gitversion.gradle'
 ext {
     versions = [
             compileSdkVersion: 30,
-            buildToolsVersion: "30.0.1",
+            buildToolsVersion: "30.0.2",
             minSdkVersion    : 16,
             targetSdkVersion : 30,
 
@@ -45,15 +45,15 @@ ext {
             // https://developer.android.google.cn/jetpack/androidx/releases/recyclerview?hl=en
             "recyclerview"                    : "androidx.recyclerview:recyclerview:1.1.0",
             // https://developer.android.google.cn/jetpack/androidx/releases/core?hl=en
-            "core_ktx"                        : "androidx.core:core-ktx:1.3.1",
+            "core_ktx"                        : "androidx.core:core-ktx:1.3.2",
             // https://github.com/material-components/material-components-android
-            "material"                        : "com.google.android.material:material:1.2.0",
+            "material"                        : "com.google.android.material:material:1.2.1",
             // https://developer.android.google.cn/jetpack/androidx/releases/cardview?hl=en
             "cardview"                        : "androidx.cardview:cardview:1.0.0",
             // https://developer.android.google.cn/jetpack/androidx/releases/viewpager?hl=en
             "viewpager"                       : "androidx.viewpager:viewpager:1.0.0",
             // https://developer.android.google.cn/jetpack/androidx/releases/constraintlayout?hl=en
-            "constraintlayout"                : "androidx.constraintlayout:constraintlayout:2.0.1",
+            "constraintlayout"                : "androidx.constraintlayout:constraintlayout:2.0.4",
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/lifecycle?hl=en*/
             // ViewModel and LiveData
