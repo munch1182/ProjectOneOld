@@ -15,8 +15,10 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute">
-        <activity android:name=".recyclerview.TestRv2Activity"/>
-        <activity android:name=".recyclerview.TestRv1Activity"/>
+        <activity android:name=".service.TestService1Activity" />
+        <activity android:name=".service.TestServiceActivity" />
+        <activity android:name=".recyclerview.TestRv2Activity" />
+        <activity android:name=".recyclerview.TestRv1Activity" />
         <activity android:name=".recyclerview.TestRecyclerViewActivity" />
         <activity android:name=".other.TestOtherFloatActivity" />
         <activity android:name=".other.TestOtherActivity" />
@@ -36,6 +38,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".service.TestService"/>
     </application>
 
 </manifest>
