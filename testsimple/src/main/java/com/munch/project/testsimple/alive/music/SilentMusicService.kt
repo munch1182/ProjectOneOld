@@ -6,9 +6,9 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.os.IBinder
 import android.os.SystemClock
+import com.munch.lib.helper.ScreenReceiverHelper
 import com.munch.lib.log
 import com.munch.project.testsimple.R
-import com.munch.project.testsimple.alive.ScreenReceiverHelper
 import com.munch.project.testsimple.alive.TestDataHelper
 import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadPoolExecutor
@@ -26,9 +26,7 @@ class SilentMusicService : Service() {
         }
 
         fun register(context: Context) {
-            start(
-                context
-            )
+            start(context)
         }
     }
 

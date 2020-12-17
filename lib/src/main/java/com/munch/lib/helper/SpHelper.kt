@@ -2,36 +2,35 @@ package com.munch.lib.helper
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.munch.lib.BaseApp
 
 /**
  * Created by Munch on 2019/7/26 14:37
  */
-class SpHelper private constructor() {
+class SpHelper private constructor(private var sharedPreferences: SharedPreferences) {
 
     companion object {
 
         private const val SP_NAME = "SP_NAME"
-        private var sharedPreferences: SharedPreferences? = null
 
         @JvmStatic
         fun getName() = SP_NAME
 
 
         @JvmStatic
-        fun getSp(context: Context) = getSp(context, SP_NAME)
+        fun getSp(context: Context = BaseApp.getInstance()) = getSp(context, SP_NAME)
 
         /**
          * 根据传入的[name]不同，可以切换不同的SharedPreferences对象
          */
         @JvmStatic
-        fun getSp(context: Context, name: String): SpHelper {
-            sharedPreferences = context.getSharedPreferences(name, Context.MODE_PRIVATE)
-            return SpHelper()
+        fun getSp(context: Context = BaseApp.getInstance(), name: String): SpHelper {
+            return SpHelper(context.getSharedPreferences(name, Context.MODE_PRIVATE))
         }
 
     }
 
-    private fun getSp() = sharedPreferences!!
+    private fun getSp() = sharedPreferences
 
     fun put(key: String, any: Any?) {
         getSp().edit().apply {

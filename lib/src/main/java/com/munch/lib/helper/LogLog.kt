@@ -60,8 +60,9 @@ object LogLog {
     private fun getCallFunction(): String {
         val trace = Thread.currentThread().stackTrace
         var lastIndex = -1
+        val name: String? = className ?: LogLog.javaClass.canonicalName
         trace.forEachIndexed { index, element ->
-            if (element.className == className ?: LogLog.javaClass.canonicalName) {
+            if (element.className == name) {
                 lastIndex = index
                 return@forEachIndexed
             }

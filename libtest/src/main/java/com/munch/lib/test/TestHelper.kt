@@ -2,6 +2,7 @@ package com.munch.lib.test
 
 import android.content.Context
 import android.os.SystemClock
+import com.munch.lib.BaseApp
 import com.munch.lib.helper.LogLog
 import com.munch.lib.helper.SpHelper
 import com.munch.lib.helper.formatDate
@@ -36,7 +37,7 @@ object TestHelper {
     /**
      * 测试重试，主要用于运行-断开-重启的情形
      */
-    fun testRestart(context: Context, spName: String = NAME_SP_DEF) {
+    fun testRestart(context: Context = BaseApp.getInstance(), spName: String = NAME_SP_DEF) {
         val sp = SpHelper.getSp(context, spName)
         val map = HashMap<String, Any>()
         if (!sp.hasKey(KEY_TIME_TEST_RESTART_COUNT)) {
@@ -57,7 +58,7 @@ object TestHelper {
     /**
      * 将信息存入文件
      */
-    fun saveInFile(context: Context, msg: String, fileName: String) {
+    fun saveInFile(context: Context = BaseApp.getInstance(), msg: String, fileName: String) {
         try {
             //位置在app内files文件夹下
             val fos = context.openFileOutput(fileName, Context.MODE_APPEND)
@@ -81,7 +82,7 @@ object TestHelper {
      * @see testTimeEnd
      * @see SpHelper
      */
-    fun testTimeStart(context: Context, spName: String = NAME_SP_DEF) {
+    fun testTimeStart(context: Context = BaseApp.getInstance(), spName: String = NAME_SP_DEF) {
         val sp = SpHelper.getSp(context, spName)
         val count = sp.get(KEY_TIME_TEST_COUNT, 1)
         sp.put(KEY_TIME_TEST_START + count, System.currentTimeMillis())
@@ -93,7 +94,7 @@ object TestHelper {
      * @see testTimeStart
      * @see SpHelper
      */
-    fun testTimeEnd(context: Context, spName: String = NAME_SP_DEF) {
+    fun testTimeEnd(context: Context = BaseApp.getInstance(), spName: String = NAME_SP_DEF) {
         val sp = SpHelper.getSp(context, spName)
         var count = sp.get(KEY_TIME_TEST_COUNT, -1)
         if (count == -1) {
@@ -110,7 +111,11 @@ object TestHelper {
     /**
      * 测试存活时间，每1m更新一次
      */
-    fun testAliveTime(context: Context, spName: String, pool: ThreadPoolExecutor = oneCorePool) {
+    fun testAliveTime(
+        context: Context = BaseApp.getInstance(),
+        spName: String,
+        pool: ThreadPoolExecutor = oneCorePool
+    ) {
         pool.execute {
             while (true) {
                 SystemClock.sleep(60 * 1000L)

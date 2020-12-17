@@ -1,6 +1,8 @@
 package com.munch.lib.helper
 
 import android.app.Activity
+import android.app.ActivityManager
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -23,20 +25,10 @@ fun Context.startActivity(clazz: Class<out Activity>, bundle: Bundle? = null) {
 }
 
 fun Context.getBackIcon(): Drawable? {
-    /*return if (Build.VERSION.SDK_INT >= 18) {
-        val a = obtainStyledAttributes(
-            null, intArrayOf(android.R.attr.homeAsUpIndicator),
-            android.R.attr.actionBarSplitStyle, 0
-        )
-        val result = a.getDrawable(0)
-        a.recycle()
-        result
-    } else {*/
     val a = obtainStyledAttributes(intArrayOf(android.R.attr.homeAsUpIndicator))
     val result = a.getDrawable(0)
     a.recycle()
     return result
-    /*}*/
 }
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -59,4 +51,32 @@ fun Context.dp2Px(dpVal: Float): Float {
 
 fun Context.px2Dp(pxVal: Float): Float {
     return pxVal / this.resources.displayMetrics.scaledDensity + 0.5f
+}
+
+/**
+ * 虽然方法已废弃，但仍会返回自己的服务
+ */
+@Suppress("DEPRECATION")
+fun Context.isServiceRunning(service: Class<out Service>): Boolean {
+    val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager? ?: return false
+    val services = manager.getRunningServices(Int.MAX_VALUE)
+    services.forEach {
+        if (it.service.className == service.name) {
+            return true
+        }
+    }
+    return false
+}
+
+/**
+ * 即使声明不同进程的服务也会被stop
+ */
+@Suppress("DEPRECATION")
+fun Context.stopAllService(): Boolean {
+    val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager? ?: return false
+    val services = manager.getRunningServices(Int.MAX_VALUE)
+    services.forEach {
+        stopService(Intent(this, Class.forName(it.service.className)))
+    }
+    return false
 }

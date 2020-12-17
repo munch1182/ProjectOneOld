@@ -6,6 +6,7 @@ import android.view.View
 import androidx.lifecycle.Observer
 import androidx.work.WorkInfo
 import com.munch.lib.helper.formatDate
+import com.munch.lib.helper.stopAllService
 import com.munch.lib.log
 import com.munch.lib.test.TestDialog
 import com.munch.lib.test.recyclerview.TestRvActivity
@@ -140,6 +141,10 @@ class TestAliveActivity : TestRvActivity() {
         }
     }
 
+    /**
+     * 综合使用
+     * 综合了电量优化、自启动、work、前台进程和双进程守护
+     */
     private fun mixAlive(view: View) {
         //电量优化-》回调自启动
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -164,6 +169,7 @@ class TestAliveActivity : TestRvActivity() {
         adapter.clearItemInfo()
         TestDataHelper.clear(this)
         RestartWork.stop(this)
+        stopAllService()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

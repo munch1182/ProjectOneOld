@@ -1,22 +1,32 @@
 package com.munch.project.testsimple
 
-import android.app.Application
+import android.os.Build
 import androidx.work.Configuration
+import com.munch.lib.BaseApp
+import com.munch.lib.helper.ForegroundHelper
+import com.munch.lib.helper.stopAllService
+import com.munch.project.testsimple.alive.foreground.ForegroundService
 
 /**
  * Create by munch1182 on 2020/12/9 11:38.
  */
-class App : Application(), Configuration.Provider {
+class App : BaseApp(), Configuration.Provider {
+
+    companion object {
+        fun getInstance() = getInstance<App>()
+    }
 
     override fun onCreate() {
         super.onCreate()
-        app = this
-    }
-
-    companion object {
-        private lateinit var app: App
-
-        fun getInstance() = app
+        ForegroundHelper.register(this).getForegroundLiveData().observeForever {
+            if (!it) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    ForegroundService.start(this)
+                }
+            } else {
+                stopAllService()
+            }
+        }
     }
 
     override fun getWorkManagerConfiguration(): Configuration {

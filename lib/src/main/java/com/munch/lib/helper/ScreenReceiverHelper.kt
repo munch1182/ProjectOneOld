@@ -1,10 +1,13 @@
-package com.munch.project.testsimple.alive
+package com.munch.lib.helper
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import com.munch.lib.log
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
 
 /**
  * Create by munch1182 on 2020/12/14 11:08.
@@ -21,11 +24,32 @@ class ScreenReceiverHelper constructor(private val context: Context) {
         return this
     }
 
+    fun addScreenStateListener(
+        owner: LifecycleOwner,
+        listener: ScreenStateListener
+    ): ScreenReceiverHelper {
+        addScreenStateListener(listener)
+        owner.lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun destroy() {
+                removeScreenStateListener(listener)
+                owner.lifecycle.removeObserver(this)
+            }
+        })
+        return this
+    }
+
+    fun removeScreenStateListener(listener: ScreenStateListener): ScreenReceiverHelper {
+        if (list.contains(listener)) {
+            list.remove(listener)
+        }
+        return this
+    }
+
     fun register() {
         if (receiver != null) {
             return
         }
-        log("ScreenReceiver register")
         receiver = ScreenReceiver()
         context.registerReceiver(receiver, IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_ON)
@@ -38,7 +62,6 @@ class ScreenReceiverHelper constructor(private val context: Context) {
         context.unregisterReceiver(receiver)
         receiver = null
         list.clear()
-        log("ScreenReceiver unregister")
     }
 
     interface ScreenStateListener {
@@ -50,7 +73,6 @@ class ScreenReceiverHelper constructor(private val context: Context) {
     inner class ScreenReceiver : BroadcastReceiver() {
 
         override fun onReceive(context: Context?, intent: Intent?) {
-            log("ScreenReceiver onReceive: ${intent?.action},${list.isEmpty()}")
             intent ?: return
             if (list.isEmpty()) {
                 return

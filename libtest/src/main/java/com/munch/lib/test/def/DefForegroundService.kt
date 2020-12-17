@@ -2,14 +2,12 @@ package com.munch.lib.test.def
 
 import android.app.Notification
 import androidx.core.app.NotificationCompat
-import com.munch.lib.UNTEST
 import com.munch.lib.base.BaseForegroundService
 import com.munch.lib.test.R
 
 /**
  * Create by munch1182 on 2020/12/16 11:23.
  */
-@UNTEST
 open class DefForegroundService : BaseForegroundService(
     Parameter(CHANNEL_ONE_ID, CHANNEL_ONE_NAME, NOTIFICATION_ID)
 ) {

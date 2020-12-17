@@ -12,6 +12,8 @@ class MainRvActivity : TestRvActivity() {
         title = getString(R.string.app_name)
     }
 
+    override fun notShowBack() = true
+
     override fun getItems(): MutableList<TestRvItemBean> {
         return mutableListOf(
             TestRvItemBean.newInstance("Alive", TestAliveActivity::class.java),

@@ -7,10 +7,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import com.munch.lib.SingletonHolder
+import com.munch.lib.helper.ScreenReceiverHelper
 import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.alive.AliveHelper
-import com.munch.project.testsimple.alive.ScreenReceiverHelper
 import com.munch.project.testsimple.alive.px.SinglePixelActivity.Helper
 import java.lang.ref.WeakReference
 

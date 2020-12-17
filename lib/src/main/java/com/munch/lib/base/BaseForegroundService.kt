@@ -10,12 +10,12 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.munch.lib.UNTEST
+import com.munch.lib.RequiresPermission
 
 /**
  * Create by munch1182 on 2020/12/16 11:48.
  */
-@UNTEST
+@RequiresPermission("android.permission.FOREGROUND_SERVICE")
 open class BaseForegroundService(var parameter: Parameter) : Service() {
 
     companion object {
