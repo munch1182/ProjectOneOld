@@ -1,0 +1,18 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+apply from: '../gradle/commonbuildktx.gradle'
+
+dependencies {
+    implementation project(path: ':lib')
+    implementation project(path: ':libtest')
+
+    implementation rootProject.ext.dependencies['constraintlayout']
+    implementation rootProject.ext.dependencies['material']
+
+    implementation rootProject.ext.dependencies['work_ktx']
+    implementation rootProject.ext.dependencies['work_test']
+
+}

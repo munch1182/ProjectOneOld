@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.munch.project.testsimple">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <permission
+        android:name="permission4Service"
+        android:protectionLevel="normal" />
+    <application
+        android:name=".App"
+        android:allowBackup="true"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.P1"
+        tools:replace="android:theme">
+        <activity android:name=".MainRvActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".jetpack.TestJetpackActivity" />
+        <activity android:name=".alive.TestAliveActivity"/>
+
+        <activity
+            android:name=".alive.px.SinglePixelActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation|keyboard"
+            android:excludeFromRecents="false"
+            android:exported="true"
+            android:finishOnTaskLaunch="false"
+            android:launchMode="singleInstance"
+            android:theme="@style/StyleSingleActivity" />
+
+        <activity android:name=".TestFunActivity" />
+
+        <service
+            android:name=".alive.foreground.ForegroundService"
+            android:exported="false" />
+        <service
+            android:name=".alive.foreground.ForegroundService$HideNotificationService"
+            android:exported="false" />
+
+        <service
+            android:name=".alive.guard.KeepService"
+            android:exported="true"
+            android:permission="permission4Service" />
+        <service
+            android:name=".alive.guard.GuardService"
+            android:exported="true"
+            android:permission="permission4Service"
+            android:process="project.testsimple.alive.remote">
+            <intent-filter>
+                <action android:name="com.munch.project.guard" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".alive.mix.WorkService"
+            android:exported="true"
+            android:permission="permission4Service" />
+        <service
+            android:name=".alive.mix.RemoteService"
+            android:exported="true"
+            android:permission="permission4Service"
+            android:process="alive.remote">
+            <intent-filter>
+                <action android:name="alive.mix.RemoteService" />
+            </intent-filter>
+        </service>
+
+        <service android:name=".alive.music.SilentMusicService" />
+
+        <service android:name=".func.TestForegroundService" />
+
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            android:exported="false"
+            tools:node="remove" />
+    </application>
+
+</manifest>

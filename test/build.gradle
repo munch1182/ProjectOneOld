@@ -1,0 +1,45 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    /*id 'dagger.hilt.android.plugin'*/
+}
+
+apply from: '../gradle/commonbuildktx.gradle'
+
+android {
+    buildFeatures {
+        dataBinding true
+    }
+}
+
+kapt {
+    correctErrorTypes true
+}
+
+dependencies {
+    implementation project(path: ':lib')
+    implementation project(path: ':libtest')
+
+    implementation rootProject.ext.dependencies['constraintlayout']
+    implementation rootProject.ext.dependencies['material']
+    implementation rootProject.ext.dependencies['swiperefreshlayout']
+    implementation rootProject.ext.dependencies['recyclerview']
+    implementation rootProject.ext.dependencies['viewpager2']
+
+    /*implementation rootProject.ext.dependencies['hilt']
+    kapt rootProject.ext.dependencies['hilt_compiler']
+    kapt rootProject.ext.dependencies['hilt_lifecycle']
+    kapt rootProject.ext.dependencies['hilt']*/
+
+    implementation rootProject.ext.dependencies['glide']
+
+    implementation rootProject.ext.dependencies['permissionX']
+
+    // CameraX core library using camera2 implementation
+    implementation "androidx.camera:camera-camera2:1.0.0-beta12"
+    // CameraX Lifecycle Library
+    implementation "androidx.camera:camera-lifecycle:1.0.0-beta12"
+    // CameraX View class
+    implementation "androidx.camera:camera-view:1.0.0-alpha19"
+}

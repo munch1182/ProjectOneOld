@@ -1,0 +1,5 @@
+include ':libtest'
+include ':testsimple'
+include ':test'
+include ':lib'
+rootProject.name = "P1"

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".camera.TestCameraActivity"
+    tools:ignore="HardcodedText">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/camera_preview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/camera_view_bottom"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:background="@android:color/transparent" />
+
+    <View
+        android:id="@+id/camera_view_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/camera_take_photo"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:contentDescription="拍照按钮"
+        app:layout_constraintBottom_toBottomOf="@id/camera_view_bottom"
+        app:layout_constraintEnd_toEndOf="@id/camera_view_bottom"
+        app:layout_constraintStart_toStartOf="@id/camera_view_bottom"
+        app:layout_constraintTop_toTopOf="@id/camera_view_bottom" />
+
+    <ImageButton
+        android:id="@+id/camera_switch"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:contentDescription="镜头翻转"
+        app:layout_constraintBottom_toTopOf="@id/camera_ratio"
+        app:layout_constraintEnd_toStartOf="@id/camera_take_photo"
+        app:layout_constraintStart_toStartOf="@id/camera_view_bottom"
+        app:layout_constraintTop_toTopOf="@id/camera_take_photo" />
+
+    <ImageButton
+        android:id="@+id/camera_ratio"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:contentDescription="切换比例"
+        app:layout_constraintBottom_toBottomOf="@id/camera_take_photo"
+        app:layout_constraintEnd_toStartOf="@id/camera_take_photo"
+        app:layout_constraintStart_toStartOf="@id/camera_view_bottom"
+        app:layout_constraintTop_toBottomOf="@id/camera_switch" />
+
+    <ImageButton
+        android:id="@+id/camera_thumbnail"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:contentDescription="缩略图"
+        app:layout_constraintBottom_toBottomOf="@id/camera_take_photo"
+        app:layout_constraintEnd_toEndOf="@id/camera_view_bottom"
+        app:layout_constraintStart_toEndOf="@id/camera_take_photo"
+        app:layout_constraintTop_toTopOf="@id/camera_take_photo" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
