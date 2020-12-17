@@ -6,10 +6,12 @@ import com.munch.lib.BaseApp
 import com.munch.lib.helper.ForegroundHelper
 import com.munch.lib.helper.stopAllService
 import com.munch.project.testsimple.alive.foreground.ForegroundService
+import dagger.hilt.android.HiltAndroidApp
 
 /**
  * Create by munch1182 on 2020/12/9 11:38.
  */
+@HiltAndroidApp
 class App : BaseApp(), Configuration.Provider {
 
     companion object {

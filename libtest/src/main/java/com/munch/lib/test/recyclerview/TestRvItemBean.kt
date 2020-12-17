@@ -41,6 +41,16 @@ data class TestRvItemBean(val name: String = "", var info: String) : Parcelable 
         fun newInstance(name: String, clazz: Class<out Activity>? = null) =
             TestRvItemBean(name, clazz?.name ?: "")
 
+        fun newArray(vararg clazz: Class<out Activity>): ArrayList<TestRvItemBean> {
+            return ArrayList(MutableList(clazz.size, init = {
+                val target = clazz[it]
+                newInstance(target.simpleName.replace("Test", "").replace("Activity", ""), target)
+            }))
+        }
+
+        /**
+         * 配合isBtn使用
+         */
         fun newArray(vararg name: String): ArrayList<TestRvItemBean> {
             return ArrayList(MutableList(name.size, init = {
                 newInstance(name[it])

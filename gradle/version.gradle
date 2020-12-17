@@ -23,6 +23,8 @@ ext {
             kotlinVersion    : "1.4.20",
 
             androidxVersion  : "1.2.0",
+            pagingVersion    : "3.0.0-alpha10",
+
             glideVersion     : "4.11.0",
 
             okhttpVersion    : "4.9.0",
@@ -41,7 +43,10 @@ ext {
             "kotlin"                          : "org.jetbrains.kotlin:kotlin-stdlib:${versions['kotlinVersion']}",
             "kotlin_gradle"                   : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions['kotlinVersion']}",
             /*https://github.com/Kotlin/kotlinx.coroutines*/
-            "kotlinx_android"                         : "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2",
+            "kotlinx_android"                 : "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2",
+
+            /*androidx版本*/
+            /*https://developer.android.google.cn/jetpack/androidx/versions?hl=zh_cn*/
 
             "appcompat"                       : "androidx.appcompat:appcompat:${versions['androidxVersion']}",
             // For loading and tinting drawables on older versions of the platform
@@ -98,6 +103,11 @@ ext {
             "room_ktx"                        : "androidx.room:room-ktx:${versions['roomVersion']}",
             "room_rxjava2"                    : "androidx.room:room-rxjava2:${versions['roomVersion']}",
             "room_test"                       : "androidx.room:room-testing:${versions['roomVersion']}",
+
+            "paging"                          : "androidx.paging:paging-runtime:${versions['pagingVersion']}",
+            "paging_rxjava3"                  : "androidx.paging:paging-rxjava3:${versions['pagingVersion']}",
+            "paging_compose"                  : "androidx.paging:paging-compose:1.0.0-alpha03",
+            "paging_test"                     : "androidx.paging:paging-common:${versions['pagingVersion']}",
 
             "v4"                              : "androidx.legacy:legacy-support-v4:1.0.0",
             "annotation"                      : "androidx.annotation:annotation:${versions['androidxVersion']}",
@@ -165,7 +175,7 @@ ext {
             /*https://dagger.dev/hilt/gradle-setup*/
             /*https://developer.android.google.cn/training/dependency-injection/hilt-android?hl=zh_cn*/
             "hilt"                            : "com.google.dagger:hilt-android:${versions['hiltCoreVersion']}",
-            "hilt_lifecycle"                  : "androidx.hilt:hilt-lifecycle-viewmodel:${versions['hiltVersion']}",
+            "hilt_viewmodel"                  : "androidx.hilt:hilt-lifecycle-viewmodel:${versions['hiltVersion']}",
             "hilt_work"                       : "androidx.hilt:hilt-work:${versions['hiltVersion']}",
             "hilt_compiler"                   : "com.google.dagger:hilt-android-compiler:${versions['hiltCoreVersion']}",
             "hilt_gradle"                     : "com.google.dagger:hilt-android-gradle-plugin:${versions['hiltCoreVersion']}",
