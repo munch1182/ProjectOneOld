@@ -131,16 +131,16 @@ ext {
             "leakcanary_release"              : "com.squareup.leakcanary:leakcanary-android-no-op:${versions['leakcanaryVersion']}",
 
             /*https://github.com/ReactiveX/RxJava*/
-            "rxjava"                          : "io.reactivex.rxjava2:rxjava:3.0.8",
+            "rxjava"                          : "io.reactivex.rxjava3:rxjava:3.0.8",
             /*https://github.com/ReactiveX/RxAndroid*/
-            "rxandroid"                       : "io.reactivex.rxjava2:rxandroid:3.0.0",
-            /*https://github.com/JakeWharton/RxRelay*/
-            "rxrelay"                         : 'com.jakewharton.rxrelay2:rxrelay:3.0.0',
+            "rxandroid"                       : "io.reactivex.rxjava3:rxandroid:3.0.0",
 
             /*https://github.com/square/retrofit*/
             "retrofit"                        : "com.squareup.retrofit2:retrofit:${versions['retrofitVersion']}",
             /*https://github.com/square/retrofit/tree/master/retrofit-adapters/rxjava2*/
             "retrofit_rxjava2"                : "com.squareup.retrofit2:adapter-rxjava2:${versions['retrofitVersion']}",
+            /*https://github.com/square/retrofit/tree/master/retrofit-adapters/rxjava3*/
+            "retrofit_rxjava3"                : "com.squareup.retrofit2:adapter-rxjava3:${versions['retrofitVersion']}",
             /*https://github.com/square/retrofit/tree/master/retrofit-converters/gson*/
             "retrofit_gson"                   : "com.squareup.retrofit2:converter-gson:${versions['retrofitVersion']}",
 
@@ -176,6 +176,7 @@ ext {
             /*https://developer.android.google.cn/training/dependency-injection/hilt-android?hl=zh_cn*/
             "hilt"                            : "com.google.dagger:hilt-android:${versions['hiltCoreVersion']}",
             "hilt_viewmodel"                  : "androidx.hilt:hilt-lifecycle-viewmodel:${versions['hiltVersion']}",
+            "hilt_viewmodel_compiler"         : "androidx.hilt:hilt-compiler:${versions['hiltVersion']}",
             "hilt_work"                       : "androidx.hilt:hilt-work:${versions['hiltVersion']}",
             "hilt_compiler"                   : "com.google.dagger:hilt-android-compiler:${versions['hiltCoreVersion']}",
             "hilt_gradle"                     : "com.google.dagger:hilt-android-gradle-plugin:${versions['hiltCoreVersion']}",

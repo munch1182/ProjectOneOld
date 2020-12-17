@@ -19,6 +19,7 @@ dependencies {
 
     implementation rootProject.ext.dependencies['hilt']
     implementation rootProject.ext.dependencies['hilt_viewmodel']
+    kapt rootProject.ext.dependencies['hilt_viewmodel_compiler']
     kapt rootProject.ext.dependencies['hilt_compiler']
 
     implementation rootProject.ext.dependencies['room_ktx']
@@ -27,5 +28,11 @@ dependencies {
     implementation rootProject.ext.dependencies['work_ktx']
     implementation rootProject.ext.dependencies['work_test']
 
+    implementation rootProject.ext.dependencies['okhttp']
+    implementation rootProject.ext.dependencies['okhttp_interceptor']
 
+    implementation rootProject.ext.dependencies['retrofit']
+    implementation rootProject.ext.dependencies['retrofit_gson']
+
+    implementation rootProject.ext.dependencies['gson']
 }
