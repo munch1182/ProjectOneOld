@@ -1,4 +1,4 @@
-package com.munch.project.testsimple.jetpack
+package com.munch.project.testsimple.jetpack.net
 
 import com.munch.lib.UNCOMPLETE
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,6 +27,7 @@ class FlowCallAdapterFactory : CallAdapter.Factory() {
         annotations: Array<Annotation>,
         retrofit: Retrofit
     ): CallAdapter<*, *>? {
+        //如果返回不是Flow则不处理
         if (Flow::class.java != getRawType(returnType)) {
             return null
         }
@@ -34,9 +35,9 @@ class FlowCallAdapterFactory : CallAdapter.Factory() {
         if (returnType !is ParameterizedType) {
             throw IllegalStateException("Flow return type must be parameterized as Flow<Foo> or Flow<out Foo>")
         }
-
+        //获取Flow泛型的Type
         val responseType = getParameterUpperBound(0, returnType)
-
+        //获取Flow泛型的class
         val rawFlowType = getRawType(responseType)
 
         return if (rawFlowType == Response::class.java) {
@@ -88,17 +89,36 @@ class FlowCallAdapterFactory : CallAdapter.Factory() {
             emit(
                 suspendCancellableCoroutine { continuation ->
                     call.enqueue(object : Callback<R> {
-                        override fun onFailure(call: Call<R>, t: Throwable) =
+                        override fun onFailure(call: Call<R>, t: Throwable) {
+                            if (continuation.isCancelled) {
+                                return
+                            }
                             continuation.resumeWithException(t)
-
-                        override fun onResponse(call: Call<R>, response: Response<R>) = try {
-                            continuation.resume(response.body()!!, null)
-                        } catch (ex: Exception) {
-                            continuation.resumeWithException(ex)
                         }
 
+
+                        override fun onResponse(call: Call<R>, response: Response<R>) {
+                            if (response.isSuccessful) {
+                                response.body()?.let {
+                                    try {
+                                        continuation.resume(it, null)
+                                    } catch (ex: Exception) {
+                                        continuation.resumeWithException(ex)
+                                    }
+                                }
+                                    ?: continuation.resumeWithException(NullPointerException("ResponseBody is null:$response"))
+                            } else {
+                                continuation.resumeWithException(HttpException(response))
+                            }
+                        }
                     })
-                    continuation.invokeOnCancellation { call.cancel() }
+                    continuation.invokeOnCancellation {
+                        try {
+                            call.cancel()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
                 }
             )
         }

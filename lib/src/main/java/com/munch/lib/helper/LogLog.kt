@@ -11,7 +11,7 @@ object LogLog {
 
     private const val TAG = "loglog"
 
-    private const val LINE_MAX_CHAR = 150
+    private const val LINE_MAX_CHAR = 300
 
     private var tag: String? = null
     private var className: String? = null

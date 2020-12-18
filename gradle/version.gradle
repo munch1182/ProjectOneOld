@@ -18,7 +18,7 @@ ext {
             versionName      : gitVersion['versionName'],
 
             roomVersion      : "2.2.5",
-            lifecycleVersion : "2.4.0",
+            lifecycleVersion : "2.2.0",
 
             kotlinVersion    : "1.4.20",
 
@@ -78,6 +78,7 @@ ext {
             // alternatively - Lifecycles only (no ViewModel or LiveData).
             // AndroidX libraries use this lightweight import for Lifecycle
             "lifecycle_runtime"               : "androidx.lifecycle:lifecycle-runtime:${versions['lifecycleVersion']}",
+            "lifecycle_runtime_ktx"           : "androidx.lifecycle:lifecycle-runtime-ktx:${versions['lifecycleVersion']}",
             // For Kotlin use kapt instead of annotationProcessor
             "lifecycle_compiler"              : "androidx.lifecycle:lifecycle-compiler:${versions['lifecycleVersion']}",
             // alternately - if using Java8, use the following instead of lifecycle-compiler

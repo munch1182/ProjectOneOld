@@ -16,6 +16,9 @@ dependencies {
     implementation rootProject.ext.dependencies['swiperefreshlayout']
     implementation rootProject.ext.dependencies['recyclerview']
     implementation rootProject.ext.dependencies['paging']
+    implementation rootProject.ext.dependencies['lifecycle_runtime_ktx']
+    implementation rootProject.ext.dependencies['viewmodel_ktx']
+    kapt rootProject.ext.dependencies['lifecycle_compiler_java8']
 
     implementation rootProject.ext.dependencies['hilt']
     implementation rootProject.ext.dependencies['hilt_viewmodel']

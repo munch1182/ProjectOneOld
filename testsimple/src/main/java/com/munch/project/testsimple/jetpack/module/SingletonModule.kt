@@ -2,8 +2,9 @@ package com.munch.project.testsimple.jetpack.module
 
 import com.google.gson.Gson
 import com.munch.lib.log
-import com.munch.project.testsimple.jetpack.FlowCallAdapterFactory
+import com.munch.project.testsimple.jetpack.net.FlowCallAdapterFactory
 import com.munch.project.testsimple.jetpack.net.Api
+import com.munch.project.testsimple.jetpack.net.FlowNoWrapperAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,6 +28,7 @@ object SingletonModule {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(Gson()))
+            .addCallAdapterFactory(FlowNoWrapperAdapterFactory.create())
             .addCallAdapterFactory(FlowCallAdapterFactory.create())
             .client(client)
             .build()
@@ -40,15 +42,7 @@ object SingletonModule {
                     setLevel(HttpLoggingInterceptor.Level.BODY)
                 })
             }
-            /*.addInterceptor { chain ->
-                var time = System.currentTimeMillis()
-                val request = chain.request()
-                log("request：$request.url")
-                val response = chain.proceed(request.newBuilder().build())
-                time = System.currentTimeMillis() - time
-                log("response：${time}ms,${response.body?.string()}")
-                response
-            }*/.build()
+            .build()
     }
 
     @Provides

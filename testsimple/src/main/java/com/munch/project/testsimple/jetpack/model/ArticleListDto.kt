@@ -3,15 +3,10 @@ package com.munch.project.testsimple.jetpack.model
 /**
  * Create by munch1182 on 2020/12/17 21:43.
  */
-data class ArticleListDto(
-    val `data`: Data,
-    val errorCode: Int,
-    val errorMsg: String
-)
 
-data class Data(
+data class ArticleWrapper(
     val curPage: Int,
-    val datas: List<DataX>,
+    val datas: List<Article>,
     val offset: Int,
     val over: Boolean,
     val pageCount: Int,
@@ -19,7 +14,7 @@ data class Data(
     val total: Int
 )
 
-data class DataX(
+data class Article(
     val apkLink: String,
     val audit: Int,
     val author: String,

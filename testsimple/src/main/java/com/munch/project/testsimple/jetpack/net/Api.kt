@@ -1,7 +1,6 @@
 package com.munch.project.testsimple.jetpack.net
 
-import com.munch.project.testsimple.jetpack.model.ArticleListDto
-import kotlinx.coroutines.flow.Flow
+import com.munch.project.testsimple.jetpack.model.ArticleWrapper
 import retrofit2.http.GET
 import retrofit2.http.Path
 
@@ -12,6 +11,8 @@ interface Api {
 
 
     @GET("/article/list/{page}/json")
-    fun getArticleList(@Path("page") page: Int): Flow<ArticleListDto>
+    suspend fun getArticleList(@Path("page") page: Int): FlowNoWrapper<ArticleWrapper>
 
+    @GET("/wxarticle/chapters/json  ")
+    suspend fun getOfficeList()
 }
