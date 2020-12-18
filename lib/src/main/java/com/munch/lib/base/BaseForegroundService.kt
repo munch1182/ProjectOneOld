@@ -11,21 +11,19 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.munch.lib.RequiresPermission
+import com.munch.lib.helper.startServiceInForeground
+import com.munch.lib.log
 
 /**
  * Create by munch1182 on 2020/12/16 11:48.
  */
 @RequiresPermission("android.permission.FOREGROUND_SERVICE")
-open class BaseForegroundService(var parameter: Parameter) : Service() {
+open class BaseForegroundService(val parameter: Parameter) : Service() {
 
     companion object {
 
         fun startForegroundService(context: Context, intent: Intent) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
+            context.startServiceInForeground(intent)
         }
 
         fun stop(context: Context, intent: Intent) {
@@ -37,6 +35,7 @@ open class BaseForegroundService(var parameter: Parameter) : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        log(parameter.channelId)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             manager.createNotificationChannel(
                 NotificationChannel(
@@ -65,5 +64,16 @@ open class BaseForegroundService(var parameter: Parameter) : Service() {
         return null
     }
 
-    class Parameter(val channelId: String, val channelName: String, val serviceId: Int)
+    class Parameter(channelId: String, val channelName: String, val serviceId: Int) {
+
+        //低版本的channelId需为空
+        val channelId: String = channelId
+            get() {
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    field
+                } else {
+                    ""
+                }
+            }
+    }
 }

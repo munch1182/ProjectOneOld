@@ -2,7 +2,6 @@ package com.munch.project.testsimple.jetpack.module
 
 import com.google.gson.Gson
 import com.munch.lib.log
-import com.munch.project.testsimple.jetpack.FlowCallAdapterFactory
 import com.munch.project.testsimple.jetpack.net.Api
 import dagger.Module
 import dagger.Provides
@@ -27,7 +26,7 @@ object SingletonModule {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(Gson()))
-            .addCallAdapterFactory(FlowCallAdapterFactory())
+            /*.addCallAdapterFactory(FlowCallAdapterFactory())*/
             .client(client)
             .build()
     }

@@ -23,6 +23,9 @@
         android:theme="@style/Theme.P1"
         tools:replace="android:theme">
         <activity android:name=".MainRvActivity">
+
+        </activity>
+        <activity android:name=".TestAliveSimpleActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

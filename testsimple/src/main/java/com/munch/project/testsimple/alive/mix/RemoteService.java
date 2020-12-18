@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 
 import com.munch.lib.helper.LogLog;
 import com.munch.project.testsimple.IGuardConnection;
+import com.munch.project.testsimple.alive.TestDataHelper;
 
 /**
  * Create by munch1182 on 2020/12/15 17:35.
@@ -40,6 +41,7 @@ public class RemoteService extends Service {
                 e.printStackTrace();
             }
             LogLog.log("loglog", "RemoteService onServiceConnected");
+            TestDataHelper.INSTANCE.guardCount4Keep(RemoteService.this);
         }
 
         @Override

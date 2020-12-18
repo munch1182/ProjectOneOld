@@ -16,8 +16,8 @@ import java.util.concurrent.TimeUnit
 object TestHelper {
 
     const val KEY_TIME_TEST_START = "key_time_test_start_"
-    const val KEY_ALIVE_TIME_TEST = "key_alive_time"
     const val KEY_ALIVE_TIME_TEST_START = "key_alive_time_start"
+    const val KEY_ALIVE_TIME_TEST_END = "key_alive_time_end"
     const val KEY_TIME_TEST_COUNT = "key_time_test_count"
 
     const val KEY_TIME_TEST_RESTART_START = "key_time_test_restart_start_"
@@ -123,8 +123,7 @@ object TestHelper {
                 if (!sp.hasKey(KEY_ALIVE_TIME_TEST_START)) {
                     sp.put(KEY_ALIVE_TIME_TEST_START, System.currentTimeMillis())
                 } else {
-                    val time = System.currentTimeMillis() - sp.get(KEY_ALIVE_TIME_TEST_START, 0L)!!
-                    sp.put(KEY_ALIVE_TIME_TEST, time)
+                    sp.put(KEY_ALIVE_TIME_TEST_END, System.currentTimeMillis())
                 }
             }
         }

@@ -47,9 +47,7 @@ class TestAliveActivity : TestRvActivity() {
             TestDataHelper.getLastTimeForegroundAliveTime(
                 this
             )
-        if (lastTimeForegroundAliveTime != null) {
-            notifyItem(3, "已存活$lastTimeForegroundAliveTime")
-        }
+        notifyItem(3, "已存活$lastTimeForegroundAliveTime")
 
         val count =
             TestDataHelper.getGuardCount(this)
@@ -107,7 +105,7 @@ class TestAliveActivity : TestRvActivity() {
                 notifyItem(pos, "已开始守护进程")
             }
             3 -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     ForegroundService.start(this)
                 }
                 notifyItem(pos, "已开启前台服务")
@@ -177,7 +175,7 @@ class TestAliveActivity : TestRvActivity() {
         clickItem(View(this), 6)
     }
 
-    override fun getItems(): MutableList<TestRvItemBean>? {
+    override fun getItems(): MutableList<TestRvItemBean> {
         return TestRvItemBean.newArray(
             "Mix",
             "Px Activity",

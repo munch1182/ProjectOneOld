@@ -1,64 +1,42 @@
 package com.munch.project.testsimple.alive.foreground
 
 import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Icon
+import android.graphics.BitmapFactory
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.SystemClock
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import com.munch.lib.helper.formatDate
+import com.munch.lib.helper.startServiceInForeground
 import com.munch.lib.log
+import com.munch.lib.test.def.DefForegroundService
 import com.munch.project.testsimple.R
 import com.munch.project.testsimple.alive.TestDataHelper
+import kotlin.concurrent.thread
 
 /**
  * Create by munch1182 on 2020/12/14 15:48.
  */
-@RequiresApi(Build.VERSION_CODES.O)
-class ForegroundService : Service() {
+@RequiresApi(Build.VERSION_CODES.M)
+class ForegroundService : DefForegroundService() {
 
     companion object {
-        const val ID_FOREGROUND_SERVICE = 110
-        private const val CHANNEL_ONE_ID = "BLE SERVICE"
-        private const val CHANNEL_ONE_NAME = "BLE service"
 
-        @RequiresApi(Build.VERSION_CODES.O)
         fun start(context: Context) {
-            context.startForegroundService(Intent(context, ForegroundService::class.java))
+            context.startServiceInForeground(Intent(context, ForegroundService::class.java))
         }
 
-        @RequiresApi(Build.VERSION_CODES.O)
         fun startHide(context: Context) {
-            context.startForegroundService(Intent(context, HideNotificationService::class.java))
+            context.startServiceInForeground(Intent(context, HideNotificationService::class.java))
         }
 
-        fun createNotification(context: Context, manager: NotificationManager): Notification {
-            manager.createNotificationChannel(
-                NotificationChannel(
-                    CHANNEL_ONE_ID,
-                    CHANNEL_ONE_NAME,
-                    NotificationManager.IMPORTANCE_HIGH
-                )
-            )
-            return Notification.Builder(
-                context,
-                CHANNEL_ONE_ID
-            )
-                .setContentTitle("Test Alive")
-                .setContentText("foreground service")
-                .setSmallIcon(Icon.createWithResource(context, R.mipmap.ic_launcher))
-                .setAutoCancel(true)
-                .build()
-        }
     }
 
     private val binder by lazy { ForegroundServiceBinder() }
-    private val manager by lazy { getSystemService(NotificationManager::class.java) as NotificationManager }
 
     override fun onCreate() {
         super.onCreate()
@@ -66,9 +44,17 @@ class ForegroundService : Service() {
         //无效
         /*startHide(this)*/
         log("start：" + System.currentTimeMillis())
-        startForeground(ID_FOREGROUND_SERVICE, createNotification(this, manager))
-
         TestDataHelper.startForegroundTimerThread(this)
+    }
+
+    override fun buildNotification(): Notification {
+        return NotificationCompat
+            .Builder(this, parameter.channelId)
+            .setContentTitle("前台服务运行中")
+            .setContentText("${"yyyyMMdd HH:mm:ss".formatDate(System.currentTimeMillis())}开始运行")
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setLargeIcon(BitmapFactory.decodeResource(resources,R.mipmap.ic_launcher))
+            .build()
     }
 
 
@@ -77,7 +63,7 @@ class ForegroundService : Service() {
         return START_STICKY
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
+    override fun onBind(intent: Intent?): IBinder {
         log("ForegroundService onBind")
         return binder
     }
@@ -97,27 +83,18 @@ class ForegroundService : Service() {
     /**
      * 使用相同id创建的前台服务，关闭时会取消图标显示
      */
-    class HideNotificationService : Service() {
+    class HideNotificationService : DefForegroundService() {
 
         override fun onCreate() {
             super.onCreate()
             log("HideNotificationService onCreate")
-            Thread(Runnable {
-                val manager =
-                    getSystemService(NotificationManager::class.java) as NotificationManager
-                startForeground(
-                    ID_FOREGROUND_SERVICE,
-                    createNotification(
-                        this,
-                        manager
-                    )
-                )
+            thread {
                 SystemClock.sleep(1000)
                 log("end：" + System.currentTimeMillis())
                 stopForeground(true)
-                manager.cancel(ID_FOREGROUND_SERVICE)
+                cancel()
                 stopSelf()
-            }).start()
+            }
         }
 
         override fun onDestroy() {

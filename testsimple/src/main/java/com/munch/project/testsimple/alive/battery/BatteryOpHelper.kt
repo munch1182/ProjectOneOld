@@ -37,6 +37,8 @@ object BatteryOpHelper {
 
     /**
      * 申请自启动权限
+     *
+     * adb shell dumpsys activity top
      */
     fun toAutoStart(context: Context) {
         try {
@@ -54,15 +56,29 @@ object BatteryOpHelper {
                     )
                 }
                 isBrand("oppo") -> {
-                    startActivity(
+                    /*startActivity(
                         context,
                         ComponentName.unflattenFromString("com.oppo.safe/.permission.startup.StartupAppListActivity")
+                        *//*ComponentName(
+                            "com.coloros.oppoguardelf",
+                            "com.coloros.powermanager.fuelgaue.PowerUsageModelActivity"
+                        )*//*
+                    )*/
+                    //cocloros 5.2.1测试
+                    context.startActivity(
+                        Intent("android.settings.APPLICATION_DETAILS_SETTINGS").setData(
+                            Uri.fromParts("package", context.packageName, null)
+                        )
                     )
                 }
                 isBrand("vivo") -> {
                     startActivity(
                         context,
-                        ComponentName.unflattenFromString("com.iqoo.secure/.safeguard.PurviewTabActivity")
+                        /*ComponentName.unflattenFromString("com.iqoo.secure/.safeguard.PurviewTabActivity")*/
+                        ComponentName(
+                            "com.iqoo.secure",
+                            "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity"
+                        )
                     )
                 }
                 isBrand("meizu") -> {
@@ -91,6 +107,14 @@ object BatteryOpHelper {
                 }
                 isBrand("smartisan") -> {
                     context.startActivity(Intent("com.smartisanos.security"))
+                }
+                isBrand("oneplus") -> {
+                    startActivity(
+                        context, ComponentName(
+                            "com.oneplus.security",
+                            "com.oneplus.security.chainlaunch.view.ChainLaunchAppListActivity"
+                        )
+                    )
                 }
                 else -> {
                     context.startActivity(

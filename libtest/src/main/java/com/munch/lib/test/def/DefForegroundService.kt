@@ -21,6 +21,7 @@ open class DefForegroundService : BaseForegroundService(
     override fun buildNotification(): Notification {
         return NotificationCompat.Builder(this, parameter.channelId).setContentTitle("test service")
             //有些手机不设置不会显示
+            //有些手机默认关闭了通知
             .setSmallIcon(R.drawable.ic_small).build()
     }
 

@@ -11,7 +11,7 @@ import com.munch.lib.helper.isServiceRunning
  */
 object AliveHelper {
 
-    fun isServiceRunning(context: Context, service: Class<out Service>): Boolean {
+    fun isServiceRunning(context: Context, service: Class<out Service>): Boolean? {
         return context.isServiceRunning(service)
     }
 

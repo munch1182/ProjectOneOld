@@ -24,6 +24,14 @@ fun Context.startActivity(clazz: Class<out Activity>, bundle: Bundle? = null) {
         })
 }
 
+fun Context.startServiceInForeground(intent: Intent) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        startForegroundService(intent)
+    } else {
+        startService(intent)
+    }
+}
+
 fun Context.getBackIcon(): Drawable? {
     val a = obtainStyledAttributes(intArrayOf(android.R.attr.homeAsUpIndicator))
     val result = a.getDrawable(0)
@@ -57,8 +65,8 @@ fun Context.px2Dp(pxVal: Float): Float {
  * 虽然方法已废弃，但仍会返回自己的服务
  */
 @Suppress("DEPRECATION")
-fun Context.isServiceRunning(service: Class<out Service>): Boolean {
-    val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager? ?: return false
+fun Context.isServiceRunning(service: Class<out Service>): Boolean? {
+    val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager? ?: return null
     val services = manager.getRunningServices(Int.MAX_VALUE)
     services.forEach {
         if (it.service.className == service.name) {
@@ -72,8 +80,8 @@ fun Context.isServiceRunning(service: Class<out Service>): Boolean {
  * 即使声明不同进程的服务也会被stop
  */
 @Suppress("DEPRECATION")
-fun Context.stopAllService(): Boolean {
-    val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager? ?: return false
+fun Context.stopAllService(): Boolean? {
+    val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager? ?: return null
     val services = manager.getRunningServices(Int.MAX_VALUE)
     services.forEach {
         stopService(Intent(this, Class.forName(it.service.className)))

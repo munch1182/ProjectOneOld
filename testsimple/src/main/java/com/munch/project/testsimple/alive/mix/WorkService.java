@@ -15,9 +15,14 @@ import androidx.core.app.NotificationCompat;
 
 import com.munch.lib.helper.LogLog;
 import com.munch.project.testsimple.IGuardConnection;
+import com.munch.project.testsimple.R;
 import com.munch.project.testsimple.alive.TestDataHelper;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Create by munch1182 on 2020/12/15 17:35.
@@ -72,19 +77,31 @@ public class WorkService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        String channerlId = "";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            manager.createNotificationChannel(new NotificationChannel(CHANNEL_ONE_ID, CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_HIGH));
+            manager.createNotificationChannel(new NotificationChannel(CHANNEL_ONE_ID, CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_DEFAULT));
+            channerlId = CHANNEL_ONE_ID;
+        }
+        String content = "";
+        try {
+            content = new SimpleDateFormat("yyyyMMdd HH:mm:ss", Locale.getDefault()).format(new Date(System.currentTimeMillis()));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         startForeground(NOTIFICATION_ID,
-                new NotificationCompat.Builder(this, CHANNEL_ONE_ID)
-                        .setContentTitle("work service").build());
+                new NotificationCompat.Builder(this, channerlId)
+                        .setContentTitle("后台运行中")
+                        .setContentText("从" + content + "开始")
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .build());
         bindRemoteService();
         TestDataHelper.INSTANCE.testMix(this);
     }
 
     private void bindRemoteService() {
-        startService(RemoteService.getIntent(this));
-        bindService(RemoteService.getIntent(this), conn, Context.BIND_AUTO_CREATE);
+        Intent intent = RemoteService.getIntent(this);
+        startService(intent);
+        bindService(intent, conn, Context.BIND_AUTO_CREATE);
     }
 }
