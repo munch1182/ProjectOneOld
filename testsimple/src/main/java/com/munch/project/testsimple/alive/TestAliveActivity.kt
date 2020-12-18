@@ -6,11 +6,13 @@ import android.view.View
 import androidx.lifecycle.Observer
 import androidx.work.WorkInfo
 import com.munch.lib.helper.formatDate
+import com.munch.lib.helper.startActivity
 import com.munch.lib.helper.stopAllService
 import com.munch.lib.log
 import com.munch.lib.test.TestDialog
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
+import com.munch.project.testsimple.TestAliveSimpleActivity
 import com.munch.project.testsimple.alive.battery.BatteryOpHelper
 import com.munch.project.testsimple.alive.foreground.ForegroundService
 import com.munch.project.testsimple.alive.guard.KeepService
@@ -65,7 +67,7 @@ class TestAliveActivity : TestRvActivity() {
         }
 
         RestartWork.getWork(this)
-            .observe(this, Observer {
+            .observe(this, {
                 var workCount = 0
                 it.forEach { work ->
                     log(work)
@@ -134,6 +136,9 @@ class TestAliveActivity : TestRvActivity() {
             8 -> {
             }
             9 -> clear()
+            10 -> {
+                startActivity(TestAliveSimpleActivity::class.java)
+            }
             else -> {
             }
         }
@@ -186,7 +191,8 @@ class TestAliveActivity : TestRvActivity() {
             "Auto Start",
             "Battery Optimizations",
             "Process",
-            "Clear"
+            "Clear",
+            "TestAliveSimple"
         )
     }
 

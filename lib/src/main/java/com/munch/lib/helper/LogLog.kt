@@ -3,15 +3,20 @@ package com.munch.lib.helper
 import android.util.Log
 
 /**
+ * 此页不可依赖除log之外的其余类
+ * 以便
  * Create by munch1182 on 2020/12/8 16:04.
  */
 object LogLog {
 
     private const val TAG = "loglog"
 
+    private const val LINE_MAX_CHAR = 150
+
     private var tag: String? = null
     private var className: String? = null
     private var listener: LogListener? = null
+    private var maxChar: Int? = null
 
     fun setListener(listener: LogListener): LogLog {
         this.listener = listener
@@ -27,6 +32,13 @@ object LogLog {
         this.tag = tag
         return this
     }
+
+    fun maxCharInLine(max: Int): LogLog {
+        this.maxChar = max
+        return this
+    }
+
+    fun getMaxCharInLine() = maxChar ?: LINE_MAX_CHAR
 
     /**
      * 如果对本类进行了包装，需要调用此方法，以准确找到实际调用方法
@@ -49,12 +61,39 @@ object LogLog {
             }
             builder.toString()
         }
-        log = "${Thread.currentThread().name}: $log ---${getCallFunction()}"
         val tag: String = tag ?: TAG
-        Log.d(tag, log)
-        listener?.onLog(tag, log)
-        className = null
+        if (log.length < getMaxCharInLine()) {
+            Log.d(tag, "${Thread.currentThread().name}: $log ---${getCallFunction()}")
+        } else {
+            log = "${Thread.currentThread().name}:$log"
+            more2line(log).forEach {
+                Log.d(tag, it)
+            }
+            Log.d(tag, "---${getCallFunction()}")
+        }
+        this.listener?.onLog(tag, log)
+        this.className = null
         this.tag = null
+    }
+
+    private fun more2line(str: String): ArrayList<String> {
+        val maxCharInLine = getMaxCharInLine()
+        if (str.length < maxCharInLine) {
+            return arrayListOf(str)
+        }
+        var line = str.length / maxCharInLine
+        if (line * maxCharInLine < str.length) {
+            line += 1
+        }
+        val list = ArrayList<String>(line)
+        var endIndex = 0
+        for (i in 0 until line - 1) {
+            endIndex = maxCharInLine * i
+            val element = str.substring(endIndex, maxCharInLine + endIndex)
+            list.add(element)
+        }
+        list.add(str.substring(maxCharInLine + endIndex, str.length))
+        return list
     }
 
     private fun getCallFunction(): String {

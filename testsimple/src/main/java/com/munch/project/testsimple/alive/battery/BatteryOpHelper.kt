@@ -10,6 +10,7 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import com.munch.lib.log
 import java.util.*
 
 /**
@@ -89,13 +90,7 @@ object BatteryOpHelper {
                     )
                 }
                 isBrand("samsung") -> {
-                    startActivity(
-                        context,
-                        ComponentName(
-                            "com.samsung.android.sm_cn",
-                            "com.samsung.android.sm.ui.ram.AutoRunActivity"
-                        )
-                    )
+                    startSamsung(context, 0)
                 }
                 isBrand("letv") -> {
                     startActivity(
@@ -125,7 +120,35 @@ object BatteryOpHelper {
                 }
             }
         } catch (e: Exception) {
+            log(e)
+            e.printStackTrace()
             context.startActivity(Intent(Settings.ACTION_SETTINGS))
+        }
+    }
+
+    private fun startSamsung(context: Context, index: Int) {
+        val intent = Intent()
+        intent.component = when (index) {
+            //有些版本三星没有exported这个页面，所以会报错
+            0 -> ComponentName(
+                "com.samsung.android.sm_cn",
+                "com.samsung.android.sm.ui.ram.AutoRunActivity"
+            )
+            //samsung 9.5测试
+            //直接跳转三星的管理器界面
+            1 -> ComponentName(
+                "com.samsung.android.sm_cn",
+                "com.samsung.android.sm.ui.cstyleboard.SmartManagerDashBoardActivity"
+            )
+            else -> {
+                throw Exception()
+            }
+        }
+        try {
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            startSamsung(context, index + 1)
         }
     }
 
