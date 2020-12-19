@@ -7,6 +7,12 @@ plugins {
 
 apply from: '../gradle/commonbuildktx.gradle'
 
+android {
+    buildFeatures {
+        dataBinding  = true
+    }
+}
+
 dependencies {
     implementation project(path: ':lib')
     implementation project(path: ':libtest')

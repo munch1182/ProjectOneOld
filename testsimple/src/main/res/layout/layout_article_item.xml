@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".jetpack.ArticleAdapter">
+
+    <data>
+
+        <variable
+            name="article"
+            type="com.munch.project.testsimple.jetpack.model.Article" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_def">
+
+        <TextView
+            android:id="@+id/article_tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{article.title}"
+            android:textColor="@color/colorTextDef"
+            android:textSize="@dimen/sp_title_smaller"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="1231231231231231231231231312312312312312311" />
+
+        <LinearLayout
+            android:id="@+id/article_vg_tags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="@id/article_tv_title"
+            app:layout_constraintTop_toBottomOf="@id/article_tv_title" />
+
+        <TextView
+            android:id="@+id/article_tv_author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{article.author}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/article_vg_tags"
+            app:layout_constraintTop_toBottomOf="@id/article_tv_title"
+            tools:text="124" />
+
+        <TextView
+            android:id="@+id/article_tv_chapter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:text="@{article.superChapterName/article.chapterName}"
+            app:layout_constraintBottom_toBottomOf="@id/article_tv_author"
+            app:layout_constraintEnd_toStartOf="@id/article_tv_time"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/article_tv_author"
+            app:layout_constraintTop_toTopOf="@id/article_tv_author"
+            tools:text="1234/5678" />
+
+        <TextView
+            android:id="@+id/article_tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:text="@{article.publishTime}"
+            app:layout_constraintBottom_toBottomOf="@id/article_tv_chapter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintTop_toTopOf="@id/article_tv_chapter"
+            tools:text="20000000 00:00:00" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

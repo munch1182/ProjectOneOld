@@ -1,14 +1,13 @@
 package com.munch.project.testsimple.jetpack
 
 import android.os.Bundle
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import com.munch.lib.test.TestBaseTopActivity
-import com.munch.project.testsimple.jetpack.net.Api
+import com.munch.project.testsimple.R
+import com.munch.project.testsimple.databinding.ActivityTestJetPackBinding
+import com.munch.project.testsimple.jetpack.bind.binding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
-import javax.inject.Inject
+import kotlinx.coroutines.flow.*
 
 /**
  * Create by munch1182 on 2020/12/17 15:29.
@@ -16,15 +15,15 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class TestJetpackActivity : TestBaseTopActivity() {
 
-    @Inject
-    lateinit var api: Api
+    private val binding by binding<ActivityTestJetPackBinding>(R.layout.activity_test_jet_pack)
+    private val vm by lazy { ViewModelProvider(this).get(TestJetpackViewModel::class.java) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycleScope.launchWhenResumed {
-            api.getArticleList(0)
-                .flowOn(Dispatchers.IO)
-                .collect { }
+        binding.apply {
+            lifecycleOwner = this@TestJetpackActivity
+            adapter = ArticleAdapter()
+            vm = this@TestJetpackActivity.vm
         }
     }
 

@@ -1,5 +1,9 @@
 package com.munch.project.testsimple.jetpack.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.munch.lib.helper.formatDate
+
 /**
  * Create by munch1182 on 2020/12/17 21:43.
  */
@@ -14,6 +18,7 @@ data class ArticleWrapper(
     val total: Int
 )
 
+@Entity
 data class Article(
     val apkLink: String,
     val audit: Int,
@@ -27,7 +32,7 @@ data class Article(
     val descMd: String,
     val envelopePic: String,
     val fresh: Boolean,
-    val id: Int,
+    @PrimaryKey val id: Int,
     val link: String,
     val niceDate: String,
     val niceShareDate: String,
@@ -41,13 +46,18 @@ data class Article(
     val shareUser: String,
     val superChapterId: Int,
     val superChapterName: String,
-    val tags: List<Tag>,
+    /*val tags: List<Tag>,*/
     val title: String,
     val type: Int,
     val userId: Int,
     val visible: Int,
     val zan: Int
-)
+) {
+
+    fun getPublishTime(): String {
+        return "yyyMMdd HH:mm".formatDate(this.publishTime)
+    }
+}
 
 data class Tag(
     val name: String,

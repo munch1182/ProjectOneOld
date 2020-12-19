@@ -5,6 +5,8 @@ import android.view.View
 import com.munch.lib.log
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 
 /**
  * Create by munch1182 on 2020/12/16 17:09.
@@ -20,10 +22,8 @@ class TestFunActivity : TestRvActivity() {
         super.clickItem(view, pos)
         when (pos) {
             0 -> {
-               log("121312312314134234242sdfsdfwefsdfsfsdfsdfsdfsdfsgssgsfgs322fsfd2232dsfsdf22dfsdfsf2f2e2fs")
             }
             1 -> {
-                log("123456".substring(0,3))
             }
             2 -> {
             }

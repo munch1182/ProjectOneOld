@@ -13,7 +13,6 @@ import kotlin.coroutines.resumeWithException
 /**
  * Create by munch1182 on 2020/12/17 21:55.
  */
-@UNCOMPLETE
 class FlowCallAdapterFactory : CallAdapter.Factory() {
 
     companion object {
@@ -53,6 +52,7 @@ class FlowCallAdapterFactory : CallAdapter.Factory() {
         }
     }
 
+    @UNCOMPLETE
     private class ResponseCallAdapter<T>(
         private val responseType: Type
     ) : CallAdapter<T, Flow<Response<T>>> {
@@ -60,7 +60,6 @@ class FlowCallAdapterFactory : CallAdapter.Factory() {
         @ExperimentalCoroutinesApi
         override fun adapt(call: Call<T>): Flow<Response<T>> {
             return flow {
-                // TODO: 2020/12/18 遇到编译问题，暂时不管
                 /*emit(
                     suspendCancellableCoroutine { continuation ->
                         call.enqueue(object : Callback<T> {
@@ -68,12 +67,12 @@ class FlowCallAdapterFactory : CallAdapter.Factory() {
                                 continuation.resumeWithException(t)
 
                             override fun onResponse(call: Call<T>, response: Response<T>) =
-                                continuation.resume(response, null)
+                                continuation.resume(response)
                         })
                         continuation.invokeOnCancellation { call.cancel() }
                     }
-
                 )*/
+                throw Exception("未完成")
             }
         }
 
