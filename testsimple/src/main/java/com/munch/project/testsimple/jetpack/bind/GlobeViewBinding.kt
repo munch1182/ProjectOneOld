@@ -7,7 +7,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
  * Create by munch1182 on 2020/12/7 13:42.
  */
 
-object ViewBinding {
+class GlobeViewBinding {
 
     /*@BindingAdapter("adapter")
     fun bindRecyclerViewAdapter(view: RecyclerView, adapter: RecyclerView.Adapter<*>) {

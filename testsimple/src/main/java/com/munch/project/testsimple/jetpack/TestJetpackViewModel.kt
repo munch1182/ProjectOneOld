@@ -4,6 +4,9 @@ import androidx.databinding.ObservableBoolean
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingSource
+import com.munch.lib.log
+import com.munch.project.testsimple.jetpack.model.Article
 import com.munch.project.testsimple.jetpack.net.Api
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -16,25 +19,26 @@ import javax.inject.Inject
 /**
  * Create by munch1182 on 2020/12/19 15:07.
  */
-@FlowPreview
 class TestJetpackViewModel @ViewModelInject constructor(repository: ArticleRepository) :
     ViewModel() {
 
-    @Inject
-    lateinit var api: Api
-
     val refresh: ObservableBoolean = ObservableBoolean(false)
+    lateinit var pagingSource: PagingSource<Int, Article>
 
     init {
         refresh.set(true)
         viewModelScope.launch(Dispatchers.Main) {
             repository.getArticleListToday()
                 .flowOn(Dispatchers.IO)
-                .catch {
+                .catch { cause ->
+                    cause.printStackTrace()
+                    log(cause.localizedMessage)
                     refresh.set(false)
                 }
                 .collect {
+                    log(111, it)
                     refresh.set(false)
+                    pagingSource = it
                 }
         }
     }

@@ -2,7 +2,9 @@ package com.munch.project.testsimple.jetpack.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.Gson
 import com.munch.lib.helper.formatDate
+import java.lang.Exception
 
 /**
  * Create by munch1182 on 2020/12/17 21:43.
@@ -54,12 +56,55 @@ data class Article(
     val zan: Int
 ) {
 
-    fun getPublishTime(): String {
+    companion object {
+        private const val DATA_TEST = "{apkLink: \"\"," +
+                "audit: 1," +
+                "author: \"\"," +
+                "canEdit: false," +
+                "chapterId: 502," +
+                "chapterName: 自助," +
+                "collect: false," +
+                "courseId: 13," +
+                "desc: \"\"," +
+                "descMd: \"\"," +
+                "envelopePic: \"\"," +
+                "fresh: false," +
+                "id: 16467," +
+                "link: \"https://juejin.cn/post/6906153878312452103\"," +
+                "niceDate: \"2020-12-15 10:03\"," +
+                "niceShareDate: \"2020-12-15 10:03\"," +
+                "origin: \"\"," +
+                "prefix: \"\"," +
+                "projectLink: \"\"," +
+                "publishTime: 1607997828000," +
+                "realSuperChapterId: 493," +
+                "selfVisible: 0," +
+                "shareDate: 1607997828000," +
+                "shareUser: DylanCai," +
+                "superChapterId: 494," +
+                "superChapterName:\"广场Tab\"," +
+                "tags: []," +
+                "title: \"优雅地封装和使用 ViewBinding，该替代 Kotlin synthetic 和 ButterKnife 了\"," +
+                "type: 0," +
+                "userId: 27680," +
+                "visible: 1," +
+                "zan: 0}"
+
+        fun testInstance(): Article {
+            return Gson().fromJson(DATA_TEST, Article::class.java)
+        }
+    }
+
+    fun publishTime2Str(): String {
         return "yyyMMdd HH:mm".formatDate(this.publishTime)
     }
+
+    fun showChapter() = "$superChapterName/$chapterName"
 }
 
+@Entity
 data class Tag(
+    @PrimaryKey val articleId: Int,
     val name: String,
     val url: String
 )

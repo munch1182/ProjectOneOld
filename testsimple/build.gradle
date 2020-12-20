@@ -8,9 +8,21 @@ plugins {
 apply from: '../gradle/commonbuildktx.gradle'
 
 android {
-    buildFeatures {
-        dataBinding  = true
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation":
+                                     "$projectDir/schemas".toString()]
+            }
+        }
     }
+    buildFeatures {
+        dataBinding = true
+    }
+}
+
+kapt {
+    correctErrorTypes true
 }
 
 dependencies {

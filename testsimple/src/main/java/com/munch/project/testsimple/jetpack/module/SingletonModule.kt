@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.google.gson.Gson
 import com.munch.lib.log
+import com.munch.project.testsimple.jetpack.db.ArticleDao
 import com.munch.project.testsimple.jetpack.db.Db
 import com.munch.project.testsimple.jetpack.net.Api
 import com.munch.project.testsimple.jetpack.net.FlowCallAdapterFactory
@@ -59,5 +60,5 @@ object SingletonModule {
     }
 
     @Provides
-    fun provideArticleDao(db: Db) = db.articleDao()
+    fun provideArticleDao(db: Db): ArticleDao = db.articleDao()
 }

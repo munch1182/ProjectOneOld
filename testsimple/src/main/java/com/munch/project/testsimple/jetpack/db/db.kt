@@ -14,6 +14,10 @@ abstract class Db : RoomDatabase() {
 
 }
 
+/**
+ * 对于数据库来说，返回的应该是数据结构，而不应该返回其他需要构造的类型
+ * 需要构造的类型应该交由调用方自行构造
+ */
 @Dao
 interface ArticleDao {
 
@@ -24,12 +28,12 @@ interface ArticleDao {
      * 或者将模糊搜索传[like]之前给其前后加上%
      */
     //"SELECT * FROM article WHERE title + author LIKE '%' || ':like' || '%' ORDER BY publishTime DESC"
-    @Query("SELECT * FROM article"/*WHERE title LIKE '%' || ':like' || '%' OR author LIKE '%' || ':like' || '%' ORDER BY publishTime DESC"*/)
+    @Query("SELECT * FROM article WHERE title LIKE '%' || :like || '%' OR author LIKE '%' || :like || '%' ORDER BY publishTime DESC")
     fun queryArticleByLike(like: String): DataSource.Factory<Int, Article>
 
     @Delete
     fun del(article: Article)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(vararg article: Article)
 }
