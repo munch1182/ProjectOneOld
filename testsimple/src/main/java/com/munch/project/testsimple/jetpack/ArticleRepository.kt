@@ -25,10 +25,10 @@ class ArticleRepository @Inject constructor() : BaseRepository() {
 
     suspend fun getArticleListToday(): Flow<PagingSource<Int, Article>> {
         return flow {
-            articleDao.insert(Article.testInstance())
+            /*articleDao.insert(Article.testInstance())*/
             delay(1000L)
             val value = articleDao.queryArticle()
-            log(value)
+            value.asPagingSourceFactory()
             val value1 = value.asPagingSourceFactory().invoke()
             log(value1)
             emit(value1)

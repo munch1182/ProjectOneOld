@@ -23,13 +23,15 @@
         android:theme="@style/Theme.P1"
         tools:replace="android:theme">
         <activity android:name=".MainRvActivity">
+
+        </activity>
+        <activity android:name=".TestAliveSimpleActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TestAliveSimpleActivity" />
         <activity android:name=".alive.TestAliveActivity" />
         <activity android:name=".jetpack.TestJetpackActivity" />
         <activity

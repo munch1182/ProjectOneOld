@@ -32,7 +32,6 @@ class TestJetpackViewModel @ViewModelInject constructor(repository: ArticleRepos
                 .flowOn(Dispatchers.IO)
                 .catch { cause ->
                     cause.printStackTrace()
-                    log(cause.localizedMessage)
                     refresh.set(false)
                 }
                 .collect {

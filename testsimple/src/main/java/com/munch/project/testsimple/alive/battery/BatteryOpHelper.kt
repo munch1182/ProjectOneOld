@@ -73,14 +73,14 @@ object BatteryOpHelper {
                     )
                 }
                 isBrand("vivo") -> {
-                    startActivity(
-                        context,
-                        /*ComponentName.unflattenFromString("com.iqoo.secure/.safeguard.PurviewTabActivity")*/
-                        ComponentName(
-                            "com.iqoo.secure",
-                            "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity"
+                    context.startActivity(Intent().apply {
+                        component = ComponentName(
+                            "com.vivo.permissionmanager",
+                            "com.vivo.permissionmanager.activity.SoftPermissionDetailActivity"
                         )
-                    )
+                        action = "secure.intent.action.softPermissionDetail"
+                        putExtra("packagename", context.packageName)
+                    })
                 }
                 isBrand("meizu") -> {
                     //flyme8.20已测试
