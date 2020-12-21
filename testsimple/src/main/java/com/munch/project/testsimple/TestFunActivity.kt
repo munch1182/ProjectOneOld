@@ -2,11 +2,8 @@ package com.munch.project.testsimple
 
 import android.content.Intent
 import android.view.View
-import com.munch.lib.log
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
 
 /**
  * Create by munch1182 on 2020/12/16 17:09.

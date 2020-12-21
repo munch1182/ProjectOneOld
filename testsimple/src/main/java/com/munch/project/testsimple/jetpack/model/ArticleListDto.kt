@@ -2,9 +2,11 @@ package com.munch.project.testsimple.jetpack.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.munch.lib.helper.formatDate
-import java.lang.Exception
 
 /**
  * Create by munch1182 on 2020/12/17 21:43.
@@ -20,7 +22,11 @@ data class ArticleWrapper(
     val total: Int
 )
 
+/**
+ * 如果数据简单，可以用TypeConverters直接处理list
+ */
 @Entity
+@TypeConverters(TagConverters::class)
 data class Article(
     val apkLink: String,
     val audit: Int,
@@ -48,7 +54,9 @@ data class Article(
     val shareUser: String,
     val superChapterId: Int,
     val superChapterName: String,
-    /*val tags: List<Tag>,*/
+    //通过TypeConverters，tags在sql中类型变成了TEXT
+    //但取出来之后会被自然转换为List
+    val tags: List<Tag>,
     val title: String,
     val type: Int,
     val userId: Int,
@@ -59,7 +67,7 @@ data class Article(
     companion object {
         private const val DATA_TEST = "{apkLink: \"\"," +
                 "audit: 1," +
-                "author: \"\"," +
+                "author: \"author\"," +
                 "canEdit: false," +
                 "chapterId: 502," +
                 "chapterName: 自助," +
@@ -104,7 +112,27 @@ data class Article(
 
 @Entity
 data class Tag(
-    @PrimaryKey val articleId: Int,
     val name: String,
     val url: String
 )
+
+class TagConverters {
+
+    @TypeConverter
+    fun str2Tags(str: String): List<Tag> {
+        return try {
+            Gson().fromJson(str, object : TypeToken<List<Tag>>() {}.type)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
+    @TypeConverter
+    fun tags2Str(tags: List<Tag>): String = try {
+        Gson().toJson(tags)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        ""
+    }
+}

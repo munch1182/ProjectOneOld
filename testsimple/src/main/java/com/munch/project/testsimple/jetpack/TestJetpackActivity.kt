@@ -3,7 +3,6 @@ package com.munch.project.testsimple.jetpack
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.map
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity

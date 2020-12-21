@@ -14,10 +14,10 @@ class BindViewHolder(private val binding: ViewDataBinding) : RecyclerView.ViewHo
     constructor(@LayoutRes resId: Int, parent: ViewGroup) : this(parent.inflateByBing(resId))
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : ViewDataBinding> asBind() = binding as T
+    fun <T : ViewDataBinding> getBind() = binding as T
 
     inline fun <T : ViewDataBinding> executeBinding(func: (binding: T) -> Unit): T {
-        return asBind<T>().apply {
+        return getBind<T>().apply {
             func(this)
             executePendingBindings()
         }

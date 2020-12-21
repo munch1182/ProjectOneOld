@@ -1,7 +1,9 @@
 package com.munch.project.testsimple.jetpack
 
 import androidx.annotation.WorkerThread
-import androidx.paging.*
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.munch.project.testsimple.jetpack.db.ArticleDao
 import com.munch.project.testsimple.jetpack.model.Article
 import com.munch.project.testsimple.jetpack.net.Api

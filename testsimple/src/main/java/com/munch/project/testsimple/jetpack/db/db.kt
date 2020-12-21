@@ -5,9 +5,14 @@ import androidx.room.*
 import com.munch.project.testsimple.jetpack.model.Article
 
 /**
+ * 数据库升级语句见[com.munch.project.testsimple.jetpack.module.SingletonModule.Migration1to2]的Migration
+ * 如果exportSchema则数据类型见schemas
+ *
+ * version变化，同时要注意[Article]中字段的变化
+ *
  * Create by munch1182 on 2020/12/19 15:30.
  */
-@Database(entities = [Article::class], version = 1)
+@Database(entities = [Article::class], version = 2, exportSchema = true)
 abstract class Db : RoomDatabase() {
 
     abstract fun articleDao(): ArticleDao
@@ -27,7 +32,7 @@ interface ArticleDao {
     /**
      * 或者将模糊搜索传[like]之前给其前后加上%
      */
-    @Query("SELECT * FROM article WHERE title LIKE '%' || :like || '%' OR author LIKE '%' || :like || '%' ORDER BY publishTime DESC")
+    @Query("SELECT * FROM article WHERE title || author LIKE '%' || :like || '%' ORDER BY publishTime DESC")
     fun queryArticleByLike(like: String): DataSource.Factory<Int, Article>
 
     @Delete

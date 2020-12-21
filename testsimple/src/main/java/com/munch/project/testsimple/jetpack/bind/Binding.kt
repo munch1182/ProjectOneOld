@@ -3,6 +3,7 @@ package com.munch.project.testsimple.jetpack.bind
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.core.view.get
 import androidx.databinding.DataBindingComponent
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -19,8 +20,8 @@ inline fun <reified T : ViewDataBinding> BaseLibActivity.binding(@LayoutRes resI
 /**
  * 因为[TestBaseTopActivity]中的[R.layout.activity_base_top]并没有进行viewbind即被layout包裹，
  * 因此不能直接使用[BaseLibActivity.binding]
- * 此处调用[DataBindingUtil.inflate]方法仿造[DataBindingUtil.setContentView]并将parent移到了[R.id.top_container]
- * 来解决这个问题，但是此方法必须要设置[DataBindingUtil.sDefaultComponent],此处直接设置全局[DataBindingUtil.setDefaultComponent]
+ * 此处调用[DataBindingUtil.bind]方法直接绑定来解决这个问题，
+ * 但是此方法必须要设置[DataBindingUtil.sDefaultComponent],此处直接设置全局[DataBindingUtil.setDefaultComponent]
  * 意味着所有的bind方法都需要写在[GlobeViewBinding]中
  * 如有单独的bind方法需要调用[DataBindingUtil.inflate]中带DataBindingComponent参数的方法而不是调用此方法
  *
@@ -37,9 +38,7 @@ inline fun <reified T : ViewDataBinding> TestBaseTopActivity.bindingTop(@LayoutR
                 }
             })
         }
-        return@lazy DataBindingUtil.inflate(
-            LayoutInflater.from(this), resId, findViewById(R.id.top_container), true
-        )
+        return@lazy DataBindingUtil.bind<T>(findViewById<ViewGroup>(R.id.top_container)[1])!!
     }
 }
 
