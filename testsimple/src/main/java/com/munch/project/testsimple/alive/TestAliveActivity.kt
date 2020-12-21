@@ -3,7 +3,6 @@ package com.munch.project.testsimple.alive
 import android.content.Intent
 import android.os.Build
 import android.view.View
-import androidx.lifecycle.Observer
 import androidx.work.WorkInfo
 import com.munch.lib.helper.formatDate
 import com.munch.lib.helper.startActivity
@@ -12,7 +11,6 @@ import com.munch.lib.log
 import com.munch.lib.test.TestDialog
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
-import com.munch.project.testsimple.TestAliveSimpleActivity
 import com.munch.project.testsimple.alive.battery.BatteryOpHelper
 import com.munch.project.testsimple.alive.foreground.ForegroundService
 import com.munch.project.testsimple.alive.guard.KeepService

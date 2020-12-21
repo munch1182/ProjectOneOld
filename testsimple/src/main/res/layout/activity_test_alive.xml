@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/padding_def"
-    tools:context=".TestAliveSimpleActivity">
+    tools:context=".alive.TestAliveSimpleActivity">
 
     <TextView
         android:id="@+id/test_alive_phone"

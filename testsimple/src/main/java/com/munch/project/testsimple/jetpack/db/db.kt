@@ -27,7 +27,6 @@ interface ArticleDao {
     /**
      * 或者将模糊搜索传[like]之前给其前后加上%
      */
-    //"SELECT * FROM article WHERE title + author LIKE '%' || ':like' || '%' ORDER BY publishTime DESC"
     @Query("SELECT * FROM article WHERE title LIKE '%' || :like || '%' OR author LIKE '%' || :like || '%' ORDER BY publishTime DESC")
     fun queryArticleByLike(like: String): DataSource.Factory<Int, Article>
 

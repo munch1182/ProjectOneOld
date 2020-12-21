@@ -7,10 +7,6 @@
     <data>
 
         <variable
-            name="vm"
-            type="com.munch.project.testsimple.jetpack.TestJetpackViewModel" />
-
-        <variable
             name="adapter"
             type="com.munch.project.testsimple.jetpack.ArticleAdapter" />
     </data>
@@ -18,8 +14,7 @@
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/jet_pack_srl"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:refresh="@{vm.refresh}">
+        android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/jet_pack_rv"

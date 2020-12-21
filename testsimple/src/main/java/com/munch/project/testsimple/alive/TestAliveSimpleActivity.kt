@@ -1,4 +1,4 @@
-package com.munch.project.testsimple
+package com.munch.project.testsimple.alive
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -9,7 +9,7 @@ import com.munch.lib.helper.SpHelper
 import com.munch.lib.helper.isServiceRunning
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.lib.test.TestDialog
-import com.munch.project.testsimple.alive.TestDataHelper
+import com.munch.project.testsimple.R
 import com.munch.project.testsimple.alive.battery.BatteryOpHelper
 import com.munch.project.testsimple.alive.mix.WorkService
 import com.munch.project.testsimple.alive.work.RestartWork

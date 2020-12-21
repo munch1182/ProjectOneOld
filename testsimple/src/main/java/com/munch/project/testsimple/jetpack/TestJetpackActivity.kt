@@ -2,11 +2,13 @@ package com.munch.project.testsimple.jetpack
 
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.map
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
 import com.munch.project.testsimple.databinding.ActivityTestJetPackBinding
-import com.munch.project.testsimple.jetpack.bind.binding
 import com.munch.project.testsimple.jetpack.bind.bindingTop
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,10 +23,20 @@ class TestJetpackActivity : TestBaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val articleAdapter = ArticleAdapter()
         binding.apply {
             lifecycleOwner = this@TestJetpackActivity
-            adapter = ArticleAdapter()
-            vm = viewModel
+            adapter = articleAdapter
+        }
+        binding.jetPackRv.layoutManager = LinearLayoutManager(this)
+        viewModel.articleListLiveData.observe(this) {
+            lifecycleScope.launchWhenCreated {
+                articleAdapter.submitData(it)
+            }
+        }
+        binding.jetPackSrl.setOnRefreshListener {
+            log(123)
+            articleAdapter.refresh()
         }
     }
 
