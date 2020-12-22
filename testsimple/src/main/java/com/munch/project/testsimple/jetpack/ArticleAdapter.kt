@@ -27,6 +27,8 @@ class ArticleAdapter :
                 .addView(TextView(context).apply {
                     text = tag.name
                     setPadding(dp8, 0, dp8, 0)
+                    textSize =
+                        getContext().dp2Px(getContext().resources.getDimension(R.dimen.sp_smaller))
                 })
         }
     }

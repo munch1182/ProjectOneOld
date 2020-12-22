@@ -2,9 +2,8 @@ package com.munch.project.testsimple.jetpack
 
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.munch.lib.log
+import androidx.paging.LoadState
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
 import com.munch.project.testsimple.databinding.ActivityTestJetPackBinding
@@ -27,15 +26,24 @@ class TestJetpackActivity : TestBaseTopActivity() {
             lifecycleOwner = this@TestJetpackActivity
             adapter = articleAdapter
         }
-        binding.jetPackRv.layoutManager = LinearLayoutManager(this)
-        viewModel.articleListLiveData.observe(this) {
-            lifecycleScope.launchWhenCreated {
-                articleAdapter.submitData(it)
-            }
+        binding.jetPackRv.addItemDecoration(
+            DividerItemDecoration(
+                this,
+                DividerItemDecoration.VERTICAL
+            )
+        )
+        viewModel.articleLiveData.observe(this) {
+            articleAdapter.submitData(this@TestJetpackActivity.lifecycle, it)
         }
         binding.jetPackSrl.setOnRefreshListener {
-            log(123)
             articleAdapter.refresh()
+        }
+        articleAdapter.addLoadStateListener {
+            when (it.refresh) {
+                is LoadState.Loading -> binding.jetPackSrl.isRefreshing = true
+                is LoadState.Error -> binding.jetPackSrl.isRefreshing = false
+                is LoadState.NotLoading -> binding.jetPackSrl.isRefreshing = false
+            }
         }
     }
 

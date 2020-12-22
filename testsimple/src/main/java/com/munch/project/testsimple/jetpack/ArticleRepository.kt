@@ -4,6 +4,7 @@ import androidx.annotation.WorkerThread
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.munch.lib.UNCOMPLETE
 import com.munch.project.testsimple.jetpack.db.ArticleDao
 import com.munch.project.testsimple.jetpack.model.Article
 import com.munch.project.testsimple.jetpack.net.Api
@@ -13,6 +14,7 @@ import javax.inject.Inject
 /**
  * Create by munch1182 on 2020/12/19 15:21.
  */
+@UNCOMPLETE
 class ArticleRepository @Inject constructor() : BaseRepository() {
 
     @Inject
@@ -23,12 +25,12 @@ class ArticleRepository @Inject constructor() : BaseRepository() {
 
     @WorkerThread
     fun getArticleListToday(): Flow<PagingData<Article>> {
-        /* api.getArticleList()*/
+         /*api.getArticleList()*/
         return Pager(
             PagingConfig(pageSize = 20),
             initialKey = 0,
-            pagingSourceFactory = articleDao.queryArticle().asPagingSourceFactory()
-            /*remoteMediator = RemoteMediator*/
+            pagingSourceFactory = articleDao.queryArticle().asPagingSourceFactory(),
+            /*remoteMediator = ArticlePagingSource()*/
         ).flow
     }
 
@@ -41,6 +43,7 @@ class ArticleRepository @Inject constructor() : BaseRepository() {
             loadType: LoadType,
             state: PagingState<Int, Article>
         ): MediatorResult {
+           api.getArticleList()
         }
     }*/
 }

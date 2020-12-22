@@ -14,6 +14,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
         android:padding="@dimen/padding_def">
 
         <TextView
@@ -46,6 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/padding_def"
             android:text="@{article.author}"
+            android:textSize="@dimen/sp_smaller"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/article_vg_tags"
             app:layout_constraintTop_toBottomOf="@id/article_tv_title"
@@ -57,6 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding_def"
             android:text="@{article.showChapter()}"
+            android:textSize="@dimen/sp_smaller"
             app:layout_constraintBottom_toBottomOf="@id/article_tv_author"
             app:layout_constraintEnd_toStartOf="@id/article_tv_time"
             app:layout_constraintHorizontal_bias="0"
@@ -70,6 +73,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/padding_def"
             android:text="@{article.publishTime2Str()}"
+            android:textSize="@dimen/sp_smaller"
             app:layout_constraintBottom_toBottomOf="@id/article_tv_chapter"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1"
