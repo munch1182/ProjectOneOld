@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.REORDER_TASKS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -43,6 +44,7 @@
 
         <activity android:name=".TestFunActivity" />
         <activity android:name=".queue.TestQueueActivity" />
+        <activity android:name=".socket.TestSimpleSocketActivity" />
 
         <service
             android:name=".alive.foreground.ForegroundService"

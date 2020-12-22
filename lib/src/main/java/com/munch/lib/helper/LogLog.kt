@@ -100,10 +100,17 @@ object LogLog {
         val trace = Thread.currentThread().stackTrace
         var lastIndex = -1
         val name: String? = className ?: LogLog.javaClass.canonicalName
-        trace.forEachIndexed { index, element ->
-            if (element.className == name) {
-                lastIndex = index
-                return@forEachIndexed
+        kotlin.run outside@{
+            var className: String
+            trace.forEachIndexed { index, element ->
+                className = element.className
+                if (className.contains("$")) {
+                    className.subSequence(0, className.indexOf("$"))
+                }
+                if (className == name) {
+                    lastIndex = index
+                    return@outside
+                }
             }
         }
         if (className == null) {

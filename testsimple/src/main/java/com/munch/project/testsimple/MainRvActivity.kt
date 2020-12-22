@@ -5,6 +5,7 @@ import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.testsimple.alive.TestAliveActivity
 import com.munch.project.testsimple.jetpack.TestJetpackActivity
+import com.munch.project.testsimple.socket.TestSimpleSocketActivity
 
 class MainRvActivity : TestRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,7 +19,9 @@ class MainRvActivity : TestRvActivity() {
         return mutableListOf(
             TestRvItemBean.newInstance("Alive", TestAliveActivity::class.java),
             TestRvItemBean.newInstance("Jetpack", TestJetpackActivity::class.java),
-            TestRvItemBean.newInstance("Test", TestFunActivity::class.java),
+            TestRvItemBean.newInstance("Socket", TestSimpleSocketActivity::class.java),
+            TestRvItemBean.newInstance("Test", TestFunActivity::class.java)
+
         )
     }
 }
