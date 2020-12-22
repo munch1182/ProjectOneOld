@@ -28,7 +28,7 @@ class BarHelper(activity: Activity) {
     /**
      * @param hide 隐藏状态栏，但是并不隐藏状态显示
      */
-    fun hideStatusBar(hide: Boolean = true) {
+    fun hideStatusBar(hide: Boolean = true): BarHelper {
         window.decorView.run {
             systemUiVisibility = if (hide) {
                 systemUiVisibility or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
@@ -38,6 +38,7 @@ class BarHelper(activity: Activity) {
                         View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN.inv()
             }
         }
+        return this
     }
 
     /**
@@ -45,12 +46,13 @@ class BarHelper(activity: Activity) {
      *
      * 当状态栏颜色与底下空间颜色一致时，就表现为透明状态栏
      */
-    fun colorStatusBar(@ColorInt color: Int) {
+    fun colorStatusBar(@ColorInt color: Int): BarHelper {
         window.run {
             addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             clearFlags(LayoutParams.FLAG_TRANSLUCENT_STATUS)
             statusBarColor = color
         }
+        return this
     }
 
     fun colorStatusBarByRes(@ColorRes res: Int) =
@@ -81,7 +83,7 @@ class BarHelper(activity: Activity) {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun setTextColorBlack(black: Boolean = true) {
+    fun setTextColorBlack(black: Boolean = true): BarHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.setSystemBarsAppearance(
                 if (black) WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS else 0,
@@ -96,6 +98,7 @@ class BarHelper(activity: Activity) {
                 }
             }
         }
+        return this
     }
 
     companion object {

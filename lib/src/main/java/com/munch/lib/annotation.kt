@@ -21,3 +21,8 @@ annotation class RequiresPermission(
     val permission: String = "",
     val permissions: Array<String> = []
 )
+
+/**
+ * 用于标记测试项目中专用的方法或类
+ */
+annotation class TESTONLY(val reason: String = "")

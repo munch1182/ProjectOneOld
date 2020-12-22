@@ -50,7 +50,6 @@ class TransferTitleBehavior(context: Context?, attrs: AttributeSet) :
             }
             log(targetX, targetY)
         }
-        log(123)
         return dependency is ImageView
     }
 

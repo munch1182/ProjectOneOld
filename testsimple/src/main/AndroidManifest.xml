@@ -42,6 +42,7 @@
             android:theme="@style/StyleSingleActivity" />
 
         <activity android:name=".TestFunActivity" />
+        <activity android:name=".queue.TestQueueActivity" />
 
         <service
             android:name=".alive.foreground.ForegroundService"

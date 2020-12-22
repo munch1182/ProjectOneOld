@@ -1,5 +1,6 @@
 package com.munch.project.test.camera
 
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.widget.ImageButton
 import androidx.camera.core.AspectRatio
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.munch.lib.helper.BarHelper
 import com.munch.lib.log
 import com.munch.project.test.BaseActivity
 import com.munch.project.test.R
@@ -27,6 +29,8 @@ class TestCameraActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
+        val barHelper = BarHelper(this)
+        barHelper.colorStatusBar(Color.TRANSPARENT).hideStatusBar(true)
         val parameter = CameraXHelper.Parameter()
         helper.setParameter(parameter.apply {
             aspectRatio = AspectRatio.RATIO_4_3

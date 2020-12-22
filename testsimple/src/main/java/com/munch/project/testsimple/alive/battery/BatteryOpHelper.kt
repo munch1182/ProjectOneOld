@@ -10,7 +10,6 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import com.munch.lib.log
 import java.util.*
 
 /**
@@ -42,85 +41,56 @@ object BatteryOpHelper {
      * adb shell dumpsys activity top
      */
     fun toAutoStart(context: Context) {
+        val brand = Build.BRAND?.toLowerCase(Locale.getDefault()) ?: ""
         try {
-            when {
-                isBrand("huawei") || isBrand("honor") -> {
-                    //华为emui10.0.0已测试
+            when (brand) {
+                "huawei", "honnor" -> //华为emui10.0.0已测试
                     startHuawei(context, 0)
-                }
-                isBrand("xiaomi") -> {
-                    startActivity(
-                        context, ComponentName(
-                            "com.miui.securitycenter",
-                            "com.miui.permcenter.autostart.AutoStartManagementActivity"
-                        )
+                "xiaomi" -> startActivity(
+                    context, ComponentName(
+                        "com.miui.securitycenter",
+                        "com.miui.permcenter.autostart.AutoStartManagementActivity"
                     )
-                }
-                isBrand("oppo") -> {
-                    /*startActivity(
-                        context,
-                        ComponentName.unflattenFromString("com.oppo.safe/.permission.startup.StartupAppListActivity")
-                        *//*ComponentName(
-                            "com.coloros.oppoguardelf",
-                            "com.coloros.powermanager.fuelgaue.PowerUsageModelActivity"
-                        )*//*
-                    )*/
-                    //cocloros 5.2.1测试
+                )
+                "oppo" -> //cocloros 5.2.1测试
                     context.startActivity(
                         Intent("android.settings.APPLICATION_DETAILS_SETTINGS").setData(
                             Uri.fromParts("package", context.packageName, null)
                         )
                     )
-                }
-                isBrand("vivo") -> {
-                    context.startActivity(Intent().apply {
-                        component = ComponentName(
-                            "com.vivo.permissionmanager",
-                            "com.vivo.permissionmanager.activity.SoftPermissionDetailActivity"
-                        )
-                        action = "secure.intent.action.softPermissionDetail"
-                        putExtra("packagename", context.packageName)
-                    })
-                }
-                isBrand("meizu") -> {
-                    //flyme8.20已测试
+                "vivo" -> context.startActivity(Intent().apply {
+                    component = ComponentName(
+                        "com.vivo.permissionmanager",
+                        "com.vivo.permissionmanager.activity.SoftPermissionDetailActivity"
+                    )
+                    action = "secure.intent.action.softPermissionDetail"
+                    putExtra("packagename", context.packageName)
+                })
+                "meizu" ->//flyme8.20已测试
                     startActivity(
                         context,
                         ComponentName.unflattenFromString("com.meizu.safe/.permission.SmartBGActivity")
                     )
-                }
-                isBrand("samsung") -> {
-                    startSamsung(context, 0)
-                }
-                isBrand("letv") -> {
-                    startActivity(
-                        context, ComponentName(
-                            "com.letv.android.letvsafe",
-                            "com.letv.android.letvsafe.AutobootManageActivity"
-                        )
+                "samsung" -> startSamsung(context, 0)
+                "letv" -> startActivity(
+                    context, ComponentName(
+                        "com.letv.android.letvsafe",
+                        "com.letv.android.letvsafe.AutobootManageActivity"
                     )
-                }
-                isBrand("smartisan") -> {
-                    context.startActivity(Intent("com.smartisanos.security"))
-                }
-                isBrand("oneplus") -> {
-                    startActivity(
-                        context, ComponentName(
-                            "com.oneplus.security",
-                            "com.oneplus.security.chainlaunch.view.ChainLaunchAppListActivity"
-                        )
+                )
+                "oneplus" -> startActivity(
+                    context, ComponentName(
+                        "com.oneplus.security",
+                        "com.oneplus.security.chainlaunch.view.ChainLaunchAppListActivity"
                     )
-                }
-                else -> {
-                    context.startActivity(
-                        Intent("android.settings.APPLICATION_DETAILS_SETTINGS").setData(
-                            Uri.fromParts("package", context.packageName, null)
-                        )
+                )
+                else -> context.startActivity(
+                    Intent("android.settings.APPLICATION_DETAILS_SETTINGS").setData(
+                        Uri.fromParts("package", context.packageName, null)
                     )
-                }
+                )
             }
         } catch (e: Exception) {
-            log(e)
             e.printStackTrace()
             context.startActivity(Intent(Settings.ACTION_SETTINGS))
         }
@@ -183,7 +153,4 @@ object BatteryOpHelper {
         }
         context.startActivity(Intent().setComponent(componentName))
     }
-
-    private fun isBrand(name: String): Boolean =
-        Build.BRAND?.toLowerCase(Locale.getDefault()).equals(name)
 }
