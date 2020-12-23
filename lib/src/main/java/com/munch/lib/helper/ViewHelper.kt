@@ -12,7 +12,7 @@ import androidx.core.view.children
  * 注意：使用了view的tag
  * @param clazz 需要设置点击事件的子类类型
  */
-fun ViewGroup.clickItem(listener: View.OnClickListener, vararg clazz: Class<in View>) {
+fun ViewGroup.clickItem(listener: View.OnClickListener, vararg clazz: Class<out View>) {
     var index = 0
     var willTag: Boolean
     this.children.forEach view@{ view ->

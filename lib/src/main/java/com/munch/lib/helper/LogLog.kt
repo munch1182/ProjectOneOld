@@ -1,47 +1,82 @@
 package com.munch.lib.helper
 
 import android.util.Log
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
 
 /**
- * 此页不可依赖除log之外的其余类
- * 以便
+ * 此页不可依赖除基础包之外的其余包
+ * 以便复制
  * Create by munch1182 on 2020/12/8 16:04.
  */
 object LogLog {
 
     private const val TAG = "loglog"
-
     private const val LINE_MAX_CHAR = 300
 
+    private var notPrint: Boolean = false
     private var tag: String? = null
     private var className: String? = null
-    private var listener: LogListener? = null
+    private val listeners: ArrayList<(tag: String, msg: String) -> Unit> = arrayListOf()
     private var maxChar: Int? = null
 
-    fun setListener(listener: LogListener): LogLog {
-        this.listener = listener
+    fun addListener(func: (tag: String, msg: String) -> Unit): LogLog {
+        listeners.add(func)
         return this
     }
 
-    @FunctionalInterface
-    interface LogListener {
-        fun onLog(tag: String, msg: String)
+    fun setListener(owner: LifecycleOwner, func: (tag: String, msg: String) -> Unit): LogLog {
+        owner.lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            fun onCreate() {
+                addListener(func)
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun onDestroy() {
+                removeListener(func)
+                owner.lifecycle.removeObserver(this)
+            }
+        })
+        return this
     }
 
+    fun removeListener(func: (tag: String, msg: String) -> Unit): LogLog {
+        listeners.remove(func)
+        return this
+    }
+
+    /**
+     * 全局方法，关闭或者开启log
+     */
+    fun notPrint(notPrint: Boolean = true) {
+        this.notPrint = notPrint
+    }
+
+    /**
+     * 调用生效
+     */
     fun tag(tag: String = TAG): LogLog {
         this.tag = tag
         return this
     }
 
+    /**
+     * 全局设置
+     */
     fun maxCharInLine(max: Int): LogLog {
         this.maxChar = max
         return this
     }
 
-    fun getMaxCharInLine() = maxChar ?: LINE_MAX_CHAR
+    private fun getMaxCharInLine() = maxChar ?: LINE_MAX_CHAR
 
     /**
      * 如果对本类进行了包装，需要调用此方法，以准确找到实际调用方法
+     *
+     * 调用生效
      * @param clazz 包装类
      */
     fun callClass(clazz: Class<*>): LogLog {
@@ -51,6 +86,9 @@ object LogLog {
 
     @JvmStatic
     fun log(vararg any: Any?) {
+        if (notPrint) {
+            return
+        }
         var log = if (any.size == 1) {
             any2Str(any[0])
         } else {
@@ -65,13 +103,15 @@ object LogLog {
         if (log.length < getMaxCharInLine()) {
             Log.d(tag, "${Thread.currentThread().name}: $log ---${getCallFunction()}")
         } else {
-            log = "${Thread.currentThread().name}:$log"
+            log = "${Thread.currentThread().name}: $log"
             more2line(log).forEach {
                 Log.d(tag, it)
             }
             Log.d(tag, "---${getCallFunction()}")
         }
-        this.listener?.onLog(tag, log)
+        this.listeners.forEach {
+            it.invoke(tag, log)
+        }
         this.className = null
         this.tag = null
     }
@@ -99,22 +139,23 @@ object LogLog {
     private fun getCallFunction(): String {
         val trace = Thread.currentThread().stackTrace
         var lastIndex = -1
-        val name: String? = className ?: LogLog.javaClass.canonicalName
+        val name: String = className ?: LogLog.javaClass.canonicalName ?: "LogLog"
         kotlin.run outside@{
             var className: String
+            //正序遇到的第一个包内的类即最后调用的类的方法
             trace.forEachIndexed { index, element ->
                 className = element.className
-                if (className.contains("$")) {
-                    className.subSequence(0, className.indexOf("$"))
-                }
-                if (className == name) {
+                //替换内部类符号
+                className = className.replace("$", ".")
+                if (className.contains(name)) {
                     lastIndex = index
                     return@outside
                 }
             }
         }
+        //但trace包含了[getCallFunction]和[log]两个方法，所以要+2去找调用了[log]的方法
         if (className == null) {
-            lastIndex++
+            lastIndex += 2
         }
         if (lastIndex == -1) {
             return ""
