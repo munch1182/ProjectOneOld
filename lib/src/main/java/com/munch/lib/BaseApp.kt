@@ -17,6 +17,7 @@ open class BaseApp : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        Thread.currentThread().setUncaughtExceptionHandler { _, e -> log(e) }
     }
 
 

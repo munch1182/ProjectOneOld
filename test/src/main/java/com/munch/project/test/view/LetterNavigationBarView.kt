@@ -6,7 +6,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
+import com.munch.lib.log
 import com.munch.project.test.R
 
 /**
@@ -27,26 +29,24 @@ class LetterNavigationBarView : View {
     ) {
         val attrsSet =
             context.obtainStyledAttributes(attrs, R.styleable.LetterNavigationBarView)
-        val color =
+        textColor =
             attrsSet.getColor(
                 R.styleable.LetterNavigationBarView_letter_textColor,
-                Color.RED
+                Color.parseColor("#574A4A")
             )
         val textSize =
             attrsSet.getDimension(R.styleable.LetterNavigationBarView_letter_textSize, 40f)
-        val selectColor =
+        selectColor =
             attrsSet.getColor(
                 R.styleable.LetterNavigationBarView_letter_selectColor,
-                Color.parseColor("#40e0d6")
+                Color.parseColor("#574A4A")
             )
         attrsSet.recycle()
         this.textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             this.color = color
             this.textSize = textSize
         }
-        this.selectPaint = Paint(textPaint).apply {
-            this.color = selectColor
-        }
+
     }
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(
@@ -60,22 +60,36 @@ class LetterNavigationBarView : View {
 
     constructor(context: Context) : this(context, null)
 
-    private val chars = listOf(
+    private val chars = arrayListOf(
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
         "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "#"
     )
     private val letters: ArrayList<String> = arrayListOf()
         get() {
             if (isInEditMode) {
-                letters.addAll(chars)
+                return chars
             }
             return field
         }
-    private var listener: OnChoseListener? = null
+    private val selectLetters: ArrayList<String> = arrayListOf()
+        get() {
+            if (isInEditMode) {
+                return arrayListOf("A", "B", "C")
+            }
+            return field
+        }
     private val textPaint: Paint
-    private val selectPaint: Paint
-    private var space: Float = 20f
+    private var space: Float = 10f
     private val letterRect = Rect()
+    private var textColor: Int = Color.TRANSPARENT
+    private var selectColor: Int = Color.TRANSPARENT
+
+    /**
+     * 返回值：true则需要自行调用[select]
+     */
+    private var handleListener: ((letters: String) -> Boolean)? = null
+    private var clickListener: ((letters: String) -> Unit)? = null
+    private var selectEndListener: ((letters: String) -> Unit)? = null
 
     fun setLetters(letters: List<String>) {
         this.letters.clear()
@@ -87,32 +101,30 @@ class LetterNavigationBarView : View {
         setLetters(chars)
     }
 
-    fun choseOne(letter: String) {
-        if (!letters.contains(letter)) {
-            return
+    fun select(vararg letter: String) {
+        val lastChose = ArrayList(selectLetters)
+        selectLetters.clear()
+        letter.forEach {
+            if (!letters.contains(it)) {
+                return@forEach
+            }
+            if (!selectLetters.contains(it)) {
+                selectLetters.add(it)
+            }
         }
-        scrollTo(letters.indexOf(letter))
+        if (!lastChose.containsAll(selectLetters)) {
+            invalidate()
+        }
     }
 
-    fun scrollTo(pos: Int) {
+    fun getLettersList() = letters
 
-    }
-
+    /**
+     * 不进行排序，如果要排序，使用[getLettersList],[setLetters]
+     */
     fun addLetters(vararg letter: String) {
         letters.addAll(letter)
-        /*letters.sort()*/
         invalidate()
-    }
-
-    fun setOnChoseListener(listener: OnChoseListener): LetterNavigationBarView {
-        this.listener = listener
-        return this
-    }
-
-    interface OnChoseListener {
-        fun onChoseStart(letters: List<String>)
-        fun onLetterChose(letter: String)
-        fun onChoseEnd(letter: String)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -131,17 +143,21 @@ class LetterNavigationBarView : View {
         var sizeWidth = MeasureSpec.getSize(widthMeasureSpec)
         val modeWidth = MeasureSpec.getMode(widthMeasureSpec)
         var sizeHeight = MeasureSpec.getSize(heightMeasureSpec)
+        val modeHeight = MeasureSpec.getMode(heightMeasureSpec)
         val letterWidth = letterRect.width() + paddingLeft + paddingRight
-        if (sizeWidth < letterWidth || modeWidth != MeasureSpec.EXACTLY) {
+        if (modeWidth != MeasureSpec.EXACTLY || sizeWidth < letterWidth) {
             sizeWidth = letterWidth
         }
-        val letterOneHeight = letterRect.height() + space
-        val letterAllHeight = letterOneHeight * letters.size + paddingTop + paddingBottom
-        if (sizeHeight > letterAllHeight) {
-            space = (sizeHeight - letterAllHeight) / (letters.size - 1)
+        val letterAllHeight = letterRect.height() * letters.size + paddingTop + paddingBottom
+
+        if (modeHeight == MeasureSpec.EXACTLY) {
+            space = if (sizeHeight > letterAllHeight) {
+                (sizeHeight - letterAllHeight) / (letters.size - 1f)
+            } else {
+                0f
+            }
         } else {
-            space = 0f
-            sizeHeight = letterAllHeight.toInt()
+            sizeHeight = (letterAllHeight + space * (letters.size - 1)).toInt()
         }
         setMeasuredDimension(sizeWidth, sizeHeight)
     }
@@ -151,10 +167,89 @@ class LetterNavigationBarView : View {
         if (letters.isEmpty()) {
             return
         }
-        val height = letterRect.height() + space
-        val width = letterRect.width()
+        val height = letterRect.height()
+        val width = width - paddingLeft - paddingRight
         letters.forEachIndexed { index, s ->
-            canvas?.drawText(s, 0F, (height + space) * index + height, textPaint)
+            textPaint.getTextBounds(s, 0, s.length, letterRect)
+
+            if (selectLetters.contains(s)) {
+                textPaint.color = selectColor
+            } else {
+                textPaint.color = textColor
+            }
+
+            canvas?.drawText(
+                s,
+                paddingLeft + (width - letterRect.width()) / 2f,
+                paddingTop + (height + space) * index + height,
+                textPaint
+            )
+        }
+    }
+
+    override fun performClick(): Boolean {
+        return super.performClick()
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        event ?: return super.onTouchEvent(event)
+        when (event.action) {
+            MotionEvent.ACTION_UP -> {
+                if (selectLetters.isNotEmpty()) {
+                    selectEndListener?.invoke(selectLetters[0])
+                } else {
+                    selectEndListener?.invoke("")
+                }
+            }
+            MotionEvent.ACTION_DOWN -> {
+                if (handleListener == null && clickListener == null) {
+                    performClick()
+                } else {
+                    handleTouch(event)
+                }
+            }
+            MotionEvent.ACTION_MOVE -> {
+                handleTouch(event)
+            }
+        }
+        return true
+    }
+
+    private fun handleTouch(event: MotionEvent) {
+        val y = event.y
+        var index = (y / (letterRect.height() + space)).toInt()
+        index = index.coerceAtLeast(0)
+        index = index.coerceAtMost(letters.size - 1)
+        val s = letters[index]
+        if (handleListener?.invoke(s) == false) {
+            if (letters.size <= 9) {
+                select(s)
+            } else {
+                when {
+                    index < 2 -> {
+                        select(letters[0], letters[1], letters[2], letters[3], letters[4])
+                    }
+                    index > letters.size - 3 -> {
+                        select(
+                            letters[letters.size - 5],
+                            letters[letters.size - 4],
+                            letters[letters.size - 3],
+                            letters[letters.size - 2],
+                            letters[letters.size - 1]
+                        )
+                    }
+                    else -> {
+                        select(
+                            letters[index - 2],
+                            letters[index - 1],
+                            s,
+                            letters[index + 1],
+                            letters[index + 2]
+                        )
+                    }
+                }
+            }
+            clickListener?.invoke(s)
         }
     }
 }

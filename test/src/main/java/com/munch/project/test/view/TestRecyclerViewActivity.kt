@@ -15,5 +15,6 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test_recycler_view)
         letterNavigation.setAllLetters()
+        letterNavigation.select("A")
     }
 }

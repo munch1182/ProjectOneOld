@@ -14,11 +14,13 @@
         android:id="@+id/view_letter_navigation"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:background="@color/colorAccent"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
         android:padding="@dimen/padding_def"
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:letter_selectColor="@color/colorPrimary" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

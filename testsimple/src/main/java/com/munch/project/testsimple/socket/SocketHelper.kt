@@ -8,40 +8,84 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.wifi.WifiManager
+import android.os.SystemClock
 import androidx.annotation.WorkerThread
 import com.munch.lib.RequiresPermission
 import com.munch.lib.log
 import com.munch.project.testsimple.App
 import java.net.*
 import java.util.*
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 /**
  * Create by munch1182 on 2020/12/23 3:46.
  */
 class SocketHelper(private val application: Application = App.getInstance()) {
 
-    interface ScanIpListener {
-
-        fun scanStart()
-
-        fun scanResult(devices: List<Device>)
-
-        fun scanNewOne(device: Device)
-
-        fun scanError(e: Exception)
+    init {
+        NetStatus(application).register { connect ->
+            if (connect && executor != null) {
+                executor?.shutdown()
+            }
+            listener?.invoke(connect)
+        }
     }
 
-    init {
-        NetStatus(application).register()
+    private var executor: ThreadPoolExecutor? = null
+    private var listener: ((connect: Boolean) -> Unit)? = null
+
+    fun listenerWifi(func: (connect: Boolean) -> Unit): SocketHelper {
+        listener = func
+        return this
     }
 
     @WorkerThread
-    fun scanIpInNet(
-        selfIp: String?,
-        searchTime: Int = 3,
-        scanListener: ScanIpListener
-    ) {
+    fun scanIpInNet(selfIp: String, res: (res: ArrayList<String>) -> Unit) {
+        val ipStart = selfIp.substring(0, selfIp.lastIndexOf("."))
+        val ipList = arrayListOf<String>()
+        executor = ThreadPoolExecutor(1, 254, 60L, TimeUnit.SECONDS, ArrayBlockingQueue(1))
+        var ip: String
+        for (i in 1..255) {
+            ip = ipStart.plus(".").plus(i)
+            if (ip == selfIp) {
+                continue
+            }
+            executor?.execute(IpRunnable(ip, ipList))
+        }
+        executor?.shutdown()
+        while (true) {
+            SystemClock.sleep(50L)
+            if (executor?.isTerminated == true) {
+                res.invoke(ipList)
+                return
+            }
+        }
+    }
 
+    private class IpRunnable(
+        private val ip: String,
+        private val ips: ArrayList<String>
+    ) : Runnable {
+        override fun run() {
+            var process: Process? = null
+            try {
+                //-c 1为发送的次数，-w 表示发送后等待响应的时间
+                process = Runtime.getRuntime().exec("ping -c 1 -w 3 $ip")
+                val res = process.waitFor()
+                if (res == 0) {
+                    ips.add(ip)
+                } /*else {
+                    LogLog.simple().log("$ip:$res")
+                }*/
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                process?.destroy()
+            }
+        }
     }
 
     @RequiresPermission("android.permission.ACCESS_WIFI_STATE")
@@ -83,25 +127,27 @@ class SocketHelper(private val application: Application = App.getInstance()) {
         return null
     }
 
-    data class Device(val ip: String, val port: Int = -1)
-
     class NetStatus(context: Context) {
         private val manager =
             (context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
+        private var listener: ((connect: Boolean) -> Unit)? = null
 
         private val networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
                 log("onAvailable:$network")
+                listener?.invoke(true)
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
                 log("onLost:$network")
+                listener?.invoke(false)
             }
         }
 
-        fun register() {
+        fun register(listener: ((connect: Boolean) -> Unit)? = null) {
+            this.listener = listener
             manager.registerNetworkCallback(
                 NetworkRequest.Builder()
                     .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)

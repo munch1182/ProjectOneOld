@@ -21,6 +21,7 @@ object LogLog {
     private var className: String? = null
     private val listeners: ArrayList<(tag: String, msg: String) -> Unit> = arrayListOf()
     private var maxChar: Int? = null
+    private var simple: Boolean = false
 
     fun addListener(func: (tag: String, msg: String) -> Unit): LogLog {
         listeners.add(func)
@@ -71,6 +72,15 @@ object LogLog {
         return this
     }
 
+    /**
+     * 调用生效
+     * 用于简化log，不再输出调用方法
+     */
+    fun simple(simple: Boolean = true): LogLog {
+        this.simple = simple
+        return this
+    }
+
     private fun getMaxCharInLine() = maxChar ?: LINE_MAX_CHAR
 
     /**
@@ -101,19 +111,25 @@ object LogLog {
         }
         val tag: String = tag ?: TAG
         if (log.length < getMaxCharInLine()) {
-            Log.d(tag, "${Thread.currentThread().name}: $log ---${getCallFunction()}")
+            Log.d(
+                tag,
+                if (simple) "${Thread.currentThread().name}: $log" else "${Thread.currentThread().name}: $log ---${getCallFunction()}"
+            )
         } else {
             log = "${Thread.currentThread().name}: $log"
             more2line(log).forEach {
                 Log.d(tag, it)
             }
-            Log.d(tag, "---${getCallFunction()}")
+            if (!simple) {
+                Log.d(tag, "---${getCallFunction()}")
+            }
         }
         this.listeners.forEach {
             it.invoke(tag, log)
         }
         this.className = null
         this.tag = null
+        this.simple = false
     }
 
     private fun more2line(str: String): ArrayList<String> {
