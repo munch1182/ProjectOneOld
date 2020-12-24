@@ -27,10 +27,9 @@ class TestSimpleSocketActivity : TestBaseTopActivity() {
         btnIpAll.setOnClickListener {
             thread {
                 helper.scanIpInNet(
-                    /*helper.getIpAddressInWifi()*/null,
+                    helper.getIpAddressInNet(),
                     scanListener = object : SocketHelper.ScanIpListener {
                         override fun scanStart() {
-
                         }
 
                         override fun scanResult(devices: List<SocketHelper.Device>) {

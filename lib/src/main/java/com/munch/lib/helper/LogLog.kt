@@ -80,7 +80,7 @@ object LogLog {
      * @param clazz 包装类
      */
     fun callClass(clazz: Class<*>): LogLog {
-        className = clazz.canonicalName
+        className = clazz.name
         return this
     }
 
@@ -139,14 +139,14 @@ object LogLog {
     private fun getCallFunction(): String {
         val trace = Thread.currentThread().stackTrace
         var lastIndex = -1
-        val name: String = className ?: LogLog.javaClass.canonicalName ?: "LogLog"
+        val name: String =
+            className?.replace("$", ".") ?: LogLog.javaClass.name ?: "LogLog"
         kotlin.run outside@{
             var className: String
             //正序遇到的第一个包内的类即最后调用的类的方法
             trace.forEachIndexed { index, element ->
-                className = element.className
                 //替换内部类符号
-                className = className.replace("$", ".")
+                className = element.className.replace("$", ".")
                 if (className.contains(name)) {
                     lastIndex = index
                     return@outside

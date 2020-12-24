@@ -2,30 +2,23 @@ package com.munch.project.testsimple.socket
 
 import android.app.Application
 import android.content.Context
+import android.content.Context.CONNECTIVITY_SERVICE
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import androidx.annotation.WorkerThread
 import com.munch.lib.RequiresPermission
 import com.munch.lib.log
 import com.munch.project.testsimple.App
-import java.io.IOException
 import java.net.*
 import java.util.*
-import kotlin.collections.HashMap
 
 /**
- * 网络变化需要重置本类对象
- *
  * Create by munch1182 on 2020/12/23 3:46.
  */
-class SocketHelper(application: Application = App.getInstance()) {
-    private val wifiManager by lazy { application.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager }
-    private val connectInfo by lazy { wifiManager.connectionInfo }
-
-    companion object {
-        private const val PACK_PREFIX = '$'.toByte()
-        private const val PACK_TYPE_SEARCH = 0x10.toByte()
-        private const val PACK_TYPE_RECEIVE = 0x11.toByte()
-    }
+class SocketHelper(private val application: Application = App.getInstance()) {
 
     interface ScanIpListener {
 
@@ -38,90 +31,24 @@ class SocketHelper(application: Application = App.getInstance()) {
         fun scanError(e: Exception)
     }
 
+    init {
+        NetStatus(application).register()
+    }
+
     @WorkerThread
     fun scanIpInNet(
         selfIp: String?,
         searchTime: Int = 3,
         scanListener: ScanIpListener
     ) {
-        if (searchTime < 1) {
-            return
-        }
-        val socket = DatagramSocket()
-        val sendData = ByteArray(1024)
-        val receiveData = ByteArray(1024)
-        val receivePack = DatagramPacket(receiveData, receiveData.size)
-        val endAddress =
-            selfIp?.substring(0, selfIp.lastIndexOf("."))?.plus(".255") ?: "255.255.255"
-        log(endAddress)
-        val sendPack =
-            DatagramPacket(sendData, sendData.size, InetAddress.getByName(endAddress), 11)
-        val map = HashMap<Device, String>()
-        scanListener.scanStart()
-        try {
-            //搜索多次
-            for (i in 0..searchTime) {
-                val searchPack = searchPack(i)
-                sendPack.data = searchPack
-                try {
-                    socket.send(sendPack)
-                    socket.receive(receivePack)
-                    val device = parseRespData(receivePack)
-                    log(device)
-                    if (device != null) {
-                        if (!map.containsKey(device)) {
-                            scanListener.scanNewOne(device)
-                            map[device] = device.ip
-                        }
-                    }
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    log(e.localizedMessage)
-                }
-            }
-            socket.close()
-            scanListener.scanResult(map.keys.toList())
-        } catch (e: IOException) {
-            scanListener.scanError(e)
-        } catch (e: SecurityException) {
-            scanListener.scanError(e)
-        }
-    }
 
-    private fun parseRespData(pack: DatagramPacket): Device? {
-        if (pack.length < 2) {
-            return null
-        }
-        val data = pack.data
-        val offset = pack.offset
-        if (data[offset] != PACK_PREFIX && data[offset + 1] != PACK_TYPE_SEARCH) {
-            return null
-        }
-        return Device(pack.address.hostAddress, pack.port)
-    }
-
-    /**
-     * 生成搜索数据包
-     * 格式：$(1) + packType(1) + sendSeq(4) + dataLen(1) + data
-     *  packType - 报文类型
-     *  sendSeq - 发送序列
-     *  dataLen - 数据长度
-     *  data - 数据内容
-     */
-    private fun searchPack(i: Int): ByteArray {
-        val data = ByteArray(6)
-        data[0] = PACK_PREFIX
-        data[1] = PACK_TYPE_RECEIVE
-        data[2] = i.toByte()
-        data[3] = (i shr 8).toByte()
-        data[4] = (i shr 16).toByte()
-        data[5] = (i shr 24).toByte()
-        return data
     }
 
     @RequiresPermission("android.permission.ACCESS_WIFI_STATE")
     fun getIpAddressInWifi(): String? {
-        val ipAddress = connectInfo.ipAddress
+        val manager =
+            application.getSystemService(Context.WIFI_SERVICE) as WifiManager? ?: return null
+        val ipAddress = manager.connectionInfo.ipAddress
         val addressBytes = byteArrayOf(
             (0xff and ipAddress).toByte(),
             (0xff and (ipAddress shr 8)).toByte(),
@@ -137,6 +64,7 @@ class SocketHelper(application: Application = App.getInstance()) {
 
     /**
      * 获取网络状态下的ip，包括wifi和4g网
+     * 且无需权限
      */
     fun getIpAddressInNet(): String? {
         val networkInterfaces: Enumeration<NetworkInterface>
@@ -156,4 +84,33 @@ class SocketHelper(application: Application = App.getInstance()) {
     }
 
     data class Device(val ip: String, val port: Int = -1)
+
+    class NetStatus(context: Context) {
+        private val manager =
+            (context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
+
+        private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                log("onAvailable:$network")
+            }
+
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                log("onLost:$network")
+            }
+        }
+
+        fun register() {
+            manager.registerNetworkCallback(
+                NetworkRequest.Builder()
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .build(), networkCallback
+            )
+        }
+
+        fun unregister() {
+            manager.unregisterNetworkCallback(networkCallback)
+        }
+    }
 }

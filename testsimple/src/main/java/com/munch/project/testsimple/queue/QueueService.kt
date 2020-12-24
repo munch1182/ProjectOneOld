@@ -26,13 +26,6 @@ class QueueService : Service() {
     private lateinit var looper: Looper
     private lateinit var serviceHandler: Handler
 
-    private val uiHandler by lazy {
-        Handler(Looper.getMainLooper(),
-            Handler.Callback {
-                UiNotifyManager.INSTANCE.updateAll(it.what, it.obj)
-                return@Callback true
-            })
-    }
     private val binder by lazy { ServiceBinder() }
 
     companion object {
@@ -285,6 +278,14 @@ class QueueService : Service() {
                     Request2Other(this@QueueService).requestLongTime(msg.obj)
             }
         }
+    }
+
+    private val uiHandler by lazy {
+        Handler(Looper.getMainLooper(),
+            Handler.Callback {
+                UiNotifyManager.INSTANCE.updateAll(it.what, it.obj)
+                return@Callback true
+            })
     }
 
     private fun notifyService() {

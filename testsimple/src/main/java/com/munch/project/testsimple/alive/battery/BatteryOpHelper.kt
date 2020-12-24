@@ -24,7 +24,8 @@ object BatteryOpHelper {
     }
 
     /**
-     * 用此方法违法google play规则
+     * 低电量模式
+     * https://developer.android.google.cn/training/monitoring-device-state/doze-standby?hl=zh_cn
      */
     @SuppressLint("BatteryLife")
     @RequiresApi(Build.VERSION_CODES.M)
@@ -36,9 +37,11 @@ object BatteryOpHelper {
     }
 
     /**
-     * 申请自启动权限
+     * 申请后台运行权限
      *
-     * adb shell dumpsys activity top
+     * adb shell dumpsys activity top 查看顶部activity
+     *
+     * adb shell dumpsys usagestats >log.txt 用于查看app最后活跃时间
      */
     fun toAutoStart(context: Context) {
         val brand = Build.BRAND?.toLowerCase(Locale.getDefault()) ?: ""
