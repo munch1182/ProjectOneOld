@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LetterNavigationBarView">
+        <attr name="letter_textSize" format="dimension" />
+        <attr name="letter_textColor" format="color" />
+        <attr name="letter_selectColor" format="color" />
+    </declare-styleable>
+</resources>
