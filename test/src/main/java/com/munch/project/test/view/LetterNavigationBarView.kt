@@ -1,10 +1,7 @@
 package com.munch.project.test.view
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -74,22 +71,24 @@ class LetterNavigationBarView : View {
     private val selectLetters: ArrayList<String> = arrayListOf()
         get() {
             if (isInEditMode) {
-                return arrayListOf("A", "B", "C")
+                return arrayListOf("A", "B", "C", "D", "E")
             }
             return field
         }
     private val textPaint: Paint
     private var space: Float = 10f
     private val letterRect = Rect()
+    private val selectRect = Rect()
     private var textColor: Int = Color.TRANSPARENT
     private var selectColor: Int = Color.TRANSPARENT
+    private var selectIndex: Int = -1
 
     /**
      * 返回值：true则需要自行调用[select]
      */
-    private var handleListener: ((letters: String) -> Boolean)? = null
-    private var clickListener: ((letters: String) -> Unit)? = null
-    private var selectEndListener: ((letters: String) -> Unit)? = null
+    private var handleListener: ((letter: String, rect: Rect) -> Boolean)? = null
+    private var clickListener: ((letter: String, rect: Rect) -> Unit)? = null
+    private var selectEndListener: ((letter: String, rect: Rect) -> Unit)? = null
 
     fun setLetters(letters: List<String>) {
         this.letters.clear()
@@ -102,7 +101,6 @@ class LetterNavigationBarView : View {
     }
 
     fun select(vararg letter: String) {
-        val lastChose = ArrayList(selectLetters)
         selectLetters.clear()
         letter.forEach {
             if (!letters.contains(it)) {
@@ -112,7 +110,7 @@ class LetterNavigationBarView : View {
                 selectLetters.add(it)
             }
         }
-        if (!lastChose.containsAll(selectLetters)) {
+        if (selectLetters.isNotEmpty()) {
             invalidate()
         }
     }
@@ -124,6 +122,11 @@ class LetterNavigationBarView : View {
      */
     fun addLetters(vararg letter: String) {
         letters.addAll(letter)
+        invalidate()
+    }
+
+    fun addLetter(index: Int, letter: String) {
+        letters.add(index, letter)
         invalidate()
     }
 
@@ -180,6 +183,7 @@ class LetterNavigationBarView : View {
 
             canvas?.drawText(
                 s,
+                //为了让诸如i或者其它情形下瘦文字居中
                 paddingLeft + (width - letterRect.width()) / 2f,
                 paddingTop + (height + space) * index + height,
                 textPaint
@@ -195,10 +199,8 @@ class LetterNavigationBarView : View {
         event ?: return super.onTouchEvent(event)
         when (event.action) {
             MotionEvent.ACTION_UP -> {
-                if (selectLetters.isNotEmpty()) {
-                    selectEndListener?.invoke(selectLetters[0])
-                } else {
-                    selectEndListener?.invoke("")
+                if (selectIndex != -1) {
+                    selectEndListener?.invoke(selectLetters[selectIndex], letterRect)
                 }
             }
             MotionEvent.ACTION_DOWN -> {
@@ -221,7 +223,15 @@ class LetterNavigationBarView : View {
         index = index.coerceAtLeast(0)
         index = index.coerceAtMost(letters.size - 1)
         val s = letters[index]
-        if (handleListener?.invoke(s) == false) {
+        if (selectIndex != index) {
+            selectIndex = index
+        } else {
+            return
+        }
+        selectLetters.clear()
+        selectLetters.add(s)
+        selectRect(index)
+        if (handleListener?.invoke(s, selectRect) != true) {
             if (letters.size <= 9) {
                 select(s)
             } else {
@@ -249,7 +259,16 @@ class LetterNavigationBarView : View {
                     }
                 }
             }
-            clickListener?.invoke(s)
+            clickListener?.invoke(s, selectRect)
+        }
+    }
+
+    private fun selectRect(index: Int) {
+        selectRect.set(letterRect)
+        if (index > 0) {
+            selectRect.bottom =
+                (paddingTop + letterRect.height() * index + space * (index - 1)).toInt()
+            selectRect.top = selectRect.bottom - letterRect.height()
         }
     }
 }
