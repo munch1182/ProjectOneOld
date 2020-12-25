@@ -57,4 +57,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view_ruler_tv" />
 
+    <com.munch.project.test.view.TeardropView
+        android:layout_width="300dp"
+        android:layout_height="80dp"
+        android:layout_margin="@dimen/padding_def"
+        app:teardrop_text="A"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_ruler_view"
+        app:teardrop_color="@color/colorPrimary" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

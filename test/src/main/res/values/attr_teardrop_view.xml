@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="TeardropView">
+        <attr name="teardrop_color" format="color" />
+        <attr name="teardrop_angle" format="integer" />
+        <attr name="teardrop_text_color" format="color" />
+        <attr name="teardrop_text_size" format="integer" />
+        <attr name="teardrop_text" format="string" />
+    </declare-styleable>
+</resources>
