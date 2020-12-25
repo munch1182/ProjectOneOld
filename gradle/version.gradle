@@ -187,5 +187,9 @@ ext {
 
             /**/
             "zxing_core"                      : "com.google.zxing:core:3.4.1",
+
+            /*https://github.com/promeG/TinyPinyin*/
+            "tiny_pinyin"                     : "com.github.promeg:tinypinyin:2.0.3",
+            "tiny_pinyin_dic"                 : "com.github.promeg:tinypinyin-lexicons-android-cncity:2.0.3"
     ]
 }
