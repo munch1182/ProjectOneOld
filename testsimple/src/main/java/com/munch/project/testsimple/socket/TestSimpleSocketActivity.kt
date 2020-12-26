@@ -5,8 +5,9 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.lib.log
+import com.munch.lib.helper.TimerHelper.Companion.withTimer
 import com.munch.lib.test.TestBaseTopActivity
+import com.munch.lib.test.def.ProgressDialog
 import com.munch.lib.test.recyclerview.TestRvAdapter
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.testsimple.R
@@ -33,16 +34,19 @@ class TestSimpleSocketActivity : TestBaseTopActivity() {
         rv.adapter = testRvAdapter
         rv.layoutManager = LinearLayoutManager(this)
         btnIpAll.setOnClickListener {
+            val dialog = ProgressDialog(this).withTimer(this).show()
             thread {
-                helper.scanIpInNet(helper.getIpAddressInNet()!!) {
+                helper.scanIpInNet(helper.getIpAddressInNet()!!, {
                     runOnUiThread {
                         testRvAdapter.setData(MutableList(it.size) { i ->
-                            TestRvItemBean.newInstance(
-                                it[i]
-                            )
+                            TestRvItemBean.newInstance(it[i])
                         })
+                        dialog.cancel()
                     }
-                }
+                }, {
+                    it.printStackTrace()
+                    dialog.cancelNow()
+                })
             }
         }
     }

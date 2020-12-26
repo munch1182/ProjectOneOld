@@ -47,7 +47,7 @@ class TestAliveSimpleActivity : TestBaseTopActivity() {
                 .show()
         }
         btnStart.setOnClickListener {
-            BatteryOpHelper.toAutoStart(this)
+            BatteryOpHelper.toWhiteList(this)
         }
         see.setOnClickListener {
             showInfo()
@@ -105,6 +105,6 @@ class TestAliveSimpleActivity : TestBaseTopActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        BatteryOpHelper.toAutoStart(this)
+        BatteryOpHelper.toWhiteList(this)
     }
 }

@@ -56,4 +56,6 @@ dependencies {
     implementation rootProject.ext.dependencies['retrofit_gson']
 
     implementation rootProject.ext.dependencies['gson']
+
+    debugImplementation rootProject.ext.dependencies['leakcanary']
 }

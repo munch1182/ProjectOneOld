@@ -20,26 +20,34 @@ class TestDialog(private val context: Context) {
 
     class SimpleDialog(context: Context) {
         private val builder = AlertDialog.Builder(context)
+        private var dialog: AlertDialog? = null
 
         fun setContent(content: String): SimpleDialog {
             builder.setMessage(content)
             return this
         }
 
-        fun setConfirmListener(func: () -> Unit): SimpleDialog {
+        fun setConfirmListener(func: (dialog: AlertDialog) -> Unit): SimpleDialog {
             builder.setPositiveButton(
                 android.R.string.ok
             ) { dialog, _ ->
-                func()
+                func(this.dialog!!)
                 dialog.dismiss()
             }
             return this
         }
 
         fun show() {
-            builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
-                .show()
+            dialog =
+                builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
+                    .create()
+            dialog!!.show()
         }
+
+        fun cancel() {
+            dialog?.cancel()
+        }
+
     }
 
     class BottomDialog(private val context: Context) {
@@ -99,6 +107,10 @@ class TestDialog(private val context: Context) {
                 dialog.cancel()
             }
             dialog.show()
+        }
+
+        fun cancel() {
+            dialog.cancel()
         }
 
     }

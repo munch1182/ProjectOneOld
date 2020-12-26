@@ -15,10 +15,7 @@ import com.munch.lib.log
 import com.munch.project.testsimple.App
 import java.net.*
 import java.util.*
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
+import java.util.concurrent.*
 
 /**
  * Create by munch1182 on 2020/12/23 3:46.
@@ -27,7 +24,7 @@ class SocketHelper(private val application: Application = App.getInstance()) {
 
     init {
         NetStatus(application).register { connect ->
-            if (connect && executor != null) {
+            if (!connect && executor != null) {
                 executor?.shutdown()
             }
             listener?.invoke(connect)
@@ -43,17 +40,28 @@ class SocketHelper(private val application: Application = App.getInstance()) {
     }
 
     @WorkerThread
-    fun scanIpInNet(selfIp: String, res: (res: ArrayList<String>) -> Unit) {
+    fun scanIpInNet(
+        selfIp: String,
+        res: (res: ArrayList<String>) -> Unit,
+        error: ((error: Exception) -> Unit)? = null
+    ) {
         val ipStart = selfIp.substring(0, selfIp.lastIndexOf("."))
         val ipList = arrayListOf<String>()
-        executor = ThreadPoolExecutor(1, 254, 60L, TimeUnit.SECONDS, ArrayBlockingQueue(1))
+        Executors.newCachedThreadPool()
+        executor = ThreadPoolExecutor(1, 255, 60L, TimeUnit.SECONDS, ArrayBlockingQueue(1))
         var ip: String
         for (i in 1..255) {
             ip = ipStart.plus(".").plus(i)
             if (ip == selfIp) {
                 continue
             }
-            executor?.execute(IpRunnable(ip, ipList))
+            try {
+                executor?.execute(IpRunnable(ip, ipList))
+            } catch (e: RejectedExecutionException) {
+                error?.invoke(Exception())
+                //当连接断开后触发NetStatus.register时此处会结束
+                break
+            }
         }
         executor?.shutdown()
         while (true) {
@@ -146,6 +154,7 @@ class SocketHelper(private val application: Application = App.getInstance()) {
             }
         }
 
+        @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
         fun register(listener: ((connect: Boolean) -> Unit)? = null) {
             this.listener = listener
             manager.registerNetworkCallback(

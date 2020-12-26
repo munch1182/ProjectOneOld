@@ -31,7 +31,7 @@ ext {
 
             retrofitVersion  : "2.9.0",
 
-            leakcanaryVersion: "2.5",
+            leakcanaryVersion: "2.6",
 
             hiltVersion      : "1.0.0-alpha02",
             hiltCoreVersion  : "2.30-alpha"

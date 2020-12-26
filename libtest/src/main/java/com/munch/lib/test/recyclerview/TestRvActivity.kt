@@ -59,11 +59,14 @@ open class TestRvActivity : TestBaseTopActivity() {
         val items: MutableList<TestRvItemBean>? =
             getItems() ?: extras?.getParcelableArrayList(KEY_ITEMS)
         val isBtn = isBtn()
+        if (isBtn){
+            rv.setBackgroundColor(Color.TRANSPARENT)
+        }
         adapter = TestRvAdapter(items, isBtn).apply {
             if (isBtn) {
-                clickItemListener(View.OnClickListener {
+                clickItemListener {
                     clickItem(it, it.tag as Int)
-                })
+                }
             }
         }
         rv.adapter = adapter

@@ -43,7 +43,7 @@ object BatteryOpHelper {
      *
      * adb shell dumpsys usagestats >log.txt 用于查看app最后活跃时间
      */
-    fun toAutoStart(context: Context) {
+    fun toWhiteList(context: Context) {
         val brand = Build.BRAND?.toLowerCase(Locale.getDefault()) ?: ""
         try {
             when (brand) {

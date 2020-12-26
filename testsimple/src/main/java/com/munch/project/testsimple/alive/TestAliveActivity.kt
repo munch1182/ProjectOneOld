@@ -118,7 +118,7 @@ class TestAliveActivity : TestRvActivity() {
                 RestartWork.work(this)
             }
             6 -> {
-                BatteryOpHelper.toAutoStart(this)
+                BatteryOpHelper.toWhiteList(this)
             }
             7 -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -186,7 +186,7 @@ class TestAliveActivity : TestRvActivity() {
             "Foreground Service",
             "Silent Music",
             "Work",
-            "Auto Start",
+            "Running In Background",
             "Battery Optimizations",
             "Process",
             "Clear",
