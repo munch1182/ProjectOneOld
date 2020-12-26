@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.github.promeg.pinyinhelper.Pinyin
 import com.github.promeg.tinypinyin.lexicons.android.cncity.CnCityDict
+import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.test.R
 import java.util.*
@@ -65,11 +66,12 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
     data class IconContentBean(val name: String, val icon: Any?, var letter: String?) {
 
         companion object {
-            private val chars = " 如果c为汉字则返回大写拼音如果c不是汉字则返回StringvalueOf(c)".split("")
+            private val chars =
+                "大江东去浪淘尽千古风流人物故垒西边人道是三国周郎赤壁乱石穿空惊涛拍岸卷起千堆雪江山如画一时多少豪杰遥想公瑾当年小乔初嫁了雄姿英发".split("")
 
             fun newInstance(): IconContentBean {
                 return IconContentBean(
-                    chars[Random.nextInt(27)].plus(Random.nextInt(1234)),
+                    chars[Random.nextInt(64)].plus(Random.nextInt(1234)),
                     null,
                     null
                 )
@@ -184,6 +186,7 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
                     val item = (beans[position].item as IconContentBean)
                     holder.itemView.findViewById<TextView>(R.id.item_icon_name).text =
                         item.name
+                    log(item.name)
                     if (item.name.isEmpty()) {
                         holder.itemView.findViewById<ImageView>(R.id.item_icon_img).background =
                             null

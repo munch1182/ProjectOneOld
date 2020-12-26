@@ -2,9 +2,14 @@
 <resources>
     <declare-styleable name="TeardropView">
         <attr name="teardrop_color" format="color" />
-        <attr name="teardrop_angle" format="integer" />
         <attr name="teardrop_text_color" format="color" />
         <attr name="teardrop_text_size" format="integer" />
         <attr name="teardrop_text" format="string" />
+        <!--尖角在圆的角度-->
+        <attr name="teardrop_angle" format="integer" />
+        <!--半径-->
+        <attr name="teardrop_radius" format="dimension" />
+        <!--尖角圆角-->
+        <attr name="teardrop_corner" format="dimension" />
     </declare-styleable>
 </resources>

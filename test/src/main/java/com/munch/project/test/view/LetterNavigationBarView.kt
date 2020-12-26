@@ -205,9 +205,8 @@ class LetterNavigationBarView : View {
             MotionEvent.ACTION_DOWN -> {
                 if (handleListener == null && clickListener == null) {
                     performClick()
-                } else {
-                    handleTouch(event)
                 }
+                handleTouch(event)
             }
             MotionEvent.ACTION_MOVE -> {
                 handleTouch(event)

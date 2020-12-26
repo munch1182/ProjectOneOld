@@ -57,13 +57,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view_ruler_tv" />
 
-    <com.munch.project.test.view.TeardropView
-        android:layout_width="300dp"
-        android:layout_height="80dp"
+    <com.munch.project.test.view.TeardropAngleView
+        android:id="@+id/view_teardrop_angle"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
         android:layout_margin="@dimen/padding_def"
-        app:teardrop_text="A"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view_ruler_view"
-        app:teardrop_color="@color/colorPrimary" />
+        app:teardrop_angle="0"
+        app:teardrop_color="@color/colorPrimary"
+        app:teardrop_radius="40dp"
+        app:teardrop_text="A" />
+
+    <com.munch.project.test.view.TeardropView
+        android:id="@+id/view_teardrop"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_margin="@dimen/padding_def"
+        app:layout_constraintBottom_toBottomOf="@id/view_teardrop_angle"
+        app:layout_constraintStart_toEndOf="@id/view_teardrop_angle"
+        app:layout_constraintTop_toTopOf="@id/view_teardrop_angle"
+        app:teardrop_angle="45"
+        app:teardrop_color="@color/colorPrimary"
+        app:teardrop_radius="40dp"
+        app:teardrop_text="A" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

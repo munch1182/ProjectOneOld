@@ -15,6 +15,8 @@ class TestWeightActivity : TestBaseTopActivity() {
     private val cb by lazy { findViewById<CheckBox>(R.id.view_cb) }
     private val rulerRes by lazy { findViewById<TextView>(R.id.view_ruler_tv) }
     private val ruler by lazy { findViewById<RulerView>(R.id.view_ruler_view) }
+    private val teardrop by lazy { findViewById<TeardropView>(R.id.view_teardrop) }
+    private val teardropAngle by lazy { findViewById<TeardropAngleView>(R.id.view_teardrop_angle) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,5 +34,10 @@ class TestWeightActivity : TestBaseTopActivity() {
                 rulerRes.text = num.toString()
             }
         })
+        teardrop.setOnClickListener {
+            teardrop.setProperty {
+                this.angle += 90
+            }
+        }
     }
 }

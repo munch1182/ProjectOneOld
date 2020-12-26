@@ -13,7 +13,7 @@ import kotlin.math.min
 /**
  * Create by munch1182 on 2020/12/25 11:56.
  */
-class TeardropView : View {
+open class TeardropView : View {
 
     constructor(
         context: Context,
@@ -31,12 +31,15 @@ class TeardropView : View {
         text = attributes.getString(R.styleable.TeardropView_teardrop_text) ?: ""
         textColor =
             attributes.getColor(R.styleable.TeardropView_teardrop_text_color, Color.WHITE)
-        angle = attributes.getDimension(R.styleable.TeardropView_teardrop_angle, 45f).toInt()
-        val textSize = attributes.getDimension(R.styleable.TeardropView_teardrop_text_size, 80f)
+        angle = attributes.getInt(R.styleable.TeardropView_teardrop_angle, 45)
+        radius = attributes.getDimension(R.styleable.TeardropView_teardrop_radius, -1f)
+            .takeIf { it != -1f }
+        corner = attributes.getDimension(R.styleable.TeardropView_teardrop_corner, 30f)
+        textSize = attributes.getDimension(R.styleable.TeardropView_teardrop_text_size, 80f)
         attributes.recycle()
         paint = Paint(Paint.ANTI_ALIAS_FLAG)
             .apply {
-                this.textSize = textSize
+                this.textSize = this@TeardropView.textSize
             }
     }
 
@@ -51,64 +54,83 @@ class TeardropView : View {
 
     constructor(context: Context) : this(context, null)
 
-    private val paint: Paint
-    private val path = Path()
-    private var bgColor = Color.GREEN
-    private var textColor = Color.WHITE
-    private var angle = 45
-    private var text = ""
-
-    fun setAngle(angle: Int) {
-        if (this.angle != angle) {
-            this.angle = angle
-            invalidate()
+    internal val paint: Paint
+    internal val path = Path()
+    var bgColor = Color.BLUE
+    var textColor = Color.WHITE
+    var angle = 45
+        set(value) {
+            field = if (value > 360) {
+                value - 360
+            } else {
+                value
+            }
         }
-    }
+    var text = ""
+    var radius: Float? = null
+    var corner: Float = 30f
+    var textSize: Float = 80f
 
-    fun setText(str: String?) {
-        val text = str ?: ""
-        if (text != this.text) {
-            this.text = text
-            invalidate()
-        }
+    fun setProperty(func: TeardropView.() -> Unit) {
+        func.invoke(this)
+        invalidate()
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas ?: return
-        val min = min(
-            measuredHeight - paddingBottom - paddingTop,
-            measuredWidth - paddingLeft - paddingRight
-        )
-        val radius = min / 2f
+
+        val (radius, cx, cy) = sureCircleParameter()
 
         paint.color = bgColor
-        canvas.drawCircle(radius, radius, radius, paint)
+        canvas.drawCircle(cx, cy, radius, paint)
 
-        setPathByAngle(radius)
+        surePathByAngle(cx, cy, radius)
         canvas.drawPath(path, paint)
 
         paint.color = textColor
-        drawTextInCenter(canvas, radius, radius)
+        drawTextInCenter(canvas, cx, cy)
     }
 
-    private fun drawTextInCenter(canvas: Canvas, cx: Float, cy: Float) {
+    open fun sureCircleParameter(): Triple<Float, Float, Float> {
+        val endHeight = measuredHeight - paddingBottom - paddingTop
+        val endWidth = measuredWidth - paddingLeft - paddingRight
+        val min = min(endHeight, endWidth)
+
+        val radius = this.radius ?: min / 2f
+
+        val cx = endHeight / 2f
+        val cy = endWidth / 2f
+        return Triple(radius, cx, cy)
+    }
+
+    open fun drawTextInCenter(canvas: Canvas, cx: Float, cy: Float) {
         val textWidth = paint.measureText(text)
         val fontMetrics = paint.fontMetrics
         val baseLineY = cy + (fontMetrics.bottom - fontMetrics.top) / 2 - fontMetrics.bottom
         canvas.drawText(text, cx - textWidth / 2, baseLineY, paint)
     }
 
-    /**
-     * todo 需要数学去完成[setAngle]
-     */
-    private fun setPathByAngle(radius: Float) {
-        val conner = 30f
+    open fun surePathByAngle(cx: Float, cy: Float, radius: Float) {
+
+        val isTop = angle < 90 || angle > 270
+        val isRight = angle in 1 until 180
+
+        val startX: Float = cx
+        val startY = if (isTop) cy - radius else cy + radius
+
+        val endX = if (isRight) cx + radius else cx - radius
+        val endY: Float = cy
+
+
         path.reset()
-        path.moveTo(radius, 0f)
-        path.lineTo(radius * 2 - conner, 0f)
-        path.quadTo(radius * 2, 0f, radius * 2, conner)
-        path.lineTo(radius * 2, radius)
+        path.moveTo(startX, startY)
+        val cornerX = if (isRight) endX - corner else endX + corner
+        path.lineTo(cornerX, startY)
+        val cornerY = if (isTop) startY + corner else startY - corner
+        path.quadTo(endX, startY, endX, cornerY)
+        path.lineTo(endX, endY)
         path.close()
     }
+
 }
