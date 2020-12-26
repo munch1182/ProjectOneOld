@@ -69,7 +69,7 @@ class TimerHelper private constructor(
         const val WHAT_MSG_CANCEL = 2
 
 
-        private const val TIME_DELAY_DEF = 500L
+        private const val TIME_DELAY_DEF = 300L
 
         fun with(owner: LifecycleOwner, dialog: ITimerShow): TimerHelper {
             return TimerHelper(owner, dialog)

@@ -45,9 +45,12 @@ class SocketHelper(private val application: Application = App.getInstance()) {
         res: (res: ArrayList<String>) -> Unit,
         error: ((error: Exception) -> Unit)? = null
     ) {
+        if (!isWifiEnable()) {
+            error?.invoke(Exception("wifi不可用"))
+            return
+        }
         val ipStart = selfIp.substring(0, selfIp.lastIndexOf("."))
         val ipList = arrayListOf<String>()
-        Executors.newCachedThreadPool()
         executor = ThreadPoolExecutor(1, 255, 60L, TimeUnit.SECONDS, ArrayBlockingQueue(1))
         var ip: String
         for (i in 1..255) {
@@ -58,7 +61,7 @@ class SocketHelper(private val application: Application = App.getInstance()) {
             try {
                 executor?.execute(IpRunnable(ip, ipList))
             } catch (e: RejectedExecutionException) {
-                error?.invoke(Exception())
+                error?.invoke(Exception("wifi已断开"))
                 //当连接断开后触发NetStatus.register时此处会结束
                 break
             }
@@ -97,6 +100,12 @@ class SocketHelper(private val application: Application = App.getInstance()) {
     }
 
     @RequiresPermission("android.permission.ACCESS_WIFI_STATE")
+    fun isWifiEnable(): Boolean {
+        return (application.getSystemService(Context.WIFI_SERVICE) as WifiManager?)?.isWifiEnabled
+            ?: false
+    }
+
+    @RequiresPermission("android.permission.ACCESS_WIFI_STATE")
     fun getIpAddressInWifi(): String? {
         val manager =
             application.getSystemService(Context.WIFI_SERVICE) as WifiManager? ?: return null
@@ -118,7 +127,7 @@ class SocketHelper(private val application: Application = App.getInstance()) {
      * 获取网络状态下的ip，包括wifi和4g网
      * 且无需权限
      */
-    fun getIpAddressInNet(): String? {
+    fun getIpAddress(): String? {
         val networkInterfaces: Enumeration<NetworkInterface>
         try {
             networkInterfaces = NetworkInterface.getNetworkInterfaces() ?: return null
