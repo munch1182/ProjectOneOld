@@ -85,9 +85,9 @@ class LetterNavigationBarView : View {
     /**
      * 返回值：true则需要自行调用[select]
      */
-    private var handleListener: ((letter: String, rect: Rect) -> Boolean)? = null
-    private var clickListener: ((letter: String, rect: Rect) -> Unit)? = null
-    private var selectEndListener: ((letter: String, rect: Rect) -> Unit)? = null
+    var handleListener: ((letter: String, rect: Rect) -> Boolean)? = null
+    var clickListener: ((letter: String, rect: Rect) -> Unit)? = null
+    var selectEndListener: ((letter: String, rect: Rect) -> Unit)? = null
 
     fun setLetters(letters: List<String>) {
         this.letters.clear()
@@ -199,7 +199,7 @@ class LetterNavigationBarView : View {
         when (event.action) {
             MotionEvent.ACTION_UP -> {
                 if (selectIndex != -1) {
-                    selectEndListener?.invoke(selectLetters[selectIndex], letterRect)
+                    selectEndListener?.invoke(letters[selectIndex], letterRect)
                 }
             }
             MotionEvent.ACTION_DOWN -> {
@@ -263,10 +263,8 @@ class LetterNavigationBarView : View {
 
     private fun selectRect(index: Int) {
         selectRect.set(letterRect)
-        if (index > 0) {
-            selectRect.bottom =
-                (paddingTop + letterRect.height() * index + space * (index - 1)).toInt()
-            selectRect.top = selectRect.bottom - letterRect.height()
-        }
+        selectRect.bottom =
+            (paddingTop + letterRect.height() * (index + 1) + space * index).toInt()
+        selectRect.top = selectRect.bottom - letterRect.height()
     }
 }

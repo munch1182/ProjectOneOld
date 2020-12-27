@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -18,6 +19,7 @@ import com.munch.project.test.R
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
+import kotlin.math.absoluteValue
 import kotlin.random.Random
 
 /**
@@ -27,6 +29,8 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
 
     private val letterNavigation: LetterNavigationBarView by lazy { findViewById(R.id.view_letter_navigation) }
     private val rv: RecyclerView by lazy { findViewById(R.id.view_letter_rv) }
+    private val container: ConstraintLayout by lazy { findViewById(R.id.view_letter_container) }
+    private var teardrop: TeardropAngleView? = null
 
     companion object {
         private const val COUNT = 5
@@ -42,6 +46,56 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
 
         rv.layoutManager = StaggeredGridLayoutManager(COUNT, StaggeredGridLayoutManager.VERTICAL)
         rv.adapter = IconAdapter(getItems(), rv)
+
+        handleLetterNavigation()
+    }
+
+    private fun handleLetterNavigation() {
+        letterNavigation.handleListener = { letter, rect ->
+            val height = 240
+            var marginBottom = 0
+            var marginTop = rect.top + rect.height() / 2 - height / 2
+            log(marginTop)
+            if (marginTop < 0) {
+                marginBottom = marginTop.absoluteValue
+                marginTop = 0
+            }
+            if (teardrop == null) {
+                teardrop = TeardropAngleView(this).apply {
+                    setProperty {
+                        text = letter
+                        angle = 0
+                        bgColor = ContextCompat.getColor(
+                            this@TestRecyclerViewActivity,
+                            R.color.colorPrimary
+                        )
+                    }
+                }
+                container.addView(teardrop, ConstraintLayout.LayoutParams(height, height).apply {
+                    this.endToStart = R.id.view_letter_navigation
+                    this.topToTop = R.id.view_letter_navigation
+                    this.bottomToBottom = R.id.view_letter_navigation
+                    verticalBias = 0f
+                    setMargins(0, marginTop, 0, marginBottom)
+                })
+            } else {
+                teardrop?.run {
+                    visibility = View.VISIBLE
+                    layoutParams = (layoutParams as ConstraintLayout.LayoutParams).apply {
+                        setMargins(0, marginTop, 0, marginBottom)
+                    }
+                    setProperty {
+                        text = letter
+                    }
+                }
+            }
+            letterNavigation.select(letter)
+            true
+        }
+
+        letterNavigation.selectEndListener = { _, _ ->
+            teardrop?.visibility = View.GONE
+        }
     }
 
     private fun getItems(): ArrayList<IconContentBean> {
@@ -89,10 +143,6 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
 
         init {
             handleItems()
-        }
-
-        companion object {
-
         }
 
         private val beans: ArrayList<IconBean> = arrayListOf()
@@ -186,7 +236,6 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
                     val item = (beans[position].item as IconContentBean)
                     holder.itemView.findViewById<TextView>(R.id.item_icon_name).text =
                         item.name
-                    log(item.name)
                     if (item.name.isEmpty()) {
                         holder.itemView.findViewById<ImageView>(R.id.item_icon_img).background =
                             null
