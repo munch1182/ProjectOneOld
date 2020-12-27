@@ -8,6 +8,7 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
 import com.munch.project.test.R
+import kotlin.math.absoluteValue
 import kotlin.math.min
 
 /**
@@ -54,21 +55,30 @@ open class TeardropView : View {
 
     constructor(context: Context) : this(context, null)
 
-    internal val paint: Paint
+    private val paint: Paint
+        get() = field
     internal val path = Path()
+    var showStructure = false
     var bgColor = Color.BLUE
     var textColor = Color.WHITE
     var angle = 45
         set(value) {
-            field = if (value > 360) {
-                value - 360
-            } else {
-                value
+            val i = value.absoluteValue / 360
+            field = when {
+                value > 0 -> {
+                    value - 360 * i
+                }
+                value < 0 -> {
+                    value + 360 * (i + 1)
+                }
+                else -> {
+                    0
+                }
             }
         }
     var text = ""
     var radius: Float? = null
-    var corner: Float = 30f
+    var corner: Float = 20f
     var textSize: Float = 80f
 
     fun setProperty(func: TeardropView.() -> Unit) {
@@ -82,6 +92,7 @@ open class TeardropView : View {
 
         val (radius, cx, cy) = sureCircleParameter()
 
+        paint.style = Paint.Style.FILL_AND_STROKE
         paint.color = bgColor
         canvas.drawCircle(cx, cy, radius, paint)
 
@@ -90,6 +101,33 @@ open class TeardropView : View {
 
         paint.color = textColor
         drawTextInCenter(canvas, cx, cy)
+
+        if (showStructure) {
+            paint.color = Color.GREEN
+            canvas.drawLines(
+                floatArrayOf(
+                    cx - radius,
+                    cy - radius,
+                    cx - radius,
+                    cy + radius,
+                    cx - radius,
+                    cy + radius,
+                    cx + radius,
+                    cy + radius,
+                    cx + radius,
+                    cy + radius,
+                    cx + radius,
+                    cy - radius,
+                    cx + radius,
+                    cy - radius,
+                    cx - radius,
+                    cy - radius
+                ), paint
+            )
+
+            paint.style = Paint.Style.STROKE
+            canvas.drawCircle(cx, cy, radius * 3 / 2, paint)
+        }
     }
 
     open fun sureCircleParameter(): Triple<Float, Float, Float> {
@@ -99,8 +137,8 @@ open class TeardropView : View {
 
         val radius = this.radius ?: min / 2f
 
-        val cx = endHeight / 2f
-        val cy = endWidth / 2f
+        val cx = min / 2f + (endWidth - min) / 2f
+        val cy = min / 2f + (endHeight - min) / 2f
         return Triple(radius, cx, cy)
     }
 
@@ -113,8 +151,8 @@ open class TeardropView : View {
 
     open fun surePathByAngle(cx: Float, cy: Float, radius: Float) {
 
-        val isTop = angle < 90 || angle > 270
-        val isRight = angle in 1 until 180
+        val isTop = angle in 180 until 360
+        val isRight = angle < 90 || angle > 270
 
         val startX: Float = cx
         val startY = if (isTop) cy - radius else cy + radius

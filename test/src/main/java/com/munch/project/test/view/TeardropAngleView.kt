@@ -1,8 +1,8 @@
 package com.munch.project.test.view
 
 import android.content.Context
-import android.graphics.Canvas
 import android.util.AttributeSet
+import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -37,41 +37,86 @@ class TeardropAngleView : TeardropView {
 
     companion object {
         private const val PI = 3.14
-
     }
 
     override fun sureCircleParameter(): Triple<Float, Float, Float> {
         val endHeight = measuredHeight - paddingBottom - paddingTop
-        val endWidth = measuredWidth - paddingLeft - paddingRight
+        val endWidth = measuredWidth - paddingStart - paddingEnd
         val min = min(endHeight, endWidth)
 
-        val radius = this.radius ?: min / 3f
+        val radius = this.radius ?: min * 2f / 5f
 
-        val cx = endHeight / 2f
-        val cy = endWidth / 2f
+        var cx = min / 2f + (endWidth - min) / 2f + paddingStart
+        var cy = min / 2f + (endHeight - min) / 2f + paddingTop
+
+        if (angle % 90 != 0) {
+            return Triple(radius, cx, cy)
+        }
+        when (angle) {
+            0 -> {
+                cx -= radius / 5
+            }
+            90 -> {
+                cy -= radius / 5
+            }
+            180 -> {
+                cx += radius / 5
+            }
+            270 -> {
+                cy += radius / 5
+            }
+        }
         return Triple(radius, cx, cy)
-    }
-
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
     }
 
     override fun surePathByAngle(cx: Float, cy: Float, radius: Float) {
 
-        val startX = getPosXInCircle(angle, cx, radius)
-        val startY = getPosYInCircle(angle, cy, radius)
+        val startX = getPosXInCircle(changeAngle(angle, -45), cx, radius)
+        val startY = getPosYInCircle(changeAngle(angle, -45), cy, radius)
 
         val radiusDis = radius * 3 / 2
-        val centerX = getPosXInCircle(angle + 45, cx, radiusDis)
-        val centerY = getPosYInCircle(angle + 45, cy, radiusDis)
+        val centerX = getPosXInCircle(angle, cx, radiusDis)
+        val centerY = getPosYInCircle(angle, cy, radiusDis)
 
-        val endX = getPosXInCircle(angle + 90, cx, radius)
-        val endY = getPosYInCircle(angle + 90, cy, radius)
+        val endX = getPosXInCircle(changeAngle(angle, 45), cx, radius)
+        val endY = getPosYInCircle(changeAngle(angle, 45), cy, radius)
 
         path.reset()
         path.moveTo(startX, startY)
-        /*path.lineTo(cornerSX, cornerSY)
-        path.quadTo(centerX, centerY, cornerSX, cornerSY)*/
+        when (angle) {
+            0 -> {
+                path.lineTo(centerX - corner, centerY - corner)
+                path.quadTo(centerX, centerY, centerX - corner, centerY + corner)
+            }
+            45 -> {
+                path.lineTo(centerX, centerY - corner)
+                path.quadTo(centerX, centerY, centerX - corner, centerY)
+            }
+            90 -> {
+                path.lineTo(centerX + corner, centerY - corner)
+                path.quadTo(centerX, centerY, centerX - corner, centerY - corner)
+            }
+            135 -> {
+                path.lineTo(centerX + corner, centerY)
+                path.quadTo(centerX, centerY, centerX, centerY - corner)
+            }
+            180 -> {
+                path.lineTo(centerX + corner, centerY + corner)
+                path.quadTo(centerX, centerY, centerX + corner, centerY - corner)
+            }
+            225 -> {
+                path.lineTo(centerX, centerY + corner)
+                path.quadTo(centerX, centerY, centerX + corner, centerY)
+            }
+            270 -> {
+                path.lineTo(centerX - corner, centerY + corner)
+                path.quadTo(centerX, centerY, centerX + corner, centerY + corner)
+            }
+            315 -> {
+                path.lineTo(centerX - corner, centerY)
+                path.quadTo(centerX, centerY, centerX, centerY + corner)
+            }
+        }
         path.lineTo(endX, endY)
         path.close()
     }
@@ -81,5 +126,21 @@ class TeardropAngleView : TeardropView {
 
     private fun getPosXInCircle(angle: Int, cx: Float, radius: Float) =
         (cx + radius * cos(angle * PI / 180f)).toFloat()
+
+    private fun changeAngle(angle: Int, add: Int): Int {
+        val value = angle + add
+        val i = value.absoluteValue / 360
+        return when {
+            value > 0 -> {
+                value - 360 * i
+            }
+            value < 0 -> {
+                value + 360 * (i + 1)
+            }
+            else -> {
+                0
+            }
+        }
+    }
 
 }

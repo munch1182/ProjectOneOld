@@ -39,5 +39,10 @@ class TestWeightActivity : TestBaseTopActivity() {
                 this.angle += 90
             }
         }
+        teardropAngle.setOnClickListener {
+            teardropAngle.setProperty {
+                this.angle += 45
+            }
+        }
     }
 }
