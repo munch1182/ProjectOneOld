@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import com.munch.lib.helper.LogLog
+import com.munch.lib.helper.ServiceBindHelper
 import com.munch.lib.helper.clickItem
 import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity
@@ -19,7 +20,7 @@ class TestQueueActivity : TestBaseTopActivity(), QueueService.NotifyListener {
 
     private val container: ViewGroup by lazy { findViewById(R.id.queue_container) }
     private val tvMsg: TextView by lazy { findViewById(R.id.queue_tv_msg) }
-    private val helper by lazy { QueueService.Helper(this) }
+    private var helper = ServiceBindHelper(this, this, QueueService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

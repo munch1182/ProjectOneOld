@@ -1,16 +1,14 @@
 package com.munch.project.testsimple.queue
 
 import android.app.Service
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.*
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-import com.munch.lib.TESTONLY
+import com.munch.lib.helper.ServiceBindHelper
 import com.munch.lib.log
 import java.util.concurrent.Executors
 
@@ -26,8 +24,6 @@ class QueueService : Service() {
     private lateinit var looper: Looper
     private lateinit var serviceHandler: Handler
 
-    private val binder by lazy { ServiceBinder() }
-
     companion object {
 
         fun start(context: Context) {
@@ -36,51 +32,6 @@ class QueueService : Service() {
 
         fun intent(context: Context): Intent {
             return Intent(context, QueueService::class.java)
-        }
-    }
-
-    /**
-     * 可以考虑绑定app，然后通过app调用
-     */
-    class Helper(private val context: Context) {
-
-        init {
-
-            if (context is LifecycleOwner) {
-                context.lifecycle.addObserver(object : LifecycleObserver {
-                    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-                    fun onDestroy() {
-                        queueService ?: return
-                        context.stopService(intent(context))
-                    }
-                })
-            } else {
-                throw Exception("不支持，需自行实现")
-            }
-        }
-
-        private var queueService: QueueService? = null
-
-        /**
-         * 实际操作中，服务应该首先建立而不是操作时才bind
-         */
-        @TESTONLY("夹杂了大部分情况下无用的代码，服务应该先启动并在绑定回调后发起操作")
-        fun opService(func: (QueueService) -> Unit) {
-            queueService?.let {
-                func(it)
-            } ?: context.bindService(intent(context), object : ServiceConnection {
-                override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                    service ?: return
-                    if (service is QueueService.ServiceBinder) {
-                        queueService = service.getService()
-                        func(queueService!!)
-                    }
-                }
-
-                override fun onServiceDisconnected(name: ComponentName?) {
-                    queueService = null
-                }
-            }, BIND_AUTO_CREATE)
         }
     }
 
@@ -203,14 +154,7 @@ class QueueService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder {
-        return binder
-    }
-
-    inner class ServiceBinder : Binder() {
-
-        fun getService(): QueueService {
-            return this@QueueService
-        }
+        return ServiceBindHelper.newBinder(this)
     }
 
     class UiNotifyManager private constructor() {

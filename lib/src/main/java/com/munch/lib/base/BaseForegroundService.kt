@@ -12,7 +12,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.munch.lib.RequiresPermission
 import com.munch.lib.helper.startServiceInForeground
-import com.munch.lib.log
 
 /**
  * Create by munch1182 on 2020/12/16 11:48.
@@ -35,7 +34,6 @@ open class BaseForegroundService(val parameter: Parameter) : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        log(parameter.channelId)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             manager.createNotificationChannel(
                 NotificationChannel(

@@ -2,6 +2,9 @@ package com.munch.project.testsimple
 
 import android.content.Intent
 import android.view.View
+import com.munch.lib.helper.isServiceRunning
+import com.munch.lib.helper.startActivity
+import com.munch.lib.log
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 
@@ -26,10 +29,38 @@ class TestFunActivity : TestRvActivity() {
             }
             3 -> {
             }
+            4 -> {
+            }
+            5 -> {
+                val running = isServiceRunning()
+
+                val str = when {
+                    running == null -> {
+                        toast("错误")
+                        return
+                    }
+                    running -> {
+                        "有"
+                    }
+                    else -> {
+                        "没有"
+                    }
+                }
+                toast(str.plus("服务运行中"))
+            }
+            6 ->startActivity(TestFunInFragmentActivity::class.java)
         }
     }
 
     override fun getItems(): MutableList<TestRvItemBean> {
-        return TestRvItemBean.newArray("test1", "test2", "test3", "test4")
+        return TestRvItemBean.newArray(
+            "test1",
+            "test2",
+            "test3",
+            "test4",
+            "test5",
+            "test6",
+            "testInFragment"
+        )
     }
 }

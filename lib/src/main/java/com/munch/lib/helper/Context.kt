@@ -65,10 +65,11 @@ fun Context.px2Dp(pxVal: Float): Float {
  * 虽然方法已废弃，但仍会返回自己的服务
  */
 @Suppress("DEPRECATION")
-fun Context.isServiceRunning(service: Class<out Service>): Boolean? {
+fun Context.isServiceRunning(service: Class<out Service>? = null): Boolean? {
     val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager? ?: return null
     val services = manager.getRunningServices(Int.MAX_VALUE)
     services.forEach {
+        service ?: return true
         if (it.service.className == service.name) {
             return true
         }
@@ -80,11 +81,18 @@ fun Context.isServiceRunning(service: Class<out Service>): Boolean? {
  * 即使声明不同进程的服务也会被stop
  */
 @Suppress("DEPRECATION")
-fun Context.stopAllService(): Boolean? {
-    val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager? ?: return null
+fun Context.stopServices(vararg service: Class<out Service>) {
+    val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager? ?: return
     val services = manager.getRunningServices(Int.MAX_VALUE)
     services.forEach {
-        stopService(Intent(this, Class.forName(it.service.className)))
+        if (service.isEmpty()) {
+            stopService(Intent(this, Class.forName(it.service.className)))
+        } else {
+            service.forEach services@{ clazz ->
+                if (it.service.className == clazz.name) {
+                    stopService(Intent(this, Class.forName(it.service.className)))
+                }
+            }
+        }
     }
-    return false
 }

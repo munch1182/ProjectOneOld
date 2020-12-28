@@ -44,8 +44,8 @@ open class TestRvActivity : TestBaseTopActivity() {
         private const val KEY_IS_BTN = "KEY_IS_BTN"
     }
 
-    private val rv: RecyclerView by lazy { findViewById<RecyclerView>(R.id.rv_test_rv) }
-    protected val topView: ViewGroup by lazy { findViewById<LinearLayout>(R.id.rv_test_rv_top) }
+    private val rv: RecyclerView by lazy { findViewById(R.id.rv_test_rv) }
+    protected val topView: ViewGroup by lazy { findViewById(R.id.rv_test_rv_top) }
     private val srl by lazy { findViewById<SwipeRefreshLayout>(R.id.rv_test_srl) }
     protected lateinit var adapter: TestRvAdapter
 
@@ -59,7 +59,7 @@ open class TestRvActivity : TestBaseTopActivity() {
         val items: MutableList<TestRvItemBean>? =
             getItems() ?: extras?.getParcelableArrayList(KEY_ITEMS)
         val isBtn = isBtn()
-        if (isBtn){
+        if (isBtn) {
             rv.setBackgroundColor(Color.TRANSPARENT)
         }
         adapter = TestRvAdapter(items, isBtn).apply {

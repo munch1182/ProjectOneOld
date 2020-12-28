@@ -46,6 +46,7 @@
         <activity android:name=".TestFunActivity" />
         <activity android:name=".queue.TestQueueActivity" />
         <activity android:name=".socket.TestSimpleSocketActivity" />
+        <activity android:name=".TestFunInFragmentActivity" />
 
         <service
             android:name=".alive.foreground.ForegroundService"

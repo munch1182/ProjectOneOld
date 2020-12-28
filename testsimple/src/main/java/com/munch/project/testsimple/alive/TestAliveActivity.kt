@@ -6,7 +6,7 @@ import android.view.View
 import androidx.work.WorkInfo
 import com.munch.lib.helper.formatDate
 import com.munch.lib.helper.startActivity
-import com.munch.lib.helper.stopAllService
+import com.munch.lib.helper.stopServices
 import com.munch.lib.log
 import com.munch.lib.test.TestDialog
 import com.munch.lib.test.recyclerview.TestRvActivity
@@ -170,7 +170,7 @@ class TestAliveActivity : TestRvActivity() {
         adapter.clearItemInfo()
         TestDataHelper.clear(this)
         RestartWork.stop(this)
-        stopAllService()
+        stopServices()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
