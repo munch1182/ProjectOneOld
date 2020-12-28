@@ -93,6 +93,11 @@ class BluetoothStateReceiverHelper(context: Context) :
 
 }
 
+/**
+ * 应用安装、卸载广播
+ *
+ * 在android11，需要[android.Manifest.permission.QUERY_ALL_PACKAGES]权限
+ */
 class AppInstallReceiverHelper(context: Context) :
     ReceiverHelper<(context: Context?, isAdd: Boolean, pkgName: String?) -> Unit>(
         context,
