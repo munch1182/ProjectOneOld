@@ -13,6 +13,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import com.munch.lib.BaseApp
 
 /**
  * 此类采用了废弃的方法
@@ -139,14 +140,25 @@ class BarHelper(activity: Activity) {
                     ((blue * 255.0f + 0.5f).toInt())
         }
 
-        fun getStatusBarHeight(context: Context): Int {
+        fun getStatusBarHeight(context: Context = BaseApp.getInstance()): Int? {
+            return getResById(context, "status_bar_height")
+        }
+
+        private fun getResById(
+            context: Context,
+            name: String
+        ): Int? {
             val resources = context.resources
-            val id = resources.getIdentifier("status_bar_height", "dimen", "android")
+            val id = resources.getIdentifier(name, "dimen", "android")
             return try {
                 resources.getDimensionPixelSize(id)
             } catch (e: Resources.NotFoundException) {
-                -1
+                null
             }
+        }
+
+        fun getNavigationBarHeight(context: Context = BaseApp.getInstance()): Int? {
+            return getResById(context, "navigation_bar_height")
         }
     }
 }

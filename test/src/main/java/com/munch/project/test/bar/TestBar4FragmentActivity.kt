@@ -131,7 +131,7 @@ class TestBar4FragmentActivity : BaseActivity() {
                     AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
             } else if (pos >= 2) {
                 val params = toolbar.layoutParams ?: return
-                val height = BarHelper.getStatusBarHeight(this.context ?: return)
+                val height = BarHelper.getStatusBarHeight(this.context ?: return) ?: 0
                 params.height += height
                 toolbar.layoutParams = params
                 toolbar.setPadding(

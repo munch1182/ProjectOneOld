@@ -1,12 +1,10 @@
 package com.munch.project.testsimple
 
 import android.content.Intent
-import android.net.NetworkCapabilities
+import android.os.Bundle
 import android.view.View
-import com.munch.lib.helper.NetStatusHelper
-import com.munch.lib.helper.isServiceRunning
-import com.munch.lib.helper.startActivity
-import com.munch.lib.log
+import android.widget.ImageView
+import com.munch.lib.helper.*
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 
@@ -20,17 +18,17 @@ class TestFunActivity : TestRvActivity() {
         intent = Intent().putExtras(newBundle("Test Function", null, isBtn = true))
     }
 
+    private val img by lazy { ImageView(this) }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        addStartView(img)
+    }
+
     override fun clickItem(view: View, pos: Int) {
         super.clickItem(view, pos)
         when (pos) {
             0 -> {
-                NetStatusHelper.getInstance(this).limitTransportType(
-                    NetworkCapabilities.TRANSPORT_WIFI,
-                    NetworkCapabilities.TRANSPORT_CELLULAR,
-                    NetworkCapabilities.TRANSPORT_BLUETOOTH
-                ).apply {
-                    set(this@TestFunActivity, { a, b -> log(a, b) })
-                }.register()
             }
             1 -> {
             }
@@ -41,24 +39,28 @@ class TestFunActivity : TestRvActivity() {
             4 -> {
             }
             5 -> {
-                val running = isServiceRunning()
-
-                val str = when {
-                    running == null -> {
-                        toast("错误")
-                        return
-                    }
-                    running -> {
-                        "有"
-                    }
-                    else -> {
-                        "没有"
-                    }
-                }
-                toast(str.plus("服务运行中"))
+                toastServiceRunning()
             }
             6 -> startActivity(TestFunInFragmentActivity::class.java)
         }
+    }
+
+    private fun toastServiceRunning() {
+        val running = isServiceRunning()
+
+        val str = when {
+            running == null -> {
+                toast("错误")
+                return
+            }
+            running -> {
+                "有"
+            }
+            else -> {
+                "没有"
+            }
+        }
+        toast(str.plus("服务运行中"))
     }
 
     override fun getItems(): MutableList<TestRvItemBean> {
@@ -68,7 +70,7 @@ class TestFunActivity : TestRvActivity() {
             "test3",
             "test4",
             "test5",
-            "test6",
+            "Is Service Running",
             "testInFragment"
         )
     }

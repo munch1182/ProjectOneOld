@@ -26,10 +26,6 @@ private constructor(
     private val context: Context,
     private val owner: LifecycleOwner?,
 ) {
-
-    private var serviceClazz: Class<S>? = null
-    private var intent: Intent? = null
-
     constructor(context: Context, owner: LifecycleOwner?, intent: Intent) : this(
         context,
         owner
@@ -55,6 +51,14 @@ private constructor(
 
         fun <S : Service> newBinder(service: S) = SimpleServiceBinder(service)
     }
+
+
+    private var service: S? = null
+    private var conn: ServiceConnection? = null
+    private var binder: SimpleServiceBinder<S>? = null
+    private var serviceClazz: Class<S>? = null
+    private var intent: Intent? = null
+    var isBind = false
 
     init {
         owner?.lifecycle?.addObserver(object : LifecycleObserver {
@@ -86,6 +90,8 @@ private constructor(
         if (conn != null) {
             context.unbindService(conn!!)
         }
+        binder?.clear()
+        binder = null
         service = null
         conn = null
     }
@@ -99,25 +105,20 @@ private constructor(
             ) {
                 @Suppress("UNCHECKED_CAST")
                 if (service is SimpleServiceBinder<*>) {
-                    this@ServiceBindHelper.service = (service as SimpleServiceBinder<S>).get()
+                    binder = service as SimpleServiceBinder<S>
+                    this@ServiceBindHelper.service = binder?.get()
                     isBind = true
                 }
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
                 isBind = false
-                conn = null
-                service = null
             }
 
         }
         context.bindService(intent, conn!!, Service.BIND_AUTO_CREATE)
         return this
     }
-
-    private var service: S? = null
-    private var conn: ServiceConnection? = null
-    var isBind = false
 
     fun opService(func: (S) -> Unit) {
         service?.let {
@@ -130,10 +131,14 @@ private constructor(
      */
     fun getService(): S? = service
 
-    class SimpleServiceBinder<T : Service> constructor(private val service: T) : Binder() {
+    class SimpleServiceBinder<T : Service> constructor(private var service: T?) : Binder() {
 
-        fun get(): T {
+        fun get(): T? {
             return service
+        }
+
+        fun clear() {
+            service = null
         }
     }
 }

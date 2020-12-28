@@ -57,5 +57,7 @@ dependencies {
 
     implementation rootProject.ext.dependencies['gson']
 
+    implementation rootProject.ext.dependencies['glide']
+
     debugImplementation rootProject.ext.dependencies['leakcanary']
 }

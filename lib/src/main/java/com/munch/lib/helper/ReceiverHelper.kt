@@ -26,10 +26,12 @@ abstract class ReceiverHelper<T> constructor(
         receiver = ScreenReceiver()
         context.registerReceiver(receiver, IntentFilter().apply {
             actions.forEach { addAction(it) }
+            buildIntentFilter(this)
         })
     }
 
-    fun setAndRegister(owner: LifecycleOwner, t: T, onDestroy: (() -> Unit)?) {
+
+    fun setAndRegister(owner: LifecycleOwner, t: T, onDestroy: (() -> Unit)? = null) {
         register()
         super.set(owner, t, onDestroy)
         unregister(owner)
@@ -38,8 +40,8 @@ abstract class ReceiverHelper<T> constructor(
     fun setAndRegisterWhenCreate(
         owner: LifecycleOwner,
         t: T,
-        onCreate: (() -> Unit)?,
-        onDestroy: (() -> Unit)?
+        onCreate: (() -> Unit)? = null,
+        onDestroy: (() -> Unit)? = null
     ) {
         registerWhenCreate(owner)
         super.setWhenCreate(owner, t, onCreate, onDestroy)
@@ -92,6 +94,8 @@ abstract class ReceiverHelper<T> constructor(
             }
         }
     }
+
+    open fun buildIntentFilter(intent: IntentFilter) {}
 
     abstract fun handleAction(action: String, context: Context?, intent: Intent, t: T)
 }
