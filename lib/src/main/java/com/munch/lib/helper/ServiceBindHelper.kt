@@ -10,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
+import com.munch.lib.helper.ServiceBindHelper.Companion.newBinder
 
 /**
  * service通用绑定，需要[Service.onBind]返回[newBinder]

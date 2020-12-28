@@ -20,7 +20,7 @@ import kotlin.concurrent.thread
  */
 class TestSimpleSocketActivity : TestBaseTopActivity() {
 
-    private val helper by lazy { SocketHelper() }
+    private val helper by lazy { SocketHelper(owner = this) }
     private val btnIp by lazy { findViewById<Button>(R.id.socket_btn_ip) }
     private val tvIp by lazy { findViewById<TextView>(R.id.socket_tv_ip) }
     private val btnIpAll by lazy { findViewById<Button>(R.id.socket_btn_ip_all) }

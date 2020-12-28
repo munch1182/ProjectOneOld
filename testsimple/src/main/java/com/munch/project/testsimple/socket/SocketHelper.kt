@@ -2,42 +2,46 @@ package com.munch.project.testsimple.socket
 
 import android.app.Application
 import android.content.Context
-import android.content.Context.CONNECTIVITY_SERVICE
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.os.SystemClock
 import androidx.annotation.WorkerThread
+import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.RequiresPermission
-import com.munch.lib.log
+import com.munch.lib.helper.NetStatusHelper
 import com.munch.project.testsimple.App
 import java.net.*
 import java.util.*
-import java.util.concurrent.*
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.RejectedExecutionException
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 /**
  * Create by munch1182 on 2020/12/23 3:46.
  */
-class SocketHelper(private val application: Application = App.getInstance()) {
+class SocketHelper(
+    private val application: Application = App.getInstance(),
+    owner: LifecycleOwner? = null
+) {
 
     init {
-        NetStatus(application).register { connect ->
-            if (!connect && executor != null) {
-                executor?.shutdown()
-            }
-            listener?.invoke(connect)
+        if (owner != null) {
+            NetStatusHelper.getInstance(App.getInstance())
+                .apply {
+                    setWhenCreate(owner, { _, ca ->
+                        ca ?: return@setWhenCreate
+                        if (!NetStatusHelper.wifiAvailable(ca) && executor != null) {
+                            executor?.shutdown()
+                        }
+                    }, onDestroy = {
+                        unregister()
+                    })
+                }.register()
         }
     }
 
     private var executor: ThreadPoolExecutor? = null
-    private var listener: ((connect: Boolean) -> Unit)? = null
 
-    fun listenerWifi(func: (connect: Boolean) -> Unit): SocketHelper {
-        listener = func
-        return this
-    }
 
     @WorkerThread
     fun scanIpInNet(
@@ -142,39 +146,5 @@ class SocketHelper(private val application: Application = App.getInstance()) {
             }
         }
         return null
-    }
-
-    class NetStatus(context: Context) {
-        private val manager =
-            (context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
-        private var listener: ((connect: Boolean) -> Unit)? = null
-
-        private val networkCallback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                super.onAvailable(network)
-                log("onAvailable:$network")
-                listener?.invoke(true)
-            }
-
-            override fun onLost(network: Network) {
-                super.onLost(network)
-                log("onLost:$network")
-                listener?.invoke(false)
-            }
-        }
-
-        @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
-        fun register(listener: ((connect: Boolean) -> Unit)? = null) {
-            this.listener = listener
-            manager.registerNetworkCallback(
-                NetworkRequest.Builder()
-                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                    .build(), networkCallback
-            )
-        }
-
-        fun unregister() {
-            manager.unregisterNetworkCallback(networkCallback)
-        }
     }
 }

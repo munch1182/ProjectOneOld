@@ -1,7 +1,9 @@
 package com.munch.project.testsimple
 
 import android.content.Intent
+import android.net.NetworkCapabilities
 import android.view.View
+import com.munch.lib.helper.NetStatusHelper
 import com.munch.lib.helper.isServiceRunning
 import com.munch.lib.helper.startActivity
 import com.munch.lib.log
@@ -22,6 +24,13 @@ class TestFunActivity : TestRvActivity() {
         super.clickItem(view, pos)
         when (pos) {
             0 -> {
+                NetStatusHelper.getInstance(this).limitTransportType(
+                    NetworkCapabilities.TRANSPORT_WIFI,
+                    NetworkCapabilities.TRANSPORT_CELLULAR,
+                    NetworkCapabilities.TRANSPORT_BLUETOOTH
+                ).apply {
+                    set(this@TestFunActivity, { a, b -> log(a, b) })
+                }.register()
             }
             1 -> {
             }
@@ -48,7 +57,7 @@ class TestFunActivity : TestRvActivity() {
                 }
                 toast(str.plus("服务运行中"))
             }
-            6 ->startActivity(TestFunInFragmentActivity::class.java)
+            6 -> startActivity(TestFunInFragmentActivity::class.java)
         }
     }
 

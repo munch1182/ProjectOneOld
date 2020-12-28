@@ -45,20 +45,23 @@ class SinglePixelActivity : TestBaseTopActivity() {
 
         fun register(context: Context) {
             val instance = Helper.getInstance(context)
-            ScreenReceiverHelper(context)
-                .addScreenStateListener(object : ScreenReceiverHelper.ScreenStateListener {
-                    override fun onScreenOn(context: Context?) {
-                        instance.finish()
-                    }
+            val helper = ScreenReceiverHelper(context)
+            helper.add(object : ScreenReceiverHelper.ScreenStateListener {
+                override fun onScreenOn(context: Context?) {
+                    instance.finish()
+                    log("onScreenOn")
+                }
 
-                    override fun onScreenOff(context: Context?) {
-                        instance.start()
-                    }
+                override fun onScreenOff(context: Context?) {
+                    instance.start()
+                    log("onScreenOff")
+                }
 
-                    override fun onUserPresent(context: Context?) {
-                    }
-                })
-                .register()
+                override fun onUserPresent(context: Context?) {
+                    log("onUserPresent")
+                }
+            })
+            helper.register()
         }
     }
 
@@ -110,9 +113,11 @@ class SinglePixelActivity : TestBaseTopActivity() {
             if (!appAlive) {
                 AliveHelper.moveApp2Front(context)
                 log(
-                    "SinglePixelActivity.Helper.start()：Foreground：${AliveHelper.isAppRunningForeground(
-                        context
-                    )}"
+                    "SinglePixelActivity.Helper.start()：Foreground：${
+                        AliveHelper.isAppRunningForeground(
+                            context
+                        )
+                    }"
                 )
             }
         }

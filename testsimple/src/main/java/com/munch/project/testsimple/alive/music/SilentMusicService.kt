@@ -42,7 +42,8 @@ class SilentMusicService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        ScreenReceiverHelper(this).addScreenStateListener(object :
+        val helper = ScreenReceiverHelper(this)
+        helper.add(object :
             ScreenReceiverHelper.ScreenStateListener {
             override fun onScreenOn(context: Context?) {
                 stopPlay()
@@ -54,7 +55,8 @@ class SilentMusicService : Service() {
 
             override fun onUserPresent(context: Context?) {
             }
-        }).register()
+        })
+        helper.register()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

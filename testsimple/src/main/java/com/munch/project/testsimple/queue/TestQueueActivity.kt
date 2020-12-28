@@ -26,7 +26,7 @@ class TestQueueActivity : TestBaseTopActivity(), QueueService.NotifyListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test_queue)
 
-        QueueService.UiNotifyManager.INSTANCE.setListener(this, this)
+        QueueService.UiNotifyManager.INSTANCE.setWhenResume(this, this)
 
         container.clickItem({
             val pos = it.tag as Int? ?: return@clickItem

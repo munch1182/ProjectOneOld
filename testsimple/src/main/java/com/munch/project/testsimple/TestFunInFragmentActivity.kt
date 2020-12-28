@@ -9,14 +9,14 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.munch.lib.test.recyclerview.TestRvActivity
+import com.munch.lib.test.TestBaseTopActivity
 import com.munch.lib.test.recyclerview.TestRvAdapter
 import com.munch.lib.test.recyclerview.TestRvItemBean
 
 /**
  * Create by munch1182 on 2020/12/16 17:09.
  */
-open class TestFunInFragmentActivity : BaseActivity() {
+open class TestFunInFragmentActivity : TestBaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

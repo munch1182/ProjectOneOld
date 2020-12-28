@@ -4,10 +4,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.*
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.OnLifecycleEvent
+import com.munch.lib.helper.AddRemoveSetHelper
 import com.munch.lib.helper.ServiceBindHelper
 import com.munch.lib.log
 import java.util.concurrent.Executors
@@ -157,48 +154,15 @@ class QueueService : Service() {
         return ServiceBindHelper.newBinder(this)
     }
 
-    class UiNotifyManager private constructor() {
+    class UiNotifyManager private constructor() : AddRemoveSetHelper<NotifyListener>() {
 
         companion object {
             //默认即线程同步
             val INSTANCE by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { UiNotifyManager() }
         }
 
-        private val listeners: ArrayList<NotifyListener> = arrayListOf()
-
-        fun addListener(listener: NotifyListener) {
-            listeners.add(listener)
-        }
-
-        fun setListener(owner: LifecycleOwner, listener: NotifyListener) {
-            owner.lifecycle.addObserver(object : LifecycleObserver {
-                @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-                fun onResume() {
-                    addListener(listener)
-                }
-
-                @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-                fun onPause() {
-                    removeListener(listener)
-                }
-
-                @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-                fun onDestroy() {
-                    owner.lifecycle.removeObserver(this)
-                }
-            })
-        }
-
-        fun removeListener(listener: NotifyListener) {
-            listeners.remove(listener)
-        }
-
         fun updateAll(what: Int, obj: Any?) {
-            listeners.forEach { it.update(what, obj) }
-        }
-
-        fun clear() {
-            listeners.clear()
+            arrays.forEach { it.update(what, obj) }
         }
     }
 
