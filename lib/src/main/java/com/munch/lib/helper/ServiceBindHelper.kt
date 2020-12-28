@@ -13,7 +13,8 @@ import androidx.lifecycle.OnLifecycleEvent
 import com.munch.lib.helper.ServiceBindHelper.Companion.newBinder
 
 /**
- * service通用绑定，需要[Service.onBind]返回[newBinder]
+ * service通用绑定，需要[Service.onBind]返回[newBinder]，
+ * 通过[getService]或者[opService]来直接调用[S]里的方法
  *
  * @param owner 用于自动绑定和解绑，如为null，需要手动调用[bind]和[unbind]，
  * 用bind方式的service在bind组件生命周期外必须解绑，否则会内存泄漏

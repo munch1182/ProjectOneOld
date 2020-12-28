@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import com.google.android.material.appbar.MaterialToolbar
-import com.munch.lib.base.BaseLibActivity
+import com.munch.lib.base.BaseRootActivity
 import com.munch.lib.helper.getBackIcon
 import com.munch.lib.helper.getBackIconWhite
 
@@ -17,7 +17,7 @@ import com.munch.lib.helper.getBackIconWhite
  *
  * Create by munch1182 on 2020/12/10 22:06.
  */
-open class TestBaseTopActivity : BaseLibActivity() {
+open class TestBaseTopActivity : BaseRootActivity() {
 
     private val topContainer by lazy { findViewById<LinearLayout>(R.id.top_container) }
     private val toolbar by lazy { findViewById<MaterialToolbar>(R.id.top_tool_bar) }

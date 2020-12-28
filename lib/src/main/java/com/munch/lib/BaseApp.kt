@@ -12,6 +12,8 @@ open class BaseApp : Application() {
 
         @Suppress("UNCHECKED_CAST")
         fun <T> getInstance(): T = instance as T
+
+        fun debugMode() = BuildConfig.DEBUG
     }
 
     override fun onCreate() {

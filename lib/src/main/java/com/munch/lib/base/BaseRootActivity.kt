@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 /**
  * Create by munch1182 on 2020/12/7 10:45.
  */
-open class BaseLibActivity : AppCompatActivity() {
+open class BaseRootActivity : AppCompatActivity() {
 
     fun toast(msg: String) {
         runOnUiThread {

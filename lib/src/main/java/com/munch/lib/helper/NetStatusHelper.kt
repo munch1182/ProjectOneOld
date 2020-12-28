@@ -143,7 +143,7 @@ class NetStatusHelper private constructor(private val manager: ConnectivityManag
     fun getCurrentNetCapabilities() = capabilities
 
     /**
-     * 注册网络状态方法有数量现在，如果注册过多而不解除注册会抛出错误
+     * 注册网络状态方法有数量限制，如果注册过多而不解除注册会抛出错误
      *
      * @see [ConnectivityManager.registerNetworkCallback]
      */

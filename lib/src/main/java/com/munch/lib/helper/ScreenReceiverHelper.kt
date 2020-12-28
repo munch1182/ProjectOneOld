@@ -4,6 +4,10 @@ import android.content.Context
 import android.content.Intent
 
 /**
+ * 收听屏幕状态广播
+ *
+ * 注意：有的手机不在前台收不到此广播
+ *
  * Create by munch1182 on 2020/12/14 11:08.
  */
 class ScreenReceiverHelper constructor(context: Context) :

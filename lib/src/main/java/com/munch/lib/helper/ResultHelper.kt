@@ -7,6 +7,10 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 
 /**
+ * 使用[getProxy]-不可见fragment来链式调用[Activity.startActivityForResult]或者[Activity.requestPermissions]
+ *
+ * 但正式使用时不建议使用 permission 部分，因为此类没有做任何处理
+ *
  * Create by munch1182 on 2020/12/22 16:50.
  */
 class ResultHelper constructor(private val fm: FragmentManager) {

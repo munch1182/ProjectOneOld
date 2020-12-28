@@ -14,6 +14,12 @@ import com.munch.lib.helper.setMargin
  */
 class TestDialog(private val context: Context) {
 
+    companion object {
+
+        fun simple(context: Context) = TestDialog(context).simple()
+        fun bottom(context: Context) = TestDialog(context).bottom()
+    }
+
     fun simple() = SimpleDialog(context)
 
     fun bottom() = BottomDialog(context)

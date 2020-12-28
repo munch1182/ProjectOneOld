@@ -7,19 +7,19 @@ import androidx.core.view.get
 import androidx.databinding.DataBindingComponent
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import com.munch.lib.base.BaseLibActivity
+import com.munch.lib.base.BaseRootActivity
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
 
 /**
  * Create by munch1182 on 2020/12/7 13:42.
  */
-inline fun <reified T : ViewDataBinding> BaseLibActivity.binding(@LayoutRes resId: Int): Lazy<T> =
+inline fun <reified T : ViewDataBinding> BaseRootActivity.binding(@LayoutRes resId: Int): Lazy<T> =
     lazy { DataBindingUtil.setContentView(this, resId) }
 
 /**
  * 因为[TestBaseTopActivity]中的[R.layout.activity_base_top]并没有进行viewbind即被layout包裹，
- * 因此不能直接使用[BaseLibActivity.binding]
+ * 因此不能直接使用[BaseRootActivity.binding]
  * 此处调用[DataBindingUtil.bind]方法直接绑定来解决这个问题，
  * 但是此方法必须要设置[DataBindingUtil.sDefaultComponent],此处直接设置全局[DataBindingUtil.setDefaultComponent]
  * 意味着所有的bind方法都需要写在[GlobeViewBinding]中

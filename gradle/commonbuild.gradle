@@ -55,6 +55,7 @@ android {
             buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
             buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
             buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"
+            buildConfigField "boolean", "DEBUG_MODE", "false"
         }
         debug {
             if (keyProperties != null) {
@@ -64,6 +65,7 @@ android {
             buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
             buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
             buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"
+            buildConfigField "boolean", "DEBUG_MODE", "true"
         }
     }
 

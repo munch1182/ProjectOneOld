@@ -16,8 +16,6 @@ import com.munch.lib.helper.dp2Px
  */
 class ProgressDialog(context: Context) : AlertDialog(context) {
 
-    val activity: Context = context
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(FrameLayout(context).apply {
@@ -40,8 +38,8 @@ class ProgressDialog(context: Context) : AlertDialog(context) {
         })
         window?.setBackgroundDrawable(null)
         setOnKeyListener { _, _, _ ->
-            if (activity is Activity) {
-                activity.onBackPressed()
+            if (context is Activity) {
+                (context as Activity).onBackPressed()
             }
             true
         }

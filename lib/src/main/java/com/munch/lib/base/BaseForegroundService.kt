@@ -14,6 +14,7 @@ import com.munch.lib.RequiresPermission
 import com.munch.lib.helper.startServiceInForeground
 
 /**
+ * 用于处理前台服务的通用逻辑
  * Create by munch1182 on 2020/12/16 11:48.
  */
 @RequiresPermission("android.permission.FOREGROUND_SERVICE")

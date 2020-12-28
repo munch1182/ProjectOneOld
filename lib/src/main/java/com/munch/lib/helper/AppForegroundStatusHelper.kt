@@ -4,9 +4,9 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import androidx.lifecycle.MutableLiveData
-import com.munch.lib.helper.ForegroundHelper.getForegroundLiveData
-import com.munch.lib.helper.ForegroundHelper.isForeground
-import com.munch.lib.helper.ForegroundHelper.register
+import com.munch.lib.helper.AppForegroundStatusHelper.getForegroundLiveData
+import com.munch.lib.helper.AppForegroundStatusHelper.isForeground
+import com.munch.lib.helper.AppForegroundStatusHelper.register
 
 /**
  * 通过activity计数的方式来判断activity是否在前台
@@ -16,7 +16,7 @@ import com.munch.lib.helper.ForegroundHelper.register
  *
  * Create by munch1182 on 2020/12/17 13:46.
  */
-object ForegroundHelper {
+object AppForegroundStatusHelper {
 
     private var activityCount = 0
         set(value) {
@@ -41,7 +41,7 @@ object ForegroundHelper {
         return countLiveData
     }
 
-    fun register(app: Application): ForegroundHelper {
+    fun register(app: Application): AppForegroundStatusHelper {
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityPaused(activity: Activity) {
             }

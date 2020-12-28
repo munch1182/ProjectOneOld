@@ -5,6 +5,9 @@ import android.content.Context
 import android.content.Intent
 
 /**
+ *
+ * 收听蓝牙状态广播
+ *
  * (turning: Boolean,available: Boolean):turning表示是否处于turning状态，available表示回调的状态
  *
  * [BluetoothAdapter.STATE_TURNING_OFF]用来关闭蓝牙连接，而连接蓝牙则需要等到[BluetoothAdapter.STATE_ON]之后
