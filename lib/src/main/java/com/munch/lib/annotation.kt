@@ -12,7 +12,7 @@ annotation class UNTEST
 /**
  * 用于标记未完成的设计
  */
-annotation class UNCOMPLETE
+annotation class UNCOMPLETE(val need:String = "")
 
 /**
  * 用于补充[androidx.annotation.RequiresPermission]，用于类
