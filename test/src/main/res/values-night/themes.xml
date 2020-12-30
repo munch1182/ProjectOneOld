@@ -12,5 +12,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+
+        <item name="android:windowEnterAnimation">@anim/anim_act_in</item>
+        <item name="android:windowExitAnimation">@anim/anim_act_out</item>
     </style>
 </resources>

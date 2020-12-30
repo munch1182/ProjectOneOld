@@ -1,7 +1,10 @@
 package com.munch.lib.helper
 
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.TextView
 import androidx.core.view.children
 
 /**
@@ -52,6 +55,79 @@ fun View.setMargin(l: Int, t: Int, r: Int, b: Int) {
         else -> {
             this.layoutParams =
                 ViewGroup.MarginLayoutParams(params).apply { setMargins(l, t, r, b) }
+        }
+    }
+}
+
+fun EditText.nonInput() {
+    keyListener = null
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        focusable = View.NOT_FOCUSABLE
+    }
+}
+
+object ViewHelper {
+
+    /**
+     * 用于一个页面多个输入值的非空判断和获取
+     *
+     * 注意，返回值是根据传入的顺序返回的
+     *
+     * @param onCheckEmpty 当检查到有textview的text为空时回调，当返回为false忽略为空将空字符串加入该位置并进行下一个view的判断
+     * 否则直接返回空集合
+     */
+    fun checkTextViewEmpty(
+        onCheckEmpty: (view: TextView) -> Boolean,
+        vararg textViews: TextView
+    ): ArrayList<String> {
+        if (textViews.isEmpty()) {
+            return arrayListOf()
+        }
+        var str: String
+        val list = ArrayList<String>(textViews.size)
+        textViews.forEach {
+            str = it.text.toString().trim()
+            if (str.isEmpty() && !onCheckEmpty(it)) {
+                return arrayListOf()
+            }
+            list.add(str)
+        }
+        return list
+    }
+
+    /**
+     * 对传入的textview数组进行批量赋值
+     *
+     * 注意：对于[views]和[str]一一对应
+     */
+    fun setTextViewVal(views: Array<TextView>, str: Array<String?>) {
+        if (views.size != str.size) {
+            throw Exception("view与数据必须对等")
+        }
+        views.forEachIndexed { index, view -> view.text = str[index] }
+    }
+
+    /**
+     * 批量设置是否可见
+     *
+     * 注意：不可见是[View.GONE]
+     */
+    fun setVisibility(isShow: Boolean, vararg views: View) {
+        val vis = if (isShow) View.VISIBLE else View.GONE
+        for (view in views) {
+            view.visibility = vis
+        }
+    }
+
+    /**
+     * 批量设置是否可见
+     *
+     * 注意：不可见是[View.INVISIBLE]
+     */
+    fun setVisibility2Invisible(isShow: Boolean, vararg views: View) {
+        val vis = if (isShow) View.VISIBLE else View.INVISIBLE
+        for (view in views) {
+            view.visibility = vis
         }
     }
 }

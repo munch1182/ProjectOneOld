@@ -117,18 +117,21 @@ open class TestRvActivity : TestBaseTopActivity() {
      * 在页面上添加一个测试按键用于临时测试
      * @see testFun
      */
-    @SuppressLint("SetTextI18n")
     private fun addTestView(view: View? = null, index: Int) {
-        val addView = (view ?: View.inflate(this, R.layout.item_rv_test, null).apply {
+        val addView = view ?: getTestView()
+        topView.addView(addView, index)
+        addView.setMargin(0, 0, 0, dp2Px(1.0f).toInt())
+    }
+
+    @SuppressLint("SetTextI18n")
+    protected fun getTestView() =
+        View.inflate(this, R.layout.item_rv_test, null).apply {
             setBackgroundColor(Color.WHITE)
             findViewById<TextView>(R.id.item_rv_test_tv).text = "test"
             setOnClickListener {
                 testFun()
             }
-        })
-        topView.addView(addView, index)
-        addView.setMargin(0, 0, 0, dp2Px(1.0f).toInt())
-    }
+        }
 
     open fun addStartView(view: View? = null) = addTestView(view, 0)
     open fun addEndView(view: View? = null) = addTestView(view, -1)

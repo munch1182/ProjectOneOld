@@ -1,7 +1,6 @@
 package com.munch.lib.helper
 
 import com.munch.lib.BaseApp
-import com.munch.lib.UNCOMPLETE
 import com.munch.lib.log
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -18,22 +17,30 @@ object ThreadHelper {
 
     private val parentThreadGroup by lazy { object : ThreadGroup("thread-pool-group") {} }
 
-    @UNCOMPLETE("当前实现发生错误时不会报错，但是未回调此方法")
     private class NameThreadGroup(private val id: Int) :
         ThreadGroup(parentThreadGroup, "pool-$id") {
+        /**
+         * 使用线程池[ThreadPoolExecutor.submit]时抛出异常线程池会将该线程移除，因此剩余部分代码将不会执行，而不会回调到这个异常处理
+         * 使用[ThreadPoolExecutor.execute]会正常回调到这里
+         */
         override fun uncaughtException(t: Thread, e: Throwable) {
             /*super.uncaughtException(t, e)*/
             //错误收集
-            log(t.threadGroup?.toString(), e.message)
+            log(t.toString(), e.message)
             e.printStackTrace()
             //测试模式下直接抛出错误
             if (BaseApp.debugMode()) {
                 throw e
             }
-            //非测试模式尝试忽略错误，尝试下一个任务
+            //非测试模式忽略错误，尝试下一个任务
             (getExecutor(id) as? ThreadPoolExecutor?)?.queue?.poll()
         }
     }
+
+    private fun newThreadFactory(id: Int): ThreadFactory =
+        ThreadFactory {
+            Thread(newThreadGroup(id), it, "pool$id-thread-${num.getAndIncrement()}")
+        }
 
     private fun newThreadGroup(id: Int) = NameThreadGroup(id)
 
@@ -65,9 +72,6 @@ object ThreadHelper {
     }
 
     private var scheduledPool: ScheduledExecutorService? = null
-
-    private fun newThreadFactory(id: Int): ThreadFactory =
-        ThreadFactory { Thread(newThreadGroup(id), it, "pool$id-thread-${num.getAndIncrement()}") }
 
     private fun getExecutor(id: Int): ExecutorService? {
         return when (id) {
@@ -122,6 +126,13 @@ object ThreadHelper {
         return executor.submit(runnable, result)
     }
 
+    fun execute(
+        runnable: Runnable,
+        executor: ExecutorService = cachePool
+    ) {
+        executor.execute(runnable)
+    }
+
     fun submit(runnable: Runnable, executor: ExecutorService = cachePool): Future<*> {
         return executor.submit(runnable)
     }
@@ -130,6 +141,5 @@ object ThreadHelper {
 
     fun interruptAll() = getThreadsGroup().interrupt()
     fun getActiveCount() = getThreadsGroup().activeCount()
-
 
 }

@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.drawable.DrawableCompat.setTint
 
@@ -95,4 +96,10 @@ fun Context.stopServices(vararg service: Class<out Service>) {
             }
         }
     }
+}
+
+fun Context.getAttr(attrId: Int): TypedValue {
+    val typedValue = TypedValue()
+    theme.resolveAttribute(attrId, typedValue, true)
+    return typedValue
 }

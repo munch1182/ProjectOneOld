@@ -8,15 +8,14 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="colorBg">#f6f9f6</color>
-    <color name="colorWhite">@color/white</color>
-    <color name="colorTextDef">#FF000000</color>
+    <color name="colorBg">#212221</color>
+    <color name="colorWhite">#776C6C</color>
+    <color name="colorTextDef">#C3C1C1</color>
 
-    <color name="colorSecondary">@color/teal_200</color>
+    <color name="colorSecondary">@color/teal_700</color>
     <color name="colorSecondaryVariant">@color/teal_700</color>
     <color name="colorOnSecondary">@color/black</color>
-    <color name="colorPrimary">@color/teal_200</color>
+    <color name="colorPrimary">#04433D</color>
     <color name="colorPrimaryVariant">@color/teal_700</color>
-    <color name="colorOnPrimary">@color/white</color>
-
+    <color name="colorOnPrimary">#8C8686</color>
 </resources>

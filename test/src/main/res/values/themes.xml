@@ -12,5 +12,26 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <!--//自定义属性实现换主题-->
+        <item name="pageBg">@color/colorBg</item>
+
+        <item name="android:windowEnterAnimation">@anim/anim_act_in</item>
+        <item name="android:windowExitAnimation">@anim/anim_act_out</item>
     </style>
+
+    <style name="Theme.P1.Theme_exp_1">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+
+        <item name="pageBg">#408CC5</item>
+    </style>
+
+
 </resources>

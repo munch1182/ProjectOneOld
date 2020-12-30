@@ -1,7 +1,9 @@
 package com.munch.lib.helper
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -64,6 +66,16 @@ object AppHelper {
             e.printStackTrace()
             return null
         }
+    }
+
+    /**
+     * 只对同一栈的Activity有效
+     */
+    fun resetApp2Activity(context: Context, clazz: Class<out Activity>) {
+        context.startActivity(
+            Intent(context, clazz)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
     }
 
     private fun getBaseApp(): Context = BaseApp.getInstance()
