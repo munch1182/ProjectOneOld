@@ -9,6 +9,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="colorBg">#f6f9f6</color>
+    <color name="colorBg2">#bdbdbd</color>
     <color name="colorWhite">@color/white</color>
     <color name="colorTextDef">#FF000000</color>
 

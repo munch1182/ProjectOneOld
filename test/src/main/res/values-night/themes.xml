@@ -12,8 +12,23 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="pageBg">@color/colorBg</item>
 
         <item name="android:windowEnterAnimation">@anim/anim_act_in</item>
         <item name="android:windowExitAnimation">@anim/anim_act_out</item>
+    </style>
+
+    <style name="Theme.P1.Theme_exp_1">
+        <item name="colorPrimary">#2196F3</item>
+        <item name="colorPrimaryVariant">#1976D2</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">#0097A7</item>
+        <item name="colorSecondaryVariant">#00BCD4</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+
+        <item name="pageBg">@color/colorBg2</item>
     </style>
 </resources>

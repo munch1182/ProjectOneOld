@@ -3,6 +3,7 @@ package com.munch.project.test.switch
 import android.app.Activity
 import android.content.Context
 import com.munch.lib.helper.getAttr
+import com.munch.lib.helper.getColorCompat
 import com.munch.project.test.R
 
 /**
@@ -28,7 +29,11 @@ object ThemeHelper {
         }
     }
 
-    fun attr2Resource(context: Context, attrId:Int): Int {
-       return context.getAttr(attrId).resourceId
+    fun attr2Resource(context: Context, attrId: Int): Int {
+        return context.getAttr(attrId).resourceId
     }
 }
+
+fun Context.attr2Resource(attrId: Int) = ThemeHelper.attr2Resource(this, attrId)
+
+fun Context.attr2Color(attrId: Int) = getColorCompat(attr2Resource(attrId))

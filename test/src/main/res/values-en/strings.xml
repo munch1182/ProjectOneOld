@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TestSimple</string>
+    <string name="app_name">Test</string>
 
     <string name="str_test_language">test language</string>
     <string name="str_switch_language">switch language</string>

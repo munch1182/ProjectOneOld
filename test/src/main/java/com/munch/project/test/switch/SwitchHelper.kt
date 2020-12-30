@@ -20,7 +20,7 @@ class SwitchHelper private constructor() : LanguageBaseHelper() {
     }
 
     private var cacheLanguage: String? = null
-    private var cacheFollow: Boolean? = null
+    private var cacheFollow = true
     private var cacheDayNightMode = 0
     private var cacheThemeMode = 0
 
@@ -64,11 +64,11 @@ class SwitchHelper private constructor() : LanguageBaseHelper() {
     }
 
     override fun queryLanguageSet(systemLanguage: String): Pair<String, Boolean> {
-        if (cacheLanguage == null || cacheFollow == null) {
+        if (cacheLanguage == null) {
             cacheLanguage = SpHelper.getSp().get(LANGUAGE_KEY_LANGUAGE, systemLanguage)!!
             cacheFollow = SpHelper.getSp().get(LANGUAGE_KEY_FOLLOW_SYSTEM, true)!!
         }
-        return Pair(cacheLanguage!!, cacheFollow!!)
+        return Pair(cacheLanguage!!, cacheFollow)
     }
 
 }

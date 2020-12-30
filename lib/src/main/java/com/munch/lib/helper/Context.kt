@@ -10,7 +10,9 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
+import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat.setTint
 
 /**
@@ -102,4 +104,9 @@ fun Context.getAttr(attrId: Int): TypedValue {
     val typedValue = TypedValue()
     theme.resolveAttribute(attrId, typedValue, true)
     return typedValue
+}
+
+@ColorInt
+fun Context.getColorCompat(colorId: Int): Int {
+    return ContextCompat.getColor(this, colorId)
 }

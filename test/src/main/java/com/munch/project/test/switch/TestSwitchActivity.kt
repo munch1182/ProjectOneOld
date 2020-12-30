@@ -51,12 +51,7 @@ class TestSwitchActivity : TestRvActivity() {
         super.onCreate(savedInstanceState)
 
         //这里是因为基类有颜色和主题无法被影响所以要手动设置
-        findViewById<ViewGroup>(R.id.rv_test_srl).setBackgroundColor(
-            ThemeHelper.attr2Resource(
-                this,
-                R.attr.pageBg
-            )
-        )
+        findViewById<ViewGroup>(R.id.rv_test_srl).setBackgroundColor(attr2Color(R.attr.pageBg))
 
         language = instance.getNowLanguage() == "en"
         title = if (language) "LanguageEn" else "Language"
