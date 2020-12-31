@@ -22,10 +22,7 @@ import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.test.R
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.collections.LinkedHashMap
 import kotlin.math.absoluteValue
-import kotlin.math.log
 import kotlin.random.Random
 
 /**

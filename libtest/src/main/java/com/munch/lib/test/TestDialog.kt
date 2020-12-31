@@ -1,12 +1,11 @@
 package com.munch.lib.test
 
 import android.content.Context
-import android.view.View
-import android.widget.RadioButton
-import android.widget.RadioGroup
+import android.view.ViewGroup
+import android.widget.Button
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.children
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.munch.lib.helper.clickItem
 import com.munch.lib.helper.setMargin
 
 /**
@@ -61,57 +60,42 @@ class TestDialog(private val context: Context) {
         private val dialog = BottomSheetDialog(context)
             .apply {
                 setContentView(R.layout.layout_bottom_dialog)
+
             }
+        private val container by lazy { dialog.findViewById<ViewGroup>(R.id.bottom_dialog_container) }
+
 
         fun addItems(vararg name: String): BottomDialog {
-            var rb: RadioButton
             name.forEach {
-                rb = RadioButton(context).apply {
+                container?.addView(Button(context).apply {
                     text = it
-                }
-                dialog.findViewById<RadioGroup>(R.id.bottom_dialog_rg)?.addView(rb)
-                rb.setMargin(0, 8)
+                    setMargin(0, 8)
+                })
             }
+            container?.addView(Button(context).apply {
+                text = "取消"
+                setMargin(0, 16, 0, 8)
+                setOnClickListener {
+                    cancel()
+                }
+            })
             return this
         }
 
-        fun setOnCheckListener(func: (pos: Int) -> Unit): BottomDialog {
-            val rg = dialog.findViewById<RadioGroup>(R.id.bottom_dialog_rg)
-                ?: return this
-            rg.setOnCheckedChangeListener { _, _ ->
-                rg.children.forEachIndexed { index, view ->
-                    if (view is RadioButton && view.isChecked) {
-                        func(index)
-                        return@setOnCheckedChangeListener
-                    }
-                }
-                func(-1)
-            }
-            return this
-        }
 
-        fun setConfirmListener(func: (pos: Int) -> Unit): BottomDialog {
-            dialog.findViewById<View>(R.id.bottom_dialog_ok)
-                ?.setOnClickListener {
-                    val rg = dialog.findViewById<RadioGroup>(R.id.bottom_dialog_rg)
-                        ?: return@setOnClickListener
-                    rg.children.forEachIndexed { index, view ->
-                        if (view is RadioButton && view.isChecked) {
-                            func(index)
-                            dialog.cancel()
-                            return@setOnClickListener
-                        }
-                    }
-                    func(-1)
-                    dialog.cancel()
+        fun setOnClickListener(func: (dialog: BottomDialog, pos: Int) -> Unit): BottomDialog {
+            container?.clickItem({
+                val i = it.tag as? Int? ?: return@clickItem
+                if (i == container!!.childCount - 1) {
+                    cancel()
+                } else {
+                    func(this, i)
                 }
+            })
             return this
         }
 
         fun show() {
-            dialog.findViewById<View>(R.id.bottom_dialog_cancel)?.setOnClickListener {
-                dialog.cancel()
-            }
             dialog.show()
         }
 
@@ -119,5 +103,22 @@ class TestDialog(private val context: Context) {
             dialog.cancel()
         }
 
+    }
+
+    open class BottomDialogWithBtn(private val context: Context) {
+        protected val dialog = BottomSheetDialog(context).apply {
+            setContentView(R.layout.layout_bottom_dialog)
+        }
+
+        fun addItems(vararg name: String): BottomDialogWithBtn {
+            name.forEach {
+                dialog.findViewById<ViewGroup>(R.id.bottom_dialog_container)
+                    ?.addView(Button(context).apply {
+                        text = it
+                        setMargin(0, 8)
+                    })
+            }
+            return this
+        }
     }
 }

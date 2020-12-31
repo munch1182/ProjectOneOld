@@ -4,6 +4,8 @@
     package="com.munch.project.test">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-sdk tools:overrideLibrary="androidx.camera.view,androidx.camera.camera2,androidx.camera.lifecycle,androidx.camera.core" />
 
@@ -25,7 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".camera.TestCameraActivity" />
+        <activity android:name=".img.camera.TestCameraActivity" />
         <activity android:name=".TestViewActivity" />
         <activity android:name=".view.TestWeightActivity" />
         <activity android:name=".view.TestFlowLayoutActivity" />
@@ -33,6 +35,17 @@
         <activity android:name=".bar.TestBar4FragmentActivity" />
         <activity android:name=".view.TestRecyclerViewActivity" />
         <activity android:name=".switch.TestSwitchActivity" />
+        <activity android:name=".img.TestImgActivity" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_xml" />
+        </provider>
     </application>
 
 </manifest>

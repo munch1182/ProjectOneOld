@@ -2,6 +2,7 @@ package com.munch.lib.helper
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -86,8 +87,17 @@ class ResultHelper constructor(private val fm: FragmentManager) {
             grantResults: IntArray
         ) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            var allGrant = false
+            kotlin.run out@{
+                grantResults.forEach {
+                    allGrant = it == PackageManager.PERMISSION_GRANTED
+                    if (!allGrant) {
+                        return@out
+                    }
+                }
+            }
             permissionListener?.invoke(
-                grantResults.isEmpty(),
+                allGrant,
                 permissions,
                 grantResults
             )

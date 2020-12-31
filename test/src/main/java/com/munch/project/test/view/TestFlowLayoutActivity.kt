@@ -35,10 +35,10 @@ class TestFlowLayoutActivity : TestBaseTopActivity() {
     }
 
     private fun showBottomDialog() {
-        TestDialog(this).bottom()
+        TestDialog.bottom(this)
             .addItems("START", "END", "CENTER", "CENTER_HORIZONTAL", "CENTER_VERTICAL")
-            .setOnCheckListener {
-                when (it) {
+            .setOnClickListener { dialog, pos ->
+                when (pos) {
                     0 -> container.setGravity(FlowLayout.START)
                     1 -> container.setGravity(FlowLayout.END)
                     2 -> container.setGravity(FlowLayout.CENTER)
@@ -47,7 +47,8 @@ class TestFlowLayoutActivity : TestBaseTopActivity() {
                     else -> {
                     }
                 }
-            }.setConfirmListener { }.show()
+                dialog.cancel()
+            }.show()
     }
 
     private fun addItemView() {

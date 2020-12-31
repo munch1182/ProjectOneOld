@@ -1,4 +1,4 @@
-package com.munch.project.test.camera
+package com.munch.project.test.img.camera
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -107,7 +107,7 @@ class CameraXHelper constructor(
                 previewView.display.getRealMetrics(metrics)
                 val aspectRatio = parameter?.aspectRatio ?: aspectRatio(metrics)
                 val preview = Preview.Builder()
-                    .setTargetRotation(parameter?.rotation ?: rotation)
+                    .setTargetRotation(rotation)
                     .apply {
                         val resolution = parameter?.resolution
                         //二者不能并存
@@ -125,7 +125,7 @@ class CameraXHelper constructor(
                     .setCaptureMode(
                         parameter?.captureMode ?: ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
                     )
-                    .setTargetRotation(parameter?.rotation ?: rotation)
+                    .setTargetRotation(rotation)
                     .setFlashMode(parameter?.flashMode ?: ImageCapture.FLASH_MODE_AUTO)
                     .apply {
                         val resolution = parameter?.resolution
@@ -213,14 +213,10 @@ class CameraXHelper constructor(
             notifyCaller(FLAG_ERROR_NULL, null)
             return
         }
-        val name =
-            "IMG_" + SimpleDateFormat(PATTERN_TIME, Locale.getDefault())
-                .format(System.currentTimeMillis()) + ".jpg"
-        val file = File(parameter?.dir ?: outputDir, name)
-        val fileOptions =
-            ImageCapture.OutputFileOptions.Builder(file)
-                .setMetadata(ImageCapture.Metadata())
-                .build()
+        val file = parameter?.file ?: getDefFile()
+        val fileOptions = ImageCapture.OutputFileOptions.Builder(file)
+            .setMetadata(ImageCapture.Metadata())
+            .build()
         imageCapture!!.takePicture(
             fileOptions,
             cameraExecutor,
@@ -243,6 +239,13 @@ class CameraXHelper constructor(
             })
     }
 
+    private fun getDefFile(): File {
+        val name =
+            "IMG_" + SimpleDateFormat(PATTERN_TIME, Locale.getDefault())
+                .format(System.currentTimeMillis()) + ".jpg"
+        return File(parameter?.dir ?: outputDir, name)
+    }
+
     private fun notifySystem(uri: Uri) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             context.sendBroadcast(Intent("android.hardware.action.NEW_PICTURE", uri))
@@ -256,6 +259,7 @@ class CameraXHelper constructor(
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun getOutputDirectory(): File? {
         val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
             File(it, context.packageName).apply { mkdirs() }
@@ -398,6 +402,11 @@ class CameraXHelper constructor(
          * 存储位置
          */
         var dir: File? = null
+
+        /**
+         * 保存为文件
+         */
+        var file: File? = null
 
         /**
          * 拍照完通知系统使图片在系统中可见
