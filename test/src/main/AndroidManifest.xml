@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.P1"
+        android:theme="@style/AppTheme.P1"
         tools:replace="android:theme">
 
         <activity android:name=".TestMainActivity">
@@ -30,7 +30,7 @@
         <activity android:name=".view.TestWeightActivity" />
         <activity android:name=".view.TestFlowLayoutActivity" />
         <activity android:name=".bar.TestBarActivity" />
-        <activity android:name=".bar.TestBar4FragmentActivity"/>
+        <activity android:name=".bar.TestBar4FragmentActivity" />
         <activity android:name=".view.TestRecyclerViewActivity" />
         <activity android:name=".switch.TestSwitchActivity" />
     </application>

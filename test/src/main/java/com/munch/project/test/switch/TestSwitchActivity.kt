@@ -101,8 +101,9 @@ class TestSwitchActivity : TestRvActivity() {
         super.onBackPressed()
         //不写在[finish()]是避免切换多次直接restart
         if (intent?.extras?.getBoolean(KEY_RESTART, false) == true) {
-            overridePendingTransition(0, R.anim.anim_act_in)
             AppHelper.resetApp2Activity(this, TestMainActivity::class.java)
+            //类似的动画效果可以掩盖重启感知
+            overridePendingTransition(R.anim.anim_close_in, R.anim.anim_close_out)
         }
     }
 
