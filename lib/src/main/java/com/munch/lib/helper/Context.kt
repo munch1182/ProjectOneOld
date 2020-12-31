@@ -87,20 +87,21 @@ fun Context.isServiceRunning(service: Class<out Service>? = null): Boolean? {
 fun Context.stopServices(vararg service: Class<out Service>) {
     val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager? ?: return
     val services = manager.getRunningServices(Int.MAX_VALUE)
-    services.forEach {
+    services.forEach service@{
         if (service.isEmpty()) {
             stopService(Intent(this, Class.forName(it.service.className)))
         } else {
             service.forEach services@{ clazz ->
                 if (it.service.className == clazz.name) {
                     stopService(Intent(this, Class.forName(it.service.className)))
+                    return@service
                 }
             }
         }
     }
 }
 
-fun Context.getAttr(attrId: Int): TypedValue {
+fun Context.getAttrFromTheme(attrId: Int): TypedValue {
     val typedValue = TypedValue()
     theme.resolveAttribute(attrId, typedValue, true)
     return typedValue

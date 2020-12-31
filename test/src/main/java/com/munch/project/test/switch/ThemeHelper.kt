@@ -2,7 +2,7 @@ package com.munch.project.test.switch
 
 import android.app.Activity
 import android.content.Context
-import com.munch.lib.helper.getAttr
+import com.munch.lib.helper.getAttrFromTheme
 import com.munch.lib.helper.getColorCompat
 import com.munch.project.test.R
 
@@ -30,7 +30,7 @@ object ThemeHelper {
     }
 
     fun attr2Resource(context: Context, attrId: Int): Int {
-        return context.getAttr(attrId).resourceId
+        return context.getAttrFromTheme(attrId).resourceId
     }
 }
 

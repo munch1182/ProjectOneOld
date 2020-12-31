@@ -43,7 +43,7 @@ object AppHelper {
     }
 
     /**
-     * 通过查找app信息是否成功来判断app是否安装，以避开某些手机品牌的权限
+     * 通过查找app信息是否成功来判断app是否安装
      */
     fun isAppInstall(context: Context = getBaseApp(), pkgName: String): Boolean {
         return try {

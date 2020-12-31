@@ -58,8 +58,8 @@ abstract class AddRemoveSetHelper<T> {
     }
 
     open fun setWhenResume(
-        owner: LifecycleOwner, t: T, onCreate: (() -> Unit)? = null,
-        onDestroy: (() -> Unit)? = null
+        owner: LifecycleOwner, t: T, onResume: (() -> Unit)? = null,
+        onPause: (() -> Unit)? = null
     ) {
         owner.lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -72,14 +72,8 @@ abstract class AddRemoveSetHelper<T> {
                 remove(t)
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-            fun onCreate() {
-                onCreate?.invoke()
-            }
-
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             fun onDestroy() {
-                onDestroy?.invoke()
                 owner.lifecycle.removeObserver(this)
             }
         })
