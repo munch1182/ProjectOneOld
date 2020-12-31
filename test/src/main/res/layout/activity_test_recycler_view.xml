@@ -7,22 +7,42 @@
     android:layout_height="match_parent"
     tools:context=".view.TestRecyclerViewActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/view_letter_rv"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <com.munch.project.test.view.LetterNavigationBarView
         android:id="@+id/view_letter_navigation"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp"
-        android:padding="@dimen/padding_def"
+        android:layout_width="10dp"
+        android:layout_height="0dp"
+        android:paddingStart="@dimen/padding_def"
+        android:paddingTop="30dp"
+        android:paddingEnd="@dimen/padding_def"
+        android:paddingBottom="30dp"
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:letter_max_space="10dp"
         app:letter_selectColor="@color/colorPrimary" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/view_letter_rv_letter"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0"
+        tools:listitem="@layout/layout_item_recycler_view_letter" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/view_letter_rv"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/view_letter_navigation"
+        app:layout_constraintStart_toEndOf="@id/view_letter_rv_letter"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        tools:listitem="@layout/layout_item_recycler_view_content"
+        tools:spanCount="4" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

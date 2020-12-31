@@ -37,6 +37,7 @@ class LetterNavigationBarView : View {
                 R.styleable.LetterNavigationBarView_letter_selectColor,
                 Color.parseColor("#574A4A")
             )
+        maxSpace = attrsSet.getDimension(R.styleable.LetterNavigationBarView_letter_max_space, -1f)
         attrsSet.recycle()
         this.textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             this.color = color
@@ -76,6 +77,14 @@ class LetterNavigationBarView : View {
         }
     private val textPaint: Paint
     private var space: Float = 10f
+        set(value) {
+            field = if (maxSpace != -1f && value > maxSpace) {
+                maxSpace
+            } else {
+                value
+            }
+        }
+    private var maxSpace: Float = -1f
     private val letterRect = Rect()
     private val selectRect = Rect()
     private var textColor: Int = Color.TRANSPARENT
@@ -92,11 +101,18 @@ class LetterNavigationBarView : View {
     fun setLetters(letters: List<String>) {
         this.letters.clear()
         this.letters.addAll(letters)
+        requestLayout()
         invalidate()
     }
 
     fun setAllLetters() {
         setLetters(chars)
+    }
+
+    fun select(vararg pos: Int) {
+        select(*Array(letters.size) {
+            letters[pos[it]]
+        })
     }
 
     fun select(vararg letter: String) {
@@ -116,9 +132,6 @@ class LetterNavigationBarView : View {
 
     fun getLettersList() = letters
 
-    /**
-     * 不进行排序，如果要排序，使用[getLettersList],[setLetters]
-     */
     fun addLetters(vararg letter: String) {
         letters.addAll(letter)
         invalidate()
@@ -216,7 +229,7 @@ class LetterNavigationBarView : View {
     }
 
     private fun handleTouch(event: MotionEvent) {
-        val y = event.y
+        val y = event.y - paddingTop
         var index = (y / (letterRect.height() + space)).toInt()
         index = index.coerceAtLeast(0)
         index = index.coerceAtMost(letters.size - 1)

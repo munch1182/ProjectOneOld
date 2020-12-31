@@ -2,7 +2,7 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_icon_letter"
-    android:layout_width="80dp"
+    android:layout_width="wrap_content"
     android:layout_height="100dp"
     android:padding="@dimen/padding_def"
     android:textColor="@color/colorTextDef"
