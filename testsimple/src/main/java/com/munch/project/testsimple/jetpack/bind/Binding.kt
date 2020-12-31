@@ -50,4 +50,8 @@ inline fun <reified T : ViewDataBinding> ViewGroup.inflateByBing(@LayoutRes resI
 /**
  * 注意：DataBindingComponent会在使用[BindingAdapter]时自动编译，因此需要依项目而定
  */
-class DefGlobeViewBinding : DataBindingComponent {}
+class DefGlobeViewBinding : DataBindingComponent {
+    override fun getGlobeViewBinding(): GlobeViewBinding {
+        return GlobeViewBinding()
+    }
+}
