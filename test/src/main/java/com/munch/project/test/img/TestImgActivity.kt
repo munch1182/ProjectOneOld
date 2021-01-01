@@ -86,7 +86,7 @@ class TestImgActivity : TestBaseTopActivity() {
     }
 
     private fun imageCapture(type: Int) {
-        val file = File(filesDir, "img_bg.jpeg")
+        var file = File(filesDir, "img_bg.jpeg")
         val intent = when (type) {
             0 -> {
                 ImgHelper.albumIntent()
@@ -104,15 +104,12 @@ class TestImgActivity : TestBaseTopActivity() {
                 if (isOk) {
                     if (type == 0) {
                         data?.data ?: return@res
-                        val uri =
-                            FileHelper.getPathFromUri(data.data!!, this) ?: return@res
-                        updateByFile(ImgHelper.imgCompress(file, File(uri)))
-                    } else {
-                        updateByFile(
-                            ImgHelper.imgCompress(file, File(filesDir, "img_bg_compressed.jpeg"))
-                        )
+                        val uri = ImgHelper.getPathFromUri(this, data.data!!) ?: return@res
+                        file = File(uri)
                     }
-
+                    updateByFile(
+                        ImgHelper.imgCompress(file, File(filesDir, "img_bg_compressed.jpeg"))
+                    )
                 } else if (resCode != RESULT_CANCELED) {
                     toast("未获取到图片")
                 }

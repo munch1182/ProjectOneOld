@@ -29,6 +29,12 @@ object ImgHelper {
         }
     }
 
+    fun getPathFromUri(context: Context, uri: Uri) =
+        FileHelper.getPathFromUri(context, MediaStore.Images.Media.DATA, uri)
+
+    /**
+     * 通过[Intent.getData]获取Result
+     */
     fun albumIntent() = Intent(Intent.ACTION_PICK, null)
         .setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
 
@@ -55,6 +61,7 @@ object ImgHelper {
      * 0-100 100为不压缩
      * @param sampleSize 采样率压缩，设置图片的采样率，降低图片像素，数值越高，图片像素越低
      * 不压缩则为1
+     * @see android.graphics.BitmapFactory.Options.inSampleSize
      */
     fun imgCompress(
         filePath: String,

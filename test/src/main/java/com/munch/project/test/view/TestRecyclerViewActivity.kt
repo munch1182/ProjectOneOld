@@ -101,6 +101,7 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
                 if (firstLast == first) {
                     return
                 }
+                firstLast = first
                 val last = manager.findLastVisibleItemPosition()
                 list.clear()
                 for (i in first..last) {
