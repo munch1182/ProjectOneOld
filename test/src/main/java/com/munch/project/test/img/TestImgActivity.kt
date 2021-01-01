@@ -8,11 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.munch.lib.helper.FileHelper
 import com.munch.lib.helper.ImgHelper
 import com.munch.lib.helper.ResultHelper
 import com.munch.lib.test.TestBaseTopActivity
@@ -30,6 +30,7 @@ class TestImgActivity : TestBaseTopActivity() {
     private val btn: Button by lazy { findViewById(R.id.test_img_btn) }
     private val vp: ViewPager2 by lazy { findViewById(R.id.test_img_vp) }
     private val adapter by lazy { ViewPagerAdapter(this, count) }
+    private var bgFile: File? = null
 
     private var count = 5
 
@@ -42,42 +43,40 @@ class TestImgActivity : TestBaseTopActivity() {
 
         btn.setOnClickListener {
             TestDialog.bottom(this)
-                .addItems("chose from album", "open system camera", "open custom camera")
+                .addItems("chose from album", "open system camera", "open custom camera", "crop")
                 .setOnClickListener { dialog, pos ->
-                    when (pos) {
-                        0 -> {
-                            ResultHelper.with(this)
-                                .requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                                .res { allGrant, _, _ ->
-                                    if (allGrant) {
-                                        imageCapture(0)
-                                    } else {
-                                        toast("拒绝了权限")
-                                    }
-                                }
+                    if (pos == 3) {
+                        if (bgFile == null) {
+                            toast("需要先选择一个背景")
+                        } else {
+                            imgCrop(bgFile!!)
                         }
-                        1 -> {
-                            ResultHelper.with(this)
-                                .requestPermission(Manifest.permission.CAMERA)
-                                .res { allGrant, _, _ ->
-                                    if (allGrant) {
-                                        imageCapture(1)
-                                    } else {
-                                        toast("拒绝了权限")
-                                    }
-                                }
+                    } else {
+                        val permission: String
+                        val type: Int
+                        when (pos) {
+                            0 -> {
+                                permission = Manifest.permission.READ_EXTERNAL_STORAGE
+                                type = 0
+                            }
+                            1 -> {
+                                permission = Manifest.permission.CAMERA
+                                type = 1
+                            }
+                            else -> {
+                                permission = Manifest.permission.CAMERA
+                                type = 2
+                            }
                         }
-                        2 -> {
-                            ResultHelper.with(this)
-                                .requestPermission(Manifest.permission.CAMERA)
-                                .res { allGrant, _, _ ->
-                                    if (allGrant) {
-                                        imageCapture(2)
-                                    } else {
-                                        toast("拒绝了权限")
-                                    }
+                        ResultHelper.with(this)
+                            .requestPermission(permission)
+                            .res { allGrant, _, _ ->
+                                if (allGrant) {
+                                    imageCapture(type)
+                                } else {
+                                    toast("拒绝了权限")
                                 }
-                        }
+                            }
                     }
                     dialog.cancel()
                 }
@@ -86,7 +85,7 @@ class TestImgActivity : TestBaseTopActivity() {
     }
 
     private fun imageCapture(type: Int) {
-        var file = File(filesDir, "img_bg.jpeg")
+        val file = File(filesDir, "img_bg.jpeg")
         val intent = when (type) {
             0 -> {
                 ImgHelper.albumIntent()
@@ -102,21 +101,36 @@ class TestImgActivity : TestBaseTopActivity() {
             .startForResult(intent)
             .res { isOk: Boolean, resCode: Int, data: Intent? ->
                 if (isOk) {
-                    if (type == 0) {
-                        data?.data ?: return@res
-                        val uri = ImgHelper.getPathFromUri(this, data.data!!) ?: return@res
-                        file = File(uri)
-                    }
-                    updateByFile(
-                        ImgHelper.imgCompress(file, File(filesDir, "img_bg_compressed.jpeg"))
-                    )
+                    val path = if (type == 0) {
+                        ImgHelper.getPathFromUri(this, data?.data ?: return@res)
+                    } else {
+                        file.absolutePath
+                    } ?: return@res
+                    val compressFile =
+                        ImgHelper.imgCompress(path, File(filesDir, "img_bg_compressed.jpeg"))
+                    updateByFile(compressFile)
                 } else if (resCode != RESULT_CANCELED) {
                     toast("未获取到图片")
                 }
             }
     }
 
+    private fun imgCrop(file: File) {
+        val fileCrop = File(externalCacheDir, "img_bg_crop.jpeg")
+        if (!fileCrop.exists()) {
+            fileCrop.createNewFile()
+        }
+        ResultHelper.with(this)
+            .startForResult(ImgHelper.getCorpIntent(ImgHelper.getUri(this, file), fileCrop.toUri()))
+            .res end@{ isOk2, _, _ ->
+                if (isOk2) {
+                    updateByFile(fileCrop)
+                }
+            }
+    }
+
     private fun updateByFile(file: File) {
+        bgFile = file
         adapter.updateFragment(Array(count) { file.absolutePath })
     }
 

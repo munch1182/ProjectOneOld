@@ -33,6 +33,48 @@ object ImgHelper {
         FileHelper.getPathFromUri(context, MediaStore.Images.Media.DATA, uri)
 
     /**
+     * @param outputUri 如不设置，则从[Intent.getExtras]和[android.os.Bundle.getParcelable("data)]中获取Bitmap
+     * 注意，如图片过大通过intent传递可能会崩溃
+     * 此uri不能使用[FileProvider]转化的uri，且在系统裁剪能够访问的范围内
+     * @param output 输出宽高 , 如[400/800] [1080/1920]
+     * @param aspect 缩放比例 , 如[1/1]
+     */
+    fun getCorpIntent(
+        uri: Uri,
+        outputUri: Uri? = null,
+        output: String? = null,
+        aspect: String? = null,
+        scale: Boolean = true
+    ): Intent {
+        val split = "/"
+        return Intent("com.android.camera.action.CROP").apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            } else {
+                addCategory(Intent.CATEGORY_DEFAULT)
+            }
+            setDataAndType(uri, "image/*")
+            if (output != null && output.contains(split)) {
+                val split1 = output.split(split)
+                putExtra("outputX", split1[0].toInt())
+                putExtra("outputY", split1[1].toInt())
+            }
+            if (aspect != null && aspect.contains(split)) {
+                val split1 = aspect.split(split)
+                putExtra("aspectX", split1[0].toInt())
+                putExtra("aspectY", split1[1].toInt())
+            }
+            putExtra("scale", scale)
+            putExtra("scaleUpIfNeeded", scale)
+            putExtra("return-data", outputUri == null)
+            putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString())
+            if (outputUri != null) {
+                putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
+            }
+        }
+    }
+
+    /**
      * 通过[Intent.getData]获取Result
      */
     fun albumIntent() = Intent(Intent.ACTION_PICK, null)

@@ -11,6 +11,6 @@ import com.munch.lib.base.BaseRootActivity
 open class BaseActivity : BaseRootActivity() {
 
     protected inline fun <reified T : ViewDataBinding> binding(@LayoutRes resId: Int): Lazy<T> =
-        lazy { DataBindingUtil.setContentView<T>(this, resId) }
+        lazy { DataBindingUtil.setContentView(this, resId) }
 
 }
