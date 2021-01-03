@@ -20,11 +20,12 @@ import kotlin.math.ceil
  *
  * Create by munch on 2020/9/7 21:49
  */
-class RulerView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
+class RulerView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) :
     View(context, attrs, defStyleAttr) {
-
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context) : this(context, null)
 
     var target = 0.0f
 

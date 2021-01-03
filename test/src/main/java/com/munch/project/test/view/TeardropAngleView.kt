@@ -10,30 +10,17 @@ import kotlin.math.sin
 /**
  * Create by munch1182 on 2020/12/25 11:56.
  */
-class TeardropAngleView : TeardropView {
-
-    constructor(
-        context: Context,
-        attrs: AttributeSet?,
-        defStyleAttr: Int,
-        defStyleRes: Int
-    ) : super(
-        context,
-        attrs,
-        defStyleAttr,
-        defStyleRes
-    )
-
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(
-        context,
-        attrs,
-        defStyleAttr,
-        0
-    )
-
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-
-    constructor(context: Context) : this(context, null)
+class TeardropAngleView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    defStyleRes: Int = 0
+) : TeardropView(
+    context,
+    attrs,
+    defStyleAttr,
+    defStyleRes
+) {
 
     companion object {
         private const val PI = 3.14

@@ -10,52 +10,17 @@ import com.munch.project.test.R
 /**
  * Create by munch1182 on 2020/12/24 15:59.
  */
-class LetterNavigationBarView : View {
-
-    constructor(
-        context: Context,
-        attrs: AttributeSet?,
-        defStyleAttr: Int,
-        defStyleRes: Int
-    ) : super(
-        context,
-        attrs,
-        defStyleAttr,
-        defStyleRes
-    ) {
-        val attrsSet =
-            context.obtainStyledAttributes(attrs, R.styleable.LetterNavigationBarView)
-        textColor =
-            attrsSet.getColor(
-                R.styleable.LetterNavigationBarView_letter_textColor,
-                Color.parseColor("#574A4A")
-            )
-        val textSize =
-            attrsSet.getDimension(R.styleable.LetterNavigationBarView_letter_textSize, 40f)
-        selectColor =
-            attrsSet.getColor(
-                R.styleable.LetterNavigationBarView_letter_selectColor,
-                Color.parseColor("#574A4A")
-            )
-        maxSpace = attrsSet.getDimension(R.styleable.LetterNavigationBarView_letter_max_space, -1f)
-        attrsSet.recycle()
-        this.textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            this.color = color
-            this.textSize = textSize
-        }
-
-    }
-
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(
-        context,
-        attrs,
-        defStyleAttr,
-        0
-    )
-
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-
-    constructor(context: Context) : this(context, null)
+class LetterNavigationBarView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    defStyleRes: Int = 0
+) : View(
+    context,
+    attrs,
+    defStyleAttr,
+    defStyleRes
+) {
 
     private val chars = arrayListOf(
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
@@ -279,5 +244,28 @@ class LetterNavigationBarView : View {
         selectRect.bottom =
             (paddingTop + letterRect.height() * (index + 1) + space * index).toInt()
         selectRect.top = selectRect.bottom - letterRect.height()
+    }
+
+    init {
+        val attrsSet =
+            context.obtainStyledAttributes(attrs, R.styleable.LetterNavigationBarView)
+        textColor =
+            attrsSet.getColor(
+                R.styleable.LetterNavigationBarView_letter_textColor,
+                Color.parseColor("#574A4A")
+            )
+        val textSize =
+            attrsSet.getDimension(R.styleable.LetterNavigationBarView_letter_textSize, 40f)
+        selectColor =
+            attrsSet.getColor(
+                R.styleable.LetterNavigationBarView_letter_selectColor,
+                Color.parseColor("#574A4A")
+            )
+        maxSpace = attrsSet.getDimension(R.styleable.LetterNavigationBarView_letter_max_space, -1f)
+        attrsSet.recycle()
+        this.textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = color
+            this.textSize = textSize
+        }
     }
 }

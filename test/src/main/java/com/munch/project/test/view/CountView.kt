@@ -14,8 +14,11 @@ import com.munch.project.test.R
 /**
  * Create by munch on 2020/9/7 17:43
  */
-class CountView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
-    View(context, attrs, defStyleAttr) {
+class CountView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
 
     var curCount = 0
         set(value) {
@@ -35,9 +38,6 @@ class CountView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var fontMetrics: Paint.FontMetrics
-
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context) : this(context, null)
 
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.CountView)

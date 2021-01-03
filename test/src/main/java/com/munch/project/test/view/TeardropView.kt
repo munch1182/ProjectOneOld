@@ -14,49 +14,19 @@ import kotlin.math.min
 /**
  * Create by munch1182 on 2020/12/25 11:56.
  */
-open class TeardropView : View {
-
-    constructor(
-        context: Context,
-        attrs: AttributeSet?,
-        defStyleAttr: Int,
-        defStyleRes: Int
-    ) : super(
-        context,
-        attrs,
-        defStyleAttr,
-        defStyleRes
-    ) {
-        val attributes = context.obtainStyledAttributes(attrs, R.styleable.TeardropView)
-        bgColor = attributes.getColor(R.styleable.TeardropView_teardrop_color, Color.GREEN)
-        text = attributes.getString(R.styleable.TeardropView_teardrop_text) ?: ""
-        textColor =
-            attributes.getColor(R.styleable.TeardropView_teardrop_text_color, Color.WHITE)
-        angle = attributes.getInt(R.styleable.TeardropView_teardrop_angle, 45)
-        radius = attributes.getDimension(R.styleable.TeardropView_teardrop_radius, -1f)
-            .takeIf { it != -1f }
-        corner = attributes.getDimension(R.styleable.TeardropView_teardrop_corner, 30f)
-        textSize = attributes.getDimension(R.styleable.TeardropView_teardrop_text_size, 80f)
-        attributes.recycle()
-        paint = Paint(Paint.ANTI_ALIAS_FLAG)
-            .apply {
-                this.textSize = this@TeardropView.textSize
-            }
-    }
-
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : this(
-        context,
-        attrs,
-        defStyleAttr,
-        0
-    )
-
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-
-    constructor(context: Context) : this(context, null)
+open class TeardropView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    defStyleRes: Int = 0
+) : View(
+    context,
+    attrs,
+    defStyleAttr,
+    defStyleRes
+) {
 
     private val paint: Paint
-        get() = field
     internal val path = Path()
     var showStructure = false
     var bgColor = Color.BLUE
@@ -169,6 +139,24 @@ open class TeardropView : View {
         path.quadTo(endX, startY, endX, cornerY)
         path.lineTo(endX, endY)
         path.close()
+    }
+
+    init {
+        val attributes = context.obtainStyledAttributes(attrs, R.styleable.TeardropView)
+        bgColor = attributes.getColor(R.styleable.TeardropView_teardrop_color, Color.GREEN)
+        text = attributes.getString(R.styleable.TeardropView_teardrop_text) ?: ""
+        textColor =
+            attributes.getColor(R.styleable.TeardropView_teardrop_text_color, Color.WHITE)
+        angle = attributes.getInt(R.styleable.TeardropView_teardrop_angle, 45)
+        radius = attributes.getDimension(R.styleable.TeardropView_teardrop_radius, -1f)
+            .takeIf { it != -1f }
+        corner = attributes.getDimension(R.styleable.TeardropView_teardrop_corner, 30f)
+        textSize = attributes.getDimension(R.styleable.TeardropView_teardrop_text_size, 80f)
+        attributes.recycle()
+        paint = Paint(Paint.ANTI_ALIAS_FLAG)
+            .apply {
+                this.textSize = this@TeardropView.textSize
+            }
     }
 
 }

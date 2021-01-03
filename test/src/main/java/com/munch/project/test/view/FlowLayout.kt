@@ -14,11 +14,11 @@ import androidx.annotation.IntDef
  *
  * Create by munch on 2020/9/4 13:32
  */
-class FlowLayout(context: Context, attrs: AttributeSet?, styleDef: Int) :
-    ViewGroup(context, attrs, styleDef) {
-
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context) : this(context, null)
+class FlowLayout @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    styleDef: Int = 0
+) : ViewGroup(context, attrs, styleDef) {
 
     private var layoutHelper = LayoutHelper()
 
