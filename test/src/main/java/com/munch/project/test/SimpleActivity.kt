@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.test.bar.TestBarActivity
+import com.munch.project.test.view.TestChartActivity
 import com.munch.project.test.view.TestFlowLayoutActivity
 import com.munch.project.test.view.TestRecyclerViewActivity
 import com.munch.project.test.view.TestWeightActivity
@@ -24,7 +25,8 @@ class TestViewActivity : TestRvActivity() {
             TestRvItemBean.newInstance("Weight", TestWeightActivity::class.java),
             TestRvItemBean.newInstance("FlowLayout", TestFlowLayoutActivity::class.java),
             TestRvItemBean.newInstance("Bar", TestBarActivity::class.java),
-            TestRvItemBean.newInstance("RecyclerView", TestRecyclerViewActivity::class.java)
+            TestRvItemBean.newInstance("RecyclerView", TestRecyclerViewActivity::class.java),
+            TestRvItemBean.newInstance("Char", TestChartActivity::class.java)
         )
     }
 }
