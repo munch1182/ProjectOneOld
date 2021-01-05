@@ -10,7 +10,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import com.munch.lib.log
 import com.munch.project.test.R
 
 /**
@@ -48,7 +47,6 @@ class TransferTitleBehavior(context: Context?, attrs: AttributeSet) :
                 targetX = x
                 targetY = y
             }
-            log(targetX, targetY)
         }
         return dependency is ImageView
     }

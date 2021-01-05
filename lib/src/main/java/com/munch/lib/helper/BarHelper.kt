@@ -27,20 +27,19 @@ class BarHelper(activity: Activity) {
     private val window = activity.window
 
     /**
-     * @param hide 隐藏状态栏，但是并不隐藏状态显示
+     * @param hide 使内容延伸到状态栏
      */
     fun hideStatusBar(hide: Boolean = true): BarHelper {
         window.decorView.run {
             systemUiVisibility = if (hide) {
-                systemUiVisibility or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                systemUiVisibility or FLAGS_STATUS_BAR
             } else {
-                systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_STABLE.inv() and
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN.inv()
+                systemUiVisibility and FLAGS_STATUS_BAR.inv()
             }
         }
         return this
     }
+
 
     /**
      * 设置状态栏颜色
@@ -49,8 +48,8 @@ class BarHelper(activity: Activity) {
      */
     fun colorStatusBar(@ColorInt color: Int): BarHelper {
         window.run {
-            addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             clearFlags(LayoutParams.FLAG_TRANSLUCENT_STATUS)
+            addFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             statusBarColor = color
         }
         return this
@@ -75,10 +74,12 @@ class BarHelper(activity: Activity) {
                 }
             }
         } else {
-            if (full) {
-                window.addFlags(LayoutParams.FLAG_FULLSCREEN)
-            } else {
-                window.clearFlags(LayoutParams.FLAG_FULLSCREEN)
+            window.decorView.apply {
+                systemUiVisibility = if (full) {
+                    systemUiVisibility or FLAG_FULL or FLAGS_STATUS_BAR or FLAGS_NAVIGATION_BAR or FLAG_STICKY or FLAGS_STABLE
+                } else {
+                    systemUiVisibility and FLAG_FULL and FLAGS_STATUS_BAR and FLAGS_NAVIGATION_BAR and FLAG_STICKY and FLAGS_STABLE
+                }
             }
         }
     }
@@ -103,6 +104,17 @@ class BarHelper(activity: Activity) {
     }
 
     companion object {
+
+        private const val FLAGS_STATUS_BAR = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        private const val FLAGS_NAVIGATION_BAR = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        private const val FLAG_STICKY = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        private const val FLAG_FULL = View.SYSTEM_UI_FLAG_FULLSCREEN
+
+        /**
+         * 保持布局，不随系统栏调整而变化
+         */
+        private const val FLAGS_STABLE = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+
         /**
          * 混合颜色
          *

@@ -15,7 +15,6 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.munch.lib.helper.BarHelper
 import com.munch.lib.helper.LogLog
-import com.munch.lib.log
 import com.munch.project.test.BaseActivity
 import com.munch.project.test.BaseFragment
 import com.munch.project.test.R
@@ -49,8 +48,6 @@ class TestBar4FragmentActivity : BaseActivity() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val pos = tab?.position ?: return
-                log(pos)
-                helper.hideStatusBar(pos >= 2)
                 when (pos) {
                     0 -> {
                         helper.colorStatusBarByRes(R.color.colorPrimaryDark)
@@ -65,6 +62,7 @@ class TestBar4FragmentActivity : BaseActivity() {
                         helper.colorStatusBar(Color.parseColor("#66000000"))
                     }
                 }
+                helper.hideStatusBar(pos >= 2)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {

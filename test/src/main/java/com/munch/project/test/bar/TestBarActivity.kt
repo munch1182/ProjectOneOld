@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.munch.lib.helper.BarHelper
+import com.munch.lib.helper.getColorCompat
 import com.munch.lib.helper.startActivity
-import com.munch.lib.log
 import com.munch.lib.test.R
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
@@ -38,13 +38,7 @@ class TestBarActivity : TestRvActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (topView.parent as View).setBackgroundColor(
-            ContextCompat.getColor(
-                this,
-                R.color.colorPrimaryDark
-            )
-        )
-        log(window.statusBarColor)
+        topView.setBackgroundColor(getColorCompat(R.color.colorPrimary))
     }
 
     private var hide = false
