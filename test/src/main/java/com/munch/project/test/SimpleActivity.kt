@@ -26,7 +26,7 @@ class TestViewActivity : TestRvActivity() {
             TestRvItemBean.newInstance("FlowLayout", TestFlowLayoutActivity::class.java),
             TestRvItemBean.newInstance("Bar", TestBarActivity::class.java),
             TestRvItemBean.newInstance("RecyclerView", TestRecyclerViewActivity::class.java),
-            TestRvItemBean.newInstance("Char", TestChartActivity::class.java)
+            TestRvItemBean.newInstance("Chart", TestChartActivity::class.java)
         )
     }
 }

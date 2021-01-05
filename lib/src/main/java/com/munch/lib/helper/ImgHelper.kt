@@ -19,20 +19,6 @@ import java.io.FileOutputStream
 object ImgHelper {
 
     /**
-     * 需要在manifest中声明provider
-     */
-    fun getUri(context: Context, file: File): Uri {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            FileProvider.getUriForFile(context, "${context.packageName}.fileProvider", file)
-        } else {
-            Uri.fromFile(file)
-        }
-    }
-
-    fun getPathFromUri(context: Context, uri: Uri) =
-        FileHelper.getPathFromUri(context, MediaStore.Images.Media.DATA, uri)
-
-    /**
      * @param outputUri 如不设置，则从[Intent.getExtras]和[android.os.Bundle.getParcelable("data)]中获取Bitmap
      * 注意，如图片过大通过intent传递可能会崩溃
      * 此uri不能使用[FileProvider]转化的uri，且在系统裁剪能够访问的范围内
@@ -80,7 +66,8 @@ object ImgHelper {
     fun albumIntent() = Intent(Intent.ACTION_PICK, null)
         .setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
 
-    fun imageCaptureIntent(context: Context, file: File) = imageCaptureIntent(getUri(context, file))
+    fun imageCaptureIntent(context: Context, file: File) =
+        imageCaptureIntent(FileHelper.getUri(context, file))
 
     fun imageCaptureIntent(uri: Uri): Intent {
         return Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
@@ -91,6 +78,30 @@ object ImgHelper {
             }
             putExtra(MediaStore.EXTRA_OUTPUT, uri)
         }
+    }
+
+    /**
+     * 将bitmap转为file文件
+     * 默认不压缩
+     */
+    fun bitmap2File(
+        bitmap: Bitmap, newFile: File, @IntRange(from = 0, to = 100) quality: Int = 100
+    ): File? {
+        val file = FileHelper.createFile(newFile) ?: return null
+        var fos: FileOutputStream? = null
+        val baos = ByteArrayOutputStream()
+        // 把压缩后的数据存放到baos中
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, baos)
+        try {
+            fos = FileOutputStream(file)
+            fos.write(baos.toByteArray())
+            fos.flush()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            fos?.close()
+        }
+        return file
     }
 
     fun imgCompress(
@@ -110,29 +121,12 @@ object ImgHelper {
         newFile: File,
         @IntRange(from = 0, to = 100) quality: Int = 30,
         sampleSize: Int = 2
-    ): File {
+    ): File? {
         val options = BitmapFactory.Options()
         options.inJustDecodeBounds = false//为true的时候不会真正加载图片，而是得到图片的宽高信息。
         options.inSampleSize = sampleSize
         val bitmap = BitmapFactory.decodeFile(filePath, options)
-        val baos = ByteArrayOutputStream()
-        // 把压缩后的数据存放到baos中
-        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, baos)
-        var fos: FileOutputStream? = null
-        try {
-            if (newFile.exists()) {
-                newFile.delete()
-            } else {
-                newFile.createNewFile()
-            }
-            fos = FileOutputStream(newFile)
-            fos.write(baos.toByteArray())
-            fos.flush()
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-        } finally {
-            fos?.close()
-        }
-        return newFile
+        return bitmap2File(bitmap, newFile, quality)
     }
+
 }
