@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.munch.lib.BaseApp
+import com.munch.lib.helper.FileHelper
 import com.munch.lib.helper.ImgHelper
 import com.munch.lib.helper.ResultHelper
 import com.munch.lib.test.TestBaseTopActivity
@@ -101,14 +103,17 @@ class TestImgActivity : TestBaseTopActivity() {
             .startForResult(intent)
             .res { isOk: Boolean, resCode: Int, data: Intent? ->
                 if (isOk) {
-                    val path = if (type == 0) {
-                        ImgHelper.getPathFromUri(this, data?.data ?: return@res)
+                    val fileTemp = if (type == 0) {
+                        val uri = data?.data ?: return@res
+                        FileHelper.uri2File(BaseApp.getInstance(), uri, File(filesDir, "img_from_uri.jpeg"))
                     } else {
-                        file.absolutePath
+                        file
                     } ?: return@res
                     val compressFile =
-                        ImgHelper.imgCompress(path, File(filesDir, "img_bg_compressed.jpeg"))
+                        ImgHelper.imgCompress(fileTemp, File(filesDir, "img_bg_compressed.jpeg"))
+                            ?: return@res
                     updateByFile(compressFile)
+                    FileHelper.deleteFileIgnoreException(fileTemp)
                 } else if (resCode != RESULT_CANCELED) {
                     toast("未获取到图片")
                 }
@@ -121,7 +126,12 @@ class TestImgActivity : TestBaseTopActivity() {
             fileCrop.createNewFile()
         }
         ResultHelper.with(this)
-            .startForResult(ImgHelper.getCorpIntent(ImgHelper.getUri(this, file), fileCrop.toUri()))
+            .startForResult(
+                ImgHelper.getCorpIntent(
+                    FileHelper.getUri(this, file),
+                    fileCrop.toUri()
+                )
+            )
             .res end@{ isOk2, _, _ ->
                 if (isOk2) {
                     updateByFile(fileCrop)
