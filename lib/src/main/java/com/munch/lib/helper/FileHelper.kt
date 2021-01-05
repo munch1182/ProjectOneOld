@@ -22,7 +22,7 @@ object FileHelper {
     /**
      * 如果要新建缓存文件，优先使用该目录，以方便计算大小和清空缓存
      */
-    fun newCacheFile(context: Context, name: String): File? {
+    fun newCacheFile(context: Context = BaseApp.getInstance(), name: String): File? {
         return createFile(File(context.cacheDir, name))
     }
 

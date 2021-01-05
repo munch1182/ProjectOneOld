@@ -6,10 +6,6 @@
         name="output"
         path="." />
 
-    <files-path
-        name="img"
-        path="." />
-
     <!--Context.getCacheDir()-->
     <cache-path
         name="cache"
@@ -26,9 +22,9 @@
         path="." />-->
 
     <!-- Context.getExternalCacheDir()-->
-    <!--<external-cache-path
+    <external-cache-path
         name="name"
-        path="." />-->
+        path="." />
 
     <!--Context.getExternalMediaDirs()-->
     <!--<external-media-path
