@@ -36,11 +36,13 @@ kapt {
     correctErrorTypes true
     arguments {
         arg("room.schemaLocation", "$projectDir/schemas".toString())
+        arg("AROUTER_MODULE_NAME", project.getName())
     }
 }
 
 dependencies {
     implementation project(path: ':common')
+    kapt rootProject.ext.dependencies['arouter_compiler']
 
     implementation rootProject.ext.dependencies['paging']
     implementation rootProject.ext.dependencies['lifecycle_runtime_ktx']

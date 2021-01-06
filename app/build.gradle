@@ -1,17 +1,27 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 apply from: '../gradle/commonbuildktx.gradle'
 
+kapt {
+    correctErrorTypes true
+    //ARouter
+    arguments {
+        arg("AROUTER_MODULE_NAME", project.getName())
+    }
+}
+
 dependencies {
     implementation project(path: ':common')
+    kapt rootProject.ext.dependencies['arouter_compiler']
 
-    if (rootProject.ext.component['testRunAlone']) {
+    if (!rootProject.ext.component['testRunAlone']) {
         implementation project(path: ':test')
     }
-    if (rootProject.ext.component['testSimpleRunAlone']) {
+    if (!rootProject.ext.component['testSimpleRunAlone']) {
         implementation project(path: ':testsimple')
     }
 }

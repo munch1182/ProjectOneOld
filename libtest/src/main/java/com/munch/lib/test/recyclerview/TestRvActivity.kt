@@ -124,10 +124,10 @@ open class TestRvActivity : TestBaseTopActivity() {
     }
 
     @SuppressLint("SetTextI18n")
-    protected fun getTestView() =
+    protected fun getTestView(name:String = "test") =
         View.inflate(this, R.layout.item_rv_test, null).apply {
             setBackgroundColor(Color.WHITE)
-            findViewById<TextView>(R.id.item_rv_test_tv).text = "test"
+            findViewById<TextView>(R.id.item_rv_test_tv).text = name
             setOnClickListener {
                 testFun()
             }

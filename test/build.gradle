@@ -34,15 +34,16 @@ android {
 
 kapt {
     correctErrorTypes true
+    //ARouter
+    arguments {
+        arg("AROUTER_MODULE_NAME", project.getName())
+    }
 }
 
 dependencies {
     implementation project(path: ':common')
+    kapt rootProject.ext.dependencies['arouter_compiler']
 
-    implementation rootProject.ext.dependencies['constraintlayout']
-    implementation rootProject.ext.dependencies['material']
-    implementation rootProject.ext.dependencies['swiperefreshlayout']
-    implementation rootProject.ext.dependencies['recyclerview']
     implementation rootProject.ext.dependencies['viewpager2']
 
     /*implementation rootProject.ext.dependencies['hilt']

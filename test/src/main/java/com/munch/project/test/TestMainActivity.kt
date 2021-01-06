@@ -1,5 +1,9 @@
 package com.munch.project.test
 
+import android.os.Bundle
+import com.alibaba.android.arouter.facade.annotation.Route
+import com.munch.lib.common.RouterHelper
+import com.munch.lib.common.start2Component
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.test.img.TestImgActivity
@@ -8,9 +12,20 @@ import com.munch.project.test.switch.TestSwitchActivity
 /**
  * Create by munch1182 on 2020/12/7 13:58.
  */
+@Route(path = RouterHelper.Test.MAIN)
 class TestMainActivity : TestRvActivity() {
 
     override fun notShowBack() = true
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        addEndView(getTestView("testSimple"))
+    }
+
+    override fun testFun() {
+        super.testFun()
+        start2Component(RouterHelper.TestSimple.MAIN)
+    }
 
     override fun getItems(): MutableList<TestRvItemBean> {
         return mutableListOf(
