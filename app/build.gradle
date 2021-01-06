@@ -2,9 +2,17 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
 }
 
 apply from: '../gradle/commonbuildktx.gradle'
+
+android {
+    /*如果使用了hilt注入databing，则此处也需要dadabing，否则使用时会失败*/
+    buildFeatures {
+        dataBinding = true
+    }
+}
 
 kapt {
     correctErrorTypes true
@@ -15,8 +23,6 @@ kapt {
 }
 
 dependencies {
-    implementation project(path: ':common')
-    kapt rootProject.ext.dependencies['arouter_compiler']
 
     if (!rootProject.ext.component['testRunAlone']) {
         implementation project(path: ':test')
@@ -24,4 +30,25 @@ dependencies {
     if (!rootProject.ext.component['testSimpleRunAlone']) {
         implementation project(path: ':testsimple')
     }
+
+    implementation project(path: ':common')
+    kapt rootProject.ext.dependencies['arouter_compiler']
+
+    implementation rootProject.ext.dependencies['paging']
+    implementation rootProject.ext.dependencies['lifecycle_runtime_ktx']
+    implementation rootProject.ext.dependencies['viewmodel_ktx']
+    kapt rootProject.ext.dependencies['lifecycle_compiler_java8']
+
+    implementation rootProject.ext.dependencies['hilt']
+    implementation rootProject.ext.dependencies['hilt_viewmodel']
+    kapt rootProject.ext.dependencies['hilt_viewmodel_compiler']
+    kapt rootProject.ext.dependencies['hilt_compiler']
+
+    /*以下是需要hilt生成的类，使用处有依赖，所以此处也需要依赖，否则hilt会生成失败*/
+    implementation rootProject.ext.dependencies['room_ktx']
+    kapt rootProject.ext.dependencies['room_compiler']
+    implementation rootProject.ext.dependencies['okhttp']
+    implementation rootProject.ext.dependencies['okhttp_interceptor']
+    implementation rootProject.ext.dependencies['retrofit']
+    implementation rootProject.ext.dependencies['retrofit_gson']
 }

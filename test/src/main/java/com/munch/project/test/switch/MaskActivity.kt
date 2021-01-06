@@ -2,7 +2,6 @@ package com.munch.project.test.switch
 
 import android.app.Activity
 import android.os.Bundle
-import com.munch.lib.base.BaseRootActivity
 import com.munch.lib.helper.startActivity
 import com.munch.project.test.BaseActivity
 import com.munch.project.test.R

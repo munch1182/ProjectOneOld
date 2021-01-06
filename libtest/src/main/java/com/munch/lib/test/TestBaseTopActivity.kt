@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import com.google.android.material.appbar.MaterialToolbar
-import com.munch.lib.base.BaseRootActivity
 import com.munch.lib.helper.getBackIcon
 import com.munch.lib.helper.getBackIconWhite
 

@@ -1,7 +1,7 @@
 package com.munch.project.app
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.munch.lib.common.RouterHelper
 import com.munch.lib.common.start2Component
 

@@ -9,6 +9,7 @@
 
     <uses-sdk tools:overrideLibrary="androidx.camera.view,androidx.camera.camera2,androidx.camera.lifecycle,androidx.camera.core" />
 
+    <!--当组件组成app时此处会报错，但这是正常的，因为该文件被排除了-->
     <application
         android:name=".TestApp"
         android:allowBackup="true"

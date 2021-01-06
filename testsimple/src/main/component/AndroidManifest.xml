@@ -20,6 +20,7 @@
     <permission
         android:name="permission4Service"
         android:protectionLevel="normal" />
+    <!--当组件组成app时此处会报错，但这是正常的，因为该文件被排除了-->
     <application
         android:name=".TestSimpleApp"
         android:allowBackup="true"
@@ -96,6 +97,8 @@
 
         <service android:name=".queue.QueueService" />
 
+        <!--用于移除默认WorkManagerInitializer来自定义，自定义部分见TestSimpleApp
+        现只是用于输出日志-->
         <provider
             android:name="androidx.work.impl.WorkManagerInitializer"
             android:authorities="${applicationId}.workmanager-init"
