@@ -7,4 +7,11 @@ apply from: '../gradle/commonbuildktx.gradle'
 
 dependencies {
     implementation project(path: ':common')
+
+    if (rootProject.ext.component['testRunAlone']) {
+        implementation project(path: ':test')
+    }
+    if (rootProject.ext.component['testSimpleRunAlone']) {
+        implementation project(path: ':testsimple')
+    }
 }

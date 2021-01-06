@@ -24,7 +24,9 @@ android {
                 java.srcDirs = ['src/main/java', 'src/main/component/java']
             } else {
                 manifest.srcFile 'src/main/AndroidManifest.xml'
-                exclude 'component/**'
+                java {
+                    exclude 'component/**'
+                }
             }
         }
     }
