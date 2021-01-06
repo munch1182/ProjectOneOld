@@ -1,0 +1,10 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+apply from: '../gradle/commonbuildktx.gradle'
+
+dependencies {
+    implementation project(path: ':common')
+}

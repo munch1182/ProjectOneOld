@@ -21,13 +21,8 @@ kapt {
 }
 
 dependencies {
-    implementation project(path: ':lib')
-    implementation project(path: ':libtest')
+    implementation project(path: ':common')
 
-    implementation rootProject.ext.dependencies['constraintlayout']
-    implementation rootProject.ext.dependencies['material']
-    implementation rootProject.ext.dependencies['swiperefreshlayout']
-    implementation rootProject.ext.dependencies['recyclerview']
     implementation rootProject.ext.dependencies['paging']
     implementation rootProject.ext.dependencies['lifecycle_runtime_ktx']
     implementation rootProject.ext.dependencies['viewmodel_ktx']

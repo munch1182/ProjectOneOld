@@ -1,3 +1,5 @@
+include ':app'
+include ':common'
 include ':libtest'
 include ':testsimple'
 include ':test'

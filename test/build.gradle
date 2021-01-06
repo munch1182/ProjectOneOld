@@ -18,8 +18,7 @@ kapt {
 }
 
 dependencies {
-    implementation project(path: ':lib')
-    implementation project(path: ':libtest')
+    implementation project(path: ':common')
 
     implementation rootProject.ext.dependencies['constraintlayout']
     implementation rootProject.ext.dependencies['material']
