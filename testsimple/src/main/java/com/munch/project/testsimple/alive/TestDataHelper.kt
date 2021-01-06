@@ -1,10 +1,10 @@
 package com.munch.project.testsimple.alive
 
 import android.content.Context
+import com.munch.lib.BaseApp
 import com.munch.lib.helper.SpHelper
 import com.munch.lib.helper.formatDate
 import com.munch.lib.test.TestHelper
-import com.munch.project.testsimple.App
 import java.util.*
 import java.util.concurrent.ThreadPoolExecutor
 
@@ -26,7 +26,7 @@ object TestDataHelper {
     private const val NAME_MIX = "name_mix"
     private const val TIME = 8 * 60 * 60 * 1000
 
-    fun testMix(context: Context = App.getInstance()) {
+    fun testMix(context: Context = BaseApp.getInstance()) {
         TestHelper.testAliveTime(context, NAME_MIX)
     }
 
@@ -53,7 +53,7 @@ object TestDataHelper {
         return builder.toString()
     }
 
-    fun getLastTimeForegroundAliveTime(context: Context = App.getInstance()): String {
+    fun getLastTimeForegroundAliveTime(context: Context = BaseApp.getInstance()): String {
         val sp = SpHelper.getSp(context, NAME_FOREGROUND)
         val time = sp.get(
             TestHelper.KEY_ALIVE_TIME_TEST_END,
@@ -62,21 +62,21 @@ object TestDataHelper {
         return "HH:mm:ss".formatDate(Date(time), TimeZone.getTimeZone("GMT"))
     }
 
-    fun startForegroundTimerThread(context: Context = App.getInstance()) {
+    fun startForegroundTimerThread(context: Context = BaseApp.getInstance()) {
         TestHelper.testAliveTime(
             context,
             NAME_FOREGROUND
         )
     }
 
-    fun startGuardTest(context: Context = App.getInstance()) {
+    fun startGuardTest(context: Context = BaseApp.getInstance()) {
         SpHelper.getSp(
             context,
             NAME_GUARD
         ).put(KEY_GUARD_START, true)
     }
 
-    fun getGuardCount(context: Context = App.getInstance()): Int? {
+    fun getGuardCount(context: Context = BaseApp.getInstance()): Int? {
         val sp = SpHelper.getSp(
             context,
             NAME_GUARD
@@ -91,7 +91,7 @@ object TestDataHelper {
         )
     }
 
-    fun guardCount4Keep(context: Context = App.getInstance()) {
+    fun guardCount4Keep(context: Context = BaseApp.getInstance()) {
         val sp = SpHelper.getSp(
             context,
             NAME_GUARD
@@ -100,7 +100,7 @@ object TestDataHelper {
         sp.put(KEY_COUNT_GUARD, count)
     }
 
-    fun keepCount4Guard(context: Context = App.getInstance()) {
+    fun keepCount4Guard(context: Context = BaseApp.getInstance()) {
         val sp = SpHelper.getSp(
             context,
             NAME_GUARD
@@ -109,21 +109,21 @@ object TestDataHelper {
         sp.put(KEY_COUNT_KEEP, count)
     }
 
-    fun clear(context: Context = App.getInstance()) {
+    fun clear(context: Context = BaseApp.getInstance()) {
         SpHelper.getSp(context, NAME_FOREGROUND).clear()
         SpHelper.getSp(context, NAME_GUARD).clear()
         SpHelper.getSp(context, NAME_SILENT).clear()
         SpHelper.getSp(context, NAME_MIX).clear()
     }
 
-    fun timerSilentMusic(context: Context = App.getInstance(), pool: ThreadPoolExecutor) {
+    fun timerSilentMusic(context: Context = BaseApp.getInstance(), pool: ThreadPoolExecutor) {
         TestHelper.testAliveTime(
             context,
             NAME_SILENT, pool
         )
     }
 
-    fun countWork(context: Context = App.getInstance()) {
+    fun countWork(context: Context = BaseApp.getInstance()) {
         val sp = SpHelper.getSp(
             context,
             NAME_WORK
@@ -140,7 +140,7 @@ object TestDataHelper {
         sp.put(KEY_WORK_TIME, System.currentTimeMillis())
     }
 
-    fun getLastWorkTime(context: Context = App.getInstance()): Long? {
+    fun getLastWorkTime(context: Context = BaseApp.getInstance()): Long? {
         return SpHelper.getSp(
             context,
             NAME_WORK

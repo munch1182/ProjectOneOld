@@ -5,7 +5,7 @@
 //当oneApp返回true时作为一个app编译，而无须在下面各组件单独设置
 //需要设置时加入该标记
 static def oneApp() {
-    return true
+    return false
 }
 
 ext {

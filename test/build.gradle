@@ -1,15 +1,32 @@
-plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
-    /*id 'dagger.hilt.android.plugin'*/
+def runAlone() {
+    return rootProject.ext.component['testRunAlone']
 }
+
+if (runAlone()) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+/*apply plugin: 'dagger.hilt.android.plugin'*/
 
 apply from: '../gradle/commonbuildktx.gradle'
 
 android {
     buildFeatures {
         dataBinding true
+    }
+    sourceSets {
+        main {
+            if (runAlone()) {
+                manifest.srcFile 'src/main/component/AndroidManifest.xml'
+                java.srcDirs = ['src/main/java', 'src/main/component/java']
+            } else {
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+                exclude 'component/**'
+            }
+        }
     }
 }
 

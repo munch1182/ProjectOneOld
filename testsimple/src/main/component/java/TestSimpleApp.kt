@@ -8,10 +8,10 @@ import dagger.hilt.android.HiltAndroidApp
  * Create by munch1182 on 2020/12/9 11:38.
  */
 @HiltAndroidApp
-class App : BaseApp(), Configuration.Provider {
+class TestSimpleApp : BaseApp(), Configuration.Provider {
 
     companion object {
-        fun getInstance() = getInstance<App>()
+        fun getInstance() = getInstance<TestSimpleApp>()
     }
 
     override fun getWorkManagerConfiguration(): Configuration {

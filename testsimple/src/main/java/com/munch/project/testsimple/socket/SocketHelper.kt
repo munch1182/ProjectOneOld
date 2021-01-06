@@ -6,9 +6,9 @@ import android.net.wifi.WifiManager
 import android.os.SystemClock
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LifecycleOwner
+import com.munch.lib.BaseApp
 import com.munch.lib.RequiresPermission
 import com.munch.lib.helper.NetStatusHelper
-import com.munch.project.testsimple.App
 import java.net.*
 import java.util.*
 import java.util.concurrent.ArrayBlockingQueue
@@ -20,13 +20,13 @@ import java.util.concurrent.TimeUnit
  * Create by munch1182 on 2020/12/23 3:46.
  */
 class SocketHelper(
-    private val application: Application = App.getInstance(),
+    private val application: Application = BaseApp.getInstance(),
     owner: LifecycleOwner? = null
 ) {
 
     init {
         if (owner != null) {
-            NetStatusHelper.getInstance(App.getInstance())
+            NetStatusHelper.getInstance(application)
                 .apply {
                     setWhenCreate(owner, { _, ca ->
                         ca ?: return@setWhenCreate

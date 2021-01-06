@@ -20,9 +20,23 @@
     <permission
         android:name="permission4Service"
         android:protectionLevel="normal" />
+    <application
+        android:name=".TestSimpleApp"
+        android:allowBackup="true"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.P1"
+        tools:replace="android:theme">
+        <activity android:name=".MainRvActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-    <application>
-        <activity android:name=".MainRvActivity" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity android:name=".alive.TestAliveSimpleActivity" />
         <activity android:name=".alive.TestAliveActivity" />
         <activity android:name=".jetpack.TestJetpackActivity" />
