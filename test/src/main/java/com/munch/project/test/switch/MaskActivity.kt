@@ -4,13 +4,14 @@ import android.app.Activity
 import android.os.Bundle
 import com.munch.lib.base.BaseRootActivity
 import com.munch.lib.helper.startActivity
+import com.munch.project.test.BaseActivity
 import com.munch.project.test.R
 
 /**
  * 一个透明activity
  * Create by munch1182 on 2020/12/30 13:37.
  */
-class MaskActivity : BaseRootActivity() {
+class MaskActivity : BaseActivity() {
 
     companion object {
 

@@ -1,0 +1,32 @@
+//用于组件化开关
+//本项目组件化只是测试，实际上组件拆分需要根据业务逻辑和功能相关
+//文件可以在根目录的build.gradle下apply，所有组件可用
+
+//当oneApp返回true时作为一个app编译，而无须在下面各组件单独设置
+//需要设置时加入该标记
+static def oneApp() {
+    return true
+}
+
+ext {
+    //组件开关
+    //true:作为单独app，false:作为lib
+    //使用:
+    /*if (rootProject.ext.isAppOrLib['isTestComponent']) {
+        apply plugin: 'com.android.application'
+    } else {
+        apply plugin: 'com.android.library'
+    }*/
+    component = [
+            testRunAlone      : componentRunAlone(true),
+            testSimpleRunAlone: componentRunAlone(true),
+    ]
+}
+
+
+static def componentRunAlone(isApp) {
+    if (oneApp()) {
+        return false
+    }
+    return isApp
+}

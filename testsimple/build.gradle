@@ -8,14 +8,6 @@ plugins {
 apply from: '../gradle/commonbuildktx.gradle'
 
 android {
-    defaultConfig {
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += ["room.schemaLocation":
-                                     "$projectDir/schemas".toString()]
-            }
-        }
-    }
     buildFeatures {
         dataBinding = true
     }
@@ -23,6 +15,9 @@ android {
 
 kapt {
     correctErrorTypes true
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas".toString())
+    }
 }
 
 dependencies {

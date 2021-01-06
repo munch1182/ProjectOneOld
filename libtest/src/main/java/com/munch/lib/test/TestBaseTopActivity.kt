@@ -17,7 +17,7 @@ import com.munch.lib.helper.getBackIconWhite
  *
  * Create by munch1182 on 2020/12/10 22:06.
  */
-open class TestBaseTopActivity : BaseRootActivity() {
+open class TestBaseTopActivity : BaseActivity() {
 
     private val topContainer by lazy { findViewById<LinearLayout>(R.id.top_container) }
     private val toolbar by lazy { findViewById<MaterialToolbar>(R.id.top_tool_bar) }
