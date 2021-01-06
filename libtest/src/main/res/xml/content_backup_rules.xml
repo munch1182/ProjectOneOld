@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!--用于应用备份的设置-->
+    <!--https://developer.android.google.cn/guide/topics/data/autobackup-->
+    <include
+        domain="sharedpref"
+        path="." />
+    <include
+        domain="file"
+        path="." />
+    <include
+        domain="database"
+        path="." />
+    <include
+        domain="external"
+        path="." />
+    <include
+        domain="root"
+        path="." />
+    <!--排除备份-->
+    <!--<exclude
+        domain="root"
+        path="." />-->
+</full-backup-content>

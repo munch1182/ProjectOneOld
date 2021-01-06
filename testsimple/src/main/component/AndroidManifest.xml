@@ -24,14 +24,14 @@
     <application
         android:name=".TestSimpleApp"
         android:allowBackup="true"
-        android:fullBackupContent="false"
+        android:fullBackupContent="@xml/content_backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.P1"
         tools:replace="android:theme">
-        <activity android:name=".MainRvActivity">
+        <activity android:name=".com.munch.project.testsimple.MainRvAloneActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

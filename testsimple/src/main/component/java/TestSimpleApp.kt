@@ -1,14 +1,14 @@
 package com.munch.project.testsimple
 
 import androidx.work.Configuration
-import com.munch.lib.BaseApp
+import com.munch.lib.common.CommonApp
 import dagger.hilt.android.HiltAndroidApp
 
 /**
  * Create by munch1182 on 2020/12/9 11:38.
  */
 @HiltAndroidApp
-class TestSimpleApp : BaseApp(), Configuration.Provider {
+class TestSimpleApp : CommonApp(), Configuration.Provider {
 
     companion object {
         fun getInstance() = getInstance<TestSimpleApp>()

@@ -44,26 +44,26 @@ dependencies {
     implementation project(path: ':common')
     kapt rootProject.ext.dependencies['arouter_compiler']
 
-    implementation rootProject.ext.dependencies['viewpager2']
+    api rootProject.ext.dependencies['viewpager2']
 
     /*implementation rootProject.ext.dependencies['hilt']
     kapt rootProject.ext.dependencies['hilt_compiler']
     kapt rootProject.ext.dependencies['hilt_lifecycle']
     kapt rootProject.ext.dependencies['hilt']*/
 
-    implementation rootProject.ext.dependencies['glide']
+    api rootProject.ext.dependencies['glide']
 
-    implementation rootProject.ext.dependencies['permissionX']
+    api rootProject.ext.dependencies['permissionX']
 
     // CameraX core library using camera2 implementation
-    implementation "androidx.camera:camera-camera2:1.0.0-beta12"
+    api "androidx.camera:camera-camera2:1.0.0-beta12"
     // CameraX Lifecycle Library
-    implementation "androidx.camera:camera-lifecycle:1.0.0-beta12"
+    api "androidx.camera:camera-lifecycle:1.0.0-beta12"
     // CameraX View class
-    implementation "androidx.camera:camera-view:1.0.0-alpha19"
+    api "androidx.camera:camera-view:1.0.0-alpha19"
 
-    implementation rootProject.ext.dependencies['tiny_pinyin']
-    implementation rootProject.ext.dependencies['tiny_pinyin_dic']
+    api rootProject.ext.dependencies['tiny_pinyin']
+    api rootProject.ext.dependencies['tiny_pinyin_dic']
 
-    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    api 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }

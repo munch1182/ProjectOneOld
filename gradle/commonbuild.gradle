@@ -2,7 +2,7 @@
 // 使用此文件使用 apply from: '[路径/文件名]'
 // 各个library或module可以覆盖配置
 // 注意文件路径
-
+//https://developer.android.google.cn/studio/build
 //versions及dependencies定义在gradle文件夹下version.gradle中，调用在project的build.gradle的buildscript内
 
 android {

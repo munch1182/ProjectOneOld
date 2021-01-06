@@ -44,31 +44,31 @@ dependencies {
     implementation project(path: ':common')
     kapt rootProject.ext.dependencies['arouter_compiler']
 
-    implementation rootProject.ext.dependencies['paging']
-    implementation rootProject.ext.dependencies['lifecycle_runtime_ktx']
-    implementation rootProject.ext.dependencies['viewmodel_ktx']
+    api rootProject.ext.dependencies['paging']
+    api rootProject.ext.dependencies['lifecycle_runtime_ktx']
+    api rootProject.ext.dependencies['viewmodel_ktx']
     kapt rootProject.ext.dependencies['lifecycle_compiler_java8']
 
-    implementation rootProject.ext.dependencies['hilt']
-    implementation rootProject.ext.dependencies['hilt_viewmodel']
+    api rootProject.ext.dependencies['hilt']
+    api rootProject.ext.dependencies['hilt_viewmodel']
     kapt rootProject.ext.dependencies['hilt_viewmodel_compiler']
     kapt rootProject.ext.dependencies['hilt_compiler']
 
-    implementation rootProject.ext.dependencies['room_ktx']
+    api rootProject.ext.dependencies['room_ktx']
     kapt rootProject.ext.dependencies['room_compiler']
 
-    implementation rootProject.ext.dependencies['work_ktx']
+    api rootProject.ext.dependencies['work_ktx']
     debugImplementation rootProject.ext.dependencies['work_test']
 
-    implementation rootProject.ext.dependencies['okhttp']
-    implementation rootProject.ext.dependencies['okhttp_interceptor']
+    api rootProject.ext.dependencies['okhttp']
+    api rootProject.ext.dependencies['okhttp_interceptor']
 
-    implementation rootProject.ext.dependencies['retrofit']
-    implementation rootProject.ext.dependencies['retrofit_gson']
+    api rootProject.ext.dependencies['retrofit']
+    api rootProject.ext.dependencies['retrofit_gson']
 
-    implementation rootProject.ext.dependencies['gson']
+    api rootProject.ext.dependencies['gson']
 
-    implementation rootProject.ext.dependencies['glide']
+    api rootProject.ext.dependencies['glide']
 
-    debugImplementation rootProject.ext.dependencies['leakcanary']
+    api rootProject.ext.dependencies['leakcanary']
 }

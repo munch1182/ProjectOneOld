@@ -34,21 +34,19 @@ dependencies {
     implementation project(path: ':common')
     kapt rootProject.ext.dependencies['arouter_compiler']
 
-    implementation rootProject.ext.dependencies['paging']
-    implementation rootProject.ext.dependencies['lifecycle_runtime_ktx']
-    implementation rootProject.ext.dependencies['viewmodel_ktx']
     kapt rootProject.ext.dependencies['lifecycle_compiler_java8']
 
-    implementation rootProject.ext.dependencies['hilt']
-    implementation rootProject.ext.dependencies['hilt_viewmodel']
+    api rootProject.ext.dependencies['hilt']
+    api rootProject.ext.dependencies['hilt_viewmodel']
     kapt rootProject.ext.dependencies['hilt_viewmodel_compiler']
     kapt rootProject.ext.dependencies['hilt_compiler']
 
     /*以下是需要hilt生成的类，使用处有依赖，所以此处也需要依赖，否则hilt会生成失败*/
-    implementation rootProject.ext.dependencies['room_ktx']
+    /*因此建议所有的模块应该api依赖而不是implementation*/
+    /*implementation rootProject.ext.dependencies['room_ktx']
     kapt rootProject.ext.dependencies['room_compiler']
     implementation rootProject.ext.dependencies['okhttp']
     implementation rootProject.ext.dependencies['okhttp_interceptor']
     implementation rootProject.ext.dependencies['retrofit']
-    implementation rootProject.ext.dependencies['retrofit_gson']
+    implementation rootProject.ext.dependencies['retrofit_gson']*/
 }
