@@ -1,8 +1,6 @@
 package com.munch.project.testsimple.com.munch.project.testsimple
 
 import android.os.Bundle
-import com.alibaba.android.arouter.facade.annotation.Route
-import com.munch.lib.common.RouterHelper
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.testsimple.R
@@ -12,7 +10,6 @@ import com.munch.project.testsimple.jetpack.TestJetpackActivity
 import com.munch.project.testsimple.queue.TestQueueActivity
 import com.munch.project.testsimple.socket.TestSimpleSocketActivity
 
-@Route(path = RouterHelper.TestSimple.MAIN)
 class MainRvAloneActivity : TestRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

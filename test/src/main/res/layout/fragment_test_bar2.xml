@@ -45,13 +45,15 @@
             android:text="@string/test_page" />
     </androidx.core.widget.NestedScrollView>
 
+    <!--组件化中behavior必须声明全路径-->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/test_bar_tb"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
         app:layout_anchor="@id/test_bar_iv_top"
-        app:layout_behavior=".bar.TranslucentBehavior" />
+        app:layout_behavior="com.munch.project.test.bar.TranslucentBehavior" />
 
+    <!--组件化中behavior必须声明全路径-->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -59,7 +61,7 @@
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/sp_title_smaller"
         app:layout_anchor="@id/test_bar_iv_top"
-        app:layout_behavior=".bar.TransferTitleBehavior"
+        app:layout_behavior="com.munch.project.test.bar.TransferTitleBehavior"
         tools:ignore="HardcodedText" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

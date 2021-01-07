@@ -14,7 +14,8 @@ import com.munch.project.testsimple.socket.TestSimpleSocketActivity
 class MainRvActivity : TestRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = getString(R.string.app_name)
+        title = "Test Simple"
+        showBack(true)
     }
 
     override fun getItems(): MutableList<TestRvItemBean> {

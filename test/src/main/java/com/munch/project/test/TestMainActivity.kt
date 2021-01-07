@@ -15,8 +15,6 @@ import com.munch.project.test.switch.TestSwitchActivity
 @Route(path = RouterHelper.Test.MAIN)
 class TestMainActivity : TestRvActivity() {
 
-    override fun notShowBack() = true
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         addEndView(getTestView("testSimple"))

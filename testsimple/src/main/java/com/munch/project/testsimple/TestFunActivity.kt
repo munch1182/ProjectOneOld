@@ -4,6 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import com.munch.lib.common.RouterHelper
+import com.munch.lib.common.component.ThemeProvider
+import com.munch.lib.common.start2Component
 import com.munch.lib.helper.isServiceRunning
 import com.munch.lib.helper.startActivity
 import com.munch.lib.test.recyclerview.TestRvActivity
@@ -24,12 +27,14 @@ class TestFunActivity : TestRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         addStartView(img)
+        RouterHelper.inject(this)
     }
 
     override fun clickItem(view: View, pos: Int) {
         super.clickItem(view, pos)
         when (pos) {
             0 -> {
+                start2Component(RouterHelper.Test.MAIN)
             }
             1 -> {
             }
@@ -40,9 +45,13 @@ class TestFunActivity : TestRvActivity() {
             4 -> {
             }
             5 -> {
+                val service = RouterHelper.getService(ThemeProvider::class.java)
+                toast("当前主题:${service?.getTheme()}")
+            }
+            6 -> {
                 toastServiceRunning()
             }
-            6 -> startActivity(TestFunInFragmentActivity::class.java)
+            7 -> startActivity(TestFunInFragmentActivity::class.java)
         }
     }
 
@@ -66,11 +75,12 @@ class TestFunActivity : TestRvActivity() {
 
     override fun getItems(): MutableList<TestRvItemBean> {
         return TestRvItemBean.newArray(
-            "test1",
-            "test2",
-            "test3",
-            "test4",
-            "test5",
+            "test fun 1",
+            "test fun 2",
+            "test fun 3",
+            "test fun 4",
+            "test fun 5",
+            "test component",
             "Is Service Running",
             "testInFragment"
         )

@@ -1,2 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.munch.lib.common"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.munch.lib.common">
+
+    <application>
+        <activity android:name=".EmptyActivity" />
+    </application>
+</manifest>

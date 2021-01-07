@@ -10,7 +10,6 @@
     <uses-sdk tools:overrideLibrary="androidx.camera.view,androidx.camera.camera2,androidx.camera.lifecycle,androidx.camera.core" />
 
     <application>
-
         <activity android:name=".TestMainActivity" />
         <activity android:name=".img.camera.TestCameraActivity" />
         <activity android:name=".TestViewActivity" />
