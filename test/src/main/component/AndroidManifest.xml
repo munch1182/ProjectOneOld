@@ -21,6 +21,8 @@
         android:theme="@style/AppTheme.P1"
         tools:replace="android:theme">
 
+        <!--冷启动时间 https://developer.android.google.cn/topic/performance/vitals/launch-time-->
+        <!-->adb -s deviceNumber shell am start -S -W com.munch.project.test/.TestMainAloneActivity-->
         <activity android:name=".TestMainAloneActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

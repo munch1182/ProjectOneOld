@@ -2,12 +2,14 @@ package com.munch.project.test.img
 
 import android.Manifest
 import android.content.Intent
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -32,9 +34,21 @@ class TestImgActivity : TestBaseTopActivity() {
     private val btn: Button by lazy { findViewById(R.id.test_img_btn) }
     private val vp: ViewPager2 by lazy { findViewById(R.id.test_img_vp) }
     private val adapter by lazy { ViewPagerAdapter(this, count) }
+    private val bg: ImageView by lazy { findViewById(R.id.test_img_bg) }
     private var bgFile: File? = null
 
     private var count = 5
+
+    private val callback = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageScrolled(
+            position: Int,
+            positionOffset: Float,
+            positionOffsetPixels: Int
+        ) {
+            super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+            bg.scrollBy(bg.width * position, 0)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,6 +98,8 @@ class TestImgActivity : TestBaseTopActivity() {
                 }
                 .show()
         }
+
+        vp.registerOnPageChangeCallback(callback)
     }
 
     private fun imageCapture(type: Int) {
@@ -105,7 +121,11 @@ class TestImgActivity : TestBaseTopActivity() {
                 if (isOk) {
                     val fileTemp = if (type == 0) {
                         val uri = data?.data ?: return@res
-                        FileHelper.uri2File(BaseApp.getInstance(), uri, File(filesDir, "img_from_uri.jpeg"))
+                        FileHelper.uri2File(
+                            BaseApp.getInstance(),
+                            uri,
+                            File(filesDir, "img_from_uri.jpeg")
+                        )
                     } else {
                         file
                     } ?: return@res
@@ -141,7 +161,43 @@ class TestImgActivity : TestBaseTopActivity() {
 
     private fun updateByFile(file: File) {
         bgFile = file
-        adapter.updateFragment(Array(count) { file.absolutePath })
+        /*adapter.updateFragment(Array(count) { file.absolutePath })*/
+        /*bg.background =
+            adjustBmpRotation(BitmapFactory.decodeFile(file.absolutePath), 90).toDrawable(resources)*/
+        bg.setImageBitmap(adjustBmpRotation(BitmapFactory.decodeFile(file.absolutePath), 90))
+    }
+
+    @Suppress("SameParameterValue")
+    private fun adjustBmpRotation(bmp: Bitmap, rotation: Int): Bitmap {
+        val m = Matrix()
+        m.setRotate(rotation.toFloat(), bmp.width / 2f, bmp.height / 2f)
+        val targetX: Float
+        val targetY: Float
+        if (rotation == 90) {
+            targetX = bmp.height.toFloat()
+            targetY = 0f
+        } else {
+            targetX = bmp.height.toFloat()
+            targetY = bmp.width.toFloat()
+        }
+
+        val values = FloatArray(9)
+        m.getValues(values)
+
+        val x1 = values[Matrix.MTRANS_X]
+        val y1 = values[Matrix.MTRANS_Y]
+
+        m.postTranslate(targetX - x1, targetY - y1)
+
+        val bm1 = Bitmap.createBitmap(bmp.height, bmp.width, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bm1)
+        canvas.drawBitmap(bmp, m, Paint())
+        return bm1
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        vp.unregisterOnPageChangeCallback(callback)
     }
 
     private inner class ViewPagerAdapter(

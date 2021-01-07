@@ -104,21 +104,4 @@ class TestDialog(private val context: Context) {
         }
 
     }
-
-    open class BottomDialogWithBtn(private val context: Context) {
-        protected val dialog = BottomSheetDialog(context).apply {
-            setContentView(R.layout.layout_bottom_dialog)
-        }
-
-        fun addItems(vararg name: String): BottomDialogWithBtn {
-            name.forEach {
-                dialog.findViewById<ViewGroup>(R.id.bottom_dialog_container)
-                    ?.addView(Button(context).apply {
-                        text = it
-                        setMargin(0, 8)
-                    })
-            }
-            return this
-        }
-    }
 }

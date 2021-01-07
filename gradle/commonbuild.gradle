@@ -19,6 +19,8 @@ android {
         minSdkVersion rootProject.ext.versions['minSdkVersion']
         targetSdkVersion rootProject.ext.versions['targetSdkVersion']
         //默认的versionCode是debug，在输出release包时可以取消applicationVariants.all的注释以自动更改release的versionCode
+        /*每次更改versionCode都需要完全重构apk，因此开发时不建议每次都更改*/
+        /*如果测试版需要更新版本，建议使用变体*/
         /*versionCode versionCode4Debug*/
         versionCode versionCode4Release
         versionName rootProject.ext.versions['versionName']
@@ -58,6 +60,7 @@ android {
             buildConfigField "boolean", "DEBUG_MODE", "false"
         }
         debug {
+            /*applicationIdSuffix ".debug"*/
             if (keyProperties != null) {
                 signingConfig signingConfigs.release
             }

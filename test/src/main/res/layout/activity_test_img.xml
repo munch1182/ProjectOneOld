@@ -7,6 +7,14 @@
     tools:context=".img.TestImgActivity"
     tools:ignore="HardcodedText">
 
+    <ImageView
+        android:id="@+id/test_img_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="bg"
+        android:scaleType="centerCrop"
+        tools:src="@drawable/test_png_1878_788" />
+
     <Button
         android:id="@+id/test_img_btn"
         android:layout_width="wrap_content"
