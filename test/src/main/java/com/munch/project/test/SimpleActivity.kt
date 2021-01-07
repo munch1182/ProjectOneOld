@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.test.bar.TestBarActivity
+import com.munch.project.test.file.TestFileActivity
 import com.munch.project.test.view.TestChartActivity
 import com.munch.project.test.view.TestFlowLayoutActivity
 import com.munch.project.test.view.TestRecyclerViewActivity
@@ -27,6 +28,20 @@ class TestViewActivity : TestRvActivity() {
             TestRvItemBean.newInstance("Bar", TestBarActivity::class.java),
             TestRvItemBean.newInstance("RecyclerView", TestRecyclerViewActivity::class.java),
             TestRvItemBean.newInstance("Chart", TestChartActivity::class.java)
+        )
+    }
+}
+
+class TestFileMainActivity : TestRvActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        showBack()
+    }
+
+    override fun getItems(): MutableList<TestRvItemBean> {
+        return mutableListOf(
+            TestRvItemBean.newInstance("All File", TestFileActivity::class.java)
         )
     }
 }

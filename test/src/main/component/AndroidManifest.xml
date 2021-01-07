@@ -4,7 +4,13 @@
     package="com.munch.project.test">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        android:minSdkVersion="30"
+        tools:ignore="ScopedStorage" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-sdk tools:overrideLibrary="androidx.camera.view,androidx.camera.camera2,androidx.camera.lifecycle,androidx.camera.core" />
@@ -40,6 +46,8 @@
         <activity android:name=".switch.TestSwitchActivity" />
         <activity android:name=".img.TestImgActivity" />
         <activity android:name=".view.TestChartActivity" />
+        <activity android:name=".file.TestFileActivity" />
+        <activity android:name=".TestFileMainActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

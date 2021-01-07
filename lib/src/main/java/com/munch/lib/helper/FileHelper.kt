@@ -4,8 +4,10 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
+import androidx.core.net.toUri
 import com.munch.lib.BaseApp
 import java.io.File
 import java.io.FileOutputStream
@@ -154,4 +156,10 @@ object FileHelper {
         }
         return null
     }
+
+    /**
+     * 获取文件后缀
+     */
+    fun getExtension(file: File): String? = MimeTypeMap.getSingleton()
+        .getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(file.toUri().toString()))
 }

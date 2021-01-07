@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentManager
  * 使用[getProxy]-不可见fragment来链式调用[Activity.startActivityForResult]或者[Activity.requestPermissions]
  *
  * 但正式使用时不建议使用 permission 部分，因为此类没有做任何处理
+ * 没有先做权限判断，也没有做权限分组和兼容判断
  *
  * Create by munch1182 on 2020/12/22 16:50.
  */

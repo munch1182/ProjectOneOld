@@ -26,7 +26,8 @@ class TestMainAloneActivity : TestRvActivity() {
         return mutableListOf(
             TestRvItemBean.newInstance("Img", TestImgActivity::class.java),
             TestRvItemBean.newInstance("View", TestViewActivity::class.java),
-            TestRvItemBean.newInstance("Switch", TestSwitchActivity::class.java)
+            TestRvItemBean.newInstance("Switch", TestSwitchActivity::class.java),
+            TestRvItemBean.newInstance("File", TestFileMainActivity::class.java)
         )
     }
 }
