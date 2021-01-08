@@ -2,7 +2,7 @@ package com.munch.project.testsimple.jetpack.net.uncomplete
 
 import com.munch.lib.UNCOMPLETE
 import com.munch.lib.log
-import com.munch.project.testsimple.jetpack.model.BaseDtoWrapper
+import com.munch.project.testsimple.jetpack.model.dto.BaseDtoWrapper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import retrofit2.*

@@ -8,7 +8,7 @@
 
         <variable
             name="article"
-            type="com.munch.project.testsimple.jetpack.model.Article" />
+            type="com.munch.project.testsimple.jetpack.model.bean.ArticleBean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,7 +30,7 @@
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="1231231231231231231231231312312312312312311" />
+            tools:text="123123123123123123123123131231231231231231122323232323231" />
 
         <LinearLayout
             android:id="@+id/article_vg_tags"
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/padding_def"
-            android:text="@{article.author}"
+            android:text="@{article.showFrom}"
             android:textSize="@dimen/sp_smaller"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/article_vg_tags"
@@ -60,6 +60,7 @@
             android:layout_marginStart="@dimen/padding_def"
             android:text="@{article.showChapter()}"
             android:textSize="@dimen/sp_smaller"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/article_tv_author"
             app:layout_constraintEnd_toStartOf="@id/article_tv_time"
             app:layout_constraintHorizontal_bias="0"

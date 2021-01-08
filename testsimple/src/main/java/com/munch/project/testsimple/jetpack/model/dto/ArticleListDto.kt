@@ -1,4 +1,4 @@
-package com.munch.project.testsimple.jetpack.model
+package com.munch.project.testsimple.jetpack.model.dto
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -6,7 +6,8 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.munch.lib.helper.formatDate
+import com.munch.project.testsimple.jetpack.model.bean.ArticleBean
+import com.munch.project.testsimple.jetpack.model.bean.Dto2BeanConvert
 
 /**
  * Create by munch1182 on 2020/12/17 21:43.
@@ -14,7 +15,7 @@ import com.munch.lib.helper.formatDate
 
 data class ArticleWrapper(
     val curPage: Int,
-    val datas: List<Article>,
+    val datas: List<ArticleDto>,
     val offset: Int,
     val over: Boolean,
     val pageCount: Int,
@@ -27,7 +28,7 @@ data class ArticleWrapper(
  */
 @Entity
 @TypeConverters(TagConverters::class)
-data class Article(
+data class ArticleDto(
     val apkLink: String,
     val audit: Int,
     val author: String,
@@ -62,7 +63,37 @@ data class Article(
     val userId: Int,
     val visible: Int,
     val zan: Int
-) {
+) : Dto2BeanConvert<ArticleBean> {
+    override fun convert(): ArticleBean {
+        return ArticleBean(
+            author,
+            chapterId,
+            chapterName,
+            collect,
+            courseId,
+            desc,
+            descMd,
+            envelopePic,
+            fresh,
+            id,
+            link,
+            niceDate,
+            niceShareDate,
+            projectLink,
+            publishTime,
+            realSuperChapterId,
+            shareDate,
+            shareUser,
+            superChapterId,
+            superChapterName,
+            tags,
+            title,
+            type,
+            userId,
+            visible,
+            zan
+        )
+    }
 
     companion object {
         private const val DATA_TEST = "{apkLink: \"\"," +
@@ -98,16 +129,10 @@ data class Article(
                 "visible: 1," +
                 "zan: 0}"
 
-        fun testInstance(): Article {
-            return Gson().fromJson(DATA_TEST, Article::class.java)
+        fun testInstance(): ArticleDto {
+            return Gson().fromJson(DATA_TEST, ArticleDto::class.java)
         }
     }
-
-    fun publishTime2Str(): String {
-        return "yyyMMdd HH:mm".formatDate(this.publishTime)
-    }
-
-    fun showChapter() = "$superChapterName/$chapterName"
 }
 
 @Entity

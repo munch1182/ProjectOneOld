@@ -8,6 +8,9 @@ import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingComponent
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import com.munch.lib.base.BaseRootActivity
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
@@ -46,6 +49,10 @@ inline fun <reified T : ViewDataBinding> binding(parent: ViewGroup, @LayoutRes r
 
 inline fun <reified T : ViewDataBinding> ViewGroup.inflateByBing(@LayoutRes resId: Int) =
     binding<T>(this, resId)
+
+inline fun <reified T : ViewModel> ViewModelStoreOwner.getViewModel(): Lazy<T> {
+    return lazy { ViewModelProvider(this).get(T::class.java) }
+}
 
 /**
  * 注意：DataBindingComponent会在使用[BindingAdapter]时自动编译，因此需要依项目而定

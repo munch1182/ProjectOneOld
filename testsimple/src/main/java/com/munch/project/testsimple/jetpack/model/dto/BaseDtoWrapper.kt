@@ -1,4 +1,4 @@
-package com.munch.project.testsimple.jetpack.model
+package com.munch.project.testsimple.jetpack.model.dto
 
 /**
  * Create by munch1182 on 2020/12/18 15:41.

@@ -27,6 +27,12 @@ fun Context.startActivity(clazz: Class<out Activity>, bundle: Bundle? = null) {
         })
 }
 
+fun Context.startActivity(clazz: Class<out Activity>, func: Bundle.() -> Unit) {
+    val empty = Bundle()
+    func.invoke(empty)
+    startActivity(clazz, empty)
+}
+
 fun Context.startServiceInForeground(intent: Intent) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         startForegroundService(intent)

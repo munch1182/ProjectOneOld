@@ -7,16 +7,24 @@ import androidx.recyclerview.widget.DiffUtil
 import com.munch.lib.helper.dp2Px
 import com.munch.project.testsimple.R
 import com.munch.project.testsimple.databinding.LayoutArticleItemBinding
-import com.munch.project.testsimple.jetpack.model.Article
+import com.munch.project.testsimple.jetpack.model.bean.ArticleBean
 
 /**
  * Create by munch1182 on 2020/12/19 14:04.
  */
 class ArticleAdapter :
-    PagingDataAdapter<Article, BindViewHolder>(ArticleDiffCallBack()) {
+    PagingDataAdapter<ArticleBean, BindViewHolder>(ArticleDiffCallBack()) {
+
+    private var itemClick: ((pos: Int, adapter: PagingDataAdapter<ArticleBean, BindViewHolder>) -> Unit)? =
+        null
+
+    fun setOnItemClick(func: (pos: Int, adapter: PagingDataAdapter<ArticleBean, BindViewHolder>) -> Unit): ArticleAdapter {
+        itemClick = func
+        return this
+    }
 
     override fun onBindViewHolder(holder: BindViewHolder, position: Int) {
-        val article = getItem(holder.absoluteAdapterPosition) ?: return
+        val article = getItem(position) ?: return
         holder.executeBinding<LayoutArticleItemBinding> {
             it.article = article
         }
@@ -31,17 +39,21 @@ class ArticleAdapter :
                         getContext().dp2Px(getContext().resources.getDimension(R.dimen.sp_smaller))
                 })
         }
+        itemClick ?: return
+        holder.itemView.setOnClickListener {
+            itemClick!!.invoke(position, this)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindViewHolder {
         return BindViewHolder(R.layout.layout_article_item, parent)
     }
 
-    class ArticleDiffCallBack : DiffUtil.ItemCallback<Article>() {
-        override fun areItemsTheSame(oldItem: Article, newItem: Article): Boolean =
+    class ArticleDiffCallBack : DiffUtil.ItemCallback<ArticleBean>() {
+        override fun areItemsTheSame(oldItem: ArticleBean, newItem: ArticleBean): Boolean =
             newItem.id == oldItem.id
 
-        override fun areContentsTheSame(oldItem: Article, newItem: Article): Boolean =
+        override fun areContentsTheSame(oldItem: ArticleBean, newItem: ArticleBean): Boolean =
             newItem.title == oldItem.title && newItem.link == oldItem.link
     }
 }
