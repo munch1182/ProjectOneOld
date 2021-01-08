@@ -145,12 +145,22 @@ object FileHelper {
             ContentResolver.SCHEME_CONTENT -> {
                 file ?: return null
                 val fileCreated = createFile(file) ?: return null
-                context.contentResolver.openInputStream(uri)?.run {
-                    val out = FileOutputStream(fileCreated)
-                    this.copyTo(out)
-                    this.close()
-                    out.close()
-                    return fileCreated
+                try {
+                    context.contentResolver.openInputStream(uri)?.run {
+                        var out: FileOutputStream? = null
+                        try {
+                            out = FileOutputStream(fileCreated)
+                            this.copyTo(out)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        } finally {
+                            this.close()
+                            out?.close()
+                        }
+                        return fileCreated
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         }

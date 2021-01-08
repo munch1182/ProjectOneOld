@@ -99,7 +99,11 @@ object ImgHelper {
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
-            fos?.close()
+            try {
+                fos?.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
         return file
     }

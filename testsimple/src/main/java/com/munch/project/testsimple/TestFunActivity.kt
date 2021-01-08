@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.ImageView
 import com.munch.lib.common.RouterHelper
 import com.munch.lib.common.component.ThemeProvider
-import com.munch.lib.common.start2Component
 import com.munch.lib.helper.isServiceRunning
 import com.munch.lib.helper.startActivity
 import com.munch.lib.test.recyclerview.TestRvActivity
@@ -34,7 +33,6 @@ class TestFunActivity : TestRvActivity() {
         super.clickItem(view, pos)
         when (pos) {
             0 -> {
-                start2Component(RouterHelper.Test.MAIN)
             }
             1 -> {
             }

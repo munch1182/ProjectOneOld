@@ -1,11 +1,13 @@
 package com.munch.lib.test
 
 import android.content.Context
+import android.os.Debug
 import android.os.SystemClock
 import com.munch.lib.BaseApp
 import com.munch.lib.helper.LogLog
 import com.munch.lib.helper.SpHelper
 import com.munch.lib.helper.formatDate
+import java.io.FileOutputStream
 import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -30,8 +32,28 @@ object TestHelper {
         ThreadPoolExecutor(
             1, Integer.MAX_VALUE,
             60L, TimeUnit.SECONDS,
-            SynchronousQueue<Runnable>()
+            SynchronousQueue()
         )
+    }
+
+    /**
+     * 此方法会延迟android的运行速度，因此时间只能相对地看
+     *
+     * 此方法需要手动停止
+     * @see stopMethodTracing
+     *
+     * 需要读写权限
+     *
+     * 会有trace文件在 [Context.getExternalFilesDir] 生成
+     * 需要自行导出(可使用adb pull命令直接拉取到项目路径)
+     * 可直接使用Profiler查看
+     */
+    fun startMethodTracing(name: String = "dmtrace.trace") {
+        Debug.startMethodTracing(name)
+    }
+
+    fun stopMethodTracing() {
+        Debug.stopMethodTracing()
     }
 
     /**
@@ -59,9 +81,10 @@ object TestHelper {
      * 将信息存入文件
      */
     fun saveInFile(context: Context = BaseApp.getInstance(), msg: String, fileName: String) {
+        var fos: FileOutputStream? = null
         try {
             //位置在app内files文件夹下
-            val fos = context.openFileOutput(fileName, Context.MODE_APPEND)
+            fos = context.openFileOutput(fileName, Context.MODE_APPEND)
             fos.write(
                 "yyyyMMdd HH:mm:ss".formatDate(System.currentTimeMillis()).toByteArray()
             )
@@ -69,10 +92,15 @@ object TestHelper {
             fos.write(next.toByteArray())
             fos.write(msg.toByteArray())
             fos.write(next.toByteArray())
-            fos.close()
         } catch (e: Exception) {
             e.printStackTrace()
             LogLog.log(e.message)
+        } finally {
+            try {
+                fos?.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
