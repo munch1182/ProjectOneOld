@@ -29,4 +29,6 @@ static def componentRunAlone(isApp) {
         return false
     }
     return isApp
+
+
 }

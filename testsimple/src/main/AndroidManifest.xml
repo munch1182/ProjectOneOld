@@ -39,6 +39,7 @@
         <activity android:name=".queue.TestQueueActivity" />
         <activity android:name=".socket.TestSimpleSocketActivity" />
         <activity android:name=".TestFunInFragmentActivity" />
+        <activity android:name=".jetpack.WebViewActivity" />
 
         <service
             android:name=".alive.foreground.ForegroundService"

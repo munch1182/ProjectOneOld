@@ -1,8 +1,6 @@
 package com.munch.project.testsimple.jetpack.net.uncomplete
 
-import com.google.gson.Gson
 import com.munch.lib.UNCOMPLETE
-import com.munch.project.testsimple.jetpack.model.dto.BaseDtoWrapper
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit

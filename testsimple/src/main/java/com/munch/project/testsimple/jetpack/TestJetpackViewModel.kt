@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.map
+import com.munch.lib.log
 import com.munch.project.testsimple.jetpack.model.bean.ArticleBean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -42,6 +43,7 @@ class TestJetpackViewModel @ViewModelInject constructor(private val repository: 
                 //这个catch并不会跟adapter的LoadState.Error联动，因此此处需要跟UI联动
                 .catch { c ->
                     c.printStackTrace()
+                    log(c.message)
                     emit(PagingData.empty())
                 }
                 .collect {

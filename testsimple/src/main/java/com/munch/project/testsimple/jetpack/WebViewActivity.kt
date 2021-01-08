@@ -9,6 +9,7 @@ import android.webkit.WebViewClient
 import com.munch.lib.helper.startActivity
 import com.munch.lib.test.TestBaseTopActivity
 
+
 /**
  * Create by munch1182 on 2021/1/8 17:43.
  */
@@ -32,23 +33,21 @@ class WebViewActivity : TestBaseTopActivity() {
         super.onCreate(savedInstanceState)
         val extras = intent.extras ?: return
         title = extras.getString(KEY_TITLE)
-        val url = extras.getString(KEY_URL) ?: return
+        val urlStr = extras.getString(KEY_URL) ?: return
 
         val view = WebView(this).apply {
             settings.javaScriptEnabled = true
         }
         setContentView(view)
 
-        view.loadUrl(url)
+        view.loadUrl(urlStr)
         view.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
                 request: WebResourceRequest?
             ): Boolean {
-                request?.url?.let {
-                    view?.loadUrl(it.toString())
-                }
-                return super.shouldOverrideUrlLoading(view, request)
+                val url = request?.url?.toString() ?: ""
+                return !(url.startsWith("http") || url.startsWith("https"))
             }
         }
     }
