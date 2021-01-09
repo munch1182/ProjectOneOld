@@ -29,6 +29,7 @@
         <activity android:name=".view.TestChartActivity" />
         <activity android:name=".file.TestFileActivity" />
         <activity android:name=".TestFileMainActivity" />
+        <activity android:name=".view.TestBookPageViewActivity"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

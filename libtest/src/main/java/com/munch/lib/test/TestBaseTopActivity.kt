@@ -4,6 +4,8 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.munch.lib.helper.getBackIcon
@@ -18,7 +20,7 @@ import com.munch.lib.helper.getBackIconWhite
  */
 open class TestBaseTopActivity : BaseActivity() {
 
-    private val topContainer by lazy { findViewById<LinearLayout>(R.id.top_container) }
+    private val topContainer by lazy { findViewById<ViewGroup>(R.id.top_container) }
     private val toolbar by lazy { findViewById<MaterialToolbar>(R.id.top_tool_bar) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
