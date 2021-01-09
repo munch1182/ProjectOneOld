@@ -6,6 +6,8 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.IntDef
+import com.munch.lib.Point
+import com.munch.lib.helper.RectArrayHelper
 import kotlin.math.absoluteValue
 
 /**
@@ -23,14 +25,13 @@ class BookPageStructureView @JvmOverloads constructor(
     }
     private val pointStart = Point()
     private val pointClick = Point()
-    private val unset = -1f
     private val pathFlip = Path()
     private val pathContent = Path()
-    private var areaArray: FloatArray? = null
     private val pointCache = Point()
     private var w = 0f
     private var h = 0f
     private val dashPathEffect = DashPathEffect(floatArrayOf(5f, 5f), 0f)
+    private val rectHelper = RectArrayHelper()
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
@@ -56,14 +57,16 @@ class BookPageStructureView @JvmOverloads constructor(
     private fun measureArea() {
         w = width / 3f
         h = height / 3f
-        //l、t、r、b
         //此处顺序必须与[AREA]的值的大小一致
-        areaArray = floatArrayOf(
-            w, h * 2f, width.toFloat(), height.toFloat(),//bottom
-            w * 2f, h, width.toFloat(), h * 2f,//right
-            w, 0f, width.toFloat(), h,//top
-            0f, 0f, w, height.toFloat(),//left
-            w, h, w * 2f, h * 2f,//center
+        rectHelper.setArray(
+            arrayListOf(
+                //l、t、r、b
+                w, h * 2f, width.toFloat(), height.toFloat(),//bottom
+                w * 2f, h, width.toFloat(), h * 2f,//right
+                w, 0f, width.toFloat(), h,//top
+                0f, 0f, w, height.toFloat(),//left
+                w, h, w * 2f, h * 2f,//center
+            )
         )
     }
 
@@ -75,23 +78,24 @@ class BookPageStructureView @JvmOverloads constructor(
      * right、center返回为null
      */
     private fun getEndPointInArea(point: Point): Point? {
-        areaArray ?: return null
-        when {
-            //left
-            point.x in 0f..w -> {
-                pointCache.reset(getLeft(AREA_L), getBottom(AREA_L))
-            }
-            //top
-            point.y in 0f..h -> {
-                pointCache.reset(getRight(AREA_T), getTop(AREA_T))
-            }
-            //bottom
-            point.y in 2f * h..height.toFloat() -> {
-                pointCache.reset(getRight(AREA_B), getBottom(AREA_B))
-            }
-            //center、right
-            else -> {
-                return null
+        rectHelper.run {
+            when {
+                //left
+                point.x in 0f..w -> {
+                    pointCache.reset(getLeft(AREA_L), getBottom(AREA_L))
+                }
+                //top
+                point.y in 0f..h -> {
+                    pointCache.reset(getRight(AREA_T), getTop(AREA_T))
+                }
+                //bottom
+                point.y in 2f * h..height.toFloat() -> {
+                    pointCache.reset(getRight(AREA_B), getBottom(AREA_B))
+                }
+                //center、right
+                else -> {
+                    return null
+                }
             }
         }
         return pointCache
@@ -100,40 +104,32 @@ class BookPageStructureView @JvmOverloads constructor(
     private fun drawArea(canvas: Canvas) {
         paint.color = Color.GRAY
         paint.pathEffect = dashPathEffect
-        canvas.drawLines(
-            floatArrayOf(
-                //left右边线
-                getRight(AREA_L), getTop(AREA_L),
-                getRight(AREA_L), getBottom(AREA_L),
-                //top下边线
-                getLeft(AREA_T), getBottom(AREA_T),
-                getRight(AREA_T), getBottom(AREA_T),
-                //bottom上边线
-                getLeft(AREA_B), getTop(AREA_B),
-                getRight(AREA_B), getTop(AREA_B),
-                //right左边线
-                getLeft(AREA_R), getTop(AREA_R),
-                getLeft(AREA_R), getBottom(AREA_R)
-            ), paint
-        )
+        rectHelper.run {
+            canvas.drawLines(
+                floatArrayOf(
+                    //left右边线
+                    getRight(AREA_L), getTop(AREA_L),
+                    getRight(AREA_L), getBottom(AREA_L),
+                    //top下边线
+                    getLeft(AREA_T), getBottom(AREA_T),
+                    getRight(AREA_T), getBottom(AREA_T),
+                    //bottom上边线
+                    getLeft(AREA_B), getTop(AREA_B),
+                    getRight(AREA_B), getTop(AREA_B),
+                    //right左边线
+                    getLeft(AREA_R), getTop(AREA_R),
+                    getLeft(AREA_R), getBottom(AREA_R)
+                ), paint
+            )
 
-        drawTextInCenter(canvas, "left", getCenterX(AREA_L), getCenterY(AREA_L), paint)
-        drawTextInCenter(canvas, "top", getCenterX(AREA_T), getCenterY(AREA_T), paint)
-        drawTextInCenter(canvas, "center", getCenterX(AREA_C), getCenterY(AREA_C), paint)
-        drawTextInCenter(canvas, "right", getCenterX(AREA_R), getCenterY(AREA_R), paint)
-        drawTextInCenter(canvas, "bottom", getCenterX(AREA_B), getCenterY(AREA_B), paint)
+            drawTextInCenter(canvas, "left", getCenterX(AREA_L), getCenterY(AREA_L), paint)
+            drawTextInCenter(canvas, "top", getCenterX(AREA_T), getCenterY(AREA_T), paint)
+            drawTextInCenter(canvas, "center", getCenterX(AREA_C), getCenterY(AREA_C), paint)
+            drawTextInCenter(canvas, "right", getCenterX(AREA_R), getCenterY(AREA_R), paint)
+            drawTextInCenter(canvas, "bottom", getCenterX(AREA_B), getCenterY(AREA_B), paint)
+        }
     }
 
-    //<editor-fold desc="AreaArray解析方法">
-    private fun getLeft(@Area area: Int) = areaArray!![area * 4 + 0]
-    private fun getTop(@Area area: Int) = areaArray!![area * 4 + 1]
-    private fun getRight(@Area area: Int) = areaArray!![area * 4 + 2]
-    private fun getBottom(@Area area: Int) = areaArray!![area * 4 + 3]
-    private fun getWidth(@Area area: Int) = getRight(area) - getLeft(area)
-    private fun getHeight(@Area area: Int) = getBottom(area) - getTop(area)
-    private fun getCenterX(@Area area: Int) = getWidth(area) / 2f + getLeft(area)
-    private fun getCenterY(@Area area: Int) = getHeight(area) / 2f + getTop(area)
-    //</editor-fold>
 
     private fun drawTextInCenter(canvas: Canvas, text: String, cx: Float, cy: Float, paint: Paint) {
         val textWidth = paint.measureText(text)
@@ -272,7 +268,7 @@ class BookPageStructureView @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 performClick()
                 pointClick.reset(event.x, event.y)
-                pointStart.reset(event.x, event.y)
+                pointStart.reset(pointClick)
             }
             MotionEvent.ACTION_MOVE -> {
                 pointStart.reset(event.x, event.y)
