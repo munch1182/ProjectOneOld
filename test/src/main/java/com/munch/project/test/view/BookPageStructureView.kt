@@ -254,16 +254,36 @@ class BookPageStructureView @JvmOverloads constructor(
 
         canvas.drawLine(g1X, g1Y, g2X, g2Y, linePaint())
 
-        /*pathFlip.reset()
-        pathFlip.moveTo(d2X, d2Y)
-        pathFlip.quadTo(g1X, g1Y, f1X, f1Y)
-        pathFlip.lineTo(aX, aY)
-        pathFlip.lineTo(f2X, f2Y)
-        pathFlip.quadTo(g2X, g2Y, e2X, e2Y)
-        pathFlip.lineTo(bX, bY)
-        pathFlip.close()
+        /*val kG1G2 = (g1Y - g2Y) / (g1X - g2X)
+        val aG1G2 = g1Y - kG1G2 * g1X
+        val h1X = (aG1G2 - aAD1) / (kAD1 - kG1G2)
+        val h1Y = kAD1 * h1X + aAD1
 
-        canvas.drawPath(pathFlip, paint)*/
+        drawPosText(canvas, "h1", h1X, h1Y)*/
+
+         /*if (showLine) {
+             return
+         }*/
+
+        pathContent.reset()
+        pathContent.moveTo(0f, 0f)
+        pathContent.lineTo( width.toFloat(),0f)
+        pathContent.lineTo(e2X, e2Y)
+        pathContent.quadTo(g2X, g2Y, f2X, f2Y)
+        pathContent.lineTo(aX, aY)
+        pathContent.lineTo(f1X, f1Y)
+        pathContent.quadTo(g1X, g1Y, d2X, d2Y)
+        pathContent.lineTo(0f, height.toFloat())
+        pathContent.close()
+
+        canvas.drawPath(pathContent, pagePaint())
+    }
+
+    private var showLine = true
+
+    fun sowLine(show: Boolean = true) {
+        this.showLine = show
+        invalidate()
     }
 
     /**
@@ -346,6 +366,12 @@ class BookPageStructureView @JvmOverloads constructor(
     private fun textPaint(): Paint {
         paint.color = Color.RED
         paint.strokeWidth = 3f
+        paint.pathEffect = null
+        return paint
+    }
+
+    private fun pagePaint(): Paint {
+        paint.color = Color.GREEN
         paint.pathEffect = null
         return paint
     }
