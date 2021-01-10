@@ -9,6 +9,7 @@ import androidx.annotation.IntDef
 import com.munch.lib.Point
 import com.munch.lib.helper.RectArrayHelper
 import kotlin.math.absoluteValue
+import kotlin.math.pow
 
 /**
  * Create by munch1182 on 2021/1/9 15:02.
@@ -30,7 +31,7 @@ class BookPageStructureView @JvmOverloads constructor(
     private val pointCache = Point()
     private var w = 0f
     private var h = 0f
-    private val dashPathEffect = DashPathEffect(floatArrayOf(5f, 5f), 0f)
+    private val dashPathEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)
     private val rectHelper = RectArrayHelper()
 
     override fun onDraw(canvas: Canvas?) {
@@ -47,11 +48,13 @@ class BookPageStructureView @JvmOverloads constructor(
 
     companion object {
 
-        const val AREA_B = 0
+        const val AREA_B_R = 0
         const val AREA_R = 1
-        const val AREA_T = 2
+        const val AREA_T_R = 2
         const val AREA_L = 3
         const val AREA_C = 4
+        const val AREA_T_L = 5
+        const val AREA_B_L = 6
     }
 
     private fun measureArea() {
@@ -61,11 +64,13 @@ class BookPageStructureView @JvmOverloads constructor(
         rectHelper.setArray(
             arrayListOf(
                 //l、t、r、b
-                w, h * 2f, width.toFloat(), height.toFloat(),//bottom
+                width.toFloat() / 2f, h * 2f, width.toFloat(), height.toFloat(),//bottom_right
                 w * 2f, h, width.toFloat(), h * 2f,//right
-                w, 0f, width.toFloat(), h,//top
-                0f, 0f, w, height.toFloat(),//left
+                width.toFloat() / 2f, 0f, width.toFloat(), h,//top_right
+                0f, h, w, h * 2f,//left
                 w, h, w * 2f, h * 2f,//center
+                0f, 0f, width.toFloat() / 2f, h,//top_left
+                0f, h * 2f, width.toFloat() / 2f, height.toFloat(),//bottom_left
             )
         )
     }
@@ -79,24 +84,31 @@ class BookPageStructureView @JvmOverloads constructor(
      */
     private fun getEndPointInArea(point: Point): Point? {
         rectHelper.run {
-            when {
-                //left
-                point.x in 0f..w -> {
-                    pointCache.reset(getLeft(AREA_L), getBottom(AREA_L))
-                }
-                //top
-                point.y in 0f..h -> {
-                    pointCache.reset(getRight(AREA_T), getTop(AREA_T))
-                }
-                //bottom
-                point.y in 2f * h..height.toFloat() -> {
-                    pointCache.reset(getRight(AREA_B), getBottom(AREA_B))
-                }
-                //center、right
-                else -> {
-                    return null
+            val ratioH = point.y / h
+            val disW = width.toFloat() / 2f
+            //top
+            if (ratioH < 1f) {
+                //top_left
+                if (point.x < disW) {
+                    pointCache.reset(getLeft(AREA_T_L), getTop(AREA_T_L))
+                    //top_right
+                } else {
+                    pointCache.reset(getRight(AREA_T_R), getTop(AREA_T_R))
                 }
             }
+            //bottom
+            else if (ratioH > 2f) {
+                //bottom_left
+                if (point.x < disW) {
+                    pointCache.reset(getLeft(AREA_B_L), getBottom(AREA_B_L))
+                    //bottom_right
+                } else {
+                    pointCache.reset(getRight(AREA_B_R), getBottom(AREA_B_R))
+                }
+            } else {
+                return null
+            }
+
         }
         return pointCache
     }
@@ -104,34 +116,42 @@ class BookPageStructureView @JvmOverloads constructor(
     private fun drawArea(canvas: Canvas) {
         paint.color = Color.GRAY
         paint.pathEffect = dashPathEffect
+        paint.strokeWidth = 1f
         rectHelper.run {
             canvas.drawLines(
                 floatArrayOf(
-                    //left右边线
-                    getRight(AREA_L), getTop(AREA_L),
-                    getRight(AREA_L), getBottom(AREA_L),
-                    //top下边线
-                    getLeft(AREA_T), getBottom(AREA_T),
-                    getRight(AREA_T), getBottom(AREA_T),
-                    //bottom上边线
-                    getLeft(AREA_B), getTop(AREA_B),
-                    getRight(AREA_B), getTop(AREA_B),
-                    //right左边线
-                    getLeft(AREA_R), getTop(AREA_R),
-                    getLeft(AREA_R), getBottom(AREA_R)
+                    //top-left右边线
+                    getRight(AREA_T_L), getTop(AREA_T_L),
+                    getRight(AREA_T_L), getBottom(AREA_T_L),
+                    //left到right上边线
+                    getLeft(AREA_L), getTop(AREA_L),
+                    getRight(AREA_R), getTop(AREA_R),
+                    //left到right下边线
+                    getLeft(AREA_L), getBottom(AREA_L),
+                    getRight(AREA_R), getBottom(AREA_R),
+                    //bottom-left右边线
+                    getRight(AREA_B_L), getTop(AREA_B_L),
+                    getRight(AREA_B_L), getBottom(AREA_B_L),
+                    //center左边线
+                    getLeft(AREA_C), getTop(AREA_C),
+                    getLeft(AREA_C), getBottom(AREA_C),
+                    //center右边线
+                    getRight(AREA_C), getTop(AREA_C),
+                    getRight(AREA_C), getBottom(AREA_C)
                 ), paint
             )
 
-            drawTextInCenter(canvas, "left", getCenterX(AREA_L), getCenterY(AREA_L), paint)
-            drawTextInCenter(canvas, "top", getCenterX(AREA_T), getCenterY(AREA_T), paint)
-            drawTextInCenter(canvas, "center", getCenterX(AREA_C), getCenterY(AREA_C), paint)
-            drawTextInCenter(canvas, "right", getCenterX(AREA_R), getCenterY(AREA_R), paint)
-            drawTextInCenter(canvas, "bottom", getCenterX(AREA_B), getCenterY(AREA_B), paint)
+            drawText(canvas, "left", getCenterX(AREA_L), getCenterY(AREA_L), paint)
+            drawText(canvas, "top-right", getCenterX(AREA_T_R), getCenterY(AREA_T_R), paint)
+            drawText(canvas, "top-left", getCenterX(AREA_T_L), getCenterY(AREA_T_L), paint)
+            drawText(canvas, "center", getCenterX(AREA_C), getCenterY(AREA_C), paint)
+            drawText(canvas, "right", getCenterX(AREA_R), getCenterY(AREA_R), paint)
+            drawText(canvas, "bottom-right", getCenterX(AREA_B_R), getCenterY(AREA_B_R), paint)
+            drawText(canvas, "bottom-left", getCenterX(AREA_B_L), getCenterY(AREA_B_L), paint)
         }
     }
 
-
-    private fun drawTextInCenter(canvas: Canvas, text: String, cx: Float, cy: Float, paint: Paint) {
+    private fun drawText(canvas: Canvas, text: String, cx: Float, cy: Float, paint: Paint) {
         val textWidth = paint.measureText(text)
         val fontMetrics = paint.fontMetrics
         val baseLineY = cy + (fontMetrics.bottom - fontMetrics.top) / 2 - fontMetrics.bottom
@@ -142,14 +162,9 @@ class BookPageStructureView @JvmOverloads constructor(
         if (!pointClick.isSet()) {
             return
         }
-        //点击点所在区域的订点t
+        //点击点所在区域的顶点
         val pointEnd = getEndPointInArea(pointClick) ?: return
         limitPointEnd(pointEnd)
-
-        val isRight = pointStart.x < pointEnd.x
-        val isTop = pointStart.y >= pointEnd.y
-        val widthF = width.toFloat()
-        val heightF = height.toFloat()
 
         //点击点a
         val aX = pointStart.x
@@ -159,63 +174,148 @@ class BookPageStructureView @JvmOverloads constructor(
         val bY = pointEnd.y
 
         canvas.drawLine(aX, aY, bX, bY, lineHelperPaint())
-        canvas.drawText("a", aX, aY, textPaint())
-        canvas.drawText(
-            "b",
-            if (isRight) bX - 30f else bX,
-            if (isTop) bY + 30f else bY,
-            textPaint()
-        )
+        drawPosText(canvas, "a", aX, aY)
+        drawPosText(canvas, "b", bX, bY)
 
         //点击点a与顶点b的中心点c
-        val cX = if (isRight) ((bX - aX) / 2f + aX) else ((aX - bX) / 2f)
-        val cY = if (isTop) ((aY - bY) / 2f) else ((bY - aY) / 2f + aY)
-        canvas.drawText("c", cX, cY, textPaint())
+        val c1X = getCenterVal(aX, bX)
+        val c1Y = getCenterVal(aY, bY)
+        //中心c在水平方向与边的垂直线
+        val c11X = c1X
+        val c11Y = bY
 
-        //中心点与底边垂直相交的点c1
-        paint.color = Color.GRAY
-        paint.pathEffect = dashPathEffect
-        val c1X = cX
-        val c1Y = if (isTop) 0f else heightF
-        canvas.drawLine(cX, cY, cX, c1Y, lineHelperPaint())
-        canvas.drawText("c1", c1X, if (isTop) c1Y + 30f else c1Y, textPaint())
+        canvas.drawLine(c1X, c1Y, c11X, c11Y, lineHelperPaint())
+        drawPosText(canvas, "c1", c1X, c1Y)
+        drawPosText(canvas, "c11", c11X, c11Y)
 
-        //获取点击点a与订单中线左侧点
-        val dis_c_c1 = posDis(c1Y, cY)
-        //通过欧几里德定理获取c1左侧的长度
-        //(c-c1)^2 = (d-c1)*(c1-b)
+        //根据中线点获取中垂线与边的交点
+        val deArray = getCenterLine(c1X, c1Y, bX, bY)
+        val d1X = deArray[0]
+        val d1Y = deArray[1]
+        val e1X = deArray[2]
+        val e1Y = deArray[3]
+        canvas.drawLine(d1X, d1Y, e1X, e1Y, linePaint())
+        drawPosText(canvas, "d1", d1X, d1Y)
+        drawPosText(canvas, "e1", e1X, e1Y)
+        //同理
+        val c2X = getCenterVal(aX, c1X)
+        val c2Y = getCenterVal(aY, c1Y)
 
-        val dis_c1_b = if (isRight) widthF - c1X else c1X
-        val dis_d_c1 = dis_c_c1 * dis_c_c1 / dis_c1_b
-        val dX = if (isRight) c1X - dis_d_c1 else c1X + dis_d_c1
-        val dy = if (isTop) 0f else heightF
-        canvas.drawLine(cX, cY, dX, dy, linePaint())
-        canvas.drawText("d", dX, if (isTop) dy + 40f else dy, textPaint())
-        //中线右侧点e
-        //同理获取e
-        val dis_c2_e = dis_c1_b * dis_c1_b / dis_c_c1
+        val de2Array = getCenterLine(c2X, c2Y, bX, bY)
+        val d2X = de2Array[0]
+        val d2Y = de2Array[1]
+        val e2X = de2Array[2]
+        val e2Y = de2Array[3]
+        canvas.drawLine(d2X, d2Y, e2X, e2Y, linePaint())
+        drawPosText(canvas, "d2", d2X, d2Y)
+        drawPosText(canvas, "e2", e2X, e2Y)
 
-        val eX = if (isRight) widthF else 0f
-        val eY = if (isTop) cY + dis_c2_e else cY - dis_c2_e
-        canvas.drawLine(cX, cY, eX, eY, linePaint())
-        canvas.drawText("e", if (isRight) eX - 20f else eX, eY, textPaint())
+        canvas.drawLine(aX, aY, d1X, d1Y, lineHelperPaint())
 
-        //点击点a与中线点c的中点
-        val fX = (if (isRight) aX else cX) + posDis(aX, cX) / 2f
-        val fY = (if (isTop) cY else aY) + posDis(aY, cY) / 2f
-        canvas.drawText("f", fX, fY, textPaint())
+        //a-d1与d2-e2的交点f
 
-        //获取f平行d-e线与边线的交点g、h
-        //因为f是a-b的1/4处
-        val gX = if (isRight) widthF - posDis(dX, bX) * 3f / 2f else posDis(dX, bX) * 3f / 2f
-        val gY = if (isTop) 0f else heightF
-        val hX = if (isRight) widthF else 0f
-        val hY = if (isTop) posDis(eY, bY) * 3f / 2f else heightF - posDis(eY, bY) * 3f / 2f
-        canvas.drawLine(gX, gY, hX, hY, linePaint())
+        // y =  k * x + a
+        // y1 = k * x1 + a
+        // y2 = k * x2 + a
+        // k = (y1-y2)/(x1-x2)
+        // a = y1 - k*x1)
+        val kAD1 = (aY - d1Y) / (aX - d1X)
+        val aAD1 = aY - kAD1 * aX
+        //a-d1 : yAD1 = kAD1 * xAD1 + aAD1
+        val kD2E2 = (d2Y - e2Y) / (d2X - e2X)
+        val aD2E2 = d2Y - kD2E2 * d2X
+        //d2-e2 : yD2E2 = kD2E2 * xD2E2 + aD2E2
 
-        //a-d与g-h的两个相交点
+        //yD2E2 = yAD1 xD2E2 = xAD1 = fX
+        //kAD1 * xAD1 + aAD1  = kD2E2 * xD2E2 + aD2E2
+        //kAD1 * fX - kD2E2 * fx = aD2E2 - aAD1
+        // fx = (aD2E2 - aAD1)/(kAD1-kD2E2)
+        // fy = kAD1 * fx + aAD1
+        val f1X = (aD2E2 - aAD1) / (kAD1 - kD2E2)
+        val f1Y = kAD1 * f1X + aAD1
 
+        drawPosText(canvas, "f1", f1X, f1Y)
+
+        //a-e1 d2-e2
+        val kAE1 = (aY - e1Y) / (aX - e1X)
+        val aAE1 = aY - kAE1 * aX
+        val f2X = (aD2E2 - aAE1) / (kAE1 - kD2E2)
+        val f2Y = kAE1 * f2X + aAE1
+        drawPosText(canvas, "f2", f2X, f2Y)
+
+        //获取d2、f1、d1的中心点
+        val g1X = getCenterVal(d2X, getCenterVal(f1X, d1X))
+        val g1Y = getCenterVal(d2Y, getCenterVal(f1Y, d1Y))
+        drawPosText(canvas, "g1", g1X, g1Y)
+
+        val g2X = getCenterVal(e2X, getCenterVal(f2X, e1X))
+        val g2Y = getCenterVal(e2Y, getCenterVal(f2Y, e1Y))
+        drawPosText(canvas, "g2", g2X, g2Y)
+
+        canvas.drawLine(g1X, g1Y, g2X, g2Y, linePaint())
+
+        /*pathFlip.reset()
+        pathFlip.moveTo(d2X, d2Y)
+        pathFlip.quadTo(g1X, g1Y, f1X, f1Y)
+        pathFlip.lineTo(aX, aY)
+        pathFlip.lineTo(f2X, f2Y)
+        pathFlip.quadTo(g2X, g2Y, e2X, e2Y)
+        pathFlip.lineTo(bX, bY)
+        pathFlip.close()
+
+        canvas.drawPath(pathFlip, paint)*/
     }
+
+    /**
+     * @param cX 中线点坐标
+     * @param bX 顶点坐标
+     */
+    private fun getCenterLine(
+        cX: Float,
+        cY: Float,
+        bX: Float,
+        bY: Float
+    ): FloatArray {
+        val c11X = cX
+        val c11Y = bY
+        val c12X = bX
+        val c12Y = cY
+        //通过欧几里德定理获取c1-d长度
+        val disC1ToB = getDis(cY, c11Y).pow(2) / getDis(c11X, bX)
+        val dX = getPosByDis(c11X, disC1ToB, bX)
+        val dY = bY
+
+        //同理获取c2-e的长度
+        val disC2ToE = getDis(cX, c12X).pow(2) / getDis(c12Y, bY)
+        val eX = bX
+        val eY = getPosByDis(c12Y, disC2ToE, bY)
+
+        return floatArrayOf(dX, dY, eX, eY)
+    }
+
+    private fun getPosByDis(pos: Float, dis: Float, pos2: Float): Float {
+        return if (pos > pos2) pos + dis else pos - dis
+    }
+
+    private fun getDis(x1: Float, x2: Float): Float {
+        return (x1.absoluteValue - x2.absoluteValue).absoluteValue
+    }
+
+    private fun getCenterVal(v1: Float, v2: Float): Float {
+        return if (v1 < v2) (v2 - v1) / 2f + v1 else v2 + (v1 - v2) / 2f
+    }
+
+    private fun drawPosText(canvas: Canvas, text: String, cx: Float, cy: Float) {
+        val posPaint = posPaint()
+        val strWidth = posPaint.measureText(text)
+        canvas.drawText(
+            text,
+            if (cx == width.toFloat()) cx - strWidth else cx,
+            if (cy == 0f) cy + 30f else cy,
+            posPaint
+        )
+    }
+
 
     /**
      * 传入两个点，获取垂直平分线与相应两边的交点
@@ -231,24 +331,28 @@ class BookPageStructureView @JvmOverloads constructor(
     //<editor-fold desc="改变画笔">
     private fun posPaint(): Paint {
         paint.color = Color.RED
+        paint.strokeWidth = 3f
         paint.pathEffect = null
         return paint
     }
 
     private fun linePaint(): Paint {
         paint.color = Color.GREEN
+        paint.strokeWidth = 3f
         paint.pathEffect = dashPathEffect
         return paint
     }
 
     private fun textPaint(): Paint {
         paint.color = Color.RED
+        paint.strokeWidth = 3f
         paint.pathEffect = null
         return paint
     }
 
     private fun lineHelperPaint(): Paint {
         paint.color = Color.GRAY
+        paint.strokeWidth = 3f
         paint.pathEffect = dashPathEffect
         return paint
     }
@@ -281,7 +385,7 @@ class BookPageStructureView @JvmOverloads constructor(
         return true
     }
 
-    @IntDef(AREA_B, AREA_R, AREA_T, AREA_L, AREA_C)
+    @IntDef(AREA_B_R, AREA_R, AREA_T_R, AREA_L, AREA_C)
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.SOURCE)
     annotation class Area
