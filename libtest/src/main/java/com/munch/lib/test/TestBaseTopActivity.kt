@@ -1,15 +1,14 @@
 package com.munch.lib.test
 
 import android.graphics.Color
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.LinearLayout
+import androidx.annotation.ColorInt
+import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import com.google.android.material.appbar.MaterialToolbar
-import com.munch.lib.helper.getBackIcon
-import com.munch.lib.helper.getBackIconWhite
+import com.munch.lib.helper.*
 
 /**
  * 给其子类添加了一个[R.layout.activity_base_top]，不需要则不要继承此类，因为重写了[setContentView]
@@ -22,14 +21,6 @@ open class TestBaseTopActivity : BaseActivity() {
 
     private val topContainer by lazy { findViewById<ViewGroup>(R.id.top_container) }
     private val toolbar by lazy { findViewById<MaterialToolbar>(R.id.top_tool_bar) }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        super.setContentView(R.layout.activity_base_top)
-        title = this::class.java.simpleName.replace("Test", "").replace("Activity", "")
-
-        showBack(!notShowBack())
-    }
 
     open fun notShowBack() = false
 
@@ -49,22 +40,70 @@ open class TestBaseTopActivity : BaseActivity() {
 
     override fun setTitle(title: CharSequence?) {
         /*super.setTitle(title)*/
+        setTitle(title, getColorCompat(R.color.colorPrimary))
+    }
+
+    open fun hideTitle() {
+        (toolbar.parent as View).visibility = View.GONE
+    }
+
+    open fun showTitle() {
+        (toolbar.parent as View).visibility = View.VISIBLE
+    }
+
+    /**
+     * 从设计上来说，toolbar的颜色设置应该固定在xml文件或者colorPrimary属性中
+     *
+     * 对于需要设置半透明或者透明之类的非本样式的设计，应该另起页面
+     *
+     * 对于开发项目来说，更建议自定义view而不是直接使用toolbar
+     */
+    open fun setTitle(title: CharSequence?, @ColorInt color: Int) {
         toolbar.title = title
         toolbar.setTitleTextColor(Color.WHITE)
+        toolbar.setBackgroundColor(color)
     }
 
-    override fun setTitle(titleId: Int) {
+    open fun setTitle(@StringRes titleId: Int, @ColorInt color: Int) {
+        setTitle(getString(titleId), color)
+    }
+
+    override fun setTitle(@StringRes titleId: Int) {
         /*super.setTitle(titleId)*/
-        title = getString(titleId)
+        setTitle(titleId, getColorCompat(R.color.colorPrimary))
     }
 
-    override fun setContentView(layoutResID: Int) {
+    override fun setContentView(@LayoutRes layoutResID: Int) {
         /*super.setContentView(layoutResID)*/
-        setContentView(LayoutInflater.from(this).inflate(layoutResID, topContainer, false))
+        setContentView(layoutResID, true)
+    }
+
+    open fun setContentView(@LayoutRes layoutResID: Int, fitTop: Boolean = true) {
+        setContentView(View.inflate(this, layoutResID, null), fitTop)
+    }
+
+    open fun setContentView(view: View?, fitTop: Boolean = true) {
+        val contentView = View.inflate(this, R.layout.activity_base_top, null) as ViewGroup
+        contentView.addView(view?.apply {
+            if (fitTop) {
+                val actionBarSize = PhoneHelper.getActionBarSize().takeIf { it != -1 } ?: 0
+                setMargin(
+                    0, actionBarSize, 0, 0, true,
+                    FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT
+                    )
+                )
+            }
+        })
+        super.setContentView(contentView)
+
+        title = this::class.java.simpleName.replace("Test", "").replace("Activity", "")
+        showBack(!notShowBack())
     }
 
     override fun setContentView(view: View?) {
         /*super.setContentView(view)*/
-        topContainer.addView(view)
+        setContentView(view, true)
     }
 }

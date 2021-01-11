@@ -10,9 +10,19 @@ import android.view.WindowManager
 import com.munch.lib.BaseApp
 
 /**
+ * 此类的数据可以缓存
+ *
+ * 返回值自行需要判断是否为-1
+ *
  * Create by munch1182 on 2020/12/18 10:25.
  */
 object PhoneHelper {
+
+    private var screenWidthHeightReal: Size? = null
+    private var screenWidthHeight: Size? = null
+    private var statusBarHeight = -1
+    private var navigationBarHeight = -1
+    private var actionBarSize = -1
 
     fun getBrand(): String? = Build.BRAND
 
@@ -23,6 +33,9 @@ object PhoneHelper {
      */
     @Suppress("DEPRECATION")
     fun getScreenWidthHeightReal(context: Context = BaseApp.getInstance()): Size? {
+        if (screenWidthHeightReal != null) {
+            return screenWidthHeightReal
+        }
         val point = Point()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             context.display?.getRealSize(point)
@@ -31,7 +44,8 @@ object PhoneHelper {
                 context.getSystemService(Context.WINDOW_SERVICE) as WindowManager? ?: return null
             manager.defaultDisplay.getRealSize(point)
         }
-        return Size(point.x, point.y)
+        screenWidthHeightReal = Size(point.x, point.y)
+        return screenWidthHeightReal
     }
 
     /**
@@ -39,6 +53,9 @@ object PhoneHelper {
      */
     @Suppress("DEPRECATION")
     fun getScreenWidthHeight(context: Context = BaseApp.getInstance()): Size? {
+        if (screenWidthHeight != null) {
+            return screenWidthHeight
+        }
         val manager =
             context.getSystemService(Context.WINDOW_SERVICE) as WindowManager? ?: return null
         val width: Int
@@ -53,11 +70,15 @@ object PhoneHelper {
             width = metrics.widthPixels
             height = metrics.heightPixels
         }
-        return Size(width, height)
+        screenWidthHeight = Size(width, height)
+        return screenWidthHeight
     }
 
-    fun getStatusBarHeight(context: Context = BaseApp.getInstance()): Int? {
-        return getResById(context, "status_bar_height")
+    fun getStatusBarHeight(context: Context = BaseApp.getInstance()): Int {
+        if (statusBarHeight == -1) {
+            statusBarHeight = getResById(context, "status_bar_height") ?: -1
+        }
+        return statusBarHeight
     }
 
     private fun getResById(context: Context, name: String): Int? {
@@ -70,8 +91,18 @@ object PhoneHelper {
         }
     }
 
-    fun getNavigationBarHeight(context: Context = BaseApp.getInstance()): Int? {
-        return getResById(context, "navigation_bar_height")
+    fun getNavigationBarHeight(context: Context = BaseApp.getInstance()): Int {
+        if (navigationBarHeight == -1) {
+            navigationBarHeight = getResById(context, "navigation_bar_height") ?: -1
+        }
+        return navigationBarHeight
+    }
+
+    fun getActionBarSize(context: Context = BaseApp.getInstance()): Int {
+        if (actionBarSize == -1) {
+            actionBarSize = context.getActionBarSize()
+        }
+        return actionBarSize
     }
 
 }

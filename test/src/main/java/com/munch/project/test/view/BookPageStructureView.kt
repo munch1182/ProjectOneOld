@@ -32,6 +32,7 @@ class BookPageStructureView @JvmOverloads constructor(
     private var w = 0f
     private var h = 0f
     private val dashPathEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)
+    private val xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)
     private val rectHelper = RectArrayHelper()
 
     override fun onDraw(canvas: Canvas?) {
@@ -173,10 +174,6 @@ class BookPageStructureView @JvmOverloads constructor(
         val bX = pointEnd.x
         val bY = pointEnd.y
 
-        canvas.drawLine(aX, aY, bX, bY, lineHelperPaint())
-        drawPosText(canvas, "a", aX, aY)
-        drawPosText(canvas, "b", bX, bY)
-
         //点击点a与顶点b的中心点c
         val c1X = getCenterVal(aX, bX)
         val c1Y = getCenterVal(aY, bY)
@@ -184,19 +181,13 @@ class BookPageStructureView @JvmOverloads constructor(
         val c11X = c1X
         val c11Y = bY
 
-        canvas.drawLine(c1X, c1Y, c11X, c11Y, lineHelperPaint())
-        drawPosText(canvas, "c1", c1X, c1Y)
-        drawPosText(canvas, "c11", c11X, c11Y)
-
         //根据中线点获取中垂线与边的交点
         val deArray = getCenterLine(c1X, c1Y, bX, bY)
         val d1X = deArray[0]
         val d1Y = deArray[1]
         val e1X = deArray[2]
         val e1Y = deArray[3]
-        canvas.drawLine(d1X, d1Y, e1X, e1Y, linePaint())
-        drawPosText(canvas, "d1", d1X, d1Y)
-        drawPosText(canvas, "e1", e1X, e1Y)
+
         //同理
         val c2X = getCenterVal(aX, c1X)
         val c2Y = getCenterVal(aY, c1Y)
@@ -206,11 +197,7 @@ class BookPageStructureView @JvmOverloads constructor(
         val d2Y = de2Array[1]
         val e2X = de2Array[2]
         val e2Y = de2Array[3]
-        canvas.drawLine(d2X, d2Y, e2X, e2Y, linePaint())
-        drawPosText(canvas, "d2", d2X, d2Y)
-        drawPosText(canvas, "e2", e2X, e2Y)
 
-        canvas.drawLine(aX, aY, d1X, d1Y, lineHelperPaint())
 
         //a-d1与d2-e2的交点f
 
@@ -234,49 +221,72 @@ class BookPageStructureView @JvmOverloads constructor(
         val f1X = (aD2E2 - aAD1) / (kAD1 - kD2E2)
         val f1Y = kAD1 * f1X + aAD1
 
-        drawPosText(canvas, "f1", f1X, f1Y)
-
         //a-e1 d2-e2
         val kAE1 = (aY - e1Y) / (aX - e1X)
         val aAE1 = aY - kAE1 * aX
         val f2X = (aD2E2 - aAE1) / (kAE1 - kD2E2)
         val f2Y = kAE1 * f2X + aAE1
-        drawPosText(canvas, "f2", f2X, f2Y)
 
-        //获取d2、f1、d1的中心点
-        val g1X = getCenterVal(d2X, getCenterVal(f1X, d1X))
-        val g1Y = getCenterVal(d2Y, getCenterVal(f1Y, d1Y))
-        drawPosText(canvas, "g1", g1X, g1Y)
-
-        val g2X = getCenterVal(e2X, getCenterVal(f2X, e1X))
-        val g2Y = getCenterVal(e2Y, getCenterVal(f2Y, e1Y))
-        drawPosText(canvas, "g2", g2X, g2Y)
-
-        canvas.drawLine(g1X, g1Y, g2X, g2Y, linePaint())
-
-        /*val kG1G2 = (g1Y - g2Y) / (g1X - g2X)
-        val aG1G2 = g1Y - kG1G2 * g1X
-        val h1X = (aG1G2 - aAD1) / (kAD1 - kG1G2)
-        val h1Y = kAD1 * h1X + aAD1
-
-        drawPosText(canvas, "h1", h1X, h1Y)*/
-
-         /*if (showLine) {
-             return
-         }*/
+        /*if (showLine) {
+            return
+        }*/
 
         pathContent.reset()
         pathContent.moveTo(0f, 0f)
-        pathContent.lineTo( width.toFloat(),0f)
+        pathContent.lineTo(width.toFloat(), 0f)
         pathContent.lineTo(e2X, e2Y)
-        pathContent.quadTo(g2X, g2Y, f2X, f2Y)
+        pathContent.quadTo(e1X, e1Y, f2X, f2Y)
         pathContent.lineTo(aX, aY)
         pathContent.lineTo(f1X, f1Y)
-        pathContent.quadTo(g1X, g1Y, d2X, d2Y)
+        pathContent.quadTo(d1X, d1Y, d2X, d2Y)
         pathContent.lineTo(0f, height.toFloat())
         pathContent.close()
 
         canvas.drawPath(pathContent, pagePaint())
+
+        //根据二阶贝塞尔公式获取中点g
+        // B(t) = (1-t)^2*P0 + 2*t*(1-t)*P1+t^2*P2
+        val t = 0.5f
+        val g2X = (1f - t).pow(2) * e2X + 2f * t * (1f - t) * e1X + t.pow(2) * f2X
+        val g2Y = (1f - t).pow(2) * e2Y + 2f * t * (1f - t) * e1Y + t.pow(2) * f2Y
+
+        val g1X = (1f - t).pow(2) * f1X + 2f * t * (1f - t) * d1X + t.pow(2) * d2X
+        val g1Y = (1f - t).pow(2) * f1Y + 2f * t * (1f - t) * d1Y + t.pow(2) * d2Y
+
+        //连接当前页翻开部分的背面并利用paint的xfermode来正确显示
+        pathContent.reset()
+        pathContent.moveTo(aX, aY)
+        pathContent.lineTo(f2X, f2Y)
+        pathContent.lineTo(g2X, g2Y)
+        pathContent.lineTo(g1X, g1Y)
+        pathContent.lineTo(f1X, f1Y)
+        pathContent.close()
+        canvas.drawPath(pathContent, pageBackPaint())
+
+
+        canvas.drawLine(aX, aY, bX, bY, lineHelperPaint())
+        drawPosText(canvas, "a", aX, aY)
+        drawPosText(canvas, "b", bX, bY)
+
+        canvas.drawLine(c1X, c1Y, c11X, c11Y, lineHelperPaint())
+        drawPosText(canvas, "c1", c1X, c1Y)
+        drawPosText(canvas, "c11", c11X, c11Y)
+
+        canvas.drawLine(d1X, d1Y, e1X, e1Y, linePaint())
+        drawPosText(canvas, "d1", d1X, d1Y)
+        drawPosText(canvas, "e1", e1X, e1Y)
+
+        canvas.drawLine(d2X, d2Y, e2X, e2Y, linePaint())
+        drawPosText(canvas, "d2", d2X, d2Y)
+        drawPosText(canvas, "e2", e2X, e2Y)
+
+        canvas.drawLine(aX, aY, d1X, d1Y, lineHelperPaint())
+
+        drawPosText(canvas, "f1", f1X, f1Y)
+        drawPosText(canvas, "f2", f2X, f2Y)
+        drawPosText(canvas, "g1", g1X, g1Y)
+        drawPosText(canvas, "g2", g2X, g2Y)
+        canvas.drawLine(g1X, g1Y, g2X, g2Y, linePaint())
     }
 
     private var showLine = true
@@ -353,13 +363,15 @@ class BookPageStructureView @JvmOverloads constructor(
         paint.color = Color.RED
         paint.strokeWidth = 3f
         paint.pathEffect = null
+        paint.xfermode = null
         return paint
     }
 
     private fun linePaint(): Paint {
-        paint.color = Color.GREEN
+        paint.color = Color.MAGENTA
         paint.strokeWidth = 3f
         paint.pathEffect = dashPathEffect
+        paint.xfermode = null
         return paint
     }
 
@@ -367,18 +379,28 @@ class BookPageStructureView @JvmOverloads constructor(
         paint.color = Color.RED
         paint.strokeWidth = 3f
         paint.pathEffect = null
+        paint.xfermode = null
+        return paint
+    }
+
+    private fun pageBackPaint(): Paint {
+        paint.pathEffect = null
+        paint.xfermode = xfermode
+        paint.color = Color.YELLOW
         return paint
     }
 
     private fun pagePaint(): Paint {
         paint.color = Color.GREEN
         paint.pathEffect = null
+        paint.xfermode = null
         return paint
     }
 
     private fun lineHelperPaint(): Paint {
         paint.color = Color.GRAY
         paint.strokeWidth = 3f
+        paint.xfermode = null
         paint.pathEffect = dashPathEffect
         return paint
     }

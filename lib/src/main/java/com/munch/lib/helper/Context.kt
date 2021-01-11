@@ -113,6 +113,11 @@ fun Context.getAttrFromTheme(attrId: Int): TypedValue {
     return typedValue
 }
 
+fun Context.getActionBarSize() = TypedValue.complexToDimensionPixelSize(
+    getAttrFromTheme(android.R.attr.actionBarSize).data,
+    resources.displayMetrics
+)
+
 @ColorInt
 fun Context.getColorCompat(colorId: Int): Int {
     return ContextCompat.getColor(this, colorId)

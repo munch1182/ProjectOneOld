@@ -38,19 +38,41 @@ fun ViewGroup.clickItem(listener: View.OnClickListener, vararg clazz: Class<out 
     }
 }
 
-fun View.setMargin(margin: Int) = setMargin(margin, margin, margin, margin)
-fun View.setMargin(lr: Int, tb: Int) = setMargin(lr, tb, lr, tb)
+fun View.setMargin(margin: Int) = setMargin(margin, margin, margin, margin, false)
+fun View.setMargin(lr: Int, tb: Int) = setMargin(lr, tb, lr, tb, false)
+fun View.setMargin(l: Int, t: Int, r: Int, b: Int) = setMargin(l, t, r, b, false)
+fun View.addMargin(margin: Int) = setMargin(margin, margin, margin, margin, true)
+fun View.addMargin(lr: Int, tb: Int) = setMargin(lr, tb, lr, tb, true)
+fun View.addMargin(l: Int, t: Int, r: Int, b: Int) = setMargin(l, t, r, b, true)
 
-fun View.setMargin(l: Int, t: Int, r: Int, b: Int) {
+/**
+ * @param defParams 如果view的[View.getLayoutParams]为null则传入的初始化LayoutParams
+ * 如不传入默认为[ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)]
+ */
+fun View.setMargin(
+    l: Int,
+    t: Int,
+    r: Int,
+    b: Int,
+    add: Boolean,
+    defParams: ViewGroup.MarginLayoutParams? = null
+) {
     when (val params = this.layoutParams) {
         null -> {
-            this.layoutParams = ViewGroup.MarginLayoutParams(
+            this.layoutParams = (defParams ?: ViewGroup.MarginLayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply { setMargins(l, t, r, b) }
+            )).apply {
+                setMargins(l, t, r, b)
+            }
         }
         is ViewGroup.MarginLayoutParams -> {
-            params.setMargins(l, t, r, b)
+            params.setMargins(
+                l + if (add) params.marginStart else 0,
+                t + if (add) params.topMargin else 0,
+                r + if (add) params.marginEnd else 0,
+                b + if (add) params.bottomMargin else 0
+            )
         }
         else -> {
             this.layoutParams =
