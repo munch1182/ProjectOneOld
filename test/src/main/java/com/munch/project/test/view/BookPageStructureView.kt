@@ -31,20 +31,27 @@ class BookPageStructureView @JvmOverloads constructor(
     private val pointCache = Point()
     private var w = 0f
     private var h = 0f
-    private val dashPathEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)
-    private val xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)
+    private val dashPathEffect by lazy { DashPathEffect(floatArrayOf(10f, 5f), 0f) }
+    private val aTopXfermode by lazy { PorterDuffXfermode(PorterDuff.Mode.DST_ATOP) }
     private val rectHelper = RectArrayHelper()
+    private lateinit var bitmapHolder: Bitmap
+    private lateinit var bitmapCanvas: Canvas
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas ?: return
-        drawArea(canvas)
-        drawFlipPath(canvas)
+
+        drawFlipPath(bitmapCanvas)
+        drawArea(bitmapCanvas)
+
+        canvas.drawBitmap(bitmapHolder, 0f, 0f, paint)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         measureArea()
+        bitmapHolder = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        bitmapCanvas = Canvas(bitmapHolder)
     }
 
     companion object {
@@ -167,6 +174,7 @@ class BookPageStructureView @JvmOverloads constructor(
         val pointEnd = getEndPointInArea(pointClick) ?: return
         limitPointEnd(pointEnd)
 
+        //<editor-fold desc="计算结构点">
         //点击点a
         val aX = pointStart.x
         val aY = pointStart.y
@@ -227,23 +235,6 @@ class BookPageStructureView @JvmOverloads constructor(
         val f2X = (aD2E2 - aAE1) / (kAE1 - kD2E2)
         val f2Y = kAE1 * f2X + aAE1
 
-        /*if (showLine) {
-            return
-        }*/
-
-        pathContent.reset()
-        pathContent.moveTo(0f, 0f)
-        pathContent.lineTo(width.toFloat(), 0f)
-        pathContent.lineTo(e2X, e2Y)
-        pathContent.quadTo(e1X, e1Y, f2X, f2Y)
-        pathContent.lineTo(aX, aY)
-        pathContent.lineTo(f1X, f1Y)
-        pathContent.quadTo(d1X, d1Y, d2X, d2Y)
-        pathContent.lineTo(0f, height.toFloat())
-        pathContent.close()
-
-        canvas.drawPath(pathContent, pagePaint())
-
         //根据二阶贝塞尔公式获取中点g
         // B(t) = (1-t)^2*P0 + 2*t*(1-t)*P1+t^2*P2
         val t = 0.5f
@@ -252,18 +243,38 @@ class BookPageStructureView @JvmOverloads constructor(
 
         val g1X = (1f - t).pow(2) * f1X + 2f * t * (1f - t) * d1X + t.pow(2) * d2X
         val g1Y = (1f - t).pow(2) * f1Y + 2f * t * (1f - t) * d1Y + t.pow(2) * d2Y
+        //</editor-fold>
 
-        //连接当前页翻开部分的背面并利用paint的xfermode来正确显示
+        //<editor-fold desc="绘制背景">
+        canvas.drawColor(Color.GREEN)
+        //</editor-fold>
+
+        //<editor-fold desc="绘制翻页效果区域">
+        pathContent.reset()
+        pathContent.lineTo(e2X, e2Y)
+        pathContent.quadTo(e1X, e1Y, f2X, f2Y)
+        pathContent.lineTo(aX, aY)
+        pathContent.lineTo(f1X, f1Y)
+        pathContent.quadTo(d1X, d1Y, d2X, d2Y)
+        pathContent.lineTo(bX, bY)
+        pathContent.lineTo(e2X, e2Y)
+        pathContent.close()
+        canvas.drawPath(pathContent, pageNextPaint())
+        //</editor-fold>
+
+        //<editor-fold desc="绘制翻页背面效果">
         pathContent.reset()
         pathContent.moveTo(aX, aY)
-        pathContent.lineTo(f2X, f2Y)
-        pathContent.lineTo(g2X, g2Y)
-        pathContent.lineTo(g1X, g1Y)
         pathContent.lineTo(f1X, f1Y)
+        pathContent.lineTo(g1X, g1Y)
+        pathContent.lineTo(g2X, g2Y)
+        pathContent.lineTo(f2X, f2Y)
         pathContent.close()
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
         canvas.drawPath(pathContent, pageBackPaint())
-
-
+        paint.xfermode = null
+        //</editor-fold>
+        //<editor-fold desc="绘制结构">
         canvas.drawLine(aX, aY, bX, bY, lineHelperPaint())
         drawPosText(canvas, "a", aX, aY)
         drawPosText(canvas, "b", bX, bY)
@@ -287,13 +298,7 @@ class BookPageStructureView @JvmOverloads constructor(
         drawPosText(canvas, "g1", g1X, g1Y)
         drawPosText(canvas, "g2", g2X, g2Y)
         canvas.drawLine(g1X, g1Y, g2X, g2Y, linePaint())
-    }
-
-    private var showLine = true
-
-    fun sowLine(show: Boolean = true) {
-        this.showLine = show
-        invalidate()
+        //</editor-fold>
     }
 
     /**
@@ -363,7 +368,6 @@ class BookPageStructureView @JvmOverloads constructor(
         paint.color = Color.RED
         paint.strokeWidth = 3f
         paint.pathEffect = null
-        paint.xfermode = null
         return paint
     }
 
@@ -371,7 +375,6 @@ class BookPageStructureView @JvmOverloads constructor(
         paint.color = Color.MAGENTA
         paint.strokeWidth = 3f
         paint.pathEffect = dashPathEffect
-        paint.xfermode = null
         return paint
     }
 
@@ -379,28 +382,30 @@ class BookPageStructureView @JvmOverloads constructor(
         paint.color = Color.RED
         paint.strokeWidth = 3f
         paint.pathEffect = null
-        paint.xfermode = null
         return paint
     }
 
     private fun pageBackPaint(): Paint {
         paint.pathEffect = null
-        paint.xfermode = xfermode
         paint.color = Color.YELLOW
+        return paint
+    }
+
+    private fun pageNextPaint(): Paint {
+        paint.color = Color.BLUE
+        paint.pathEffect = null
         return paint
     }
 
     private fun pagePaint(): Paint {
         paint.color = Color.GREEN
         paint.pathEffect = null
-        paint.xfermode = null
         return paint
     }
 
     private fun lineHelperPaint(): Paint {
         paint.color = Color.GRAY
         paint.strokeWidth = 3f
-        paint.xfermode = null
         paint.pathEffect = dashPathEffect
         return paint
     }
