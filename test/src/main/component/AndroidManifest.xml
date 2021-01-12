@@ -49,6 +49,7 @@
         <activity android:name=".file.TestFileActivity" />
         <activity android:name=".TestFileMainActivity" />
         <activity android:name=".view.TestBookPageViewActivity" />
+        <activity android:name=".view.PaintModeActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
