@@ -68,4 +68,6 @@ dependencies {
     api 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
     api rootProject.ext.dependencies['leakcanary']
+
+    api rootProject.ext.dependencies['startup']
 }

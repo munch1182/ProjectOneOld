@@ -29,7 +29,7 @@
         <activity android:name=".view.TestChartActivity" />
         <activity android:name=".file.TestFileActivity" />
         <activity android:name=".TestFileMainActivity" />
-        <activity android:name=".view.TestBookPageViewActivity"/>
+        <activity android:name=".view.TestBookPageViewActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -39,6 +39,16 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_xml" />
+        </provider>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="com.munch.project.test.switch.SwitchInitializer"
+                android:value="androidx.startup" />
         </provider>
     </application>
 

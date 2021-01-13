@@ -12,7 +12,7 @@ ext {
     //组件开关
     //true:作为单独app，false:作为lib
     //使用:
-    /*if (rootProject.ext.isAppOrLib['isTestComponent']) {
+    /*if (rootProject.ext.component['testRunAlone']) {
         apply plugin: 'com.android.application'
     } else {
         apply plugin: 'com.android.library'
