@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Scroller
 import androidx.annotation.IntDef
 import com.munch.lib.Point
 import com.munch.lib.helper.RectArrayHelper
@@ -24,9 +25,10 @@ class BookPageStructureView @JvmOverloads constructor(
         color = Color.RED
         textSize = 40f
     }
-    private val pointStart = Point()
-    private val pointClick = Point()
     private val pathContent = Path()
+    private val pointStart = Point()
+    private val pointEnd = Point()
+    private val pointClick = Point()
     private val pointCache = Point()
     private var w = 0f
     private var h = 0f
@@ -37,26 +39,30 @@ class BookPageStructureView @JvmOverloads constructor(
     private lateinit var bitmapHolder: Bitmap
     private lateinit var bitmapCanvas: Canvas
     private var drawStructure = true
-    private var minMoveDis2Next = 200f
+    /*暂时是1200*/
+    private var minMoveDis2Next = 1200f
+    private var backEndAnimDuration: Int = 1500
+    private val scroller by lazy { Scroller(getContext()) }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas ?: return
+        //清空画布
+        clearCanvas()
         if (pointStart.isSet()) {
-            //清空画布
-            clearCanvas()
-            //点击点所在区域的顶点
-            val pointEnd = getEndPointInArea(pointClick)
-            //四角
-            if (pointEnd != null) {
+            if (!scroller.computeScrollOffset()) {
+                //点击点所在区域的顶点
+                pointEnd.reset(getAndSetEndPointInArea(pointClick))
+            }
+            //统一了
+            if (pointEnd.isSet()) {
                 limitPointEnd(pointEnd)
-                drawFlipPathFromAngle(bitmapCanvas, pointEnd)
-                //左右
-            } else {
+                drawFlipPathFromAngle(bitmapCanvas)
+            } /*else {
                 pointCache.reset(pointStart)
                 limitPointEnd(pointCache)
                 drawFlipPathFromLR(bitmapCanvas, pointCache)
-            }
+            }*/
         }
         if (drawStructure) {
             drawArea(bitmapCanvas)
@@ -113,7 +119,7 @@ class BookPageStructureView @JvmOverloads constructor(
      * top是右上点
      * right、center返回为null
      */
-    private fun getEndPointInArea(point: Point): Point? {
+    private fun getAndSetEndPointInArea(point: Point): Point {
         rectHelper.run {
             val ratioH = point.y / h
             val disW = width.toFloat() / 2f
@@ -137,7 +143,15 @@ class BookPageStructureView @JvmOverloads constructor(
                     pointCache.reset(getRight(AREA_B_R), getBottom(AREA_B_R))
                 }
             } else {
-                return null
+                //直接将pointStart的y值置为view的高度，可以看起来像横翻
+                pointStart.reset(pointStart.x, height.toFloat() - 1f)
+                //左
+                if (point.x < w) {
+                    pointCache.reset(getLeft(AREA_B_L), getBottom(AREA_B_L))
+                    //右
+                } else if (point.x > 2f * w) {
+                    pointCache.reset(getRight(AREA_B_R), getBottom(AREA_B_R))
+                }
             }
 
         }
@@ -231,7 +245,7 @@ class BookPageStructureView @JvmOverloads constructor(
         drawPosText(canvas, "c", cX, topY)
     }
 
-    private fun drawFlipPathFromAngle(canvas: Canvas, pointEnd: Point) {
+    private fun drawFlipPathFromAngle(canvas: Canvas) {
 
         //<editor-fold desc="计算结构点">
         //点击点a
@@ -416,17 +430,6 @@ class BookPageStructureView @JvmOverloads constructor(
         )
     }
 
-    /**
-     * 传入两个点，获取垂直平分线与相应两边的交点
-     */
-    /*private fun getCenterXY(sX: Float, sY: Float, eX: Float, eY: Float): FloatArray {
-        val cX = sX + (eX - sX) / 2f
-        val cY = eY + (eY - sY) / 2f
-
-    }*/
-
-    private fun posDis(c1: Float, c2: Float) = (c1.absoluteValue - c2.absoluteValue).absoluteValue
-
     //<editor-fold desc="改变画笔">
     private fun posPaint(): Paint {
         paint.color = Color.RED
@@ -471,7 +474,6 @@ class BookPageStructureView @JvmOverloads constructor(
 
     //限制效果，防止第一次点击时过远显示效果夸张
     private fun limitPointEnd(pointEnd: Point) {
-
     }
 
     override fun performClick(): Boolean {
@@ -482,13 +484,16 @@ class BookPageStructureView @JvmOverloads constructor(
     private fun clickCenter() = pointClick.x in w..(2f * w) && pointClick.y in h..(2f * h)
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (scroller.computeScrollOffset()) {
+            return false
+        }
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 pointClick.reset(event.x, event.y)
                 if (clickCenter()) {
                     pointStart.reset()
                     performClick()
-                    //不重绘，交由外部处理
+                    //不重绘，交由外部(onClick())处理
                     return false
                 } else {
                     pointStart.reset(pointClick)
@@ -503,8 +508,6 @@ class BookPageStructureView @JvmOverloads constructor(
                 } else {
                     keepNowAnim()
                 }
-                pointClick.reset()
-                pointStart.reset()
             }
         }
         invalidate()
@@ -512,18 +515,38 @@ class BookPageStructureView @JvmOverloads constructor(
     }
 
     private fun keepNowAnim() {
-
+        scroller.startScroll(
+            pointStart.x.toInt(),
+            pointStart.y.toInt(),
+            pointEnd.x.toInt(),
+            pointEnd.y.toInt(),
+            backEndAnimDuration
+        )
     }
 
     private fun nextPageAnim() {
+    }
 
+    override fun computeScroll() {
+        super.computeScroll()
+        if (scroller.computeScrollOffset()) {
+            if ((scroller.currX < 0 || scroller.currX > width) && (scroller.currY < -1 || scroller.currY > height)) {
+                scroller.forceFinished(true)
+                pointClick.reset()
+                pointStart.reset()
+                pointEnd.reset()
+            } else {
+                pointStart.reset(scroller.currX.toFloat(), scroller.currY.toFloat())
+            }
+            postInvalidate()
+        }
     }
 
     /**
      * 根据滑动距离判断是否翻页
      */
     private fun isNextPage(event: MotionEvent): Boolean {
-        return event.x - pointClick.x > minMoveDis2Next
+        return (event.x.absoluteValue - pointClick.x.absoluteValue).absoluteValue > minMoveDis2Next
     }
 
     @IntDef(AREA_B_R, AREA_R, AREA_T_R, AREA_L, AREA_C)
