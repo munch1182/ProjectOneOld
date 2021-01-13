@@ -26,25 +26,48 @@ class BookPageStructureView @JvmOverloads constructor(
     }
     private val pointStart = Point()
     private val pointClick = Point()
-    private val pathFlip = Path()
     private val pathContent = Path()
     private val pointCache = Point()
     private var w = 0f
     private var h = 0f
     private val dashPathEffect by lazy { DashPathEffect(floatArrayOf(10f, 5f), 0f) }
-    private val aTopXfermode by lazy { PorterDuffXfermode(PorterDuff.Mode.DST_ATOP) }
+    private val xfermodeATop by lazy { PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP) }
+    private val xfermodeClear by lazy { PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
     private val rectHelper = RectArrayHelper()
     private lateinit var bitmapHolder: Bitmap
     private lateinit var bitmapCanvas: Canvas
+    private var drawStructure = true
+    private var minMoveDis2Next = 200f
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas ?: return
-
-        drawFlipPath(bitmapCanvas)
-        drawArea(bitmapCanvas)
-
+        if (pointStart.isSet()) {
+            //清空画布
+            clearCanvas()
+            //点击点所在区域的顶点
+            val pointEnd = getEndPointInArea(pointClick)
+            //四角
+            if (pointEnd != null) {
+                limitPointEnd(pointEnd)
+                drawFlipPathFromAngle(bitmapCanvas, pointEnd)
+                //左右
+            } else {
+                pointCache.reset(pointStart)
+                limitPointEnd(pointCache)
+                drawFlipPathFromLR(bitmapCanvas, pointCache)
+            }
+        }
+        if (drawStructure) {
+            drawArea(bitmapCanvas)
+        }
         canvas.drawBitmap(bitmapHolder, 0f, 0f, paint)
+    }
+
+    private fun clearCanvas() {
+        paint.xfermode = xfermodeClear
+        bitmapCanvas.drawPaint(paint)
+        paint.xfermode = null
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -121,7 +144,17 @@ class BookPageStructureView @JvmOverloads constructor(
         return pointCache
     }
 
+    fun drawStructure(draw: Boolean = !this.drawStructure) {
+        if (this.drawStructure != draw) {
+            this.drawStructure = draw
+            invalidate()
+        }
+    }
+
     private fun drawArea(canvas: Canvas) {
+        if (!drawStructure) {
+            return
+        }
         paint.color = Color.GRAY
         paint.pathEffect = dashPathEffect
         paint.strokeWidth = 1f
@@ -166,13 +199,39 @@ class BookPageStructureView @JvmOverloads constructor(
         canvas.drawText(text, cx - textWidth / 2, baseLineY, paint)
     }
 
-    private fun drawFlipPath(canvas: Canvas) {
-        if (!pointClick.isSet()) {
+    private fun drawFlipPathFromLR(canvas: Canvas, clickPoint: Point) {
+        val isLeft = pointClick.x < w
+        val aX = if (isLeft) 0f else clickPoint.x
+        val cX = if (isLeft) clickPoint.x else width.toFloat()
+        val bX = getCenterVal(aX, cX)
+        val topY = 0f
+        val bottomY = height.toFloat()
+        pathContent.reset()
+        pathContent.moveTo(aX, topY)
+        pathContent.lineTo(bX, topY)
+        pathContent.lineTo(bX, bottomY)
+        pathContent.lineTo(aX, bottomY)
+        pathContent.close()
+        canvas.drawPath(pathContent, if (isLeft) pageNextPaint() else pageBackPaint())
+
+        pathContent.reset()
+        pathContent.moveTo(bX, topY)
+        pathContent.lineTo(cX, topY)
+        pathContent.lineTo(cX, bottomY)
+        pathContent.lineTo(bX, bottomY)
+        pathContent.close()
+        canvas.drawPath(pathContent, if (isLeft) pageBackPaint() else pageNextPaint())
+
+        if (!drawStructure) {
             return
         }
-        //点击点所在区域的顶点
-        val pointEnd = getEndPointInArea(pointClick) ?: return
-        limitPointEnd(pointEnd)
+        canvas.drawLines(floatArrayOf(aX, topY, bX, topY, bX, topY, aX, topY), lineHelperPaint())
+        drawPosText(canvas, "a", aX, topY)
+        drawPosText(canvas, "b", bX, topY)
+        drawPosText(canvas, "c", cX, topY)
+    }
+
+    private fun drawFlipPathFromAngle(canvas: Canvas, pointEnd: Point) {
 
         //<editor-fold desc="计算结构点">
         //点击点a
@@ -205,7 +264,6 @@ class BookPageStructureView @JvmOverloads constructor(
         val d2Y = de2Array[1]
         val e2X = de2Array[2]
         val e2Y = de2Array[3]
-
 
         //a-d1与d2-e2的交点f
 
@@ -246,7 +304,7 @@ class BookPageStructureView @JvmOverloads constructor(
         //</editor-fold>
 
         //<editor-fold desc="绘制背景">
-        canvas.drawColor(Color.GREEN)
+        /*canvas.drawColor(Color.GREEN)*/
         //</editor-fold>
 
         //<editor-fold desc="绘制翻页效果区域">
@@ -270,10 +328,17 @@ class BookPageStructureView @JvmOverloads constructor(
         pathContent.lineTo(g2X, g2Y)
         pathContent.lineTo(f2X, f2Y)
         pathContent.close()
-        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+
+        /*setLayerType(LAYER_TYPE_SOFTWARE, null)*/
+        paint.xfermode = xfermodeATop
         canvas.drawPath(pathContent, pageBackPaint())
         paint.xfermode = null
         //</editor-fold>
+
+        if (!drawStructure) {
+            return
+        }
+
         //<editor-fold desc="绘制结构">
         canvas.drawLine(aX, aY, bX, bY, lineHelperPaint())
         drawPosText(canvas, "a", aX, aY)
@@ -351,7 +416,6 @@ class BookPageStructureView @JvmOverloads constructor(
         )
     }
 
-
     /**
      * 传入两个点，获取垂直平分线与相应两边的交点
      */
@@ -397,12 +461,6 @@ class BookPageStructureView @JvmOverloads constructor(
         return paint
     }
 
-    private fun pagePaint(): Paint {
-        paint.color = Color.GREEN
-        paint.pathEffect = null
-        return paint
-    }
-
     private fun lineHelperPaint(): Paint {
         paint.color = Color.GRAY
         paint.strokeWidth = 3f
@@ -420,22 +478,52 @@ class BookPageStructureView @JvmOverloads constructor(
         return super.performClick()
     }
 
+    //点击居中center
+    private fun clickCenter() = pointClick.x in w..(2f * w) && pointClick.y in h..(2f * h)
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
-                performClick()
                 pointClick.reset(event.x, event.y)
-                pointStart.reset(pointClick)
+                if (clickCenter()) {
+                    pointStart.reset()
+                    performClick()
+                    //不重绘，交由外部处理
+                    return false
+                } else {
+                    pointStart.reset(pointClick)
+                }
             }
             MotionEvent.ACTION_MOVE -> {
                 pointStart.reset(event.x, event.y)
             }
             MotionEvent.ACTION_UP -> {
-                /*pointClick.reset(unset, unset)*/
+                if (isNextPage(event)) {
+                    nextPageAnim()
+                } else {
+                    keepNowAnim()
+                }
+                pointClick.reset()
+                pointStart.reset()
             }
         }
         invalidate()
         return true
+    }
+
+    private fun keepNowAnim() {
+
+    }
+
+    private fun nextPageAnim() {
+
+    }
+
+    /**
+     * 根据滑动距离判断是否翻页
+     */
+    private fun isNextPage(event: MotionEvent): Boolean {
+        return event.x - pointClick.x > minMoveDis2Next
     }
 
     @IntDef(AREA_B_R, AREA_R, AREA_T_R, AREA_L, AREA_C)

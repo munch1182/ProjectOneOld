@@ -43,9 +43,9 @@ open class TestRvActivity : TestBaseTopActivity() {
         private const val KEY_IS_BTN = "KEY_IS_BTN"
     }
 
-    private val rv: RecyclerView by lazy { findViewById(R.id.rv_test_rv) }
+    protected val rv: RecyclerView by lazy { findViewById(R.id.rv_test_rv) }
     protected val topView: ViewGroup by lazy { findViewById(R.id.rv_test_rv_top) }
-    private val srl by lazy { findViewById<SwipeRefreshLayout>(R.id.rv_test_srl) }
+    protected val srl by lazy { findViewById<SwipeRefreshLayout>(R.id.rv_test_srl) }
     protected lateinit var adapter: TestRvAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +53,13 @@ open class TestRvActivity : TestBaseTopActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rv_test)
 
+        handleTestRv()
+        srl.setOnRefreshListener {
+            refresh(srl)
+        }
+    }
+
+    open fun handleTestRv() {
         val extras = intent.extras
 
         val items: MutableList<TestRvItemBean>? =
@@ -73,9 +80,6 @@ open class TestRvActivity : TestBaseTopActivity() {
             rv.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
         }
         rv.layoutManager = LinearLayoutManager(this)
-        srl.setOnRefreshListener {
-            refresh(srl)
-        }
     }
 
     open fun refresh(srl: SwipeRefreshLayout) {
@@ -124,7 +128,7 @@ open class TestRvActivity : TestBaseTopActivity() {
     }
 
     @SuppressLint("SetTextI18n")
-    protected fun getTestView(name:String = "test") =
+    protected fun getTestView(name: String = "test") =
         View.inflate(this, R.layout.item_rv_test, null).apply {
             setBackgroundColor(Color.WHITE)
             findViewById<TextView>(R.id.item_rv_test_tv).text = name

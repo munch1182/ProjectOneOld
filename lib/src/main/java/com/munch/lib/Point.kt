@@ -20,7 +20,7 @@ data class Point constructor(
 
     fun getUnset() = unset
 
-    fun reset(x: Float, y: Float) {
+    fun reset(x: Float = getUnset(), y: Float = getUnset()) {
         this.x = x
         this.y = y
     }

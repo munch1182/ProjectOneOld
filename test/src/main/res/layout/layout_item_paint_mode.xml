@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@color/colorBg"
+    tools:context="com.munch.project.test.view.PaintModeActivity">
+
+    <com.munch.project.test.view.PorterDuffXfermodeView
+        android:id="@+id/paint_mode_view"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp" />
+
+    <TextView
+        android:id="@+id/paint_mode_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/padding_def"
+        tools:text="no mode" />
+
+</LinearLayout>

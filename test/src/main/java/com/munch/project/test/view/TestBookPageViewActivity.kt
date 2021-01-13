@@ -10,6 +10,10 @@ class TestBookPageViewActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(BookPageStructureView(this))
+        setContentView(BookPageStructureView(this).apply {
+            setOnClickListener {
+                (it as BookPageStructureView).drawStructure()
+            }
+        })
     }
 }

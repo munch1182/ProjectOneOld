@@ -3,6 +3,8 @@ package com.munch.lib.helper
 /**
  * 用array来替代大量的[android.graphics.Rect]对象
  *
+ * level建议用枚举或者@IntDef注解来固定
+ *
  * Create by munch1182 on 2021/1/10 1:32.
  */
 class RectArrayHelper : SpecialArrayHelper(4) {
