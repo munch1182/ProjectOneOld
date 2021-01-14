@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Binder
+import androidx.core.app.ComponentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -16,7 +17,11 @@ import com.munch.lib.helper.ServiceBindHelper.Companion.newBinder
  * service通用绑定，需要[Service.onBind]返回[newBinder]，
  * 通过[getService]或者[opService]来直接调用[S]里的方法
  *
+ *
  * @param owner 用于自动绑定和解绑，如为null，需要手动调用[bind]和[unbind]，
+ * 另外，如果在[Lifecycle.Event.ON_CREATE]之后创建被类，比如使用了[lazy]之类延迟初始化的，需要自行使用[bind]
+ * 参见init方法内实现
+ *
  * 用bind方式的service在bind组件生命周期外必须解绑，否则会内存泄漏
  *
  * Create by munch1182 on 2020/12/28 10:06.
@@ -26,21 +31,25 @@ private constructor(
     private val context: Context,
     private val owner: LifecycleOwner?,
 ) {
-    constructor(context: Context, owner: LifecycleOwner?, intent: Intent) : this(
+
+    constructor(activity: ComponentActivity, intent: Intent) : this(activity, activity, intent)
+    constructor(context: Context, owner: LifecycleOwner? = null, intent: Intent) : this(
         context,
         owner
     ) {
         this.intent = intent
     }
 
-    constructor(context: Context, owner: LifecycleOwner?, service: Class<S>) : this(
+    constructor(activity: ComponentActivity, service: Class<S>) : this(activity, activity, service)
+    constructor(context: Context, owner: LifecycleOwner? = null, service: Class<S>) : this(
         context,
         owner
     ) {
         serviceClazz = service
     }
 
-    constructor(context: Context, owner: LifecycleOwner?, action: String) : this(
+    constructor(activity: ComponentActivity, action: String) : this(activity, activity, action)
+    constructor(context: Context, owner: LifecycleOwner? = null, action: String) : this(
         context,
         owner
     ) {
@@ -97,6 +106,9 @@ private constructor(
     }
 
     fun bind(): ServiceBindHelper<S> {
+        if (conn != null) {
+            return this
+        }
         checkIntent()
         conn = object : ServiceConnection {
             override fun onServiceConnected(

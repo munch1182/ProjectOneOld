@@ -20,7 +20,7 @@ class TestQueueActivity : TestBaseTopActivity(), QueueService.NotifyListener {
 
     private val container: ViewGroup by lazy { findViewById(R.id.queue_container) }
     private val tvMsg: TextView by lazy { findViewById(R.id.queue_tv_msg) }
-    private var helper = ServiceBindHelper(this, this, QueueService::class.java)
+    private var helper = ServiceBindHelper(this, QueueService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

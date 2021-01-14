@@ -1,7 +1,8 @@
 package com.munch.project.testsimple.jetpack.net
 
 import com.munch.project.testsimple.jetpack.model.Office
-import com.munch.project.testsimple.jetpack.model.dto.ArticleWrapper
+import com.munch.project.testsimple.jetpack.model.dto.ArticleDto
+import com.munch.project.testsimple.jetpack.model.dto.ArticleWrapperDto
 import com.munch.project.testsimple.jetpack.model.dto.BaseDtoWrapper
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
@@ -15,14 +16,14 @@ interface Api {
 
 
     @GET("/article/list/{page}/json")
-    fun getArticleListFlow(@Path("page") page: Int): Flow<BaseDtoWrapper<List<ArticleWrapper>>>
+    fun getArticleListFlow(@Path("page") page: Int): Flow<BaseDtoWrapper<List<ArticleDto>>>
 
     @GET("/wxarticle/chapters/json  ")
     fun getOfficeList(): Flow<BaseDtoWrapper<Office>>
 
     @GET("/article/list/{page}/json")
-    suspend fun getArticleList(@Path("page") page: Int): BaseDtoWrapper<ArticleWrapper>
+    suspend fun getArticleList(@Path("page") page: Int): BaseDtoWrapper<ArticleWrapperDto>
 
     @GET("/article/list/{page}/json")
-    fun getArticleListDeferred(@Path("page") page: Int): Deferred<ArticleWrapper>
+    fun getArticleListDeferred(@Path("page") page: Int): Deferred<ArticleWrapperDto>
 }

@@ -54,6 +54,7 @@ dependencies {
     kapt rootProject.ext.dependencies['hilt_viewmodel_compiler']
     kapt rootProject.ext.dependencies['hilt_compiler']
 
+    api rootProject.ext.dependencies['room']
     api rootProject.ext.dependencies['room_ktx']
     kapt rootProject.ext.dependencies['room_compiler']
 

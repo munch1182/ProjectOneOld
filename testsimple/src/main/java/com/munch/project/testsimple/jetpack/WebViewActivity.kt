@@ -31,14 +31,14 @@ class WebViewActivity : TestBaseTopActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val extras = intent.extras ?: return
-        title = extras.getString(KEY_TITLE)
-        val urlStr = extras.getString(KEY_URL) ?: return
-
         val view = WebView(this).apply {
             settings.javaScriptEnabled = true
         }
         setContentView(view)
+
+        val extras = intent.extras ?: return
+        title = extras.getString(KEY_TITLE)
+        val urlStr = extras.getString(KEY_URL) ?: return
 
         view.loadUrl(urlStr)
         view.webViewClient = object : WebViewClient() {

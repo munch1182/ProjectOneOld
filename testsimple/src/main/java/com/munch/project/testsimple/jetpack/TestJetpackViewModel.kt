@@ -4,6 +4,7 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.munch.lib.log
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
  *
  * Create by munch1182 on 2020/12/19 15:07.
  */
+@ExperimentalPagingApi
 class TestJetpackViewModel @ViewModelInject constructor(private val repository: ArticleRepository) :
     ViewModel() {
 

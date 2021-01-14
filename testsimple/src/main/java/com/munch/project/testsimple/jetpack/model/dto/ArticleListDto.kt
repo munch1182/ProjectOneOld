@@ -1,32 +1,55 @@
 package com.munch.project.testsimple.jetpack.model.dto
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
+import androidx.room.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.munch.project.testsimple.jetpack.model.bean.ArticleBean
 import com.munch.project.testsimple.jetpack.model.bean.Dto2BeanConvert
+import com.munch.project.testsimple.jetpack.db.PageDao
 
 /**
  * Create by munch1182 on 2020/12/17 21:43.
  */
 
-data class ArticleWrapper(
+/**
+ * 关系映射
+ *
+ * 要这样查询，需要查询的表是"tb_page"，返回值是[PageArticle]
+ * 参见[PageDao.queryArticle]
+ */
+data class PageArticle(
+    @Embedded var page: ArticleWrapperDto,
+    @Relation(
+        parentColumn = "curPage", //这个参数来自于@Embedded指定的表
+        entityColumn = "id", // 这个参数来自于entity指定的ArticleDto
+        entity = ArticleDto::class,
+        associateBy = Junction(PageWithArticle::class)// 映射关系
+    )
+    var article: List<ArticleDto>
+)
+
+@Entity(tableName = "tb_page")
+data class ArticleWrapperDto(
+    @PrimaryKey
     val curPage: Int,
-    val datas: List<ArticleDto>,
     val offset: Int,
     val over: Boolean,
     val pageCount: Int,
     val size: Int,
     val total: Int
-)
+) {
+    @Ignore
+    val datas: List<ArticleDto>? = null
+
+}
+
+@Entity(tableName = "tb_page_with_article", primaryKeys = ["curPage", "id"])
+data class PageWithArticle(val curPage: Int, val id: Int)
 
 /**
  * 如果数据简单，可以用TypeConverters直接处理list
  */
-@Entity
+@Entity(tableName = "tb_article")
 @TypeConverters(TagConverters::class)
 data class ArticleDto(
     val apkLink: String,
@@ -93,45 +116,6 @@ data class ArticleDto(
             visible,
             zan
         )
-    }
-
-    companion object {
-        private const val DATA_TEST = "{apkLink: \"\"," +
-                "audit: 1," +
-                "author: \"author\"," +
-                "canEdit: false," +
-                "chapterId: 502," +
-                "chapterName: 自助," +
-                "collect: false," +
-                "courseId: 13," +
-                "desc: \"\"," +
-                "descMd: \"\"," +
-                "envelopePic: \"\"," +
-                "fresh: false," +
-                "id: 16470," +
-                "link: \"https://juejin.cn/post/6906153878312452103\"," +
-                "niceDate: \"2020-12-15 10:03\"," +
-                "niceShareDate: \"2020-12-15 10:03\"," +
-                "origin: \"\"," +
-                "prefix: \"\"," +
-                "projectLink: \"\"," +
-                "publishTime: 1607997828000," +
-                "realSuperChapterId: 493," +
-                "selfVisible: 0," +
-                "shareDate: 1607997828000," +
-                "shareUser: DylanCai," +
-                "superChapterId: 494," +
-                "superChapterName:\"广场Tab\"," +
-                "tags: []," +
-                "title: \"优雅地封装和使用 ViewBinding，该替代 Kotlin synthetic 和 ButterKnife 了\"," +
-                "type: 0," +
-                "userId: 27680," +
-                "visible: 1," +
-                "zan: 0}"
-
-        fun testInstance(): ArticleDto {
-            return Gson().fromJson(DATA_TEST, ArticleDto::class.java)
-        }
     }
 }
 

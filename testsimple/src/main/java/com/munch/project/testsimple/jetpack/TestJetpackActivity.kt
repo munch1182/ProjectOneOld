@@ -1,7 +1,7 @@
 package com.munch.project.testsimple.jetpack
 
 import android.os.Bundle
-import androidx.paging.LoadState
+import androidx.paging.ExperimentalPagingApi
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
@@ -17,9 +17,11 @@ import dagger.hilt.android.AndroidEntryPoint
 class TestJetpackActivity : TestBaseTopActivity() {
 
     private val binding by bindingTop<ActivityTestJetPackBinding>(R.layout.activity_test_jet_pack)
-    private val viewModel by getViewModel<TestJetpackViewModel>()
-    private var refreshByHand = false
 
+    @ExperimentalPagingApi
+    private val viewModel by getViewModel<TestJetpackViewModel>()
+
+    @ExperimentalPagingApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val articleAdapter = ArticleAdapter().setOnItemClick { pos, adapter ->
@@ -43,20 +45,6 @@ class TestJetpackActivity : TestBaseTopActivity() {
         }
         binding.jetPackSrl.setOnRefreshListener {
             articleAdapter.refresh()
-            refreshByHand = true
-        }
-        articleAdapter.addLoadStateListener {
-            when (it.refresh) {
-                is LoadState.Loading -> {
-                    if (refreshByHand) {
-                        return@addLoadStateListener
-                    }
-                    binding.jetPackSrl.isRefreshing = true
-                }
-                is LoadState.Error -> binding.jetPackSrl.isRefreshing = false
-                is LoadState.NotLoading -> binding.jetPackSrl.isRefreshing = false
-            }
-            refreshByHand = false
         }
     }
 
