@@ -38,11 +38,11 @@ class TestJetpackActivity : TestBaseTopActivity() {
                 DividerItemDecoration(this@TestJetpackActivity, DividerItemDecoration.VERTICAL)
             )
         }
-        viewModel.articleLiveData.observe(this) {
+        viewModel.getArticleLiveData().observe(this) {
             articleAdapter.submitData(this@TestJetpackActivity.lifecycle, it)
         }
         //其实可以直接在页面绑定
-        viewModel.isLoading.observe(this) {
+        viewModel.isLoading().observe(this) {
             binding.jetPackSrl.isRefreshing = it
         }
         binding.jetPackSrl.setOnRefreshListener {

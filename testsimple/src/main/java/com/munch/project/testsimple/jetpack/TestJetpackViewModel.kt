@@ -1,6 +1,7 @@
 package com.munch.project.testsimple.jetpack
 
 import androidx.hilt.lifecycle.ViewModelInject
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,8 +26,15 @@ import kotlinx.coroutines.launch
 class TestJetpackViewModel @ViewModelInject constructor(private val repository: ArticleRepository) :
     ViewModel() {
 
-    val articleLiveData = MutableLiveData<PagingData<ArticleBean>>()
-    val isLoading = MutableLiveData(false)
+    private val articleLiveData = MutableLiveData<PagingData<ArticleBean>>()
+    private val isLoading = MutableLiveData(false)
+
+    /**
+     * 暴露的liveData应该是不可变的
+     */
+    fun getArticleLiveData(): LiveData<PagingData<ArticleBean>> = articleLiveData
+    fun isLoading(): LiveData<Boolean> = isLoading
+
     private var error = false
 
     init {
