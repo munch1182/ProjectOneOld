@@ -9,18 +9,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.munch.lib.BaseApp
+import com.munch.lib.helper.BarHelper
 import com.munch.lib.helper.FileHelper
 import com.munch.lib.helper.ImgHelper
 import com.munch.lib.helper.ResultHelper
-import com.munch.lib.test.TestBaseTopActivity
 import com.munch.lib.test.TestDialog
+import com.munch.project.test.BaseActivity
 import com.munch.project.test.BaseFragment
 import com.munch.project.test.R
 import com.munch.project.test.img.camera.TestCameraActivity
@@ -29,33 +29,29 @@ import java.io.File
 /**
  * Create by munch1182 on 2020/12/31 20:58.
  */
-class TestImgActivity : TestBaseTopActivity() {
+class TestImgActivity : BaseActivity() {
 
     private val btn: Button by lazy { findViewById(R.id.test_img_btn) }
     private val vp: ViewPager2 by lazy { findViewById(R.id.test_img_vp) }
     private val adapter by lazy { ViewPagerAdapter(this, count) }
-    private val bg: ImageView by lazy { findViewById(R.id.test_img_bg) }
+    private val barHelper by lazy { BarHelper(this) }
+    private val itemDecoration by lazy { BgItemDecoration(this) }
     private var bgFile: File? = null
 
     private var count = 5
 
-    private val callback = object : ViewPager2.OnPageChangeCallback() {
-        override fun onPageScrolled(
-            position: Int,
-            positionOffset: Float,
-            positionOffsetPixels: Int
-        ) {
-            super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-            bg.scrollBy(bg.width * position, 0)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        barHelper.hideStatusBar(true).colorStatusBar(Color.TRANSPARENT)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            barHelper.setTextColorBlack(true)
+        }
         setContentView(R.layout.activity_test_img)
 
         vp.adapter = adapter
         vp.offscreenPageLimit = count
+
+        updateDefBg()
 
         btn.setOnClickListener {
             TestDialog.bottom(this)
@@ -98,8 +94,6 @@ class TestImgActivity : TestBaseTopActivity() {
                 }
                 .show()
         }
-
-        vp.registerOnPageChangeCallback(callback)
     }
 
     private fun imageCapture(type: Int) {
@@ -129,10 +123,8 @@ class TestImgActivity : TestBaseTopActivity() {
                     } else {
                         file
                     } ?: return@res
-                    val compressFile =
-                        ImgHelper.imgCompress(fileTemp, File(filesDir, "img_bg_compressed.jpeg"))
-                            ?: return@res
-                    updateByFile(compressFile)
+
+                    updateByFile2Compress(fileTemp)
                     FileHelper.deleteFileIgnoreException(fileTemp)
                 } else if (resCode != RESULT_CANCELED) {
                     toast("未获取到图片")
@@ -154,17 +146,37 @@ class TestImgActivity : TestBaseTopActivity() {
             )
             .res end@{ isOk2, _, _ ->
                 if (isOk2) {
-                    updateByFile(fileCrop)
+                    updateByFile2Compress(fileCrop)
                 }
             }
     }
 
-    private fun updateByFile(file: File) {
+    private fun updateByFile2Compress(file: File) {
         bgFile = file
-        /*adapter.updateFragment(Array(count) { file.absolutePath })*/
-        /*bg.background =
-            adjustBmpRotation(BitmapFactory.decodeFile(file.absolutePath), 90).toDrawable(resources)*/
-        bg.setImageBitmap(adjustBmpRotation(BitmapFactory.decodeFile(file.absolutePath), 90))
+        val compressFile =
+            ImgHelper.imgCompress(file, File(filesDir, "img_bg_compressed.jpeg")) ?: return
+        updateByBitmap(BitmapFactory.decodeFile(compressFile.absolutePath))
+    }
+
+    private fun updateDefBg() {
+        val defBg = File(filesDir, "def_bg_compressed.jpeg")
+        if (defBg.exists()) {
+            updateByBitmap(BitmapFactory.decodeFile(defBg.absolutePath))
+        } else {
+            val res2File =
+                ImgHelper.res2File(
+                    R.drawable.ic_bg,
+                    defBg,
+                    quality = 50,
+                    opts = BitmapFactory.Options().apply {
+                        inSampleSize = 4
+                    }) ?: return
+            updateByBitmap(BitmapFactory.decodeFile(res2File.absolutePath))
+        }
+    }
+
+    private fun updateByBitmap(bitmap: Bitmap) {
+        vp.addItemDecoration(itemDecoration.setBg(bitmap))
     }
 
     @Suppress("SameParameterValue")
@@ -193,11 +205,6 @@ class TestImgActivity : TestBaseTopActivity() {
         val canvas = Canvas(bm1)
         canvas.drawBitmap(bmp, m, Paint())
         return bm1
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        vp.unregisterOnPageChangeCallback(callback)
     }
 
     private inner class ViewPagerAdapter(

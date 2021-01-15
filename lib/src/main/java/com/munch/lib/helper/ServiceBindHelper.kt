@@ -70,18 +70,7 @@ private constructor(
     var isBind = false
 
     init {
-        owner?.lifecycle?.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-            fun onCreate() {
-                bind()
-            }
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
-                unbind()
-                owner.lifecycle.removeObserver(this)
-            }
-        })
+        obWhenCreate(owner, onCreate = { bind() }, onDestroy = { unbind() })
     }
 
     /**

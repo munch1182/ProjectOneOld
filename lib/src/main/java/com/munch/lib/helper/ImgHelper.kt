@@ -2,6 +2,7 @@ package com.munch.lib.helper
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -9,6 +10,7 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.annotation.IntRange
 import androidx.core.content.FileProvider
+import com.munch.lib.BaseApp
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -81,6 +83,22 @@ object ImgHelper {
     }
 
     /**
+     * 当同时传递opts和quality时，先按照opts生成bitmap，再按照quality压缩
+     */
+    fun res2File(
+        resId: Int,
+        newFile: File,
+        resources: Resources = BaseApp.getContext().resources,
+        @IntRange(from = 0, to = 100) quality: Int = 100,
+        opts: BitmapFactory.Options? = null
+    ) = bitmap2File(
+        BitmapFactory.decodeResource(resources, resId, opts),
+        newFile,
+        quality
+    )
+
+
+    /**
      * 将bitmap转为file文件
      * 默认不压缩
      */
@@ -117,7 +135,7 @@ object ImgHelper {
      *@param quality  质量压缩，只会压缩图片的大小，不会压缩像素，所以加载内存不会降低
      * 0-100 100为不压缩
      * @param sampleSize 采样率压缩，设置图片的采样率，降低图片像素，数值越高，图片像素越低
-     * 不压缩则为1
+     * 必须是2的倍数，小于1则为1，不压缩则为1
      * @see android.graphics.BitmapFactory.Options.inSampleSize
      */
     fun imgCompress(
