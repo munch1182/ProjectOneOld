@@ -27,14 +27,28 @@ class TestJetpackViewModel @ViewModelInject constructor(private val repository: 
 
     val articleLiveData = MutableLiveData<PagingData<ArticleBean>>()
     val isLoading = MutableLiveData(false)
+    private var error = false
 
     init {
+        request()
+    }
+
+    fun judgeError2Refresh() {
+        if (!error) {
+            return
+        }
+        error = false
+        request()
+    }
+
+    private fun request() {
         viewModelScope.launch {
             isLoading.postValue(true)
             repository.getArticleListToday()
-                .flowOn(Dispatchers.IO)
                 .map {
-                    /*if (true) {
+                    /*用以测试异常*/
+                    /*if (index == 0) {
+                        index++
                         throw Exception("test")
                     }*/
                     //此处的异常是PagingData内部的flow，其中的异常无法外部catch，需要自行try-catch
@@ -42,13 +56,18 @@ class TestJetpackViewModel @ViewModelInject constructor(private val repository: 
                         return@map2 art.convert()
                     }
                 }
-                //这个catch并不会跟adapter的LoadState.Error联动，因此此处需要跟UI联动
+                .flowOn(Dispatchers.IO)
+                //这个catch并不会跟adapter的LoadState.Error联动，因此此处需要自行跟UI联动
                 .catch { c ->
+                    error = true
                     c.printStackTrace()
                     log(c.message)
+                    //emit保证报错后仍然返回状态
+                    //因为empty里的receiver是NOOP_RECEIVER，所以一旦报错，刷新就不能再触发repository的操作
+                    //因此需要judgeError2Refresh方法
                     emit(PagingData.empty())
                 }
-                .collect {
+                .collectLatest {
                     isLoading.postValue(false)
                     articleLiveData.postValue(it)
                 }

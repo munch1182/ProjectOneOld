@@ -4,13 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".jetpack.TestJetpackActivity">
 
-    <data>
-
-        <variable
-            name="adapter"
-            type="com.munch.project.testsimple.jetpack.ArticleAdapter" />
-    </data>
-
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/jet_pack_srl"
         android:layout_width="match_parent"
@@ -20,7 +13,6 @@
             android:id="@+id/jet_pack_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:adapter="@{adapter}"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/layout_article_item" />
 

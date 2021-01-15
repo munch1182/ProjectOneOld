@@ -2,6 +2,9 @@ package com.munch.project.testsimple.jetpack.db
 
 import androidx.paging.DataSource
 import androidx.room.*
+import com.munch.project.testsimple.jetpack.db.Db.Companion.TB_NAME_ARTICLE
+import com.munch.project.testsimple.jetpack.db.Db.Companion.TB_NAME_PAGE
+import com.munch.project.testsimple.jetpack.db.Db.Companion.TB_NAME_PAGE_WITH_ARTICLE
 import com.munch.project.testsimple.jetpack.model.dto.ArticleDto
 import com.munch.project.testsimple.jetpack.model.dto.ArticleWrapperDto
 import com.munch.project.testsimple.jetpack.model.dto.PageArticle
@@ -22,6 +25,13 @@ import com.munch.project.testsimple.jetpack.model.dto.PageWithArticle
 )
 abstract class Db : RoomDatabase() {
 
+    companion object {
+
+        const val TB_NAME_ARTICLE = "tb_article"
+        const val TB_NAME_PAGE = "tb_page"
+        const val TB_NAME_PAGE_WITH_ARTICLE = "tb_page_with_article"
+    }
+
     abstract fun articleDao(): ArticleDao
 
     abstract fun pageDao(): PageDao
@@ -33,15 +43,15 @@ interface PageDao {
 
     /*查询的是带关系的结果，需要@Transaction注解*/
     @Transaction
-    @Query("SELECT * FROM tb_page WHERE curPage = :page LIMIT 1")
+    @Query("SELECT * FROM $TB_NAME_PAGE WHERE curPage = :page LIMIT 1")
     suspend fun queryArticle(page: Int): PageArticle?
 
-    /*内联多表查询，但是无法转换为DataSource.Factory*/
-    @Query("SELECT * FROM tb_article as art INNER JOIN tb_page_with_article as pa ON art.id = pa.id WHERE pa.curPage = :page ")
+    /*内联多表查询，但是无法直接返回DataSource.Factory*/
+    @Query("SELECT * FROM $TB_NAME_ARTICLE as art INNER JOIN $TB_NAME_PAGE_WITH_ARTICLE as pa ON art.id = pa.id WHERE pa.curPage = :page ")
     suspend fun queryArticleByPage(page: Int): List<ArticleDto>
 
     @Transaction
-    @Query("SELECT * FROM tb_page ORDER BY curPage DESC LIMIT 1")
+    @Query("SELECT * FROM $TB_NAME_PAGE ORDER BY curPage DESC LIMIT 1")
     suspend fun queryLast(): PageArticle?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -65,13 +75,13 @@ interface PageDao {
         clearPageWithArticle()
     }
 
-    @Query("DELETE FROM tb_article")
+    @Query("DELETE FROM $TB_NAME_ARTICLE")
     suspend fun clearArticle()
 
-    @Query("DELETE FROM tb_page")
+    @Query("DELETE FROM $TB_NAME_PAGE")
     suspend fun clearPage()
 
-    @Query("DELETE FROM tb_page_with_article")
+    @Query("DELETE FROM $TB_NAME_PAGE_WITH_ARTICLE")
     suspend fun clearPageWithArticle()
 }
 
@@ -82,25 +92,25 @@ interface PageDao {
 @Dao
 interface ArticleDao {
 
-    @Query("SELECT * FROM tb_article  ORDER BY publishTime DESC LIMIT :pageSize OFFSET :page ")
+    @Query("SELECT * FROM $TB_NAME_ARTICLE  ORDER BY publishTime DESC LIMIT :pageSize OFFSET :page ")
     fun queryArticle(page: Int, pageSize: Int): DataSource.Factory<Int, ArticleDto>
 
-    @Query("SELECT * FROM tb_article ORDER BY publishTime DESC ")
+    @Query("SELECT * FROM $TB_NAME_ARTICLE ORDER BY publishTime DESC ")
     fun queryArticle(): DataSource.Factory<Int, ArticleDto>
 
-    @Query("SELECT * FROM tb_article ORDER BY publishTime DESC LIMIT 1")
+    @Query("SELECT * FROM $TB_NAME_ARTICLE ORDER BY publishTime DESC LIMIT 1")
     suspend fun queryArticleFirst(): ArticleDto
 
     /**
      * 或者将模糊搜索传[like]之前给其前后加上%
      */
-    @Query("SELECT * FROM tb_article WHERE title || author LIKE '%' || :like || '%' ORDER BY publishTime DESC")
+    @Query("SELECT * FROM $TB_NAME_ARTICLE WHERE title || author LIKE '%' || :like || '%' ORDER BY publishTime DESC")
     fun queryArticleByLike(like: String): DataSource.Factory<Int, ArticleDto>
 
     @Delete
     fun del(article: ArticleDto)
 
-    @Query("DELETE FROM tb_article")
+    @Query("DELETE FROM $TB_NAME_ARTICLE")
     suspend fun clearAll()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

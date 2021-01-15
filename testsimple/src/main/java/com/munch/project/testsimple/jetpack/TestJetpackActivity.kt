@@ -24,18 +24,20 @@ class TestJetpackActivity : TestBaseTopActivity() {
     @ExperimentalPagingApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         val articleAdapter = ArticleAdapter().setOnItemClick { pos, adapter ->
             val articleBean = adapter.peek(pos) ?: return@setOnItemClick
             WebViewActivity.openWebView(this, articleBean.title, articleBean.link)
-
         }
-        binding.apply {
-            lifecycleOwner = this@TestJetpackActivity
-            adapter = articleAdapter
+        binding.lifecycleOwner = this@TestJetpackActivity
+        binding.jetPackRv.run {
+            //返回值是一个ConcatAdapter类型
+            adapter =
+                articleAdapter.withLoadStateFooter(ArticleAdapter.ArticleStateAdapter(articleAdapter))
+            addItemDecoration(
+                DividerItemDecoration(this@TestJetpackActivity, DividerItemDecoration.VERTICAL)
+            )
         }
-        binding.jetPackRv.addItemDecoration(
-            DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-        )
         viewModel.articleLiveData.observe(this) {
             articleAdapter.submitData(this@TestJetpackActivity.lifecycle, it)
         }
@@ -44,6 +46,7 @@ class TestJetpackActivity : TestBaseTopActivity() {
             binding.jetPackSrl.isRefreshing = it
         }
         binding.jetPackSrl.setOnRefreshListener {
+            viewModel.judgeError2Refresh()
             articleAdapter.refresh()
         }
     }

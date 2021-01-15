@@ -56,7 +56,7 @@ object SingletonModule {
     @Provides
     fun provideDb(app: Application): Db {
         return Room.databaseBuilder(app, Db::class.java, NAME_DB)
-            .addMigrations(Migration1to2(), Migration2to1(), Migration2to3())
+            .addMigrations(Migration1to2(), Migration2to1())
             .build()
     }
 
@@ -74,18 +74,13 @@ object SingletonModule {
      */
     class Migration1to2 : Migration(1, 2) {
         override fun migrate(database: SupportSQLiteDatabase) {
-            database.execSQL("ALTER TABLE tb_article ADD COLUMN tags TEXT NOT NULL DEFAULT '[]'")
-        }
-    }
-
-    class Migration2to3 : Migration(2, 3) {
-        override fun migrate(database: SupportSQLiteDatabase) {
-            database.execSQL("ALTER TABLE tb_article ADD COLUMN page INTEGER NOT NULL DEFAULT 0")
+            database.execSQL("ALTER TABLE ${Db.TB_NAME_PAGE} ADD COLUMN tags TEXT NOT NULL DEFAULT '[]'")
         }
     }
 
     /**
      * 通过复制新表并重命名的方式删除列
+     *
      *
      * 如果真要写，注意复制schemas的语句，以及批量替换
      */
@@ -93,10 +88,10 @@ object SingletonModule {
         override fun migrate(database: SupportSQLiteDatabase) {
             database.execSQL("BEGIN TRANSACTION;")
             database.execSQL("CREATE TABLE IF NOT EXISTS `tb_article_backup` (`apkLink` TEXT NOT NULL, `audit` INTEGER NOT NULL, `author` TEXT NOT NULL, `canEdit` INTEGER NOT NULL, `chapterId` INTEGER NOT NULL, `chapterName` TEXT NOT NULL, `collect` INTEGER NOT NULL, `courseId` INTEGER NOT NULL, `desc` TEXT NOT NULL, `descMd` TEXT NOT NULL, `envelopePic` TEXT NOT NULL, `fresh` INTEGER NOT NULL, `id` INTEGER NOT NULL, `link` TEXT NOT NULL, `niceDate` TEXT NOT NULL, `niceShareDate` TEXT NOT NULL, `origin` TEXT NOT NULL, `prefix` TEXT NOT NULL, `projectLink` TEXT NOT NULL, `publishTime` INTEGER NOT NULL, `realSuperChapterId` INTEGER NOT NULL, `selfVisible` INTEGER NOT NULL, `shareDate` INTEGER NOT NULL, `shareUser` TEXT NOT NULL, `superChapterId` INTEGER NOT NULL, `superChapterName` TEXT NOT NULL, `title` TEXT NOT NULL, `type` INTEGER NOT NULL, `userId` INTEGER NOT NULL, `visible` INTEGER NOT NULL, `zan` INTEGER NOT NULL, PRIMARY KEY(`id`));")
-            database.execSQL("INSERT INTO tb_article_backup SELECT `apkLink` , `audit` , `author` , `canEdit` , `chapterId` , `chapterName` , `collect` , `courseId` , `desc` , `descMd` , `envelopePic` , `fresh` , `id` , `link` , `niceDate` , `niceShareDate` , `origin` , `prefix` , `projectLink` , `publishTime` , `realSuperChapterId` , `selfVisible` , `shareDate` , `shareUser` , `superChapterId` , `superChapterName` , `title` , `type` , `userId` , `visible` , `zan` FROM tb_article;")
-            database.execSQL("DROP TABLE tb_article;")
+            database.execSQL("INSERT INTO tb_article_backup SELECT `apkLink` , `audit` , `author` , `canEdit` , `chapterId` , `chapterName` , `collect` , `courseId` , `desc` , `descMd` , `envelopePic` , `fresh` , `id` , `link` , `niceDate` , `niceShareDate` , `origin` , `prefix` , `projectLink` , `publishTime` , `realSuperChapterId` , `selfVisible` , `shareDate` , `shareUser` , `superChapterId` , `superChapterName` , `title` , `type` , `userId` , `visible` , `zan` FROM ${Db.TB_NAME_PAGE};")
+            database.execSQL("DROP TABLE ${Db.TB_NAME_PAGE};")
             database.execSQL("CREATE TABLE IF NOT EXISTS `tb_article` (`apkLink` TEXT NOT NULL, `audit` INTEGER NOT NULL, `author` TEXT NOT NULL, `canEdit` INTEGER NOT NULL, `chapterId` INTEGER NOT NULL, `chapterName` TEXT NOT NULL, `collect` INTEGER NOT NULL, `courseId` INTEGER NOT NULL, `desc` TEXT NOT NULL, `descMd` TEXT NOT NULL, `envelopePic` TEXT NOT NULL, `fresh` INTEGER NOT NULL, `id` INTEGER NOT NULL, `link` TEXT NOT NULL, `niceDate` TEXT NOT NULL, `niceShareDate` TEXT NOT NULL, `origin` TEXT NOT NULL, `prefix` TEXT NOT NULL, `projectLink` TEXT NOT NULL, `publishTime` INTEGER NOT NULL, `realSuperChapterId` INTEGER NOT NULL, `selfVisible` INTEGER NOT NULL, `shareDate` INTEGER NOT NULL, `shareUser` TEXT NOT NULL, `superChapterId` INTEGER NOT NULL, `superChapterName` TEXT NOT NULL, `title` TEXT NOT NULL, `type` INTEGER NOT NULL, `userId` INTEGER NOT NULL, `visible` INTEGER NOT NULL, `zan` INTEGER NOT NULL, PRIMARY KEY(`id`));")
-            database.execSQL("INSERT INTO tb_article SELECT `apkLink` , `audit` , `author` , `canEdit` , `chapterId` , `chapterName` , `collect` , `courseId` , `desc` , `descMd` , `envelopePic` , `fresh` , `id` , `link` , `niceDate` , `niceShareDate` , `origin` , `prefix` , `projectLink` , `publishTime` , `realSuperChapterId` , `selfVisible` , `shareDate` , `shareUser` , `superChapterId` , `superChapterName` , `title` , `type` , `userId` , `visible` , `zan` FROM tb_article_backup;")
+            database.execSQL("INSERT INTO ${Db.TB_NAME_PAGE} SELECT `apkLink` , `audit` , `author` , `canEdit` , `chapterId` , `chapterName` , `collect` , `courseId` , `desc` , `descMd` , `envelopePic` , `fresh` , `id` , `link` , `niceDate` , `niceShareDate` , `origin` , `prefix` , `projectLink` , `publishTime` , `realSuperChapterId` , `selfVisible` , `shareDate` , `shareUser` , `superChapterId` , `superChapterName` , `title` , `type` , `userId` , `visible` , `zan` FROM tb_article_backup;")
             database.execSQL("DROP TABLE tb_article_backup")
             database.execSQL("COMMIT")
         }

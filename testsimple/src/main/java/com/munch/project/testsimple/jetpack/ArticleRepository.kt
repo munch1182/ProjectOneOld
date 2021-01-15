@@ -64,11 +64,11 @@ class ArticleRepository @Inject constructor() : BaseRepository() {
                 }
             }
         }*/
-        /*2. 直接将room当作数据源*/
+        /*2. 直接将room当作数据源，此时remoteMediator为null*/
         /*val pagingSourceFactory = articleDao.queryArticle().asPagingSourceFactory()*/
         /*3. 将room当作数据源，服务器通过更新room的方式更新数据源*/
-        /*此方法的关键在于pagingSourceFactory能处理请求失效的情形，用自建的LoadResult是无法处理的*/
-        /*room数据库返回的DataSource.Factory能自动处理无数据时的失效情形，可以在无数据时调用remoteMediator*/
+        /*此方法的关键在于pagingSourceFactory能判断并设置请求失效的情形，用自行构造的LoadResult是无法处理的*/
+        /*room数据库返回的DataSource.Factory能自动判断并设置无数据时的失效，因此可以在无数据时调用remoteMediator*/
         val pagingSourceFactory = articleDao.queryArticle().asPagingSourceFactory()
 
         return Pager(

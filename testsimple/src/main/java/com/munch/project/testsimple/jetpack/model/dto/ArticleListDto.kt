@@ -38,6 +38,10 @@ data class ArticleWrapperDto(
     val size: Int,
     val total: Int
 ) {
+    /**
+     * 因为要传入数据库，所以不能当作构造，因为要服务器返回传值，所以不能省略
+     * 实际上应该将返回的dto与数据库的bean类分开
+     */
     @Ignore
     val datas: List<ArticleDto>? = null
 
@@ -116,6 +120,17 @@ data class ArticleDto(
             visible,
             zan
         )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is ArticleDto) {
+            return false
+        }
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id
     }
 }
 
