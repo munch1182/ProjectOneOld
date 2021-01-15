@@ -92,18 +92,14 @@ class ArticleRepository @Inject constructor() : BaseRepository() {
         ): MediatorResult {
             return try {
                 var loadKey = when (loadType) {
-                    LoadType.REFRESH -> {
-                        INITIAL_KEY
-                    }
+                    LoadType.REFRESH -> INITIAL_KEY
                     LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
-                    LoadType.APPEND -> {
-                        (pageDao.queryLast()?.page?.curPage ?: INITIAL_KEY - 1) + 1
-                    }
+                    LoadType.APPEND -> (pageDao.queryLastPage() ?: INITIAL_KEY - 1) + 1
                 }
                 if (loadKey < 1) {
                     loadKey = 1
                 }
-                //因为服务端api的页数实际上从0开始但返回值是从1开始
+                //因为服务端api的页数实际上从0开始但其返回的当前页码值是从1开始
                 val noWrapper = api.getArticleList(loadKey - 1).noWrapper()
                 val datas = noWrapper.datas
                 if (loadType == LoadType.REFRESH) {

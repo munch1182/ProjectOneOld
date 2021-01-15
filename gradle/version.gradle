@@ -79,6 +79,7 @@ ext {
             "viewmodel_ktx"                   : "androidx.lifecycle:lifecycle-viewmodel-ktx:${versions['lifecycleVersion']}",
             // alternatively - just LiveData
             "livedata"                        : "androidx.lifecycle:lifecycle-livedata:${versions['lifecycleVersion']}",
+            "livedata_ktx"                    : "androidx.lifecycle:lifecycle-livedata-ktx:${versions['lifecycleVersion']}",
             // alternatively - Lifecycles only (no ViewModel or LiveData).
             // AndroidX libraries use this lightweight import for Lifecycle
             "lifecycle_runtime"               : "androidx.lifecycle:lifecycle-runtime:${versions['lifecycleVersion']}",

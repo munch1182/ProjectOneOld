@@ -1,9 +1,9 @@
 package com.munch.project.testsimple.jetpack.net
 
-import com.munch.project.testsimple.jetpack.model.dto.Office
 import com.munch.project.testsimple.jetpack.model.dto.ArticleDto
 import com.munch.project.testsimple.jetpack.model.dto.ArticleWrapperDto
 import com.munch.project.testsimple.jetpack.model.dto.BaseDtoWrapper
+import com.munch.project.testsimple.jetpack.model.dto.Office
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import retrofit2.http.GET

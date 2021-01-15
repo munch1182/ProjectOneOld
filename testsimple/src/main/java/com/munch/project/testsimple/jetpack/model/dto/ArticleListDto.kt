@@ -3,9 +3,10 @@ package com.munch.project.testsimple.jetpack.model.dto
 import androidx.room.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.munch.project.testsimple.jetpack.db.Db
+import com.munch.project.testsimple.jetpack.db.PageDao
 import com.munch.project.testsimple.jetpack.model.bean.ArticleBean
 import com.munch.project.testsimple.jetpack.model.bean.Dto2BeanConvert
-import com.munch.project.testsimple.jetpack.db.PageDao
 
 /**
  * Create by munch1182 on 2020/12/17 21:43.
@@ -28,7 +29,7 @@ data class PageArticle(
     var article: List<ArticleDto>
 )
 
-@Entity(tableName = "tb_page")
+@Entity(tableName = Db.TB_NAME_PAGE)
 data class ArticleWrapperDto(
     @PrimaryKey
     val curPage: Int,
@@ -47,13 +48,13 @@ data class ArticleWrapperDto(
 
 }
 
-@Entity(tableName = "tb_page_with_article", primaryKeys = ["curPage", "id"])
+@Entity(tableName = Db.TB_NAME_PAGE_WITH_ARTICLE, primaryKeys = ["curPage", "id"])
 data class PageWithArticle(val curPage: Int, val id: Int)
 
 /**
  * 如果数据简单，可以用TypeConverters直接处理list
  */
-@Entity(tableName = "tb_article")
+@Entity(tableName = Db.TB_NAME_ARTICLE)
 @TypeConverters(TagConverters::class)
 data class ArticleDto(
     val apkLink: String,

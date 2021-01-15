@@ -47,6 +47,7 @@ dependencies {
     api rootProject.ext.dependencies['paging']
     api rootProject.ext.dependencies['lifecycle_runtime_ktx']
     api rootProject.ext.dependencies['viewmodel_ktx']
+    api rootProject.ext.dependencies['livedata_ktx']
     kapt rootProject.ext.dependencies['lifecycle_compiler_java8']
 
     api rootProject.ext.dependencies['hilt']

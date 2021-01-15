@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
  * ViewModel作为直接与UI通信的组件
  * 其主要任务是处理数据，包括获取、转换、判断数据、切换线程等
  *
- * 此处主要是将从[repository]中获取的数据内容进行转换，类型也从[flow]转为了[MutableList]
+ * 此处主要是将从[repository]中获取的数据内容进行转换，类型也从[flow]转为了[LiveData]
  *
  * Create by munch1182 on 2020/12/19 15:07.
  */

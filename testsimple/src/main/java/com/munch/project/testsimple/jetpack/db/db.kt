@@ -50,9 +50,11 @@ interface PageDao {
     @Query("SELECT * FROM $TB_NAME_ARTICLE as art INNER JOIN $TB_NAME_PAGE_WITH_ARTICLE as pa ON art.id = pa.id WHERE pa.curPage = :page ")
     suspend fun queryArticleByPage(page: Int): List<ArticleDto>
 
-    @Transaction
     @Query("SELECT * FROM $TB_NAME_PAGE ORDER BY curPage DESC LIMIT 1")
     suspend fun queryLast(): PageArticle?
+
+    @Query("SELECT curPage FROM $TB_NAME_PAGE ORDER by curPage DESC LIMIT 1")
+    suspend fun queryLastPage(): Int?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPageArticle(wrapper: List<PageWithArticle>)
