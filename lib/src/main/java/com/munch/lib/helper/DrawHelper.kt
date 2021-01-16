@@ -56,7 +56,7 @@ object DrawHelper {
     }
 
     /**
-     * 将cx,xy作为中心点绘制文字，而不是当作0,0
+     * 将cx,xy作为中心点绘制文字
      */
     fun drawText(canvas: Canvas, text: String, cx: Float, cy: Float, paint: Paint) {
         val textWidth = paint.measureText(text)

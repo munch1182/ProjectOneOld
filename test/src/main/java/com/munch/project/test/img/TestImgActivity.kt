@@ -169,7 +169,7 @@ class TestImgActivity : BaseActivity() {
                     defBg,
                     quality = 50,
                     opts = BitmapFactory.Options().apply {
-                        inSampleSize = 4
+                        inSampleSize = 2
                     }) ?: return
             updateByBitmap(BitmapFactory.decodeFile(res2File.absolutePath))
         }

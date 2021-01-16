@@ -15,9 +15,13 @@ fun Any.obWhenDestroy(owner: LifecycleOwner?, onDestroy: Any.() -> Unit) {
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun onDestroy() {
             onDestroy.invoke(this@obWhenDestroy)
-            owner.lifecycle.removeObserver(this)
+            removeOb(owner, this)
         }
     })
+}
+
+fun removeOb(owner: LifecycleOwner, observer: LifecycleObserver) {
+    owner.lifecycle.removeObserver(observer)
 }
 
 @JvmOverloads
@@ -31,13 +35,12 @@ fun Any.obWhenCreate(
         @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
         fun onCreate() {
             onCreate.invoke(this@obWhenCreate)
-            owner.lifecycle.removeObserver(this)
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun onDestroy() {
             onDestroy?.invoke(this@obWhenCreate)
-            owner.lifecycle.removeObserver(this)
+            removeOb(owner, this)
         }
     })
 }
@@ -64,7 +67,7 @@ fun Any.obWhenStart(
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun onDestroy() {
             onDestroy?.invoke(this@obWhenStart)
-            owner.lifecycle.removeObserver(this)
+            removeOb(owner, this)
         }
     })
 }
@@ -91,7 +94,7 @@ fun Any.obWhenResume(
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun onDestroy() {
             onDestroy?.invoke(this@obWhenResume)
-            owner.lifecycle.removeObserver(this)
+            removeOb(owner, this)
         }
     })
 }
