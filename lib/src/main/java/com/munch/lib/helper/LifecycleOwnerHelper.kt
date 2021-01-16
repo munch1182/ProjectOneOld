@@ -82,12 +82,12 @@ fun Any.obWhenResume(
     owner ?: return
     owner.lifecycle.addObserver(object : LifecycleObserver {
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        fun onStart() {
+        fun onResume() {
             onResume.invoke(this@obWhenResume)
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        fun onStop() {
+        fun onPause() {
             onPause?.invoke(this@obWhenResume)
         }
 

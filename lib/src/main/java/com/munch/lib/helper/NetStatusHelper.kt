@@ -81,6 +81,8 @@ class NetStatusHelper private constructor(private val manager: ConnectivityManag
     private var capabilities: NetworkCapabilities? = null
     private var transportType = intArrayOf()
 
+    private fun getNetListenerArray() = arrays
+
     /**
      * 当一条网络启用到断开会走[ConnectivityManager.NetworkCallback.onAvailable]-[ConnectivityManager.NetworkCallback.onLost]
      * 一条新的网络启用会再走一遍，并且有可能新的网络先回调onAvailable而旧的网络才回调onLost
@@ -108,7 +110,7 @@ class NetStatusHelper private constructor(private val manager: ConnectivityManag
                         manager.getNetworkCapabilities(allNetworks[allNetworks.lastIndex])
                     }
                 }
-            arrays.forEach {
+            getNetListenerArray().forEach {
                 it.invoke(true, capabilities)
             }
 
@@ -130,7 +132,7 @@ class NetStatusHelper private constructor(private val manager: ConnectivityManag
             super.onLost(network)
             //避免可用网络已经回调onAvailable之后上一条网络才回调onLost的状态错误
             if (networkId == network.toString()) {
-                arrays.forEach {
+                getNetListenerArray().forEach {
                     it.invoke(false, null)
                 }
             }

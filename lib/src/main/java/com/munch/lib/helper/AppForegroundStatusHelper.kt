@@ -10,7 +10,8 @@ import com.munch.lib.helper.AppForegroundStatusHelper.register
 
 /**
  * 通过activity计数的方式来判断activity是否在前台
- * 需要在Application中[register]，然后使用[isForeground]或者[getForegroundLiveData]观察是否在前台
+ * 需要现在在Application中[register]
+ * 然后通过[isForeground]或者[getForegroundLiveData]观察是否在前台
  *
  * 前台应用锁屏后也是后台，解锁后才回到前台
  *
@@ -35,7 +36,7 @@ object AppForegroundStatusHelper {
     fun isForeground() = activityCount > 0
 
     /**
-     * [MutableLiveData.observeForever]
+     * 使用[MutableLiveData.observeForever]
      */
     fun getForegroundLiveData(): MutableLiveData<Boolean> {
         return countLiveData

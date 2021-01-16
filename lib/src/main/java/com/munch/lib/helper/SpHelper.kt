@@ -38,40 +38,6 @@ class SpHelper private constructor(private var sharedPreferences: SharedPreferen
         }.apply()
     }
 
-
-    /**
-     * 如果一次存入的值太多，应该使用此方法避免反复提交
-     */
-    fun put(map: HashMap<String, Any>) {
-        getSp().edit().apply {
-            for (e in map) {
-                putVal(e.key, e.value, this)
-            }
-        }.apply()
-    }
-
-
-    fun remove(key: String) {
-        getSp().edit().remove(key).apply()
-    }
-
-
-    fun hasKey(key: String): Boolean {
-        return getSp().contains(key)
-    }
-
-    /**
-     * 同步调用，移除并在移除成功或失败之后再继续执行
-     */
-    fun remove2knowEnd(key: String): Boolean {
-        return getSp().edit().remove(key).commit()
-    }
-
-
-    fun clear() {
-        getSp().edit().clear().apply()
-    }
-
     /**
      * 必须传入默认值，否则无法判断
      */
@@ -87,6 +53,36 @@ class SpHelper private constructor(private var sharedPreferences: SharedPreferen
             else -> null
         }
         return obj as T?
+    }
+
+    /**
+     * 如果一次存入的值太多，应该使用此方法避免反复提交
+     */
+    fun put(map: HashMap<String, Any>) {
+        getSp().edit().apply {
+            for (e in map) {
+                putVal(e.key, e.value, this)
+            }
+        }.apply()
+    }
+
+    fun remove(key: String) {
+        getSp().edit().remove(key).apply()
+    }
+
+    fun hasKey(key: String): Boolean {
+        return getSp().contains(key)
+    }
+
+    /**
+     * 同步调用，移除并在移除成功或失败之后再继续执行
+     */
+    fun remove2knowEnd(key: String): Boolean {
+        return getSp().edit().remove(key).commit()
+    }
+
+    fun clear() {
+        getSp().edit().clear().apply()
     }
 
     private fun putVal(key: String, any: Any?, edit: SharedPreferences.Editor) {

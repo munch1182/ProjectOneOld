@@ -13,7 +13,7 @@ import kotlin.math.sqrt
 /**
  * Create by munch1182 on 2021/1/15 15:11.
  */
-object DrawHelper {
+object PosHelper {
 
     /**
      * 获取二阶贝塞尔曲线的点
@@ -54,46 +54,39 @@ object DrawHelper {
     fun getDis(x1: Float, y1: Float, x2: Float, y2: Float): Double {
         return sqrt((getDis(x1, x2).pow(2f) + getDis(y1, y2).pow(2f)).toDouble())
     }
-
-    /**
-     * 将cx,xy作为中心点绘制文字
-     */
-    fun drawText(canvas: Canvas, text: String, cx: Float, cy: Float, paint: Paint) {
-        val textWidth = paint.measureText(text)
-        val fontMetrics = paint.fontMetrics
-        val baseLineY = cy + (fontMetrics.bottom - fontMetrics.top) / 2f - fontMetrics.bottom
-        canvas.drawText(text, cx - textWidth / 2f, baseLineY, paint)
-    }
-
-    /**
-     * 给定宽高等比放大bitmap
-     *
-     * 注意：origin未被回收
-     */
-    fun scaleBitmap(origin: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
-        val height = origin.height
-        val width = origin.width
-        val scaleWidth = newWidth.toFloat() / width
-        val scaleHeight = newHeight.toFloat() / height
-        val matrix = Matrix()
-        matrix.postScale(scaleWidth, scaleHeight) // 使用后乘
-        return Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false)
-    }
-
-    /**
-     * 按比例缩放图片
-     *
-     * 注意：origin未被回收
-     */
-    fun scaleBitmap(origin: Bitmap, ratio: Float): Bitmap {
-        val width = origin.width
-        val height = origin.height
-        val matrix = Matrix()
-        matrix.preScale(ratio, ratio)
-        return Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false)
-    }
 }
 
+/**
+ * 将cx,xy作为中心点绘制文字
+ */
 fun Canvas.drawTextInCenter(text: String, cx: Float, cy: Float, paint: Paint) {
-    DrawHelper.drawText(this, text, cx, cy, paint)
+    val textWidth = paint.measureText(text)
+    val fontMetrics = paint.fontMetrics
+    val baseLineY = cy + (fontMetrics.bottom - fontMetrics.top) / 2f - fontMetrics.bottom
+    drawText(text, cx - textWidth / 2f, baseLineY, paint)
+}
+
+/**
+ * 给定宽高等比放大bitmap
+ *
+ * 注意：origin未被回收
+ */
+fun Bitmap.scaleBitmap(newWidth: Int, newHeight: Int): Bitmap {
+    val scaleWidth = newWidth.toFloat() / width
+    val scaleHeight = newHeight.toFloat() / height
+    val matrix = Matrix()
+    matrix.postScale(scaleWidth, scaleHeight) // 使用后乘
+    return Bitmap.createBitmap(this, 0, 0, width, height, matrix, false)
+}
+
+
+/**
+ * 按比例缩放图片
+ *
+ * 注意：origin未被回收
+ */
+fun Bitmap.scaleBitmap(ratio: Float): Bitmap? {
+    val matrix = Matrix()
+    matrix.preScale(ratio, ratio)
+    return Bitmap.createBitmap(this, 0, 0, width, height, matrix, false)
 }

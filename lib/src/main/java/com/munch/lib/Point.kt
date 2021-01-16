@@ -30,8 +30,7 @@ data class Point constructor(
     }
 
     fun clear(): Point {
-        x = getUnset()
-        y = getUnset()
+        reset()
         return this
     }
 

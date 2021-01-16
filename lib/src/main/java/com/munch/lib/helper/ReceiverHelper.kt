@@ -20,10 +20,10 @@ abstract class ReceiverHelper<T> constructor(
     private val actions: Array<String>
 ) : AddRemoveSetHelper<T>() {
 
-    private var receiver: ScreenReceiver? = null
+    private var receiver: Receiver? = null
 
     open fun register() {
-        receiver = ScreenReceiver()
+        receiver = Receiver()
         context.registerReceiver(receiver, IntentFilter().apply {
             actions.forEach { addAction(it) }
             buildIntentFilter(this)
@@ -78,15 +78,17 @@ abstract class ReceiverHelper<T> constructor(
         receiver = null
     }
 
-    inner class ScreenReceiver : BroadcastReceiver() {
+    private fun getReceiverArrays() = arrays
+
+    inner class Receiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent ?: return
-            if (arrays.isEmpty()) {
+            if (getReceiverArrays().isEmpty()) {
                 return
             }
             actions.forEach { action ->
                 if (action == intent.action) {
-                    arrays.forEach {
+                    getReceiverArrays().forEach {
                         handleAction(action, context, intent, it)
                     }
                     return

@@ -92,6 +92,7 @@ fun Context.isServiceRunning(service: Class<out Service>? = null): Boolean? {
 
 /**
  * 即使声明不同进程的服务也会被stop
+ * 如果传入为空，将关闭所有应用下的服务
  */
 @Suppress("DEPRECATION")
 fun Context.stopServices(vararg service: Class<out Service>) {
@@ -117,6 +118,9 @@ fun Context.getAttrFromTheme(attrId: Int): TypedValue {
     return typedValue
 }
 
+/**
+ * 获取actionbar高度，无缓存，未获取到则为-1
+ */
 fun Context.getActionBarSize() = TypedValue.complexToDimensionPixelSize(
     getAttrFromTheme(android.R.attr.actionBarSize).data,
     resources.displayMetrics

@@ -162,8 +162,10 @@ class QueueService : Service() {
         }
 
         fun updateAll(what: Int, obj: Any?) {
-            arrays.forEach { it.update(what, obj) }
+            getNotifyListenerArrays().forEach { it.update(what, obj) }
         }
+
+        private fun getNotifyListenerArrays() = arrays
     }
 
     interface NotifyListener {
