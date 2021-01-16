@@ -2,6 +2,7 @@ package com.munch.project.testsimple.queue
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
@@ -50,6 +51,10 @@ class TestQueueActivity : TestBaseTopActivity(), QueueService.NotifyListener {
                 tvMsg.text = "${tvMsg.text}\r\n${msg.split("---")[0]}"
             }
         }
+    }
+
+    override fun setPageBg(view: View) {
+        /*super.setPageBg(view)*/
     }
 
     override fun update(what: Int, obj: Any?) {

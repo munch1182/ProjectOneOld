@@ -21,10 +21,10 @@ object ThemeHelper {
     fun getTheme(): Int {
         return when (SwitchHelper.INSTANCE.getThemeMode()) {
             THEME_MODE_1 -> {
-                R.style.AppTheme_P1_Theme_exp_1
+                R.style.TestAppTheme_Theme_exp_1
             }
             else -> {
-                R.style.AppTheme_P1
+                R.style.TestAppTheme
             }
         }
     }

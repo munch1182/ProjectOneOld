@@ -20,6 +20,8 @@ class TestMainActivity : TestRvActivity() {
         addEndView(getTestView("testSimple"))
     }
 
+    override fun notShowBack() = true
+
     override fun testFun() {
         super.testFun()
         start2Component(RouterHelper.TestSimple.MAIN)

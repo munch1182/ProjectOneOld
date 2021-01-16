@@ -1,6 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.P1" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <!--如果无法引用，多重启-->
+    <style name="BaseTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
         <item name="colorPrimary">@color/teal_200</item>
         <item name="colorPrimaryVariant">@color/teal_700</item>
         <item name="colorOnPrimary">@color/white</item>
@@ -11,5 +13,13 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <!--全局设置背景色-->
+        <item name="android:windowBackground">@color/colorBg</item>
+
+        <item name="android:activityOpenEnterAnimation">@anim/anim_open_in</item>
+        <item name="android:activityOpenExitAnimation">@anim/anim_open_out</item>
+        <item name="android:activityCloseEnterAnimation">@anim/anim_close_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/anim_close_out</item>
+
     </style>
 </resources>

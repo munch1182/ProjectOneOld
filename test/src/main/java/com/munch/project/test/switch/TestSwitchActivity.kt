@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.munch.lib.common.RouterHelper
+import com.munch.lib.common.start2ComponentCallbackLost
 import com.munch.lib.helper.AppHelper
 import com.munch.lib.helper.startActivity
 import com.munch.lib.test.recyclerview.TestRvActivity
@@ -32,7 +34,9 @@ class TestSwitchActivity : TestRvActivity() {
             context.startActivity(
                 TestSwitchActivity::class.java,
                 Bundle().apply { putBoolean(KEY_RESTART, needRestart) })
-            context.overridePendingTransition(R.anim.anim_mask_in, R.anim.anim_mask_out)
+            if (needRestart) {
+                context.overridePendingTransition(R.anim.anim_mask_in, R.anim.anim_mask_out)
+            }
         }
     }
 
@@ -89,6 +93,7 @@ class TestSwitchActivity : TestRvActivity() {
                 //先启动activity
                 switch(this)
                 instance.switchDayNight()
+                switch(this, true)
                 finish()
             }
             3 -> {
@@ -101,7 +106,13 @@ class TestSwitchActivity : TestRvActivity() {
         super.onBackPressed()
         //不写在[finish()]是避免切换多次直接restart
         if (intent?.extras?.getBoolean(KEY_RESTART, false) == true) {
-            AppHelper.resetApp2Activity(this, TestMainActivity::class.java)
+            //如果找不到App.MAIN即单独运行中
+            //作为重启，需要App.MAIN自行处理重启逻辑
+            start2ComponentCallbackLost(RouterHelper.App.MAIN, {
+                it.withBoolean(RouterHelper.App.KEY_RESTART, true)
+            }) {
+                AppHelper.resetApp2Activity(this, TestMainActivity::class.java)
+            }
             //类似的动画效果可以掩盖重启感知
             overridePendingTransition(R.anim.anim_close_in, R.anim.anim_close_out)
         }

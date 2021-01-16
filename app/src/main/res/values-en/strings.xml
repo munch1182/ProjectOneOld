@@ -1,9 +1,0 @@
-<resources>
-    <string name="app_name">One App</string>
-
-    <string name="str_test_language">test language</string>
-    <string name="str_switch_language">switch language</string>
-    <string name="str_switch_theme">switch theme</string>
-    <string name="str_jump">jump</string>
-    <string name="str_switch_day_night">switch night</string>
-</resources>

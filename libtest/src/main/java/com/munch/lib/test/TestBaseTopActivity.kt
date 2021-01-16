@@ -79,13 +79,18 @@ open class TestBaseTopActivity : BaseActivity() {
     }
 
     open fun setContentView(@LayoutRes layoutResID: Int, fitTop: Boolean = true) {
-        setContentView(View.inflate(this, layoutResID, null), fitTop)
+        val contentView = View.inflate(this, R.layout.activity_base_top, null) as ViewGroup
+        View.inflate(this, layoutResID, contentView)
+        setView(contentView, fitTop)
     }
 
-    open fun setContentView(view: View?, fitTop: Boolean = true) {
-        val contentView = View.inflate(this, R.layout.activity_base_top, null) as ViewGroup
-        contentView.addView(view?.apply {
-            if (fitTop) {
+    open fun setView(view: View?, fitTop: Boolean = true) {
+        super.setContentView(view?.apply {
+            if (!fitTop) {
+                return@apply
+            }
+            val container = this.findViewById<ViewGroup>(R.id.top_container) ?: return@apply
+            container.getChildAt(1)?.apply pageView@{
                 val actionBarSize = PhoneHelper.getActionBarSize().takeIf { it != -1 } ?: 0
                 setMargin(
                     0, actionBarSize, 0, 0, true,
@@ -94,12 +99,25 @@ open class TestBaseTopActivity : BaseActivity() {
                         FrameLayout.LayoutParams.WRAP_CONTENT
                     )
                 )
+                setPageBg(this@pageView)
             }
         })
-        super.setContentView(contentView)
 
         title = this::class.java.simpleName.replace("Test", "").replace("Activity", "")
         showBack(!notShowBack())
+    }
+
+    /**
+     *  给内容view设置背景，默认为白色，如果要更改或者不需要，组织其实现即可
+     */
+    open fun setPageBg(view: View) {
+        view.setBackgroundColor(Color.WHITE)
+    }
+
+    open fun setContentView(view: View?, fitTop: Boolean = true) {
+        val contentView = View.inflate(this, R.layout.activity_base_top, null) as ViewGroup
+        contentView.addView(view)
+        setView(contentView, fitTop)
     }
 
     override fun setContentView(view: View?) {

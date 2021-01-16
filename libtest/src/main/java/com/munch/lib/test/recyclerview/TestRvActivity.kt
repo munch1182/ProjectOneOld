@@ -65,9 +65,6 @@ open class TestRvActivity : TestBaseTopActivity() {
         val items: MutableList<TestRvItemBean>? =
             getItems() ?: extras?.getParcelableArrayList(KEY_ITEMS)
         val isBtn = isBtn()
-        if (isBtn) {
-            rv.setBackgroundColor(Color.TRANSPARENT)
-        }
         adapter = TestRvAdapter(items, isBtn).apply {
             if (isBtn) {
                 clickItemListener {
@@ -78,6 +75,8 @@ open class TestRvActivity : TestBaseTopActivity() {
         rv.adapter = adapter
         if (!isBtn) {
             rv.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        }else{
+            rv.setBackgroundColor(Color.TRANSPARENT)
         }
         rv.layoutManager = LinearLayoutManager(this)
     }

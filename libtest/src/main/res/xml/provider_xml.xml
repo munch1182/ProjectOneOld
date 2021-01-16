@@ -6,10 +6,6 @@
         name="output"
         path="." />
 
-    <files-path
-        name="img"
-        path="." />
-
     <!--Context.getCacheDir()-->
     <cache-path
         name="cache"

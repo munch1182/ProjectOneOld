@@ -1,46 +1,10 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:windowAnimationStyle">@style/ActivityAnimStyle</item>
-    </style>
 
-    <style name="ActivityAnimStyle">
-        <item name="android:activityOpenEnterAnimation">@anim/anim_open_in</item>
-        <item name="android:activityOpenExitAnimation">@anim/anim_open_out</item>
-        <item name="android:activityCloseEnterAnimation">@anim/anim_close_in</item>
-        <item name="android:activityCloseExitAnimation">@anim/anim_close_out</item>
-    </style>
-
-    <style name="AppTheme.P1">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
-        <item name="colorOnSecondary">@color/colorOnSecondary</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
-        <!--//自定义属性实现换主题，如果与夜间模式并存，则需要在夜间模式文件夹中存在-->
+    <!--正常的设计中，所有的theme应该方法中common中，因为CommonTheme最后会被壳应用的xml引用作为应用主题，且能够被所有模组使用-->
+    <!--包括多套设计都应该放在这里-->
+    <style name="CommonTheme" parent="BaseTheme">
         <item name="pageBg">@color/colorBg</item>
     </style>
 
-    <style name="AppTheme.P1.Theme_exp_1">
-        <item name="colorPrimary">#2196F3</item>
-        <item name="colorPrimaryVariant">#1976D2</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">#0097A7</item>
-        <item name="colorSecondaryVariant">#00BCD4</item>
-        <item name="colorOnSecondary">@color/colorOnSecondary</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-
-        <item name="pageBg">@color/colorBg2</item>
-
-        <item name="android:windowEnterAnimation">@anim/anim_close_in</item>
-        <item name="android:windowExitAnimation">@anim/anim_close_out</item>
-    </style>
 </resources>

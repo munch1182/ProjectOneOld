@@ -30,6 +30,14 @@ android {
             }
         }
     }
+    buildTypes {
+        release {
+            buildConfigField "boolean", "RUN_ALONE", runAlone() ? "true" : "false"
+        }
+        debug {
+            buildConfigField "boolean", "RUN_ALONE", runAlone() ? "true" : "false"
+        }
+    }
 }
 
 kapt {

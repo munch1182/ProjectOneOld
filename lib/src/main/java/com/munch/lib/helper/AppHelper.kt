@@ -8,6 +8,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.os.Bundle
 import com.munch.lib.BaseApp
 
 /**
@@ -71,10 +72,15 @@ object AppHelper {
     /**
      * 只对同一栈的Activity有效
      */
-    fun resetApp2Activity(context: Context, clazz: Class<out Activity>) {
+    fun resetApp2Activity(context: Context, clazz: Class<out Activity>, bundle: Bundle? = null) {
         context.startActivity(
             Intent(context, clazz)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                .apply {
+                    if (bundle != null) {
+                        putExtras(bundle)
+                    }
+                }
         )
     }
 

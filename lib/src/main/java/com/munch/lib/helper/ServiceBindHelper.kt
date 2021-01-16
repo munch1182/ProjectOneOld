@@ -8,9 +8,7 @@ import android.content.ServiceConnection
 import android.os.Binder
 import androidx.core.app.ComponentActivity
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.OnLifecycleEvent
 import com.munch.lib.helper.ServiceBindHelper.Companion.newBinder
 
 /**

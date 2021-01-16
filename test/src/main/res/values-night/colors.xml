@@ -9,14 +9,8 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="colorBg">#2C2A2A</color>
-    <color name="colorBg2">#303132</color>
     <color name="colorWhite">#776C6C</color>
     <color name="colorTextDef">#C3C1C1</color>
 
-    <color name="colorSecondary">@color/teal_700</color>
-    <color name="colorSecondaryVariant">@color/teal_700</color>
-    <color name="colorOnSecondary">@color/black</color>
     <color name="colorPrimary">#04433D</color>
-    <color name="colorPrimaryVariant">@color/teal_700</color>
-    <color name="colorOnPrimary">#8C8686</color>
 </resources>
