@@ -20,7 +20,7 @@ open class TestFunInFragmentActivity : TestBaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_test_fun_in_fragment)
+        setContentView(R.layout.test_simple_activity_test_fun_in_fragment)
         supportFragmentManager.beginTransaction()
             .replace(R.id.test_fragment_fragment, TestFunFragment())
             .commit()

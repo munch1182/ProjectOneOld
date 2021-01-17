@@ -42,7 +42,7 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_test_recycler_view)
+        setContentView(R.layout.test_activity_test_recycler_view)
 
         Pinyin.init(Pinyin.newConfig().with(CnCityDict.getInstance(applicationContext)))
 
@@ -275,7 +275,7 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IconViewHolder {
             return IconViewHolder(
                 LayoutInflater.from(parent.context)
-                    .inflate(R.layout.layout_item_recycler_view_letter, parent, false)
+                    .inflate(R.layout.test_layout_item_recycler_view_letter, parent, false)
             )
         }
 
@@ -303,7 +303,7 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IconViewHolder {
             return IconViewHolder(
                 LayoutInflater.from(parent.context)
-                    .inflate(R.layout.layout_item_recycler_view_content, parent, false)
+                    .inflate(R.layout.test_layout_item_recycler_view_content, parent, false)
             )
         }
 

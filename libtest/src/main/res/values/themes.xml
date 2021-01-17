@@ -16,10 +16,26 @@
         <!--全局设置背景色-->
         <item name="android:windowBackground">@color/colorBg</item>
 
+        <item name="android:windowAnimationStyle">@style/ActivityAnim</item>
+    </style>
+
+    <style name="ActivityAnim">
         <item name="android:activityOpenEnterAnimation">@anim/anim_open_in</item>
         <item name="android:activityOpenExitAnimation">@anim/anim_open_out</item>
         <item name="android:activityCloseEnterAnimation">@anim/anim_close_in</item>
         <item name="android:activityCloseExitAnimation">@anim/anim_close_out</item>
+    </style>
 
+
+    <style name="StyleSingleActivity" parent="Theme.AppCompat">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowNoDisplay">false</item>
     </style>
 </resources>

@@ -5,16 +5,4 @@
         <!--//自定义属性实现换主题，如果与夜间模式并存，则需要在夜间模式文件夹中存在-->
         <item name="pageBg">?attr/pageBg</item>
     </style>
-
-    <style name="StyleSingleActivity" parent="Theme.AppCompat">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowDisablePreview">true</item>
-        <item name="android:windowNoDisplay">false</item>
-    </style>
 </resources>

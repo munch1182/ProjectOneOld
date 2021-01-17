@@ -18,6 +18,7 @@ class TestMainActivity : TestRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         addEndView(getTestView("testSimple"))
+        setTitle(R.string.test_app_main_title)
     }
 
     override fun notShowBack() = true

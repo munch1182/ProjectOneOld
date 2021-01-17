@@ -25,7 +25,7 @@ class TestFlowLayoutActivity : TestBaseTopActivity() {
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_test_flow_layout)
+        setContentView(R.layout.test_activity_test_flow_layout)
 
         addItemView()
         container.setGravity(FlowLayout.CENTER)

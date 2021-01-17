@@ -8,8 +8,8 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.munch.lib.helper.dp2Px
 import com.munch.project.testsimple.R
-import com.munch.project.testsimple.databinding.LayoutArticleItemBinding
-import com.munch.project.testsimple.databinding.LayoutArticleStateBinding
+import com.munch.project.testsimple.databinding.TestSimpleLayoutArticleItemBinding
+import com.munch.project.testsimple.databinding.TestSimpleLayoutArticleStateBinding
 import com.munch.project.testsimple.jetpack.model.bean.ArticleBean
 
 /**
@@ -28,13 +28,13 @@ class ArticleAdapter :
 
     override fun onBindViewHolder(holder: BindViewHolder, position: Int) {
         val article = getItem(position) ?: return
-        holder.executeBinding<LayoutArticleItemBinding> {
+        holder.executeBinding<TestSimpleLayoutArticleItemBinding> {
             it.article = article
         }
         article.tags.takeIf { it.isEmpty() }?.forEach { tag ->
             val context = holder.itemView.context
             val dp8 = context.dp2Px(8f).toInt()
-            holder.getBind<LayoutArticleItemBinding>().articleVgTags
+            holder.getBind<TestSimpleLayoutArticleItemBinding>().articleVgTags
                 .addView(TextView(context).apply {
                     text = tag.name
                     setPadding(dp8, 0, dp8, 0)
@@ -49,7 +49,7 @@ class ArticleAdapter :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindViewHolder {
-        return BindViewHolder(R.layout.layout_article_item, parent)
+        return BindViewHolder(R.layout.test_simple_layout_article_item, parent)
     }
 
     class ArticleDiffCallBack : DiffUtil.ItemCallback<ArticleBean>() {
@@ -63,7 +63,7 @@ class ArticleAdapter :
     class ArticleStateAdapter(private val adapter: PagingDataAdapter<*, *>) :
         LoadStateAdapter<BindViewHolder>() {
         override fun onBindViewHolder(holder: BindViewHolder, loadState: LoadState) {
-            holder.getBind<LayoutArticleStateBinding>().apply {
+            holder.getBind<TestSimpleLayoutArticleStateBinding>().apply {
                 when {
                     loadState.endOfPaginationReached -> {
                         this.articleTvState.text = "没有更多数据了"
@@ -84,7 +84,7 @@ class ArticleAdapter :
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): BindViewHolder {
-            return BindViewHolder(R.layout.layout_article_state, parent)
+            return BindViewHolder(R.layout.test_simple_layout_article_state, parent)
         }
     }
 }

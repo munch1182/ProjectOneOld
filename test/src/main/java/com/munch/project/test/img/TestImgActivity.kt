@@ -46,7 +46,7 @@ class TestImgActivity : BaseActivity() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             barHelper.setTextColorBlack(true)
         }
-        setContentView(R.layout.activity_test_img)
+        setContentView(R.layout.test_activity_test_img)
 
         vp.adapter = adapter
         vp.offscreenPageLimit = count
@@ -249,7 +249,7 @@ class TestImgActivity : BaseActivity() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
         ): View? {
-            return inflater.inflate(R.layout.fragment_img, container, false)
+            return inflater.inflate(R.layout.test_fragment_img, container, false)
         }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

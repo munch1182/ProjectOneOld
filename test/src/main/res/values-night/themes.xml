@@ -17,6 +17,6 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
 
-        <item name="pageBg">@color/colorBg2</item>
+        <item name="pageBg">@color/test_colorBg2</item>
     </style>
 </resources>

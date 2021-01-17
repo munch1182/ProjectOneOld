@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <declare-styleable name="CountView">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <declare-styleable name="CountView" tools:ignore="ResourceName">
         <attr name="count_view_count" format="integer" />
         <attr name="count_view_text_size" format="dimension" />
         <attr name="count_view_textColor" format="color" />

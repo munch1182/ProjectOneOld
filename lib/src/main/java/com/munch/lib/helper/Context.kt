@@ -31,7 +31,11 @@ fun Context.restartApp2Activity(clazz: Class<out Activity>, bundle: Bundle? = nu
     AppHelper.resetApp2Activity(this, clazz, bundle)
 }
 
-fun Context.startActivity(clazz: Class<out Activity>, func: Bundle.() -> Unit) {
+fun Context.restartApp2Activity(bundle: Bundle? = null) {
+    AppHelper.resetApp2Activity(this, bundle)
+}
+
+inline fun Context.startActivity(clazz: Class<out Activity>, func: Bundle.() -> Unit) {
     val empty = Bundle()
     func.invoke(empty)
     startActivity(clazz, empty)

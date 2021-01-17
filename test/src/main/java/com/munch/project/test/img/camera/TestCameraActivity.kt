@@ -42,7 +42,7 @@ class TestCameraActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_camera)
+        setContentView(R.layout.test_activity_camera)
 
         val barHelper = BarHelper(this)
         barHelper.colorStatusBar(Color.TRANSPARENT).hideStatusBar(true)

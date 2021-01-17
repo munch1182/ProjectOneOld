@@ -30,7 +30,7 @@ class TestAliveSimpleActivity : TestBaseTopActivity() {
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_test_alive)
+        setContentView(R.layout.test_simple_activity_test_alive)
 
         showBack(false)
         title = "测试存活时间"

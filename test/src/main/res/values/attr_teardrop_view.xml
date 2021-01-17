@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <declare-styleable name="TeardropView">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <declare-styleable name="TeardropView" tools:ignore="ResourceName">
         <attr name="teardrop_color" format="color" />
         <attr name="teardrop_text_color" format="color" />
         <attr name="teardrop_text_size" format="integer" />

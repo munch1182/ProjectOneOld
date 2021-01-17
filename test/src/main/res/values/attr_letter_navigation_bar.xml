@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <declare-styleable name="LetterNavigationBarView">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <declare-styleable name="LetterNavigationBarView" tools:ignore="ResourceName">
         <attr name="letter_textSize" format="dimension" />
         <attr name="letter_textColor" format="color" />
         <attr name="letter_selectColor" format="color" />

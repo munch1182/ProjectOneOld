@@ -5,7 +5,7 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
-import com.munch.project.testsimple.databinding.ActivityTestJetPackBinding
+import com.munch.project.testsimple.databinding.TestSimpleActivityTestJetPackBinding
 import com.munch.project.testsimple.jetpack.bind.bindingTop
 import com.munch.project.testsimple.jetpack.bind.getViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,7 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class TestJetpackActivity : TestBaseTopActivity() {
 
-    private val binding by bindingTop<ActivityTestJetPackBinding>(R.layout.activity_test_jet_pack)
+    private val binding by bindingTop<TestSimpleActivityTestJetPackBinding>(R.layout.test_simple_activity_test_jet_pack)
 
     @ExperimentalPagingApi
     private val viewModel by getViewModel<TestJetpackViewModel>()

@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorBg2">@color/colorBg</color>
+    <color name="test_colorBg2">@color/colorBg</color>
 </resources>

@@ -21,16 +21,15 @@
         android:allowBackup="true"
         android:fullBackupContent="@xml/content_backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/test_app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/TestAppTheme">
+        android:theme="@style/TestAppTheme"
+        tools:replace="android:label">
 
         <!--冷启动时间 https://developer.android.google.cn/topic/performance/vitals/launch-time-->
         <!-->adb -s deviceNumber shell am start -S -W com.munch.project.test/.TestMainAloneActivity-->
-        <activity
-            android:name=".TestMainAloneActivity"
-            android:launchMode="singleInstance">
+        <activity android:name=".TestMainAloneActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

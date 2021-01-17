@@ -70,7 +70,9 @@ object AppHelper {
     }
 
     /**
-     * 只对同一栈的Activity有效
+     * 清除同一栈的Activity并启动[clazz]
+     * 并没有重启app所以缓存的数据仍然有效
+     * 注意对应activity的启动模式
      */
     fun resetApp2Activity(context: Context, clazz: Class<out Activity>, bundle: Bundle? = null) {
         context.startActivity(
@@ -82,6 +84,22 @@ object AppHelper {
                     }
                 }
         )
+    }
+
+    /**
+     * 清除同一栈的Activity并启动注册的启动activity，如果没有注册则什么都不做
+     * 并没有重启app所以缓存的数据仍然有效
+     * 注意启动activity的启动模式
+     */
+    fun resetApp2Activity(context: Context, bundle: Bundle? = null) {
+        context.startActivity(
+            context.packageManager.getLaunchIntentForPackage(context.packageName)
+                ?.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                ?.apply {
+                    if (bundle != null) {
+                        putExtras(bundle)
+                    }
+                } ?: return)
     }
 
     private fun getBaseApp(): Context = BaseApp.getInstance()

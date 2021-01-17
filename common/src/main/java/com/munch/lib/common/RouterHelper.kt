@@ -13,12 +13,6 @@ import com.munch.lib.BaseApp
  */
 object RouterHelper {
 
-    object App {
-        const val MAIN = "/app/main"
-
-        const val KEY_RESTART = "key_restart"
-    }
-
     object Test {
 
         const val MAIN = "/test/main"

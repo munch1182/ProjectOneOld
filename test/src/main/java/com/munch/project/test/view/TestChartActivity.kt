@@ -32,7 +32,7 @@ class TestChartActivity : TestBaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_test_chart)
+        setContentView(R.layout.test_activity_test_chart)
 
         val lineData = LineDataSet(generateLineData(), "label")
         setLineChartStyle(lineData, lineChart)
@@ -186,7 +186,7 @@ class TestChartActivity : TestBaseTopActivity() {
         return list
     }
 
-    class DetailsMarkerView(context: Context) : MarkerView(context, R.layout.layout_chart_marker) {
+    class DetailsMarkerView(context: Context) : MarkerView(context, R.layout.test_layout_chart_marker) {
 
         private val tv1: TextView by lazy { findViewById(R.id.chart_marker_tv1) }
         private val tv2: TextView by lazy { findViewById(R.id.chart_marker_tv2) }

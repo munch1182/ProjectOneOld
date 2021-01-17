@@ -30,7 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0"
-        tools:listitem="@layout/layout_item_recycler_view_letter" />
+        tools:listitem="@layout/test_layout_item_recycler_view_letter" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/view_letter_rv"
@@ -41,7 +41,7 @@
         app:layout_constraintStart_toEndOf="@id/view_letter_rv_letter"
         app:layout_constraintTop_toTopOf="parent"
         tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        tools:listitem="@layout/layout_item_recycler_view_content"
+        tools:listitem="@layout/test_layout_item_recycler_view_content"
         tools:spanCount="4" />
 
 

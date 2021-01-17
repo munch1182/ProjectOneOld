@@ -28,7 +28,7 @@ class TestSimpleSocketActivity : TestBaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_test_simple_socket)
+        setContentView(R.layout.test_simple_activity_test_simple_socket)
         btnIp.setOnClickListener {
             tvIp.text = helper.getIpAddress() ?: "获取ip失败"
         }

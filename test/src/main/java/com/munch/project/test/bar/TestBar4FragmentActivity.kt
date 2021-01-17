@@ -36,7 +36,7 @@ class TestBar4FragmentActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_test_bar_for_fragment)
+        setContentView(R.layout.test_activity_test_bar_for_fragment)
 
         viewPager.adapter = ViewPagerAdapter(this)
         TabLayoutMediator(tabLayout, viewPager, false, true) { tab, pos ->
@@ -116,7 +116,7 @@ class TestBar4FragmentActivity : BaseActivity() {
         ): View? {
             LogLog.log("testbar onCreateView：${pos}")
             val layout =
-                if (pos == COUNT_FRAGMENT - 1) R.layout.fragment_test_bar2 else R.layout.fragment_test_bar1
+                if (pos == COUNT_FRAGMENT - 1) R.layout.test_fragment_test_bar2 else R.layout.test_fragment_test_bar1
             return inflater.inflate(layout, container, false)
         }
 

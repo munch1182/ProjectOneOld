@@ -43,7 +43,7 @@ class PaintModeActivity : TestRvActivity() {
             }
         })
         rv.adapter =
-            BaseSimpleAdapter(R.layout.layout_item_paint_mode, getData()) { holder, data, _ ->
+            BaseSimpleAdapter(R.layout.test_layout_item_paint_mode, getData()) { holder, data, _ ->
                 holder.itemView.apply {
                     findViewById<PorterDuffXfermodeView>(R.id.paint_mode_view)
                         .changeXfermode(data.xfermode, data.close)

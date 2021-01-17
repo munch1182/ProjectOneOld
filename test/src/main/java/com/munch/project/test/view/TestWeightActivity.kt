@@ -20,7 +20,7 @@ class TestWeightActivity : TestBaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_show_weight)
+        setContentView(R.layout.test_activity_show_weight)
 
         countView.setOnClickListener {
             if (!cb.isChecked) {

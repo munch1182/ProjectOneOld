@@ -1,0 +1,11 @@
+<resources>
+    <!-- Base application theme. -->
+
+    <!--正常的设计中，所有的theme应该方法中common中，因为CommonTheme最后会被壳应用的xml引用作为应用主题，且能够被所有模组使用-->
+    <!--但是，theme放在lib中有覆盖问题，因此还是复制一份到app，最终引用app里的主题-->
+    <style name="AppTheme" parent="BaseTheme">
+        <item name="pageBg">@color/colorBg</item>
+        <item name="android:windowAnimationStyle">@style/ActivityAnim</item>
+    </style>
+
+</resources>

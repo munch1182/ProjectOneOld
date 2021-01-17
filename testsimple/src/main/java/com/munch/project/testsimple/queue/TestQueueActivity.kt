@@ -25,7 +25,7 @@ class TestQueueActivity : TestBaseTopActivity(), QueueService.NotifyListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_test_queue)
+        setContentView(R.layout.test_simple_activity_test_queue)
 
         QueueService.UiNotifyManager.INSTANCE.setWhenResume(this, this)
 

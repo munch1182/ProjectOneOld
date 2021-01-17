@@ -6,8 +6,9 @@ import android.graphics.Paint
 import android.graphics.Rect
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.lib.helper.DrawHelper
+import com.munch.lib.helper.PosHelper
 import com.munch.lib.helper.obWhenDestroy
+import com.munch.lib.helper.scaleBitmap
 import kotlin.math.max
 
 /**
@@ -55,7 +56,7 @@ class BgItemDecoration(
             parallax = bitmapWidth / maxViewWidth
 
             //取高度差的一半，让高度绘制中心值
-            topOffset = (DrawHelper.getDis(
+            topOffset = (PosHelper.getDis(
                 viewRect.height().toFloat(),
                 scaleBitmap!!.height.toFloat()
             ) / 2f).toInt()
@@ -80,7 +81,7 @@ class BgItemDecoration(
      */
     private fun changeBitmap(parent: RecyclerView) {
         originBitmap ?: return
-        scaleBitmap = DrawHelper.scaleBitmap(originBitmap!!, getRatio(originBitmap!!, parent))
+        scaleBitmap = originBitmap!!.scaleBitmap(getRatio(originBitmap!!, parent))
         clearOriginBitmap()
     }
 

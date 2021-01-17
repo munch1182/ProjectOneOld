@@ -1,7 +1,6 @@
 package com.munch.project.test
 
 import android.os.Bundle
-import com.munch.lib.BaseApp
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.test.img.TestImgActivity
@@ -17,9 +16,10 @@ class TestMainAloneActivity : TestRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //用于测试首页启动时间，logcat Nofilters查看Fully drawn语句
-        if (BaseApp.debugMode()) {
+        /*if (BaseApp.debugMode()) {
             reportFullyDrawn()
-        }
+        }*/
+        setTitle(R.string.test_main_title)
     }
 
     override fun getItems(): MutableList<TestRvItemBean> {

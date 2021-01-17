@@ -17,6 +17,7 @@ android {
     buildFeatures {
         dataBinding = true
     }
+    resourcePrefix "test_simple_"
     sourceSets {
         main {
             if (runAlone()) {
