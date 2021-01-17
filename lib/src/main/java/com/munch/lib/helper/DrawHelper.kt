@@ -57,13 +57,22 @@ object PosHelper {
 }
 
 /**
- * 将cx,xy作为中心点绘制文字
+ * 将cx,cy作为中心点绘制文字
  */
 fun Canvas.drawTextInCenter(text: String, cx: Float, cy: Float, paint: Paint) {
     val textWidth = paint.measureText(text)
     val fontMetrics = paint.fontMetrics
     val baseLineY = cy + (fontMetrics.bottom - fontMetrics.top) / 2f - fontMetrics.bottom
     drawText(text, cx - textWidth / 2f, baseLineY, paint)
+}
+
+/**
+ * 将cx作为起点,将cy作为中心高度绘制文字
+ */
+fun Canvas.drawTextInYCenter(text: String, cx: Float, cy: Float, paint: Paint) {
+    val fontMetrics = paint.fontMetrics
+    val baseLineY = cy + (fontMetrics.bottom - fontMetrics.top) / 2f - fontMetrics.bottom
+    drawText(text, cx, baseLineY, paint)
 }
 
 /**

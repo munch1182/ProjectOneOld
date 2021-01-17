@@ -168,14 +168,13 @@ class TestImgActivity : BaseActivity() {
                     R.drawable.ic_bg,
                     defBg,
                     quality = 50,
-                    opts = BitmapFactory.Options().apply {
-                        inSampleSize = 2
-                    }) ?: return
+                    opts = BitmapFactory.Options().apply { inSampleSize = 2 }) ?: return
             updateByBitmap(BitmapFactory.decodeFile(res2File.absolutePath))
         }
     }
 
     private fun updateByBitmap(bitmap: Bitmap) {
+        vp.removeItemDecoration(itemDecoration)
         vp.addItemDecoration(itemDecoration.setBg(bitmap))
     }
 

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
  * Create by munch1182 on 2021/1/13 9:33.
  */
 class BaseSimpleAdapter<T>(
-    @LayoutRes private val resId: Int = 0,
+    @LayoutRes resId: Int = 0,
     list: MutableList<T>? = null,
     val onBind: (holder: BaseViewHolder, data: T, position: Int) -> Unit
 ) : BaseHolderAdapter<T>(resId, list) {
@@ -25,7 +25,7 @@ class BaseSimpleAdapter<T>(
 }
 
 abstract class BaseHolderAdapter<T>(
-    @LayoutRes private val resId: Int = 0,
+    @LayoutRes resId: Int = 0,
     list: MutableList<T>? = null
 ) : BaseAdapter<T, BaseViewHolder>(resId, list) {
 
@@ -35,12 +35,12 @@ abstract class BaseHolderAdapter<T>(
 }
 
 
-abstract class BaseAdapter<T, B : BaseViewHolder>(
-    @LayoutRes private val resId: Int = 0,
+abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
+    @LayoutRes protected val resId: Int = 0,
+    protected var view: View? = null,
     list: MutableList<T>? = null
 ) : RecyclerView.Adapter<B>() {
 
-    protected var view: View? = null
     protected var onClick: ((adapter: BaseAdapter<T, B>, view: View, data: T, pos: Int) -> Unit)? =
         null
     protected val onClickListener by lazy {
@@ -50,9 +50,9 @@ abstract class BaseAdapter<T, B : BaseViewHolder>(
         }
     }
 
-    constructor(view: View? = null, list: MutableList<T>? = null) : this(0, list) {
-        this.view = view
-    }
+    constructor(@LayoutRes resId: Int, list: MutableList<T>? = null) : this(resId, null, list)
+
+    constructor(view: View, list: MutableList<T>? = null) : this(0, view, list)
 
     private val dataList = list ?: mutableListOf()
 

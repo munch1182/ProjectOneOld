@@ -24,7 +24,8 @@ class TestViewActivity : TestRvActivity() {
             TestRvItemBean.newInstance("BookPage", TestBookPageViewActivity::class.java),
             TestRvItemBean.newInstance("FlowLayout", TestFlowLayoutActivity::class.java),
             TestRvItemBean.newInstance("Bar", TestBarActivity::class.java),
-            TestRvItemBean.newInstance("RecyclerView", TestRecyclerViewActivity::class.java),
+            TestRvItemBean.newInstance("NavRecyclerView", TestNavRecyclerViewActivity::class.java),
+            TestRvItemBean.newInstance("HeaderRecyclerView", TestHeaderRecyclerViewActivity::class.java),
             TestRvItemBean.newInstance("Chart", TestChartActivity::class.java),
             TestRvItemBean.newInstance("PorterDuffXfermode", PaintModeActivity::class.java)
         )

@@ -28,7 +28,7 @@ import kotlin.random.Random
 /**
  * Create by munch1182 on 2020/12/24 17:24.
  */
-class TestRecyclerViewActivity : TestBaseTopActivity() {
+class TestNavRecyclerViewActivity : TestBaseTopActivity() {
 
     private val letterNavigation: LetterNavigationBarView by lazy { findViewById(R.id.view_letter_navigation) }
     private val rv: RecyclerView by lazy { findViewById(R.id.view_letter_rv) }
@@ -42,7 +42,7 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.test_activity_test_recycler_view)
+        setContentView(R.layout.test_activity_test_nav_recycler_view)
 
         Pinyin.init(Pinyin.newConfig().with(CnCityDict.getInstance(applicationContext)))
 
@@ -184,7 +184,7 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
                         text = letter
                         angle = 0
                         bgColor = ContextCompat.getColor(
-                            this@TestRecyclerViewActivity,
+                            this@TestNavRecyclerViewActivity,
                             R.color.colorPrimary
                         )
                     }
@@ -303,7 +303,7 @@ class TestRecyclerViewActivity : TestBaseTopActivity() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IconViewHolder {
             return IconViewHolder(
                 LayoutInflater.from(parent.context)
-                    .inflate(R.layout.test_layout_item_recycler_view_content, parent, false)
+                    .inflate(R.layout.test_layout_item_nav_recycler_view_content, parent, false)
             )
         }
 

@@ -23,7 +23,7 @@
         <activity android:name=".view.TestFlowLayoutActivity" />
         <activity android:name=".bar.TestBarActivity" />
         <activity android:name=".bar.TestBar4FragmentActivity" />
-        <activity android:name=".view.TestRecyclerViewActivity" />
+        <activity android:name=".view.TestNavRecyclerViewActivity" />
         <activity android:name=".switch.TestSwitchActivity" />
         <activity android:name=".img.TestImgActivity" />
         <activity android:name=".view.TestChartActivity" />
