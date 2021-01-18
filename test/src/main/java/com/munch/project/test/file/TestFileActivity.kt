@@ -5,8 +5,8 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.core.net.toUri
-import com.munch.lib.helper.FileHelper
 import com.munch.lib.helper.ResultHelper
+import com.munch.lib.helper.getExtension
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import java.io.DataOutputStream
@@ -105,7 +105,7 @@ class TestFileActivity : TestRvActivity() {
         startActivity(Intent().apply {
             action = Intent.ACTION_VIEW
             data = file.toUri().normalizeScheme()
-            type = FileHelper.getExtension(file) ?: "text/plain"
+            type = file.getExtension() ?: "text/plain"
         })
     }
 

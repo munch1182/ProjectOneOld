@@ -25,7 +25,10 @@ class TestViewActivity : TestRvActivity() {
             TestRvItemBean.newInstance("FlowLayout", TestFlowLayoutActivity::class.java),
             TestRvItemBean.newInstance("Bar", TestBarActivity::class.java),
             TestRvItemBean.newInstance("NavRecyclerView", TestNavRecyclerViewActivity::class.java),
-            TestRvItemBean.newInstance("HeaderRecyclerView", TestHeaderRecyclerViewActivity::class.java),
+            TestRvItemBean.newInstance(
+                "HeaderRecyclerView",
+                TestHeaderRecyclerViewActivity::class.java
+            ),
             TestRvItemBean.newInstance("Chart", TestChartActivity::class.java),
             TestRvItemBean.newInstance("PorterDuffXfermode", PaintModeActivity::class.java)
         )
@@ -41,7 +44,7 @@ class TestFileMainActivity : TestRvActivity() {
 
     override fun getItems(): MutableList<TestRvItemBean> {
         return mutableListOf(
-            TestRvItemBean.newInstance("All File", TestFileActivity::class.java)
+            TestRvItemBean.newInstance("App File", TestFileActivity::class.java)
         )
     }
 }

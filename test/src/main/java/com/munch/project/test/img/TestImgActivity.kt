@@ -15,10 +15,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.munch.lib.BaseApp
-import com.munch.lib.helper.BarHelper
-import com.munch.lib.helper.FileHelper
-import com.munch.lib.helper.ImgHelper
-import com.munch.lib.helper.ResultHelper
+import com.munch.lib.helper.*
 import com.munch.lib.test.TestDialog
 import com.munch.project.test.BaseActivity
 import com.munch.project.test.BaseFragment
@@ -125,7 +122,7 @@ class TestImgActivity : BaseActivity() {
                     } ?: return@res
 
                     updateByFile2Compress(fileTemp)
-                    FileHelper.deleteFileIgnoreException(fileTemp)
+                    fileTemp.deleteFilesIgnoreRes()
                 } else if (resCode != RESULT_CANCELED) {
                     toast("未获取到图片")
                 }
@@ -140,7 +137,7 @@ class TestImgActivity : BaseActivity() {
         ResultHelper.with(this)
             .startForResult(
                 ImgHelper.getCorpIntent(
-                    FileHelper.getUri(this, file),
+                    file.toUriCompat(this),
                     fileCrop.toUri()
                 )
             )
@@ -162,6 +159,7 @@ class TestImgActivity : BaseActivity() {
         val defBg = File(filesDir, "def_bg_compressed.jpeg")
         if (defBg.exists()) {
             updateByBitmap(BitmapFactory.decodeFile(defBg.absolutePath))
+            bgFile = defBg
         } else {
             val res2File =
                 ImgHelper.res2File(
@@ -169,6 +167,7 @@ class TestImgActivity : BaseActivity() {
                     defBg,
                     quality = 50,
                     opts = BitmapFactory.Options().apply { inSampleSize = 2 }) ?: return
+            bgFile = res2File
             updateByBitmap(BitmapFactory.decodeFile(res2File.absolutePath))
         }
     }

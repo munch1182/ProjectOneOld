@@ -69,7 +69,7 @@ object ImgHelper {
         .setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
 
     fun imageCaptureIntent(context: Context, file: File) =
-        imageCaptureIntent(FileHelper.getUri(context, file))
+        imageCaptureIntent(file.toUriCompat(context))
 
     fun imageCaptureIntent(uri: Uri): Intent {
         return Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
@@ -105,7 +105,7 @@ object ImgHelper {
     fun bitmap2File(
         bitmap: Bitmap, newFile: File, @IntRange(from = 0, to = 100) quality: Int = 100
     ): File? {
-        val file = FileHelper.createFile(newFile) ?: return null
+        val file = newFile.newFile() ?: return null
         var fos: FileOutputStream? = null
         val baos = ByteArrayOutputStream()
         // 把压缩后的数据存放到baos中

@@ -2,6 +2,7 @@ package com.munch.lib.helper
 
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.webkit.MimeTypeMap
@@ -21,65 +22,56 @@ import java.text.DecimalFormat
  */
 object FileHelper {
 
+    fun fileIntent(type: String = "*/*") =
+        Intent(Intent.ACTION_GET_CONTENT).setType(type).addCategory(Intent.CATEGORY_OPENABLE)
+
     /**
      * 如果要新建缓存文件，优先使用该目录，以方便计算大小和清空缓存
      */
     fun newCacheFile(context: Context = BaseApp.getInstance(), name: String): File? {
-        return createFile(File(context.cacheDir, name))
+        return File(context.cacheDir, name).newFile()
     }
 
-    fun createFile(file: File): File? {
-        file.mkdirs()
-        return try {
-            if (file.exists()) {
-                file.delete()
+    /**
+     * 解析uri，包括文件转换的uri或者[toUriCompat]转换后的uri，将其转为file
+     *
+     * 注意：如果是content形式的uri，是采用复制的形式，以保持统一性，避开对各种后缀的查询，对于只是获取的操作来说足够了
+     * 因此此方法无法对源文件进行操作
+     *
+     * 一般的图片文件无需放入子线程操作，但可以考虑放入协程中进行
+     *
+     * @param file 用于复制的文件，如果确定是文件类型的uri，可以不传
+     */
+    fun uri2File(context: Context = BaseApp.getInstance(), uri: Uri, file: File? = null): File? {
+        when (uri.scheme) {
+            ContentResolver.SCHEME_FILE -> {
+                return uri.toFile()
             }
-            if (file.createNewFile()) {
-                file
-            } else {
-                null
+            ContentResolver.SCHEME_CONTENT -> {
+                file ?: return null
+                val fileCreated = file.newFile() ?: return null
+                try {
+                    context.contentResolver.openInputStream(uri)?.run {
+                        var out: FileOutputStream? = null
+                        try {
+                            out = FileOutputStream(fileCreated)
+                            this.copyTo(out)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        } finally {
+                            this.close()
+                            out?.close()
+                        }
+                        return fileCreated
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
         }
+        return null
     }
 
-    @Throws(IOException::class, SecurityException::class)
-    fun deleteFile(file: File?) {
-        if (file?.exists() != true) {
-            return
-        }
-        if (file.isFile) {
-            file.delete()
-        } else {
-            file.listFiles()?.forEach {
-                deleteFile(it)
-            }
-            file.delete()
-        }
-    }
-
-    fun deleteFileIgnoreException(file: File?) {
-        try {
-            deleteFile(file)
-        } catch (e: Exception) {
-            //DO NOTHING
-        }
-    }
-
-    fun getFileSize(file: File?): Long {
-        file?.takeIf { f -> f.exists() } ?: return 0L
-        var size = 0L
-        if (!file.isDirectory) {
-            size = file.length()
-        } else {
-            file.listFiles()?.forEach {
-                size += getFileSize(it)
-            }
-        }
-        return size
-    }
 
     fun formatSizeCache(context: Context) = formatSize2Str(context.cacheDir.length().toDouble())
 
@@ -108,68 +100,99 @@ object FileHelper {
             }
         }
     }
-
-    /**
-     * 版本高于24需要在manifest中声明provider
-     * 且声明的provider的authority需要与传入的[authority]一致
-     *
-     * @see <a>https://developer.android.google.cn/reference/kotlin/androidx/core/content/FileProvider</a>
-     */
-    fun getUri(
-        context: Context = BaseApp.getInstance(),
-        file: File,
-        authority: String = "${context.packageName}.fileProvider"
-    ): Uri {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            FileProvider.getUriForFile(context, authority, file)
-        } else {
-            Uri.fromFile(file)
-        }
-    }
-
-    /**
-     * 解析uri，包括文件转换的uri或者[getUri]转换后的uri，将其转为file
-     *
-     * 注意：如果是content形式的uri，是采用复制的形式，以保持统一性，避开对各种后缀的查询，对于只是获取的操作来说足够了
-     * 因此此方法无法对源文件进行操作
-     *
-     * 一般的图片文件无需放入子线程操作，但可以考虑放入协程中进行
-     *
-     * @param file 用于复制的文件，如果确定是文件类型的uri，可以不传
-     */
-    fun uri2File(context: Context = BaseApp.getInstance(), uri: Uri, file: File? = null): File? {
-        when (uri.scheme) {
-            ContentResolver.SCHEME_FILE -> {
-                return uri.toFile()
-            }
-            ContentResolver.SCHEME_CONTENT -> {
-                file ?: return null
-                val fileCreated = createFile(file) ?: return null
-                try {
-                    context.contentResolver.openInputStream(uri)?.run {
-                        var out: FileOutputStream? = null
-                        try {
-                            out = FileOutputStream(fileCreated)
-                            this.copyTo(out)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        } finally {
-                            this.close()
-                            out?.close()
-                        }
-                        return fileCreated
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }
-        return null
-    }
-
-    /**
-     * 获取文件后缀
-     */
-    fun getExtension(file: File): String? = MimeTypeMap.getSingleton()
-        .getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(file.toUri().toString()))
 }
+
+/**
+ * 新建一个文件
+ * 如果文件存在，则删除并重建
+ */
+fun File.newFile(): File? {
+    mkdirs()
+    return try {
+        if (exists()) {
+            delete()
+        }
+        if (createNewFile()) {
+            this
+        } else {
+            null
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 删除一个文件或者文件夹
+ *
+ * @return 全部删除成功
+ */
+@Throws(IOException::class, SecurityException::class)
+fun File.deleteFiles(): Boolean {
+    if (!exists()) {
+        return true
+    }
+    var flag = false
+    if (isFile) {
+        flag = delete()
+    } else {
+        listFiles()?.forEach {
+            flag = flag && it.deleteFiles()
+        }
+        flag = flag && delete()
+    }
+    return flag
+}
+
+/**
+ * 删除文件或者文件夹，并不处理结果
+ */
+fun File.deleteFilesIgnoreRes() {
+    try {
+        deleteFiles()
+    } catch (e: Exception) {
+        //DO NOTHING
+    }
+}
+
+/**
+ * 获取文件或者文件夹的大小
+ */
+fun File.getSize(): Long {
+    if (!exists()) {
+        return 0L
+    }
+    var size = 0L
+    if (!isDirectory) {
+        size = length()
+    } else {
+        listFiles()?.forEach {
+            size += it.getSize()
+        }
+    }
+    return size
+}
+
+/**
+ * 版本高于24需要在manifest中声明provider
+ * 且声明的provider的authority需要与传入的[authority]一致
+ *
+ * @see <a>https://developer.android.google.cn/reference/kotlin/androidx/core/content/FileProvider</a>
+ */
+fun File.toUriCompat(
+    context: Context = BaseApp.getInstance(),
+    authority: String = "${context.packageName}.fileProvider"
+): Uri {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        FileProvider.getUriForFile(context, authority, this)
+    } else {
+        Uri.fromFile(this)
+    }
+}
+
+/**
+ * 获取文件后缀
+ */
+fun File.getExtension(): String? = MimeTypeMap.getSingleton()
+    .getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(this.toUri().toString()))

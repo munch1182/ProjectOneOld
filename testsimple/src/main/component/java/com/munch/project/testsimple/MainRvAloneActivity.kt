@@ -13,7 +13,7 @@ import com.munch.project.testsimple.socket.TestSimpleSocketActivity
 class MainRvAloneActivity : TestRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = getString(R.string.app_name)
+        title = getString(R.string.test_simple_app_name)
     }
 
     override fun notShowBack() = true
