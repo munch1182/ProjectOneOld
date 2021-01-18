@@ -10,7 +10,7 @@ import com.munch.lib.helper.AppForegroundStatusHelper.register
 
 /**
  * 通过activity计数的方式来判断activity是否在前台
- * 需要现在在Application中[register]
+ * 需要先在Application中[register]
  * 然后通过[isForeground]或者[getForegroundLiveData]观察是否在前台
  *
  * 前台应用锁屏后也是后台，解锁后才回到前台

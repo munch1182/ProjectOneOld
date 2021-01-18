@@ -94,7 +94,7 @@ class SpHelper private constructor(private var sharedPreferences: SharedPreferen
             is Long -> edit.putLong(key, any)
             is String -> edit.putString(key, any)
             is MutableSet<*> -> edit.putStringSet(key, any as MutableSet<String>)
-            else -> throw Exception("不支持的类型")
+            else -> throw Exception("unsupported")
         }
     }
 }

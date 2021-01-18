@@ -8,9 +8,7 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.BaseApp
-import com.munch.lib.helper.drawTextInCenter
 import com.munch.lib.helper.drawTextInYCenter
-import com.munch.lib.log
 import com.munch.project.test.R
 
 /**

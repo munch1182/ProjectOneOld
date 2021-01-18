@@ -29,7 +29,7 @@ class BgItemDecoration(
     private var leftOffset = 0
 
     init {
-        obWhenDestroy(owner) {
+        owner.obWhenDestroy{
             clear()
         }
     }

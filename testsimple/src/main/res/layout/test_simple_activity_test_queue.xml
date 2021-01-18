@@ -42,6 +42,7 @@
         app:layout_constraintTop_toTopOf="@id/queue_btn_send_now" />
 
     <ScrollView
+        android:id="@+id/queue_scroll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

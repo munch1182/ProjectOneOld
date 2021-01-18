@@ -56,7 +56,7 @@ class TestSwitchActivity : TestRvActivity() {
         findViewById<ViewGroup>(R.id.rv_test_srl).setBackgroundColor(attr2Color(R.attr.pageBg))
 
         language = instance.getNowLanguage() == "en"
-        title = if (language) "LanguageEn" else "Language"
+        title = if (language) "Switch_en" else "Switch"
 
         addEndView(getTestView().apply {
             setBackgroundColor(Color.TRANSPARENT)

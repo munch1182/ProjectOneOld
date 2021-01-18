@@ -64,7 +64,12 @@ class QueueService : Service() {
         fun sendUiNotifyTest(service: QueueService, obj: Any?) {
             service.sendMsgTest(MSG.UI_NOTIFY, obj)
         }
+
+        fun clearQueue(service: QueueService) {
+            service.clearQueue()
+        }
     }
+
 
     /**
      * 如果请求多可以进行分类分发，避免单页面代码过多
@@ -92,6 +97,11 @@ class QueueService : Service() {
         Looper.myQueue().addIdleHandler {
             return@addIdleHandler false
         }
+    }
+
+    private fun clearQueue() {
+        uiHandler.removeCallbacksAndMessages(null)
+        serviceHandler.removeCallbacksAndMessages(null)
     }
 
     private fun sendMsgTest(

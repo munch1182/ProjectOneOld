@@ -14,7 +14,7 @@ import java.util.*
  *
  * 使用时:
  * 1. 实现
- * 2. 需要跟随系统在调用[registerApp]或者调用[initLanguage]进行初始化
+ * 2. 需要跟随系统或者相关判断则调用[registerApp]，或者调用[initLanguage]进行初始化
  * 3. 在每个activity的[android.app.Activity.attachBaseContext]中调用[attachBaseContent]包裹参数context然后返回即可
  * 4. 主动切换时调用[switchLanguage]
  *    但注意，语言切换需要重建activity，可以使用[android.app.Activity.recreate]或者新打开一个activity，已打开的activity也需要重新打开

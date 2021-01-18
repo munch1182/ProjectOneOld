@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ScrollView
 import android.widget.TextView
 import com.munch.lib.helper.LogLog
 import com.munch.lib.helper.ServiceBindHelper
@@ -16,12 +17,12 @@ import com.munch.project.testsimple.R
 /**
  * Create by munch1182 on 2020/12/22 15:45.
  */
-@SuppressLint("SetTextI18n")
 class TestQueueActivity : TestBaseTopActivity(), QueueService.NotifyListener {
 
     private val container: ViewGroup by lazy { findViewById(R.id.queue_container) }
     private val tvMsg: TextView by lazy { findViewById(R.id.queue_tv_msg) }
-    private var helper = ServiceBindHelper(this, QueueService::class.java)
+    private val scroll: ScrollView by lazy { findViewById(R.id.queue_scroll) }
+    private val helper = ServiceBindHelper.bindActivity(this, QueueService::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,24 +32,35 @@ class TestQueueActivity : TestBaseTopActivity(), QueueService.NotifyListener {
 
         container.clickItem({
             val pos = it.tag as Int? ?: return@clickItem
+            if (!helper.isBind()) {
+                toast("binding, wait")
+            }
+            val s = helper.getService() ?: return@clickItem
             when (pos) {
                 0 -> {
                     log("send")
-                    helper.opService { s -> QueueService.RequestService.sendMsgTest(s) }
+                    QueueService.RequestService.sendMsgTest(s)
                 }
                 1 -> {
                     log("sendNow")
-                    helper.opService { s -> QueueService.RequestService.sendMsgTestNow(s) }
+                    QueueService.RequestService.sendMsgTestNow(s)
                 }
                 2 -> {
                     tvMsg.text = ""
+                    QueueService.RequestService.clearQueue(s)
                 }
             }
         }, Button::class.java)
 
+        initLogListener()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun initLogListener() {
         LogLog.setListener(this) { _, msg ->
             runOnUiThread {
                 tvMsg.text = "${tvMsg.text}\r\n${msg.split("---")[0]}"
+                scroll.fullScroll(ScrollView.FOCUS_DOWN)
             }
         }
     }

@@ -9,93 +9,86 @@ import androidx.lifecycle.OnLifecycleEvent
  * Create by munch1182 on 2021/1/15 17:43.
  */
 
-fun Any.obWhenDestroy(owner: LifecycleOwner?, onDestroy: Any.() -> Unit) {
-    owner ?: return
-    owner.lifecycle.addObserver(object : LifecycleObserver {
+inline fun LifecycleOwner.obWhenDestroy(crossinline onDestroy: () -> Unit) {
+    lifecycle.addObserver(object : LifecycleObserver {
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun onDestroy() {
-            onDestroy.invoke(this@obWhenDestroy)
-            removeOb(owner, this)
+            onDestroy.invoke()
+            removeOb(this)
         }
     })
 }
 
-fun removeOb(owner: LifecycleOwner, observer: LifecycleObserver) {
-    owner.lifecycle.removeObserver(observer)
+fun LifecycleOwner.removeOb(observer: LifecycleObserver) {
+    lifecycle.removeObserver(observer)
 }
 
-@JvmOverloads
-fun Any.obWhenCreate(
-    owner: LifecycleOwner?,
-    onCreate: Any.() -> Unit,
-    onDestroy: (Any.() -> Unit)? = null
+
+inline fun LifecycleOwner.obWhenCreate(
+    crossinline onCreate: () -> Unit,
+    crossinline onDestroy: () -> Unit
 ) {
-    owner ?: return
-    owner.lifecycle.addObserver(object : LifecycleObserver {
+    lifecycle.addObserver(object : LifecycleObserver {
         @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
         fun onCreate() {
-            onCreate.invoke(this@obWhenCreate)
+            onCreate.invoke()
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun onDestroy() {
-            onDestroy?.invoke(this@obWhenCreate)
-            removeOb(owner, this)
+            onDestroy.invoke()
+            removeOb(this)
         }
     })
 }
 
+
 @JvmOverloads
-fun Any.obWhenStart(
-    owner: LifecycleOwner?,
-    onStart: Any.() -> Unit,
-    onStop: (Any.() -> Unit)? = null,
-    onDestroy: (Any.() -> Unit)? = null
+inline fun LifecycleOwner.obWhenStart(
+    crossinline onStart: () -> Unit,
+    crossinline onStop: () -> Unit,
+    noinline onDestroy: (() -> Unit)? = null
 ) {
-    owner ?: return
-    owner.lifecycle.addObserver(object : LifecycleObserver {
+    lifecycle.addObserver(object : LifecycleObserver {
         @OnLifecycleEvent(Lifecycle.Event.ON_START)
         fun onStart() {
-            onStart.invoke(this@obWhenStart)
+            onStart.invoke()
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
         fun onStop() {
-            onStop?.invoke(this@obWhenStart)
+            onStop.invoke()
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun onDestroy() {
-            onDestroy?.invoke(this@obWhenStart)
-            removeOb(owner, this)
+            onDestroy?.invoke()
+            removeOb(this)
         }
     })
 }
 
 @JvmOverloads
-fun Any.obWhenResume(
-    owner: LifecycleOwner?,
-    onResume: Any.() -> Unit,
-    onPause: (Any.() -> Unit)? = null,
-    onDestroy: (Any.() -> Unit)? = null
+inline fun LifecycleOwner.obWhenResume(
+    crossinline onResume: () -> Unit,
+    crossinline onPause: () -> Unit,
+    noinline onDestroy: (() -> Unit)? = null
 ) {
-    owner ?: return
-    owner.lifecycle.addObserver(object : LifecycleObserver {
+    lifecycle.addObserver(object : LifecycleObserver {
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         fun onResume() {
-            onResume.invoke(this@obWhenResume)
+            onResume.invoke()
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         fun onPause() {
-            onPause?.invoke(this@obWhenResume)
+            onPause.invoke()
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun onDestroy() {
-            onDestroy?.invoke(this@obWhenResume)
-            removeOb(owner, this)
+            onDestroy?.invoke()
+            removeOb(this)
         }
     })
 }
-
