@@ -8,6 +8,8 @@ import android.view.View
 import com.munch.project.test.R
 
 /**
+ * 也可以通过ItemDecoration来绘制左侧letters，参考[HeaderItemDecoration]
+ *
  * Create by munch1182 on 2020/12/24 15:59.
  */
 class LetterNavigationBarView @JvmOverloads constructor(

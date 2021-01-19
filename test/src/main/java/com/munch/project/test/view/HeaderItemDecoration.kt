@@ -14,7 +14,7 @@ import com.munch.project.test.R
 /**
  * Create by munch1182 on 2021/1/17 21:31.
  */
-class HeaderItemDecoration(private val data: ArrayList<IsHeader> = ArrayList(0)) :
+class HeaderItemDecoration(private var data: ArrayList<IsHeader> = ArrayList(0)) :
     RecyclerView.ItemDecoration() {
 
     private val headHeight = 80
@@ -28,8 +28,7 @@ class HeaderItemDecoration(private val data: ArrayList<IsHeader> = ArrayList(0))
     private var judgeLayoutManager = 0
 
     fun resetData(list: ArrayList<IsHeader> = ArrayList(0)) {
-        data.clear()
-        data.addAll(list)
+        data = list
     }
 
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {

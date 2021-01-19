@@ -1,4 +1,4 @@
-package com.munch.lib.helper
+package com.munch.lib.extend.recyclerview
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView

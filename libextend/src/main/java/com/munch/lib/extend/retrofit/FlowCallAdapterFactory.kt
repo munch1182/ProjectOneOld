@@ -1,6 +1,5 @@
-package com.munch.project.testsimple.jetpack.net
+package com.munch.lib.extend.retrofit
 
-import com.munch.lib.UNCOMPLETE
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -36,47 +35,8 @@ class FlowCallAdapterFactory : CallAdapter.Factory() {
         }
         //获取Flow泛型的Type
         val responseType = getParameterUpperBound(0, returnType)
-        //获取Flow泛型的class
-        val rawFlowType = getRawType(responseType)
 
-        return if (rawFlowType == Response::class.java) {
-            if (responseType !is ParameterizedType) {
-                throw IllegalStateException(
-                    "Response must be parameterized as Response<Foo> or Response<out Foo>"
-                )
-            }
-
-            ResponseCallAdapter<Any>(getParameterUpperBound(0, responseType))
-        } else {
-            BodyCallAdapter<Any>(responseType)
-        }
-    }
-
-    @UNCOMPLETE
-    private class ResponseCallAdapter<T>(
-        private val responseType: Type
-    ) : CallAdapter<T, Flow<Response<T>>> {
-
-        @ExperimentalCoroutinesApi
-        override fun adapt(call: Call<T>): Flow<Response<T>> {
-            return flow {
-                /*emit(
-                    suspendCancellableCoroutine { continuation ->
-                        call.enqueue(object : Callback<T> {
-                            override fun onFailure(call: Call<T>, t: Throwable) =
-                                continuation.resumeWithException(t)
-
-                            override fun onResponse(call: Call<T>, response: Response<T>) =
-                                continuation.resume(response)
-                        })
-                        continuation.invokeOnCancellation { call.cancel() }
-                    }
-                )*/
-                throw Exception("未完成")
-            }
-        }
-
-        override fun responseType() = responseType
+        return BodyCallAdapter<Any>(responseType)
     }
 
     private class BodyCallAdapter<R>(
@@ -100,7 +60,7 @@ class FlowCallAdapterFactory : CallAdapter.Factory() {
                             if (response.isSuccessful) {
                                 response.body()?.let {
                                     try {
-                                        continuation.resume(it, null)
+                                        continuation.resume(it) {}
                                     } catch (ex: Exception) {
                                         continuation.resumeWithException(ex)
                                     }

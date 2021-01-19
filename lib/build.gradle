@@ -6,7 +6,6 @@ plugins {
 apply from: '../gradle/commonbuildktx.gradle'
 
 dependencies {
-    implementation rootProject.ext.dependencies['recyclerview']
     /*等appcompat升级到1.3.0正式版时删除此依赖*/
     implementation rootProject.ext.dependencies['lifecycle_extensions']
 }

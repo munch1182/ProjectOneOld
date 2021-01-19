@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.lib.base.BaseSimpleAdapter
+import com.munch.lib.extend.recyclerview.BaseSimpleAdapter
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.project.test.R
 

@@ -6,22 +6,27 @@ import android.view.View
 import android.widget.ImageView
 import com.munch.lib.common.RouterHelper
 import com.munch.lib.common.component.ThemeProvider
-import com.munch.lib.helper.FileHelper
-import com.munch.lib.helper.ResultHelper
 import com.munch.lib.helper.isServiceRunning
 import com.munch.lib.helper.startActivity
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
+import com.munch.project.testsimple.jetpack.net.Api
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Create by munch1182 on 2020/12/16 17:09.
  */
+@AndroidEntryPoint
 class TestFunActivity : TestRvActivity() {
 
     override fun setupIntent() {
         super.setupIntent()
         intent = Intent().putExtras(newBundle("Test Function", null, isBtn = true))
     }
+
+    @Inject
+    lateinit var api: Api
 
     private val img by lazy { ImageView(this) }
 
@@ -35,9 +40,6 @@ class TestFunActivity : TestRvActivity() {
         super.clickItem(view, pos)
         when (pos) {
             0 -> {
-                ResultHelper.with(this)
-                    .startForResult(FileHelper.fileIntent())
-                    .res { isOk, resultCode, data -> }
             }
             1 -> {
             }

@@ -1,4 +1,4 @@
-package com.munch.lib.base
+package com.munch.lib.extend.recyclerview
 
 import android.view.LayoutInflater
 import android.view.View

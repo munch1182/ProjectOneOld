@@ -8,10 +8,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.promeg.pinyinhelper.Pinyin
 import com.github.promeg.tinypinyin.lexicons.android.cncity.CnCityDict
-import com.munch.lib.helper.FirstScrollHelper
+import com.munch.lib.extend.recyclerview.BaseSimpleBindAdapter
+import com.munch.lib.extend.recyclerview.FirstScrollHelper
 import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.test.TestBaseTopActivity
-import com.munch.lib.test.recyclerview.BaseSimpleBindAdapter
 import com.munch.project.test.R
 import com.munch.project.test.databinding.TestLayoutItemHeaderRecyclerViewContentBinding
 import java.util.*

@@ -1,4 +1,4 @@
-package com.munch.lib.base
+package com.munch.lib.extend.recyclerview
 
 import android.view.View
 import android.view.ViewGroup
@@ -54,7 +54,11 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
 
     constructor(view: View, list: MutableList<T>? = null) : this(0, view, list)
 
-    private val dataList = list ?: mutableListOf()
+    private val dataList: MutableList<T> = mutableListOf<T>().apply {
+        if (list != null) {
+            addAll(list)
+        }
+    }
 
     fun getData() = dataList
 

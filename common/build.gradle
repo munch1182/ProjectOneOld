@@ -15,7 +15,6 @@ kapt {
 }
 
 dependencies {
-    api project(path: ':lib')
     api project(path: ':libtest')
 
     api rootProject.ext.dependencies['constraintlayout']

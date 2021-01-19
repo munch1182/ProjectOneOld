@@ -6,4 +6,9 @@ package com.munch.project.testsimple.jetpack.model.dto
 data class BaseDtoWrapper<T>(
     val data: T? = null, val errorCode: Int = 0,
     val errorMsg: String = ""
-)
+) {
+
+    fun noError(): Boolean {
+        return errorCode == 0 /*&& data != null*/
+    }
+}

@@ -1,12 +1,10 @@
-package com.munch.lib.test.recyclerview
+package com.munch.lib.extend.recyclerview
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import com.munch.lib.base.BaseAdapter
-import com.munch.lib.base.BaseViewHolder
 
 /**
  * Create by munch1182 on 2021/1/17 19:49.

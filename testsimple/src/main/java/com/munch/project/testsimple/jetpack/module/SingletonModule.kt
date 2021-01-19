@@ -5,11 +5,13 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.gson.Gson
+import com.munch.lib.extend.retrofit.ApiResultCallAdapterFactory
 import com.munch.lib.log
 import com.munch.project.testsimple.jetpack.db.ArticleDao
 import com.munch.project.testsimple.jetpack.db.Db
 import com.munch.project.testsimple.jetpack.db.PageDao
 import com.munch.project.testsimple.jetpack.net.Api
+import com.munch.project.testsimple.jetpack.net.ApiResultNoWrapperCallAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,7 +36,8 @@ object SingletonModule {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(Gson()))
-            /*.addCallAdapterFactory(FlowCallAdapterFactory.create())*/
+            .addCallAdapterFactory(ApiResultNoWrapperCallAdapterFactory.create())
+            .addCallAdapterFactory(ApiResultCallAdapterFactory.create())
             .client(client)
             .build()
     }
