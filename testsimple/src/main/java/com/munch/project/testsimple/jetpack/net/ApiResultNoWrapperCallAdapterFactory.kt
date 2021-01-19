@@ -57,10 +57,6 @@ class ApiResultNoWrapperCallAdapterFactory : CallAdapter.Factory() {
         }
         //不能直接传BaseDtoWrapper::class.java，必须传入带有泛型的type，否则gson无法根据类型转换
         return ApiResultNoWrapperCallAdapter<Any>(
-            /*TypeToken.getParameterized(
-                BaseDtoWrapper::class.java,
-                responseType
-            ).type*/
             ParameterizedTypeImpl(BaseDtoWrapper::class.java, responseType)
         )
     }

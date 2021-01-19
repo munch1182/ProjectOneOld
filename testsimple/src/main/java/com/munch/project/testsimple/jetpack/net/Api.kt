@@ -49,4 +49,7 @@ interface Api {
      */
     @GET("/article/list/{page}/json")
     suspend fun getArticleList3(@Path("page") page: Int): ApiResult<ArticleWrapperDto>
+
+    @GET("/wxarticle/chapters/json")
+    suspend fun getOfficeList2(): ApiResult<List<Office>>
 }

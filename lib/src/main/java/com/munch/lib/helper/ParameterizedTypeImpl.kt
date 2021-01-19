@@ -1,20 +1,17 @@
 package com.munch.lib.helper
 
-import com.munch.lib.UNCOMPLETE
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
 /**
- *
- * @see  "com.google.gson.reflect.TypeToken.getParameterized"
+ * 通过Type手动构建一个ParameterizedType
  *
  * Create by munch1182 on 2021/1/19 18:01.
  */
-@UNCOMPLETE("未规范化")
 class ParameterizedTypeImpl(
-    private val ownerType: Type? = null,
     private val rawType: Type,
-    private vararg val typeArguments: Type
+    private vararg val typeArguments: Type,
+    private val ownerType: Type? = null,
 ) : ParameterizedType {
     override fun getActualTypeArguments(): Array<out Type> {
         return typeArguments
@@ -26,5 +23,9 @@ class ParameterizedTypeImpl(
 
     override fun getOwnerType(): Type? {
         return ownerType
+    }
+
+    override fun toString(): String {
+        return "ParameterizedTypeImpl(rawType = $rawType, typeArguments = $typeArguments,ownerType = $ownerType, )"
     }
 }

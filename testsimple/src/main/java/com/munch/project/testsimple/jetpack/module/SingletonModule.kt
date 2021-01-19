@@ -6,6 +6,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.google.gson.Gson
 import com.munch.lib.extend.retrofit.ApiResultCallAdapterFactory
+import com.munch.lib.extend.retrofit.BaseUrlManagerInterceptor
 import com.munch.lib.log
 import com.munch.project.testsimple.jetpack.db.ArticleDao
 import com.munch.project.testsimple.jetpack.db.Db
@@ -46,6 +47,7 @@ object SingletonModule {
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .apply {
+                addInterceptor(BaseUrlManagerInterceptor())
                 addInterceptor(HttpLoggingInterceptor { log(it) }.apply {
                     setLevel(HttpLoggingInterceptor.Level.BASIC)
                 })
