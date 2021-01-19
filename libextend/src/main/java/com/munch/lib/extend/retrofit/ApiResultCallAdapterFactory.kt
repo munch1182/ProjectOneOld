@@ -1,5 +1,7 @@
 package com.munch.lib.extend.retrofit
 
+import com.munch.lib.TEMPLATE
+import com.munch.lib.log
 import okhttp3.Request
 import okio.Timeout
 import retrofit2.*
@@ -11,6 +13,7 @@ import java.lang.reflect.Type
  *
  * Create by munch1182 on 2021/1/19 11:36.
  */
+@TEMPLATE(reason = "ApiResult未完成", variable = ["ApiResult"])
 class ApiResultCallAdapterFactory : CallAdapter.Factory() {
 
     companion object {
@@ -38,8 +41,9 @@ class ApiResultCallAdapterFactory : CallAdapter.Factory() {
         check(apiResultType is ParameterizedType) { "$returnType must be parameterized. Raw types are not supported" }
         //<T>的类型
         //retrofit类型转换的关键，此类型是使用retrofit自定义请求的返回值
-        //而ApiResultCallAdapter的adapt的返回值则是转换后的返回值
+        //而ApiResultCallAdapter的adapt的返回值则是转换后的返回值，也就是api声明的返回值
         val responseType = getParameterUpperBound(0, apiResultType)
+        log(responseType)
         return ApiResultCallAdapter<Any>(responseType)
     }
 }

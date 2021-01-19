@@ -4,14 +4,20 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import androidx.lifecycle.lifecycleScope
 import com.munch.lib.common.RouterHelper
 import com.munch.lib.common.component.ThemeProvider
+import com.munch.lib.extend.retrofit.BaseUrlManager
+import com.munch.lib.helper.FileHelper
+import com.munch.lib.helper.ResultHelper
 import com.munch.lib.helper.isServiceRunning
 import com.munch.lib.helper.startActivity
+import com.munch.lib.log
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.testsimple.jetpack.net.Api
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -40,10 +46,29 @@ class TestFunActivity : TestRvActivity() {
         super.clickItem(view, pos)
         when (pos) {
             0 -> {
+                ResultHelper.with(this)
+                    .startForResult(FileHelper.fileIntent())
+                    .res { isOk, resultCode, data -> }
             }
             1 -> {
+                lifecycleScope.launch {
+                    BaseUrlManager.getInstance().setBaseUrl("https://www.baidu.com/")
+                    val articleList3 = api.getArticleList3(0).whenFail {
+                        log(msg)
+                    }?.successData()
+                    log("$articleList3")
+
+                }
             }
             2 -> {
+                lifecycleScope.launch {
+                    BaseUrlManager.getInstance().setBaseUrl("https://www.wanandroid.com/")
+                    val articleList3 = api.getArticleList3(0).whenFail {
+                        log(msg)
+                    }?.successData()
+                    log("$articleList3")
+
+                }
             }
             3 -> {
             }

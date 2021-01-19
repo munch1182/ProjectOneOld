@@ -99,7 +99,7 @@ object LogLog {
         if (notPrint) {
             return
         }
-        var log = if (any.size == 1) {
+        val log = if (any.size == 1) {
             any2Str(any[0])
         } else {
             val builder = StringBuilder()
@@ -110,15 +110,15 @@ object LogLog {
             builder.toString()
         }
         val tag: String = tag ?: TAG
+        val name = Thread.currentThread().name
         if (log.length < getMaxCharInLine()) {
             Log.d(
                 tag,
-                if (simple) "${Thread.currentThread().name}: $log" else "${Thread.currentThread().name}: $log ---${getCallFunction()}"
+                if (simple) "$name: $log" else "$name: $log ---${getCallFunction()}"
             )
         } else {
-            log = "${Thread.currentThread().name}: $log"
             more2line(log).forEach {
-                Log.d(tag, it)
+                Log.d(tag, "$name:$it")
             }
             if (!simple) {
                 Log.d(tag, "---${getCallFunction()}")
@@ -132,11 +132,18 @@ object LogLog {
         this.simple = false
     }
 
-    private fun more2line(str: String): ArrayList<String> {
+    private fun more2line(str: String): List<String> {
         val maxCharInLine = getMaxCharInLine()
         if (str.length < maxCharInLine) {
             return arrayListOf(str)
         }
+        if (str.contains(Str.STR_SPLIT)) {
+            val split = str.split(Str.STR_SPLIT)
+            return split.mapIndexed { index, s ->
+                if (index != split.size - 1) "$s${Str.STR_SPLIT}" else s
+            }
+        }
+
         var line = str.length / maxCharInLine
         if (line * maxCharInLine < str.length) {
             line += 1

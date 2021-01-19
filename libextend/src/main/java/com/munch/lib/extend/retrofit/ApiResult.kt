@@ -1,12 +1,19 @@
 package com.munch.lib.extend.retrofit
 
 import com.munch.lib.BaseApp
+import com.munch.lib.TEMPLATE
+import com.munch.lib.UNCOMPLETE
 
 /**
  * 涵盖了网络状态错误的返回包装类
  *
  * Create by munch1182 on 2021/1/19 9:57.
  */
+@TEMPLATE(
+    reason = "这样的封装不够简洁，如果再继承又显得啰嗦，应该考虑自行业务实现",
+    variable = ["canIgnore()", "whenFail()"]
+)
+@UNCOMPLETE("需要更多测试和使用反馈")
 sealed class ApiResult<out T> {
 
     data class Success<out T>(val data: T?) : ApiResult<T>()
@@ -34,4 +41,15 @@ sealed class ApiResult<out T> {
             fun newNullDataFail(msg: String = "data is null") = Fail(CODE_DATA_IS_NULL, msg)
         }
     }
+
+    inline fun whenFail(fail: Fail.() -> Unit): ApiResult<T>? {
+        if (this is Fail && !this.canIgnore()) {
+            fail.invoke(this)
+            return null
+        }
+        return this
+    }
+
+    fun successData(): T? = if (this is Success) this.data else null
+
 }

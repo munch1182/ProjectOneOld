@@ -46,6 +46,23 @@ data class ArticleWrapperDto(
     @Ignore
     val datas: List<ArticleDto>? = null
 
+    override fun toString(): String {
+        return StringBuilder().apply {
+            append("ArticleWrapperDto(curPage:$curPage, size:$size, total:$total, ")
+            when {
+                datas == null -> {
+                    append("datas: null")
+                }
+                datas.isEmpty() -> {
+                    append("datas: empty")
+                }
+                else -> {
+                    append("datas: [ ...(size=${datas.size}, datas[0] = ${datas[0]}) ]")
+                }
+            }
+        }.toString()
+    }
+
 }
 
 @Entity(tableName = Db.TB_NAME_PAGE_WITH_ARTICLE, primaryKeys = ["curPage", "id"])
@@ -132,6 +149,10 @@ data class ArticleDto(
 
     override fun hashCode(): Int {
         return id
+    }
+
+    override fun toString(): String {
+        return "ArticleDto(id=$id,title=$title,user=$userId,shareId=$shareUser,date=$publishTime)"
     }
 }
 

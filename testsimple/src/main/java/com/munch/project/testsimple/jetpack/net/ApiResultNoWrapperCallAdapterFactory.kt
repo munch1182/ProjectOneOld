@@ -1,6 +1,7 @@
 package com.munch.project.testsimple.jetpack.net
 
 import com.munch.lib.extend.retrofit.ApiResult
+import com.munch.lib.helper.ParameterizedTypeImpl
 import com.munch.project.testsimple.jetpack.model.dto.BaseDtoWrapper
 import okhttp3.Request
 import okio.Timeout
@@ -54,7 +55,14 @@ class ApiResultNoWrapperCallAdapterFactory : CallAdapter.Factory() {
         if (BaseDtoWrapper::class.java == getRawType(responseType)) {
             return null
         }
-        return ApiResultNoWrapperCallAdapter<Any>(BaseDtoWrapper::class.java)
+        //不能直接传BaseDtoWrapper::class.java，必须传入带有泛型的type，否则gson无法根据类型转换
+        return ApiResultNoWrapperCallAdapter<Any>(
+            /*TypeToken.getParameterized(
+                BaseDtoWrapper::class.java,
+                responseType
+            ).type*/
+            ParameterizedTypeImpl(BaseDtoWrapper::class.java, responseType)
+        )
     }
 }
 
@@ -90,7 +98,15 @@ class ApiResultNoWrapperCall<T>(private val delegate: Call<BaseDtoWrapper<T>>) :
             }
 
             override fun onFailure(call: Call<BaseDtoWrapper<T>>, t: Throwable) {
-                callback.onFailure(this@ApiResultNoWrapperCall, t)
+                /*callback.onFailure(this@ApiResultNoWrapperCall, t)*/
+                callback.onResponse(
+                    this@ApiResultNoWrapperCall,
+                    Response.success(
+                        ApiResult.Fail.newHttpStatusFail(
+                            t.message ?: "http status fail"
+                        )
+                    )
+                )
             }
         })
     }
