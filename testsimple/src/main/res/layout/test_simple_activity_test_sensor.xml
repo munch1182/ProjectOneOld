@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".sensor.TestSensorActivity">
+
+        <TextView
+            android:id="@+id/test_sensor_tv_yesterday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:layout_marginEnd="@dimen/padding_def"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="昨天：1123" />
+
+        <TextView
+            android:id="@+id/test_sensor_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/test_sensor_tv_yesterday"
+            app:layout_constraintTop_toBottomOf="@id/test_sensor_tv_yesterday"
+            tools:text="今天：1123" />
+
+        <Button
+            android:id="@+id/test_sensor_btn_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_def"
+            android:text="更新"
+            app:layout_constraintStart_toStartOf="@id/test_sensor_tv"
+            app:layout_constraintTop_toBottomOf="@id/test_sensor_tv"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/test_sensor_btn_work"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="后台获取(测试)"
+            app:layout_constraintStart_toStartOf="@id/test_sensor_btn_start"
+            app:layout_constraintTop_toBottomOf="@id/test_sensor_btn_start"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/test_sensor_btn_work_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="后台获取 取消"
+            app:layout_constraintStart_toStartOf="@id/test_sensor_btn_work"
+            app:layout_constraintTop_toBottomOf="@id/test_sensor_btn_work"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/test_sensor_btn_mon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="30天内"
+            app:layout_constraintStart_toStartOf="@id/test_sensor_btn_work_cancel"
+            app:layout_constraintTop_toBottomOf="@id/test_sensor_btn_work_cancel"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/test_sensor_tv_mon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/test_sensor_btn_mon"
+            app:layout_constraintTop_toBottomOf="@id/test_sensor_btn_mon" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

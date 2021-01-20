@@ -47,12 +47,14 @@ interface PageDao {
     suspend fun queryArticle(page: Int): PageArticle?
 
     /*内联多表查询，但是无法直接返回DataSource.Factory*/
+    @Transaction
     @Query("SELECT * FROM $TB_NAME_ARTICLE as art INNER JOIN $TB_NAME_PAGE_WITH_ARTICLE as pa ON art.id = pa.id WHERE pa.curPage = :page ")
     suspend fun queryArticleByPage(page: Int): List<ArticleDto>
 
     @Query("SELECT * FROM $TB_NAME_PAGE ORDER BY curPage DESC LIMIT 1")
     suspend fun queryLast(): PageArticle?
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT curPage FROM $TB_NAME_PAGE ORDER by curPage DESC LIMIT 1")
     suspend fun queryLastPage(): Int?
 

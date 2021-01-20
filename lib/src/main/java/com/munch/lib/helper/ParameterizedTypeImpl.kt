@@ -26,6 +26,6 @@ class ParameterizedTypeImpl(
     }
 
     override fun toString(): String {
-        return "ParameterizedTypeImpl(rawType = $rawType, typeArguments = $typeArguments,ownerType = $ownerType, )"
+        return "ParameterizedTypeImpl(rawType = $rawType, typeArguments = $typeArguments,ownerType = $ownerType)"
     }
 }

@@ -24,9 +24,10 @@ fun LifecycleOwner.removeOb(observer: LifecycleObserver) {
 }
 
 
+@JvmOverloads
 inline fun LifecycleOwner.obWhenCreate(
     crossinline onCreate: () -> Unit,
-    crossinline onDestroy: () -> Unit
+    noinline onDestroy: (() -> Unit)? = null
 ) {
     lifecycle.addObserver(object : LifecycleObserver {
         @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -36,7 +37,7 @@ inline fun LifecycleOwner.obWhenCreate(
 
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun onDestroy() {
-            onDestroy.invoke()
+            onDestroy?.invoke()
             removeOb(this)
         }
     })

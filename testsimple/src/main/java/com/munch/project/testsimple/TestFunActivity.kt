@@ -6,8 +6,11 @@ import android.view.View
 import android.widget.ImageView
 import com.munch.lib.common.RouterHelper
 import com.munch.lib.common.component.ThemeProvider
+import com.munch.lib.helper.DateHelper
+import com.munch.lib.helper.formatDate
 import com.munch.lib.helper.isServiceRunning
 import com.munch.lib.helper.startActivity
+import com.munch.lib.log
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.testsimple.jetpack.net.Api
@@ -40,8 +43,22 @@ class TestFunActivity : TestRvActivity() {
         super.clickItem(view, pos)
         when (pos) {
             0 -> {
+                log(
+                    "yyyy-MM-dd HH:mm:ss".formatDate(DateHelper.dayMillis()),
+                    System.currentTimeMillis(),
+                    DateHelper.dayMillis(),
+                    DateHelper.TIME_HOUR_MIN_SEC,
+                    DateHelper.dayMillis(),
+                )
             }
             1 -> {
+                val day1 = DateHelper.newData(
+                    2001, 1, 2, 0, 0, 0
+                )
+                val day2 = DateHelper.newData(
+                    2001, 1, 1, 23, 59, 59
+                )
+                log(DateHelper.isOneDay(day1.time, day2.time))
             }
             2 -> {
             }

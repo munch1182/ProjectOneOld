@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 class BaseSimpleAdapter<T>(
     @LayoutRes resId: Int = 0,
     list: MutableList<T>? = null,
-    val onBind: (holder: BaseViewHolder, data: T, position: Int) -> Unit
+    private val onBind: (holder: BaseViewHolder, data: T, position: Int) -> Unit
 ) : BaseHolderAdapter<T>(resId, list) {
 
     constructor(

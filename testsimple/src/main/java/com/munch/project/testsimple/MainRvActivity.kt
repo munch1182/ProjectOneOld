@@ -8,6 +8,7 @@ import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.testsimple.alive.TestAliveActivity
 import com.munch.project.testsimple.jetpack.TestJetpackActivity
 import com.munch.project.testsimple.queue.TestQueueActivity
+import com.munch.project.testsimple.sensor.TestSensorActivity
 import com.munch.project.testsimple.socket.TestSimpleSocketActivity
 
 @Route(path = RouterHelper.TestSimple.MAIN)
@@ -24,6 +25,7 @@ class MainRvActivity : TestRvActivity() {
             TestRvItemBean.newInstance("Jetpack", TestJetpackActivity::class.java),
             TestRvItemBean.newInstance("Socket", TestSimpleSocketActivity::class.java),
             TestRvItemBean.newInstance("Queue", TestQueueActivity::class.java),
+            TestRvItemBean.newInstance("Sensor", TestSensorActivity::class.java),
             TestRvItemBean.newInstance("Test", TestFunActivity::class.java)
         )
     }

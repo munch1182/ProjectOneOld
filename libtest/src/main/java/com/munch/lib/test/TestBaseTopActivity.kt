@@ -13,7 +13,7 @@ import com.munch.lib.helper.*
 /**
  * 给其子类添加了一个[R.layout.activity_base_top]，不需要则不要继承此类，因为重写了[setContentView]
  *
- * 实际开发中此类应该继承app的BaseActivity
+ * 实际开发中此类应该继承app的BaseActivity，然后本身作为最底层的可继承类
  *
  * Create by munch1182 on 2020/12/10 22:06.
  */

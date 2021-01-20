@@ -78,28 +78,34 @@ object FileHelper {
     fun formatSize2Str(size: Double) = formatSize(size).run { "$first$second" }
 
     /**
+     * @see [STR_BITE] [STR_KB] [STR_MB] [STR_GB]
      * @return <数值，单位> 如<"5","KB">
      */
     fun formatSize(size: Double): Pair<String, String> {
         if (size == 0.0) {
-            return Pair("0", "B")
+            return Pair("0", STR_BITE)
         }
         val df = DecimalFormat("#.00")
         return when {
             size < 1024.0 -> {
-                Pair(df.format(size), "B")
+                Pair(df.format(size), STR_BITE)
             }
             size < 1048576.0 -> {
-                Pair(df.format(size / 1024.0), "KB")
+                Pair(df.format(size / 1024.0), STR_KB)
             }
             size < 1073741824.0 -> {
-                Pair(df.format(size / 1048576.0), "MB")
+                Pair(df.format(size / 1048576.0), STR_MB)
             }
             else -> {
-                Pair(df.format(size / 1073741824.0), "GB")
+                Pair(df.format(size / 1073741824.0), STR_GB)
             }
         }
     }
+
+    const val STR_BITE = "B"
+    const val STR_KB = "KB"
+    const val STR_MB = "MB"
+    const val STR_GB = "GB"
 }
 
 /**

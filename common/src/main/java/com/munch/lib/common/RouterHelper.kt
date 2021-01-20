@@ -6,7 +6,6 @@ import com.alibaba.android.arouter.facade.Postcard
 import com.alibaba.android.arouter.facade.callback.NavigationCallback
 import com.alibaba.android.arouter.facade.template.IProvider
 import com.alibaba.android.arouter.launcher.ARouter
-import com.munch.lib.BaseApp
 
 /**
  * Create by munch1182 on 2021/1/6 18:08.
@@ -30,10 +29,11 @@ object RouterHelper {
     }
 
     fun init(app: Application) {
-        if (BaseApp.debugMode()) {
+        /*因为debug会清除缓存，所以Router相关功能改变时需要开启*/
+        /*if (BaseApp.debugMode()) {
             ARouter.openDebug()
             ARouter.openLog()
-        }
+        }*/
         ARouter.init(app)
     }
 

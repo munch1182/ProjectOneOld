@@ -1,6 +1,5 @@
 package com.munch.project.test
 
-import android.os.Bundle
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.test.bar.TestBarActivity
@@ -12,12 +11,6 @@ import com.munch.project.test.view.*
  * Create by munch1182 on 2020/12/10 21:33.
  */
 class TestViewActivity : TestRvActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        showBack()
-    }
-
     override fun getItems(): MutableList<TestRvItemBean> {
         return mutableListOf(
             TestRvItemBean.newInstance("Weight", TestWeightActivity::class.java),
@@ -36,12 +29,6 @@ class TestViewActivity : TestRvActivity() {
 }
 
 class TestFileMainActivity : TestRvActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        showBack()
-    }
-
     override fun getItems(): MutableList<TestRvItemBean> {
         return mutableListOf(
             TestRvItemBean.newInstance("App File", TestFileActivity::class.java)

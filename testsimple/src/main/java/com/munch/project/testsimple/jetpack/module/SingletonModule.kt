@@ -30,7 +30,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object SingletonModule {
 
     private const val BASE_URL = "https://www.wanandroid.com"
-    private const val NAME_DB = "db_article"
+    private const val NAME_DB = "db_article.db"
 
     @Provides
     fun provideRetrofit(client: OkHttpClient): Retrofit {

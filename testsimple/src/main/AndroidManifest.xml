@@ -13,6 +13,9 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
@@ -40,6 +43,7 @@
         <activity android:name=".socket.TestSimpleSocketActivity" />
         <activity android:name=".TestFunInFragmentActivity" />
         <activity android:name=".jetpack.WebViewActivity" />
+        <activity android:name=".sensor.TestSensorActivity" />
 
         <service
             android:name=".alive.foreground.ForegroundService"
@@ -92,6 +96,16 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_xml" />
         </provider>
+
+        <service
+            android:name=".sensor.TestSensorActivity$QueryStepService"
+            android:exported="true"
+            android:permission="permission4Service">
+            <intent-filter>
+                <action android:name="com.munch.project.step" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

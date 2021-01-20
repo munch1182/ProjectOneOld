@@ -1,7 +1,6 @@
 package com.munch.lib.extend.retrofit
 
 import com.munch.lib.TEMPLATE
-import com.munch.lib.log
 import okhttp3.Request
 import okio.Timeout
 import retrofit2.*
@@ -10,6 +9,8 @@ import java.lang.reflect.Type
 
 /**
  * 将返回类型包装为[ApiResult]，支持[suspend]请求返回ApiResult<T>，否则应该返回Call<ApiResult<T>>
+ *
+ * 即使实现了更为细致的CallAdapter，这个也应该作为一种补充
  *
  * Create by munch1182 on 2021/1/19 11:36.
  */
@@ -43,7 +44,6 @@ class ApiResultCallAdapterFactory : CallAdapter.Factory() {
         //retrofit类型转换的关键，此类型是使用retrofit自定义请求的返回值
         //而ApiResultCallAdapter的adapt的返回值则是转换后的返回值，也就是api声明的返回值
         val responseType = getParameterUpperBound(0, apiResultType)
-        log(responseType)
         return ApiResultCallAdapter<Any>(responseType)
     }
 }

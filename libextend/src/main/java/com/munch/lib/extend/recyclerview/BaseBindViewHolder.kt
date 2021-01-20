@@ -24,7 +24,7 @@ class BaseSimpleBindAdapter<T, B : ViewDataBinding>(
         if (resId != 0) {
             return BaseBindViewHolder(resId, parent)
         }
-        throw Exception("未设置itemView")
+        throw Exception("bind adapter need bind layout")
     }
 
     override fun onBind(holder: BaseBindViewHolder<B>, data: T, position: Int) {
