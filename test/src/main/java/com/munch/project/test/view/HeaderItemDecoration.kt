@@ -9,12 +9,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.BaseApp
 import com.munch.lib.helper.drawTextInYCenter
+import com.munch.lib.log
 import com.munch.project.test.R
 
 /**
  * Create by munch1182 on 2021/1/17 21:31.
  */
-class HeaderItemDecoration(private var data: ArrayList<IsHeader> = ArrayList(0)) :
+class HeaderItemDecoration(
+    private var sticky: Boolean = true,
+    private var data: ArrayList<IsHeader> = ArrayList(0)
+) :
     RecyclerView.ItemDecoration() {
 
     private val headHeight = 80
@@ -26,6 +30,8 @@ class HeaderItemDecoration(private var data: ArrayList<IsHeader> = ArrayList(0))
     private val bgColor = Color.parseColor("#dadada")
     private val padding = BaseApp.getContext().resources.getDimension(R.dimen.padding_def)
     private var judgeLayoutManager = 0
+    private var stickyStr = ""
+    private var layoutManager: LinearLayoutManager? = null
 
     fun resetData(list: ArrayList<IsHeader> = ArrayList(0)) {
         data = list
@@ -39,6 +45,7 @@ class HeaderItemDecoration(private var data: ArrayList<IsHeader> = ArrayList(0))
         //直接更改背景颜色，用以显示分割线
         parent.setBackgroundColor(bgColor)
         var child: View?
+        paint.color = Color.BLACK
         for (i in 0 until parent.childCount) {
             child = parent.getChildAt(i)
             val pos = parent.getChildAdapterPosition(child)
@@ -52,6 +59,32 @@ class HeaderItemDecoration(private var data: ArrayList<IsHeader> = ArrayList(0))
                 )
             }
         }
+        if (!sticky) {
+            return
+        }
+        layoutManager ?: return
+        val firstPos = layoutManager!!.findFirstVisibleItemPosition()
+        if (firstPos == -1) {
+            return
+        }
+        val isHeader = data[firstPos]
+        stickyStr = isHeader.headerStr()
+
+        val isHeader2 = data[firstPos + 1]
+        var y: Float = headHeight.toFloat()
+        if (isHeader2.isHeaderItem()) {
+            val itemView = layoutManager!!.findViewByPosition(firstPos + 1) ?: return
+            //rect的高不算在item的y里面
+            val top = itemView.y - headHeight.toFloat()
+            if (top <= headHeight.toFloat()) {
+                y = top
+            }
+        }
+        paint.color = bgColor
+        val paddingTop = parent.paddingTop.toFloat()
+        c.drawRect(0f, paddingTop, parent.width.toFloat(), y, paint)
+        paint.color = Color.BLACK
+        c.drawTextInYCenter(stickyStr, 3f / 2f * padding, y - headHeight / 2f + paddingTop, paint)
     }
 
     /**
@@ -61,8 +94,8 @@ class HeaderItemDecoration(private var data: ArrayList<IsHeader> = ArrayList(0))
         if (judgeLayoutManager != 0) {
             return judgeLayoutManager == 2
         }
-        val layoutManager =
-            parent.layoutManager?.takeIf { it is LinearLayoutManager && it.orientation == LinearLayoutManager.VERTICAL }
+        layoutManager =
+            parent.layoutManager?.takeIf { it is LinearLayoutManager && it.orientation == LinearLayoutManager.VERTICAL } as? LinearLayoutManager?
         judgeLayoutManager = if (layoutManager == null) 2 else 1
         return judgeLayoutManager == 2
     }

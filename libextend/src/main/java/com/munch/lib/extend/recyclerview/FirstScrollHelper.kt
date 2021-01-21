@@ -31,7 +31,6 @@ class FirstScrollHelper {
                     return
                 }
                 val firstPos = lm!!.findFirstVisibleItemPosition()
-                log(lm?.getChildAt(target)?.y)
                 if (firstPos == target) {
                     //停止滑动
                     recyclerView.stopScroll()
@@ -108,8 +107,8 @@ class FirstScrollHelper {
             else -> {
                 needScrollHandle = false
                 val posView = lm!!.getChildAt(pos) ?: return
-                val firView = lm!!.getChildAt(firstPos) ?: return
-                rv!!.smoothScrollBy(0, (posView.y - firView.y).toInt())
+                //减去header的高度
+                rv!!.smoothScrollBy(0, posView.top - 80)
             }
         }
     }
