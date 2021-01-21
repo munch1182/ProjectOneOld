@@ -1,4 +1,4 @@
-package com.munch.project.testsimple.socket
+package com.munch.project.testsimple.net
 
 import android.app.Application
 import android.content.Context
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Create by munch1182 on 2020/12/23 3:46.
  */
-class SocketHelper(
+class IpAddressHelper(
     private val application: Application = BaseApp.getInstance(),
     owner: LifecycleOwner? = null
 ) {

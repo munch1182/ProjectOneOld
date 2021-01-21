@@ -1,4 +1,4 @@
-package com.munch.project.testsimple.socket
+package com.munch.project.testsimple.net
 
 import android.os.Bundle
 import android.widget.Button
@@ -18,9 +18,9 @@ import kotlin.concurrent.thread
 /**
  * Create by munch1182 on 2020/12/23 3:20.
  */
-class TestSimpleSocketActivity : TestBaseTopActivity() {
+class TestSimpleIpActivity : TestBaseTopActivity() {
 
-    private val helper by lazy { SocketHelper(owner = this) }
+    private val helper by lazy { IpAddressHelper(owner = this) }
     private val btnIp by lazy { findViewById<Button>(R.id.socket_btn_ip) }
     private val tvIp by lazy { findViewById<TextView>(R.id.socket_tv_ip) }
     private val btnIpAll by lazy { findViewById<Button>(R.id.socket_btn_ip_all) }
@@ -28,7 +28,7 @@ class TestSimpleSocketActivity : TestBaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.test_simple_activity_test_simple_socket)
+        setContentView(R.layout.test_simple_activity_test_ip)
         btnIp.setOnClickListener {
             tvIp.text = helper.getIpAddress() ?: "获取ip失败"
         }

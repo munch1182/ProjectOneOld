@@ -1,6 +1,8 @@
 package com.munch.lib
 
 import com.munch.lib.helper.LogLog
+import java.io.Closeable
+import java.lang.Exception
 
 /**
  * Create by munch1182 on 2020/12/13 16:02.
@@ -17,6 +19,15 @@ fun Any.log(vararg any: Any?) {
         else -> {
             LogLog.callClass(clazz).log(any)
         }
+    }
+}
+
+fun Closeable?.closeWhenEnd() {
+    this ?: return
+    try {
+        this.close()
+    } catch (e: Exception) {
+        //DO NOTHING
     }
 }
 

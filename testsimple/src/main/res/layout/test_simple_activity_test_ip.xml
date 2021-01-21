@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/padding_def"
-    tools:context=".socket.TestSimpleSocketActivity"
+    tools:context=".net.TestSimpleIpActivity"
     tools:ignore="HardcodedText">
 
     <Button

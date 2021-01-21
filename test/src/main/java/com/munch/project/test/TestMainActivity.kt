@@ -13,7 +13,7 @@ import com.munch.project.test.switch.TestSwitchActivity
  * Create by munch1182 on 2020/12/7 13:58.
  */
 @Route(path = RouterHelper.Test.MAIN)
-class TestMainActivity : TestRvActivity() {
+open class TestMainActivity : TestRvActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

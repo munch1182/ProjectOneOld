@@ -55,10 +55,12 @@
 
         <activity android:name=".TestFunActivity" />
         <activity android:name=".queue.TestQueueActivity" />
-        <activity android:name=".socket.TestSimpleSocketActivity" />
+        <activity android:name=".net.TestSimpleIpActivity" />
         <activity android:name=".TestFunInFragmentActivity" />
         <activity android:name=".jetpack.WebViewActivity" />
         <activity android:name=".sensor.TestSensorActivity" />
+        <activity android:name=".net.TestNetActivity" />
+        <activity android:name=".net.TestSocketActivity" />
 
         <service
             android:name=".alive.foreground.ForegroundService"
