@@ -34,101 +34,114 @@ data class StepBean(
             val currentTimeMillis = System.currentTimeMillis()
             return StepBean(
                 step,
-                DateHelper.dayMillis(currentTimeMillis - DateHelper.TIME_EIGHT_HOUR),
+                DateHelper.dayMillis(currentTimeMillis),
                 currentTimeMillis
             )
         }
     }
 }
 
+/**
+ * 设计中，该表只有一个值，
+ * 即到昨天为止的偏移量
+ *
+ * 清空偏移也不能进行删除，除非要重置
+ */
 @Entity(tableName = NAME_TB_STEP_OFFSET)
 data class StepOffsetBean(
+    @PrimaryKey val id: Int = 0,
     val offset: Int,
-    val from: Long = 0,
-    @PrimaryKey val to: Long
+    val lastDay: Long
 ) {
-    fun update(offset: Int): StepOffsetBean {
-        return StepOffsetBean(offset, from, to)
-    }
 
     companion object {
-        fun first(offset: Int): StepOffsetBean {
+        fun update(offset: Int): StepOffsetBean {
             return StepOffsetBean(
                 offset = offset,
-                from = 0L,
-                to = DateHelper.dayMillis(System.currentTimeMillis() - DateHelper.TIME_EIGHT_HOUR)
+                lastDay = DateHelper.dayMillis(System.currentTimeMillis())
             )
         }
+
     }
 }
 
 @Dao
 interface StepDao {
 
-    @Query("SELECT * FROM $NAME_TB_STEP_OFFSET  WHERE `to` <= :date ORDER BY `to` LIMIT 1")
-    suspend fun queryOffsetBefore(date: Long): StepOffsetBean?
+    /**
+     * 查询是否有今日即以前的偏移量，有则返回，无则返回null
+     * 因为设计中，已经计数的偏移量统一合并为一个数据
+     */
+    @Query("SELECT * FROM $NAME_TB_STEP_OFFSET LIMIT 1")
+    suspend fun queryOffsetBean(): StepOffsetBean?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(offsetBean: StepOffsetBean)
+    suspend fun insertOrUpdateOffset(offsetBean: StepOffsetBean)
 
-    @Transaction
-    suspend fun queryOffsetBeforeToday(): StepOffsetBean? {
-        return queryOffsetBefore(todayMillis())
-    }
+    /**
+     * 注意：删除偏移表会导致偏移操作重置
+     */
+    @Query("DELETE FROM $NAME_TB_STEP_OFFSET")
+    suspend fun delStepOffset()
 
-    @Update(entity = StepOffsetBean::class)
-    suspend fun updateOffset(bean: StepOffsetBean)
-
-    @Transaction
-    suspend fun queryTodayStep(): Int? {
-        return queryStepByDay(todayMillis())
-    }
-
-    @Transaction
-    suspend fun queryTodayStepBean(): StepBean? {
-        return queryStepBeanByDay(todayMillis())
-    }
 
     @Transaction
     suspend fun queryAllStepNotToday(): Int? {
         return queryAllStepBeforeDay(todayMillis())
     }
 
-    fun todayMillis() =
-        DateHelper.dayMillis(System.currentTimeMillis() - DateHelper.TIME_EIGHT_HOUR)
+    fun todayMillis() = DateHelper.dayMillis(System.currentTimeMillis())
 
     @Transaction
-    suspend fun addStepNoOffset(stepWithOffset: Int): Pair<StepBean, Int> {
+    suspend fun addStepNoOffset(stepWithOffsetFromSensor: Int): Pair<StepBean, Int> {
         val todayMillis = todayMillis()
 
-        var offsetBean = queryOffsetBefore(todayMillis)
+        val stepOffsetBean = queryOffsetBean()
+
+        var stepOffset: Int
         //用offsetBean是否有值来判断是否是第一次使用，因此不能轻易删除
         //第一次使用，将已有的值都当作偏移值
-        if (offsetBean == null) {
-            offsetBean = StepOffsetBean.first(stepWithOffset)
-            insert(offsetBean)
+        if (stepOffsetBean == null) {
+            insertOrUpdateOffset(StepOffsetBean.update(stepWithOffsetFromSensor))
+            stepOffset = stepWithOffsetFromSensor
+        } else {
+            //判断是否需要更新偏移表
+            //如果昨天的值没有加入偏移
+            if (todayMillis - stepOffsetBean.lastDay > DateHelper.TIME_HOUR_MIN_SEC) {
+                //加上昨天的偏移
+                stepOffset = stepOffsetBean.offset + (queryAllStepBeforeDay(todayMillis) ?: 0)
+                insertOrUpdateOffset(StepOffsetBean.update(stepOffset))
+            } else {
+                stepOffset = stepOffsetBean.offset
+            }
         }
-        var stepOffset = offsetBean.offset
         //传感器的数据小于数据库的偏移量，则是手机重启，传感器重新获取的数据，则直接计算今天的数据，同时更新偏移
         //不用去考虑是否有新的数据生成
         //因为运行的前提是每天都能保存到运动数据
         val todayStep: Int
-        if (stepWithOffset < stepOffset) {
-            todayStep = stepWithOffset
-            //清空偏移而不是删除
+        if (stepWithOffsetFromSensor < stepOffset) {
+            todayStep = stepWithOffsetFromSensor
             stepOffset = 0
-            updateOffset(offsetBean.update(stepOffset))
+            //清空偏移而不删除
+            insertOrUpdateOffset(StepOffsetBean.update(0))
             //传感器数据大于或者等于数据库的偏移量，则计算偏移，获取当天的数据
         } else {
+            //需要更新每天的偏移量
             //传感器今天的数据
-            todayStep = stepWithOffset - stepOffset
+            todayStep = stepWithOffsetFromSensor - stepOffset
         }
         val stepBean = queryStepBeanByDay(todayMillis)?.update(todayStep) ?: StepBean.now(todayStep)
+        //使用insert替换掉旧的值
         insert(stepBean)
         return Pair(stepBean, stepOffset)
     }
 
-    @Query("SELECT SUM(step) FROM $NAME_TB_STEP WHERE date < :date")
+    @Transaction
+    suspend fun queryTodayStep(): Int? {
+        return queryStepByDay(todayMillis())
+    }
+
+    @Query("SELECT SUM(`offset`) FROM $NAME_TB_STEP_OFFSET WHERE lastDay < :date")
     suspend fun queryAllStepBeforeDay(date: Long): Int?
 
     @Query("SELECT step FROM $NAME_TB_STEP WHERE date = :date")
