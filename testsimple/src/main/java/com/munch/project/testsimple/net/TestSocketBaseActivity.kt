@@ -15,7 +15,7 @@ import com.munch.project.testsimple.R
 /**
  * Create by munch1182 on 2021/1/21 14:37.
  */
-class TestSocketActivity : TestBaseTopActivity() {
+class TestSocketBaseActivity : TestBaseTopActivity() {
 
     private val helper = SocketHelper()
     private val udpHelper by lazy { SocketUdpHelper() }
@@ -25,7 +25,7 @@ class TestSocketActivity : TestBaseTopActivity() {
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.test_simple_activity_test_socket)
+        setContentView(R.layout.test_simple_activity_test_socket_base)
         val tv = findViewById<TextView>(R.id.socket_tv)
         LogLog.setListener(this) { _, msg ->
             runOnUiThread {

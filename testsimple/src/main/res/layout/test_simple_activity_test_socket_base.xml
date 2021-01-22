@@ -5,7 +5,7 @@
     android:id="@+id/socket_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".net.TestSocketActivity"
+    tools:context=".net.TestSocketBaseActivity"
     tools:ignore="HardcodedText">
 
     <androidx.constraintlayout.widget.Guideline

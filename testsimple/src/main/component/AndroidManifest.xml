@@ -60,7 +60,8 @@
         <activity android:name=".jetpack.WebViewActivity" />
         <activity android:name=".sensor.TestSensorActivity" />
         <activity android:name=".net.TestNetActivity" />
-        <activity android:name=".net.TestSocketActivity" />
+        <activity android:name=".net.TestSocketBaseActivity" />
+        <activity android:name=".net.TestSocketBroadcastAndConnectActivity" />
 
         <service
             android:name=".alive.foreground.ForegroundService"

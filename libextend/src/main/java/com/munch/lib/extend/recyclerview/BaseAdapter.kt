@@ -4,6 +4,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
+import java.lang.IllegalStateException
+import java.lang.invoke.WrongMethodTypeException
 
 /**
  * Create by munch1182 on 2021/1/13 9:33.
@@ -69,21 +71,49 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
         add(data)
     }
 
+
+    fun remove(from: Int, to: Int) {
+        if (to <= from) {
+            throw UnsupportedOperationException()
+        }
+        this.dataList.subList(from, to).clear()
+        notifyItemRangeRemoved(from, to - from)
+    }
+
+    fun remove(index: Int) {
+        this.dataList.removeAt(index)
+        notifyItemRemoved(index)
+    }
+
+    fun remove(data: T) {
+        remove(dataList.indexOf(data))
+    }
+
     fun setData(index: Int, data: T) {
         this.dataList[index] = data
-        notifyItemChanged(index)
+        notifyItemChanged(index, data)
     }
 
     fun add(index: Int, data: T) {
         data ?: return
         this.dataList.add(index, data)
+        notifyItemInserted(index)
+    }
+
+    fun add(index: Int, data: MutableList<T>? = null) {
+        data ?: return
+        this.dataList.addAll(index, data)
         notifyItemChanged(index)
     }
 
     fun add(data: MutableList<T>? = null) {
-        data ?: return
-        this.dataList.addAll(data)
-        notifyDataSetChanged()
+        if (data == null) {
+            setData(data)
+        } else {
+            val index = this.dataList.size
+            this.dataList.addAll(data)
+            notifyItemChanged(index, data.size)
+        }
     }
 
     fun setOnItemClick(onClick: ((adapter: BaseAdapter<T, B>, view: View, data: T, pos: Int) -> Unit)? = null): BaseAdapter<T, B> {
@@ -98,7 +128,7 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
         } else if (resId != 0) {
             return BaseViewHolder(resId, parent) as B
         }
-        throw Exception("未设置itemView")
+        throw UnsupportedOperationException("need itemView")
     }
 
     override fun onBindViewHolder(holder: B, position: Int) {

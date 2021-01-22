@@ -11,7 +11,8 @@ class TestNetActivity : TestRvActivity() {
     override fun getItems(): MutableList<TestRvItemBean> {
         return mutableListOf(
             TestRvItemBean.newInstance("IpAddress", TestSimpleIpActivity::class.java),
-            TestRvItemBean.newInstance("Socket", TestSocketActivity::class.java)
+            TestRvItemBean.newInstance("Socket Base", TestSocketBaseActivity::class.java),
+            TestRvItemBean.newInstance("Socket", TestSocketBroadcastAndConnectActivity::class.java)
         )
     }
 }
