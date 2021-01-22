@@ -4,6 +4,7 @@ import com.munch.lib.closeWhenEnd
 import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.log
 import java.io.Closeable
+import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -45,6 +46,39 @@ class SocketUdpHelper : ISocketHelper {
     override fun closeResource() {
         clientDisconnect()
         stopSocketService()
+    }
+
+    /**
+     * 通过255.255.255.255发送一个局域网的受限广播，局域网中的设备都能在对应接口中监听到
+     *
+     * 相较于局域网广播，也可以使用让服务器使用MulticastSocket加入D类IP来进行组播，其余步骤与udp一致
+     * val socket = MulticastSocket(port)
+     * //D类IP地址范围为[224.0.0.0-239.255.255.255]
+     * val group = InetAddress.getByName("224.1.1.100")
+     * if(group.isMulticastAddress()){
+     *   throw UnsupportedOperationException();
+     * }
+     * socket.joinGroup(group)
+     *
+     * @see main
+     */
+    fun sendNetBroadcast() {
+        val port = 55555
+        ThreadHelper.getExecutor()
+            .execute {
+                try {
+                    DatagramSocket().use {
+                        val ba = "Hello World".toByteArray()
+                        val byName = InetAddress.getByName("255.255.255.255")
+                        val datagramPacket = DatagramPacket(ba, ba.size, byName, port)
+                        it.send(datagramPacket)
+                        log("发送一次广播：${ba.decodeToString()}")
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    log("广播：${e.message}")
+                }
+            }
     }
 
 

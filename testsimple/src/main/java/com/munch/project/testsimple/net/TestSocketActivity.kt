@@ -53,6 +53,9 @@ class TestSocketActivity : TestBaseTopActivity() {
                 }
                 4 -> {
                     getHelper().clientSend(msg = "123\n234\nabandon")
+                    if (getHelper() is SocketUdpHelper) {
+                        (getHelper() as SocketUdpHelper).sendNetBroadcast()
+                    }
                 }
                 5 -> {
                     getHelper().clientDisconnect()
