@@ -18,6 +18,9 @@ import com.munch.project.testsimple.R
 class TestSocketActivity : TestBaseTopActivity() {
 
     private val helper = SocketHelper()
+    private val udpHelper by lazy { SocketUdpHelper() }
+    private val tvHelper: TextView by lazy { findViewById(R.id.socket_tv_switch) }
+    private var type = 0
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,34 +33,64 @@ class TestSocketActivity : TestBaseTopActivity() {
                 (tv.parent as NestedScrollView).fullScroll(ScrollView.FOCUS_DOWN)
             }
         }
+        tvHelper.text = getHelperStr()
         findViewById<ViewGroup>(R.id.socket_container).clickItem({
             val tag = it.tag as? Int? ?: return@clickItem
             when (tag) {
                 0 -> {
-                    helper.startSocketService()
+                    getHelper().closeResource()
+                    changeType()
+                    tvHelper.text = getHelperStr()
                 }
                 1 -> {
-                    helper.stopSocketService()
+                    getHelper().startSocketService()
                 }
                 2 -> {
-                    helper.connect()
+                    getHelper().stopSocketService()
                 }
                 3 -> {
-                    helper.send(msg = "123\n234\nabandon")
+                    getHelper().clientConnect()
                 }
                 4 -> {
-                    helper.disconnect()
+                    getHelper().clientSend(msg = "123\n234\nabandon")
                 }
                 5 -> {
+                    getHelper().clientDisconnect()
+                }
+                6 -> {
                     tv.text = ""
                 }
             }
         }, Button::class.java)
     }
 
+    //<editor-fold desc="type方法">
+    private fun changeType() {
+        type++
+        if (type > 1) {
+            type = 0
+        }
+    }
+
+    private fun getHelper(): ISocketHelper {
+        return when (type) {
+            0 -> helper
+            1 -> udpHelper
+            else -> helper
+        }
+    }
+
+    private fun getHelperStr(): String {
+        return when (type) {
+            0 -> "socket"
+            1 -> "udp"
+            else -> "socket"
+        }
+    }
+    //</editor-fold>
+
     override fun onBackPressed() {
         super.onBackPressed()
-        helper.disconnect()
-        helper.stopSocketService()
+        getHelper().closeResource()
     }
 }

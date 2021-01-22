@@ -12,8 +12,8 @@ import androidx.core.view.children
  */
 /**
  * 给ViewGroup子控件批量设置点击事件
- * 注意：使用了view的tag
- * @param clazz 需要设置点击事件的子类类型
+ * 注意：使用了view的tag，将tag设置为位置值
+ * @param clazz 需要设置点击事件的子类类型，此值影响view的tag代表的位置值
  */
 fun ViewGroup.clickItem(listener: View.OnClickListener, vararg clazz: Class<out View>) {
     var index = 0

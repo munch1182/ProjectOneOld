@@ -7,54 +7,69 @@ import android.os.SystemClock
 import com.munch.lib.closeWhenEnd
 import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.log
-import java.io.*
-import java.lang.Exception
+import java.io.Closeable
+import java.io.IOException
 import java.util.*
 
 /**
  * Create by munch1182 on 2021/1/21 15:00.
  */
-class SocketHelper {
+class SocketHelper : ISocketHelper {
 
     private val name = "1231"
     private val socketService by lazy { SocketService(name) }
     private val socketClient by lazy { SocketClient(name) }
 
 
-    fun startSocketService() {
+    override fun startSocketService() {
         socketService.startService()
     }
 
-    fun stopSocketService() {
+    override fun stopSocketService() {
         socketService.stopService()
     }
 
-    fun connect() {
+    override fun clientConnect() {
         socketClient.connect()
     }
 
-    fun send(msg: String) {
+    override fun clientSend(msg: String) {
         ThreadHelper.getExecutor().execute {
             socketClient.send(msg.toByteArray())
         }
     }
 
-    fun disconnect() {
+    override fun clientDisconnect() {
         ThreadHelper.getExecutor().execute {
             socketClient.disconnect()
         }
     }
 
+    override fun closeResource() {
+        clientDisconnect()
+        stopSocketService()
+    }
 
-    class SocketService(socketAddress: String) : Thread() {
 
-        private val localServerSocket by lazy { LocalServerSocket(socketAddress) }
+    /**
+     * 服务端：建立服务端-->阻塞接收客户端-->连接后等待消息
+     *                                                -->处理消息
+     *                                                          -->等待下一次消息
+     *                                                          -->断开连接等待下一次连接
+     */
+    class SocketService(private val socketAddress: String) : Thread(), Closeable {
+
+        private var localServerSocket: LocalServerSocket? = null
         private var start = false
 
         override fun run() {
+            if (localServerSocket != null) {
+                return
+            }
+            localServerSocket = LocalServerSocket(socketAddress)
             while (start) {
                 log("s:开始阻塞等待")
-                val socket = localServerSocket.accept()
+                val socket = localServerSocket!!.accept()
                 val br = socket.inputStream.bufferedReader()
                 while (true) {
                     log("s:等待解析消息")
@@ -87,14 +102,26 @@ class SocketHelper {
         }
 
         fun stopService() {
+            if (start) {
+                log("s:关闭服务")
+            }
             start = false
             localServerSocket.closeWhenEnd()
-            log("s:关闭服务")
+            localServerSocket = null
+        }
+
+        override fun close() {
+            stopService()
         }
 
     }
 
-    class SocketClient(private val socketName: String) {
+    /**
+     * 客户端：连接服务端 --> 发送数据
+     *                  -->接收数据
+     *                             -->断开连接
+     */
+    class SocketClient(private val socketName: String) : Closeable {
 
         private var sender: LocalSocket? = null
 
@@ -144,10 +171,14 @@ class SocketHelper {
                 write("exit".toByteArray())
                 write("\n".toByteArray())
                 flush()
+                log("c:断开连接")
             }
             Thread.sleep(500L)
-            log("c:断开连接")
             sender?.closeWhenEnd()
+        }
+
+        override fun close() {
+            disconnect()
         }
     }
 }

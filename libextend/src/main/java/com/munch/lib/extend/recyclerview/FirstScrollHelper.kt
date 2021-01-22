@@ -2,7 +2,6 @@ package com.munch.lib.extend.recyclerview
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.lib.log
 
 /**
  * 通过移动过长的距离然后观测到第一个可见item是目标item时立即停止来实现从下往上的平滑移动

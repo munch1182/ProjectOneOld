@@ -8,17 +8,39 @@
     tools:context=".net.TestSocketActivity"
     tools:ignore="HardcodedText">
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/socket_line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <Button
+        android:id="@+id/socket_btn_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="switch"
+        app:layout_constraintEnd_toStartOf="@id/socket_line"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/socket_tv_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/padding_def"
+        app:layout_constraintBottom_toBottomOf="@id/socket_btn_switch"
+        app:layout_constraintStart_toEndOf="@id/socket_line"
+        app:layout_constraintTop_toTopOf="@id/socket_btn_switch"
+        tools:text="socket" />
+
     <Button
         android:id="@+id/socket_btn_new_service"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/padding_def"
-        android:layout_marginTop="@dimen/padding_def"
-        android:layout_marginEnd="@dimen/padding_def"
         android:text="start service"
         app:layout_constraintEnd_toStartOf="@id/socket_btn_stop_service"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/socket_btn_switch" />
 
     <Button
         android:id="@+id/socket_btn_stop_service"
