@@ -43,7 +43,7 @@ class TestSocketActivity : TestBaseTopActivity() {
                     helper.connect()
                 }
                 3 -> {
-                    helper.send(msg = "123\n234")
+                    helper.send(msg = "123\n234\nabandon")
                 }
                 4 -> {
                     helper.disconnect()

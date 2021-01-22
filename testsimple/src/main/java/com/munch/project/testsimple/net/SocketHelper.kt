@@ -40,7 +40,9 @@ class SocketHelper {
     }
 
     fun disconnect() {
-        socketClient.disconnect()
+        ThreadHelper.getExecutor().execute {
+            socketClient.disconnect()
+        }
     }
 
 
@@ -51,7 +53,7 @@ class SocketHelper {
 
         override fun run() {
             while (start) {
-                log("s:开始接收消息")
+                log("s:开始阻塞等待")
                 val socket = localServerSocket.accept()
                 val br = socket.inputStream.bufferedReader()
                 while (true) {
@@ -59,16 +61,19 @@ class SocketHelper {
                     //readLine会堵塞线程
                     val line = br.readLine()
                     if (line.toLowerCase(Locale.ROOT) == "exit") {
-                        log("s:此次解析完毕")
+                        log("s: 此次解析完毕")
                         break
                     } else {
-                        log(line)
+                        log("s:解析：\"$line\"")
                     }
                 }
-                socket.outputStream.write("已收到消息\n".toByteArray())
-                socket.outputStream.write("exit".toByteArray())
                 log("s:发送回复消息")
-                sleep(500L)
+                socket.outputStream.run {
+                    write("已收到消息\n".toByteArray())
+                    write("exit".toByteArray())
+                    flush()
+                }
+                sleep(1000L)
             }
             log("s:退出服务")
         }
@@ -101,7 +106,7 @@ class SocketHelper {
             try {
                 sender!!.connect(LocalSocketAddress(socketName))
             } catch (e: IOException) {
-                log(e.message)
+                log("c:${e.message}")
             }
             val connected = sender!!.isConnected
             log("c:连接服务端结果: $connected")
@@ -111,19 +116,16 @@ class SocketHelper {
         fun send(byteArray: ByteArray) {
             try {
                 val outputStream = sender?.outputStream ?: return
-                log("c:发送消息：${byteArray}")
+                log("c:发送消息：${byteArray.decodeToString()}")
                 outputStream.write(byteArray)
-                outputStream.flush()
-                outputStream.write("\n".toByteArray())
-                outputStream.write("exit".toByteArray())
-                outputStream.write("\n".toByteArray())
                 outputStream.flush()
                 SystemClock.sleep(500L)
                 val br = sender?.inputStream?.bufferedReader()
                 while (br != null) {
+                    //此处应该有超时机制
                     val line = br.readLine()
                     if (line.toLowerCase(Locale.ROOT) == "exit") {
-                        log("c:已收到回复，停止等待")
+                        log("c:停止等待回复")
                         break
                     } else {
                         log("c:收到回复：$line")
@@ -136,7 +138,15 @@ class SocketHelper {
         }
 
         fun disconnect() {
-            log("断开连接")
+            sender?.outputStream?.run {
+                //发送退出消息会让服务端退出解析，转入监听下一次连接，因此结束管道
+                write("\n".toByteArray())
+                write("exit".toByteArray())
+                write("\n".toByteArray())
+                flush()
+            }
+            Thread.sleep(500L)
+            log("c:断开连接")
             sender?.closeWhenEnd()
         }
     }
