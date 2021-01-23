@@ -52,8 +52,8 @@ class ForegroundService : DefForegroundService() {
             .Builder(this, parameter.channelId)
             .setContentTitle("前台服务运行中")
             .setContentText("${"yyyyMMdd HH:mm:ss".formatDate(System.currentTimeMillis())}开始运行")
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setLargeIcon(BitmapFactory.decodeResource(resources,R.mipmap.ic_launcher))
+            .setSmallIcon(R.mipmap.test_simple_ic_launcher)
+            .setLargeIcon(BitmapFactory.decodeResource(resources,R.mipmap.test_simple_ic_launcher))
             .build()
     }
 

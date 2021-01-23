@@ -93,7 +93,7 @@ public class WorkService extends Service {
                 new NotificationCompat.Builder(this, channerlId)
                         .setContentTitle("后台运行中")
                         .setContentText("从" + content + "开始")
-                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setSmallIcon(R.mipmap.test_simple_ic_launcher)
                         .build());
         bindRemoteService();
         TestDataHelper.INSTANCE.testMix(this);

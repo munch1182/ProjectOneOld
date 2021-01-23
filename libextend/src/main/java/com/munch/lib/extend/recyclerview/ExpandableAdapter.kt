@@ -2,15 +2,16 @@ package com.munch.lib.extend.recyclerview
 
 import android.view.View
 import android.view.ViewGroup
+import com.munch.lib.log
 
 
 class SimpleExpandableAdapter<T : ExpandableLevelData>(
     resIds: MutableList<Int>,
     list: MutableList<T>? = null,
-    private val onBind: (holder: BaseViewHolder, data: T, position: Int) -> Unit
+    private val onBind: (adapter: SimpleExpandableAdapter<T>, holder: BaseViewHolder, data: T, position: Int) -> Unit
 ) : ExpandableAdapter<T, BaseViewHolder>(resIds, list) {
     override fun onBind(holder: BaseViewHolder, data: T, position: Int) {
-        onBind.invoke(holder, data, position)
+        onBind.invoke(this, holder, data, position)
     }
 }
 
@@ -36,15 +37,16 @@ abstract class ExpandableAdapter<T : ExpandableLevelData, B : BaseViewHolder> pr
     )
 
     @Suppress("UNCHECKED_CAST")
-    fun expand(position: Int) {
-        val data =
-            getData(position).getExpandableData()?.toMutableList() as? MutableList<T>? ?: return
-        add(position + 1, data)
+    fun expand(data: ExpandableLevelData) {
+        val position = getData().indexOf(data)
+        val expandData = getData(position).getExpandableData() as? MutableList<T>? ?: return
+        add(position + 1, expandData)
     }
 
-    fun reduce(position: Int) {
-        val size = getData(position).getExpandableData()?.size ?: return
-        remove(position + 1, position + 1 + size - 1)
+    fun reduce(data: ExpandableLevelData) {
+        val pos = getData().indexOf(data)
+        val size = getData(pos).getExpandableData()?.size ?: return
+        remove(pos + 1, pos + 1 + size)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -70,5 +72,5 @@ interface ExpandableLevelData {
      */
     fun expandLevel(): Int = 0
 
-    fun getExpandableData(): List<ExpandableLevelData>? = null
+    fun getExpandableData(): MutableList<ExpandableLevelData>? = null
 }

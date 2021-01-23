@@ -28,9 +28,9 @@
         android:name=".TestSimpleApp"
         android:allowBackup="true"
         android:fullBackupContent="@xml/content_backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/test_simple_ic_launcher"
         android:label="@string/test_simple_app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/test_simple_ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/TestSimpleAppTheme"
         tools:replace="android:theme,android:label">

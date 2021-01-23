@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
+import com.munch.lib.log
 import java.lang.IllegalStateException
 import java.lang.invoke.WrongMethodTypeException
 
@@ -76,7 +77,10 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
         if (to <= from) {
             throw UnsupportedOperationException()
         }
+        log(dataList.size)
+        log("==============")
         this.dataList.subList(from, to).clear()
+        log(dataList.size)
         notifyItemRangeRemoved(from, to - from)
     }
 
