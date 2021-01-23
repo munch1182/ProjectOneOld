@@ -1,8 +1,8 @@
 package com.munch.project.testsimple.net
 
-import com.munch.lib.closeWhenEnd
 import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.log
+import okhttp3.internal.closeQuietly
 import java.io.Closeable
 import java.io.IOException
 import java.net.DatagramPacket
@@ -120,7 +120,7 @@ class SocketUdpHelper : ISocketHelper {
                 log("s:关闭服务")
             }
             start = false
-            datagramSocket?.closeWhenEnd()
+            datagramSocket?.closeQuietly()
             datagramSocket = null
             interrupt()
         }
@@ -163,7 +163,7 @@ class SocketUdpHelper : ISocketHelper {
 
         override fun close() {
             log("s:关闭客户端")
-            socket?.closeWhenEnd()
+            socket?.closeQuietly()
             socket = null
         }
     }

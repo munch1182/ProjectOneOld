@@ -4,9 +4,9 @@ import android.net.LocalServerSocket
 import android.net.LocalSocket
 import android.net.LocalSocketAddress
 import android.os.SystemClock
-import com.munch.lib.closeWhenEnd
 import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.log
+import okhttp3.internal.closeQuietly
 import java.io.Closeable
 import java.io.IOException
 import java.util.*
@@ -106,7 +106,7 @@ class SocketHelper : ISocketHelper {
                 log("s:关闭服务")
             }
             start = false
-            localServerSocket.closeWhenEnd()
+            localServerSocket?.closeQuietly()
             localServerSocket = null
         }
 
@@ -174,7 +174,7 @@ class SocketHelper : ISocketHelper {
                 log("c:断开连接")
             }
             Thread.sleep(500L)
-            sender?.closeWhenEnd()
+            sender?.closeQuietly()
         }
 
         override fun close() {

@@ -21,15 +21,6 @@ fun Any.log(vararg any: Any?) {
     }
 }
 
-fun Closeable?.closeWhenEnd() {
-    this ?: return
-    try {
-        this.close()
-    } catch (e: Exception) {
-        //DO NOTHING
-    }
-}
-
 /**
  * 默认一个参数的单例
  * 使用：私有构造后使用 companion object : SingletonHolder<T, A>(::T)或者companion object : SingletonHolder<T, A>({creator}})

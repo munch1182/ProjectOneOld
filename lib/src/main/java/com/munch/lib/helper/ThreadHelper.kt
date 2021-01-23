@@ -14,6 +14,7 @@ object ThreadHelper {
     private const val ID_POOL_ONE_CORE = 1
     private const val ID_POOL_CACHED = 2
     private const val ID_POOL_SCHEDULED = 3
+    private const val ID_POOL_OTHER = 4
 
     private val parentThreadGroup by lazy { object : ThreadGroup("thread-pool-group") {} }
 
@@ -94,6 +95,14 @@ object ThreadHelper {
             sizeCore >= 1 && sizeNeedCache == 0 -> oneCorePool
             else -> oneCoreCachedPool
         }
+    }
+
+    fun newExecutor(sizeCore: Int = 1, sizeNeedCache: Int = Int.MAX_VALUE): ThreadPoolExecutor {
+        return ThreadPoolExecutor(
+            sizeCore, sizeNeedCache,
+            60L, TimeUnit.SECONDS,
+            SynchronousQueue(), newThreadFactory(ID_POOL_OTHER)
+        )
     }
 
     /**

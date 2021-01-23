@@ -16,11 +16,13 @@ fun main() {
         DatagramSocket(55555).use { socket ->
             val buffer = ByteArray(512)
             val packet = DatagramPacket(buffer, buffer.size)
+            print("开始接收消息")
             socket.receive(packet)
             print(
                 "收到" + packet.address
                     .hostAddress + ":" + packet.port + ":" + String(packet.data)
             )
+            print("--退出--")
         }
     } catch (e: IOException) {
         e.printStackTrace()
@@ -34,8 +36,10 @@ public class UdpBroadcast {
         try (DatagramSocket socket = new DatagramSocket(55555)) {
             byte[] buffer = new byte[512];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+            System.out.print("开始接收消息");
             socket.receive(packet);
             System.out.print("收到" + packet.getAddress().getHostAddress() + ":" + packet.getPort() + ":" + (new String(packet.getData())));
+            System.out.print("--退出--");
         } catch (IOException e) {
             e.printStackTrace();
         }

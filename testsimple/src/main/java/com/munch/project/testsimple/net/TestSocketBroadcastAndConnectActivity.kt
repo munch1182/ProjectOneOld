@@ -1,13 +1,14 @@
 package com.munch.project.testsimple.net
 
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.animation.addListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.lib.extend.recyclerview.ExpandableLevelData
 import com.munch.lib.extend.recyclerview.SimpleExpandableAdapter
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
@@ -18,7 +19,8 @@ import com.munch.project.testsimple.R
  */
 class TestSocketBroadcastAndConnectActivity : TestBaseTopActivity() {
 
-    private val model by lazy { ViewModelProvider(this).get(TestSocketBroadcastAndConnectViewModel::class.java) }
+    private val model by lazy { ViewModelProvider(this).get(TestSocketBroadcastViewModel::class.java) }
+    private var animator: ObjectAnimator? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,33 +36,43 @@ class TestSocketBroadcastAndConnectActivity : TestBaseTopActivity() {
             }
         }
         val adapter = bindAdapter(viewClickListener, rv)
+
+        model.getClientData().observe(this) {
+            adapter.setData(it)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        model.close()
     }
 
     private fun bindAdapter(
         viewClickListener: View.OnClickListener,
         rv: RecyclerView
-    ): SimpleExpandableAdapter<SocketBean> {
+    ): SimpleExpandableAdapter<TestSocketBroadcastViewModel.SocketBean> {
         val simpleExpandableAdapter = SimpleExpandableAdapter(
             mutableListOf(
                 R.layout.test_simple_item_socket_name,
                 R.layout.test_simple_item_socket_op
             ), null
-        ) { adapter: SimpleExpandableAdapter<SocketBean>, holder, data, position ->
-            if (data is SocketBean.SocketClientBean) {
+        ) { adapter: SimpleExpandableAdapter<TestSocketBroadcastViewModel.SocketBean>, holder, data, position ->
+            if (data is TestSocketBroadcastViewModel.SocketBean.SocketClientBean) {
                 holder.itemView.apply {
                     findViewById<TextView>(R.id.socket_tv_name_title).text = data.ip
                     setOnClickListener {
+                        val iv = findViewById<ImageView>(R.id.socket_iv_arrow)
                         if (data.isExpand) {
                             adapter.reduce(data)
-                            findViewById<ImageView>(R.id.socket_iv_arrow).setImageResource(R.drawable.test_simple_ic_arrow_forward)
+                            rotation(90f, 0f, iv)
                         } else {
                             adapter.expand(data)
-                            findViewById<ImageView>(R.id.socket_iv_arrow).setImageResource(R.drawable.test_simple_ic_arrow_down)
+                            rotation(0f, 90f, iv)
                         }
                         data.isExpand = !data.isExpand
                     }
                 }
-            } else if (data is SocketBean.SocketClientInfoBean) {
+            } else if (data is TestSocketBroadcastViewModel.SocketBean.SocketClientInfoBean) {
                 holder.itemView.apply {
                     findViewById<TextView>(R.id.socket_tv_name).text = data.ip
                     findViewById<TextView>(R.id.socket_tv_msg).text = data.msg
@@ -75,59 +87,33 @@ class TestSocketBroadcastAndConnectActivity : TestBaseTopActivity() {
         }
         rv.adapter = simpleExpandableAdapter
 
-        /*simpleExpandableAdapter.setData(
+        simpleExpandableAdapter.setData(
             mutableListOf(
-                SocketBean.SocketClientBean.newInstance(),
-                SocketBean.SocketClientBean.newInstance(),
-                SocketBean.SocketClientBean.newInstance(),
-                SocketBean.SocketClientBean.newInstance()
+                TestSocketBroadcastViewModel.SocketBean.SocketClientBean.newInstance(),
+                TestSocketBroadcastViewModel.SocketBean.SocketClientBean.newInstance(),
+                TestSocketBroadcastViewModel.SocketBean.SocketClientBean.newInstance(),
+                TestSocketBroadcastViewModel.SocketBean.SocketClientBean.newInstance()
             )
-        )*/
+        )
 
         return simpleExpandableAdapter
     }
 
-    sealed class SocketBean : ExpandableLevelData {
-
-        data class SocketClientBean(
-            val ip: String,
-            val list: MutableList<ExpandableLevelData>? = null,
-            var isExpand: Boolean = false
-        ) : SocketBean() {
-
-            override fun expandLevel(): Int {
-                return 0
-            }
-
-            override fun getExpandableData(): MutableList<ExpandableLevelData>? {
-                return list
-            }
-
-            companion object {
-
-                fun newInstance(): SocketClientBean {
-                    return SocketClientBean(
-                        "192.168.0.1",
-                        mutableListOf(
-                            SocketClientInfoBean.newInstance()
-                        )
-                    )
-                }
-            }
-        }
-
-        data class SocketClientInfoBean(val ip: String, var msg: String) : SocketBean() {
-            override fun expandLevel(): Int {
-                return 1
-            }
-
-            companion object {
-
-                fun newInstance(): SocketClientInfoBean {
-                    return SocketClientInfoBean("192.168.0.1", "收到信息：aaaaaa\nbbbbb\nccccc\nddddd")
-                }
-            }
-        }
+    /**
+     * 简单的属性动画无需如此复杂
+     */
+    private fun rotation(from: Float, to: Float, view: View) {
+        animator = ObjectAnimator.ofFloat(view, "rotation", from, to)
+        animator?.addListener(onEnd = {
+            animator = null
+        })
+        animator?.start()
     }
+
+    override fun onStop() {
+        super.onStop()
+        animator?.cancel()
+    }
+
 
 }

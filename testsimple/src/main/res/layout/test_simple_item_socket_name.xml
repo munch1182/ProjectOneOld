@@ -18,8 +18,8 @@
 
     <ImageView
         android:id="@+id/socket_iv_arrow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:contentDescription="arrow"
         android:src="@drawable/test_simple_ic_arrow_forward"
         app:layout_constraintBottom_toBottomOf="@id/socket_tv_name_title"
