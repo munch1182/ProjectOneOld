@@ -10,6 +10,7 @@ import okhttp3.internal.closeQuietly
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
+import kotlin.random.Random
 
 /**
  * Create by munch1182 on 2021/1/23 17:18.
@@ -83,6 +84,14 @@ class TestSocketBroadcastViewModel : ViewModel() {
         socketClientData.postValue(clientList)
     }
 
+    fun quit(data: SocketBean.SocketClientInfoBean) {
+
+    }
+
+    fun send(data: SocketBean.SocketClientInfoBean) {
+
+    }
+
     sealed class SocketBean : ExpandableLevelData {
 
         data class SocketClientBean(
@@ -99,15 +108,15 @@ class TestSocketBroadcastViewModel : ViewModel() {
                 return list
             }
 
+            override fun toString(): String {
+                return "SocketClientBean(ip=$ip)"
+            }
+
             companion object {
 
                 fun newInstance(): SocketClientBean {
-                    return SocketClientBean(
-                        "192.168.0.1",
-                        mutableListOf(
-                            SocketClientInfoBean.newInstance()
-                        )
-                    )
+                    val ip = "192.168.1.${Random.nextInt(256)}"
+                    return SocketClientBean(ip, mutableListOf(SocketClientInfoBean.newInstance(ip)))
                 }
             }
         }
@@ -119,8 +128,8 @@ class TestSocketBroadcastViewModel : ViewModel() {
 
             companion object {
 
-                fun newInstance(): SocketClientInfoBean {
-                    return SocketClientInfoBean("192.168.0.1", "收到信息：aaaaaa\nbbbbb\nccccc\nddddd")
+                fun newInstance(ip: String): SocketClientInfoBean {
+                    return SocketClientInfoBean(ip, "收到信息：aaaaaa\nbbbbb\nccccc\nddddd")
                 }
             }
         }

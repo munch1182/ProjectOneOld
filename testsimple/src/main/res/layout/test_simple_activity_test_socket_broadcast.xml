@@ -38,6 +38,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/socket_rv"
+            android:background="@color/colorWhite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

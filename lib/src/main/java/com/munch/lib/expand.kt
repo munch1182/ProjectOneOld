@@ -1,7 +1,6 @@
 package com.munch.lib
 
 import com.munch.lib.helper.LogLog
-import java.io.Closeable
 
 /**
  * Create by munch1182 on 2020/12/13 16:02.

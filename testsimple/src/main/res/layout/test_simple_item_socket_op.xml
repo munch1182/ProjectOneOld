@@ -41,10 +41,11 @@
         android:id="@+id/socket_tv_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="@id/socket_tv_name"
         app:layout_constraintTop_toBottomOf="@id/socket_tv_name"
-        tools:text="收到消息：123123" />
+        tools:text="收到消息：123123\n123123\n234234\nsfsdf" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

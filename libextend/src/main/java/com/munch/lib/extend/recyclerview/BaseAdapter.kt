@@ -4,9 +4,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.lib.log
-import java.lang.IllegalStateException
-import java.lang.invoke.WrongMethodTypeException
 
 /**
  * Create by munch1182 on 2021/1/13 9:33.
@@ -57,7 +54,7 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
 
     constructor(view: View, list: MutableList<T>? = null) : this(0, view, list)
 
-    private val dataList: MutableList<T> = mutableListOf<T>().apply {
+    protected val dataList: MutableList<T> = mutableListOf<T>().apply {
         if (list != null) {
             addAll(list)
         }
@@ -77,10 +74,7 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
         if (to <= from) {
             throw UnsupportedOperationException()
         }
-        log(dataList.size)
-        log("==============")
         this.dataList.subList(from, to).clear()
-        log(dataList.size)
         notifyItemRangeRemoved(from, to - from)
     }
 
@@ -107,7 +101,7 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
     fun add(index: Int, data: MutableList<T>? = null) {
         data ?: return
         this.dataList.addAll(index, data)
-        notifyItemChanged(index)
+        notifyItemRangeInserted(index, data.size)
     }
 
     fun add(data: MutableList<T>? = null) {

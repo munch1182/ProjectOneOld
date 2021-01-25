@@ -2,7 +2,6 @@ package com.munch.lib.extend.recyclerview
 
 import android.view.View
 import android.view.ViewGroup
-import com.munch.lib.log
 
 
 class SimpleExpandableAdapter<T : ExpandableLevelData>(
@@ -36,17 +35,22 @@ abstract class ExpandableAdapter<T : ExpandableLevelData, B : BaseViewHolder> pr
         arrayListOf(), views, null
     )
 
-    @Suppress("UNCHECKED_CAST")
-    fun expand(data: ExpandableLevelData) {
-        val position = getData().indexOf(data)
-        val expandData = getData(position).getExpandableData() as? MutableList<T>? ?: return
-        add(position + 1, expandData)
+    companion object {
+        private const val FLAG_EXPAND = "expand"
+        private const val FLAG_REDUCE = "reduce"
     }
 
-    fun reduce(data: ExpandableLevelData) {
-        val pos = getData().indexOf(data)
+    @Suppress("UNCHECKED_CAST")
+    fun expand(pos: Int) {
+        val expandData = getData(pos).getExpandableData() as? MutableList<T>? ?: return
+        add(pos + 1, expandData)
+        notifyItemRangeChanged(pos + 1, itemCount - pos - 1, FLAG_EXPAND)
+    }
+
+    fun reduce(pos: Int) {
         val size = getData(pos).getExpandableData()?.size ?: return
         remove(pos + 1, pos + 1 + size)
+        notifyItemRangeChanged(pos + 1, itemCount - pos - 1, FLAG_REDUCE)
     }
 
     @Suppress("UNCHECKED_CAST")
