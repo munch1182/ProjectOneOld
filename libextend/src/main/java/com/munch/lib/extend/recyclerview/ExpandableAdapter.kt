@@ -15,7 +15,8 @@ class SimpleExpandableAdapter<T : ExpandableLevelData>(
 }
 
 /**
- * 将展开的view当作RecyclerView不同type的子view，通过增减数据的形式实现展开、收回动画
+ * 将展开的view当作RecyclerView不同type的itemView，每一种展开的view都应该是不同type的itemView
+ * 通过增减数据的形式实现展开、收回动画
  *
  * 如果展开view里符合GridView，可以直接将rv的layoutManager设置为GridLayoutManager来实现
  *
@@ -36,21 +37,21 @@ abstract class ExpandableAdapter<T : ExpandableLevelData, B : BaseViewHolder> pr
     )
 
     companion object {
-        private const val FLAG_EXPAND = "expand"
-        private const val FLAG_REDUCE = "reduce"
+
+        private const val FLAG_PAYLOAD = "flag"
     }
 
     @Suppress("UNCHECKED_CAST")
     fun expand(pos: Int) {
         val expandData = getData(pos).getExpandableData() as? MutableList<T>? ?: return
         add(pos + 1, expandData)
-        notifyItemRangeChanged(pos + 1, itemCount - pos - 1, FLAG_EXPAND)
+        notifyItemRangeChanged(pos + 1, itemCount - pos - 1)
     }
 
     fun reduce(pos: Int) {
         val size = getData(pos).getExpandableData()?.size ?: return
         remove(pos + 1, pos + 1 + size)
-        notifyItemRangeChanged(pos + 1, itemCount - pos - 1, FLAG_REDUCE)
+        notifyItemRangeChanged(pos + 1, itemCount - pos - 1)
     }
 
     @Suppress("UNCHECKED_CAST")

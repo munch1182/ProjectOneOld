@@ -109,8 +109,15 @@ object FileHelper {
 }
 
 /**
+ * 检查文件是否存在，不存在则新建，新建失败则返回null
+ */
+fun File.checkOrNew(): File? {
+    return this.takeIf { it.exists() } ?: newFile()
+}
+
+/**
  * 新建一个文件
- * 如果文件存在，则删除并重建
+ * 如果文件存在，则删除并重建，新建失败则返回null
  */
 fun File.newFile(): File? {
     mkdirs()
@@ -154,11 +161,11 @@ fun File.deleteFiles(): Boolean {
 /**
  * 删除文件或者文件夹，并不处理结果
  */
-fun File.deleteFilesIgnoreRes() {
-    try {
+fun File.deleteFilesIgnoreRes(): Boolean {
+    return try {
         deleteFiles()
     } catch (e: Exception) {
-        //DO NOTHING
+        false
     }
 }
 

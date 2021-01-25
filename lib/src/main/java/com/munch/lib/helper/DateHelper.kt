@@ -14,6 +14,24 @@ object DateHelper {
     const val TIME_HOUR_MIN_SEC = 24 * 60 * 60 * 1000
     const val TIME_EIGHT_HOUR = 8 * 60 * 60 * 1000
 
+    /**
+     * 获取当月最大天数
+     *
+     * 另一种方法是设置calendar为下一个月第一天然后回退一天也可获取最大天数
+     */
+    fun getMaxDayInMouth(year: Int, @IntRange(from = 1, to = 12) month: Int): Int {
+        return when (month) {
+            1, 3, 5, 7, 8, 10, 12 -> 31
+            2 -> if (isLeapYear(year)) 29 else 28
+            4, 6, 9, 11 -> 30
+            else -> 0
+        }
+    }
+
+    /**
+     * 是否是闰年
+     */
+    fun isLeapYear(year: Int) = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
 
     /**
      * @param type [DateUtils.FORMAT_SHOW_DATE][DateUtils.FORMAT_SHOW_TIME]
@@ -26,7 +44,9 @@ object DateHelper {
     }
 
     /**
-     * 主要使用当前时间自动补齐缺省值
+     * 主要作用是使用当前时间自动补齐缺省值，
+     * 如果只需要更改一两个值或者更改全部值，不建议直接调用此方法，不如直接调用Calendar的方法效率高
+     *
      * 月份已对齐，无需更改
      *
      * 不需要的部分传[INVALID]或者不传，则会使用当前时间的部分

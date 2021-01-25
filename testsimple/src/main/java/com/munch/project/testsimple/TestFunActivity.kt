@@ -5,6 +5,7 @@ import com.munch.lib.common.RouterHelper
 import com.munch.lib.common.component.ThemeProvider
 import com.munch.lib.helper.isServiceRunning
 import com.munch.lib.helper.startActivity
+import com.munch.lib.log
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 
@@ -36,6 +37,18 @@ class TestFunActivity : TestRvActivity() {
                 toastServiceRunning()
             }
             7 -> startActivity(TestFunInFragmentActivity::class.java)
+        }
+    }
+
+    class Test() {
+
+        fun a() {
+            log(2)
+        }
+
+        fun b(func: () -> Unit) {
+            func()
+            log(4)
         }
     }
 

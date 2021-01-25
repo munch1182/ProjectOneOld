@@ -109,7 +109,7 @@ class TestSocketBroadcastViewModel : ViewModel() {
             }
 
             override fun toString(): String {
-                return "SocketClientBean(ip=$ip)"
+                return "SocketClientBean(ip=$ip,  isExpand=$isExpand)"
             }
 
             companion object {

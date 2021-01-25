@@ -30,17 +30,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/padding_def"
+        android:text="ip:192.168.0.0"
         app:layout_constraintBottom_toBottomOf="@id/socket_btn_send"
         app:layout_constraintEnd_toStartOf="@id/socket_btn_send"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/socket_btn_send"
-        tools:text="ip:192.168.0.0" />
+        app:layout_constraintTop_toTopOf="@id/socket_btn_send" />
 
     <TextView
         android:id="@+id/socket_tv_msg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/padding_def"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"

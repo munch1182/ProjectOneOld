@@ -150,6 +150,7 @@ class NetStatusHelper private constructor(private val manager: ConnectivityManag
      * @see [ConnectivityManager.registerNetworkCallback]
      */
     @SuppressLint("MissingPermission")
+    @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
     fun register(): NetStatusHelper {
         manager.registerNetworkCallback(NetworkRequest.Builder().apply {
             if (this@NetStatusHelper.transportType.isNotEmpty()) {

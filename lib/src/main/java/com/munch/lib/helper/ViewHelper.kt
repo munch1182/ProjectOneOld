@@ -1,6 +1,9 @@
 package com.munch.lib.helper
 
 import android.os.Build
+import android.text.method.HideReturnsTransformationMethod
+import android.text.method.PasswordTransformationMethod
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -81,10 +84,29 @@ fun View.setMargin(
     }
 }
 
+fun TextView.setTextSizeSp(spVal: Float) {
+    setTextSize(TypedValue.COMPLEX_UNIT_SP, spVal)
+}
+
 fun EditText.nonInput() {
     keyListener = null
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         focusable = View.NOT_FOCUSABLE
+    }
+}
+
+fun EditText.pwdTransMethod(show: Boolean) {
+    if (show) {
+        if (transformationMethod == PasswordTransformationMethod.getInstance()) {
+            transformationMethod = HideReturnsTransformationMethod.getInstance()
+        }
+    } else {
+        if (transformationMethod == HideReturnsTransformationMethod.getInstance()) {
+            transformationMethod = PasswordTransformationMethod.getInstance()
+        }
+    }
+    if (text.isNotEmpty()) {
+        setSelection(text.length)
     }
 }
 

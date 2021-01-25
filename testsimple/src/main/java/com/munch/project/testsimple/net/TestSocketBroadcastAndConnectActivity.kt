@@ -6,12 +6,10 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.animation.addListener
-import androidx.core.view.ViewCompat
-import androidx.core.view.ViewPropertyAnimatorListenerAdapter
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
+import com.munch.lib.extend.recyclerview.DefaultItemAnimator
 import com.munch.lib.extend.recyclerview.SimpleExpandableAdapter
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
@@ -68,43 +66,7 @@ class TestSocketBroadcastAndConnectActivity : TestBaseTopActivity() {
         }
     }
 
-    private fun newItemAnimator() = object : DefaultItemAnimator() {
-        override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
-            holder ?: return false
-            val itemView = holder.itemView
-            val animate = ViewCompat.animate(itemView)
-            animate.setDuration(addDuration)
-                .translationY(itemView.height.toFloat())
-                .setListener(object : ViewPropertyAnimatorListenerAdapter() {
-                    override fun onAnimationEnd(view: View?) {
-                        super.onAnimationEnd(view)
-                        animate.setListener(null)
-                        view?.translationY = 0f
-                        dispatchAnimationsFinished()
-                    }
-                })
-                .start()
-            return true
-        }
-
-        override fun animateRemove(holder: RecyclerView.ViewHolder?): Boolean {
-            holder ?: return false
-            val itemView = holder.itemView
-            val animate = ViewCompat.animate(itemView)
-            animate.setDuration(removeDuration)
-                .translationY(0f)
-                .setListener(object : ViewPropertyAnimatorListenerAdapter() {
-                    override fun onAnimationEnd(view: View?) {
-                        super.onAnimationEnd(view)
-                        animate.setListener(null)
-                        view?.translationY = view?.height?.toFloat() ?: 0f
-                        dispatchAnimationsFinished()
-                    }
-                })
-                .start()
-            return true
-        }
-    }
+    private fun newItemAnimator() = DefaultItemAnimator()
 
     override fun onDestroy() {
         super.onDestroy()
@@ -120,13 +82,14 @@ class TestSocketBroadcastAndConnectActivity : TestBaseTopActivity() {
             val iv = it.findViewById<ImageView>(R.id.socket_iv_arrow)
             val pos = adapter?.getData()?.indexOf(data) ?: return@OnClickListener
             if (data.isExpand) {
+                data.isExpand = false
                 adapter?.reduce(pos)
                 rotation(90f, 0f, iv)
             } else {
+                data.isExpand = true
                 adapter?.expand(pos)
                 rotation(0f, 90f, iv)
             }
-            data.isExpand = !data.isExpand
         }
         return SimpleExpandableAdapter(
             mutableListOf(

@@ -1,6 +1,7 @@
 package com.munch.lib.helper
 
 import android.util.Log
+import androidx.annotation.IntDef
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -22,6 +23,22 @@ object LogLog {
     private val listeners: ArrayList<(tag: String, msg: String) -> Unit> = arrayListOf()
     private var maxChar: Int? = null
     private var simple: Boolean = false
+    private var type = 3
+    const val TYPE_ERROR = 0
+    const val TYPE_WARN = 1
+    const val TYPE_INFO = 2
+    const val TYPE_DEBUG = 3
+    const val TYPE_VERBOSE = 4
+
+    @IntDef(
+        TYPE_VERBOSE,
+        TYPE_DEBUG,
+        TYPE_WARN,
+        TYPE_ERROR,
+        TYPE_INFO
+    )
+    @Retention(AnnotationRetention.SOURCE)
+    annotation class Type
 
     fun addListener(func: (tag: String, msg: String) -> Unit): LogLog {
         listeners.add(func)
@@ -94,6 +111,11 @@ object LogLog {
         return this
     }
 
+    fun type(@Type type: Int = TYPE_DEBUG): LogLog {
+        this.type = type
+        return this
+    }
+
     @JvmStatic
     fun log(vararg any: Any?) {
         if (notPrint) {
@@ -109,27 +131,45 @@ object LogLog {
             }
             builder.toString()
         }
-        val tag: String = tag ?: TAG
         val name = Thread.currentThread().name
+        var msg: String
         if (log.length < getMaxCharInLine()) {
-            Log.d(
-                tag,
-                if (simple) "$name: $log" else "$name: $log ---${getCallFunction()}"
-            )
+            msg = if (simple) "$name: $log" else "$name: $log ---${getCallFunction()}"
+            log(msg)
         } else {
             more2line(log).forEach {
-                Log.d(tag, "$name:$it")
+                msg = "$name:$it"
+                log(msg)
             }
             if (!simple) {
-                Log.d(tag, "---${getCallFunction()}")
+                msg = "$name: ---${getCallFunction()}"
+                log(msg)
             }
-        }
-        this.listeners.forEach {
-            it.invoke(tag, log)
         }
         this.className = null
         this.tag = null
         this.simple = false
+        this.type = TYPE_DEBUG
+    }
+
+    private fun notify(tag: String, msg: String) {
+        this.listeners.forEach {
+            it.invoke(tag, msg)
+        }
+    }
+
+    fun getTag() = tag ?: TAG
+
+    private fun log(msg: String) {
+        val tag: String = getTag()
+        when (type) {
+            TYPE_VERBOSE -> Log.v(tag, msg)
+            TYPE_DEBUG -> Log.d(tag, msg)
+            TYPE_INFO -> Log.i(tag, msg)
+            TYPE_WARN -> Log.w(tag, msg)
+            TYPE_ERROR -> Log.e(tag, msg)
+        }
+        notify(tag, msg)
     }
 
     private fun more2line(str: String): List<String> {
@@ -176,11 +216,14 @@ object LogLog {
                 }
             }
         }
-        //但trace包含了[getCallFunction]和[log]两个方法，所以要+2去找调用了[log]的方法
+        //直接调用时去掉getStackTrace的两个方法
         if (className == null) {
             lastIndex += 2
         }
         if (lastIndex == -1) {
+            return ""
+        }
+        if (lastIndex !in trace.indices) {
             return ""
         }
         val e = trace[lastIndex]

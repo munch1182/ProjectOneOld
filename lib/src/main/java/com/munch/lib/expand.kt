@@ -6,6 +6,9 @@ import com.munch.lib.helper.LogLog
  * Create by munch1182 on 2020/12/13 16:02.
  */
 fun Any.log(vararg any: Any?) {
+    if (this == LogLog) {
+        throw UnsupportedOperationException()
+    }
     val clazz = this::class.java
     when {
         any.isEmpty() -> {
