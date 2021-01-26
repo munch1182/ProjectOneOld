@@ -11,7 +11,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.munch.lib.helper.*
 
 /**
- * 给其子类添加了一个[R.layout.activity_base_top]，不需要则不要继承此类，因为重写了[setContentView]
+ * 给其子类添加了一个[R.layout.activity_base_top]，不需要则不要继承此类，因为重写了[setContentView]，且可能会更改LayoutParams
  *
  * 实际开发中此类应该继承app的BaseActivity，然后本身作为最底层的可继承类
  *
@@ -43,6 +43,9 @@ open class TestBaseTopActivity : BaseActivity() {
         setTitle(title, getColorCompat(R.color.colorPrimary))
     }
 
+    /**
+     * 用于动态更改title，如果单纯不需要title，则不需要继承此类
+     */
     open fun hideTitle() {
         (toolbar.parent as View).visibility = View.GONE
     }
@@ -108,7 +111,7 @@ open class TestBaseTopActivity : BaseActivity() {
     }
 
     /**
-     *  给内容view设置背景，默认为白色，如果要更改或者不需要，组织其实现即可
+     *  给内容view设置背景，默认为白色，如果要更改或者不需要，阻止其实现即可
      */
     open fun setPageBg(view: View) {
         view.setBackgroundColor(Color.WHITE)

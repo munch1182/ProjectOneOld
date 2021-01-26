@@ -106,6 +106,7 @@ class ArticleRepository @Inject constructor() : BaseRepository() {
                     //刷新时如果有新数据则清除数据库，否则重用数据库的数据
                     //可以考虑一种更高效的方式或者结构插入新值
                     //比如对比插入新值然后根据id大小排序
+                    //但同时则要考虑清除缓存的问题
                     if (datas?.get(0)?.equals(articleDao.queryArticleFirst()) != true) {
                         pageDao.delAll()
                     }

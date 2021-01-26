@@ -1,6 +1,5 @@
 package com.munch.lib.test.recyclerview
 
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -45,7 +44,7 @@ open class TestRvActivity : TestBaseTopActivity() {
 
     protected val rv: RecyclerView by lazy { findViewById(R.id.rv_test_rv) }
     protected val topView: ViewGroup by lazy { findViewById(R.id.rv_test_rv_top) }
-    protected val srl by lazy { findViewById<SwipeRefreshLayout>(R.id.rv_test_srl) }
+    protected val srl: SwipeRefreshLayout by lazy { findViewById(R.id.rv_test_srl) }
     protected lateinit var adapter: TestRvAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,7 +74,7 @@ open class TestRvActivity : TestBaseTopActivity() {
         rv.adapter = adapter
         if (!isBtn) {
             rv.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
-        }else{
+        } else {
             rv.setBackgroundColor(Color.TRANSPARENT)
         }
         rv.layoutManager = LinearLayoutManager(this)
@@ -126,8 +125,7 @@ open class TestRvActivity : TestBaseTopActivity() {
         addView.setMargin(0, 0, 0, dp2Px(1.0f).toInt())
     }
 
-    @SuppressLint("SetTextI18n")
-    protected fun getTestView(name: String = "test") =
+    protected fun getTestView(name: String = "test"): View =
         View.inflate(this, R.layout.item_rv_test, null).apply {
             setBackgroundColor(Color.WHITE)
             findViewById<TextView>(R.id.item_rv_test_tv).text = name

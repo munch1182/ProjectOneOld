@@ -50,6 +50,6 @@ sealed class ApiResult<out T> {
         return this
     }
 
-    fun whenSuccess(): T? = if (this is Success) this.data else null
+    fun success(): T? = if (this is Success) this.data else null
 
 }
