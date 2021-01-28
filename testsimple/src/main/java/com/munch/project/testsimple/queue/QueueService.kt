@@ -18,7 +18,7 @@ import java.util.concurrent.Executors
  */
 class QueueService : Service() {
 
-    private lateinit var looper: Looper
+    private val handlerThread = HandlerThread(this::class.simpleName)
     private lateinit var serviceHandler: Handler
 
     companion object {
@@ -87,11 +87,9 @@ class QueueService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        val handlerThread = HandlerThread(this::class.simpleName)
         handlerThread.start()
 
-        looper = handlerThread.looper
-        serviceHandler = ServiceHandler(looper)
+        serviceHandler = ServiceHandler(handlerThread.looper)
 
         //此时仍在主线程
         Looper.myQueue().addIdleHandler {
@@ -156,7 +154,7 @@ class QueueService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        looper.quit()
+        handlerThread.quit()
         UiNotifyManager.INSTANCE.clear()
     }
 

@@ -50,8 +50,7 @@ class ServiceBindHelper<S : Service>(
             activity: ComponentActivity,
             clazz: Class<S>,
             pkgName: String = BaseApp.getContext().packageName
-        ) =
-            bindActivity<S>(activity, Intent().setComponent(ComponentName(pkgName, clazz.name)))
+        ) = bindActivity<S>(activity, Intent().setComponent(ComponentName(pkgName, clazz.name)))
 
         fun <S : Service> bindActivity(activity: ComponentActivity, action: String) =
             bindActivity<S>(activity, Intent(action))
@@ -59,8 +58,8 @@ class ServiceBindHelper<S : Service>(
         fun <S : Service> bindApp(app: Application, intent: Intent) =
             ServiceBindHelper<S>(app, null, intent)
 
-        fun <S : Service> bindApp(app: Application, clazz: Class<S>) =
-            bindApp<S>(app, Intent(app, clazz))
+        inline fun <reified S : Service> bindApp(app: Application) =
+            bindApp<S>(app, Intent(app, S::class.java))
 
         fun <S : Service> bindApp(app: Application, action: String) =
             bindApp<S>(app, Intent(action))
