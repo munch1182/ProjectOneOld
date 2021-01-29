@@ -95,6 +95,11 @@ fun EditText.nonInput() {
     }
 }
 
+fun EditText.setTextCompat(text: String?) {
+    setText(text)
+    setSelection(text?.length ?: return)
+}
+
 fun EditText.pwdTransMethod(show: Boolean) {
     if (show) {
         if (transformationMethod == PasswordTransformationMethod.getInstance()) {

@@ -62,6 +62,7 @@
         <activity android:name=".net.TestNetActivity" />
         <activity android:name=".net.TestSocketBaseActivity" />
         <activity android:name=".net.TestSocketBroadcastAndConnectActivity" />
+        <activity android:name=".net.TestClipActivity" />
 
         <service
             android:name=".alive.foreground.ForegroundService"

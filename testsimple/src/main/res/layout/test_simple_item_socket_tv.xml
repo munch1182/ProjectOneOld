@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="bean"
+            type="com.munch.project.testsimple.net.SocketContentBean" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_def"
+        tools:ignore="HardcodedText">
+
+        <TextView
+            android:id="@+id/socket_tv_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{bean.name()}"
+            android:visibility="@{bean.showName() ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="123.123.123.123:" />
+
+        <TextView
+            android:id="@+id/socket_tv_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_def"
+            android:text="@{bean.content}"
+            android:textColor="@color/colorTextDef"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/socket_tv_name"
+            tools:text="Android 监听复制、剪切、粘贴事件，粘贴后直接进行接口请求" />
+
+        <TextView
+            android:id="@+id/socket_tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{bean.timeStr()}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/socket_tv_content"
+            tools:text="1999.99.99 99:99:99" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

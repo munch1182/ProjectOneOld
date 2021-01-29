@@ -9,7 +9,7 @@ import androidx.databinding.ViewDataBinding
 /**
  * Create by munch1182 on 2021/1/17 19:49.
  */
-class BaseSimpleBindAdapter<T, B : ViewDataBinding>(
+open class BaseSimpleBindAdapter<T, B : ViewDataBinding>(
     @LayoutRes resId: Int = 0,
     list: MutableList<T>? = null,
     private val onBind: ((holder: BaseBindViewHolder<B>, data: T, position: Int) -> Unit)? = null

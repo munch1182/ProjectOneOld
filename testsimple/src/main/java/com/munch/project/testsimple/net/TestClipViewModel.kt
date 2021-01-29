@@ -1,13 +1,17 @@
 package com.munch.project.testsimple.net
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.net.LocalServerSocket
 import android.net.LocalSocket
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.munch.lib.extend.recyclerview.ExpandableLevelData
+import com.munch.lib.BaseApp
 import com.munch.lib.helper.ProcedureLog
 import com.munch.lib.helper.ThreadHelper
+import com.munch.lib.log
 import okhttp3.internal.closeQuietly
 import java.io.BufferedWriter
 import java.io.Closeable
@@ -27,10 +31,12 @@ import kotlin.random.Random
  * 设备A连接到设备B
  * Create by munch1182 on 2021/1/23 17:18.
  */
-class TestSocketBroadcastViewModel : ViewModel() {
+class TestClipViewModel : ViewModel() {
 
-    private val socketClientData = MutableLiveData<MutableList<SocketBean>>()
-    fun getClientData(): LiveData<MutableList<SocketBean>> = socketClientData
+    private val clipDataReceiver = MutableLiveData<MutableList<SocketContentBean>>(mutableListOf())
+    private val clipData = MutableLiveData("")
+    fun getClipListData(): LiveData<MutableList<SocketContentBean>> = clipDataReceiver
+    fun getClipData(): LiveData<String> = clipData
     private var isConnected = false
     private var writer: BufferedWriter? = null
     private val closeable = arrayListOf<Closeable?>()
@@ -41,10 +47,31 @@ class TestSocketBroadcastViewModel : ViewModel() {
      */
     private var sendPort = -1
     private var tcpName: String? = null
+    private var manager: ClipboardManager? = null
+    private val clipListener = {
+        //需要应用获取焦点之后延迟一秒去获取剪切板内容
+        if (manager?.hasPrimaryClip() == true) {
+            val text = manager?.primaryClip?.getItemAt(0)?.text
+            clipData.postValue(text.toString())
+        }
+    }
 
-    /*init {
-         startSearch()
-     }*/
+    init {
+        ThreadHelper.getExecutor().execute {
+            Thread.sleep(1000L)
+            manager =
+                BaseApp.getContext()
+                    .getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager?
+            manager?.apply {
+                addPrimaryClipChangedListener(clipListener)
+            }
+        }
+    }
+
+    fun copy2Clip(content: String) {
+        manager?.setPrimaryClip(ClipData.newPlainText("", content))
+    }
+
 
     fun startSearch() {
         if (!isConnected) {
@@ -63,6 +90,12 @@ class TestSocketBroadcastViewModel : ViewModel() {
         }
         closeable.clear()
         log.end()
+
+        manager?.removePrimaryClipChangedListener(clipListener)
+    }
+
+    fun sendClip() {
+        writer?.write(clipData.value?.takeIf { it.isNotEmpty() } ?: return)
     }
 
     private fun listenUdpBroadcast() {
@@ -71,11 +104,7 @@ class TestSocketBroadcastViewModel : ViewModel() {
         }
         ThreadHelper.getExecutor().execute {
             var socket: DatagramSocket? = DatagramSocket(Protocol.BROADCAST_PORT)
-            val buffer = ByteBuffer.allocate(128)
-            val packet = DatagramPacket(
-                buffer.array(),
-                buffer.position()
-            )
+            val packet = DatagramPacket(ByteArray(128), 128)
             closeable.add(socket)
             log.step("开始监听udp")
             while (!isConnected) {
@@ -89,7 +118,7 @@ class TestSocketBroadcastViewModel : ViewModel() {
                 if (sendPort != -1 && port == sendPort) {
                     continue
                 }
-                if (parseUdpReceiver(socket, packet, port)) {
+                if (!parseUdpReceiver(socket, packet, port)) {
                     //并启动自身的tcp服务
                     startTcpService()
                     //并关闭udp广播
@@ -111,6 +140,7 @@ class TestSocketBroadcastViewModel : ViewModel() {
     ): Boolean {
 
         val wrap = ByteBuffer.wrap(packet.data)
+        //按格式接收：第一位是token
         val token = wrap.int
 
         log.step("接收到${packet.address}:${port}:token=${token}")
@@ -119,26 +149,29 @@ class TestSocketBroadcastViewModel : ViewModel() {
         if (token != Protocol.TOKEN) {
             return true
         }
+        //按格式接收：第二位是char
         //是否已经建立了tcp端口
-        val isService = wrap.char == Protocol.SERVICE_Y
+        val char = wrap.char
+        log.step("接收到${packet.address}:${port}:isService=$char")
 
+        val isService = char == Protocol.SERVICE_Y
         //特殊情况，即使是收到消息的应用也不建立tcp
-        if (isService && createTcp()) {
+        if (!isService || createTcp()) {
             wrap.clear()
             //发送格式：第一位是int，为token
             wrap.putInt(Protocol.TOKEN)
             //发送格式，第二位是char，用以标识是否是由我方建立tcp
-            wrap.putChar(Protocol.SERVICE_Y)
+            wrap.putChar(Protocol.SERVICE_N)
             //回复udp
             socket?.send(packet)
             return true
         }
 
-        log.step("接收到${packet.address}:${port}:isService=${wrap.char}")
         //获取已建立的tcp端口
         if (isService) {
-            val array = ByteArray(128)
+            val array = ByteArray(100)
             wrap.get(array)
+            //按格式接收：第三位是byteArray
             tcpName = array.decodeToString()
             log.step("接收到${packet.address}:${port}:receiverTcpName=${tcpName}")
             //关闭udp，准备连接tcp
@@ -151,13 +184,17 @@ class TestSocketBroadcastViewModel : ViewModel() {
             //发送格式，第二位是char，用以标识是否是由我方建立tcp
             wrap.putChar(Protocol.SERVICE_Y)
             //发送格式：第三位是byteArray128位，为tcpName
-            val byteArray = ByteArray(128)
+            val byteArray = ByteArray(100)
             val currentTcpName = newTcpName()
-            currentTcpName.toByteArray().forEachIndexed { index, byte ->
+            val toByteArray = currentTcpName.toByteArray()
+            if (toByteArray.size > byteArray.size) {
+                throw IllegalStateException("wrong size")
+            }
+            toByteArray.forEachIndexed { index, byte ->
                 byteArray[index] = byte
             }
             wrap.put(byteArray)
-            packet.data = wrap.array()
+            packet.setData(wrap.array(), 0, wrap.position())
             log.step("回复: tcpName=$currentTcpName")
             //回复udp
             socket?.send(packet)
@@ -237,6 +274,7 @@ class TestSocketBroadcastViewModel : ViewModel() {
             val socket = DatagramSocket()
             val buffer = ByteBuffer.allocate(128)
             buffer.putInt(Protocol.TOKEN)
+            buffer.putChar(Protocol.SERVICE_N)
             val packet = DatagramPacket(
                 buffer.array(),
                 buffer.position(),
@@ -261,20 +299,11 @@ class TestSocketBroadcastViewModel : ViewModel() {
     }
 
     private fun update(line: String) {
-
+        clipDataReceiver.value?.add(SocketContentBean(line, "", -1)) ?: return
+        clipDataReceiver.postValue(clipDataReceiver.value)
     }
 
-
-    //<editor-fold desc="view方法">
-    fun quit(data: SocketBean.SocketClientInfoBean) {
-    }
-
-    fun send(data: SocketBean.SocketClientInfoBean) {
-    }
-    //</editor-fold>
-
-
-    //<editor-fold desc="实现">
+    //<editor-fold desc="Protocol">
     object Protocol {
 
         const val EXIT = "exit"
@@ -286,56 +315,6 @@ class TestSocketBroadcastViewModel : ViewModel() {
 
         const val BROADCAST_PORT = 20211
     }
-
-    class Service {
-
-    }
-
-    class Client {
-
-    }
     //</editor-fold>
 
-    sealed class SocketBean : ExpandableLevelData {
-
-        data class SocketClientBean(
-            val ip: String,
-            val list: MutableList<ExpandableLevelData>? = null,
-            var isExpand: Boolean = false
-        ) : SocketBean() {
-
-            override fun expandLevel(): Int {
-                return 0
-            }
-
-            override fun getExpandableData(): MutableList<ExpandableLevelData>? {
-                return list
-            }
-
-            override fun toString(): String {
-                return "SocketClientBean(ip=$ip,  isExpand=$isExpand)"
-            }
-
-            companion object {
-
-                fun newInstance(): SocketClientBean {
-                    val ip = "192.168.1.${Random.nextInt(256)}"
-                    return SocketClientBean(ip, mutableListOf(SocketClientInfoBean.newInstance(ip)))
-                }
-            }
-        }
-
-        data class SocketClientInfoBean(val ip: String, var msg: String) : SocketBean() {
-            override fun expandLevel(): Int {
-                return 1
-            }
-
-            companion object {
-
-                fun newInstance(ip: String): SocketClientInfoBean {
-                    return SocketClientInfoBean(ip, "收到信息：aaaaaa\nbbbbb\nccccc\nddddd")
-                }
-            }
-        }
-    }
 }

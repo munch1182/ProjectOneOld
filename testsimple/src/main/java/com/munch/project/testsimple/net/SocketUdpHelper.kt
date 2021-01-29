@@ -1,5 +1,6 @@
 package com.munch.project.testsimple.net
 
+import com.munch.lib.helper.LogLog
 import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.log
 import okhttp3.internal.closeQuietly
@@ -16,6 +17,13 @@ class SocketUdpHelper : ISocketHelper {
 
     private val service by lazy { Service(55555) }
     private val client by lazy { Client(55555) }
+
+    companion object {
+
+        fun log(msg: String) {
+            LogLog.simple().callClass(this::class.java).log(msg)
+        }
+    }
 
     override fun startSocketService() {
         service.start()
@@ -72,11 +80,11 @@ class SocketUdpHelper : ISocketHelper {
                         val byName = InetAddress.getByName("255.255.255.255")
                         val datagramPacket = DatagramPacket(ba, ba.size, byName, port)
                         it.send(datagramPacket)
-                        log("发送一次广播：${ba.decodeToString()}")
+                        SocketUdpHelper.log("发送一次广播：${ba.decodeToString()}")
                     }
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    log("广播：${e.message}")
+                    SocketUdpHelper.log("广播：${e.message}")
                 }
             }
     }
@@ -93,31 +101,31 @@ class SocketUdpHelper : ISocketHelper {
             }
             try {
                 //1. 创建DatagramSocket实例，并监听端口
-                log("s:创建socket，监听 $port 端口")
+                SocketUdpHelper.log("s:创建socket，监听 $port 端口")
                 datagramSocket = DatagramSocket(port)
                 //2. 创建udp数据包
                 while (start) {
                     val buffer = ByteArray(512)
                     val packet = DatagramPacket(buffer, buffer.size)
                     //3. 阻塞获取udp数据包
-                    log("s:开始阻塞并等待接收数据")
+                    SocketUdpHelper.log("s:开始阻塞并等待接收数据")
                     datagramSocket!!.receive(packet)
-                    log("s:收到消息:${packet.address.hostAddress}:${packet.port}: ${packet.data.decodeToString()}")
+                    SocketUdpHelper.log("s:收到消息:${packet.address.hostAddress}:${packet.port}: ${packet.data.decodeToString()}")
 
-                    log("s:回复消息")
+                    SocketUdpHelper.log("s:回复消息")
                     packet.data = "已收到".toByteArray()
                     datagramSocket!!.send(packet)
                     sleep(500L)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                log("s:${e.message}")
+                SocketUdpHelper.log("s:${e.message}")
             }
         }
 
         override fun close() {
             if (start) {
-                log("s:关闭服务")
+                SocketUdpHelper.log("s:关闭服务")
             }
             start = false
             datagramSocket?.closeQuietly()
@@ -144,25 +152,25 @@ class SocketUdpHelper : ISocketHelper {
             if (socket != null) {
                 return
             }
-            log("c:建立客户端")
+            SocketUdpHelper.log("c:建立客户端")
             socket = DatagramSocket()
         }
 
         fun send(ba: ByteArray) {
             socket ?: return
-            log("c:发送数据到服务端:${ba.decodeToString()}")
+            SocketUdpHelper.log("c:发送数据到服务端:${ba.decodeToString()}")
             packet.setData(ba, 0, ba.size)
             socket?.send(packet)
             Thread.sleep(500L)
-            log("c:等待接收消息")
+            SocketUdpHelper.log("c:等待接收消息")
             packet.data = ByteArray(10)
             socket?.receive(packet)
 
-            log("c:收到消息：${packet.address.hostAddress}:${packet.port}:${packet.data.decodeToString()}")
+            SocketUdpHelper.log("c:收到消息：${packet.address.hostAddress}:${packet.port}:${packet.data.decodeToString()}")
         }
 
         override fun close() {
-            log("s:关闭客户端")
+            SocketUdpHelper.log("s:关闭客户端")
             socket?.closeQuietly()
             socket = null
         }

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".net.TestClipActivity"
+    tools:ignore="HardcodedText">
+
+    <Button
+        android:id="@+id/clip_btn_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_def"
+        android:text="start"
+        app:layout_constraintEnd_toStartOf="@id/clip_btn_stop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/clip_btn_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="stop"
+        app:layout_constraintBottom_toBottomOf="@id/clip_btn_start"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/clip_btn_start"
+        app:layout_constraintTop_toTopOf="@id/clip_btn_start" />
+
+    <EditText
+        android:id="@+id/clip_et"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="@dimen/padding_def"
+        android:autofillHints="@string/fab_transformation_sheet_behavior"
+        android:background="@color/colorBg"
+        android:gravity="top|start"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/clip_btn_start"
+        tools:ignore="LabelFor,TextFields"
+        tools:text="12312312" />
+
+    <Button
+        android:id="@+id/clip_btn_send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/padding_def"
+        android:text="send"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/clip_et" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/clip_btn_rv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_def"
+        app:layout_constraintTop_toBottomOf="@id/clip_btn_send"
+        tools:listitem="@layout/test_simple_item_socket_tv" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

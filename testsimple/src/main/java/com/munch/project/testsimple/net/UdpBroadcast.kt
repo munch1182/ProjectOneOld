@@ -3,6 +3,7 @@ package com.munch.project.testsimple.net
 import java.io.IOException
 import java.net.DatagramPacket
 import java.net.DatagramSocket
+import java.nio.charset.Charset
 
 /**
  * Create by munch182 on 2021/1/22 13:43.
@@ -13,12 +14,12 @@ import java.net.DatagramSocket
  */
 fun main() {
     try {
-        DatagramSocket(55555).use { socket ->
+        DatagramSocket(20211).use { socket ->
             val buffer = ByteArray(512)
             val packet = DatagramPacket(buffer, buffer.size)
-            print("开始接收消息")
+            println("开始接收消息")
             socket.receive(packet)
-            print(
+            println(
                 "收到" + packet.address
                     .hostAddress + ":" + packet.port + ":" + String(packet.data)
             )

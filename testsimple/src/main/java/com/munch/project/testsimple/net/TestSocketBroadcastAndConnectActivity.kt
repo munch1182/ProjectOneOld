@@ -3,6 +3,7 @@ package com.munch.project.testsimple.net
 import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.animation.addListener
@@ -15,7 +16,8 @@ import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
 
 /**
- * 使用udp发送广播，再根据广播的回应建立tcp连接通信
+ * 两个同一协议的未知设备的局域网连接
+ *
  * Create by munch1182 on 2021/1/22 16:32.
  */
 class TestSocketBroadcastAndConnectActivity : TestBaseTopActivity() {
@@ -23,6 +25,8 @@ class TestSocketBroadcastAndConnectActivity : TestBaseTopActivity() {
     private var adapter: SimpleExpandableAdapter<TestSocketBroadcastViewModel.SocketBean>? = null
     private val model by lazy { ViewModelProvider(this).get(TestSocketBroadcastViewModel::class.java) }
     private var animator: ObjectAnimator? = null
+    private val btnStart: Button by lazy { findViewById(R.id.socket_btn_start) }
+    private val btnStop: Button by lazy { findViewById(R.id.socket_btn_stop) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +51,7 @@ class TestSocketBroadcastAndConnectActivity : TestBaseTopActivity() {
         adapter = newAdapter(viewClickListener)
         rv.adapter = adapter
 
-        adapter?.setData(
+        /*adapter?.setData(
             mutableListOf(
                 TestSocketBroadcastViewModel.SocketBean.SocketClientBean.newInstance(),
                 TestSocketBroadcastViewModel.SocketBean.SocketClientBean.newInstance(),
@@ -59,11 +63,11 @@ class TestSocketBroadcastAndConnectActivity : TestBaseTopActivity() {
                 TestSocketBroadcastViewModel.SocketBean.SocketClientBean.newInstance(),
                 TestSocketBroadcastViewModel.SocketBean.SocketClientBean.newInstance()
             )
-        )
+        )*/
 
-        model.getClientData().observe(this) {
-            adapter?.setData(it)
-        }
+        model.getClientData().observe(this) { adapter?.setData(it) }
+        btnStart.setOnClickListener { model.startSearch() }
+        btnStop.setOnClickListener { model.close() }
     }
 
     private fun newItemAnimator() = DefaultItemAnimator()

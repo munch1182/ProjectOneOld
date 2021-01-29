@@ -27,23 +27,15 @@
         app:layout_constraintStart_toEndOf="@id/socket_btn_start"
         app:layout_constraintTop_toTopOf="@id/socket_btn_start" />
 
-    <androidx.core.widget.NestedScrollView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/socket_rv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/padding_def"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/socket_btn_start">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/socket_rv"
-            android:background="@color/colorWhite"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:itemCount="10"
-            tools:listitem="@layout/test_simple_item_socket_op" />
-    </androidx.core.widget.NestedScrollView>
+        android:background="@color/colorWhite"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/socket_btn_start"
+        tools:itemCount="10"
+        tools:listitem="@layout/test_simple_item_socket_op" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

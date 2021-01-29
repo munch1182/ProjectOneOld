@@ -4,6 +4,7 @@ import android.net.LocalServerSocket
 import android.net.LocalSocket
 import android.net.LocalSocketAddress
 import android.os.SystemClock
+import com.munch.lib.helper.LogLog
 import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.log
 import okhttp3.internal.closeQuietly
@@ -19,6 +20,13 @@ class SocketHelper : ISocketHelper {
     private val name = "1231"
     private val socketService by lazy { SocketService(name) }
     private val socketClient by lazy { SocketClient(name) }
+
+    companion object {
+
+        fun log(msg: String) {
+            LogLog.simple().callClass(this::class.java).log(msg)
+        }
+    }
 
 
     override fun startSocketService() {
@@ -68,21 +76,21 @@ class SocketHelper : ISocketHelper {
             }
             localServerSocket = LocalServerSocket(socketAddress)
             while (start) {
-                log("s:开始阻塞等待")
+                SocketHelper.log("s:开始阻塞等待")
                 val socket = localServerSocket!!.accept()
                 val br = socket.inputStream.bufferedReader()
                 while (true) {
-                    log("s:等待解析消息")
+                    SocketHelper.log("s:等待解析消息")
                     //readLine会堵塞线程
                     val line = br.readLine()
                     if (line.toLowerCase(Locale.ROOT) == "exit") {
-                        log("s: 此次解析完毕")
+                        SocketHelper.log("s: 此次解析完毕")
                         break
                     } else {
-                        log("s:解析：\"$line\"")
+                        SocketHelper.log("s:解析：\"$line\"")
                     }
                 }
-                log("s:发送回复消息")
+                SocketHelper.log("s:发送回复消息")
                 socket.outputStream.run {
                     write("已收到消息\n".toByteArray())
                     write("exit".toByteArray())
@@ -90,7 +98,7 @@ class SocketHelper : ISocketHelper {
                 }
                 sleep(1000L)
             }
-            log("s:退出服务")
+            SocketHelper.log("s:退出服务")
         }
 
         fun startService() {
@@ -103,7 +111,7 @@ class SocketHelper : ISocketHelper {
 
         fun stopService() {
             if (start) {
-                log("s:关闭服务")
+                SocketHelper.log("s:关闭服务")
             }
             start = false
             localServerSocket?.closeQuietly()
@@ -129,21 +137,21 @@ class SocketHelper : ISocketHelper {
             if (sender == null) {
                 sender = LocalSocket()
             }
-            log("c:开始连接服务端")
+            SocketHelper.log("c:开始连接服务端")
             try {
                 sender!!.connect(LocalSocketAddress(socketName))
             } catch (e: IOException) {
-                log("c:${e.message}")
+                SocketHelper.log("c:${e.message}")
             }
             val connected = sender!!.isConnected
-            log("c:连接服务端结果: $connected")
+            SocketHelper.log("c:连接服务端结果: $connected")
             return connected
         }
 
         fun send(byteArray: ByteArray) {
             try {
                 val outputStream = sender?.outputStream ?: return
-                log("c:发送消息：${byteArray.decodeToString()}")
+                SocketHelper.log("c:发送消息：${byteArray.decodeToString()}")
                 outputStream.write(byteArray)
                 outputStream.flush()
                 SystemClock.sleep(500L)
@@ -152,15 +160,15 @@ class SocketHelper : ISocketHelper {
                     //此处应该有超时机制
                     val line = br.readLine()
                     if (line.toLowerCase(Locale.ROOT) == "exit") {
-                        log("c:停止等待回复")
+                        SocketHelper.log("c:停止等待回复")
                         break
                     } else {
-                        log("c:收到回复：$line")
+                        SocketHelper.log("c:收到回复：$line")
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                log(e.message)
+                SocketHelper.log(e.message ?: "error")
             }
         }
 
@@ -171,7 +179,7 @@ class SocketHelper : ISocketHelper {
                 write("exit".toByteArray())
                 write("\n".toByteArray())
                 flush()
-                log("c:断开连接")
+                SocketHelper.log("c:断开连接，发送exit信息")
             }
             Thread.sleep(500L)
             sender?.closeQuietly()

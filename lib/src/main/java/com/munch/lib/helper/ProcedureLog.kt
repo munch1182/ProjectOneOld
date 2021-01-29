@@ -19,15 +19,18 @@ import java.io.FileWriter
  */
 class ProcedureLog(
     private val tag: String,
+    private val clazz: Class<*>,
     @LogLog.Type private val type: Int = LogLog.TYPE_DEBUG,
     back2File: Boolean = false,
     private var file: File = File(BaseApp.getContext().cacheDir, "procedure_log_${tag}.txt")
 ) : LifecycleOwner {
 
-    private fun getLog() = LogLog.tag(tag).type(type).callClass(this::class.java)
+    private fun getLog() = LogLog.tag(tag).type(type).callClass(clazz)
     private val lifecycle = LifecycleRegistry(this)
 
     init {
+        //初始化生命周期
+        lifecycle.currentState = Lifecycle.State.DESTROYED
         if (back2File) {
             setCanWrite2File()
         }
@@ -56,6 +59,9 @@ class ProcedureLog(
     }
 
     fun end() {
+        if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
+            return
+        }
         getLog().log("============↑procedure $tag end↑===========")
         lifecycle.currentState = Lifecycle.State.DESTROYED
     }
