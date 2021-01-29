@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
+import com.munch.lib.NEEDUSE
 import com.munch.lib.helper.TimerHelper.ITimerShow
 import java.lang.ref.WeakReference
 
@@ -28,6 +29,7 @@ import java.lang.ref.WeakReference
  *
  * Create by munch1182 on 2020/12/25 17:24.
  */
+@NEEDUSE
 class TimerHelper private constructor(private val owner: LifecycleOwner, timeShow: ITimerShow) {
 
     class TimerDialog(private var dialog: Dialog?) : ITimerShow {

@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat.setTint
@@ -131,6 +132,6 @@ fun Context.getActionBarSize() = TypedValue.complexToDimensionPixelSize(
 )
 
 @ColorInt
-fun Context.getColorCompat(colorId: Int): Int {
+fun Context.getColorCompat(@ColorRes colorId: Int): Int {
     return ContextCompat.getColor(this, colorId)
 }

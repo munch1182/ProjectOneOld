@@ -2,6 +2,7 @@ package com.munch.lib.extend.recyclerview
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.munch.lib.KEEP
 
 /**
  * 通过移动过长的距离然后观测到第一个可见item是目标item时立即停止来实现从下往上的平滑移动
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
  *
  * Create by munch1182 on 2021/1/17 23:32.
  */
+@KEEP("并不稳定")
 class FirstScrollHelper {
 
     private var rv: RecyclerView? = null

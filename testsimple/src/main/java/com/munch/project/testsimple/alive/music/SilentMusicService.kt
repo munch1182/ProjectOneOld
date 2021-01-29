@@ -6,7 +6,7 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.os.IBinder
 import android.os.SystemClock
-import com.munch.lib.helper.ScreenReceiverHelper
+import com.munch.lib.helper.ScreenReceiver
 import com.munch.lib.log
 import com.munch.project.testsimple.R
 import com.munch.project.testsimple.alive.TestDataHelper
@@ -42,9 +42,9 @@ class SilentMusicService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        val helper = ScreenReceiverHelper(this)
+        val helper = ScreenReceiver(this)
         helper.add(object :
-            ScreenReceiverHelper.ScreenStateListener {
+            ScreenReceiver.ScreenStateListener {
             override fun onScreenOn(context: Context?) {
                 stopPlay()
             }

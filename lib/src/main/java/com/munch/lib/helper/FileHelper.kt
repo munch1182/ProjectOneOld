@@ -146,10 +146,11 @@ fun File.deleteFiles(): Boolean {
     if (!exists()) {
         return true
     }
-    var flag = false
+    var flag: Boolean
     if (isFile) {
         flag = delete()
     } else {
+        flag = true
         listFiles()?.forEach {
             flag = flag && it.deleteFiles()
         }

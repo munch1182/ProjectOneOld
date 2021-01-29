@@ -15,8 +15,8 @@ import android.content.IntentFilter
  *
  * Create by munch1182 on 2020/12/14 11:08.
  */
-class ScreenReceiverHelper constructor(context: Context) :
-    ReceiverHelper<ScreenReceiverHelper.ScreenStateListener>(
+open class ScreenReceiver constructor(context: Context) :
+    ReceiverHelper<ScreenReceiver.ScreenStateListener>(
         context,
         arrayOf(Intent.ACTION_SCREEN_ON, Intent.ACTION_SCREEN_OFF, Intent.ACTION_USER_PRESENT)
     ) {
@@ -57,7 +57,7 @@ class ScreenReceiverHelper constructor(context: Context) :
  *
  * Create by munch1182 on 2020/12/28 16:57.
  */
-class BluetoothStateReceiverHelper(context: Context) :
+open class BluetoothStateReceiver(context: Context) :
     ReceiverHelper<(turning: Boolean, available: Boolean) -> Unit>(
         context,
         arrayOf(BluetoothAdapter.ACTION_STATE_CHANGED)
@@ -98,7 +98,7 @@ class BluetoothStateReceiverHelper(context: Context) :
  *
  * 在android11，需要[android.Manifest.permission.QUERY_ALL_PACKAGES]权限
  */
-class AppInstallReceiverHelper(context: Context) :
+open class AppInstallReceiver(context: Context) :
     ReceiverHelper<(context: Context?, isAdd: Boolean, pkgName: String?) -> Unit>(
         context,
         arrayOf(Intent.ACTION_PACKAGE_REMOVED, Intent.ACTION_PACKAGE_ADDED)

@@ -33,6 +33,7 @@ class ServiceBindHelper<S : Service>(
     private val intent: Intent
 ) {
 
+    //<editor-fold desc="构造">
     companion object {
 
         fun <S : Service> newBinder(service: S) = SimpleServiceBinder(service)
@@ -64,7 +65,7 @@ class ServiceBindHelper<S : Service>(
         fun <S : Service> bindApp(app: Application, action: String) =
             bindApp<S>(app, Intent(action))
     }
-
+    //</editor-fold>
 
     private var service: S? = null
     private var conn: ServiceConnection? = null
@@ -76,6 +77,7 @@ class ServiceBindHelper<S : Service>(
         owner?.obWhenCreate(onCreate = { bind() }, onDestroy = { unbind() })
     }
 
+    //<editor-fold desc="bind">
     fun onBind(onBind: ((service: S) -> Unit)): ServiceBindHelper<S> {
         this.onBind = onBind
         return this
@@ -122,13 +124,15 @@ class ServiceBindHelper<S : Service>(
         context.bindService(intent, conn!!, Service.BIND_AUTO_CREATE)
         return this
     }
+    //</editor-fold>
 
     /**
      * 服务的调用必须在确保已经绑定之后
      */
     fun getService(): S? = service
 
-    class SimpleServiceBinder<T : Service> constructor(private var service: T?) : Binder() {
+    class SimpleServiceBinder<T : Service> constructor(private var service: T?) : Binder(),
+        AutoCloseable {
 
         fun get(): T? {
             return service
@@ -136,6 +140,10 @@ class ServiceBindHelper<S : Service>(
 
         fun clear() {
             service = null
+        }
+
+        override fun close() {
+            clear()
         }
     }
 }

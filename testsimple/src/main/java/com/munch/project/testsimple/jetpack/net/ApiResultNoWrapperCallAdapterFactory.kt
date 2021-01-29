@@ -1,5 +1,6 @@
 package com.munch.project.testsimple.jetpack.net
 
+import com.munch.lib.TEMPLATE
 import com.munch.lib.extend.retrofit.ApiResult
 import com.munch.lib.helper.ParameterizedTypeImpl
 import com.munch.project.testsimple.jetpack.model.dto.BaseDtoWrapper
@@ -10,7 +11,7 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
 /**
- * 需要先于ApiResultCallAdapterFactory加入retrofit
+ * 需要先于[com.munch.lib.extend.retrofit.ApiResultCallAdapterFactory]加入retrofit
  *
  * 将返回类型包装为[ApiResult]
  *
@@ -21,6 +22,7 @@ import java.lang.reflect.Type
  *
  * Create by munch1182 on 2021/1/19 9:57.
  */
+@TEMPLATE("如果不是BaseDtoWrapper无法固定的话")
 class ApiResultNoWrapperCallAdapterFactory : CallAdapter.Factory() {
 
     companion object {

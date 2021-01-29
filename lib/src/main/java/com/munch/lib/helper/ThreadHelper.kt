@@ -97,6 +97,9 @@ object ThreadHelper {
         }
     }
 
+    /**
+     * 注意：这是新建一个线程池，而不是新建线程
+     */
     fun newExecutor(sizeCore: Int = 1, sizeNeedCache: Int = Int.MAX_VALUE): ThreadPoolExecutor {
         return ThreadPoolExecutor(
             sizeCore, sizeNeedCache,

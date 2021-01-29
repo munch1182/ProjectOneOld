@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import com.munch.lib.SingletonHolder
-import com.munch.lib.helper.ScreenReceiverHelper
+import com.munch.lib.helper.ScreenReceiver
 import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.alive.AliveHelper
@@ -45,8 +45,8 @@ class SinglePixelActivity : TestBaseTopActivity() {
 
         fun register(context: Context) {
             val instance = Helper.getInstance(context)
-            val helper = ScreenReceiverHelper(context)
-            helper.add(object : ScreenReceiverHelper.ScreenStateListener {
+            val helper = ScreenReceiver(context)
+            helper.add(object : ScreenReceiver.ScreenStateListener {
                 override fun onScreenOn(context: Context?) {
                     instance.finish()
                     log("onScreenOn")

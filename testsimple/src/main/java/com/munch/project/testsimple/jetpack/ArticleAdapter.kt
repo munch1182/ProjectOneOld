@@ -31,7 +31,7 @@ class ArticleAdapter :
         holder.executeBinding<TestSimpleLayoutArticleItemBinding> {
             it.article = article
         }
-        article.tags.takeIf { it.isEmpty() }?.forEach { tag ->
+        article.tags.takeIf { it.isNotEmpty() }?.forEach { tag ->
             val context = holder.itemView.context
             val dp8 = context.dp2Px(8f).toInt()
             holder.getBind<TestSimpleLayoutArticleItemBinding>().articleVgTags

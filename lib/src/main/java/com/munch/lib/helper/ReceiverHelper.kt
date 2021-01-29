@@ -11,7 +11,7 @@ import androidx.lifecycle.OnLifecycleEvent
 
 /**
  * 广播动态注册的通用部分类
- * 使用需继承并实现[handleAction]
+ * 使用需继承并实现[handleAction]并在需要的地方[register]和[unregister]或者使用[setAndRegister]
  *
  * Create by munch1182 on 2020/12/28 16:48.
  */
