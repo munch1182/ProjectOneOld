@@ -2,7 +2,6 @@ package com.munch.project.testsimple.net
 
 import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -10,7 +9,6 @@ import androidx.core.animation.addListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.extend.recyclerview.BaseSimpleBindAdapter
-import com.munch.lib.helper.setTextCompat
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
 import com.munch.project.testsimple.databinding.TestSimpleItemSocketTvBinding
@@ -48,7 +46,6 @@ class TestClipActivity : TestBaseTopActivity() {
         }
         model.getClipListData().observe(this) { adapter.setData(it) }
         /*et.nonInput()*/
-        model.getClipData().observe(this) { et.setTextCompat(it) }
         model.getStatus().observe(this) { helper.updateStatus(it) }
     }
 

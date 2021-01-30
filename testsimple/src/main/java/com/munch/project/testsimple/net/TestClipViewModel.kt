@@ -30,10 +30,8 @@ class TestClipViewModel : ViewModel() {
 
     //<editor-fold desc="LiveData">
     private val clipDataReceiver = MutableLiveData<MutableList<SocketContentBean>>(mutableListOf())
-    private val clipData = MutableLiveData("")
     private val status = MutableLiveData(Status())
     fun getClipListData(): LiveData<MutableList<SocketContentBean>> = clipDataReceiver
-    fun getClipData(): LiveData<String> = clipData
     fun getStatus(): LiveData<Status> = status
     //</editor-fold>
 
@@ -52,11 +50,11 @@ class TestClipViewModel : ViewModel() {
     private var sendPort = -1
     private var tcpService: InetSocketAddress? = null
     private var manager: ClipboardManager? = null
-    private val clipListener = {
+    private val clipListener = lis@{
         //需要应用获取焦点之后延迟一秒去获取剪切板内容
         if (manager?.hasPrimaryClip() == true) {
-            val text = manager?.primaryClip?.getItemAt(0)?.text
-            clipData.postValue(text.toString())
+            val text = manager?.primaryClip?.getItemAt(0)?.text?.toString() ?: return@lis
+            update(text)
         }
     }
 
@@ -207,11 +205,20 @@ class TestClipViewModel : ViewModel() {
 
             //启动自身的tcp服务
             startTcpService(false)
+            var index = 0
             //等待tcp建立
             while (isCreateService()) {
                 log.step("等待服务创建")
                 Thread.sleep(500L)
+                //5*500=2500 等待时间，超时则失败
+                if (index == 5) {
+                    break
+                }
+                index++
             }
+            //服务创建失败，则继续监听消息
+            //理论上来说应该发一条由对方创建服务的消息，但这样如果两边失败，都陷入无限循环
+            //从理论上来说，这里不应该失败
             if (tcpService == null) {
                 log.step("服务创建失败")
                 return true
@@ -221,7 +228,7 @@ class TestClipViewModel : ViewModel() {
             log.step("回复: $replayBean")
             packet.port = Protocol.BROADCAST_PORT
             packet.data = replayBean.toByteArray()
-            //再发一次udp来回复
+            //再发一次udp来回复端口
             socket?.send(packet)
             return false
         }
