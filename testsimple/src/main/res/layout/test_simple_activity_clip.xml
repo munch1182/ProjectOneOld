@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".net.TestClipActivity"
     tools:ignore="HardcodedText">
 
@@ -62,12 +64,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/clip_et" />
 
+    <Button
+        android:id="@+id/clip_btn_disconnect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/padding_def"
+        android:text="disconnect"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/clip_btn_send" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/clip_btn_rv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/padding_def"
-        app:layout_constraintTop_toBottomOf="@id/clip_btn_send"
+        app:layout_constraintTop_toBottomOf="@id/clip_btn_disconnect"
         tools:listitem="@layout/test_simple_item_socket_tv" />
 
 

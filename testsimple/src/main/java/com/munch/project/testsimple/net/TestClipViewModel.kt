@@ -92,7 +92,7 @@ class TestClipViewModel : ViewModel() {
         if (!status.value!!.isConnected()) {
             return
         }
-        streamHelper.write(dataHelper.exit())
+        sendText(dataHelper.exit())
     }
 
     fun close() {
@@ -106,6 +106,8 @@ class TestClipViewModel : ViewModel() {
         log.end()
 
         manager?.removePrimaryClipChangedListener(clipListener)
+        //因为有延时
+        manager = null
     }
 
     fun sendText(s: String?) {
@@ -471,8 +473,8 @@ class TestClipViewModel : ViewModel() {
             return "${Protocol.START}$size${Protocol.SPLIT}$str${Protocol.END}".toByteArray()
         }
 
-        fun exit(): ByteArray {
-            return writeStr(Protocol.EXIT)
+        fun exit(): String {
+            return Protocol.EXIT
         }
 
         fun isExit(str: String?): Boolean {

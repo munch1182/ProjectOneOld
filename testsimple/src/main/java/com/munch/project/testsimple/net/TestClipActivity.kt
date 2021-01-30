@@ -1,10 +1,12 @@
 package com.munch.project.testsimple.net
 
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.core.animation.addListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.extend.recyclerview.BaseSimpleBindAdapter
@@ -22,22 +24,18 @@ class TestClipActivity : TestBaseTopActivity() {
     private val btnStart: Button by lazy { findViewById(R.id.clip_btn_start) }
     private val btnStop: Button by lazy { findViewById(R.id.clip_btn_stop) }
     private val btnSend: Button by lazy { findViewById(R.id.clip_btn_send) }
+    private val btnDisconnect: Button by lazy { findViewById(R.id.clip_btn_disconnect) }
     private val rv: RecyclerView by lazy { findViewById(R.id.clip_btn_rv) }
     private val et: EditText by lazy { findViewById(R.id.clip_et) }
-    private val helper by lazy { StatusHelper(findViewById<ImageView>(R.id.clip_status)) }
+    private val helper by lazy { StatusHelper(findViewById(R.id.clip_status)) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.test_simple_activity_clip)
-        btnStart.setOnClickListener {
-            model.startSearch()
-        }
-        btnStop.setOnClickListener {
-            model.close()
-        }
-        btnSend.setOnClickListener {
-            model.sendText(et.text.toString())
-        }
+        btnStart.setOnClickListener { model.startSearch() }
+        btnStop.setOnClickListener { model.close() }
+        btnSend.setOnClickListener { model.sendText(et.text.toString()) }
+        btnDisconnect.setOnClickListener { model.disconnect() }
 
         val adapter = BaseSimpleBindAdapter<SocketContentBean, TestSimpleItemSocketTvBinding>(
             R.layout.test_simple_item_socket_tv, null
@@ -63,15 +61,24 @@ class TestClipActivity : TestBaseTopActivity() {
     class StatusHelper(private val imageView: ImageView) {
 
         fun updateStatus(status: TestClipViewModel.Status) {
-            imageView.visibility = if (status.isClosed()) View.GONE else View.VISIBLE
             val id = when {
                 status.isScanning() -> R.drawable.test_simple_ic_scan
                 status.isConnecting() -> R.drawable.test_simple_ic_connecting
                 status.isConnected() -> R.drawable.test_simple_ic_connected
-                status.isClosed() -> return
+                status.isClosed() -> -1
                 else -> return
             }
-            imageView.setImageResource(id)
+            val alpha = ObjectAnimator.ofFloat(imageView, "alpha", 1f, 0f)
+            alpha.duration = 300L
+            alpha.addListener(onEnd = {
+                imageView.alpha = 1f
+                if (id != -1) {
+                    imageView.setImageResource(id)
+                } else {
+                    imageView.setImageDrawable(null)
+                }
+            })
+            alpha.start()
         }
     }
 
