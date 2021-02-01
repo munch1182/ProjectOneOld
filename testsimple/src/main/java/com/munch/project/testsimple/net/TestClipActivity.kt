@@ -7,8 +7,10 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.core.animation.addListener
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.extend.recyclerview.BaseSimpleBindAdapter
+import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
 import com.munch.project.testsimple.databinding.TestSimpleItemSocketTvBinding
@@ -18,7 +20,7 @@ import com.munch.project.testsimple.databinding.TestSimpleItemSocketTvBinding
  */
 class TestClipActivity : TestBaseTopActivity() {
 
-    private val model by lazy { ViewModelProvider(this).get(TestClipViewModel::class.java) }
+    private val model by get(TestClipViewModel::class.java)
     private val btnStart: Button by lazy { findViewById(R.id.clip_btn_start) }
     private val btnStop: Button by lazy { findViewById(R.id.clip_btn_stop) }
     private val btnSend: Button by lazy { findViewById(R.id.clip_btn_send) }
@@ -40,10 +42,9 @@ class TestClipActivity : TestBaseTopActivity() {
         ) { holder, data, _ ->
             holder.binding.bean = data
         }
+        rv.layoutManager = LinearLayoutManager(this)
         rv.adapter = adapter
-        adapter.setOnItemClick { _, _, data, _ ->
-            model.copy2Clip(data.content)
-        }
+        adapter.setOnItemClick { _, _, data, _ -> model.copy2Clip(data.content) }
         model.getClipListData().observe(this) { adapter.setData(it) }
         /*et.nonInput()*/
         model.getStatus().observe(this) { helper.updateStatus(it) }

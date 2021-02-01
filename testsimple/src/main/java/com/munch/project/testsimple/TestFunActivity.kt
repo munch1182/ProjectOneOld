@@ -1,10 +1,11 @@
 package com.munch.project.testsimple
 
+import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.MutableLiveData
 import com.munch.lib.common.RouterHelper
 import com.munch.lib.common.component.ThemeProvider
-import com.munch.lib.helper.isServiceRunning
-import com.munch.lib.helper.startActivity
+import com.munch.lib.helper.*
 import com.munch.lib.log
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
@@ -14,7 +15,16 @@ import com.munch.lib.test.recyclerview.TestRvItemBean
  */
 class TestFunActivity : TestRvActivity() {
 
+    private val liveData = MutableLiveData<ArrayList<String>>(arrayListOf())
+
     override fun isBtn() = true
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        liveData.observe(this){
+            log(it)
+        }
+    }
 
     override fun clickItem(view: View, pos: Int) {
         super.clickItem(view, pos)
@@ -37,18 +47,6 @@ class TestFunActivity : TestRvActivity() {
                 toastServiceRunning()
             }
             7 -> startActivity(TestFunInFragmentActivity::class.java)
-        }
-    }
-
-    class Test() {
-
-        fun a() {
-            log(2)
-        }
-
-        fun b(func: () -> Unit) {
-            func()
-            log(4)
         }
     }
 

@@ -8,9 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.munch.lib.BaseApp
-import com.munch.lib.helper.ProcedureLog
-import com.munch.lib.helper.ThreadHelper
-import com.munch.lib.log
+import com.munch.lib.helper.*
 import okhttp3.internal.closeQuietly
 import java.io.*
 import java.net.*
@@ -249,7 +247,13 @@ class TestClipViewModel : ViewModel() {
                 val socket = Socket()
                 //状态：连接中
                 status.value!!.connecting().post()
-                socket.connect(tcpService)
+                try {
+                    socket.connect(tcpService)
+                } catch (e: IOException) {
+                    log.step("tcp连接失败")
+                    socket.closeQuietly()
+                    return@execute
+                }
                 streamHelper.init(socket.getOutputStream(), socket.getInputStream())
                 //状态：已连接
                 status.value!!.connected().post()
@@ -274,15 +278,22 @@ class TestClipViewModel : ViewModel() {
 
                 if (streamHelper.read(byteArray) != -1) {
                     val readStr = dataHelper.readStr(byteArray)
-                    if (dataHelper.isExit(readStr)) {
-                        status.value!!.closed()
-                        close()
-                        log.step("对方已关闭，连接已断开，重新开始搜索")
-                        startSearch()
-                        return@execute
+                    if (readStr != null) {
+                        if (dataHelper.isExit(readStr)) {
+                            status.value!!.closed()
+                            close()
+                            log.step("对方已关闭，连接已断开，重新开始搜索")
+                            startSearch()
+                            return@execute
+                        }
+                        log.step("读到数据: $readStr")
+                        update(readStr)
                     }
-                    log.step("读到数据: $readStr")
+                } else {
+                    log.step("对方已关闭")
+                    close()
                 }
+
             }
             log.step("tcp已关闭")
         }
@@ -327,7 +338,7 @@ class TestClipViewModel : ViewModel() {
     }
 
     private fun update(line: String) {
-        clipDataReceiver.value?.add(SocketContentBean(line, "", -1)) ?: return
+        clipDataReceiver.value!!.add(SocketContentBean(line, "", -1))
         clipDataReceiver.postValue(clipDataReceiver.value)
     }
 
@@ -474,10 +485,20 @@ class TestClipViewModel : ViewModel() {
 
         /**
          * 123 -> [3:123]
+         *
+         * 因为实际数组比要放的数据大，所以不能按照数组长度放
          */
         fun writeStr(str: String): ByteArray {
-            val size = str.toByteArray().size
-            return "${Protocol.START}$size${Protocol.SPLIT}$str${Protocol.END}".toByteArray()
+            val strByteArray = str.toByteArray()
+            /*return "${Protocol.START}$size${Protocol.SPLIT}$str${Protocol.END}".toByteArray()*/
+            /*val value = ByteArray(strByteArray.size + 10)*/
+            buffer.clear()
+            buffer.putChar(Protocol.START)
+            buffer.putInt(strByteArray.size)
+            buffer.putChar(Protocol.SPLIT)
+            buffer.put(strByteArray)
+            buffer.putChar(Protocol.END)
+            return buffer.array()
         }
 
         fun exit(): String {
@@ -497,8 +518,6 @@ class TestClipViewModel : ViewModel() {
             //写入后复位读取
             buffer.flip()
 
-            log(buffer.toString())
-
             val start = buffer.char
             val length = buffer.int
             val split = buffer.char
@@ -506,9 +525,8 @@ class TestClipViewModel : ViewModel() {
             //标记的是第一个split之后的位置
             buffer.mark()
             //一个char一个int共6位
-            buffer.position(array.size - 2)
+            buffer.position(8 + length)
             val end = buffer.char
-            log(start, length, split, end)
             buffer.reset()
             //检验标识符
             if (start != Protocol.START || split != Protocol.SPLIT || end != Protocol.END
@@ -521,7 +539,7 @@ class TestClipViewModel : ViewModel() {
 
             val byteArray = ByteArray(length)
             buffer.get(byteArray)
-            return byteArray.toString()
+            return byteArray.decodeToString()
         }
 
     }

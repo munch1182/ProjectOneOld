@@ -66,7 +66,10 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
 
     fun setData(data: MutableList<T>? = null) {
         this.dataList.clear()
-        add(data)
+        if (data!=null) {
+            this.dataList.addAll(data)
+        }
+        notifyDataSetChanged()
     }
 
 
