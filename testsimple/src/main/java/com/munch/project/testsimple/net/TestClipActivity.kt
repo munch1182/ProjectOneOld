@@ -9,6 +9,7 @@ import androidx.core.animation.addListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.extend.recyclerview.BaseSimpleBindAdapter
+import com.munch.lib.helper.setTextCompat
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
 import com.munch.project.testsimple.databinding.TestSimpleItemSocketTvBinding
@@ -42,7 +43,10 @@ class TestClipActivity : TestBaseTopActivity() {
         }
         rv.layoutManager = LinearLayoutManager(this)
         rv.adapter = adapter
-        adapter.setOnItemClick { _, _, data, _ -> model.copy2Clip(data.content) }
+        adapter.setOnItemClick { _, _, data, _ ->
+            model.copy2Clip(data.content)
+            etShowClip()
+        }
         model.getNetListData().observe(this) { adapter.setData(it) }
         /*et.nonInput()*/
         model.getStatus().observe(this) { helper.updateStatus(it) }
@@ -50,11 +54,15 @@ class TestClipActivity : TestBaseTopActivity() {
 
     override fun onResume() {
         super.onResume()
-        model.queryClip()?.let {
-            et.setText(it)
-        }
+        //适配android10获取剪切板内容
+        rv.post { etShowClip() }
     }
 
+    private fun etShowClip() {
+        model.queryClip()?.let {
+            et.setTextCompat(it)
+        }
+    }
 
     override fun onDestroy() {
         super.onDestroy()

@@ -6,7 +6,6 @@ import android.net.LocalSocketAddress
 import android.os.SystemClock
 import com.munch.lib.helper.LogLog
 import com.munch.lib.helper.ThreadHelper
-import com.munch.lib.log
 import okhttp3.internal.closeQuietly
 import java.io.Closeable
 import java.io.IOException
@@ -76,21 +75,21 @@ class SocketHelper : ISocketHelper {
             }
             localServerSocket = LocalServerSocket(socketAddress)
             while (start) {
-                SocketHelper.log("s:开始阻塞等待")
+                log("s:开始阻塞等待")
                 val socket = localServerSocket!!.accept()
                 val br = socket.inputStream.bufferedReader()
                 while (true) {
-                    SocketHelper.log("s:等待解析消息")
+                    log("s:等待解析消息")
                     //readLine会堵塞线程
                     val line = br.readLine()
                     if (line.toLowerCase(Locale.ROOT) == "exit") {
-                        SocketHelper.log("s: 此次解析完毕")
+                        log("s: 此次解析完毕")
                         break
                     } else {
-                        SocketHelper.log("s:解析：\"$line\"")
+                        log("s:解析：\"$line\"")
                     }
                 }
-                SocketHelper.log("s:发送回复消息")
+                log("s:发送回复消息")
                 socket.outputStream.run {
                     write("已收到消息\n".toByteArray())
                     write("exit".toByteArray())
@@ -98,7 +97,7 @@ class SocketHelper : ISocketHelper {
                 }
                 sleep(1000L)
             }
-            SocketHelper.log("s:退出服务")
+            log("s:退出服务")
         }
 
         fun startService() {
@@ -111,7 +110,7 @@ class SocketHelper : ISocketHelper {
 
         fun stopService() {
             if (start) {
-                SocketHelper.log("s:关闭服务")
+                log("s:关闭服务")
             }
             start = false
             localServerSocket?.closeQuietly()
@@ -137,21 +136,21 @@ class SocketHelper : ISocketHelper {
             if (sender == null) {
                 sender = LocalSocket()
             }
-            SocketHelper.log("c:开始连接服务端")
+            log("c:开始连接服务端")
             try {
                 sender!!.connect(LocalSocketAddress(socketName))
             } catch (e: IOException) {
-                SocketHelper.log("c:${e.message}")
+                log("c:${e.message}")
             }
             val connected = sender!!.isConnected
-            SocketHelper.log("c:连接服务端结果: $connected")
+            log("c:连接服务端结果: $connected")
             return connected
         }
 
         fun send(byteArray: ByteArray) {
             try {
                 val outputStream = sender?.outputStream ?: return
-                SocketHelper.log("c:发送消息：${byteArray.decodeToString()}")
+                log("c:发送消息：${byteArray.decodeToString()}")
                 outputStream.write(byteArray)
                 outputStream.flush()
                 SystemClock.sleep(500L)
@@ -160,15 +159,15 @@ class SocketHelper : ISocketHelper {
                     //此处应该有超时机制
                     val line = br.readLine()
                     if (line.toLowerCase(Locale.ROOT) == "exit") {
-                        SocketHelper.log("c:停止等待回复")
+                        log("c:停止等待回复")
                         break
                     } else {
-                        SocketHelper.log("c:收到回复：$line")
+                        log("c:收到回复：$line")
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                SocketHelper.log(e.message ?: "error")
+                log(e.message ?: "error")
             }
         }
 
@@ -179,7 +178,7 @@ class SocketHelper : ISocketHelper {
                 write("exit".toByteArray())
                 write("\n".toByteArray())
                 flush()
-                SocketHelper.log("c:断开连接，发送exit信息")
+                log("c:断开连接，发送exit信息")
             }
             Thread.sleep(500L)
             sender?.closeQuietly()

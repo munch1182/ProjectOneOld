@@ -48,12 +48,7 @@ class TestClipViewModel : ViewModel() {
     private var sendPort = -1
     private var tcpService: InetSocketAddress? = null
     private var manager: ClipboardManager? = null
-    private val clipListener = lis@{
-        //需要应用获取焦点之后延迟一秒去获取剪切板内容
-        if (manager?.hasPrimaryClip() == true) {
-            update(queryClip() ?: return@lis)
-        }
-    }
+    private var clipListener: ClipboardManager.OnPrimaryClipChangedListener? = null
 
     init {
         manager = BaseApp.getContext()
@@ -61,6 +56,14 @@ class TestClipViewModel : ViewModel() {
         ThreadHelper.getExecutor().execute {
             Thread.sleep(1000L)
             manager?.apply {
+                if (clipListener == null) {
+                    clipListener = ClipboardManager.OnPrimaryClipChangedListener lis@{
+                        //需要应用获取焦点之后延迟一秒去获取剪切板内容
+                        if (manager?.hasPrimaryClip() == true) {
+                            update(queryClip() ?: return@lis)
+                        }
+                    }
+                }
                 addPrimaryClipChangedListener(clipListener)
             }
         }
@@ -68,7 +71,7 @@ class TestClipViewModel : ViewModel() {
 
     //<editor-fold desc="view方法">
     fun copy2Clip(content: String) {
-        manager?.setPrimaryClip(ClipData.newPlainText("", content))
+        manager?.setPrimaryClip(ClipData.newPlainText("text", content))
     }
 
     fun startSearch() {
