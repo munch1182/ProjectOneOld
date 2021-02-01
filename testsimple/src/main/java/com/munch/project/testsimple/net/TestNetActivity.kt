@@ -13,7 +13,8 @@ class TestNetActivity : TestRvActivity() {
             TestRvItemBean.newInstance("IpAddress", TestSimpleIpActivity::class.java),
             TestRvItemBean.newInstance("Socket Base", TestSocketBaseActivity::class.java),
             TestRvItemBean.newInstance("Socket", TestSocketBroadcastAndConnectActivity::class.java),
-            TestRvItemBean.newInstance("Clip", TestClipActivity::class.java)
+            TestRvItemBean.newInstance("Clip", TestClipActivity::class.java),
+            TestRvItemBean.newInstance("Service", TestAndServiceActivity::class.java),
         )
     }
 }

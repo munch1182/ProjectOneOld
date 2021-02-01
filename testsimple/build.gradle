@@ -10,6 +10,7 @@ if (runAlone()) {
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'com.yanzhenjie.andserver'
 
 apply from: '../gradle/commonbuildktx.gradle'
 
@@ -74,4 +75,8 @@ dependencies {
     api rootProject.ext.dependencies['glide']
 
     api rootProject.ext.dependencies['leakcanary']
+
+    /*https://github.com/yanzhenjie/AndServer*/
+    implementation 'com.yanzhenjie.andserver:api:2.1.7'
+    kapt 'com.yanzhenjie.andserver:processor:2.1.7'
 }
