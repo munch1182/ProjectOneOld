@@ -27,9 +27,9 @@ import kotlin.random.Random
 class TestClipViewModel : ViewModel() {
 
     //<editor-fold desc="LiveData">
-    private val clipDataReceiver = MutableLiveData<MutableList<SocketContentBean>>(mutableListOf())
+    private val netDataReceiver = MutableLiveData<MutableList<SocketContentBean>>(mutableListOf())
     private val status = MutableLiveData(Status())
-    fun getClipListData(): LiveData<MutableList<SocketContentBean>> = clipDataReceiver
+    fun getNetListData(): LiveData<MutableList<SocketContentBean>> = netDataReceiver
     fun getStatus(): LiveData<Status> = status
     //</editor-fold>
 
@@ -51,8 +51,7 @@ class TestClipViewModel : ViewModel() {
     private val clipListener = lis@{
         //需要应用获取焦点之后延迟一秒去获取剪切板内容
         if (manager?.hasPrimaryClip() == true) {
-            val text = manager?.primaryClip?.getItemAt(0)?.text?.toString() ?: return@lis
-            update(text)
+            update(queryClip() ?: return@lis)
         }
     }
 
@@ -338,8 +337,12 @@ class TestClipViewModel : ViewModel() {
     }
 
     private fun update(line: String) {
-        clipDataReceiver.value!!.add(SocketContentBean(line, "", -1))
-        clipDataReceiver.postValue(clipDataReceiver.value)
+        netDataReceiver.value!!.add(SocketContentBean(line, "", -1))
+        netDataReceiver.postValue(netDataReceiver.value)
+    }
+
+    fun queryClip(): String? {
+        return manager?.primaryClip?.getItemAt(0)?.text?.toString()
     }
 
     //<editor-fold desc="tcp">
