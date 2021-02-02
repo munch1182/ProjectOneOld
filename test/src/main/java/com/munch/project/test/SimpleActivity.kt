@@ -15,6 +15,7 @@ class TestViewActivity : TestRvActivity() {
         return mutableListOf(
             TestRvItemBean.newInstance("Weight", TestWeightActivity::class.java),
             TestRvItemBean.newInstance("BookPage", TestBookPageViewActivity::class.java),
+            TestRvItemBean.newInstance("Fish", TestFishStructureActivity::class.java),
             TestRvItemBean.newInstance("FlowLayout", TestFlowLayoutActivity::class.java),
             TestRvItemBean.newInstance("Bar", TestBarActivity::class.java),
             TestRvItemBean.newInstance("NavRecyclerView", TestNavRecyclerViewActivity::class.java),

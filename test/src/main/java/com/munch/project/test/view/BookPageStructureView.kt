@@ -7,8 +7,9 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Scroller
 import androidx.annotation.IntDef
-import com.munch.lib.Point
 import com.munch.lib.helper.RectArrayHelper
+import com.munch.lib.isSet
+import com.munch.lib.reset
 import kotlin.math.absoluteValue
 import kotlin.math.pow
 
@@ -26,10 +27,10 @@ class BookPageStructureView @JvmOverloads constructor(
         textSize = 40f
     }
     private val pathContent = Path()
-    private val pointStart = Point()
-    private val pointEnd = Point()
-    private val pointClick = Point()
-    private val pointCache = Point()
+    private val pointStart = PointF()
+    private val pointEnd = PointF()
+    private val pointClick = PointF()
+    private val pointCache = PointF()
     private var w = 0f
     private var h = 0f
     private val dashPathEffect by lazy { DashPathEffect(floatArrayOf(10f, 5f), 0f) }
@@ -39,6 +40,7 @@ class BookPageStructureView @JvmOverloads constructor(
     private lateinit var bitmapHolder: Bitmap
     private lateinit var bitmapCanvas: Canvas
     private var drawStructure = true
+
     /*暂时是1200*/
     private var minMoveDis2Next = 1200f
     private var backEndAnimDuration: Int = 1500
@@ -119,7 +121,7 @@ class BookPageStructureView @JvmOverloads constructor(
      * top是右上点
      * right、center返回为null
      */
-    private fun getAndSetEndPointInArea(point: Point): Point {
+    private fun getAndSetEndPointInArea(point: PointF): PointF {
         rectHelper.run {
             val ratioH = point.y / h
             val disW = width.toFloat() / 2f
@@ -146,11 +148,16 @@ class BookPageStructureView @JvmOverloads constructor(
                 //直接将pointStart的y值置为view的高度，可以看起来像横翻
                 pointStart.reset(pointStart.x, height.toFloat() - 1f)
                 //左
-                if (point.x < w) {
-                    pointCache.reset(getLeft(AREA_B_L), getBottom(AREA_B_L))
-                    //右
-                } else if (point.x > 2f * w) {
-                    pointCache.reset(getRight(AREA_B_R), getBottom(AREA_B_R))
+                when {
+                    point.x < w -> {
+                        pointCache.reset(getLeft(AREA_B_L), getBottom(AREA_B_L))
+                        //右
+                    }
+                    point.x > (2f * w) -> {
+                        pointCache.reset(getRight(AREA_B_R), getBottom(AREA_B_R))
+                    }
+                    else -> {
+                    }
                 }
             }
 
@@ -213,7 +220,7 @@ class BookPageStructureView @JvmOverloads constructor(
         canvas.drawText(text, cx - textWidth / 2, baseLineY, paint)
     }
 
-    private fun drawFlipPathFromLR(canvas: Canvas, clickPoint: Point) {
+    private fun drawFlipPathFromLR(canvas: Canvas, clickPoint: PointF) {
         val isLeft = pointClick.x < w
         val aX = if (isLeft) 0f else clickPoint.x
         val cX = if (isLeft) clickPoint.x else width.toFloat()
@@ -473,7 +480,7 @@ class BookPageStructureView @JvmOverloads constructor(
     //</editor-fold>
 
     //限制效果，防止第一次点击时过远显示效果夸张
-    private fun limitPointEnd(pointEnd: Point) {
+    private fun limitPointEnd(pointEnd: PointF) {
     }
 
     override fun performClick(): Boolean {

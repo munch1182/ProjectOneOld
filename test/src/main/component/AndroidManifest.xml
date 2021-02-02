@@ -54,6 +54,7 @@
         <activity android:name=".view.TestBookPageViewActivity" />
         <activity android:name=".view.PaintModeActivity" />
         <activity android:name=".view.TestHeaderRecyclerViewActivity" />
+        <activity android:name=".view.TestFishStructureActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
