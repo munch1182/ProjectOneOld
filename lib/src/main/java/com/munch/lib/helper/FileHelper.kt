@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.munch.lib.helper
 
 import android.content.ContentResolver
@@ -11,9 +13,16 @@ import androidx.core.net.toFile
 import androidx.core.net.toUri
 import com.munch.lib.BaseApp
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.math.BigInteger
+import java.nio.channels.FileChannel
+import java.security.MessageDigest
 import java.text.DecimalFormat
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 
 /**
  * 与文件相关都要注意权限
@@ -59,8 +68,8 @@ object FileHelper {
                         } catch (e: Exception) {
                             e.printStackTrace()
                         } finally {
-                            this.close()
-                            out?.close()
+                            this.closeQuietly()
+                            out?.closeQuietly()
                         }
                         return fileCreated
                     }
@@ -106,6 +115,89 @@ object FileHelper {
     const val STR_KB = "KB"
     const val STR_MB = "MB"
     const val STR_GB = "GB"
+    const val STR_TB = "TB"
+
+    const val KB = 1024L
+    const val MB = KB * KB
+    const val GB = KB * MB
+    const val TB = KB * GB
+
+    fun checkUnzipDirSize(zipFile: File): Int {
+        return ZipFile(zipFile).size()
+    }
+
+    fun unzip(zipFile: File, dir: File): Boolean {
+        dir.isDirOrNew() ?: return false
+        val zip = ZipFile(zipFile)
+        var file: File
+        var flag = true
+        for (entry in zip.entries()) {
+            file = File(dir, entry.name)
+            if (!entry.isDirectory) {
+                if (file.newFile() == null) {
+                    flag = false
+                    break
+                }
+                if (!zip.getInputStream(entry).copyAndClose(file.outputStream(), MB.toInt())) {
+                    flag = false
+                }
+            } else {
+                file.mkdirs()
+            }
+        }
+        zip.closeQuietly()
+        return flag
+    }
+
+    fun zip(zipFile: File, comment: String?, zipDir: Boolean = true, vararg file: File): File? {
+        zipFile.checkOrNew() ?: return null
+        val zos = ZipOutputStream(zipFile.outputStream())
+        zos.setComment(comment)
+        val res = zip(zos, null, zipDir, file)
+        zos.closeQuietly()
+        return if (res) zipFile else null
+    }
+
+    private fun zip(
+        zos: ZipOutputStream,
+        base: String?,
+        zipDir: Boolean = true,
+        files: Array<out File>
+    ): Boolean {
+        try {
+            files.forEach {
+                val name = if (base == null || !zipDir) it.name else "$base/${it.name}"
+                if (it.isDirectory) {
+                    if (it.list().isNullOrEmpty()) {
+                        if (zipDir) {
+                            //空文件夹处理
+                            zos.putNextEntry(ZipEntry(("$base/")))
+                            zos.closeEntry()
+                        }
+                    } else {
+                        zip(zos, name, zipDir, it.listFiles()!!)
+                    }
+                } else {
+                    zos.putNextEntry(ZipEntry(name))
+
+                    var fis: FileInputStream? = null
+                    try {
+                        fis = FileInputStream(it)
+                        fis.copyTo(zos)
+                    } catch (e: IOException) {
+                        throw e
+                    } finally {
+                        fis?.closeQuietly()
+                        zos.closeEntry()
+                    }
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return false
+        }
+        return true
+    }
 }
 
 /**
@@ -115,9 +207,23 @@ fun File.checkOrNew(): File? {
     return this.takeIf { it.exists() } ?: newFile()
 }
 
+fun File.isDirOrNew(): File? {
+    return this.takeIf {
+        it.mkdirs()
+        it.exists() && it.isDirectory
+    }
+}
+
+fun File.newDir(): File {
+    mkdirs()
+    return this
+}
+
 /**
  * 新建一个文件
  * 如果文件存在，则删除并重建，新建失败则返回null
+ *
+ * @see checkOrNew
  */
 fun File.newFile(): File? {
     mkdirs()
@@ -130,7 +236,7 @@ fun File.newFile(): File? {
         } else {
             null
         }
-    } catch (e: Exception) {
+    } catch (e: IOException) {
         e.printStackTrace()
         null
     }
@@ -166,8 +272,122 @@ fun File.deleteFilesIgnoreRes(): Boolean {
     return try {
         deleteFiles()
     } catch (e: Exception) {
+        e.printStackTrace()
         false
     }
+}
+
+/**
+ * 复制当前文件或者文件夹到目标文件或者文件夹
+ *
+ * 不能将文件夹复制到文件
+ */
+fun File.copyTo(dest: File, preserveFileDate: Boolean = true, copyDir: Boolean = true): Boolean {
+    if (dest.isDirectory) {
+        return this.copy2Dir(dest, preserveFileDate, copyDir)
+    } else if (this.isFile) {
+        return this.copy2File(dest, preserveFileDate)
+    }
+    throw UnsupportedOperationException("cannot copy dir to file")
+}
+
+@Deprecated(message = "无法简单的返回多层错误信息，且逻辑简单，因此建议根据业务自行处理判断")
+fun File.moveTo(file: File) {
+    this.copyTo(file, true, copyDir = true)
+    this.deleteFilesIgnoreRes()
+}
+
+/**
+ * 复制当前文件或者文件夹到目标文件夹
+ *
+ * @param dest 目标文件夹，不能是文件
+ * @param copyDir 是否复制文件夹，为false时复制当前文件夹下所有文件到dest一级目录下，否则会保持当前文件夹结构，当前是文件则该参数无效\
+ * @param preserveFileDate 是否同步文件修改时间
+ * @return 是否复制成功
+ *
+ * @see copyTo
+ */
+fun File.copy2Dir(dest: File, preserveFileDate: Boolean = true, copyDir: Boolean = true): Boolean {
+    //不存在则创建
+    if (!dest.exists() && !dest.mkdirs()) {
+        //创建失败则返回
+        return false
+    }
+    //复制文件夹dest必须是文件夹
+    if (!dest.isDirectory) {
+        return false
+    }
+
+    if (this.isDirectory) {
+        this.listFiles()?.forEach {
+            if (it.isDirectory) {
+                if (!it.copy2Dir(
+                        if (copyDir) File(dest, it.name) else dest,
+                        copyDir, preserveFileDate
+                    )
+                ) {
+                    return false
+                }
+            } else {
+                if (!it.copy2File(File(dest, it.name), preserveFileDate)) {
+                    return false
+                }
+            }
+        }
+    } else {
+        return this.copy2File(File(dest, this.name), preserveFileDate)
+    }
+    if (preserveFileDate) {
+        dest.setLastModified(this.lastModified())
+    }
+    return true
+}
+
+/**
+ * 复制当前文件到dest，参考org.apache.commons.io.FileUtils#doCopyFile
+ *
+ * @param dest 目标文件 如果不存在会被创建
+ * @param preserveFileDate 是否同步文件修改时间
+ * @return 是否复制成功
+ *
+ * @see copyTo
+ */
+fun File.copy2File(dest: File, preserveFileDate: Boolean = true): Boolean {
+    dest.checkOrNew() ?: return false
+    var fis: FileInputStream? = null
+    var fos: FileOutputStream? = null
+    var input: FileChannel? = null
+    var output: FileChannel? = null
+    try {
+        fis = FileInputStream(this)
+        fos = FileOutputStream(dest)
+        input = fis.channel
+        output = fos.channel
+        val size = input.size()
+        var pos: Long = 0
+        var count: Long
+        val bufferSize = 5L * FileHelper.MB
+        while (pos < size) {
+            count = if (size - pos > bufferSize) bufferSize else size - pos
+            pos += output.transferFrom(input, pos, count)
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+        return false
+    } finally {
+        output?.closeQuietly()
+        fos?.closeQuietly()
+        input?.closeQuietly()
+        fis?.closeQuietly()
+    }
+
+    if (this.length() != dest.length()) {
+        return false
+    }
+    if (preserveFileDate) {
+        dest.setLastModified(this.lastModified())
+    }
+    return true
 }
 
 /**
@@ -210,3 +430,23 @@ fun File.toUriCompat(
  */
 fun File.getExtension(): String? = MimeTypeMap.getSingleton()
     .getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(this.toUri().toString()))
+
+/**
+ * 返回16、32、24位的md5值，默认为16位
+ *
+ * win下查看文件md5命令: certutil -hashfile 文件 MD5
+ */
+fun File.md5Str(radix: Int = 16): String {
+    val instance = MessageDigest.getInstance("MD5")
+    FileInputStream(this).use {
+        val buffer = ByteArray(FileHelper.MB.toInt())
+        var len = it.read(buffer)
+        while (len > 0) {
+            instance.update(buffer, 0, len)
+            len = it.read(buffer)
+        }
+    }
+    return BigInteger(1, instance.digest()).toString(radix)
+}
+
+fun File.md5Check(md5: String, radix: Int = 16) = md5 == this.md5Str(radix)
