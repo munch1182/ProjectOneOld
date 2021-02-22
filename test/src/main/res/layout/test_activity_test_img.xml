@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:contentDescription="bg"
         android:scaleType="centerCrop"
-        tools:src="@drawable/ic_bg" />
+        tools:src="@drawable/test_ic_bg" />
 
     <Button
         android:id="@+id/test_img_btn"

@@ -163,7 +163,7 @@ class TestImgActivity : BaseActivity() {
         } else {
             val res2File =
                 ImgHelper.res2File(
-                    R.drawable.ic_bg,
+                    R.drawable.test_ic_bg,
                     defBg,
                     quality = 50,
                     opts = BitmapFactory.Options().apply { inSampleSize = 2 }) ?: return

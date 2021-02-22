@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="test_colorBg2">@color/colorBg</color>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <color name="purple_200" tools:ignore="ResourceName">#FFBB86FC</color>
+    <color name="purple_500" tools:ignore="ResourceName">#FF6200EE</color>
+    <color name="purple_700" tools:ignore="ResourceName">#FF3700B3</color>
+    <color name="teal_200" tools:ignore="ResourceName">#FF03DAC5</color>
+    <color name="teal_700" tools:ignore="ResourceName">#FF018786</color>
+    <color name="black" tools:ignore="ResourceName">#FF000000</color>
+    <color name="white" tools:ignore="ResourceName">#FFFFFFFF</color>
+
+    <color name="colorBg" tools:ignore="ResourceName">#dadada</color>
+    <color name="colorWhite" tools:ignore="ResourceName">@color/white</color>
+    <color name="colorTextDef" tools:ignore="ResourceName">#FF000000</color>
+
+    <color name="colorPrimary" tools:ignore="ResourceName">#FF03DAC5</color>
+    <color name="colorPrimaryDark" tools:ignore="ResourceName">#FF018786</color>
+    <color name="colorAccent" tools:ignore="ResourceName">#FFEB3B</color>
+
+    <color name="colorBg2" tools:ignore="ResourceName">@color/colorBg</color>
 </resources>
