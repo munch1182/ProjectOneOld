@@ -74,7 +74,7 @@ dependencies {
     api rootProject.ext.dependencies['tiny_pinyin']
     api rootProject.ext.dependencies['tiny_pinyin_dic']
 
-    api 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    api rootProject.ext.dependencies['mp_chart']
 
     api rootProject.ext.dependencies['leakcanary']
 

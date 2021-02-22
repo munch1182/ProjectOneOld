@@ -1,5 +1,5 @@
 /*
- 需要先对git进行全局设置
+ 需要先对git进行设置以可以执行git命令
  需要git命令行支持
  通过git提交的次数和tag当作versionCode和VersionName
  */
@@ -11,7 +11,7 @@
  * @throws NumberFormatException //项目未加入git会报错，但不影响编译
  */
 static def getGitCommitCount() throws IOException, NumberFormatException {
-    /*return */ 'git rev-list HEAD --count'.execute().text.toInteger()
+    'git rev-list HEAD --count'.execute().text.toInteger()
 }
 
 /**

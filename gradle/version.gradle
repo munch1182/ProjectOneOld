@@ -70,7 +70,7 @@ ext {
             /*https://developer.android.google.cn/topic/libraries/architecture/datastore#preferences-datastore*/
             "data_store"                      : "androidx.datastore:datastore-preferences:1.0.0-alpha04",
 
-            /*https://developer.android.google.cn/jetpack/androidx/releases/lifecycle?hl=en*/
+            /*https://developer.android.google.cn/jetpack/androidx/releases/lifecycle*/
             // ViewModel and LiveData
             "lifecycle"                       : "androidx.lifecycle:lifecycle-extensions:${versions['lifecycleVersion']}",
             // alternatively - just ViewModel
@@ -97,23 +97,18 @@ ext {
             "work"                            : "androidx.work:work-runtime:${versions['lifecycleVersion']}",
             // Kotlin + coroutines
             "work_ktx"                        : "androidx.work:work-runtime-ktx:${versions['lifecycleVersion']}",
-            // optional - RxJava2 support
-            "work_rxjava2"                    : "androidx.work:work-rxjava2:${versions['lifecycleVersion']}",
-            // optional - GCMNetworkManager support
-            "work_gcm"                        : "androidx.work:work-gcm:${versions['lifecycleVersion']}",
             // optional - Test helpers
             "work_test"                       : "androidx.work:work-testing:${versions['lifecycleVersion']}",
 
-            /*https://developer.android.google.cn/jetpack/androidx/releases/room?hl=en*/
+            /*https://developer.android.google.cn/jetpack/androidx/releases/room*/
             "room"                            : "androidx.room:room-runtime:${versions['roomVersion']}",
             "room_compiler"                   : "androidx.room:room-compiler:${versions['roomVersion']}",
             "room_ktx"                        : "androidx.room:room-ktx:${versions['roomVersion']}",
-            "room_rxjava2"                    : "androidx.room:room-rxjava2:${versions['roomVersion']}",
             "room_test"                       : "androidx.room:room-testing:${versions['roomVersion']}",
 
+            /*https://developer.android.google.cn/jetpack/androidx/releases/paging*/
             "paging"                          : "androidx.paging:paging-runtime:${versions['pagingVersion']}",
             "paging_rxjava3"                  : "androidx.paging:paging-rxjava3:${versions['pagingVersion']}",
-            "paging_compose"                  : "androidx.paging:paging-compose:1.0.0-alpha03",
             "paging_test"                     : "androidx.paging:paging-common:${versions['pagingVersion']}",
 
             "v4"                              : "androidx.legacy:legacy-support-v4:1.0.0",
@@ -151,11 +146,9 @@ ext {
             /*https://github.com/square/retrofit/tree/master/retrofit-converters/gson*/
             "retrofit_gson"                   : "com.squareup.retrofit2:converter-gson:${versions['retrofitVersion']}",
 
-            /*Gson*/
             /*https://github.com/google/gson*/
             "gson"                            : "com.google.code.gson:gson:2.8.6",
 
-            /*Fastjson*/
             /*https://github.com/alibaba/fastjson*/
             "fastjson"                        : "com.alibaba:fastjson:1.1.72.android",
 
@@ -191,7 +184,7 @@ ext {
             /*https://github.com/guolindev/PermissionX*/
             "permissionX"                     : "com.permissionx.guolindev:permissionx:1.4.0",
 
-            /**/
+            /*https://mvnrepository.com/artifact/com.google.zxing/core*/
             "zxing_core"                      : "com.google.zxing:core:3.4.1",
 
             /*https://github.com/promeG/TinyPinyin*/
@@ -201,6 +194,9 @@ ext {
             /*https://github.com/alibaba/ARouter/tree/master*/
             "arouter"                         : "com.alibaba:arouter-api:1.5.1",
             "arouter_compiler"                : "com.alibaba:arouter-compiler:1.5.1",
-            "arouter_register"                : "com.alibaba:arouter-register:1.0.2"
+            "arouter_register"                : "com.alibaba:arouter-register:1.0.2",
+
+            /*https://github.com/PhilJay/MPAndroidChart*/
+            "mp_chart"                        : 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     ]
 }
