@@ -134,7 +134,7 @@ class TestSensorActivity : TestBaseTopActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager?.setInexactRepeating(
                 AlarmManager.RTC_WAKEUP,
-                DateHelper.newData(hour = 23, min = 20, sec = 0).time,
+                DateHelper.newDate(hour = 23, min = 20, sec = 0).time,
                 AlarmManager.INTERVAL_DAY,
                 pendingIntent
             )

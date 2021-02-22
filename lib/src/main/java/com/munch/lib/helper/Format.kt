@@ -23,4 +23,5 @@ fun String.formatDate(date: Date, timeZone: TimeZone = TimeZone.getDefault()): S
     }
 }
 
-fun String.formatDate(time: Long) = formatDate(Date(time))
+fun String.formatDate(time: Long, timeZone: TimeZone = TimeZone.getDefault()) =
+    formatDate(Date(time), timeZone)

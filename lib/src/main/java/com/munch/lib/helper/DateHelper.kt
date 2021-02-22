@@ -15,6 +15,9 @@ object DateHelper {
 
     const val TIME_HOUR_MIN_SEC = 24 * 60 * 60 * 1000
     const val TIME_EIGHT_HOUR = 8 * 60 * 60 * 1000
+    const val PATTERN_DEF = "yyyy-MM-dd HH:mm:ss"
+
+    val timeZone0: TimeZone = TimeZone.getTimeZone("UTC+0")
 
     /**
      * 获取当月最大天数
@@ -53,28 +56,32 @@ object DateHelper {
      *
      * 不需要的部分传[INVALID]或者不传，则会使用当前时间的部分
      *
-     * 月如果传0会是会回退一个月
-     * 天如果传0也会回退一天
-     * 如果天数超出当前月份，则会到下月并相应前进多余的天数
+     * 相应的值如果超出相应的范围，则会自动向前或者向后进行调整，如该月只有29天，却传入了30，则会返回下一月的第一天的日期
      */
-    fun newData(
+    fun newDate(
         year: Int = INVALID,
         @IntRange(from = -1L, to = 12L) month: Int = INVALID,
         @IntRange(from = -1L, to = 31L) day: Int = INVALID,
         @IntRange(from = -1L, to = 23L) hour: Int = INVALID,
         @IntRange(from = -1L, to = 59L) min: Int = INVALID,
         @IntRange(from = -1L, to = 59L) sec: Int = INVALID,
+        @IntRange(from = -1L, to = 999L) mill: Int = INVALID,
         timeZone: TimeZone = TimeZone.getDefault()
     ): Date {
         val calendar = Calendar.getInstance(timeZone)
+        var monthCompat = month
+        if (month != INVALID) {
+            monthCompat = month - 1
+        }
         calendar.set(
             judgeValid(year, Calendar.YEAR, calendar),
-            judgeValid(month, Calendar.MONTH, calendar) - 1,
+            judgeValid(monthCompat, Calendar.MONTH, calendar),
             judgeValid(day, Calendar.DAY_OF_MONTH, calendar),
-            judgeValid(hour, Calendar.HOUR, calendar),
+            judgeValid(hour, Calendar.HOUR_OF_DAY, calendar),
             judgeValid(min, Calendar.MINUTE, calendar),
-            judgeValid(sec, Calendar.SECOND, calendar),
+            judgeValid(sec, Calendar.SECOND, calendar)
         )
+        calendar.set(Calendar.MILLISECOND, mill)
         return calendar.time
     }
 
