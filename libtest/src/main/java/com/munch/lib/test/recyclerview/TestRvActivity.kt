@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package com.munch.lib.test.recyclerview
 
 import android.graphics.Color

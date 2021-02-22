@@ -20,7 +20,7 @@ import java.util.*
  *
  * Create by munch1182 on 2021/1/25 16:51.
  */
-open class DefaultItemAnimator() : SimpleItemAnimator() {
+open class DefaultItemAnimator : SimpleItemAnimator() {
     private val mPendingRemovals = ArrayList<RecyclerView.ViewHolder>()
     private val mPendingAdditions = ArrayList<RecyclerView.ViewHolder>()
     private val mPendingMoves = ArrayList<MoveInfo>()

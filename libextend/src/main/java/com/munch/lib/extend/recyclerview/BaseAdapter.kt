@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package com.munch.lib.extend.recyclerview
 
 import android.view.View

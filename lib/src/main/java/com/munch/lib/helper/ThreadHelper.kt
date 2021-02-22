@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package com.munch.lib.helper
 
 import com.munch.lib.BaseApp

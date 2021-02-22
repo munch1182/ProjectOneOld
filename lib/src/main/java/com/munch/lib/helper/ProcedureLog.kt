@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package com.munch.lib.helper
 
 import androidx.lifecycle.Lifecycle
@@ -9,7 +11,7 @@ import java.io.FileWriter
 
 
 /**
- * 用于流程日志，主要区别在于单独tag且可以写进文件中
+ * 用于流程日志，与[LogLog]的主要区别在于单独tag且可以写进文件中
  *
  * 如果要写入文件，需要在适当位置调用[start]和[end]
  *

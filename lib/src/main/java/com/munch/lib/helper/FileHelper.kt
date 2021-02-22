@@ -1,4 +1,4 @@
-@file:Suppress("unused")
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
 package com.munch.lib.helper
 
@@ -49,7 +49,8 @@ object FileHelper {
      *
      * 一般的图片文件无需放入子线程操作，但可以考虑放入协程中进行
      *
-     * @param file 用于复制的文件，如果确定是文件类型的uri，可以不传
+     * @param file 用于复制的文件位置，如果目标文件是content的uri，该uri会被复制到该文件，如果确定是文件类型的uri，可以不传
+     * @return 复制成功则返回文件，否则为null
      */
     fun uri2File(context: Context = BaseApp.getInstance(), uri: Uri, file: File? = null): File? {
         when (uri.scheme) {
@@ -60,17 +61,9 @@ object FileHelper {
                 file ?: return null
                 val fileCreated = file.newFile() ?: return null
                 try {
-                    context.contentResolver.openInputStream(uri)?.run {
-                        var out: FileOutputStream? = null
-                        try {
-                            out = FileOutputStream(fileCreated)
-                            this.copyTo(out)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        } finally {
-                            this.closeQuietly()
-                            out?.closeQuietly()
-                        }
+                    val ins = context.contentResolver.openInputStream(uri) ?: return null
+                    val out = FileOutputStream(fileCreated)
+                    if (ins.copyAndClose(out)) {
                         return fileCreated
                     }
                 } catch (e: Exception) {
@@ -126,6 +119,18 @@ object FileHelper {
         return ZipFile(zipFile).size()
     }
 
+    /**
+     * 解压文件，此方法无法解压需要密码的压缩包
+     *
+     * 注意解压文件夹是否有足够的空间
+     *
+     * @param zipFile 需要解压的压缩包文件
+     * @param dir 解压的文件夹位置，压缩包的文件会被放在该目录下
+     *
+     * @return 是否解压成功
+     *
+     * @see zip
+     */
     fun unzip(zipFile: File, dir: File): Boolean {
         dir.isDirOrNew() ?: return false
         val zip = ZipFile(zipFile)
@@ -149,6 +154,16 @@ object FileHelper {
         return flag
     }
 
+    /**
+     * 压缩文件，此方法无法添加压缩密码
+     *
+     * @param zipFile 压缩文件，文件后缀应该为压缩文件后缀
+     * @param comment 压缩评论
+     * @param zipDir 是否保留文件夹，为true则保留，否则只将文件压缩进压缩包
+     * @param file 被压缩的文件，如果是文件夹，则该文件夹下的文件都会被压缩进压缩包
+     *
+     * @see unzip
+     */
     fun zip(zipFile: File, comment: String?, zipDir: Boolean = true, vararg file: File): File? {
         zipFile.checkOrNew() ?: return null
         val zos = ZipOutputStream(zipFile.outputStream())
@@ -201,12 +216,15 @@ object FileHelper {
 }
 
 /**
- * 检查文件是否存在，不存在则新建，新建失败则返回null
+ * 检查文件是否存在，不存在则新建，新建失败则返回null，不会抛出异常
  */
 fun File.checkOrNew(): File? {
     return this.takeIf { it.exists() } ?: newFile()
 }
 
+/**
+ * 判断一个给定的文件夹文件是否存在且是否是文件夹，不存在则新建，新建失败或者不为文件夹则返回null，否则返回其本身
+ */
 fun File.isDirOrNew(): File? {
     return this.takeIf {
         it.mkdirs()
@@ -214,14 +232,16 @@ fun File.isDirOrNew(): File? {
     }
 }
 
+/**
+ * 新建dir并返回其本身，主要用于链式调用
+ */
 fun File.newDir(): File {
     mkdirs()
     return this
 }
 
 /**
- * 新建一个文件
- * 如果文件存在，则删除并重建，新建失败则返回null
+ * 新建一个文件，如果文件存在，则删除并重建，新建失败则返回null
  *
  * @see checkOrNew
  */
@@ -280,9 +300,17 @@ fun File.deleteFilesIgnoreRes(): Boolean {
 /**
  * 复制当前文件或者文件夹到目标文件或者文件夹
  *
+ * @param dest 目标文件或者文件夹，当dest是文件时，调用的文件不能是文件夹
+ * @param preserveFileDate 是否同步文件修改时间
+ * @param copyDir 复制时是否保留文件夹结构，仅当dest是文件夹是有效
+ *
  * 不能将文件夹复制到文件
  */
-fun File.copyTo(dest: File, preserveFileDate: Boolean = true, copyDir: Boolean = true): Boolean {
+fun File.copyTo(
+    dest: File,
+    preserveFileDate: Boolean = true,
+    copyDir: Boolean = true
+): Boolean {
     if (dest.isDirectory) {
         return this.copy2Dir(dest, preserveFileDate, copyDir)
     } else if (this.isFile) {
@@ -291,7 +319,7 @@ fun File.copyTo(dest: File, preserveFileDate: Boolean = true, copyDir: Boolean =
     throw UnsupportedOperationException("cannot copy dir to file")
 }
 
-@Deprecated(message = "无法简单的返回多层错误信息，且逻辑简单，因此建议根据业务自行处理判断")
+@Deprecated(message = "无法简单的返回多层错误信息并处理，且逻辑简单，因此建议根据业务自行处理判断")
 fun File.moveTo(file: File) {
     this.copyTo(file, true, copyDir = true)
     this.deleteFilesIgnoreRes()
@@ -301,13 +329,17 @@ fun File.moveTo(file: File) {
  * 复制当前文件或者文件夹到目标文件夹
  *
  * @param dest 目标文件夹，不能是文件
- * @param copyDir 是否复制文件夹，为false时复制当前文件夹下所有文件到dest一级目录下，否则会保持当前文件夹结构，当前是文件则该参数无效\
+ * @param copyDir 是否复制文件夹，为false时复制当前文件夹下所有文件到dest一级目录下，否则会保持当前文件夹结构，当前是文件则该参数无效
  * @param preserveFileDate 是否同步文件修改时间
  * @return 是否复制成功
  *
  * @see copyTo
  */
-fun File.copy2Dir(dest: File, preserveFileDate: Boolean = true, copyDir: Boolean = true): Boolean {
+fun File.copy2Dir(
+    dest: File,
+    preserveFileDate: Boolean = true,
+    copyDir: Boolean = true
+): Boolean {
     //不存在则创建
     if (!dest.exists() && !dest.mkdirs()) {
         //创建失败则返回
@@ -352,7 +384,11 @@ fun File.copy2Dir(dest: File, preserveFileDate: Boolean = true, copyDir: Boolean
  *
  * @see copyTo
  */
-fun File.copy2File(dest: File, preserveFileDate: Boolean = true): Boolean {
+fun File.copy2File(
+    dest: File,
+    preserveFileDate: Boolean = true,
+    bufferSize: Long = 5L * FileHelper.MB
+): Boolean {
     dest.checkOrNew() ?: return false
     var fis: FileInputStream? = null
     var fos: FileOutputStream? = null
@@ -366,7 +402,6 @@ fun File.copy2File(dest: File, preserveFileDate: Boolean = true): Boolean {
         val size = input.size()
         var pos: Long = 0
         var count: Long
-        val bufferSize = 5L * FileHelper.MB
         while (pos < size) {
             count = if (size - pos > bufferSize) bufferSize else size - pos
             pos += output.transferFrom(input, pos, count)
