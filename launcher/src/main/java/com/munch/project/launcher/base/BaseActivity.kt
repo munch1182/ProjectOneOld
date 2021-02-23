@@ -4,8 +4,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import com.munch.lib.helper.BarHelper
 import com.munch.lib.helper.PhoneHelper
+import com.munch.project.launcher.help.LoadViewHelper
 
 /**
  * Create by munch1182 on 2021/2/23 14:43.
@@ -14,6 +17,11 @@ open class BaseActivity : AppCompatActivity() {
 
     protected val contentView: FrameLayout by lazy { findViewById(android.R.id.content) }
     protected val barHelper by lazy { BarHelper(this) }
+    protected val loadViewHelper by lazy { LoadViewHelper() }
+
+    inline fun <reified T : ViewDataBinding> bind(layoutResID: Int): Lazy<T> = lazy {
+        DataBindingUtil.setContentView(this, layoutResID)
+    }
 
     //<editor-fold desc="setContentView">
     /**
