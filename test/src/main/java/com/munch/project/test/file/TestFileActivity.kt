@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.core.net.toUri
 import com.munch.lib.helper.ResultHelper
 import com.munch.lib.helper.getExtension
@@ -28,19 +29,30 @@ class TestFileActivity : TestRvActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val mission = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        } else {
-            //30并不能这样申请权限
-            Manifest.permission.MANAGE_EXTERNAL_STORAGE
-        }
-        ResultHelper.with(this)
-            .requestPermission(mission)
-            .res { allGrant, _, _ ->
-                if (allGrant && su() && !cannotUse()) {
-                    open(cacheDir.parentFile)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            ResultHelper.with(this)
+                .requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .res { allGrant, _, _ ->
+                    if (allGrant) {
+                        open(cacheDir.parentFile)
+                    } else {
+                        return@res
+                    }
                 }
-            }
+        } else {
+            //兼容android11
+            ResultHelper.with(this)
+                .startForResult(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+                .res { isOk, _, _ ->
+                    if (!isOk) {
+                        toast("权限拒绝")
+                        return@res
+                    } else {
+                        open(cacheDir.parentFile)
+                    }
+                }
+        }
+
         adapter.clickItemListener {
             val pos = it.tag as? Int? ?: 0
             val testRvItemBean = adapter.getData()[pos]

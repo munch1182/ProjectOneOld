@@ -31,9 +31,6 @@ import java.util.zip.ZipOutputStream
  */
 object FileHelper {
 
-    fun fileIntent(type: String = "*/*") =
-        Intent(Intent.ACTION_GET_CONTENT).setType(type).addCategory(Intent.CATEGORY_OPENABLE)
-
     /**
      * 如果要新建缓存文件，优先使用该目录，以方便计算大小和清空缓存
      */

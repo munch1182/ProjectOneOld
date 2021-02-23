@@ -15,7 +15,8 @@
 
     <uses-sdk tools:overrideLibrary="androidx.camera.view,androidx.camera.camera2,androidx.camera.lifecycle,androidx.camera.core" />
 
-    <application>
+    <!--requestLegacyExternalStorage在android10中会忽略ScopedStorage，而在android11中会启用，则无需兼容android10到11之间的差异而只需兼容11-->
+    <application android:requestLegacyExternalStorage="true">
         <activity android:name=".TestMainActivity" />
         <activity android:name=".img.camera.TestCameraActivity" />
         <activity android:name=".TestViewActivity" />
