@@ -1,3 +1,4 @@
+include ':launcher'
 include ':libextend'
 include ':app'
 include ':common'
