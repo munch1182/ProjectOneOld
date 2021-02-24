@@ -1,4 +1,4 @@
-package com.munch.project.launcher.bean
+package com.munch.project.launcher.db
 
 /**
  * Create by munch1182 on 2021/2/23 11:51.

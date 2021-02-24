@@ -4,8 +4,9 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.munch.project.launcher.bean.AppBean
-import kotlinx.coroutines.flow.collect
+import androidx.lifecycle.viewModelScope
+import com.munch.project.launcher.db.AppBean
+import kotlinx.coroutines.launch
 
 /**
  * Create by munch1182 on 2021/2/24 9:02.
@@ -16,10 +17,9 @@ class AppViewModel @ViewModelInject constructor(private val repository: AppRepos
     private val appList = MutableLiveData<List<AppBean>>(null)
     fun getAppList(): LiveData<List<AppBean>> = appList
 
-    suspend fun queryAllApp() {
-        repository.queryAppByScan()
-            .collect {
-                appList.postValue(it)
-            }
+    init {
+        viewModelScope.launch {
+            appList.postValue(repository.queryAppByScan())
+        }
     }
 }

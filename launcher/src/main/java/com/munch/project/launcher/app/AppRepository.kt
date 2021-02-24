@@ -2,9 +2,7 @@ package com.munch.project.launcher.app
 
 import com.munch.lib.helper.AppHelper
 import com.munch.project.launcher.base.App
-import com.munch.project.launcher.bean.AppBean
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import com.munch.project.launcher.db.AppBean
 import javax.inject.Inject
 
 /**
@@ -13,19 +11,16 @@ import javax.inject.Inject
 class AppRepository @Inject constructor() {
 
 
-    fun queryAppByScan(): Flow<List<AppBean>?> {
-        return flow {
-            AppHelper.getInstallApp()
-                ?.mapIndexed { index, it ->
-                    it.iconResource
-                    AppBean.new(
-                        it.loadLabel(App.getInstance().packageManager).toString(),
-                        it.iconResource.takeIf { it == 0 }?.toString(),
-                        it.activityInfo.name,
-                        it.activityInfo.packageName,
-                        index
-                    )
-                }
-        }
+    fun queryAppByScan(): List<AppBean>? {
+        return AppHelper.getInstallApp()
+            ?.mapIndexed { index, it ->
+                AppBean.new(
+                    it.loadLabel(App.getInstance().packageManager).toString(),
+                    it.iconResource.takeIf { it == 0 }?.toString(),
+                    it.activityInfo.name,
+                    it.activityInfo.packageName,
+                    index
+                )
+            }
     }
 }

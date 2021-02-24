@@ -23,9 +23,8 @@ class AppActivity : BaseActivity() {
         binding.lifecycleOwner = this
         loadViewHelper.attachTarget(binding.appContainer).bind(this)
 
-
         viewModel.getAppList().observe(this) {
-
+            log(it)
         }
     }
 }

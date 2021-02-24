@@ -22,6 +22,10 @@ dependencies {
     implementation rootProject.ext.dependencies['swiperefreshlayout']
     implementation rootProject.ext.dependencies['recyclerview']
 
+    implementation rootProject.ext.dependencies['lifecycle_runtime_ktx']
+    implementation rootProject.ext.dependencies['viewmodel_ktx']
+    implementation rootProject.ext.dependencies['livedata_ktx']
+
     implementation rootProject.ext.dependencies['hilt']
     implementation rootProject.ext.dependencies['hilt_viewmodel']
     kapt rootProject.ext.dependencies['hilt_viewmodel_compiler']
