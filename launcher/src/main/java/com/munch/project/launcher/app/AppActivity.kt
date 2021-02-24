@@ -1,11 +1,11 @@
 package com.munch.project.launcher.app
 
 import android.os.Bundle
-import androidx.core.view.get
-import androidx.lifecycle.ViewModelProvider
-import com.munch.lib.log
+import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.GridLayoutManager
 import com.munch.project.launcher.R
 import com.munch.project.launcher.base.BaseActivity
+import com.munch.project.launcher.base.recyclerview.StatusBarAdapter
 import com.munch.project.launcher.databinding.ActivityAppBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,8 +23,23 @@ class AppActivity : BaseActivity() {
         binding.lifecycleOwner = this
         loadViewHelper.attachTarget(binding.appContainer).bind(this)
 
-        viewModel.getAppList().observe(this) {
-            log(it)
+        val adapter = AppItemAdapter()
+        val spanCount = viewModel.getSpanCount().value!!
+        binding.appRv.apply {
+            this.layoutManager =
+                GridLayoutManager(this.context, spanCount).apply {
+                    spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                        override fun getSpanSize(position: Int): Int {
+                            //pos为0时是StatusBarAdapter
+                            if (position == 0) {
+                                return spanCount
+                            }
+                            return adapter.getData(position - 1).showParameter?.space2End!!
+                        }
+                    }
+                }
+            this.adapter = ConcatAdapter(StatusBarAdapter(this.context), adapter)
         }
+        viewModel.getAppList().observe(this) { adapter.setData(it) }
     }
 }

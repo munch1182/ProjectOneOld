@@ -3,24 +3,32 @@ package com.munch.project.launcher.app
 import com.munch.lib.helper.AppHelper
 import com.munch.project.launcher.base.App
 import com.munch.project.launcher.db.AppBean
+import com.munch.project.launcher.db.AppDao
 import javax.inject.Inject
 
 /**
  * Create by munch1182 on 2021/2/24 9:09.
  */
-class AppRepository @Inject constructor() {
-
+class AppRepository @Inject constructor(private val appDao: AppDao) {
 
     fun queryAppByScan(): List<AppBean>? {
+        val pm = App.getInstance().packageManager ?: return null
         return AppHelper.getInstallApp()
+            ?.filter { it.activityInfo.packageName != App.getInstance().packageName }
             ?.mapIndexed { index, it ->
                 AppBean.new(
-                    it.loadLabel(App.getInstance().packageManager).toString(),
-                    it.iconResource.takeIf { it == 0 }?.toString(),
+                    /*此方法可以获取被应用更改后的label*/
+                    it.loadLabel(pm).toString(),
                     it.activityInfo.name,
                     it.activityInfo.packageName,
-                    index
+                    index,
+                    /*此方法可以获取被应用更改后的icon*/
+                    it.loadIcon(pm)
                 )
             }
+    }
+
+    suspend fun queryAppByDb(): List<AppBean>? {
+        return appDao.queryAll()
     }
 }

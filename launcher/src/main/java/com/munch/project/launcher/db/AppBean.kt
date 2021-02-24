@@ -1,11 +1,7 @@
 package com.munch.project.launcher.db
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
-import com.munch.project.launcher.bean.Hide
+import androidx.room.*
+import com.munch.project.launcher.base.Hide
 
 /**
  * Create by munch1182 on 2021/2/22 17:35.
@@ -17,10 +13,8 @@ data class AppBean(
     //应用名称
     @ColumnInfo(name = "app_name")
     val name: String,
-    //应用图标，所有资源必须转为string保持
-    @ColumnInfo(name = "app_icon")
-    val icon: String? = null,
-    //包名
+    //包名，其余信息都可以通过包名进行查找
+    @ColumnInfo(name = "app_package_name")
     val pkgName: String,
     @ColumnInfo(name = "app_launcher_activity")
     var launcherActivity: String? = null,
@@ -31,20 +25,23 @@ data class AppBean(
 
         fun new(
             name: String,
-            icon: String?,
             launcherActivity: String?,
             pkgName: String,
-            index: Int
+            index: Int,
+            icon: Any? = null
         ): AppBean {
             return AppBean(
                 name = name,
-                icon = icon,
                 launcherActivity = launcherActivity,
                 pkgName = pkgName,
                 set = AppSet.def(index)
-            )
+            ).apply { this.icon = icon }
         }
     }
+
+    @Ignore
+    var icon: Any? = null
+
 }
 
 class AppTypeConverters {

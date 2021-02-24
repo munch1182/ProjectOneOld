@@ -13,6 +13,12 @@ android {
     }
 }
 
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas".toString())
+    }
+}
+
 dependencies {
 
     implementation project(':lib')
@@ -34,6 +40,11 @@ dependencies {
     implementation rootProject.ext.dependencies['room']
     implementation rootProject.ext.dependencies['room_ktx']
     kapt rootProject.ext.dependencies['room_compiler']
+
+    implementation rootProject.ext.dependencies['glide']
+
+    implementation rootProject.ext.dependencies['tiny_pinyin']
+    implementation rootProject.ext.dependencies['tiny_pinyin_dic']
 
     debugImplementation rootProject.ext.dependencies['leakcanary']
 }

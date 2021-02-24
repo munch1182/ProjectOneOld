@@ -37,7 +37,7 @@ data class CountAll(
     val month: Long,
     //当前月该应用的使用记录
     @ColumnInfo(name = "app_count_month_count")
-    val monthCount: List<UseTime>
+    val monthCount: List<UseTime?>
 )
 
 data class UseTime(
@@ -68,10 +68,14 @@ data class UseTime(
 class UseTimeConverts {
 
     @TypeConverter
-    fun useTime2String(useTime: UseTime?): String? = useTime?.convert2String()
+    fun useTime2String(useTime: List<UseTime>?): String? {
+        useTime ?: return null
+        return StringConverter.convertList2String(useTime.map { it.convert2String() })
+    }
 
     @TypeConverter
-    fun string2UseTime(string: String?): UseTime? {
-        return UseTime.resumeFromString(string ?: return null)
+    fun string2UseTime(string: String?): List<UseTime?>? {
+        string ?: return null
+        return StringConverter.splitStr(string).map { UseTime.resumeFromString(it) }
     }
 }

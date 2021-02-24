@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="app"
+            type="com.munch.project.launcher.app.AppShowBean" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_def">
+
+        <ImageView
+            android:id="@+id/app_iv_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="icon"
+            app:bindImage="@{app.appBean.icon}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText"
+            tools:src="@mipmap/ic_launcher" />
+
+        <TextView
+            android:id="@+id/app_tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_def"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@{app.appBean.name}"
+            android:textSize="@dimen/sp_smaller"
+            app:layout_constraintEnd_toEndOf="@id/app_iv_icon"
+            app:layout_constraintStart_toStartOf="@id/app_iv_icon"
+            app:layout_constraintTop_toBottomOf="@id/app_iv_icon"
+            tools:text="123456" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

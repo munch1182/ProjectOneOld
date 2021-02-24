@@ -1,5 +1,6 @@
 package com.munch.project.launcher.base
 
+import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -20,6 +21,7 @@ open class BaseActivity : AppCompatActivity() {
     protected val contentView: FrameLayout by lazy { findViewById(android.R.id.content) }
     protected val barHelper by lazy { BarHelper(this) }
     protected val loadViewHelper by lazy { LoadViewHelper() }
+    protected val statusHeight = PhoneHelper.getStatusBarHeight()
 
     inline fun <reified T : ViewDataBinding> bind(layoutResID: Int): Lazy<T> = lazy {
         DataBindingUtil.setContentView(this, layoutResID)
@@ -40,7 +42,16 @@ open class BaseActivity : AppCompatActivity() {
      */
     override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
         barHelper.hideStatusBar(true)
-        super.setContentView(view, fitParams(params))
+        val fitParams = if (params != null) {
+            FrameLayout.LayoutParams(params)
+        } else {
+            FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+        fitStatus(view, fitParams)
+        super.setContentView(view, fitParams)
         setPage(view ?: return)
     }
 
@@ -50,23 +61,14 @@ open class BaseActivity : AppCompatActivity() {
      * @param view contentView，可能未覆盖全页面
      */
     open fun setPage(view: View) {
-        /*barHelper.colorStatusBar(Color.TRANSPARENT)*/
+        barHelper.colorStatusBar(Color.TRANSPARENT)
     }
 
     /**
-     * 因为延申状态栏的缘故，将页面设置topMargin
+     * 因为延申状态栏的缘故，在此处设置适应
      */
-    open fun fitParams(params: ViewGroup.LayoutParams?): ViewGroup.LayoutParams {
-        val layoutParams = if (params != null) {
-            FrameLayout.LayoutParams(params)
-        } else {
-            FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        }
-        layoutParams.topMargin += PhoneHelper.getStatusBarHeight()
-        return layoutParams
+    open fun fitStatus(contentView: View?, params: ViewGroup.LayoutParams?) {
+        /*contentView?.addPadding(t = PhoneHelper.getStatusBarHeight())*/
     }
 
     override fun setContentView(layoutResID: Int) {

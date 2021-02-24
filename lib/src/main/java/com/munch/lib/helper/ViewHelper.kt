@@ -43,12 +43,35 @@ fun ViewGroup.clickItem(listener: View.OnClickListener, vararg clazz: Class<out 
     }
 }
 
+fun View.setPaddingCompat(
+    l: Int = paddingLeft,
+    t: Int = paddingTop,
+    r: Int = paddingRight,
+    b: Int = paddingBottom
+) = setPadding(l, t, r, b)
+
+fun View.setPadding(lr: Int, tb: Int) = setPadding(lr, tb, lr, tb)
+fun View.setPadding(padding: Int) = setPadding(padding, padding, padding, padding)
+fun View.addPadding(padding: Int) = setPadding(
+    paddingLeft + padding,
+    paddingTop + padding,
+    paddingRight + padding,
+    paddingBottom + padding
+)
+
+fun View.addPadding(l: Int = 0, t: Int = 0, r: Int = 0, b: Int = 0) = setPadding(
+    paddingLeft + l,
+    paddingTop + t,
+    paddingRight + r,
+    paddingBottom + b
+)
+
 fun View.setMargin(margin: Int) = setMargin(margin, margin, margin, margin, false)
 fun View.setMargin(lr: Int, tb: Int) = setMargin(lr, tb, lr, tb, false)
 fun View.setMargin(l: Int, t: Int, r: Int, b: Int) = setMargin(l, t, r, b, false)
 fun View.addMargin(margin: Int) = setMargin(margin, margin, margin, margin, true)
+fun View.addMargin(l: Int = 0, t: Int = 0, r: Int = 0, b: Int = 0) = setMargin(l, t, r, b, true)
 fun View.addMargin(lr: Int, tb: Int) = setMargin(lr, tb, lr, tb, true)
-fun View.addMargin(l: Int, t: Int, r: Int, b: Int) = setMargin(l, t, r, b, true)
 
 /**
  * @param defParams 如果view的[View.getLayoutParams]为null则传入的初始化LayoutParams
