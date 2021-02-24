@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
 }
 
 apply from: '../gradle/commonbuildktx.gradle'
@@ -20,4 +21,15 @@ dependencies {
     implementation rootProject.ext.dependencies['material']
     implementation rootProject.ext.dependencies['swiperefreshlayout']
     implementation rootProject.ext.dependencies['recyclerview']
+
+    implementation rootProject.ext.dependencies['hilt']
+    implementation rootProject.ext.dependencies['hilt_viewmodel']
+    kapt rootProject.ext.dependencies['hilt_viewmodel_compiler']
+    kapt rootProject.ext.dependencies['hilt_compiler']
+
+    implementation rootProject.ext.dependencies['room']
+    implementation rootProject.ext.dependencies['room_ktx']
+    kapt rootProject.ext.dependencies['room_compiler']
+
+    debugImplementation rootProject.ext.dependencies['leakcanary']
 }

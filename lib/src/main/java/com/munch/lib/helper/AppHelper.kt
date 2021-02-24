@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import com.munch.lib.BaseApp
@@ -35,14 +36,28 @@ object AppHelper {
     }
 
     /**
+     * 获取安装的所有包，包括很多系统包
+     *
      * 在android11，需要[android.Manifest.permission.QUERY_ALL_PACKAGES]权限
      *
      *@see [https://developer.android.google.cn/about/versions/11/privacy/package-visibility?authuser=0&hl=tr]
      *@see [https://developer.android.google.cn/training/basics/intents/package-visibility?authuser=0]
      */
     @SuppressLint("QueryPermissionsNeeded")
-    fun getInstallApp(context: Context = getBaseApp()): MutableList<PackageInfo>? {
+    fun getInstallPackages(context: Context = getBaseApp()): MutableList<PackageInfo>? {
         return context.packageManager?.getInstalledPackages(PackageManager.GET_CONFIGURATIONS)
+    }
+
+    /**
+     * 获取安装的用于打开的应用
+     *
+     * 在android11，需要[android.Manifest.permission.QUERY_ALL_PACKAGES]权限
+     */
+    @SuppressLint("QueryPermissionsNeeded")
+    fun getInstallApp(context: Context = getBaseApp()): MutableList<ResolveInfo>? {
+        return context.packageManager?.queryIntentActivities(
+            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0
+        )
     }
 
     /**

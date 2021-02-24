@@ -6,6 +6,8 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.munch.lib.helper.BarHelper
 import com.munch.lib.helper.PhoneHelper
 import com.munch.project.launcher.help.LoadViewHelper
@@ -22,6 +24,15 @@ open class BaseActivity : AppCompatActivity() {
     inline fun <reified T : ViewDataBinding> bind(layoutResID: Int): Lazy<T> = lazy {
         DataBindingUtil.setContentView(this, layoutResID)
     }
+
+    inline fun <reified V : ViewModel> viewModel(): Lazy<V> = lazy {
+        ViewModelProvider(this).get(V::class.java)
+    }
+
+    inline fun <reified V : ViewModel> viewModel(factory: ViewModelProvider.Factory): Lazy<V> =
+        lazy {
+            ViewModelProvider(this, factory).get(V::class.java)
+        }
 
     //<editor-fold desc="setContentView">
     /**
