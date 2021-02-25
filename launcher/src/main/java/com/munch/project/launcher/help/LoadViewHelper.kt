@@ -10,7 +10,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.contains
 import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.helper.obWhenResume
-import java.lang.UnsupportedOperationException
 
 /**
  * 用以控制[ILoading]的显示

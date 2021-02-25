@@ -1,7 +1,7 @@
-package com.munch.project.launcher.app
+package com.munch.project.launcher.appitem
 
 import com.munch.lib.helper.AppHelper
-import com.munch.project.launcher.base.App
+import com.munch.project.launcher.app.App
 import com.munch.project.launcher.db.AppBean
 import com.munch.project.launcher.db.AppDao
 import javax.inject.Inject

@@ -1,6 +1,7 @@
 package com.munch.project.launcher.db
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
 
 /**
  * Create by munch1182 on 2021/2/24 11:29.

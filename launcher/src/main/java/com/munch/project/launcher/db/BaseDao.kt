@@ -1,6 +1,9 @@
 package com.munch.project.launcher.db
 
-import androidx.room.*
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Update
 
 /**
  * Create by munch1182 on 2021/2/24 11:51.

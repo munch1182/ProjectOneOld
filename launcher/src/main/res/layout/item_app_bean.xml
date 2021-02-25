@@ -7,7 +7,7 @@
 
         <variable
             name="app"
-            type="com.munch.project.launcher.app.AppShowBean" />
+            type="com.munch.project.launcher.appitem.AppShowBean" />
 
         <import type="android.view.View" />
     </data>

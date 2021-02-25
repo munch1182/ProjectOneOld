@@ -1,4 +1,4 @@
-package com.munch.project.launcher.app
+package com.munch.project.launcher.appitem
 
 import com.github.promeg.pinyinhelper.Pinyin
 import com.munch.project.launcher.db.AppBean
@@ -21,12 +21,14 @@ data class AppShowBean(
         private const val charNum = '#'
 
         fun new(appBean: AppBean): AppShowBean {
-            val py = Pinyin.toPinyin(appBean.name[0])
-            val letterChar = py[0]
-            if (letterChar.isDigit()) {
+            if (appBean.name.isEmpty() || appBean.name[0].isDigit()) {
                 return AppShowBean(charNum, charNum.toString(), appBean = appBean)
             }
-            return AppShowBean(letterChar, py, appBean = appBean)
+            var py = ""
+            appBean.name.toCharArray().forEach {
+                py += Pinyin.toPinyin(it)
+            }
+            return AppShowBean(py[0], py, appBean = appBean)
         }
 
         fun empty(letterChar: Char, parameter: ShowParameter): AppShowBean {
@@ -46,7 +48,7 @@ data class AppShowBean(
     }
 
     override fun compareTo(other: AppShowBean): Int {
-        if (this.letterChar == other.letterChar) {
+        if (this.letterStr == other.letterStr) {
             return 0
         }
         if (this.letterChar == '#') {
@@ -55,8 +57,20 @@ data class AppShowBean(
         if (other.letterChar == '#') {
             return -1
         }
-        return this.letterStr.toUpperCase(Locale.ROOT)
-            .compareTo(other.letterStr.toUpperCase(Locale.ROOT))
+        val theArray = this.letterStr.toUpperCase(Locale.ROOT).toCharArray()
+        val otherArray = other.letterStr.toUpperCase(Locale.ROOT).toCharArray()
+        val theSize = theArray.size
+        val otherSize = otherArray.size
+        if (theSize == otherSize) {
+            return this.letterChar.compareTo(other.letterChar)
+        }
+        repeat(theSize.coerceAtMost(otherSize)) {
+            val res = theArray[it].compareTo(otherArray[it])
+            if (res != 0) {
+                return res
+            }
+        }
+        return otherSize - theSize
     }
 }
 

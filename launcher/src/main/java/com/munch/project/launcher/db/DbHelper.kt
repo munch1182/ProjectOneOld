@@ -3,7 +3,7 @@ package com.munch.project.launcher.db
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.munch.project.launcher.base.App
+import com.munch.project.launcher.app.App
 
 /**
  * Create by munch1182 on 2021/2/24 11:27.

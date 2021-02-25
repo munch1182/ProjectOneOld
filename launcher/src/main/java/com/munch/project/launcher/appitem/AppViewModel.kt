@@ -1,4 +1,4 @@
-package com.munch.project.launcher.app
+package com.munch.project.launcher.appitem
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
@@ -45,7 +45,7 @@ class AppViewModel @ViewModelInject constructor(private val repository: AppRepos
                 //给每一组最后一个位置添加一个占据剩余整行的空数据来占位置，需要GridLayoutManager.SpanSizeLookup配合
                 //此处计算上一个位置需要添加的空行数
                 val i = spanCount - (charIndex - 1) % spanCount - 1
-                //如果该组最后一个位置也是改行最后一个则不添加
+                //如果该组最后一个位置也是该行最后一个则不添加
                 if (i != 0) {
                     val parameter = ShowParameter(charIndex)
                     parameter.space2End = i
@@ -54,7 +54,7 @@ class AppViewModel @ViewModelInject constructor(private val repository: AppRepos
                 }
                 charIndex = 0
             }
-            char = it.letterChar
+            char = it.letterChar.toUpperCase()
             it.updateShowParameter(ShowParameter(charIndex))
             //add
             appsInSpace.add(it)

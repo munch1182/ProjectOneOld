@@ -7,10 +7,9 @@
         android:id="@+id/app_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorWhite"
-        tools:context=".app.AppActivity">
+        tools:context=".appitem.AppActivity">
 
-        <com.munch.project.launcher.app.LetterNavigationBarView
+        <com.munch.project.launcher.appitem.LetterNavigationBarView
             android:id="@+id/app_nav"
             android:layout_width="20dp"
             android:layout_height="match_parent"
@@ -37,7 +36,7 @@
             tools:itemCount="10"
             tools:listitem="@layout/item_app_bean" />
 
-        <com.munch.project.launcher.app.TeardropAngleView
+        <com.munch.project.launcher.appitem.TeardropAngleView
             android:id="@+id/app_teardrop"
             android:layout_width="80dp"
             android:layout_height="80dp"

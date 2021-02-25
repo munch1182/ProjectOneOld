@@ -1,4 +1,4 @@
-package com.munch.project.launcher.app
+package com.munch.project.launcher.appitem
 
 import android.content.Context
 import android.util.AttributeSet

@@ -8,7 +8,7 @@
         tools:ignore="QueryAllPackagesPermission" />
 
     <application
-        android:name=".base.App"
+        android:name=".app.App"
         android:allowBackup="true"
         android:fullBackupContent="@xml/content_backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -19,6 +19,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:excludeFromRecents="true"
             android:theme="@style/WallpaperTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,7 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".app.AppActivity" />
+        <activity android:name=".appitem.AppActivity" />
     </application>
 
 </manifest>
