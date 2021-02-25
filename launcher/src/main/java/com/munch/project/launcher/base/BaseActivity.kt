@@ -45,10 +45,7 @@ open class BaseActivity : AppCompatActivity() {
         val fitParams = if (params != null) {
             FrameLayout.LayoutParams(params)
         } else {
-            FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            getParams()
         }
         fitStatus(view, fitParams)
         super.setContentView(view, fitParams)
@@ -75,7 +72,7 @@ open class BaseActivity : AppCompatActivity() {
         setContentView(View.inflate(this, layoutResID, null))
     }
 
-    fun fullParams() = FrameLayout.LayoutParams(
+    open fun getParams() = FrameLayout.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT,
         ViewGroup.LayoutParams.MATCH_PARENT
     )

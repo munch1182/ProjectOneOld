@@ -75,7 +75,10 @@ class LetterNavigationBarView @JvmOverloads constructor(
     }
 
     fun select(vararg pos: Int) {
-        select(*Array(letters.size) {
+        if (letters.isEmpty()) {
+            return
+        }
+        select(*Array(pos.size) {
             letters[pos[it]]
         })
     }
@@ -198,6 +201,9 @@ class LetterNavigationBarView @JvmOverloads constructor(
         var index = (y / (letterRect.height() + space)).toInt()
         index = index.coerceAtLeast(0)
         index = index.coerceAtMost(letters.size - 1)
+        if (index < 0 || index > letters.size) {
+            return
+        }
         val s = letters[index]
         if (selectIndex != index) {
             selectIndex = index

@@ -7,23 +7,28 @@
         android:id="@+id/app_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/colorWhite"
         tools:context=".app.AppActivity">
 
         <com.munch.project.launcher.app.LetterNavigationBarView
             android:id="@+id/app_nav"
-            android:layout_width="30dp"
+            android:layout_width="20dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/padding_bigger"
+            android:layout_marginTop="48dp"
             android:layout_marginBottom="48dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:letter_selectColor="@color/colorPrimary" />
+            app:letter_max_space="@dimen/padding_def"
+            app:letter_selectColor="@color/colorPrimary"
+            app:letter_textSize="@dimen/sp_smaller" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/app_rv"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:paddingStart="30dp"
+            android:paddingEnd="0dp"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/app_nav"

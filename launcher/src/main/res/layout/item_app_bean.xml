@@ -8,12 +8,16 @@
         <variable
             name="app"
             type="com.munch.project.launcher.app.AppShowBean" />
+
+        <import type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/padding_def">
+        android:paddingTop="@dimen/padding_def"
+        android:paddingBottom="@dimen/padding_def"
+        android:visibility="@{app.isEmpty ? View.GONE : View.VISIBLE}">
 
         <ImageView
             android:id="@+id/app_iv_icon"
