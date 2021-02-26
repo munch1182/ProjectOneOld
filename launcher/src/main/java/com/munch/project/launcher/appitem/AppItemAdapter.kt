@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.helper.drawTextInYCenter
 import com.munch.project.launcher.R
+import com.munch.project.launcher.appitem.AppShowAdapterHelper.Companion.offsetPos
 import com.munch.project.launcher.base.recyclerview.BaseBindAdapter
 import com.munch.project.launcher.base.recyclerview.BaseBindViewHolder
 import com.munch.project.launcher.base.recyclerview.StatusBarAdapter
@@ -76,7 +77,7 @@ class AppShowLayoutManager(
                 if (AppShowAdapterHelper.isNotItemPos(position)) {
                     return spanCount
                 }
-                return itemBean[AppShowAdapterHelper.offsetPos(position)].showParameter?.space2End!!
+                return itemBean[offsetPos(position)].showParameter?.space2End!!
             }
         }
 
@@ -101,7 +102,7 @@ class NavItemDecoration(private val data: MutableList<AppShowBean>) :
             if (AppShowAdapterHelper.isNotItemPos(pos) || pos == -1) {
                 continue
             }
-            val item = data[AppShowAdapterHelper.offsetPos(pos)]
+            val item = data[offsetPos(pos)]
             item.showParameter ?: continue
             if (item.showParameter!!.indexInLetter == 0) {
                 c.drawTextInYCenter(
