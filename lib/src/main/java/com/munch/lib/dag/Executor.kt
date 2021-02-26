@@ -1,5 +1,6 @@
 package com.munch.lib.dag
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 
@@ -28,9 +29,13 @@ class Executor private constructor() {
     }
 
     private val taskDependMap = mutableMapOf<Key, Task>()
+    fun getTasks() = taskDependMap
+    fun getTask(key: Key) = taskDependMap[key]
     private var finishCallBack: ((executor: Executor) -> Unit)? = null
-    private var executeCallBack: ((task: Task, executor: Executor) -> Unit)? = null
-    private var errorCallBack: ((task: Task, e: Exception, executor: Executor) -> Unit)? = null
+    private var executeCallBack: MutableList<((task: Task, executor: Executor) -> Unit)?> =
+        mutableListOf()
+    private var errorCallBack: MutableList<((task: Task, e: Exception, executor: Executor) -> Unit)?> =
+        mutableListOf()
     private val dag: Dag<Key> = Dag()
 
     fun add(task: Task): Executor {
@@ -39,38 +44,56 @@ class Executor private constructor() {
     }
 
     fun execute() {
-        taskDependMap.values.sortedBy { it.getPriority() }.forEach {
-            dag.addTask(it)
-        }
+        taskDependMap.values.sortedBy { it.getPriority() }.forEach { dag.addTask(it) }
+        val executor = this
         dumpTask()
+            .forEach { task ->
+                runBlocking(task.dispatcher) {
+                    try {
+                        flowOf(task)
+                            .map { it.start(executor) }
+                            .collect {
+                                executeCallBack.forEach { callBack ->
+                                    callBack?.invoke(task, executor)
+                                }
+                            }
+                    } catch (e: Exception) {
+                        errorCallBack.forEach { callBack ->
+                            callBack?.invoke(task, e, executor)
+                        }
+                    }
+                }
+            }
+        finishCallBack?.invoke(executor)
     }
 
     fun executeCallBack(callBack: (task: Task, executor: Executor) -> Unit): Executor {
-        this.executeCallBack = callBack
+        this.executeCallBack.add(callBack)
+        return this
+    }
+
+    fun removeCallBack(callBack: (task: Task, executor: Executor) -> Unit): Executor {
+        this.executeCallBack.remove(callBack)
+        return this
+    }
+
+    fun removeCallBack(errorCallBack: (task: Task, exception: Exception, executor: Executor) -> Unit): Executor {
+        this.errorCallBack.remove(errorCallBack)
         return this
     }
 
     fun errorCallBack(errorCallBack: (task: Task, exception: Exception, executor: Executor) -> Unit): Executor {
-        this.errorCallBack = errorCallBack
+        this.errorCallBack.add(errorCallBack)
         return this
     }
 
-    private fun dumpTask() {
-        val executor = this@Executor
-        runBlocking {
-            dag.dump()
-                .map { taskDependMap[it.point] ?: throw IllegalStateException("cannot find task") }
-                .asFlow()
-                .collect {
-                    try {
-                        flowOf(it.start(executor))
-                            .flowOn(it.dispatcher)
-                            .collect()
-                    } catch (e: Exception) {
-                        errorCallBack?.invoke(it, e, executor)
-                    }
-                }
-        }
-        finishCallBack?.invoke(executor)
+    fun setFinishCallBack(finishCallBack: (executor: Executor) -> Unit): Executor {
+        this.finishCallBack = finishCallBack
+        return this
+    }
+
+    private fun dumpTask(): List<Task> {
+        return dag.dump()
+            .map { taskDependMap[it.point] ?: throw IllegalStateException("cannot find task") }
     }
 }
