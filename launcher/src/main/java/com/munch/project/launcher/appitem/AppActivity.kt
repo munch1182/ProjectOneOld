@@ -130,14 +130,14 @@ class AppActivity : BaseActivity() {
             }
         })
         binding.appNav.handleListener = { letter, rect ->
-
+            swipeViewHelper.getSwipeView().enable(false)
             var marginBottom = dp48
             var marginTop = rect.top + rect.height() / 2 - dp80 / 2 + dp48
             if (marginTop < 0) {
                 marginBottom = marginTop.absoluteValue
                 marginTop = 0
             }
-            binding.appTeardrop.apply {
+            binding.appTeardrop.setProperty {
                 binding.appTeardrop.text = letter
                 val params = binding.appTeardrop.layoutParams
                 if (params is ConstraintLayout.LayoutParams) {
@@ -154,6 +154,12 @@ class AppActivity : BaseActivity() {
             binding.appTeardrop.apply {
                 postDelayed({ this.visibility = View.GONE }, 300L)
             }
+            swipeViewHelper.getSwipeView().enable(true)
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(0, R.anim.anim_exit_down)
     }
 }

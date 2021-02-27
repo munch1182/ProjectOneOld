@@ -175,7 +175,7 @@ class LetterNavigationBarView @JvmOverloads constructor(
         return super.performClick()
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
+    override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         event ?: return super.onTouchEvent(event)
         when (event.action) {
             MotionEvent.ACTION_UP -> {
