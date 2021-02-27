@@ -2,7 +2,6 @@ package com.munch.project.launcher.app
 
 import com.munch.lib.BaseApp
 import com.munch.lib.helper.ServiceBindHelper
-import com.munch.lib.log
 import dagger.hilt.android.HiltAndroidApp
 
 /**

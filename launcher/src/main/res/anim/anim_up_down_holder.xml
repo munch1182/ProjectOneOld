@@ -2,10 +2,6 @@
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:duration="@integer/int_time_activity_anim">
     <translate
-        android:fromYDelta="100"
+        android:fromYDelta="0"
         android:toYDelta="0" />
-
-    <alpha
-        android:fromAlpha="0.5"
-        android:toAlpha="1.0" />
 </set>

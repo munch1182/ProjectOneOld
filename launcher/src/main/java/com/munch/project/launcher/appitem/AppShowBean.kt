@@ -70,7 +70,7 @@ data class AppShowBean(
                 return res
             }
         }
-        return otherSize - theSize
+        return theSize - otherSize
     }
 }
 

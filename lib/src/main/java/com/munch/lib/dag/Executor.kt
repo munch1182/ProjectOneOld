@@ -1,7 +1,8 @@
 package com.munch.lib.dag
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -50,17 +51,11 @@ class Executor private constructor() {
             .forEach { task ->
                 runBlocking(task.dispatcher) {
                     try {
-                        flowOf(task)
-                            .map { it.start(executor) }
-                            .collect {
-                                executeCallBack.forEach { callBack ->
-                                    callBack?.invoke(task, executor)
-                                }
-                            }
-                    } catch (e: Exception) {
-                        errorCallBack.forEach { callBack ->
-                            callBack?.invoke(task, e, executor)
+                        flowOf(task).map { it.start(executor) }.collect {
+                            executeCallBack.forEach { callBack -> callBack?.invoke(task, executor) }
                         }
+                    } catch (e: Exception) {
+                        errorCallBack.forEach { callBack -> callBack?.invoke(task, e, executor) }
                     }
                 }
             }

@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.munch.lib.helper.BarHelper
 import com.munch.lib.helper.PhoneHelper
+import com.munch.lib.helper.addPadding
 import com.munch.project.launcher.help.LoadViewHelper
 
 /**
@@ -65,7 +66,7 @@ open class BaseActivity : AppCompatActivity() {
      * 因为延申状态栏的缘故，在此处设置适应
      */
     open fun fitStatus(contentView: View?, params: ViewGroup.LayoutParams?) {
-        /*contentView?.addPadding(t = PhoneHelper.getStatusBarHeight())*/
+        contentView?.addPadding(t = statusHeight)
     }
 
     override fun setContentView(layoutResID: Int) {

@@ -35,5 +35,15 @@
     <!--用于夜间模式，统一设置在CommonTheme，夜间模式差异则在夜间文件夹下的AppTheme-->
     <style name="AppTheme" parent="CommonTheme" />
 
-    <style name="WallpaperTheme" parent="android:Theme.Wallpaper.NoTitleBar"/>
+    <!--自定义appcompat的WallpaperTheme-->
+    <style name="WallpaperTheme" parent="AppTheme">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowShowWallpaper">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <style name="TransTheme" parent="AppTheme">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
 </resources>

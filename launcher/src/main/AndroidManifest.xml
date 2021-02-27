@@ -27,7 +27,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".appitem.AppActivity" />
+        <activity
+            android:name=".appitem.AppActivity"
+            android:theme="@style/TransTheme" />
 
         <service android:name=".app.AppService" />
     </application>

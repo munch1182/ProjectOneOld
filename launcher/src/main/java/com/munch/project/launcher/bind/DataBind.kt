@@ -2,7 +2,6 @@ package com.munch.project.launcher.bind
 
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
-import com.bumptech.glide.Glide
 import com.munch.project.launcher.help.load
 
 /**
