@@ -4,6 +4,8 @@ package com.munch.lib.helper
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -11,6 +13,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import com.munch.lib.BaseApp
 
@@ -119,5 +122,27 @@ object AppHelper {
                 } ?: return)
     }
 
+    fun lock(context: Activity, requestCode: Int = -1) {
+        val policyManager =
+            getBaseApp().getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
+                ?: return
+        val admin = ComponentName(context, AdminManageReceiver::class.java)
+        if (!policyManager.isAdminActive(admin)) {
+            val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, admin)
+            context.startActivityForResult(intent, requestCode)
+        } else {
+            policyManager.lockNow()
+        }
+    }
+
     private fun getBaseApp(): Context = BaseApp.getInstance()
+
+    fun uninstall(activity: Activity, pkgName: String, requestCode: Int = -1) {
+        activity.startActivityForResult(
+            Intent(Intent.ACTION_DELETE, Uri.parse("package:$pkgName")),
+            requestCode
+        )
+    }
+
 }

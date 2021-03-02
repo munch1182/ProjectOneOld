@@ -82,7 +82,7 @@ class Executor private constructor() {
         return this
     }
 
-    fun setFinishCallBack(finishCallBack: (executor: Executor) -> Unit): Executor {
+    fun setFinishCallBack(finishCallBack: ((executor: Executor) -> Unit)? = null): Executor {
         this.finishCallBack = finishCallBack
         return this
     }

@@ -26,7 +26,7 @@ class AppViewModel @ViewModelInject constructor() : ViewModel() {
         }
     }
 
-    private fun updateAppShow() {
+    fun updateAppShow() {
         val instance = AppItemHelper.getInstance()
         appList.postValue(instance.getApps())
         navItems.postValue(instance.getLetterMap())

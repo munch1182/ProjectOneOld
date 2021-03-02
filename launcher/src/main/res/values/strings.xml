@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">launcher</string>
+    <string name="app_set">启动器设置</string>
 </resources>

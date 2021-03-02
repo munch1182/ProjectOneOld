@@ -11,12 +11,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.base.Orientation
-import com.munch.lib.helper.SwipeViewHelper
-import com.munch.lib.helper.dp2Px
-import com.munch.lib.helper.setMargin
-import com.munch.lib.helper.startActivity
+import com.munch.lib.helper.*
 import com.munch.project.launcher.R
+import com.munch.project.launcher.app.task.AppItemHelper
 import com.munch.project.launcher.base.BaseActivity
+import com.munch.project.launcher.base.DialogHelper
 import com.munch.project.launcher.databinding.ActivityAppBinding
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -40,16 +39,59 @@ class AppActivity : BaseActivity() {
             context.startActivity(AppActivity::class.java)
             context.overridePendingTransition(R.anim.anim_enter_up, 0)
         }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding.lifecycleOwner = this
+        swipeSet()
+        loadViewHelper.attachTarget(binding.appContainer).bind(this)
+
+        rvSet()
+        viewModel.getNavItems().observe(this) {
+            binding.appNav.setLetters(it.map { c -> c.key.toString().toUpperCase(Locale.ROOT) })
+        }
+        //当应用安装或卸载并且处于本页面时需要手动触发更新
+        AppItemHelper.getInstance().isChange().observe(this, { viewModel.updateAppShow() })
+        syncScroll()
+    }
+
+    private fun rvSet() {
+        val adapter = AppShowAdapterHelper(this)
+        val spanCount = viewModel.getSpanCount().value!!
+        val itemBean = adapter.getItemAdapter().getData()
+        adapter.getItemAdapter().setOnItemClick { _, _, data, _ -> openApp(data) }
+        adapter.getItemAdapter().setOnItemLongClick { _, _, data, _ ->
+            val pkgName = data.appBean.pkgName
+            if (pkgName == packageName) {
+                return@setOnItemLongClick true
+            }
+            DialogHelper.Center(this).set {
+                setTitle("卸载应用")
+                setMessage("卸载${data.appBean.name}?")
+                setPositiveButton("卸载") { _, _ ->
+                    //由广播监听触发更新，而不是requestCode
+                    AppHelper.uninstall(this@AppActivity, pkgName)
+                }
+            }.show()
+            true
+        }
+        binding.appRv.apply {
+            layoutManager = AppShowLayoutManager(this.context, spanCount, itemBean)
+            this.adapter = adapter.getAdapter()
+            addItemDecoration(NavItemDecoration(itemBean))
+        }
+        viewModel.getAppList().observe(this) { adapter.getItemAdapter().setData(it) }
+    }
+
+    private fun swipeSet() {
         swipeViewHelper.setActivity()
         val firstAlpha = binding.appContainer.alpha
         val interpolator = LinearInterpolator()
         val animTime = resources.getInteger(R.integer.int_time_activity_anim).toLong()
-        swipeViewHelper.getSwipeView().orientation(Orientation.TOP_2_BOTTOM)
+        swipeViewHelper.getSwipeView()
+            .orientation(Orientation.TOP_2_BOTTOM)
             .animHandle {
                 it.duration = animTime
                 it.interpolator = interpolator
@@ -65,24 +107,8 @@ class AppActivity : BaseActivity() {
                 if (processTemp <= 0.2f) {
                     onBackPressed()
                 }
+
             }
-        loadViewHelper.attachTarget(binding.appContainer).bind(this)
-
-        val adapter = AppShowAdapterHelper(this)
-        val spanCount = viewModel.getSpanCount().value!!
-        val itemBean = adapter.getItemAdapter().getData()
-        adapter.getItemAdapter().setOnItemClick { _, _, data, _ -> openApp(data) }
-        binding.appRv.apply {
-            layoutManager = AppShowLayoutManager(this.context, spanCount, itemBean)
-            this.adapter = adapter.getAdapter()
-            addItemDecoration(NavItemDecoration(itemBean))
-        }
-        viewModel.getAppList().observe(this) { adapter.getItemAdapter().setData(it) }
-        viewModel.getNavItems().observe(this) {
-            binding.appNav.setLetters(it.map { c -> c.key.toString().toUpperCase(Locale.ROOT) })
-        }
-
-        syncScroll()
     }
 
     override fun fitStatus(contentView: View?, params: ViewGroup.LayoutParams?) {

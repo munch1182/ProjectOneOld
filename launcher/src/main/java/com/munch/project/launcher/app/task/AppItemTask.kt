@@ -1,15 +1,23 @@
 package com.munch.project.launcher.app.task
 
+import android.content.Context
 import android.graphics.drawable.Drawable
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
+import com.munch.lib.BaseApp
 import com.munch.lib.dag.Executor
 import com.munch.lib.dag.Key
 import com.munch.lib.dag.Task
 import com.munch.lib.helper.AppHelper
+import com.munch.lib.helper.AppInstallReceiver
+import com.munch.project.launcher.R
 import com.munch.project.launcher.app.App
 import com.munch.project.launcher.appitem.AppShowBean
 import com.munch.project.launcher.appitem.ShowParameter
 import com.munch.project.launcher.db.AppBean
 import com.munch.project.launcher.help.preload
+import com.munch.project.launcher.set.SettingActivity
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
@@ -39,6 +47,15 @@ class AppItemHelper private constructor() {
     fun getLetterMap() = map
     private var spanCount = -1
     fun getSpanCount() = spanCount
+    private var registered = false
+
+    private var updateFlag = 1
+    private val isChange = MutableLiveData(updateFlag)
+
+    /**
+     * 用于监听数据更新
+     */
+    fun isChange(): LiveData<Boolean> = isChange.map { updateFlag % 2 == 0 }
 
     fun initScanAndSplit() {
         if (spanCount == -1) {
@@ -68,17 +85,27 @@ class AppItemHelper private constructor() {
     fun scanAppFromPhone(): List<AppBean>? {
         val pm = App.getInstance().packageManager ?: return null
         return AppHelper.getInstallApp()
-            ?.filter { it.activityInfo.packageName != App.getInstance().packageName }
             ?.mapIndexed { index, it ->
-                AppBean.new(
-                    /*此方法可以获取被应用更改后的label*/
-                    it.loadLabel(pm).toString(),
-                    it.activityInfo.name,
-                    it.activityInfo.packageName,
-                    index,
-                    /*此方法可以获取被应用更改后的icon*/
-                    it.loadIcon(pm)
-                )
+                val packageName = it.activityInfo.packageName
+                if (packageName == App.getInstance().packageName) {
+                    AppBean.new(
+                        BaseApp.getContext().getString(R.string.app_set),
+                        SettingActivity::class.java.canonicalName,
+                        packageName,
+                        index,
+                        it.loadIcon(pm)
+                    )
+                } else {
+                    AppBean.new(
+                        /*此方法可以获取被应用更改后的label*/
+                        it.loadLabel(pm).toString(),
+                        it.activityInfo.name,
+                        packageName,
+                        index,
+                        /*此方法可以获取被应用更改后的icon*/
+                        it.loadIcon(pm)
+                    )
+                }
             }
     }
 
@@ -112,6 +139,26 @@ class AppItemHelper private constructor() {
                 map[char] = appsInSpace.size - 1
             }
         }
+    }
+
+    private fun update() {
+        char = ' '
+        charIndex = -1
+        appsInSpace.clear()
+        initScanAndSplit()
+        updateFlag++
+        isChange.postValue(updateFlag)
+        updateFlag++
+    }
+
+    fun registerReceiver(context: Context) {
+        if (registered) {
+            return
+        }
+        registered = true
+        AppInstallReceiver(context).apply {
+            add { _, _, _ -> getInstance().update() }
+        }.register()
     }
 
 }

@@ -2,6 +2,7 @@
 
 package com.munch.lib.helper
 
+import android.app.admin.DeviceAdminReceiver
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
@@ -127,3 +128,5 @@ open class AppInstallReceiver(context: Context) :
         }
     }
 }
+
+open class AdminManageReceiver : DeviceAdminReceiver()

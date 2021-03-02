@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import com.munch.lib.helper.AppHelper
 import com.munch.project.launcher.appitem.AppActivity
 import com.munch.project.launcher.base.BaseActivity
 import com.munch.project.launcher.databinding.ActivityMainBinding
@@ -32,6 +33,11 @@ class MainActivity : BaseActivity() {
                 }
                 return super.onFling(e1, e2, velocityX, velocityY)
             }
+
+            override fun onDoubleTap(e: MotionEvent?): Boolean {
+                AppHelper.lock(this@MainActivity)
+                return true
+            }
         })
     }
 
@@ -55,5 +61,10 @@ class MainActivity : BaseActivity() {
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return gesture.onTouchEvent(event)
+    }
+
+    override fun onBackPressed() {
+        /*屏蔽返回*/
+        /*super.onBackPressed()*/
     }
 }

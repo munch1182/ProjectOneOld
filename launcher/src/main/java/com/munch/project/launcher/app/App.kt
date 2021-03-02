@@ -1,7 +1,9 @@
 package com.munch.project.launcher.app
 
 import com.munch.lib.BaseApp
+import com.munch.lib.helper.AppForegroundStatusHelper
 import com.munch.lib.helper.ServiceBindHelper
+import com.munch.project.launcher.app.task.AppItemHelper
 import dagger.hilt.android.HiltAndroidApp
 
 /**
@@ -20,5 +22,10 @@ class App : BaseApp() {
     override fun onCreate() {
         super.onCreate()
         serviceHelper.bind()
+        AppItemHelper.getInstance().registerReceiver(this)
+        AppForegroundStatusHelper.register(this).getForegroundLiveData().observeForever {
+
+        }
     }
+
 }

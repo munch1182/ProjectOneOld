@@ -24,6 +24,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -31,8 +32,20 @@
         <activity
             android:name=".appitem.AppActivity"
             android:theme="@style/TransTheme" />
+        <activity android:name=".set.SettingActivity" />
 
         <service android:name=".app.AppService" />
+        <receiver
+            android:name="com.munch.lib.helper.AdminManageReceiver"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
