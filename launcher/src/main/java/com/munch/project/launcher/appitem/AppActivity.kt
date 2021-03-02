@@ -6,7 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.DecelerateInterpolator
+import android.view.animation.LinearInterpolator
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -47,7 +47,7 @@ class AppActivity : BaseActivity() {
         binding.lifecycleOwner = this
         swipeViewHelper.setActivity()
         val firstAlpha = binding.appContainer.alpha
-        val interpolator = DecelerateInterpolator()
+        val interpolator = LinearInterpolator()
         val animTime = resources.getInteger(R.integer.int_time_activity_anim).toLong()
         swipeViewHelper.getSwipeView().orientation(Orientation.TOP_2_BOTTOM)
             .animHandle {
