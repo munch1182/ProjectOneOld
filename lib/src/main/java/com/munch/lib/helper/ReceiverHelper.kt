@@ -77,6 +77,7 @@ abstract class ReceiverHelper<T> constructor(
     open fun unregister() {
         receiver ?: return
         context.unregisterReceiver(receiver)
+        getReceiverArrays().clear()
         receiver = null
     }
 

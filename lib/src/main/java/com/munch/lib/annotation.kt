@@ -24,7 +24,8 @@ annotation class UNCOMPLETE(val need: String = "")
 @Retention(AnnotationRetention.SOURCE)
 annotation class RequiresPermission(
     val permission: String = "",
-    val permissions: Array<String> = []
+    val allOf: Array<String> = [],
+    val anyOf: Array<String> = []
 )
 
 /**
