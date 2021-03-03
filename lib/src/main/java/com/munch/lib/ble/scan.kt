@@ -46,6 +46,7 @@ sealed class BtScanner {
     protected var isScanning = false
     protected var resScanListener = object : BtScanListener {
         override fun onStart() {
+            res.clear()
             listener?.onStart()
         }
 

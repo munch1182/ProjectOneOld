@@ -7,7 +7,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.ble.*
 import com.munch.lib.extend.recyclerview.BaseSimpleBindAdapter
@@ -15,7 +14,6 @@ import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.test.R
 import com.munch.project.test.databinding.TestActivityTestBluetoothBinding
-import com.munch.project.test.databinding.TestLayoutBluetoothTopBinding
 import com.munch.project.test.databinding.TestLayoutItemBluetoothBinding
 import com.permissionx.guolindev.PermissionX
 import kotlinx.coroutines.delay
@@ -33,63 +31,54 @@ class TestBluetoothActivity : TestBaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         bind.apply {
             lifecycleOwner = this@TestBluetoothActivity
+            viewModel = model
+            testBtTimeoutCv.apply {
+                min = 5
+                max = 50
+            }
+            testBtTimeoutReduce.setOnClickListener {
+                testBtTimeoutCv.countSub()
+                model.countSet(testBtTimeoutCv.curCount.toLong())
+            }
+            testBtTimeoutAdd.setOnClickListener {
+                testBtTimeoutCv.countAdd()
+                model.countSet(testBtTimeoutCv.curCount.toLong())
+            }
+            testBtScan.setOnClickListener {
+                checkBt {
+                    if (model.isScanning().value!!) {
+                        model.stopScan()
+                    } else {
+                        model.startScan()
+                    }
+                }
+            }
+            model.noticeStr().observe(this@TestBluetoothActivity) {
+                testBtNotice.text = it
+            }
+            model.isScanning().observe(this@TestBluetoothActivity) {
+                testBtScan.text = if (it) "停止扫描" else "扫描"
+            }
         }
+
         BluetoothHelper.getInstance().init(this)
 
-        val topAdapter = setScanTop()
         val itemAdapter =
             BaseSimpleBindAdapter<BtDeviceBean, TestLayoutItemBluetoothBinding>(R.layout.test_layout_item_bluetooth)
             { holder, data, _ ->
                 holder.binding.bt = data
             }
-        val contactAdapter = ConcatAdapter(topAdapter, itemAdapter)
         bind.testBtRv.apply {
             layoutManager = LinearLayoutManager(this@TestBluetoothActivity)
-            this.adapter = contactAdapter
+            this.adapter = itemAdapter
         }
         model.getResList().observe(this) {
             itemAdapter.setData(it)
         }
     }
-
-    private fun setScanTop() =
-        BaseSimpleBindAdapter<TestBtViewModel, TestLayoutBluetoothTopBinding>(
-            R.layout.test_layout_bluetooth_top, arrayListOf(model)
-        ) { holder, data, _ ->
-            holder.binding.apply {
-                viewModel = data
-                testBtTimeoutCv.apply {
-                    min = 5
-                    max = 50
-                }
-                testBtTimeoutReduce.setOnClickListener {
-                    testBtTimeoutCv.countSub()
-                    model.countSet(testBtTimeoutCv.curCount.toLong())
-                }
-                testBtTimeoutAdd.setOnClickListener {
-                    testBtTimeoutCv.countAdd()
-                    model.countSet(testBtTimeoutCv.curCount.toLong())
-                }
-                testBtScan.setOnClickListener {
-                    checkBt {
-                        if (model.isScanning().value!!) {
-                            model.stopScan()
-                        } else {
-                            model.startScan()
-                        }
-                    }
-                }
-                model.noticeStr().observe(this@TestBluetoothActivity) {
-                    testBtNotice.text = it
-                }
-                model.isScanning().observe(this@TestBluetoothActivity) {
-                    testBtScan.text = if (it) "停止扫描" else "扫描"
-                }
-                executePendingBindings()
-            }
-        }
 
     private fun checkBt(func: () -> Unit) {
         PermissionX.init(this)
