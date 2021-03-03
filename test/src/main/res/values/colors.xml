@@ -12,6 +12,8 @@
     <color name="colorBg" tools:ignore="ResourceName">#dadada</color>
     <color name="colorWhite" tools:ignore="ResourceName">@color/white</color>
     <color name="colorTextDef" tools:ignore="ResourceName">#FF000000</color>
+    <color name="colorTextGray" tools:ignore="ResourceName">#ff888888</color>
+    <color name="colorTrans" tools:ignore="ResourceName">@android:color/transparent</color>
 
     <color name="colorPrimary" tools:ignore="ResourceName">#FF03DAC5</color>
     <color name="colorPrimaryDark" tools:ignore="ResourceName">#FF018786</color>

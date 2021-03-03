@@ -61,7 +61,7 @@ open class ScreenReceiver constructor(context: Context) :
  * Create by munch1182 on 2020/12/28 16:57.
  */
 open class BluetoothStateReceiver(context: Context) :
-    ReceiverHelper<(turning: Boolean, available: Boolean) -> Unit>(
+    ReceiverHelper<(state: Int, turning: Boolean, available: Boolean) -> Unit>(
         context,
         arrayOf(BluetoothAdapter.ACTION_STATE_CHANGED)
     ) {
@@ -70,26 +70,16 @@ open class BluetoothStateReceiver(context: Context) :
         action: String,
         context: Context?,
         intent: Intent,
-        t: (turning: Boolean, available: Boolean) -> Unit
+        t: (state: Int, turning: Boolean, available: Boolean) -> Unit
     ) {
-        val bleState: Int = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1).takeIf {
+        val btState: Int = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1).takeIf {
             it != -1
         } ?: return
-        when (bleState) {
-            BluetoothAdapter.STATE_TURNING_ON -> {
-                t.invoke(true, true)
-            }
-            BluetoothAdapter.STATE_ON -> {
-                t.invoke(false, true)
-            }
-            BluetoothAdapter.STATE_OFF -> {
-                t.invoke(false, false)
-            }
-
-            BluetoothAdapter.STATE_TURNING_OFF -> {
-                t.invoke(true, false)
-            }
-
+        when (btState) {
+            BluetoothAdapter.STATE_TURNING_ON -> t.invoke(btState, true, true)
+            BluetoothAdapter.STATE_ON -> t.invoke(btState, false, true)
+            BluetoothAdapter.STATE_TURNING_OFF -> t.invoke(btState, true, false)
+            BluetoothAdapter.STATE_OFF -> t.invoke(btState, false, false)
         }
     }
 

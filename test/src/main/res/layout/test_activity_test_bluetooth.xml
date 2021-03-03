@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".bluetooth.TestBluetoothActivity">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/test_bt_rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingStart="@dimen/padding_def"
+            android:paddingEnd="@dimen/padding_def"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/test_layout_item_bluetooth" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

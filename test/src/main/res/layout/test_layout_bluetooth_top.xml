@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.munch.project.test.bluetooth.TestBluetoothActivity.TestBtViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        tools:context=".bluetooth.TestBluetoothActivity"
+        tools:ignore="HardcodedText">
+
+        <TextView
+            android:id="@+id/test_bt_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_def"
+            android:padding="@dimen/padding_def"
+            android:text="扫描类型:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <RadioGroup
+            android:id="@+id/test_bt_type_rg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:checkedButton="@id/test_bt_type_classic"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@id/test_bt_type"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/test_bt_type"
+            app:layout_constraintTop_toTopOf="@id/test_bt_type">
+
+            <RadioButton
+                android:id="@+id/test_bt_type_classic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@={viewModel.scanType}"
+                android:text="经典蓝牙" />
+
+            <RadioButton
+                android:id="@+id/test_bt_type_ble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@={!viewModel.scanType}"
+                android:text="低功耗蓝牙" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/test_bt_filter_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_def"
+            android:text="过滤条件:"
+            app:layout_constraintStart_toStartOf="@id/test_bt_type"
+            app:layout_constraintTop_toBottomOf="@id/test_bt_type_rg" />
+
+        <TextView
+            android:id="@+id/test_bt_filter_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:text="名称："
+            app:layout_constraintBottom_toBottomOf="@id/test_bt_filter_title"
+            app:layout_constraintStart_toEndOf="@id/test_bt_filter_title"
+            app:layout_constraintTop_toTopOf="@id/test_bt_filter_title" />
+
+        <EditText
+            android:id="@+id/test_bt_filter_name_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:layout_marginEnd="@dimen/padding_def"
+            android:inputType="textNoSuggestions"
+            android:text="@={viewModel.parameter.filter.name}"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="@id/test_bt_filter_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/test_bt_filter_name"
+            app:layout_constraintTop_toTopOf="@id/test_bt_filter_name"
+            tools:ignore="LabelFor" />
+
+        <TextView
+            android:id="@+id/test_bt_filter_mac"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_bigger"
+            android:text="地址："
+            app:layout_constraintStart_toStartOf="@id/test_bt_filter_name"
+            app:layout_constraintTop_toBottomOf="@id/test_bt_filter_name_et" />
+
+        <EditText
+            android:id="@+id/test_bt_filter_mac_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:layout_marginEnd="@dimen/padding_def"
+            android:inputType="textCapCharacters"
+            android:text="@={viewModel.parameter.filter.mac}"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="@id/test_bt_filter_mac"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/test_bt_filter_mac"
+            app:layout_constraintTop_toTopOf="@id/test_bt_filter_mac"
+            tools:ignore="LabelFor" />
+
+        <CheckBox
+            android:id="@+id/test_bt_stick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="-5dp"
+            android:checked="@={viewModel.parameter.filter.strict}"
+            android:text="严格模式"
+            android:textColor="@color/colorTextGray"
+            app:layout_constraintStart_toStartOf="@id/test_bt_filter_mac"
+            app:layout_constraintTop_toBottomOf="@id/test_bt_filter_mac_et" />
+
+        <TextView
+            android:id="@+id/test_bt_timeout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_def"
+            android:text="超时时间:"
+            app:layout_constraintStart_toStartOf="@id/test_bt_filter_title"
+            app:layout_constraintTop_toBottomOf="@id/test_bt_stick" />
+
+        <TextView
+            android:id="@+id/test_bt_timeout_reduce"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minWidth="40dp"
+            android:minHeight="40dp"
+            android:text="-"
+            app:layout_constraintBottom_toBottomOf="@id/test_bt_timeout"
+            app:layout_constraintStart_toEndOf="@id/test_bt_timeout"
+            app:layout_constraintTop_toTopOf="@id/test_bt_timeout" />
+
+        <com.munch.project.test.view.CountView
+            android:id="@+id/test_bt_timeout_cv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:layout_marginEnd="0dp"
+            app:count="@{viewModel.parameter.timeoutInt}"
+            app:layout_constraintBottom_toBottomOf="@id/test_bt_timeout"
+            app:layout_constraintStart_toEndOf="@id/test_bt_timeout_reduce"
+            app:layout_constraintTop_toTopOf="@id/test_bt_timeout" />
+
+        <TextView
+            android:id="@+id/test_bt_timeout_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:layout_marginEnd="0dp"
+            android:gravity="center"
+            android:minWidth="40dp"
+            android:minHeight="40dp"
+            android:text="+"
+            app:layout_constraintBottom_toBottomOf="@id/test_bt_timeout"
+            app:layout_constraintStart_toEndOf="@id/test_bt_timeout_cv"
+            app:layout_constraintTop_toTopOf="@id/test_bt_timeout" />
+
+        <Button
+            android:id="@+id/test_bt_scan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_bigger"
+            android:text="扫描"
+            app:layout_constraintTop_toBottomOf="@id/test_bt_timeout" />
+
+        <TextView
+            android:id="@+id/test_bt_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/test_bt_scan"
+            app:layout_constraintTop_toBottomOf="@id/test_bt_scan"
+            tools:text="已开始100m" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

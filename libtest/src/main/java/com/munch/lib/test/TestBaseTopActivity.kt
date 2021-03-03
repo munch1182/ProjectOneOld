@@ -7,6 +7,10 @@ import android.widget.FrameLayout
 import androidx.annotation.ColorInt
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
+import androidx.core.view.get
+import androidx.databinding.DataBindingComponent
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import com.google.android.material.appbar.MaterialToolbar
 import com.munch.lib.helper.*
 
@@ -21,6 +25,16 @@ open class TestBaseTopActivity : BaseActivity() {
 
     private val topContainer by lazy { findViewById<ViewGroup>(R.id.top_container) }
     private val toolbar by lazy { findViewById<MaterialToolbar>(R.id.top_tool_bar) }
+
+    inline fun <reified T : ViewDataBinding> bindingTop(@LayoutRes resId: Int): Lazy<T> {
+        return lazy {
+            setContentView(resId)
+            if (DataBindingUtil.getDefaultComponent() == null) {
+                DataBindingUtil.setDefaultComponent(object : DataBindingComponent {})
+            }
+            return@lazy DataBindingUtil.bind<T>(findViewById<ViewGroup>(R.id.top_container)[1])!!
+        }
+    }
 
     open fun notShowBack() = false
 

@@ -4,6 +4,11 @@
     package="com.munch.project.test">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         android:minSdkVersion="30"
@@ -32,6 +37,7 @@
         <activity android:name=".TestFileMainActivity" />
         <activity android:name=".view.TestBookPageViewActivity" />
         <activity android:name=".view.TestFishStructureActivity" />
+        <activity android:name=".bluetooth.TestBluetoothActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

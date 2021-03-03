@@ -10,13 +10,13 @@ import androidx.databinding.ViewDataBinding
  * Create by munch1182 on 2021/1/17 19:49.
  */
 open class BaseSimpleBindAdapter<T, B : ViewDataBinding>(
-    @LayoutRes resId: Int = 0,
+    @LayoutRes resId: Int,
     list: MutableList<T>? = null,
     private val onBind: ((holder: BaseBindViewHolder<B>, data: T, position: Int) -> Unit)? = null
 ) : BaseAdapter<T, BaseBindViewHolder<B>>(resId, list) {
 
     constructor(
-        @LayoutRes resId: Int = 0,
+        @LayoutRes resId: Int,
         onBind: (holder: BaseBindViewHolder<B>, data: T, position: Int) -> Unit
     ) : this(resId, null, onBind)
 

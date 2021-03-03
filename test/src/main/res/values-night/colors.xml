@@ -11,6 +11,7 @@
     <color name="colorBg" tools:ignore="ResourceName">#2C2A2A</color>
     <color name="colorWhite" tools:ignore="ResourceName">#776C6C</color>
     <color name="colorTextDef" tools:ignore="ResourceName">#C3C1C1</color>
+    <color name="colorTrans" tools:ignore="ResourceName">@android:color/transparent</color>
 
     <color name="colorPrimary" tools:ignore="ResourceName">#04433D</color>
 </resources>

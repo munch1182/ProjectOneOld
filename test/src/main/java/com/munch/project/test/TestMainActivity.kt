@@ -6,6 +6,7 @@ import com.munch.lib.common.RouterHelper
 import com.munch.lib.common.start2Component
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
+import com.munch.project.test.bluetooth.TestBluetoothActivity
 import com.munch.project.test.img.TestImgActivity
 import com.munch.project.test.switch.TestSwitchActivity
 
@@ -33,7 +34,8 @@ open class TestMainActivity : TestRvActivity() {
             TestRvItemBean.newInstance("Img", TestImgActivity::class.java),
             TestRvItemBean.newInstance("View", TestViewActivity::class.java),
             TestRvItemBean.newInstance("Switch", TestSwitchActivity::class.java),
-            TestRvItemBean.newInstance("File", TestFileMainActivity::class.java)
+            TestRvItemBean.newInstance("File", TestFileMainActivity::class.java),
+            TestRvItemBean.newInstance("Bluetooth", TestBluetoothActivity::class.java)
         )
     }
 }

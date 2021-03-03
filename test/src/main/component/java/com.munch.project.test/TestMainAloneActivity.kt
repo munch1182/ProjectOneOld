@@ -1,6 +1,7 @@
 package com.munch.project.test
 
 import android.os.Bundle
+import android.view.View
 
 /**
  * Create by munch1182 on 2020/12/7 13:58.
@@ -16,5 +17,9 @@ class TestMainAloneActivity : TestMainActivity() {
             reportFullyDrawn()
         }*/
         setTitle(R.string.test_main_title)
+    }
+
+    override fun addEndView(view: View?) {
+        /*super.addEndView(view)*/
     }
 }

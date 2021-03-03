@@ -33,6 +33,20 @@ data class BtDeviceBean(
             return BtDeviceBean(device.name, device.address, result.rssi, device)
         }
     }
+
+    fun getRssiStr() = "$rssi dBm"
+
+    override fun hashCode(): Int {
+        return mac.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        other ?: return false
+        if (other is BtDeviceBean) {
+            return this.mac == other.mac
+        }
+        return false
+    }
 }
 
 sealed class BtType {

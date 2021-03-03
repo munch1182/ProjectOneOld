@@ -22,12 +22,13 @@ class CountView @JvmOverloads constructor(
 
     var curCount = 0
         set(value) {
-            if (value <= max) {
+            if (value <= max || value >= min) {
                 field = value
             }
         }
     private var lastCount = 0
     var max = 10000
+    var min = -100
     private var progress = 1f
     private val valueAnimator = ValueAnimator.ofFloat(0f, 100f)
     private var isAdd = false
@@ -113,7 +114,7 @@ class CountView @JvmOverloads constructor(
     }
 
     fun setCount(count: Int) {
-        if (count == 0 || count > max) {
+        if (count < min || count > max) {
             return
         }
         lastCount = curCount
@@ -123,7 +124,7 @@ class CountView @JvmOverloads constructor(
     }
 
     fun animSetCount(count: Int) {
-        if (count == 0 || count > max) {
+        if (count < min || count > max) {
             return
         }
         lastCount = curCount

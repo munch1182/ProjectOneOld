@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="test_app_name">Test</string>
 
     <string name="test_main_title">Test_en</string>
@@ -9,4 +9,6 @@
     <string name="test_str_switch_theme">switch theme</string>
     <string name="test_str_jump">jump</string>
     <string name="test_str_switch_day_night">switch night</string>
+
+    <string name="n_a" tools:ignore="ResourceName">N/A</string>
 </resources>

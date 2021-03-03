@@ -53,3 +53,9 @@ annotation class NEEDUSE
  */
 @Retention(AnnotationRetention.SOURCE)
 annotation class KEEP(val comment: String = "")
+
+/**
+ * 用于标记该方法是同步实现，用于强调
+ */
+@Retention(AnnotationRetention.SOURCE)
+annotation class SYNCHRONIZED
