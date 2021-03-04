@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.munch.project.test.bluetooth.TestBluetoothActivity.TestBtViewModel" />
+            type="com.munch.project.test.bluetooth.TestBtViewModel" />
     </data>
 
     <androidx.core.widget.NestedScrollView
@@ -16,6 +16,7 @@
         tools:context=".bluetooth.TestBluetoothActivity">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/test_bt_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:focusable="true"
@@ -85,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/padding_def"
                 android:layout_marginEnd="@dimen/padding_def"
-                android:inputType="textNoSuggestions"
+                android:inputType="textCapCharacters"
                 android:text="@={viewModel.parameter.filter.name}"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="@id/test_bt_filter_name"
@@ -108,8 +109,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/padding_def"
+                android:maxLength="17"
                 android:layout_marginEnd="@dimen/padding_def"
-                android:inputType="textCapCharacters"
+                android:inputType="textNoSuggestions"
                 android:text="@={viewModel.parameter.filter.mac}"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="@id/test_bt_filter_mac"

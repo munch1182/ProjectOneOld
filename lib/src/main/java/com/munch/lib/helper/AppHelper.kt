@@ -13,8 +13,11 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.drawable.Drawable
+import android.inputmethodservice.InputMethodService
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import com.munch.lib.BaseApp
 
 /**
@@ -134,6 +137,18 @@ object AppHelper {
         } else {
             policyManager.lockNow()
         }
+    }
+
+    fun hideIm(activity: Activity) {
+        val im = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager?
+            ?: return
+        im.hideSoftInputFromWindow(activity.window.decorView.windowToken, 0)
+    }
+
+    fun showIm(view: View) {
+        val im = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager?
+            ?: return
+        im.showSoftInput(view, 0)
     }
 
     private fun getBaseApp(): Context = BaseApp.getInstance()

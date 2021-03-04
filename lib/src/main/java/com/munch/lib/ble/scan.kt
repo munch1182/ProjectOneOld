@@ -118,20 +118,23 @@ sealed class BtScanner {
                         } else {
                             kotlin.run out@{
                                 filters.forEach {
-
                                     if (it.strict) {
                                         if (it.name != null && it.name != device.name) {
                                             return@forEach
                                         }
-                                    } else {
-                                        if (it.name != null && device.name != null
-                                            && !device.name.contains(it.name!!)
-                                        ) {
+                                        if (it.mac != null && it.mac != device.address) {
                                             return@forEach
                                         }
-                                        if (it.mac != null && device.address != null
-                                            && !device.address.contains(it.name!!)
-                                        ) {
+                                    } else {
+                                        if (it.name != null) {
+                                            if (device.name == null) {
+                                                return@forEach
+                                            }
+                                            if (!device.name.contains(it.name!!)) {
+                                                return@forEach
+                                            }
+                                        }
+                                        if (it.mac != null && !device.address.contains(it.mac!!)) {
                                             return@forEach
                                         }
                                     }
@@ -209,7 +212,7 @@ sealed class BtScanner {
             android.Manifest.permission.ACCESS_FINE_LOCATION]
     )
     open fun start(filters: MutableList<ScanFilter>?) {
-        listener?.onStart()
+        resScanListener.onStart()
     }
 
     /**
@@ -219,7 +222,7 @@ sealed class BtScanner {
      * 此方法调用了[BtScanListener.onEnd]，不需要在逻辑中调用
      */
     open fun stop() {
-        listener?.onEnd(res)
+        resScanListener.onEnd(res)
     }
 
     open fun setScanListener(listener: BtScanListener? = null): BtScanner {

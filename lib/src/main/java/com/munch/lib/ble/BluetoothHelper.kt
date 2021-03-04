@@ -1,6 +1,7 @@
 package com.munch.lib.ble
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.os.Handler
 import android.os.HandlerThread
@@ -40,9 +41,9 @@ class BluetoothHelper private constructor() {
     internal lateinit var context: Context
     internal lateinit var instance: BtDeviceInstance
     private lateinit var handlerThread: HandlerThread
-    private val handler by lazy { Handler(handlerThread.looper) }
-    private val scannerHelper by lazy { ScannerHelper(handler) }
-    internal val btAdapter by lazy { instance.btAdapter }
+    private lateinit var handler: Handler
+    private lateinit var scannerHelper: ScannerHelper
+    internal lateinit var btAdapter: BluetoothAdapter
 
     fun init(context: Context) {
         this.context = context.applicationContext
@@ -54,11 +55,14 @@ class BluetoothHelper private constructor() {
                 scannerHelper.stopScan()
             }
         }
+        scannerHelper = ScannerHelper(handler)
+        btAdapter = instance.btAdapter
     }
 
     private fun initWorkThread() {
         handlerThread = HandlerThread(NAME)
         handlerThread.start()
+        handler = Handler(handlerThread.looper)
     }
 
     @RequiresPermission(

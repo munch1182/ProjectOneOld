@@ -3,8 +3,7 @@
 package com.munch.lib.helper
 
 import android.os.Build
-import android.text.method.HideReturnsTransformationMethod
-import android.text.method.PasswordTransformationMethod
+import android.text.method.*
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -138,6 +137,145 @@ fun EditText.pwdTransMethod(show: Boolean) {
     if (text.isNotEmpty()) {
         setSelection(text.length)
     }
+}
+
+fun EditText.lowerInput() {
+    transformationMethod = object : ReplacementTransformationMethod() {
+        override fun getReplacement(): CharArray {
+            return charArrayOf(
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                'g',
+                'h',
+                'i',
+                'j',
+                'k',
+                'l',
+                'm',
+                'n',
+                'o',
+                'p',
+                'q',
+                'r',
+                's',
+                't',
+                'u',
+                'v',
+                'w',
+                'x',
+                'y',
+                'z'
+            )
+        }
+
+        override fun getOriginal(): CharArray {
+            return charArrayOf(
+                'A',
+                'B',
+                'C',
+                'D',
+                'E',
+                'F',
+                'G',
+                'H',
+                'I',
+                'J',
+                'K',
+                'L',
+                'M',
+                'N',
+                'O',
+                'P',
+                'Q',
+                'R',
+                'S',
+                'T',
+                'U',
+                'V',
+                'W',
+                'X',
+                'Y',
+                'Z'
+            )
+        }
+    }
+}
+
+fun EditText.upperInput() {
+    transformationMethod = object : ReplacementTransformationMethod() {
+        override fun getOriginal(): CharArray {
+            return charArrayOf(
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                'g',
+                'h',
+                'i',
+                'j',
+                'k',
+                'l',
+                'm',
+                'n',
+                'o',
+                'p',
+                'q',
+                'r',
+                's',
+                't',
+                'u',
+                'v',
+                'w',
+                'x',
+                'y',
+                'z'
+            )
+        }
+
+        override fun getReplacement(): CharArray {
+            return charArrayOf(
+                'A',
+                'B',
+                'C',
+                'D',
+                'E',
+                'F',
+                'G',
+                'H',
+                'I',
+                'J',
+                'K',
+                'L',
+                'M',
+                'N',
+                'O',
+                'P',
+                'Q',
+                'R',
+                'S',
+                'T',
+                'U',
+                'V',
+                'W',
+                'X',
+                'Y',
+                'Z'
+            )
+        }
+    }
+}
+
+/**
+ * 设置edit的输入限制，即只能输入[digits]中的字符
+ */
+fun EditText.digitsInput(digits: String = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+    keyListener = DigitsKeyListener.getInstance(digits)
 }
 
 object ViewHelper {
