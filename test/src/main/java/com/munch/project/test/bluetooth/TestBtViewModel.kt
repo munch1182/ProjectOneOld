@@ -12,6 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import java.util.*
 
 /**
  * Create by munch1182 on 2021/3/3 11:49.
@@ -51,6 +52,8 @@ class TestBtViewModel : ViewModel() {
         val filter = parameterVal.filter!!
         if (filter.mac.isNullOrEmpty()) {
             filter.mac = null
+        } else {
+            filter.mac = filter.mac!!.toUpperCase(Locale.ROOT)
         }
         if (filter.name.isNullOrEmpty()) {
             filter.name = null
