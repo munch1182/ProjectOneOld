@@ -8,9 +8,15 @@
     <color name="colorBg">#dadada</color>
     <color name="colorWhite">@color/white</color>
     <color name="colorTextDef">#FF000000</color>
+    <color name="colorTextGray">#FF888888</color>
     <color name="colorTrans">@android:color/transparent</color>
+
+    <color name="colorWhiteAlpha">#99ffffff</color>
 
     <color name="colorPrimary">#FF03DAC5</color>
     <color name="colorPrimaryDark">#FF018786</color>
     <color name="colorAccent">#FFEB3B</color>
+
+    <color name="colorRed">#FF0000</color>
+
 </resources>

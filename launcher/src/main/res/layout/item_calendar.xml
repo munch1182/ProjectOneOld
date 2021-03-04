@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="calendar"
+            type="com.munch.project.launcher.main.CalendarFragment.CalendarItem" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/selector_bg_calendar_day"
+        android:paddingStart="@dimen/padding_def"
+        android:paddingEnd="@dimen/padding_def"
+        android:paddingBottom="@dimen/padding_def">
+
+        <TextView
+            android:id="@+id/calendar_item_tv_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_def"
+            android:text="@{calendar.day}"
+            android:textColor="@drawable/selector_calendar_day"
+            android:textSize="@dimen/sp_title_smaller"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="1" />
+
+        <TextView
+            android:id="@+id/calendar_item_tv_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{calendar.content}"
+            android:visibility="@{calendar.content==null ? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="@id/calendar_item_tv_day"
+            app:layout_constraintStart_toStartOf="@id/calendar_item_tv_day"
+            app:layout_constraintTop_toBottomOf="@id/calendar_item_tv_day"
+            tools:text="十八"
+            tools:visibility="visible" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_def"
+            android:textSize="@dimen/sp_smaller"
+            app:layout_constraintBottom_toTopOf="@id/calendar_item_tv_day"
+            app:layout_constraintStart_toEndOf="@id/calendar_item_tv_content"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="休" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

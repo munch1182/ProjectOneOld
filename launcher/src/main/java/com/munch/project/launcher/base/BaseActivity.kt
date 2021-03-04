@@ -1,12 +1,16 @@
 package com.munch.project.launcher.base
 
 import android.graphics.Color
+import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.munch.lib.helper.BarHelper
@@ -86,4 +90,24 @@ open class BaseActivity : AppCompatActivity() {
         setContentView(view, null)
     }
     //</editor-fold>
+}
+
+abstract class BaseFragment<T : ViewDataBinding> : Fragment() {
+
+    inline fun <reified V : ViewModel> viewModel(): Lazy<V> = lazy {
+        ViewModelProvider(requireActivity()).get(V::class.java)
+    }
+
+    protected lateinit var bind: T
+    protected abstract val resId: Int
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        bind = DataBindingUtil.inflate(inflater, resId, container, false)
+        bind.lifecycleOwner = this
+        return bind.root
+    }
 }

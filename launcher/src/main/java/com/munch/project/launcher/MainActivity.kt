@@ -5,10 +5,16 @@ import android.os.Bundle
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import androidx.fragment.app.Fragment
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.munch.lib.helper.AppHelper
+import com.munch.lib.log
 import com.munch.project.launcher.appitem.AppActivity
 import com.munch.project.launcher.base.BaseActivity
+import com.munch.project.launcher.base.BaseFragment
 import com.munch.project.launcher.databinding.ActivityMainBinding
+import com.munch.project.launcher.main.CalendarFragment
+import com.munch.project.launcher.main.HomeFragment
 
 /**
  * Create by munch1182 on 2021/2/23 14:41.
@@ -16,6 +22,7 @@ import com.munch.project.launcher.databinding.ActivityMainBinding
 class MainActivity : BaseActivity() {
 
     private val bind by bind<ActivityMainBinding>(R.layout.activity_main)
+    private val fragmentsAdapter by lazy { MainFragmentAdapter() }
     private val gesture by lazy {
         GestureDetector(this, object :
             GestureDetector.SimpleOnGestureListener() {
@@ -45,12 +52,11 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         bind.lifecycleOwner = this
 
-        bind.mainBtnApp.setOnClickListener {
-            startAppActivity()
-        }
+        bind.mainVp.adapter = fragmentsAdapter
+        bind.mainVp.setCurrentItem(fragmentsAdapter.getHomeFragmentPos(), false)
     }
 
-    private fun startAppActivity() {
+    internal fun startAppActivity() {
         AppActivity.start(this)
     }
 
@@ -60,11 +66,36 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        return gesture.onTouchEvent(event)
+        val homeFragmentPos = fragmentsAdapter.getHomeFragmentPos()
+
+        val currentItem = bind.mainVp.currentItem
+        return if (currentItem != homeFragmentPos) {
+            super.onTouchEvent(event)
+        } else {
+            gesture.onTouchEvent(event)
+        }
     }
 
     override fun onBackPressed() {
         /*屏蔽返回*/
         /*super.onBackPressed()*/
+    }
+
+    inner class MainFragmentAdapter : FragmentStateAdapter(this) {
+
+        fun getHomeFragmentPos(): Int {
+            return mainFragments.indexOf(homeFragment)
+        }
+
+        private val homeFragment = HomeFragment()
+        private val calendarFragment = CalendarFragment()
+
+        private val mainFragments = mutableListOf<BaseFragment<*>>(calendarFragment, homeFragment)
+
+        override fun getItemCount(): Int = mainFragments.size
+
+        override fun createFragment(position: Int): Fragment {
+            return mainFragments[position]
+        }
     }
 }
