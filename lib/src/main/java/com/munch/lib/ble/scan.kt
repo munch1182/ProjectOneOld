@@ -82,7 +82,7 @@ sealed class BtScanner {
             }
             classicBtReceiver.add(resScanListener)
             classicBtReceiver.register()
-            BluetoothAdapter.getDefaultAdapter().startDiscovery()
+            BluetoothHelper.getInstance().btAdapter.startDiscovery()
         }
 
         override fun stop() {
@@ -91,6 +91,7 @@ sealed class BtScanner {
             }
             isScanning = false
             super.stop()
+            BluetoothHelper.getInstance().btAdapter.cancelDiscovery()
             classicBtReceiver.unregister()
         }
 
@@ -231,7 +232,7 @@ sealed class BtScanner {
     }
 }
 
-class ScannerHelper(private val thread: Handler) : AddRemoveSetHelper<BtScanListener>() {
+class BtScannerHelper(private val thread: Handler) : AddRemoveSetHelper<BtScanListener>() {
 
     private var classicScanner: BtScanner? = null
     private var bleScanner: BtScanner? = null

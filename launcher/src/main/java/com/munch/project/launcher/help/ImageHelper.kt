@@ -15,3 +15,7 @@ fun ImageView.load(any: Any?) {
 fun Drawable.preload() {
     Glide.with(BaseApp.getContext()).load(this).preload()
 }
+
+fun ImageView.loadCenterCrop(any: Any?) {
+    Glide.with(this).load(any).centerCrop().into(this)
+}

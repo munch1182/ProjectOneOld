@@ -45,10 +45,18 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
 
     protected var onClick: ((adapter: BaseAdapter<T, B>, view: View, data: T, pos: Int) -> Unit)? =
         null
+    protected var onLongClick: ((adapter: BaseAdapter<T, B>, view: View, data: T, pos: Int) -> Boolean)? =
+        null
     protected val onClickListener by lazy {
         View.OnClickListener {
             val pos = it.tag as? Int? ?: return@OnClickListener
             onClick?.invoke(this, it, getData(pos), pos)
+        }
+    }
+    protected val onLongClickListener by lazy {
+        View.OnLongClickListener {
+            val pos = it.tag as? Int? ?: return@OnLongClickListener false
+            return@OnLongClickListener onLongClick?.invoke(this, it, getData(pos), pos) ?: false
         }
     }
 
@@ -68,7 +76,7 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
 
     fun setData(data: MutableList<T>? = null) {
         this.dataList.clear()
-        if (data!=null) {
+        if (data != null) {
             this.dataList.addAll(data)
         }
         notifyDataSetChanged()
@@ -124,6 +132,11 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
         return this
     }
 
+    fun setOnItemLongClick(onClick: ((adapter: BaseAdapter<T, B>, view: View, data: T, pos: Int) -> Boolean)? = null): BaseAdapter<T, B> {
+        this.onLongClick = onClick
+        return this
+    }
+
     @Suppress("UNCHECKED_CAST")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): B {
         if (view != null) {
@@ -138,7 +151,12 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
         onBind(holder, dataList[position], position)
         onClick ?: return
         holder.itemView.tag = position
-        holder.itemView.setOnClickListener(onClickListener)
+        if (onClick != null) {
+            holder.itemView.setOnClickListener(onClickListener)
+        }
+        if (onLongClick != null) {
+            holder.itemView.setOnLongClickListener(onLongClickListener)
+        }
     }
 
     abstract fun onBind(holder: B, data: T, position: Int)

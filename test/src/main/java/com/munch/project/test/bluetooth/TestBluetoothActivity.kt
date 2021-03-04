@@ -9,6 +9,7 @@ import com.munch.lib.extend.recyclerview.BaseSimpleBindAdapter
 import com.munch.lib.helper.AppHelper
 import com.munch.lib.helper.digitsInput
 import com.munch.lib.helper.upperInput
+import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.test.R
 import com.munch.project.test.databinding.TestActivityTestBluetoothBinding
@@ -85,6 +86,11 @@ class TestBluetoothActivity : TestBaseTopActivity() {
             BaseSimpleBindAdapter<BtDeviceBean, TestLayoutItemBluetoothBinding>(R.layout.test_layout_item_bluetooth)
             { holder, data, _ ->
                 holder.binding.bt = data
+            }.setOnItemClick { _, _, data, _ ->
+                copyData(data)
+            }.setOnItemLongClick { _, _, data, _ ->
+                connect(data)
+                true
             }
         bind.testBtRv.apply {
             layoutManager = LinearLayoutManager(this@TestBluetoothActivity)
@@ -93,6 +99,16 @@ class TestBluetoothActivity : TestBaseTopActivity() {
         model.getResList().observe(this) {
             itemAdapter.setData(it)
         }
+    }
+
+    private fun copyData(data: BtDeviceBean) {
+        log(data.mac)
+        AppHelper.put2Clip(text = data.mac)
+        toast("mac地址已复制到剪切板")
+    }
+
+    private fun connect(data: BtDeviceBean) {
+
     }
 
     private fun checkBt(func: () -> Unit) {

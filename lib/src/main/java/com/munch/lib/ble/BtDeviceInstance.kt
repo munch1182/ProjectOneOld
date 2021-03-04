@@ -48,4 +48,9 @@ class BtDeviceInstance constructor(context: Context) {
     fun release() {
         stateReceiver.unregister()
     }
+
+    fun getBondedDevices(): MutableList<BtDeviceBean> {
+        return btAdapter?.bondedDevices?.map { BtDeviceBean.from(it) }?.toMutableList()
+            ?: mutableListOf()
+    }
 }

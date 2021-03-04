@@ -28,6 +28,14 @@ data class BtDeviceBean(
             allOf = [android.Manifest.permission.BLUETOOTH_ADMIN,
                 android.Manifest.permission.BLUETOOTH]
         )
+        fun from(device: BluetoothDevice): BtDeviceBean {
+            return from(device,0)
+        }
+
+        @RequiresPermission(
+            allOf = [android.Manifest.permission.BLUETOOTH_ADMIN,
+                android.Manifest.permission.BLUETOOTH]
+        )
         fun from(result: ScanResult): BtDeviceBean {
             val device = result.device
             return BtDeviceBean(device.name, device.address, result.rssi, device)

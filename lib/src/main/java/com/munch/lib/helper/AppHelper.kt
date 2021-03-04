@@ -5,9 +5,7 @@ package com.munch.lib.helper
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.admin.DevicePolicyManager
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -149,6 +147,12 @@ object AppHelper {
         val im = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager?
             ?: return
         im.showSoftInput(view, 0)
+    }
+
+    fun put2Clip(context: Context = BaseApp.getContext(), text: String) {
+        val manager =
+            context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager? ?: return
+        manager.setPrimaryClip(ClipData.newPlainText("text", text))
     }
 
     private fun getBaseApp(): Context = BaseApp.getInstance()
