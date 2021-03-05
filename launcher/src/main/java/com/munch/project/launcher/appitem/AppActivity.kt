@@ -91,7 +91,7 @@ class AppActivity : BaseActivity() {
         val interpolator = LinearInterpolator()
         val animTime = resources.getInteger(R.integer.int_time_activity_anim).toLong()
         swipeViewHelper.getSwipeView()
-            .orientation(Orientation.TOP_2_BOTTOM)
+            .orientation(Orientation.TB)
             .animHandle {
                 it.duration = animTime
                 it.interpolator = interpolator

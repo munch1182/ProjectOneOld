@@ -44,8 +44,8 @@ object DateHelper {
      *
      * @see DateUtils.FORMAT_SHOW_TIME
      */
-    fun getDateStr2Now(time: Long, type: Int): CharSequence {
-        return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), 0, type)
+    fun getDateStr2Now(time: Long, type: Int,minResolution:Long = 0L): CharSequence {
+        return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), minResolution, type)
     }
 
     /**

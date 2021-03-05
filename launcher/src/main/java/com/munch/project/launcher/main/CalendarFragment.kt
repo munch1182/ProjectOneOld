@@ -4,16 +4,14 @@ import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.lib.helper.addPadding
-import com.munch.lib.helper.drawTextInCenter
-import com.munch.lib.helper.formatDate
-import com.munch.lib.helper.getColorCompat
+import com.munch.lib.helper.*
 import com.munch.project.launcher.R
 import com.munch.project.launcher.base.BaseFragment
 import com.munch.project.launcher.base.recyclerview.BaseSimpleBindAdapter
@@ -51,6 +49,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
                 lastChose = pos
                 data.chose()
                 ada.notifyItemChanged(pos)
+                model.changeDay(data)
             }
         bind.calendarRv.apply {
             layoutManager = GridLayoutManager(requireContext(), 7).apply {
@@ -72,7 +71,13 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
         }
         model.getChose().observe(viewLifecycleOwner) {
             bind.calendarTvDay.text = "M月d日".formatDate(it)
-            bind.calendarTvDayDis.text = "yyyy".formatDate(it)
+            bind.calendarTvDayDis.text = "${"yyyy".formatDate(it)} ${
+                DateHelper.getDateStr2Now(
+                    it.time,
+                    DateUtils.FORMAT_ABBREV_RELATIVE,
+                    DateUtils.DAY_IN_MILLIS
+                )
+            }"
         }
         bind.calendarTvDay.setOnClickListener {
             changeMoth()
@@ -191,6 +196,14 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
             //添加一个月到下一个月第一天
             instance.add(Calendar.MONTH, 1)
             updateMouthList()
+            choseLiveData.postValue(instance.time)
+        }
+
+        fun changeDay(data: CalendarItem) {
+            if (data.day.isEmpty()) {
+                return
+            }
+            instance.set(Calendar.DAY_OF_MONTH, data.day.toInt())
             choseLiveData.postValue(instance.time)
         }
     }

@@ -34,11 +34,12 @@ class MainActivity : BaseActivity() {
             ): Boolean {
                 e1 ?: return false
                 e2 ?: return false
-                if (e2.y - e1.y <= -300f) {
+                return if (e2.y - e1.y <= -300f) {
                     startAppActivity()
-                    return true
+                    true
+                } else {
+                    false
                 }
-                return super.onFling(e1, e2, velocityX, velocityY)
             }
 
             override fun onDoubleTap(e: MotionEvent?): Boolean {
@@ -65,15 +66,9 @@ class MainActivity : BaseActivity() {
         window.navigationBarColor = Color.TRANSPARENT
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        val homeFragmentPos = fragmentsAdapter.getHomeFragmentPos()
-
-        val currentItem = bind.mainVp.currentItem
-        return if (currentItem != homeFragmentPos) {
-            super.onTouchEvent(event)
-        } else {
-            gesture.onTouchEvent(event)
-        }
+    override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
+        gesture.onTouchEvent(event)
+        return super.dispatchTouchEvent(event)
     }
 
     override fun onBackPressed() {

@@ -26,6 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/padding_def"
             android:text="@{calendar.day}"
+            android:textColor="@drawable/selector_calendar_day_color"
             android:textSize="@dimen/sp_title_smaller"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

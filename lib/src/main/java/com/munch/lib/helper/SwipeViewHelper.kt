@@ -66,7 +66,7 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
         /**
          * 用于标记方向
          */
-        private var flags = Orientation.LEFT_2_RIGHT
+        private var flags = Orientation.LR
         private var enable = true
         private val downPoint = PointF()
         private var downTime: Long = 0L
@@ -106,7 +106,7 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
         /**
          * 使用位移运算来标识位置
          *
-         * 使用诸如 LEFT_2_RIGHT or TOP_2_BOTTOM 来代表限定两个方向
+         * 使用诸如 LR or TB 来代表限定两个方向
          */
         fun orientation(orientation: @Orientation Int): SwipeFrameLayout {
             flags = orientation
@@ -147,13 +147,13 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
                     val offsetYAbs = offsetY.absoluteValue
                     //视为有效的x轴移动
                     if (offsetXAbs > offsetYAbs && offsetXAbs >= min) {
-                        isMoveX = (offsetX > 0 && hasOrientation(Orientation.LEFT_2_RIGHT))
-                                || (offsetX < 0 && hasOrientation(Orientation.RIGHT_2_LEFT))
+                        isMoveX = (offsetX > 0 && hasOrientation(Orientation.LR))
+                                || (offsetX < 0 && hasOrientation(Orientation.RL))
                         return isMoveX
                         //视为有效的y轴移动
                     } else if (offsetYAbs > offsetXAbs && offsetYAbs >= min) {
-                        isMoveY = (offsetY > 0 && hasOrientation(Orientation.TOP_2_BOTTOM))
-                                || (offsetY < 0 && hasOrientation(Orientation.BOTTOM_2_TOP))
+                        isMoveY = (offsetY > 0 && hasOrientation(Orientation.TB))
+                                || (offsetY < 0 && hasOrientation(Orientation.BT))
                         return isMoveY
                     }
                 }
