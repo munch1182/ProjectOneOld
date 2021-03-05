@@ -29,6 +29,7 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
     private val model by viewModel<CalendarViewModel>()
 
     override val resId: Int = R.layout.fragment_calendar
+    private var lastChose = -1
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,7 +38,19 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
             BaseSimpleBindAdapter<CalendarItem, ItemCalendarBinding>(R.layout.item_calendar)
             { holder, data, _ ->
                 holder.binding.calendar = data
+                holder.binding.root.isSelected = data.chose
                 holder.binding.executePendingBindings()
+            }.setOnItemClick { ada, _, data, pos ->
+                if (lastChose == pos) {
+                    return@setOnItemClick
+                }
+                if (lastChose != -1) {
+                    ada.getData(lastChose).notChose()
+                    ada.notifyItemChanged(lastChose)
+                }
+                lastChose = pos
+                data.chose()
+                ada.notifyItemChanged(pos)
             }
         bind.calendarRv.apply {
             layoutManager = GridLayoutManager(requireContext(), 7).apply {
@@ -62,9 +75,14 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
             bind.calendarTvDayDis.text = "yyyy".formatDate(it)
         }
         bind.calendarTvDay.setOnClickListener {
-            model.nextMouth()
+            changeMoth()
         }
 
+    }
+
+    private fun changeMoth() {
+        model.nextMouth()
+        lastChose = -1
     }
 
     class CalendarItemDecoration(private val parent: RecyclerView) : RecyclerView.ItemDecoration() {
@@ -187,6 +205,13 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
         val isEmpty: Boolean = false,
         val span: Int = 0
     ) {
+        fun chose() {
+            chose = true
+        }
+
+        fun notChose() {
+            chose = false
+        }
 
         companion object {
 
