@@ -7,7 +7,7 @@
 
         <variable
             name="bt"
-            type="com.munch.lib.ble.BtDeviceBean" />
+            type="com.munch.lib.bt.BtDevice" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

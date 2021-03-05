@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.KeyEvent
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.munch.lib.ble.*
+import com.munch.lib.bt.*
 import com.munch.lib.extend.recyclerview.BaseSimpleBindAdapter
 import com.munch.lib.helper.AppHelper
 import com.munch.lib.helper.digitsInput
@@ -83,7 +83,7 @@ class TestBluetoothActivity : TestBaseTopActivity() {
         BluetoothHelper.getInstance().init(this)
 
         val itemAdapter =
-            BaseSimpleBindAdapter<BtDeviceBean, TestLayoutItemBluetoothBinding>(R.layout.test_layout_item_bluetooth)
+            BaseSimpleBindAdapter<BtDevice, TestLayoutItemBluetoothBinding>(R.layout.test_layout_item_bluetooth)
             { holder, data, _ ->
                 holder.binding.bt = data
             }.setOnItemClick { _, _, data, _ ->
@@ -101,13 +101,13 @@ class TestBluetoothActivity : TestBaseTopActivity() {
         }
     }
 
-    private fun copyData(data: BtDeviceBean) {
+    private fun copyData(data: BtDevice) {
         log(data.mac)
         AppHelper.put2Clip(text = data.mac)
         toast("mac地址已复制到剪切板")
     }
 
-    private fun connect(data: BtDeviceBean) {
+    private fun connect(data: BtDevice) {
 
     }
 

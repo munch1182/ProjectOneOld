@@ -1,4 +1,4 @@
-package com.munch.lib.ble
+package com.munch.lib.bt
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
@@ -21,6 +21,7 @@ import android.bluetooth.le.ScanFilter as Filter
 data class ScanFilter(
     var name: String? = null, var mac: String? = null,
     //是否严格匹配，即两个参数完全相同
+    //在ble模式下，该值只能是true
     var strict: Boolean = true
 )
 
@@ -33,18 +34,22 @@ interface BtScanListener {
             android.Manifest.permission.BLUETOOTH_ADMIN,
             android.Manifest.permission.ACCESS_FINE_LOCATION]
     )
-    fun onScan(device: BtDeviceBean)
+    fun onScan(device: BtDevice)
 
-    fun onEnd(device: MutableList<BtDeviceBean>)
+    fun onEnd(device: MutableList<BtDevice>)
 }
 
 @SuppressLint("MissingPermission")
 sealed class BtScanner {
 
     protected var listener: BtScanListener? = null
-    protected var res: MutableList<BtDeviceBean> = mutableListOf()
-    protected var isScanning = false
-    protected var resScanListener = object : BtScanListener {
+    protected var res: MutableList<BtDevice> = mutableListOf()
+    protected var scanning = false
+
+    /**
+     * 处理统一逻辑，并将回调结果通过[listener]传出
+     */
+    protected var resScanCallBack = object : BtScanListener {
         override fun onStart() {
             res.clear()
             listener?.onStart()
@@ -53,16 +58,20 @@ sealed class BtScanner {
         /**
          * 使用一个监听在此处统一处理结果的list，而不是在系统回调中分别获取
          */
-        override fun onScan(device: BtDeviceBean) {
+        override fun onScan(device: BtDevice) {
             if (!res.contains(device)) {
                 res.add(device)
                 listener?.onScan(device)
             }
         }
 
-        override fun onEnd(device: MutableList<BtDeviceBean>) {
+        override fun onEnd(device: MutableList<BtDevice>) {
             listener?.onEnd(device)
         }
+    }
+
+    fun isScanning(): Boolean {
+        return scanning
     }
 
     class ClassicScanner : BtScanner() {
@@ -71,25 +80,25 @@ sealed class BtScanner {
         private var filters: MutableList<ScanFilter> = mutableListOf()
 
         override fun start(filters: MutableList<ScanFilter>?) {
-            if (isScanning) {
+            if (scanning) {
                 return
             }
-            isScanning = true
+            scanning = true
             super.start(filters)
             this.filters.clear()
             if (filters != null) {
                 this.filters.addAll(filters)
             }
-            classicBtReceiver.add(resScanListener)
+            classicBtReceiver.add(resScanCallBack)
             classicBtReceiver.register()
             BluetoothHelper.getInstance().btAdapter.startDiscovery()
         }
 
         override fun stop() {
-            if (!isScanning) {
+            if (!scanning) {
                 return
             }
-            isScanning = false
+            scanning = false
             super.stop()
             BluetoothHelper.getInstance().btAdapter.cancelDiscovery()
             classicBtReceiver.unregister()
@@ -115,7 +124,7 @@ sealed class BtScanner {
                                 ?: return
                         val rssi = intent.extras?.getShort(BluetoothDevice.EXTRA_RSSI, 0)
                         if (filters.isEmpty()) {
-                            t.onScan(BtDeviceBean.from(device, rssi!!.toInt()))
+                            t.onScan(BtDevice.from(device, rssi!!.toInt()))
                         } else {
                             kotlin.run out@{
                                 filters.forEach {
@@ -139,7 +148,7 @@ sealed class BtScanner {
                                             return@forEach
                                         }
                                     }
-                                    t.onScan(BtDeviceBean.from(device, rssi!!.toInt()))
+                                    t.onScan(BtDevice.from(device, rssi!!.toInt()))
                                 }
                             }
                         }
@@ -155,7 +164,7 @@ sealed class BtScanner {
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 super.onScanResult(callbackType, result)
                 if (result != null) {
-                    resScanListener.onScan(BtDeviceBean.from(result))
+                    resScanCallBack.onScan(BtDevice.from(result))
                 }
             }
 
@@ -171,10 +180,10 @@ sealed class BtScanner {
         }
 
         override fun start(filters: MutableList<ScanFilter>?) {
-            if (isScanning) {
+            if (scanning) {
                 return
             }
-            isScanning = true
+            scanning = true
             super.start(filters)
             val scanSettings = ScanSettings.Builder()
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
@@ -198,10 +207,10 @@ sealed class BtScanner {
         }
 
         override fun stop() {
-            if (!isScanning) {
+            if (!scanning) {
                 return
             }
-            isScanning = false
+            scanning = false
             super.stop()
             BluetoothHelper.getInstance().btAdapter.bluetoothLeScanner?.stopScan(callBack)
         }
@@ -213,7 +222,7 @@ sealed class BtScanner {
             android.Manifest.permission.ACCESS_FINE_LOCATION]
     )
     open fun start(filters: MutableList<ScanFilter>?) {
-        resScanListener.onStart()
+        resScanCallBack.onStart()
     }
 
     /**
@@ -223,9 +232,12 @@ sealed class BtScanner {
      * 此方法调用了[BtScanListener.onEnd]，不需要在逻辑中调用
      */
     open fun stop() {
-        resScanListener.onEnd(res)
+        resScanCallBack.onEnd(res)
     }
 
+    /**
+     * 设置扫描回调
+     */
     open fun setScanListener(listener: BtScanListener? = null): BtScanner {
         this.listener = listener
         return this
@@ -246,17 +258,21 @@ class BtScannerHelper(private val thread: Handler) : AddRemoveSetHelper<BtScanLi
                 android.Manifest.permission.BLUETOOTH_ADMIN,
                 android.Manifest.permission.ACCESS_FINE_LOCATION]
         )
-        override fun onScan(device: BtDeviceBean) {
+        override fun onScan(device: BtDevice) {
             getScanList().forEach { thread.post { it.onScan(device) } }
         }
 
-        override fun onEnd(device: MutableList<BtDeviceBean>) {
+        override fun onEnd(device: MutableList<BtDevice>) {
             getScanList().forEach { thread.post { it.onEnd(device) } }
+            if (onceScanListener != null) {
+                getScanList().remove(onceScanListener!!)
+                onceScanListener = null
+            }
         }
     }
 
     internal fun getScanList() = arrays
-    private val onceScanListenerList = mutableListOf<BtScanListener>()
+    private var onceScanListener: BtScanListener? = null
 
     private fun getClassicScanner(scanListener: BtScanListener): BtScanner {
         if (classicScanner == null) {
@@ -272,6 +288,20 @@ class BtScannerHelper(private val thread: Handler) : AddRemoveSetHelper<BtScanLi
         return bleScanner!!
     }
 
+    /**
+     * 开始扫描设备
+     *
+     * @param type 需要扫描的设备类型
+     * @param scanFilter 扫描过滤，即只返回符合该集合中过滤条件的设备
+     *                   注意：在ble模式下，过滤条件只能是严格
+     * @param timeout 扫描最大时间，超过该时间则会停止，设为0则无超时时间限制
+     * @param scanListener 该次扫描的回调，注意：该回调在此次扫描结束后即会被自动移除
+     * 也可以使用 [add]来使用全局回调
+     *
+     * @see add
+     * @see remove
+     *
+     */
     @RequiresPermission(
         allOf = [android.Manifest.permission.BLUETOOTH,
             android.Manifest.permission.BLUETOOTH_ADMIN,
@@ -285,13 +315,16 @@ class BtScannerHelper(private val thread: Handler) : AddRemoveSetHelper<BtScanLi
         scanListener: BtScanListener?
     ) {
         synchronized(this) {
-            if (scanListener != null) {
-                onceScanListenerList.add(scanListener)
-                getScanList().addAll(onceScanListenerList)
-            }
             val scanner = when (type) {
                 BtType.Classic -> getClassicScanner(this.scanListener)
                 BtType.Ble -> getBleScanner(this.scanListener)
+            }
+            if (scanner.isScanning()) {
+                return
+            }
+            if (scanListener != null) {
+                onceScanListener = scanListener
+                getScanList().add(onceScanListener!!)
             }
             scanner.start(scanFilter)
             if (timeout > 0L) {
@@ -305,10 +338,6 @@ class BtScannerHelper(private val thread: Handler) : AddRemoveSetHelper<BtScanLi
         synchronized(this) {
             classicScanner?.stop()
             bleScanner?.stop()
-            if (onceScanListenerList.isNotEmpty()) {
-                getScanList().removeAll(onceScanListenerList)
-                onceScanListenerList.clear()
-            }
         }
     }
 }

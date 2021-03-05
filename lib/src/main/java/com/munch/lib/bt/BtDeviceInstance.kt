@@ -1,4 +1,4 @@
-package com.munch.lib.ble
+package com.munch.lib.bt
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
@@ -49,8 +49,8 @@ class BtDeviceInstance constructor(context: Context) {
         stateReceiver.unregister()
     }
 
-    fun getBondedDevices(): MutableList<BtDeviceBean> {
-        return btAdapter?.bondedDevices?.map { BtDeviceBean.from(it) }?.toMutableList()
+    fun getBondedDevices(): MutableList<BtDevice> {
+        return btAdapter?.bondedDevices?.map { BtDevice.from(it) }?.toMutableList()
             ?: mutableListOf()
     }
 }

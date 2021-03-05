@@ -1,4 +1,4 @@
-package com.munch.lib.ble
+package com.munch.lib.bt
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
@@ -47,10 +47,11 @@ class BluetoothHelper private constructor() {
     private lateinit var handlerThread: HandlerThread
     private lateinit var handler: Handler
     private lateinit var scannerHelper: BtScannerHelper
-    private lateinit var connectHelper: BtConnectHelper
     internal lateinit var btAdapter: BluetoothAdapter
+    internal var btConfig: BtConfig? = null
+    private val connectHelper by lazy { BtConnectHelper(handler) }
 
-    fun init(context: Context) {
+    fun init(context: Context, btConfig: BtConfig? = null) {
         this.context = context.applicationContext
         initWorkThread()
         instance = BtDeviceInstance(this.context)
@@ -62,7 +63,9 @@ class BluetoothHelper private constructor() {
         }
         scannerHelper = BtScannerHelper(handler)
         btAdapter = instance.btAdapter
-        connectHelper = BtConnectHelper()
+        if (btConfig != null) {
+            this.btConfig = btConfig
+        }
     }
 
     private fun initWorkThread() {
@@ -130,6 +133,14 @@ class BluetoothHelper private constructor() {
     fun getScanListeners(): AddRemoveSetHelper<BtScanListener> = scannerHelper
 
     fun getStateListeners() = instance.getStateListeners()
+
+    fun connect(device: BtDevice, connectListener: BtConnectListener? = null) {
+        connectHelper.connect(device, connectListener)
+    }
+
+    fun disConnect() {
+        connectHelper.disConnect()
+    }
 
     /**
      * 调用了此方法后需要重新调用[init]方法才能重新使用本类

@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.munch.lib.ble.*
+import com.munch.lib.bt.*
 import com.munch.lib.log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -25,9 +25,9 @@ class TestBtViewModel : ViewModel() {
     private val notice = MutableLiveData("")
     fun noticeStr(): LiveData<String> = notice
     private var startTime: Long = -1L
-    private val resList = mutableListOf<BtDeviceBean>()
+    private val resList = mutableListOf<BtDevice>()
     private val scanResList = MutableLiveData(resList)
-    fun getResList(): LiveData<MutableList<BtDeviceBean>> = scanResList
+    fun getResList(): LiveData<MutableList<BtDevice>> = scanResList
     private val isScanning = MutableLiveData(false)
     fun isScanning(): LiveData<Boolean> = isScanning
     val scanType = ObservableBoolean(true)
@@ -93,7 +93,7 @@ class TestBtViewModel : ViewModel() {
                     }
                 }
 
-                override fun onScan(device: BtDeviceBean) {
+                override fun onScan(device: BtDevice) {
                     log(device)
                     if (!resList.contains(device)) {
                         resList.add(0, device)
@@ -101,7 +101,7 @@ class TestBtViewModel : ViewModel() {
                     }
                 }
 
-                override fun onEnd(device: MutableList<BtDeviceBean>) {
+                override fun onEnd(device: MutableList<BtDevice>) {
                     end = true
                     isScanning.postValue(false)
                     notice.postValue("扫描结束，有${device.size}个结果，历时${(System.currentTimeMillis() - startTime) / 1000L}s")

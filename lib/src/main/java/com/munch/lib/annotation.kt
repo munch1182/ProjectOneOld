@@ -59,3 +59,12 @@ annotation class KEEP(val comment: String = "")
  */
 @Retention(AnnotationRetention.SOURCE)
 annotation class SYNCHRONIZED
+
+/**
+ * 用于标记该方法是提醒性的，所以看上去该方法没有必要
+ *
+ * 即该方法看起来没什么实际用处，但是在逻辑上是需要的
+ * 主要用于提示区别
+ */
+@Retention(AnnotationRetention.SOURCE)
+annotation class ATTENTION
