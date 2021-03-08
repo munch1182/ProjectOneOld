@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".view.TestNavRecyclerViewActivity">
 
-    <com.munch.project.test.view.LetterNavigationBarView
+    <com.munch.lib.test.view.LetterNavigationBarView
         android:id="@+id/view_letter_navigation"
         android:layout_width="10dp"
         android:layout_height="0dp"

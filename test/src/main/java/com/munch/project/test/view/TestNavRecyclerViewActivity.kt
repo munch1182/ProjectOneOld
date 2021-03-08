@@ -19,6 +19,8 @@ import com.github.promeg.tinypinyin.lexicons.android.cncity.CnCityDict
 import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity
+import com.munch.lib.test.view.LetterNavigationBarView
+import com.munch.lib.test.view.TeardropAngleView
 import com.munch.project.test.R
 import java.util.*
 import kotlin.collections.ArrayList

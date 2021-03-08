@@ -1,4 +1,4 @@
-package com.munch.project.test.view
+package com.munch.lib.test.view
 
 import android.content.Context
 import android.graphics.Canvas
@@ -7,7 +7,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
-import com.munch.project.test.R
+import com.munch.lib.test.R
 import kotlin.math.absoluteValue
 import kotlin.math.min
 

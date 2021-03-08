@@ -1,4 +1,4 @@
-package com.munch.project.test
+package com.munch.lib.test
 
 import android.content.Context
 import android.view.View

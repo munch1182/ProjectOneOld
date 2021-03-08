@@ -1,4 +1,4 @@
-package com.munch.project.test.view
+package com.munch.lib.test.view
 
 import android.graphics.Canvas
 import android.graphics.Color
@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.BaseApp
 import com.munch.lib.helper.drawTextInYCenter
-import com.munch.project.test.R
+import com.munch.lib.test.R
 
 /**
  * Create by munch1182 on 2021/1/17 21:31.

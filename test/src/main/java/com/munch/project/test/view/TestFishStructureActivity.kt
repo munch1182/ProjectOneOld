@@ -3,6 +3,7 @@ package com.munch.project.test.view
 import android.os.Bundle
 import android.widget.ImageView
 import com.munch.lib.test.TestBaseTopActivity
+import com.munch.lib.test.view.FishDrawableWithStructure
 import com.munch.project.test.R
 
 /**

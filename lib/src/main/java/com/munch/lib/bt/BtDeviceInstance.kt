@@ -4,9 +4,9 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.annotation.RequiresPermission
-import com.munch.lib.RequiresPermission as Permission
 import com.munch.lib.helper.AddRemoveSetHelper
 import com.munch.lib.helper.BluetoothStateReceiver
+import com.munch.lib.RequiresPermission as Permission
 
 /**
  * 本地蓝牙实例，主要用于处理蓝牙状态

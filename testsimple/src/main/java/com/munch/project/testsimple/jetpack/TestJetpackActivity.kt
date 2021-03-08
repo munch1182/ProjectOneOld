@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
 import com.munch.project.testsimple.databinding.TestSimpleActivityTestJetPackBinding
-import com.munch.project.testsimple.jetpack.bind.bindingTop
 import com.munch.project.testsimple.jetpack.bind.getViewModel
 import dagger.hilt.android.AndroidEntryPoint
 

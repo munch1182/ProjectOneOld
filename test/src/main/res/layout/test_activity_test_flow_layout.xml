@@ -14,7 +14,7 @@
         android:layout_marginStart="8dp"
         android:text="align" />
 
-    <com.munch.project.test.view.FlowLayout
+    <com.munch.lib.test.view.FlowLayout
         android:id="@+id/flow_layout_container"
         android:layout_width="match_parent"
         android:layout_height="500dp" />

@@ -1,11 +1,11 @@
-package com.munch.project.test.view
+package com.munch.lib.test.view
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import com.munch.project.test.R
+import com.munch.lib.test.R
 
 /**
  * 也可以通过ItemDecoration来绘制左侧letters，参考[HeaderItemDecoration]

@@ -11,9 +11,9 @@ import com.munch.lib.helper.AppHelper
 import com.munch.lib.helper.digitsInput
 import com.munch.lib.helper.upperInput
 import com.munch.lib.log
+import com.munch.lib.test.LoadViewHelper
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.lib.test.TestDialog
-import com.munch.project.test.LoadViewHelper
 import com.munch.project.test.R
 import com.munch.project.test.databinding.TestActivityTestBluetoothBinding
 import com.munch.project.test.databinding.TestLayoutItemBluetoothBinding

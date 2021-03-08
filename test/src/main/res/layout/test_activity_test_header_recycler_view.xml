@@ -18,7 +18,7 @@
         tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/test_layout_item_header_recycler_view_content" />
 
-    <com.munch.project.test.view.LetterNavigationBarView
+    <com.munch.lib.test.view.LetterNavigationBarView
         android:id="@+id/view_letter_navigation"
         android:layout_width="10dp"
         android:layout_height="0dp"

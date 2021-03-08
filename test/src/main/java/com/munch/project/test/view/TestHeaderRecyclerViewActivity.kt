@@ -12,6 +12,9 @@ import com.munch.lib.extend.recyclerview.BaseSimpleBindAdapter
 import com.munch.lib.extend.recyclerview.FirstScrollHelper
 import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.test.TestBaseTopActivity
+import com.munch.lib.test.view.HeaderItemDecoration
+import com.munch.lib.test.view.LetterNavigationBarView
+import com.munch.lib.test.view.TeardropAngleView
 import com.munch.project.test.R
 import com.munch.project.test.databinding.TestLayoutItemHeaderRecyclerViewContentBinding
 import java.util.*

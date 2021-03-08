@@ -152,7 +152,7 @@
                 app:layout_constraintStart_toEndOf="@id/test_bt_timeout"
                 app:layout_constraintTop_toTopOf="@id/test_bt_timeout" />
 
-            <com.munch.project.test.view.CountView
+            <com.munch.lib.test.view.CountView
                 android:id="@+id/test_bt_timeout_cv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

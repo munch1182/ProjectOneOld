@@ -21,7 +21,6 @@ import com.munch.lib.helper.ResultHelper
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.testsimple.R
 import com.munch.project.testsimple.databinding.TestSimpleActivityTestSensorBinding
-import com.munch.project.testsimple.jetpack.bind.bindingTop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 

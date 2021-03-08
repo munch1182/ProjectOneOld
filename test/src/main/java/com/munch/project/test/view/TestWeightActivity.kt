@@ -4,6 +4,10 @@ import android.os.Bundle
 import android.widget.CheckBox
 import android.widget.TextView
 import com.munch.lib.test.TestBaseTopActivity
+import com.munch.lib.test.view.CountView
+import com.munch.lib.test.view.RulerView
+import com.munch.lib.test.view.TeardropAngleView
+import com.munch.lib.test.view.TeardropView
 import com.munch.project.test.R
 
 /**

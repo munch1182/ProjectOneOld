@@ -1,4 +1,4 @@
-package com.munch.project.test.view
+package com.munch.lib.test.view
 
 
 import android.animation.Animator
@@ -9,7 +9,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
-import com.munch.project.test.R
+import com.munch.lib.test.R
 
 /**
  * Create by munch on 2020/9/7 17:43

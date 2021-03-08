@@ -8,7 +8,7 @@
     android:orientation="vertical"
     tools:context=".view.TestWeightActivity">
 
-    <com.munch.project.test.view.CountView
+    <com.munch.lib.test.view.CountView
         android:id="@+id/view_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -47,7 +47,7 @@
         app:layout_constraintTop_toBottomOf="@id/view_count"
         tools:ignore="HardcodedText" />
 
-    <com.munch.project.test.view.RulerView
+    <com.munch.lib.test.view.RulerView
         android:id="@+id/view_ruler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view_ruler_tv" />
 
-    <com.munch.project.test.view.TeardropAngleView
+    <com.munch.lib.test.view.TeardropAngleView
         android:id="@+id/view_teardrop_angle"
         android:layout_width="120dp"
         android:layout_height="120dp"
@@ -70,7 +70,7 @@
         app:teardrop_color="@color/colorPrimary"
         app:teardrop_text="A" />
 
-    <com.munch.project.test.view.TeardropView
+    <com.munch.lib.test.view.TeardropView
         android:id="@+id/view_teardrop"
         android:layout_width="120dp"
         android:layout_height="120dp"

@@ -1,4 +1,4 @@
-package com.munch.project.test.view
+package com.munch.lib.test.view
 
 import android.annotation.SuppressLint
 import android.content.Context

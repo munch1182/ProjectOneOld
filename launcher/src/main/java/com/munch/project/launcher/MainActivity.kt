@@ -8,7 +8,6 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.munch.lib.helper.AppHelper
-import com.munch.lib.log
 import com.munch.project.launcher.appitem.AppActivity
 import com.munch.project.launcher.base.BaseActivity
 import com.munch.project.launcher.base.BaseFragment

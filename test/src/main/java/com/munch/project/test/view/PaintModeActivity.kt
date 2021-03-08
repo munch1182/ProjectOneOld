@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.extend.recyclerview.BaseSimpleAdapter
 import com.munch.lib.test.recyclerview.TestRvActivity
+import com.munch.lib.test.view.PorterDuffXfermodeView
 import com.munch.project.test.R
 
 /**
