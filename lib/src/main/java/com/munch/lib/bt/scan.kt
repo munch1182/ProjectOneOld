@@ -40,7 +40,7 @@ interface BtScanListener {
 }
 
 @SuppressLint("MissingPermission")
-sealed class BtScanner {
+internal sealed class BtScanner {
 
     protected var listener: BtScanListener? = null
     protected var res: MutableList<BtDevice> = mutableListOf()
@@ -74,7 +74,7 @@ sealed class BtScanner {
         return scanning
     }
 
-    class ClassicScanner : BtScanner() {
+    internal class ClassicScanner : BtScanner() {
 
         private val classicBtReceiver by lazy { ClassicBtReceiver(BluetoothHelper.getInstance().context) }
         private var filters: MutableList<ScanFilter> = mutableListOf()
@@ -158,7 +158,7 @@ sealed class BtScanner {
         }
     }
 
-    class BleScanner : BtScanner() {
+    internal class BleScanner : BtScanner() {
 
         private val callBack = object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult?) {

@@ -106,6 +106,7 @@ class TestBtViewModel : ViewModel() {
                     isScanning.postValue(false)
                     notice.postValue("扫描结束，有${device.size}个结果，历时${(System.currentTimeMillis() - startTime) / 1000L}s")
                     resList.clear()
+                    device.reverse()
                     resList.addAll(device)
                     scanResList.postValue(resList)
                 }

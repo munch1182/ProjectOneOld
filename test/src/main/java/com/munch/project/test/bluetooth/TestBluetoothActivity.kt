@@ -2,6 +2,8 @@ package com.munch.project.test.bluetooth
 
 import android.os.Bundle
 import android.view.KeyEvent
+import android.widget.RadioButton
+import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.bt.*
@@ -9,14 +11,13 @@ import com.munch.lib.extend.recyclerview.BaseSimpleBindAdapter
 import com.munch.lib.helper.AppHelper
 import com.munch.lib.helper.digitsInput
 import com.munch.lib.helper.upperInput
-import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity
+import com.munch.project.test.LoadViewHelper
 import com.munch.project.test.R
 import com.munch.project.test.databinding.TestActivityTestBluetoothBinding
 import com.munch.project.test.databinding.TestLayoutItemBluetoothBinding
 import com.permissionx.guolindev.PermissionX
 import java.util.*
-
 
 /**
  * Create by munch1182 on 2021/3/3 11:49.
@@ -25,10 +26,10 @@ class TestBluetoothActivity : TestBaseTopActivity() {
 
     private val model by get(TestBtViewModel::class.java)
     private val bind by bindingTop<TestActivityTestBluetoothBinding>(R.layout.test_activity_test_bluetooth)
+    private val loadViewHelper by lazy { LoadViewHelper(bind.testBtContainer) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         bind.apply {
             lifecycleOwner = this@TestBluetoothActivity
             viewModel = model
@@ -80,6 +81,8 @@ class TestBluetoothActivity : TestBaseTopActivity() {
             }
         }
 
+        loadViewHelper.bind(this)
+
         BluetoothHelper.getInstance().init(this)
 
         val itemAdapter =
@@ -89,7 +92,15 @@ class TestBluetoothActivity : TestBaseTopActivity() {
             }.setOnItemClick { _, _, data, _ ->
                 copyData(data)
             }.setOnItemLongClick { _, _, data, _ ->
-                connect(data)
+                AlertDialog.Builder(this)
+                    .setTitle("连接蓝牙")
+                    .setMessage("确定以${findViewById<RadioButton>(bind.testBtTypeRg.checkedRadioButtonId).text}模式连接${data.mac}吗?")
+                    .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
+                    .setPositiveButton("连接") { dialog, _ ->
+                        connect(data)
+                        dialog.cancel()
+                    }
+                    .show()
                 true
             }
         bind.testBtRv.apply {
@@ -102,13 +113,44 @@ class TestBluetoothActivity : TestBaseTopActivity() {
     }
 
     private fun copyData(data: BtDevice) {
-        log(data.mac)
         AppHelper.put2Clip(text = data.mac)
         toast("mac地址已复制到剪切板")
     }
 
     private fun connect(data: BtDevice) {
+        checkBt {
+            BluetoothHelper.getInstance().apply {
+                if (canConnect()) {
+                    connect(data, object : BtConnectListener {
+                        override fun onStart(mac: String) {
+                            runOnUiThread {
+                                loadViewHelper.startLoadingInTime(10000L)
+                            }
+                        }
 
+                        override fun connectSuccess(mac: String) {
+                            toast("连接成功")
+                        }
+
+                        override fun connectFail(e: Exception) {
+                            e.printStackTrace()
+                            if (e is ConnectFailException) {
+                                toast("连接失败:${e.message}")
+                            }
+                        }
+
+                        override fun onFinish() {
+                            super.onFinish()
+                            runOnUiThread {
+                                loadViewHelper.stopLoading()
+                            }
+                        }
+                    })
+                } else {
+                    toast("当前状态(${connectState()})不能连接")
+                }
+            }
+        }
     }
 
     private fun checkBt(func: () -> Unit) {

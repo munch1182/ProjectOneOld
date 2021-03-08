@@ -1,6 +1,5 @@
 package com.munch.lib.bt
 
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
@@ -22,7 +21,6 @@ import com.munch.lib.RequiresPermission as Permission
         //蓝牙扫描权限
         android.Manifest.permission.ACCESS_FINE_LOCATION]
 )
-@SuppressLint("MissingPermission")
 class BluetoothHelper private constructor() {
 
     companion object {
@@ -49,19 +47,19 @@ class BluetoothHelper private constructor() {
     private lateinit var scannerHelper: BtScannerHelper
     internal lateinit var btAdapter: BluetoothAdapter
     internal var btConfig: BtConfig? = null
-    private val connectHelper by lazy { BtConnectHelper(handler) }
+    private var connectHelper: BtConnectHelper? = null
 
     fun init(context: Context, btConfig: BtConfig? = null) {
         this.context = context.applicationContext
         initWorkThread()
         instance = BtDeviceInstance(this.context)
+        scannerHelper = BtScannerHelper(handler)
         instance.getStateListeners().add { _, turning, available ->
             //蓝牙关闭中时
             if (turning && !available) {
                 scannerHelper.stopScan()
             }
         }
-        scannerHelper = BtScannerHelper(handler)
         btAdapter = instance.btAdapter
         if (btConfig != null) {
             this.btConfig = btConfig
@@ -72,6 +70,13 @@ class BluetoothHelper private constructor() {
         handlerThread = HandlerThread(NAME)
         handlerThread.start()
         handler = Handler(handlerThread.looper)
+    }
+
+    private fun getConnectHelper(): BtConnectHelper {
+        if (connectHelper == null) {
+            connectHelper = BtConnectHelper(handler)
+        }
+        return connectHelper!!
     }
 
     @RequiresPermission(
@@ -110,6 +115,11 @@ class BluetoothHelper private constructor() {
         scannerHelper.startScan(type, scanFilter, timeout, scanListener)
     }
 
+    @RequiresPermission(
+        allOf = [android.Manifest.permission.BLUETOOTH,
+            android.Manifest.permission.BLUETOOTH_ADMIN,
+            android.Manifest.permission.ACCESS_FINE_LOCATION]
+    )
     fun startClassicScan(
         scanFilter: MutableList<ScanFilter>? = null,
         timeout: Long = 0L,
@@ -118,6 +128,11 @@ class BluetoothHelper private constructor() {
         startScan(BtType.Classic, scanFilter, timeout, scanListener)
     }
 
+    @RequiresPermission(
+        allOf = [android.Manifest.permission.BLUETOOTH,
+            android.Manifest.permission.BLUETOOTH_ADMIN,
+            android.Manifest.permission.ACCESS_FINE_LOCATION]
+    )
     fun startBleScan(
         scanFilter: MutableList<ScanFilter>? = null,
         timeout: Long = 0L,
@@ -132,14 +147,28 @@ class BluetoothHelper private constructor() {
 
     fun getScanListeners(): AddRemoveSetHelper<BtScanListener> = scannerHelper
 
+    fun getConnectListeners(): AddRemoveSetHelper<BtConnectListener> = connectHelper!!
+
     fun getStateListeners() = instance.getStateListeners()
 
+    @RequiresPermission(
+        allOf = [android.Manifest.permission.BLUETOOTH,
+            android.Manifest.permission.BLUETOOTH_ADMIN,
+            android.Manifest.permission.ACCESS_FINE_LOCATION]
+    )
+    fun canConnect(): Boolean {
+        return instance.isEnable() && (connectHelper == null || connectHelper!!.canConnect())
+    }
+
+    fun connectState(): @ConnectState Int =
+        connectHelper?.connectState ?: ConnectState.STATE_DISCONNECTED
+
     fun connect(device: BtDevice, connectListener: BtConnectListener? = null) {
-        connectHelper.connect(device, connectListener)
+        getConnectHelper().connect(device, connectListener)
     }
 
     fun disConnect() {
-        connectHelper.disConnect()
+        connectHelper?.disConnect()
     }
 
     /**
@@ -149,5 +178,6 @@ class BluetoothHelper private constructor() {
         instance.release()
         scannerHelper.clear()
         handlerThread.quit()
+        connectHelper = null
     }
 }

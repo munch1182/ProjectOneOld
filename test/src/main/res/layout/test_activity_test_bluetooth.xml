@@ -193,6 +193,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@id/test_bt_scan"
                 app:layout_constraintTop_toBottomOf="@id/test_bt_scan"
+                app:layout_goneMarginBottom="@dimen/padding_def"
                 tools:text="已开始100m" />
 
             <androidx.recyclerview.widget.RecyclerView

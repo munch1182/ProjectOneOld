@@ -1,9 +1,10 @@
 package com.munch.lib.bt
 
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
-import com.munch.lib.RequiresPermission
+import android.content.pm.PackageManager
+import androidx.annotation.RequiresPermission
+import com.munch.lib.RequiresPermission as Permission
 import com.munch.lib.helper.AddRemoveSetHelper
 import com.munch.lib.helper.BluetoothStateReceiver
 
@@ -12,14 +13,13 @@ import com.munch.lib.helper.BluetoothStateReceiver
  *
  * Create by munch1182 on 2021/3/3 9:28.
  */
-@RequiresPermission(
+@Permission(
     allOf = [
         //蓝牙权限
         android.Manifest.permission.BLUETOOTH,
         android.Manifest.permission.BLUETOOTH_ADMIN]
 )
-@SuppressLint("MissingPermission")
-class BtDeviceInstance constructor(context: Context) {
+class BtDeviceInstance constructor(private val context: Context) {
 
     internal val btAdapter = BluetoothAdapter.getDefaultAdapter()
     private val stateReceiver = BluetoothStateReceiver(context)
@@ -36,8 +36,15 @@ class BtDeviceInstance constructor(context: Context) {
     fun isBtSupport() = btAdapter != null
 
     /**
+     * 该设备是否支持ble
+     */
+    fun isBleSupport() =
+        context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
+
+    /**
      * 蓝牙是否可用，即蓝牙是否打开
      */
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH)
     fun isEnable(): Boolean {
         return btAdapter?.isEnabled ?: false
     }
@@ -49,6 +56,7 @@ class BtDeviceInstance constructor(context: Context) {
         stateReceiver.unregister()
     }
 
+    @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
     fun getBondedDevices(): MutableList<BtDevice> {
         return btAdapter?.bondedDevices?.map { BtDevice.from(it) }?.toMutableList()
             ?: mutableListOf()
