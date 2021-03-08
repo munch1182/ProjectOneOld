@@ -17,26 +17,17 @@ data class BtDevice(
 
     companion object {
 
-        @RequiresPermission(
-            allOf = [android.Manifest.permission.BLUETOOTH_ADMIN,
-                android.Manifest.permission.BLUETOOTH]
-        )
+        @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH_ADMIN, android.Manifest.permission.BLUETOOTH])
         fun from(device: BluetoothDevice, rssi: Int): BtDevice {
             return BtDevice(device.name, device.address, rssi, BtType.Classic, device)
         }
 
-        @RequiresPermission(
-            allOf = [android.Manifest.permission.BLUETOOTH_ADMIN,
-                android.Manifest.permission.BLUETOOTH]
-        )
+        @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH_ADMIN, android.Manifest.permission.BLUETOOTH])
         fun from(device: BluetoothDevice): BtDevice {
             return from(device, 0)
         }
 
-        @RequiresPermission(
-            allOf = [android.Manifest.permission.BLUETOOTH_ADMIN,
-                android.Manifest.permission.BLUETOOTH]
-        )
+        @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH_ADMIN, android.Manifest.permission.BLUETOOTH])
         fun from(result: ScanResult): BtDevice {
             val device = result.device
             return BtDevice(device.name, device.address, result.rssi, BtType.Ble, device)

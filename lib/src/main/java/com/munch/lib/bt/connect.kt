@@ -3,8 +3,10 @@ package com.munch.lib.bt
 import android.bluetooth.*
 import android.os.Handler
 import androidx.annotation.IntDef
+import androidx.annotation.RequiresPermission
 import com.munch.lib.ATTENTION
 import com.munch.lib.helper.AddRemoveSetHelper
+import com.munch.lib.helper.closeQuietly
 import java.util.*
 
 /**
@@ -89,7 +91,58 @@ internal sealed class BtConnector {
         }
     }
 
-    internal class ClassicConnector : BtConnector()
+    internal class ClassicConnector(private val thread: Handler) : BtConnector() {
+
+        companion object {
+            const val BLUETOOTH_UUID = "00001105-0000-1000-8000-00805F9B34FB"
+        }
+
+        private var socket: BluetoothSocket? = null
+
+        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
+        override fun connect() {
+            super.connect()
+            socket ?: return
+            synchronized(this) {
+                updateState2Connecting()
+                connectCallBack.onStart(target!!.mac)
+            }
+            thread.post {
+                try {
+                    socket!!.connect()
+                } catch (e: Exception) {
+                    synchronized(this) {
+                        updateState2Disconnected()
+                        connectCallBack.connectFail(e)
+                        connectCallBack.onFinish()
+                    }
+                    return@post
+                }
+                synchronized(this) {
+                    updateState2Connected()
+                    connectCallBack.connectSuccess(target!!.mac)
+                    connectCallBack.onFinish()
+                }
+            }
+
+        }
+
+        override fun disconnect() {
+            super.disconnect()
+            updateState2Disconnected()
+            socket?.closeQuietly()
+            socket = null
+        }
+
+        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
+        override fun setTarget(target: BtDevice): BtConnector {
+            socket = target.device.createInsecureRfcommSocketToServiceRecord(
+                UUID.fromString(BLUETOOTH_UUID)
+            )
+            return super.setTarget(target)
+        }
+    }
+
     internal class BleConnector : BtConnector() {
         private var bleDataHelper: BleDataHelper? = null
         private val gattCallBack = object : BluetoothGattCallback() {
@@ -272,7 +325,7 @@ internal sealed class BtConnector {
     open fun disconnect() {
     }
 
-    fun setTarget(target: BtDevice): BtConnector {
+    open fun setTarget(target: BtDevice): BtConnector {
         this.target = target
         return this
     }
@@ -370,7 +423,7 @@ class BtConnectHelper(private val thread: Handler) : AddRemoveSetHelper<BtConnec
 
     private fun getClassicConnector(): BtConnector.ClassicConnector {
         if (classicConnector == null) {
-            classicConnector = BtConnector.ClassicConnector()
+            classicConnector = BtConnector.ClassicConnector(thread)
         }
         return classicConnector!!
     }

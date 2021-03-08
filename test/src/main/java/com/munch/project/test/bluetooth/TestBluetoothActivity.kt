@@ -10,6 +10,7 @@ import com.munch.lib.extend.recyclerview.BaseSimpleBindAdapter
 import com.munch.lib.helper.AppHelper
 import com.munch.lib.helper.digitsInput
 import com.munch.lib.helper.upperInput
+import com.munch.lib.log
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.lib.test.TestDialog
 import com.munch.project.test.LoadViewHelper
@@ -119,24 +120,26 @@ class TestBluetoothActivity : TestBaseTopActivity() {
                 if (canConnect()) {
                     connect(data, object : BtConnectListener {
                         override fun onStart(mac: String) {
+                            log("onStart")
                             runOnUiThread {
                                 loadViewHelper.startLoadingInTime(10000L)
                             }
                         }
 
                         override fun connectSuccess(mac: String) {
+                            log("connectSuccess")
                             toast("连接成功")
                         }
 
                         override fun connectFail(e: Exception) {
+                            log("connectFail")
                             e.printStackTrace()
-                            if (e is ConnectFailException) {
-                                toast("连接失败:${e.message}")
-                            }
+                            toast("连接失败:${e.message}")
                         }
 
                         override fun onFinish() {
                             super.onFinish()
+                            log("onFinish")
                             runOnUiThread {
                                 loadViewHelper.stopLoading()
                             }

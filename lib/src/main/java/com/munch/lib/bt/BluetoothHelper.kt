@@ -58,12 +58,11 @@ class BluetoothHelper private constructor() {
             //蓝牙关闭中时
             if (turning && !available) {
                 scannerHelper.stopScan()
+                connectHelper?.disConnect()
             }
         }
         btAdapter = instance.btAdapter
-        if (btConfig != null) {
-            this.btConfig = btConfig
-        }
+        this.btConfig = btConfig
     }
 
     private fun initWorkThread() {
@@ -79,10 +78,7 @@ class BluetoothHelper private constructor() {
         return connectHelper!!
     }
 
-    @RequiresPermission(
-        allOf = [android.Manifest.permission.BLUETOOTH,
-            android.Manifest.permission.BLUETOOTH_ADMIN]
-    )
+    @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
     fun open(): Boolean {
         if (!instance.isEnable()) {
             return btAdapter.enable()
@@ -90,10 +86,7 @@ class BluetoothHelper private constructor() {
         return true
     }
 
-    @RequiresPermission(
-        allOf = [android.Manifest.permission.BLUETOOTH,
-            android.Manifest.permission.BLUETOOTH_ADMIN]
-    )
+    @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
     fun close(): Boolean {
         if (instance.isEnable()) {
             return btAdapter.disable()
@@ -164,6 +157,7 @@ class BluetoothHelper private constructor() {
         connectHelper?.connectState ?: ConnectState.STATE_DISCONNECTED
 
     fun connect(device: BtDevice, connectListener: BtConnectListener? = null) {
+        stopScan()
         getConnectHelper().connect(device, connectListener)
     }
 
