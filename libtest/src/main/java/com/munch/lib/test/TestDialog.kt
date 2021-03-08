@@ -55,6 +55,11 @@ class TestDialog(private val context: Context) {
             dialog?.cancel()
         }
 
+        fun setTitle(s: String): SimpleDialog {
+            dialog?.setTitle(s)
+            return this
+        }
+
     }
 
     class BottomDialog(private val context: Context) {

@@ -3,7 +3,6 @@ package com.munch.project.test.bluetooth
 import android.os.Bundle
 import android.view.KeyEvent
 import android.widget.RadioButton
-import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.bt.*
@@ -12,6 +11,7 @@ import com.munch.lib.helper.AppHelper
 import com.munch.lib.helper.digitsInput
 import com.munch.lib.helper.upperInput
 import com.munch.lib.test.TestBaseTopActivity
+import com.munch.lib.test.TestDialog
 import com.munch.project.test.LoadViewHelper
 import com.munch.project.test.R
 import com.munch.project.test.databinding.TestActivityTestBluetoothBinding
@@ -92,14 +92,10 @@ class TestBluetoothActivity : TestBaseTopActivity() {
             }.setOnItemClick { _, _, data, _ ->
                 copyData(data)
             }.setOnItemLongClick { _, _, data, _ ->
-                AlertDialog.Builder(this)
+                TestDialog.simple(this)
                     .setTitle("连接蓝牙")
-                    .setMessage("确定以${findViewById<RadioButton>(bind.testBtTypeRg.checkedRadioButtonId).text}模式连接${data.mac}吗?")
-                    .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
-                    .setPositiveButton("连接") { dialog, _ ->
-                        connect(data)
-                        dialog.cancel()
-                    }
+                    .setContent("确定以${findViewById<RadioButton>(bind.testBtTypeRg.checkedRadioButtonId).text}模式连接${data.mac}吗?")
+                    .setConfirmListener { connect(data) }
                     .show()
                 true
             }
