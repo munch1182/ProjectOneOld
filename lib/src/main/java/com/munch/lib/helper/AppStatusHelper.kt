@@ -3,13 +3,16 @@ package com.munch.lib.helper
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.munch.lib.helper.AppForegroundStatusHelper.getForegroundLiveData
-import com.munch.lib.helper.AppForegroundStatusHelper.isForeground
-import com.munch.lib.helper.AppForegroundStatusHelper.register
+import com.munch.lib.helper.AppStatusHelper.getForegroundLiveData
+import com.munch.lib.helper.AppStatusHelper.isForeground
+import com.munch.lib.helper.AppStatusHelper.register
+import java.util.*
 
 /**
- * 通过activity计数的方式来判断activity是否在前台
+ * 1. 获取app当前前台activity对象
+ * 2. 通过activity计数的方式来判断activity是否在前台
  * 需要先在Application中[register]
  * 然后通过[isForeground]或者[getForegroundLiveData]观察是否在前台
  *
@@ -17,12 +20,12 @@ import com.munch.lib.helper.AppForegroundStatusHelper.register
  *
  * Create by munch1182 on 2020/12/17 13:46.
  */
-object AppForegroundStatusHelper {
+object AppStatusHelper {
 
     private var activityCount = 0
         set(value) {
             if ((field > 0 && value == 0) || (field == 0 && value > 0)) {
-                getForegroundLiveData().postValue(value > 0)
+                countLiveData.postValue(value > 0)
             }
             field = value
         }
@@ -33,18 +36,30 @@ object AppForegroundStatusHelper {
         }
     }
 
+    private val stack = Stack<Activity>()
+
     fun isForeground() = activityCount > 0
 
     /**
-     * 使用[MutableLiveData.observeForever]
+     * 获取本app当前显示的activity
+     *
+     * 注意：获取到的activity生命周期在start-pause之间，超出此生命周期的activity无法从此处获得
+     * 注意：需要在每一处使用时都判断是否为null，因为activity随时可能被关闭
+     * 注意：注意内存泄漏的问题
      */
-    fun getForegroundLiveData(): MutableLiveData<Boolean> {
+    fun getTopActivity(): Activity? = if (stack.isEmpty()) null else stack.peek()
+
+    /**
+     * @see MutableLiveData.observeForever
+     */
+    fun getForegroundLiveData(): LiveData<Boolean> {
         return countLiveData
     }
 
-    fun register(app: Application): AppForegroundStatusHelper {
+    fun register(app: Application): AppStatusHelper {
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityPaused(activity: Activity) {
+                stack.pop()
             }
 
             override fun onActivityStarted(activity: Activity) {
@@ -65,6 +80,7 @@ object AppForegroundStatusHelper {
             }
 
             override fun onActivityResumed(activity: Activity) {
+                stack.push(activity)
             }
         })
         return this

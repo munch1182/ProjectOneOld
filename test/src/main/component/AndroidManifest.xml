@@ -62,6 +62,7 @@
         <activity android:name=".view.TestHeaderRecyclerViewActivity" />
         <activity android:name=".view.TestFishStructureActivity" />
         <activity android:name=".bluetooth.TestBluetoothActivity" />
+        <activity android:name=".dialog.TestDialogActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
