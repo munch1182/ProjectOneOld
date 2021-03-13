@@ -200,6 +200,7 @@
                 android:id="@+id/test_bt_rv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:overScrollMode="never"
                 android:paddingStart="@dimen/padding_def"
                 android:paddingEnd="@dimen/padding_def"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

@@ -26,20 +26,60 @@ interface BtConnectListener {
     fun onFinish() {}
 }
 
-open class ConnectFailException(val reason: Int = REASON_UNSET, override val message: String) :
+open class ConnectFailException(
+    @Reason val reason: Int = Reason.REASON_UNKNOWN,
+    override val message: String
+) :
     RuntimeException(message) {
+
+    @IntDef(
+        Reason.REASON_UNKNOWN,
+        Reason.OTHER_DEVICE_CONNECTED,
+        Reason.BUSYING,
+        Reason.CONNECTING,
+        Reason.BLE_SERVICE_FAIL
+    )
+    @Retention(AnnotationRetention.SOURCE)
+    annotation class Reason {
+        companion object {
+            /**
+             * 未知错误
+             */
+            const val REASON_UNKNOWN = 0
+
+            /**
+             * 其它设备已连接
+             */
+            const val OTHER_DEVICE_CONNECTED = 1
+
+            /**
+             * 当前设备正在执行其它操作，不能进行连接
+             */
+            const val BUSYING = 2
+
+            /**
+             * 当前设备已经在连接中
+             */
+            const val CONNECTING = 3
+
+            /**
+             * 设备发现服务失败
+             */
+            const val BLE_SERVICE_FAIL = 4
+        }
+    }
 
     companion object {
 
-        /**
-         * 其它设备已连接
-         */
-        private const val REASON_UNSET = 0
-        private const val OTHER_DEVICE_CONNECTED = 1
-        private const val BLE_SERVICE_FAIL = 2
 
         fun otherConnected(mac: String) =
-            ConnectFailException(OTHER_DEVICE_CONNECTED, "device($mac) had connected")
+            ConnectFailException(Reason.OTHER_DEVICE_CONNECTED, "device($mac) had connected")
+
+        fun isBusying() =
+            ConnectFailException(Reason.BUSYING, "device is busying, wait a moment")
+
+        fun isConnecting() =
+            ConnectFailException(Reason.CONNECTING, "device is connecting, cannot connect again")
 
         fun serviceFail() = serviceFail(7)
         fun discoverMainServiceFail() = serviceFail(0)
@@ -59,7 +99,7 @@ open class ConnectFailException(val reason: Int = REASON_UNSET, override val mes
                 6 -> "set notify descriptor"
                 else -> ""
             }
-            return ConnectFailException(BLE_SERVICE_FAIL, "fail to $typeStr service")
+            return ConnectFailException(Reason.BLE_SERVICE_FAIL, "fail to $typeStr service")
         }
 
     }
@@ -174,7 +214,12 @@ internal sealed class BtConnector {
                     return
                 }
 
-                bleDataHelper = BleDataHelper()
+                if (bleDataHelper != null) {
+                    bleDataHelper!!.release()
+                } else {
+                    bleDataHelper = BleDataHelper()
+                }
+                bleDataHelper!!.setGatt(gatt)
 
                 val uuidNotify = btConfig.UUID_NOTIFY
                 if (uuidNotify != null) {
@@ -187,18 +232,21 @@ internal sealed class BtConnector {
                         connectCallBack.connectFail(ConnectFailException.setNotifyFail())
                         return
                     }
-                    val notifyDescriptor =
-                        notifyService.getDescriptor(UUID.fromString(btConfig.UUID_DESCRIPTOR_NOTIFY))
-                    if (notifyDescriptor == null) {
-                        connectCallBack.connectFail(ConnectFailException.discoverNotifyDescriptorFail())
-                        return
+                    val descriptorNotify = btConfig.UUID_DESCRIPTOR_NOTIFY
+                    if (descriptorNotify != null) {
+                        val notifyDescriptor =
+                            notifyService.getDescriptor(UUID.fromString(descriptorNotify))
+                        if (notifyDescriptor == null) {
+                            connectCallBack.connectFail(ConnectFailException.discoverNotifyDescriptorFail())
+                            return
+                        }
+                        notifyDescriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                        if (!gatt.writeDescriptor(notifyDescriptor)) {
+                            connectCallBack.connectFail(ConnectFailException.setNotifyDescriptorFail())
+                            return
+                        }
                     }
-                    notifyDescriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                    if (!gatt.writeDescriptor(notifyDescriptor)) {
-                        connectCallBack.connectFail(ConnectFailException.setNotifyDescriptorFail())
-                        return
-                    }
-                    bleDataHelper?.setNotify(notifyService, notifyDescriptor)
+                    bleDataHelper?.setNotify(notifyService)
                 }
 
                 val uuidWrite = btConfig.UUID_WRITE
@@ -256,7 +304,17 @@ internal sealed class BtConnector {
                 bleDataHelper?.onCharacteristicChanged(characteristic)
             }
 
+            override fun onCharacteristicWrite(
+                gatt: BluetoothGatt?,
+                characteristic: BluetoothGattCharacteristic?,
+                status: Int
+            ) {
+                super.onCharacteristicWrite(gatt, characteristic, status)
+                bleDataHelper?.onCharacteristicWrite(characteristic, status)
+            }
+
         }
+
         override val connectCallBack = object : BtConnectListener {
             override fun onStart(mac: String) {
                 updateState2Connecting()
@@ -451,10 +509,27 @@ class BtConnectHelper(private val thread: Handler) : AddRemoveSetHelper<BtConnec
         synchronized(this) {
             val connector = getConnector(device.type)
             if (currentDevice != null) {
-                if (device != currentDevice) {
-                    connectListener?.connectFail(ConnectFailException.otherConnected(currentDevice!!.mac))
-                } else if (!connector.unConnected()) {
-                    return
+                when {
+                    //当前仍有设备连接
+                    //则此处连接失败，需要先断开连接后再调用此方法
+                    device != currentDevice -> {
+                        connectListener?.connectFail(
+                            ConnectFailException.otherConnected(currentDevice!!.mac)
+                        )
+                        return
+                    }
+                    //当前设备正在断开连接
+                    //则此处连接失败，需要等待当前设备完全断开连接后再调用此方法
+                    connector.isDisconnecting() -> {
+                        connectListener?.connectFail(ConnectFailException.isBusying())
+                        return
+                    }
+                    //当前设备正在连接
+                    //则此处连接失败，因为无法走完BtConnectListener的全部回调
+                    connector.isConnecting() -> {
+                        connectListener?.connectFail(ConnectFailException.isConnecting())
+                        return
+                    }
                 }
             }
             currentDevice = device
@@ -462,6 +537,7 @@ class BtConnectHelper(private val thread: Handler) : AddRemoveSetHelper<BtConnec
                 onceConnectListener = connectListener
                 getConnectListeners().add(connectListener)
             }
+            //开始连接
             connector.setTarget(currentDevice!!).connect()
         }
     }

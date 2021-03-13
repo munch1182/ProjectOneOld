@@ -82,6 +82,11 @@ class TestBluetoothActivity : TestBaseTopActivity() {
             }
         }
 
+        bind.testBtTypeRg.setOnCheckedChangeListener { _, checkedId ->
+            bind.testBtStick.isChecked = checkedId == R.id.test_bt_type_ble
+            bind.testBtStick.isEnabled = checkedId != R.id.test_bt_type_ble
+        }
+
         loadViewHelper.bind(this)
 
         BluetoothHelper.getInstance().init(this)
@@ -95,7 +100,7 @@ class TestBluetoothActivity : TestBaseTopActivity() {
             }.setOnItemLongClick { _, _, data, _ ->
                 TestDialog.simple(this)
                     .setTitle("连接蓝牙")
-                    .setContent("确定以${findViewById<RadioButton>(bind.testBtTypeRg.checkedRadioButtonId).text}模式连接${data.mac}吗?")
+                    .setContent("确定以${findViewById<RadioButton>(bind.testBtTypeRg.checkedRadioButtonId).text ?: "?"}模式连接${data.mac}吗?")
                     .setConfirmListener { connect(data) }
                     .show()
                 true
