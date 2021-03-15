@@ -156,9 +156,7 @@ class AppItemHelper private constructor() {
             return
         }
         registered = true
-        AppInstallReceiver(context).apply {
-            add { _, _, _ -> getInstance().update() }
-        }.register()
+        AppInstallReceiver(context).apply { add { _, _, _ -> update() } }.register()
     }
 
 }

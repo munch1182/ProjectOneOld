@@ -87,15 +87,28 @@ open class BluetoothStateReceiver(context: Context) :
 }
 
 /**
- * 应用安装、卸载广播
+ * 应用安装、卸载、替换广播
+ *
+ * 部分机型需要设置允许后台才能在后台收到广播，比如魅族手机
  *
  * 在android11，需要[android.Manifest.permission.QUERY_ALL_PACKAGES]权限
  */
 open class AppInstallReceiver(context: Context) :
-    ReceiverHelper<(context: Context?, isAdd: Boolean, pkgName: String?) -> Unit>(
+    ReceiverHelper<(context: Context?, action: String, pkgName: String?) -> Unit>(
         context,
-        arrayOf(Intent.ACTION_PACKAGE_REMOVED, Intent.ACTION_PACKAGE_ADDED)
+        arrayOf(
+            Intent.ACTION_PACKAGE_REMOVED,
+            Intent.ACTION_PACKAGE_ADDED,
+            Intent.ACTION_PACKAGE_REPLACED
+        )
     ) {
+
+    companion object {
+
+        fun isAdd(action: String) = action == Intent.ACTION_PACKAGE_ADDED
+        fun isRemoved(action: String) = action == Intent.ACTION_PACKAGE_REMOVED
+        fun isReplaced(action: String) = action == Intent.ACTION_PACKAGE_REPLACED
+    }
 
     override fun buildIntentFilter(intent: IntentFilter) {
         super.buildIntentFilter(intent)
@@ -106,16 +119,9 @@ open class AppInstallReceiver(context: Context) :
         action: String,
         context: Context?,
         intent: Intent,
-        t: (context: Context?, isAdd: Boolean, pkgName: String?) -> Unit
+        t: (context: Context?, action: String, pkgName: String?) -> Unit
     ) {
-        when (action) {
-            Intent.ACTION_PACKAGE_ADDED -> {
-                t.invoke(context, true, intent.dataString)
-            }
-            Intent.ACTION_PACKAGE_REMOVED -> {
-                t.invoke(context, false, intent.dataString)
-            }
-        }
+        t.invoke(context, action, intent.dataString)
     }
 }
 
