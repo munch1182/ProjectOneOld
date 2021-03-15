@@ -4,7 +4,6 @@ import android.os.Bundle
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.munch.lib.common.RouterHelper
 import com.munch.lib.common.start2Component
-import com.munch.lib.test.TestDialog
 import com.munch.lib.test.recyclerview.TestRvActivity
 import com.munch.lib.test.recyclerview.TestRvItemBean
 import com.munch.project.test.bluetooth.TestBluetoothActivity

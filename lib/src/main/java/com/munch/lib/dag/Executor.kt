@@ -1,19 +1,14 @@
 package com.munch.lib.dag
 
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 
 /**
  * Create by munch1182 on 2021/2/25 16:31.
  */
-class Executor private constructor() {
+class Executor {
 
     companion object {
-        private val INSTANCE by lazy { Executor() }
-
-        fun getInstance() = INSTANCE
 
         fun Dag<Key>.addTask(task: Task) {
             val depends = task.dependsOn()
@@ -29,14 +24,14 @@ class Executor private constructor() {
         }
     }
 
+    internal var completeCallBack: ((executor: Executor) -> Unit)? = null
+    internal var startCallBack: ((executor: Executor) -> Unit)? = null
+    internal var executeCallBack: ((task: Task, executor: Executor) -> Unit)? = null
+    internal var errorCallBack: ((task: Task, e: Throwable, executor: Executor) -> Unit)? = null
+
     private val taskDependMap = mutableMapOf<Key, Task>()
     fun getTasks() = taskDependMap
-    fun getTask(key: Key) = taskDependMap[key]
-    private var finishCallBack: ((executor: Executor) -> Unit)? = null
-    private var executeCallBack: MutableList<((task: Task, executor: Executor) -> Unit)?> =
-        mutableListOf()
-    private var errorCallBack: MutableList<((task: Task, e: Exception, executor: Executor) -> Unit)?> =
-        mutableListOf()
+    fun getTask(key: String) = taskDependMap[Key(key)]
     private val dag: Dag<Key> = Dag()
 
     fun add(task: Task): Executor {
@@ -45,50 +40,37 @@ class Executor private constructor() {
     }
 
     fun execute() {
-        taskDependMap.values.sortedBy { it.getPriority() }.forEach { dag.addTask(it) }
         val executor = this
-        dumpTask()
-            .forEach { task ->
-                runBlocking(task.dispatcher) {
-                    try {
-                        flowOf(task).map { it.start(executor) }.collect {
-                            executeCallBack.forEach { callBack -> callBack?.invoke(task, executor) }
-                        }
-                    } catch (e: Exception) {
-                        errorCallBack.forEach { callBack -> callBack?.invoke(task, e, executor) }
-                    }
-                }
-            }
-        finishCallBack?.invoke(executor)
-    }
-
-    fun executeCallBack(callBack: (task: Task, executor: Executor) -> Unit): Executor {
-        this.executeCallBack.add(callBack)
-        return this
-    }
-
-    fun removeCallBack(callBack: (task: Task, executor: Executor) -> Unit): Executor {
-        this.executeCallBack.remove(callBack)
-        return this
-    }
-
-    fun removeCallBack(errorCallBack: (task: Task, exception: Exception, executor: Executor) -> Unit): Executor {
-        this.errorCallBack.remove(errorCallBack)
-        return this
-    }
-
-    fun errorCallBack(errorCallBack: (task: Task, exception: Exception, executor: Executor) -> Unit): Executor {
-        this.errorCallBack.add(errorCallBack)
-        return this
-    }
-
-    fun setFinishCallBack(finishCallBack: ((executor: Executor) -> Unit)? = null): Executor {
-        this.finishCallBack = finishCallBack
-        return this
+        GlobalScope.launch(Dispatchers.IO) {
+            taskDependMap.values.sortedBy { -it.getPriority() }.forEach { dag.addTask(it) }
+            startCallBack?.invoke(this@Executor)
+            dumpTask().forEach { task -> task.run(executor).collect {} }
+            completeCallBack?.invoke(this@Executor)
+        }
     }
 
     private fun dumpTask(): List<Task> {
         return dag.dump()
             .map { taskDependMap[it.point] ?: throw IllegalStateException("cannot find task") }
+    }
+
+    fun setStartListener(listener: ((executor: Executor) -> Unit)? = null): Executor {
+        startCallBack = listener
+        return this
+    }
+
+    fun setCompleteListener(listener: ((executor: Executor) -> Unit)? = null): Executor {
+        completeCallBack = listener
+        return this
+    }
+
+    fun setErrorListener(listener: ((task: Task, e: Throwable, executor: Executor) -> Unit)?): Executor {
+        errorCallBack = listener
+        return this
+    }
+
+    fun setExecuteListener(listener: ((task: Task, executor: Executor) -> Unit)?): Executor {
+        executeCallBack = listener
+        return this
     }
 }

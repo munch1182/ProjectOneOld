@@ -1,6 +1,7 @@
 package com.munch.project.test
 
 import com.munch.lib.common.CommonApp
+import com.munch.lib.helper.AppStatusHelper
 import com.munch.project.test.switch.SwitchHelper
 
 /**
@@ -11,5 +12,6 @@ class TestApp : CommonApp() {
     override fun onCreate() {
         super.onCreate()
         SwitchHelper.INSTANCE.registerApp(this)
+        AppStatusHelper.register(this)
     }
 }

@@ -3,7 +3,6 @@ package com.munch.project.launcher.app
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import com.munch.lib.dag.Executor
 import com.munch.lib.helper.ServiceBindHelper
 import com.munch.project.launcher.app.task.AppItemTask
 
@@ -18,6 +17,6 @@ class AppService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Executor.getInstance().add(AppItemTask()).execute()
+        App.getInstance().executor().add(AppItemTask()).execute()
     }
 }

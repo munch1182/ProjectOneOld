@@ -1,6 +1,7 @@
 package com.munch.project.launcher.app
 
 import com.munch.lib.BaseApp
+import com.munch.lib.dag.Executor
 import com.munch.lib.helper.ServiceBindHelper
 import com.munch.project.launcher.app.task.AppItemHelper
 import dagger.hilt.android.HiltAndroidApp
@@ -17,6 +18,7 @@ class App : BaseApp() {
     }
 
     private val serviceHelper by lazy { ServiceBindHelper.bindApp<AppService>(this) }
+    private val executor by lazy { Executor() }
 
     override fun onCreate() {
         super.onCreate()
@@ -25,5 +27,7 @@ class App : BaseApp() {
         /*AppStatusHelper.register(this).getForegroundLiveData().observeForever {
         }*/
     }
+
+    fun executor() = executor
 
 }

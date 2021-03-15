@@ -2,6 +2,8 @@ package com.munch.lib.dag
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 /**
@@ -11,26 +13,59 @@ class ExecutorTest {
 
     @Test
     fun execute() {
-        Executor.getInstance()
+        Executor()
             .add(Task4())
             .add(Task1())
             .add(Task3())
             .add(Task2())
             .add(Task5())
             .add(Task6())
-            .executeCallBack { task, _ ->
-                println(task.uniqueKey)
-            }
             .execute()
     }
 
-    interface TestTask : Task {
+    @Test
+    fun executeBlock() {
+        Executor()
+            .add(Task4())
+            .add(Task1())
+            .add(Task3())
+            .add(Task7())
+            .add(Task2())
+            .add(Task5())
+            .add(Task6())
+            .setExecuteListener { task, _ -> println("${task.uniqueKey} executed") }
+            .execute()
+    }
+
+    abstract class TestTask : Task() {
         override fun start(executor: Executor) {
-            println(uniqueKey.toString())
+            println("$uniqueKey start")
         }
     }
 
-    class Task1 : TestTask {
+    class Task7 : TestTask() {
+
+        override fun start(executor: Executor) {
+            super.start(executor)
+            signBlock()
+            runBlocking {
+                delay(5000L)
+                next()
+            }
+        }
+
+        override fun dependsOn(): MutableList<Key> {
+            return mutableListOf()
+        }
+
+        override val dispatcher: CoroutineDispatcher
+            get() = Dispatchers.IO
+
+        override val uniqueKey: Key
+            get() = Key("7")
+    }
+
+    class Task1 : TestTask() {
 
         override fun dependsOn(): MutableList<Key> {
             return mutableListOf()
@@ -43,7 +78,7 @@ class ExecutorTest {
             get() = Key("1")
     }
 
-    class Task2 : TestTask {
+    class Task2 : TestTask() {
         override val uniqueKey: Key
             get() = Key("2")
 
@@ -55,7 +90,7 @@ class ExecutorTest {
             get() = Dispatchers.IO
     }
 
-    class Task3 : TestTask {
+    class Task3 : TestTask() {
         override val uniqueKey: Key
             get() = Key("3")
 
@@ -67,7 +102,7 @@ class ExecutorTest {
             get() = Dispatchers.IO
     }
 
-    class Task4 : TestTask {
+    class Task4 : TestTask() {
         override val uniqueKey: Key
             get() = Key("4")
 
@@ -79,7 +114,7 @@ class ExecutorTest {
             get() = Dispatchers.IO
     }
 
-    class Task5 : TestTask {
+    class Task5 : TestTask() {
         override val uniqueKey: Key
             get() = Key("5")
 
@@ -91,9 +126,9 @@ class ExecutorTest {
             get() = Dispatchers.IO
     }
 
-    class Task6 : TestTask {
+    class Task6 : TestTask() {
         override val uniqueKey: Key
-            get() = Key("6", 1)
+            get() = Key("6")
 
         override fun dependsOn(): MutableList<Key> {
             return mutableListOf()
@@ -101,5 +136,7 @@ class ExecutorTest {
 
         override val dispatcher: CoroutineDispatcher
             get() = Dispatchers.IO
+
+        override fun getPriority() = 6
     }
 }

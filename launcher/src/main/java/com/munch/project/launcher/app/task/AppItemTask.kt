@@ -156,12 +156,20 @@ class AppItemHelper private constructor() {
             return
         }
         registered = true
-        AppInstallReceiver(context).apply { add { _, _, _ -> update() } }.register()
+        AppInstallReceiver(context).apply {
+            add { _, action, _ ->
+                //replaced属于重复广播，此处不需要重复处理
+                if (AppInstallReceiver.isReplaced(action)) {
+                    return@add
+                }
+                update()
+            }
+        }.register()
     }
 
 }
 
-class AppItemTask : Task {
+class AppItemTask : Task() {
 
     companion object {
 
@@ -176,10 +184,5 @@ class AppItemTask : Task {
         get() = Dispatchers.IO
     override val uniqueKey: Key
         get() = key
-
-    override fun dependsOn(): MutableList<Key> {
-        return mutableListOf()
-    }
-
 
 }
