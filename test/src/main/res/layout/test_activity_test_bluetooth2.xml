@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.munch.project.test.bluetooth.TestBluetooth2ViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/test_bt_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".bluetooth.TestBluetooth2Activity"
+        tools:ignore="HardcodedText">
+
+        <TextView
+            android:id="@+id/test_bt_dev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_def"
+            android:text="@{vm.dev.name ?? @string/n_a + '('+ vm.dev.mac + ')'}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="N/A 12:12:12:12:12:12" />
+
+        <Button
+            android:id="@+id/test_bt_connect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_def"
+            android:layout_marginEnd="@dimen/padding_def"
+            android:text="连接"
+            app:layout_constraintBottom_toBottomOf="@id/test_bt_state"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/test_bt_state" />
+
+        <TextView
+            android:id="@+id/test_bt_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_def"
+            app:layout_constraintEnd_toStartOf="@id/test_bt_connect"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/test_bt_dev"
+            app:layout_constraintTop_toBottomOf="@id/test_bt_dev"
+            tools:text="蓝牙已开启 设备已连接" />
+
+        <ScrollView
+            android:id="@+id/test_bt_reader_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxHeight="300dp"
+            android:minHeight="150dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/test_bt_connect">
+
+            <TextView
+                android:id="@+id/test_bt_reader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_def"
+                tools:text="123333333333333333333333333333333333333333333333333333333" />
+        </ScrollView>
+
+        <EditText
+            android:id="@+id/test_bt_sender_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorTextGray"
+            android:gravity="start|top"
+            android:inputType="number"
+            android:maxHeight="200dp"
+            android:minHeight="200dp"
+            android:padding="@dimen/padding_def"
+            app:layout_constraintTop_toBottomOf="@id/test_bt_reader_container"
+            tools:ignore="LabelFor"
+            tools:text="123123123123" />
+
+        <Button
+            android:id="@+id/test_bt_sender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_def"
+            android:text="发送"
+            app:layout_constraintTop_toBottomOf="@id/test_bt_sender_content" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

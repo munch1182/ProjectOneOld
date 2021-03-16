@@ -2,7 +2,9 @@ package com.munch.lib.bt
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
+import android.os.Parcelable
 import androidx.annotation.RequiresPermission
+import kotlinx.parcelize.Parcelize
 
 /**
  * Create by munch1182 on 2021/3/2 16:55.
@@ -54,10 +56,20 @@ sealed class BtType {
     /**
      * 经典蓝牙
      */
-    object Classic : BtType()
+    object Classic : BtType() {
+
+        override fun toString(): String {
+            return "classic"
+        }
+    }
 
     /**
      * 低功耗蓝牙
      */
-    object Ble : BtType()
+    object Ble : BtType() {
+
+        override fun toString(): String {
+            return "ble"
+        }
+    }
 }
