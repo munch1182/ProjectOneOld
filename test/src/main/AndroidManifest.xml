@@ -40,6 +40,7 @@
         <activity android:name=".bluetooth.TestBluetoothActivity" />
         <activity android:name=".dialog.TestDialogActivity" />
         <activity android:name=".bluetooth.TestBluetooth2Activity" />
+        <activity android:name=".TestNetMainActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

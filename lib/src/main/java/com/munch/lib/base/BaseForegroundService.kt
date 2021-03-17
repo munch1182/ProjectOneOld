@@ -44,18 +44,22 @@ open class BaseForegroundService(val parameter: Parameter) : Service() {
                 )
             )
         }
-        startForeground(parameter.serviceId, buildNotification())
+        startForeground(parameter.serviceId, buildNotification().build())
     }
 
-    open fun buildNotification(): Notification {
-        return NotificationCompat.Builder(this, parameter.channelId).build()
+    open fun buildNotification(title: String? = null): NotificationCompat.Builder {
+        return NotificationCompat.Builder(this, parameter.channelId).apply {
+            if (title != null) {
+                setContentTitle(title)
+            }
+        }
     }
 
     fun cancel() {
         manager.cancel(parameter.serviceId)
     }
 
-    fun notify(notification: Notification = buildNotification()) {
+    fun notify(notification: Notification = buildNotification().build()) {
         manager.notify(parameter.serviceId, notification)
     }
 

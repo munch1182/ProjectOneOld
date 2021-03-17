@@ -36,3 +36,7 @@ class TestFileMainActivity : TestRvActivity() {
         )
     }
 }
+
+class TestNetMainActivity : TestRvActivity(){
+
+}

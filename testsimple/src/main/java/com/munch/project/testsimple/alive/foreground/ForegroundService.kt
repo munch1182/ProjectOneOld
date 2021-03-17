@@ -47,14 +47,13 @@ class ForegroundService : DefForegroundService() {
         TestDataHelper.startForegroundTimerThread(this)
     }
 
-    override fun buildNotification(): Notification {
+    override fun buildNotification(title: String?): NotificationCompat.Builder {
         return NotificationCompat
             .Builder(this, parameter.channelId)
             .setContentTitle("前台服务运行中")
             .setContentText("${"yyyyMMdd HH:mm:ss".formatDate(System.currentTimeMillis())}开始运行")
             .setSmallIcon(R.mipmap.test_simple_ic_launcher)
-            .setLargeIcon(BitmapFactory.decodeResource(resources,R.mipmap.test_simple_ic_launcher))
-            .build()
+            .setLargeIcon(BitmapFactory.decodeResource(resources, R.mipmap.test_simple_ic_launcher))
     }
 
 
