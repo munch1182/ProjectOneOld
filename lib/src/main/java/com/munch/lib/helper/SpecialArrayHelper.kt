@@ -17,7 +17,7 @@ open class SpecialArrayHelper(private val unit: Int) {
     private var array = arrayListOf<Float>()
 
     fun setArray(array: Collection<Float>) {
-        this.array.clear()
+        clear()
         this.array.addAll(array)
     }
 
@@ -28,6 +28,12 @@ open class SpecialArrayHelper(private val unit: Int) {
     open fun getVal(level: Int, index: Int): Float {
         return array[level * unit + index]
     }
+
+    open fun clear(){
+        array.clear()
+    }
+
+    open fun getArray() = array
 
     override fun toString(): String {
         val sb = StringBuilder()

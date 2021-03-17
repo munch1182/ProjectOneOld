@@ -14,6 +14,7 @@ class TestViewActivity : TestRvActivity() {
     override fun getItems(): MutableList<TestRvItemBean> {
         return mutableListOf(
             TestRvItemBean.newInstance("Weight", TestWeightActivity::class.java),
+            TestRvItemBean.newInstance("Calendar", TestCalendarViewActivity::class.java),
             TestRvItemBean.newInstance("BookPage", TestBookPageViewActivity::class.java),
             TestRvItemBean.newInstance("Fish", TestFishStructureActivity::class.java),
             TestRvItemBean.newInstance("FlowLayout", TestFlowLayoutActivity::class.java),

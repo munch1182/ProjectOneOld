@@ -41,6 +41,7 @@
         <activity android:name=".dialog.TestDialogActivity" />
         <activity android:name=".bluetooth.TestBluetooth2Activity" />
         <activity android:name=".TestNetMainActivity" />
+        <activity android:name=".view.TestCalendarViewActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

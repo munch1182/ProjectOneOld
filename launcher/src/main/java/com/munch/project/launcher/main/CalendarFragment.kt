@@ -85,6 +85,11 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        model.resetToday()
+    }
+
     private fun changeMoth() {
         model.nextMouth()
         lastChose = -1
@@ -205,6 +210,11 @@ class CalendarFragment : BaseFragment<FragmentCalendarBinding>() {
             }
             instance.set(Calendar.DAY_OF_MONTH, data.day.toInt())
             choseLiveData.postValue(instance.time)
+        }
+
+        fun resetToday() {
+            instance.time = Date()
+            updateMouthList()
         }
     }
 
