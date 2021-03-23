@@ -49,7 +49,7 @@ class BtDeviceInstance constructor(private val context: Context) {
         return btAdapter?.isEnabled ?: false
     }
 
-    fun getStateListeners(): AddRemoveSetHelper<(state: Int, turning: Boolean, available: Boolean) -> Unit> =
+    fun getBluetoothStateListeners(): AddRemoveSetHelper<(state: Int, turning: Boolean, available: Boolean) -> Unit> =
         stateReceiver
 
     fun release() {

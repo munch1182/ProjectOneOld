@@ -7,7 +7,8 @@ apply from: '../gradle/commonbuildktx.gradle'
 
 dependencies {
     implementation rootProject.ext.dependencies['kotlinx_coroutines']
+    implementation rootProject.ext.dependencies['data_store']
+
     /*等appcompat升级到1.3.0正式版时删除此依赖*/
     implementation rootProject.ext.dependencies['lifecycle_extensions']
-
 }

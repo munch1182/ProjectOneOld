@@ -2,12 +2,12 @@ package com.munch.project.test.bluetooth
 
 import android.content.Context
 import android.os.Bundle
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import android.widget.TextView
+import androidx.lifecycle.*
 import com.munch.lib.base.BaseRootActivity
 import com.munch.lib.bt.BluetoothHelper
 import com.munch.lib.bt.BtConnectListener
+import com.munch.lib.bt.BtConnectStateListener
 import com.munch.lib.bt.BtDevice
 import com.munch.lib.helper.startActivity
 import com.munch.lib.log
@@ -16,6 +16,7 @@ import com.munch.lib.test.TestBaseTopActivity
 import com.munch.lib.test.TestDialog
 import com.munch.project.test.R
 import com.munch.project.test.databinding.TestActivityTestBluetooth2Binding
+import kotlinx.coroutines.launch
 
 /**
  * Create by munch1182 on 2021/3/16 16:58.
@@ -42,8 +43,111 @@ class TestBluetooth2Activity : TestBaseTopActivity(), BaseBt {
         }
         loadViewHelper.bind(this)
         bind.testBtConnect.setOnClickListener {
-            showDialog2Connect(TestBluetooth2ViewModel.device)
+            BluetoothHelper.getInstance().run {
+                when {
+                    !isOpen() -> BluetoothHelper.getInstance().open()
+                    isDisconnected() -> showDialog2Connect(TestBluetooth2ViewModel.device)
+                    isConnected() -> BluetoothHelper.getInstance().disConnect()
+                    isConnecting() -> {
+                    }
+                    else -> {
+                    }
+                }
+            }
         }
+        bind.testBtConnectSet.setOnClickListener {
+            showDialog2ConnectSet()
+        }
+        BluetoothHelper.getInstance().getBluetoothStateListeners().setWhenResume(this,
+            { _, turning, available ->
+                if (!turning && available) {
+                    showNotice("蓝牙已开启", bind.testBtState)
+                } else {
+                    showNotice("蓝牙已关闭", bind.testBtState)
+                }
+                changeBtnStateShow()
+            }
+        )
+        BluetoothHelper.getInstance().getConnectListeners()
+            .setWhenResume(this, object : BtConnectListener {
+                override fun onStart(mac: String) {
+                    showNotice("设备连接中", bind.testBtStateDev)
+                }
+
+                override fun connectSuccess(mac: String) {
+                    showNotice("设备连接成功", bind.testBtStateDev)
+                }
+
+                override fun connectFail(e: Exception) {
+                    showNotice("设备连接失败, ${e.message}", bind.testBtStateDev)
+                }
+            })
+        BluetoothHelper.getInstance().getConnectStateListeners()
+            .setWhenResume(this, object : BtConnectStateListener {
+                override fun onStateChange(oldState: Int, newState: Int) {
+                    changeBtnStateShow()
+                    if (BluetoothHelper.getInstance().isDisconnected()) {
+                        showNotice("设备连接已断开", bind.testBtStateDev)
+                    }
+                }
+            })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        BluetoothHelper.getInstance().run {
+            when {
+                isConnected() -> {
+                    showNotice("设备连接成功", bind.testBtStateDev)
+                }
+                isConnecting() -> {
+                    showNotice("设备连接中", bind.testBtStateDev)
+                }
+                else -> {
+                    showNotice("设备未连接", bind.testBtStateDev)
+                }
+            }
+            if (isOpen()) {
+                showNotice("蓝牙已开启", bind.testBtState)
+            } else {
+                showNotice("蓝牙已关闭", bind.testBtState)
+            }
+        }
+        lifecycleScope.launch {
+            val config = TestBluetoothConnectSetActivity.getConfigFromDataStore()
+            if (config.UUID_MAIN_SERVER == null) {
+                showNotice("UUID未设置", bind.testBtStateSet)
+            } else {
+                showNotice("UUID已设置", bind.testBtStateSet)
+                BluetoothHelper.getInstance().setConfig(config)
+            }
+        }
+        changeBtnStateShow()
+    }
+
+    private fun changeBtnStateShow() {
+        BluetoothHelper.getInstance().run {
+            when {
+                !isOpen() -> setBtnText("打开蓝牙")
+                isDisconnected() -> setBtnText("连接")
+                isConnected() -> setBtnText("断开连接")
+                isConnecting() -> setBtnText("连接中")
+            }
+        }
+    }
+
+    private fun setBtnText(text: String) {
+        bind.testBtConnect.post {
+            bind.testBtConnect.text = text
+        }
+    }
+
+    private fun showDialog2ConnectSet() {
+        startActivity(TestBluetoothConnectSetActivity::class.java)
+    }
+
+    private fun showNotice(s: String, text: TextView) {
+        text.run { post { text.text = s } }
     }
 
     private fun showDialog2Connect(dev: BtDevice) {
@@ -71,7 +175,6 @@ class TestBluetooth2Activity : TestBaseTopActivity(), BaseBt {
                         override fun connectSuccess(mac: String) {
                             log("connectSuccess")
                             toast("连接成功")
-                            startActivity(TestBluetooth2Activity::class.java)
                         }
 
                         override fun connectFail(e: Exception) {
@@ -108,4 +211,7 @@ class TestBluetooth2ViewModel : ViewModel() {
 
     private val dev = device
     fun getDev(): LiveData<BtDevice> = MutableLiveData(dev)
+
+    init {
+    }
 }

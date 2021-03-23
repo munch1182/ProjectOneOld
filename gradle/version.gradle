@@ -68,7 +68,7 @@ ext {
             /*https://developer.android.google.cn/topic/libraries/app-startup*/
             "startup"                         : "androidx.startup:startup-runtime:1.0.0",
             /*https://developer.android.google.cn/topic/libraries/architecture/datastore#preferences-datastore*/
-            "data_store"                      : "androidx.datastore:datastore-preferences:1.0.0-alpha04",
+            "data_store"                      : "androidx.datastore:datastore-preferences:1.0.0-alpha06",
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/lifecycle*/
             // ViewModel and LiveData

@@ -54,7 +54,7 @@ class BluetoothHelper private constructor() {
         initWorkThread()
         instance = BtDeviceInstance(this.context)
         scannerHelper = BtScannerHelper(handler)
-        instance.getStateListeners().add { _, turning, available ->
+        instance.getBluetoothStateListeners().add { _, turning, available ->
             //蓝牙关闭中时
             if (turning && !available) {
                 scannerHelper.stopScan()
@@ -62,7 +62,12 @@ class BluetoothHelper private constructor() {
             }
         }
         btAdapter = instance.btAdapter
+        setConfig(btConfig)
+    }
+
+    fun setConfig(btConfig: BtConfig?): BluetoothHelper {
         this.btConfig = btConfig
+        return this
     }
 
     private fun initWorkThread() {
@@ -80,7 +85,7 @@ class BluetoothHelper private constructor() {
 
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
     fun open(): Boolean {
-        if (!instance.isEnable()) {
+        if (!isOpen()) {
             return btAdapter.enable()
         }
         return true
@@ -88,11 +93,14 @@ class BluetoothHelper private constructor() {
 
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
     fun close(): Boolean {
-        if (instance.isEnable()) {
+        if (isOpen()) {
             return btAdapter.disable()
         }
         return true
     }
+
+    @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
+    fun isOpen() = instance.isEnable()
 
     @RequiresPermission(
         allOf = [android.Manifest.permission.BLUETOOTH,
@@ -140,9 +148,12 @@ class BluetoothHelper private constructor() {
 
     fun getScanListeners(): AddRemoveSetHelper<BtScanListener> = scannerHelper
 
-    fun getConnectListeners(): AddRemoveSetHelper<BtConnectListener> = connectHelper!!
+    fun getConnectListeners(): AddRemoveSetHelper<BtConnectListener> = getConnectHelper()
 
-    fun getStateListeners() = instance.getStateListeners()
+    fun getBluetoothStateListeners() = instance.getBluetoothStateListeners()
+
+    fun getConnectStateListeners(): AddRemoveSetHelper<BtConnectStateListener> =
+        getConnectHelper().connectStateListener
 
     @RequiresPermission(
         allOf = [android.Manifest.permission.BLUETOOTH,
@@ -155,6 +166,10 @@ class BluetoothHelper private constructor() {
 
     fun connectState(): @ConnectState Int =
         connectHelper?.connectState ?: ConnectState.STATE_DISCONNECTED
+
+    fun isConnected() = connectState() == ConnectState.STATE_CONNECTED
+    fun isConnecting() = connectState() == ConnectState.STATE_CONNECTING
+    fun isDisconnected() = connectState() == ConnectState.STATE_DISCONNECTED
 
     fun connect(device: BtDevice, connectListener: BtConnectListener? = null) {
         stopScan()

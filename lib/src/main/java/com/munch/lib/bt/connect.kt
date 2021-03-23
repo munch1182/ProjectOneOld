@@ -112,6 +112,12 @@ internal sealed class BtConnector {
     protected var connectListener: BtConnectListener? = null
     protected var target: BtDevice? = null
     internal var state: @ConnectState Int = ConnectState.STATE_DISCONNECTED
+        set(value) {
+            val oldState = field
+            field = value
+            connectStateListener?.onStateChange(oldState, value)
+        }
+    protected open var connectStateListener: BtConnectStateListener? = null
     protected open val connectCallBack = object : BtConnectListener {
         override fun onStart(mac: String) {
             connectListener?.onStart(mac)
@@ -186,7 +192,7 @@ internal sealed class BtConnector {
     internal class BleConnector : BtConnector() {
         private var bleDataHelper: BleDataHelper? = null
         private val gattCallBack = object : BluetoothGattCallback() {
-
+            //此方法目前在断开时没有回调
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
                 super.onConnectionStateChange(gatt, status, newState)
                 //业务的连接状态成功需要在服务发现和设置完毕后
@@ -329,6 +335,8 @@ internal sealed class BtConnector {
 
             override fun connectFail(e: Exception) {
                 updateState2Disconnected()
+                //断开因服务失败等情形的实际连接
+                disconnect()
                 bleDataHelper?.release()
                 connectListener?.connectFail(e)
                 connectListener?.onFinish()
@@ -388,6 +396,11 @@ internal sealed class BtConnector {
         return this
     }
 
+    fun setConnectStateListener(listener: BtConnectStateListener): BtConnector {
+        connectStateListener = listener
+        return this
+    }
+
     //<editor-fold desc="state">
     /**
      * 处于未连接状态，才可以进行连接，否则应该先断开或者取消再连接
@@ -414,7 +427,7 @@ internal sealed class BtConnector {
     //</editor-fold>
 }
 
-@Target(AnnotationTarget.TYPE)
+@Target(AnnotationTarget.TYPE, AnnotationTarget.CLASS, AnnotationTarget.VALUE_PARAMETER)
 @IntDef(
     ConnectState.STATE_CONNECTED,
     ConnectState.STATE_CONNECTING,
@@ -430,6 +443,17 @@ annotation class ConnectState {
         const val STATE_CONNECTED = 2
         const val STATE_DISCONNECTING = 3
     }
+}
+
+/**
+ * 设备连接状态回调
+ */
+interface BtConnectStateListener {
+
+    /**
+     * 既然已经有单例，且有分别的判断方法，那么是否可以隐藏ConnectState
+     */
+    fun onStateChange(@ConnectState oldState: Int, @ConnectState newState: Int)
 }
 
 class BtConnectHelper(private val thread: Handler) : AddRemoveSetHelper<BtConnectListener>() {
@@ -463,6 +487,16 @@ class BtConnectHelper(private val thread: Handler) : AddRemoveSetHelper<BtConnec
             if (onceConnectListener != null) {
                 getConnectListeners().remove(onceConnectListener)
                 onceConnectListener = null
+            }
+        }
+    }
+    internal val connectStateListener by lazy {
+        return@lazy object : AddRemoveSetHelper<BtConnectStateListener>() {}
+    }
+    private val connectStateCallback = object : BtConnectStateListener {
+        override fun onStateChange(oldState: Int, newState: Int) {
+            connectStateListener.arrays.forEach {
+                it.onStateChange(oldState, newState)
             }
         }
     }
@@ -538,7 +572,9 @@ class BtConnectHelper(private val thread: Handler) : AddRemoveSetHelper<BtConnec
                 getConnectListeners().add(connectListener)
             }
             //开始连接
-            connector.setTarget(currentDevice!!).connect()
+            connector.setTarget(currentDevice!!)
+                .setConnectStateListener(connectStateCallback)
+                .connect()
         }
     }
 
