@@ -13,6 +13,7 @@ import com.munch.project.launcher.R
 import com.munch.project.launcher.appitem.AppShowAdapterHelper.Companion.offsetPos
 import com.munch.project.launcher.base.recyclerview.BaseBindAdapter
 import com.munch.project.launcher.base.recyclerview.BaseBindViewHolder
+import com.munch.project.launcher.base.recyclerview.DiffUtilCallback
 import com.munch.project.launcher.base.recyclerview.StatusBarAdapter
 import com.munch.project.launcher.databinding.ItemAppBeanBinding
 import java.util.*
@@ -21,6 +22,19 @@ import java.util.*
  * Create by munch1182 on 2021/2/24 11:13.
  */
 class AppItemAdapter : BaseBindAdapter<AppShowBean, ItemAppBeanBinding>(R.layout.item_app_bean) {
+
+    init {
+        setDiffUtil(object : DiffUtilCallback<AppShowBean>() {
+            override fun areItemsTheSame(oldItem: AppShowBean, newItem: AppShowBean): Boolean {
+                return oldItem.appBean.name == newItem.appBean.name && oldItem.appBean.icon == newItem.appBean.icon
+            }
+
+            override fun areContentsTheSame(oldItem: AppShowBean, newItem: AppShowBean): Boolean {
+                return oldItem.appBean == newItem.appBean && oldItem.isEmpty == newItem.isEmpty
+            }
+
+        })
+    }
 
     override fun onBind(
         holder: BaseBindViewHolder<ItemAppBeanBinding>,

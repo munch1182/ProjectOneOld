@@ -5,6 +5,7 @@ package com.munch.project.launcher.base.recyclerview
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
 /**
@@ -43,6 +44,7 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
     list: MutableList<T>? = null
 ) : RecyclerView.Adapter<B>() {
 
+    private var diffUtil: DiffUtilCallback<T>? = null
     protected var onClick: ((adapter: BaseAdapter<T, B>, view: View, data: T, pos: Int) -> Unit)? =
         null
     protected var onLongClick: ((adapter: BaseAdapter<T, B>, view: View, data: T, pos: Int) -> Boolean)? =
@@ -70,16 +72,27 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
         }
     }
 
+    fun setDiffUtil(diffUtil: DiffUtilCallback<T>) {
+        this.diffUtil = diffUtil
+    }
+
     fun getData() = dataList
 
     fun getData(pos: Int) = getData()[pos]
 
     fun setData(data: MutableList<T>? = null) {
+        if (diffUtil != null) {
+            //如果数据过多，建议异步
+            DiffUtil.calculateDiff(diffUtil!!.updateData(this.dataList, data))
+                .dispatchUpdatesTo(this)
+        }
         this.dataList.clear()
         if (data != null) {
             this.dataList.addAll(data)
         }
-        notifyDataSetChanged()
+        if (diffUtil != null) {
+            notifyDataSetChanged()
+        }
     }
 
 
@@ -163,4 +176,38 @@ abstract class BaseAdapter<T, B : BaseViewHolder> private constructor(
 
     override fun getItemCount(): Int = dataList.size
 
+}
+
+abstract class DiffUtilCallback<T>(
+    private var old: MutableList<T>? = null,
+    private var new: MutableList<T>? = null
+) : DiffUtil.Callback() {
+    override fun getOldListSize(): Int {
+        return old?.size ?: 0
+    }
+
+    override fun getNewListSize(): Int {
+        return new?.size ?: 0
+    }
+
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        val oldItem = old?.get(oldItemPosition) ?: return false
+        val newItem = new?.get(oldItemPosition) ?: return false
+        return areItemsTheSame(oldItem, newItem)
+    }
+
+    abstract fun areItemsTheSame(oldItem: T, newItem: T): Boolean
+    abstract fun areContentsTheSame(oldItem: T, newItem: T): Boolean
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        val oldItem = old?.get(oldItemPosition) ?: return false
+        val newItem = new?.get(oldItemPosition) ?: return false
+        return areContentsTheSame(oldItem, newItem)
+    }
+
+    fun updateData(old: MutableList<T>?, new: MutableList<T>?): DiffUtilCallback<T> {
+        this.old = old
+        this.new = new
+        return this
+    }
 }

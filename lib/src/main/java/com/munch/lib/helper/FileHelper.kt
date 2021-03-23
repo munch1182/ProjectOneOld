@@ -11,6 +11,7 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import com.munch.lib.BaseApp
+import com.munch.lib.log
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -33,8 +34,8 @@ object FileHelper {
     /**
      * 如果要新建缓存文件，优先使用该目录，以方便计算大小和清空缓存
      */
-    fun newCacheFile(context: Context = BaseApp.getInstance(), name: String): File? {
-        return File(context.cacheDir, name).newFile()
+    fun cacheFileOrNew(context: Context = BaseApp.getInstance(), name: String): File? {
+        return File(context.cacheDir, name).checkOrNew()
     }
 
     /**
@@ -69,7 +70,6 @@ object FileHelper {
         }
         return null
     }
-
 
     fun formatSizeCache(context: Context) = formatSize2Str(context.cacheDir.length().toDouble())
 
@@ -122,18 +122,20 @@ object FileHelper {
      *
      * @param zipFile 需要解压的压缩包文件
      * @param dir 解压的文件夹位置，压缩包的文件会被放在该目录下
+     * @param unzipDir 解压时是否保留文件结果，为true时保留原结构，为false时所有文件都将放在dir下
      *
      * @return 是否解压成功
      *
      * @see zip
      */
-    fun unzip(zipFile: File, dir: File): Boolean {
+    fun unzip(zipFile: File, dir: File, unzipDir: Boolean = true): Boolean {
         dir.isDirOrNew() ?: return false
         val zip = ZipFile(zipFile)
         var file: File
         var flag = true
         for (entry in zip.entries()) {
-            file = File(dir, entry.name)
+            log(entry.name, getNameFromPath(entry.name))
+            file = File(dir, if (unzipDir) entry.name else getNameFromPath(entry.name))
             if (!entry.isDirectory) {
                 if (file.newFile() == null) {
                     flag = false
@@ -142,7 +144,7 @@ object FileHelper {
                 if (!zip.getInputStream(entry).copyAndClose(file.outputStream(), MB.toInt())) {
                     flag = false
                 }
-            } else {
+            } else if (unzipDir) {
                 file.mkdirs()
             }
         }
@@ -208,6 +210,13 @@ object FileHelper {
             return false
         }
         return true
+    }
+
+    fun getNameFromPath(path: String): String {
+        if (!path.contains(File.separator)) {
+            return path
+        }
+        return path.split(File.separator).last()
     }
 }
 
