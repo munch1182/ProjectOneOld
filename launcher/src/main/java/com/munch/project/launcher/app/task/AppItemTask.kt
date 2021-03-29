@@ -1,6 +1,7 @@
 package com.munch.project.launcher.app.task
 
 import android.content.Context
+import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,6 +12,7 @@ import com.munch.lib.dag.Key
 import com.munch.lib.dag.Task
 import com.munch.lib.helper.AppHelper
 import com.munch.lib.helper.AppInstallReceiver
+import com.munch.lib.helper.PathHelper
 import com.munch.project.launcher.R
 import com.munch.project.launcher.app.App
 import com.munch.project.launcher.appitem.AppShowBean
@@ -39,6 +41,7 @@ class AppItemHelper private constructor() {
         private const val SP_COUNT_DEF = 4
     }
 
+    private var shape: Int = 0
     private var char: Char = ' '
     private var charIndex = -1
     private val appsInSpace = mutableListOf<AppShowBean>()
@@ -71,8 +74,23 @@ class AppItemHelper private constructor() {
         this.spanCount = spanCount
         val apps = getAppItem()?.map { AppShowBean.new(it) }?.toMutableList() ?: return
         apps.forEach {
-            if (it.appBean.icon is Drawable) {
-                (it.appBean.icon as Drawable).preload()
+            val icon = it.appBean.icon
+            if (icon is Drawable) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    if (icon is AdaptiveIconDrawable) {
+                        try {
+                            val mask = icon::class.java.getDeclaredField("mMask")
+                            mask.isAccessible = true
+                            val path = PathHelper().parse(
+                                BaseApp.getContext().getString(R.string.config_icon_mask_circle)
+                            )
+                            mask.set(icon, path)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+                icon.preload()
             }
         }
         splitGridAppItem(spanCount, apps)
@@ -165,6 +183,11 @@ class AppItemHelper private constructor() {
                 update()
             }
         }.register()
+    }
+
+    fun changeShape(i: Int) {
+        shape = i
+        initScanAndSplit()
     }
 
 }

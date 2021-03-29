@@ -8,12 +8,14 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.munch.lib.helper.AppHelper
+import com.munch.lib.helper.startActivity
 import com.munch.project.launcher.appitem.AppActivity
 import com.munch.project.launcher.base.BaseActivity
 import com.munch.project.launcher.base.BaseFragment
 import com.munch.project.launcher.databinding.ActivityMainBinding
 import com.munch.project.launcher.main.CalendarFragment
 import com.munch.project.launcher.main.HomeFragment
+import com.munch.project.launcher.set.SettingActivity
 
 /**
  * Create by munch1182 on 2021/2/23 14:41.
@@ -39,6 +41,11 @@ class MainActivity : BaseActivity() {
                 } else {
                     false
                 }
+            }
+
+            override fun onLongPress(e: MotionEvent?) {
+                super.onLongPress(e)
+                startActivity(SettingActivity::class.java)
             }
 
             override fun onDoubleTap(e: MotionEvent?): Boolean {

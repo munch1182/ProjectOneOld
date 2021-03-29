@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">launcher</string>
     <string name="app_set">启动器设置</string>
+    <!--圆形-->
+    <string name="config_icon_mask_circle" translatable="false">M50 0A50 50,0,1,1,50 100A50 50,0,1,1,50 0</string>
+    <!--圆角-->
+    <string name="config_icon_mask_roundness" translatable="false">M50,0L88,0 C94.4,0 100,5.4 100 12 L100,88 C100,94.6 94.6 100 88 100 L12,100 C5.4,100 0,94.6 0,88 L0 12 C0 5.4 5.4 0 12 0 L50,0 Z</string>
+    <!--方圆-->
+    <string name="config_icon_mask_squircle" translatable="false">M50,0 C10,0 0,10 0,50 0,90 10,100 50,100 90,100 100,90 100,50 100,10 90,0 50,0 Z</string>
+    <!--方形-->
+    <string name="config_icon_mask_square" translatable="false">M50,0L100,0 100,100 0,100 0,0z</string>
+    <!--水滴-->
+    <string name="config_icon_mask_teardrop" translatable="false">M50,0 C77.6,0 100,22.4 100,50 L100,88 C100,94.6 94.6,100 88,100 L50,100 C22.4 100 0 77.6 0 50C0 22.4 22.4 0 50 0 Z</string>
 </resources>
