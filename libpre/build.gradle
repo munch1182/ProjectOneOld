@@ -1,0 +1,15 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+}
+
+apply from: '../gradle/commonbuild.gradle'
+
+dependencies {
+    //作为线程的优化
+    api rootProject.ext.dependencies['kotlinx_coroutines']
+    //作为sp的替代
+    implementation rootProject.ext.dependencies['mmkv']
+    //不可或缺的关键组件
+    api rootProject.ext.dependencies['recyclerview']
+}

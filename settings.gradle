@@ -1,2 +1,4 @@
-include ':app'
+include ':libfast'
+include ':test'
+include ':libpre'
 rootProject.name = "P1"

@@ -1,0 +1,13 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+apply from: '../gradle/commonbuild.gradle'
+
+dependencies {
+
+    implementation project(':libfast')
+
+    implementation rootProject.ext.dependencies['appcompat']
+    implementation rootProject.ext.dependencies['material']
+}
