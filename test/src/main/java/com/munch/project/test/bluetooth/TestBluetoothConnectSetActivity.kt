@@ -10,9 +10,7 @@ import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.lifecycleScope
 import com.munch.lib.bt.BtConfig
 import com.munch.lib.helper.AppHelper
-import com.munch.lib.helper.DataStoreHelper
-import com.munch.lib.helper.SpHelper
-import com.munch.lib.log
+import com.munch.lib.test.helper.DataStoreHelper
 import com.munch.lib.test.TestBaseTopActivity
 import com.munch.project.test.R
 import com.munch.project.test.databinding.TestActivityTestBluetoothConnectSetBinding

@@ -8,6 +8,7 @@ import com.munch.lib.ATTENTION
 import com.munch.lib.helper.AddRemoveSetHelper
 import com.munch.lib.helper.closeQuietly
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Create by munch1182 on 2021/3/4 11:09.
@@ -456,6 +457,11 @@ interface BtConnectStateListener {
     fun onStateChange(@ConnectState oldState: Int, @ConnectState newState: Int)
 }
 
+class ConnectStateHelper : AddRemoveSetHelper<BtConnectStateListener>() {
+
+    fun getConnectStateListeners() = arrays
+}
+
 class BtConnectHelper(private val thread: Handler) : AddRemoveSetHelper<BtConnectListener>() {
 
     private var classicConnector: BtConnector.ClassicConnector? = null
@@ -490,12 +496,10 @@ class BtConnectHelper(private val thread: Handler) : AddRemoveSetHelper<BtConnec
             }
         }
     }
-    internal val connectStateListener by lazy {
-        return@lazy object : AddRemoveSetHelper<BtConnectStateListener>() {}
-    }
+    internal val connectStateListener by lazy { return@lazy ConnectStateHelper() }
     private val connectStateCallback = object : BtConnectStateListener {
         override fun onStateChange(oldState: Int, newState: Int) {
-            connectStateListener.arrays.forEach {
+            connectStateListener.getConnectStateListeners().forEach {
                 it.onStateChange(oldState, newState)
             }
         }

@@ -18,4 +18,6 @@ dependencies {
     api rootProject.ext.dependencies['material']
     api rootProject.ext.dependencies['swiperefreshlayout']
     api rootProject.ext.dependencies['recyclerview']
+
+    implementation rootProject.ext.dependencies['data_store']
 }

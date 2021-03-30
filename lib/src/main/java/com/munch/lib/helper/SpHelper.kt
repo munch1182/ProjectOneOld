@@ -5,11 +5,13 @@ package com.munch.lib.helper
 import android.content.Context
 import android.content.SharedPreferences
 import com.munch.lib.BaseApp
+import com.munch.lib.base.DataFunHelper
 
 /**
  * Created by Munch on 2019/7/26 14:37
  */
-class SpHelper private constructor(private var sharedPreferences: SharedPreferences) {
+class SpHelper private constructor(private var sharedPreferences: SharedPreferences) :
+    DataFunHelper<String> {
 
     companion object {
 
@@ -34,27 +36,24 @@ class SpHelper private constructor(private var sharedPreferences: SharedPreferen
 
     private fun getSp() = sharedPreferences
 
-    fun put(key: String, any: Any?) {
+    override fun put(key: String, value: Any) {
         getSp().edit().apply {
-            putVal(key, any, this)
+            putVal(key, value, this)
         }.apply()
     }
 
-    /**
-     * 必须传入默认值，否则无法判断
-     */
     @Suppress("UNCHECKED_CAST")
-    fun <T> get(key: String, defVal: T?): T? {
-        val obj: Any? = when (defVal) {
-            is String -> getSp().getString(key, defVal as String)
-            is Int -> getSp().getInt(key, defVal as Int)
-            is Boolean -> getSp().getBoolean(key, defVal as Boolean)
-            is Float -> getSp().getFloat(key, defVal as Float)
-            is Long -> getSp().getLong(key, defVal as Long)
-            is MutableSet<*> -> getSp().getStringSet(key, defVal as MutableSet<String>)
+    override fun <T> get(key: String, defValue: T): T {
+        val obj: Any? = when (defValue) {
+            is String -> getSp().getString(key, defValue as String)
+            is Int -> getSp().getInt(key, defValue as Int)
+            is Boolean -> getSp().getBoolean(key, defValue as Boolean)
+            is Float -> getSp().getFloat(key, defValue as Float)
+            is Long -> getSp().getLong(key, defValue as Long)
+            is MutableSet<*> -> getSp().getStringSet(key, defValue as MutableSet<String>)
             else -> null
         }
-        return obj as T?
+        return obj as? T? ?: defValue
     }
 
     /**
@@ -68,11 +67,12 @@ class SpHelper private constructor(private var sharedPreferences: SharedPreferen
         }.apply()
     }
 
-    fun remove(key: String) {
+    override fun remove(key: String): Boolean {
         getSp().edit().remove(key).apply()
+        return true
     }
 
-    fun hasKey(key: String): Boolean {
+    override fun hasKey(key: String): Boolean {
         return getSp().contains(key)
     }
 
@@ -83,7 +83,7 @@ class SpHelper private constructor(private var sharedPreferences: SharedPreferen
         return getSp().edit().remove(key).commit()
     }
 
-    fun clear() {
+    override fun clear() {
         getSp().edit().clear().apply()
     }
 

@@ -43,7 +43,7 @@ ext {
             "kotlin"                          : "org.jetbrains.kotlin:kotlin-stdlib:${versions['kotlinVersion']}",
             "kotlin_gradle"                   : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions['kotlinVersion']}",
             /*https://github.com/Kotlin/kotlinx.coroutines*/
-            "kotlinx_coroutines"                 : "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2",
+            "kotlinx_coroutines"              : "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2",
 
             /*androidx版本*/
             /*https://developer.android.google.cn/jetpack/androidx/versions?hl=zh_cn*/
@@ -197,6 +197,9 @@ ext {
             "arouter_register"                : "com.alibaba:arouter-register:1.0.2",
 
             /*https://github.com/PhilJay/MPAndroidChart*/
-            "mp_chart"                        : 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+            "mp_chart"                        : 'com.github.PhilJay:MPAndroidChart:v3.1.0',
+
+            /*https://github.com/Tencent/MMKV/blob/master/README_CN.md*/
+            "mmkv"                            : 'com.tencent:mmkv-static:1.2.7'
     ]
 }

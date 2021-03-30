@@ -1,4 +1,4 @@
-package com.munch.lib.helper
+package com.munch.lib.test.helper
 
 import android.content.Context
 import androidx.datastore.core.DataStore
