@@ -1,8 +1,15 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 apply from: '../gradle/commonbuild.gradle'
+
+android {
+    buildFeatures {
+        dataBinding = true
+    }
+}
 
 dependencies {
 
@@ -10,4 +17,5 @@ dependencies {
 
     implementation rootProject.ext.dependencies['appcompat']
     implementation rootProject.ext.dependencies['material']
+    debugImplementation rootProject.ext.dependencies['leakcanary']
 }

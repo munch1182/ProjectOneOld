@@ -1,10 +1,24 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
-apply from: '../gradle/commonbuild.gradle'
+apply from: '../gradle/commonbuildktx.gradle'
+
+android {
+    buildFeatures {
+        dataBinding = true
+    }
+}
 
 dependencies {
     api project(':libpre')
+
+    api rootProject.ext.dependencies['material']
+    api rootProject.ext.dependencies['swiperefreshlayout']
+    api rootProject.ext.dependencies['glide']
+
+    kapt rootProject.ext.dependencies['lifecycle_compiler_java8']
+
 }

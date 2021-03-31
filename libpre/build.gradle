@@ -3,7 +3,7 @@ plugins {
     id 'kotlin-android'
 }
 
-apply from: '../gradle/commonbuild.gradle'
+apply from: '../gradle/commonbuildktx.gradle'
 
 dependencies {
     //作为线程的优化
