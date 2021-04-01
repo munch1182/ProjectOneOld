@@ -19,7 +19,7 @@ abstract class BaseBindAdapter<D, V : ViewDataBinding>(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseBindViewHolder<V> {
         if (itemRes != 0) {
             val from = LayoutInflater.from(parent.context)
-            return BaseBindViewHolder(DataBindingUtil.inflate<V>(from, itemRes, parent, false))
+            return BaseBindViewHolder(DataBindingUtil.inflate(from, itemRes, parent, false))
         }
         throw IllegalStateException("cannot create view holder without item layout res")
     }

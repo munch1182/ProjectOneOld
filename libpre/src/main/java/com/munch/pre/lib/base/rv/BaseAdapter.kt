@@ -55,7 +55,12 @@ abstract class BaseAdapter<D, V : BaseViewHolder> constructor(
 
     protected open fun onCreateItemView(parent: ViewGroup): View = when {
         itemRes != 0 -> LayoutInflater.from(parent.context).inflate(itemRes, parent, false)
-        itemView != null -> itemView!!
+        itemView != null -> {
+            if (itemView!!.parent != null) {
+                (itemView!!.parent as ViewGroup).removeView(itemView!!)
+            }
+            itemView!!
+        }
         else -> throw IllegalStateException("cannot create view holder without item view")
     }
 
@@ -111,7 +116,9 @@ abstract class BaseAdapter<D, V : BaseViewHolder> constructor(
     }
 
     @NonNull
-    protected fun getData() = dataList
+    open fun getData() = dataList
+
+    open fun get(index: Int) = getData()[index]
 
     open fun add(bean: D, index: Int = -1) {
         val pos: Int

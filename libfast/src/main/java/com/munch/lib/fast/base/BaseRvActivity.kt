@@ -3,9 +3,11 @@ package com.munch.lib.fast.base
 import android.app.Activity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.munch.lib.fast.R
 import com.munch.lib.fast.databinding.ActivityBaseRvBinding
-import com.munch.lib.fast.databinding.ItemBaseTopBinding
+import com.munch.lib.fast.databinding.ItemBaseTopTvBinding
 import com.munch.lib.fast.helper.RvHelper
 import com.munch.pre.lib.extend.startActivity
 
@@ -18,44 +20,54 @@ abstract class BaseRvActivity : BaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        bind.baseTopRv.apply {
-            layoutManager = LinearLayoutManager(this@BaseRvActivity)
-            addItemDecoration(RvHelper.newLineDecoration())
-            adapter =
-                object : BaseBindAdapter<ItemBean, ItemBaseTopBinding>(
-                    R.layout.item_base_top, getItem()
-                ) {
-                    init {
-                        setOnItemClickListener { _, bean, _, _ ->
-                            if (bean.target != null) {
-                                startActivity(bean.target)
-                            }
-                        }
-                    }
-
-                    override fun onBindViewHolder(
-                        holder: BaseBindViewHolder<ItemBaseTopBinding>,
-                        bean: ItemBean,
-                        pos: Int
-                    ) {
-                        holder.bind.itemBaseTopTv.text = bean.name
-                    }
-
-                }
+        setItem(bind.baseTopRv)
+        bind.baseTopSrl.run {
+            setOnRefreshListener { refresh() }
         }
     }
 
-    abstract fun getItem(): MutableList<ItemBean>
+    protected open fun SwipeRefreshLayout.refresh() {
+        postDelayed({ this.isRefreshing = false }, 300L)
+    }
 
-    data class ItemBean(val name: String, val target: Class<out Activity>? = null) {
+    protected open fun setItem(target: RecyclerView) {
+        target.run {
+            layoutManager = LinearLayoutManager(this@BaseRvActivity)
+            addItemDecoration(RvHelper.newLineDecoration())
+            adapter = object : BaseBindAdapter<ItemClassBean, ItemBaseTopTvBinding>(
+                R.layout.item_base_top_tv, getClassItem()
+            ) {
+                init {
+                    setOnItemClickListener { _, bean, _, _ ->
+                        if (bean.target != null) {
+                            startActivity(bean.target)
+                        }
+                    }
+                }
+
+                override fun onBindViewHolder(
+                    holder: BaseBindViewHolder<ItemBaseTopTvBinding>,
+                    bean: ItemClassBean,
+                    pos: Int
+                ) {
+                    holder.bind.itemBaseTopTv.text = bean.name
+                }
+
+            }
+        }
+    }
+
+    abstract fun getClassItem(): MutableList<ItemClassBean>
+
+    data class ItemClassBean(val name: String, val target: Class<out Activity>? = null) {
 
         companion object {
 
-            fun newItem(target: Class<out Activity>): ItemBean {
-                return ItemBean(target.simpleName.replace("Activity", ""), target)
+            fun newItem(target: Class<out Activity>): ItemClassBean {
+                return ItemClassBean(target.simpleName.replace("Activity", ""), target)
             }
 
-            fun newItems(vararg target: Class<out Activity>): MutableList<ItemBean> {
+            fun newItems(vararg target: Class<out Activity>): MutableList<ItemClassBean> {
                 return target.map { newItem(it) }.toMutableList()
             }
         }

@@ -8,7 +8,7 @@
         tools:ignore="QueryAllPackagesPermission" />
 
     <application
-        android:name=".TestApp"
+        android:name=".base.TestApp"
         android:allowBackup="true"
         android:fullBackupContent="@xml/content_backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -25,6 +25,7 @@
         </activity>
         <activity android:name=".info.InfoActivity" />
         <activity android:name=".log.LogActivity" />
+        <activity android:name=".intent.IntentActivity" />
     </application>
 
 </manifest>

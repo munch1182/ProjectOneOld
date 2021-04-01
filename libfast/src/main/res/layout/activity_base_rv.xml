@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/base_top_srl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:context=".base.BaseRvActivity">
@@ -12,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorWhite"
-            tools:listitem="@layout/item_base_top" />
+            tools:listitem="@layout/item_base_top_tv" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </layout>

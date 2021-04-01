@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Process
 import android.util.DisplayMetrics
 import android.util.Size
 import android.util.TypedValue
@@ -26,6 +27,7 @@ import com.munch.pre.lib.DefaultDepend
 import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.getAttrFromTheme
 import com.munch.pre.lib.extend.getService
+import kotlin.system.exitProcess
 
 /**
  * Create by munch1182 on 2021/3/31 11:19.
@@ -68,11 +70,22 @@ object AppHelper {
      * 获取安装的用于打开的应用
      *
      * 在android11，需要[android.Manifest.permission.QUERY_ALL_PACKAGES]权限
+     *
+     * @param pkgName 目标app的包名，如果为null则返回权限内所有合适的app
+     *
+     * 即使只查一个包，也可能返回多个结果组成的list，因为一个app可能有多个入口
      */
     @SuppressLint("QueryPermissionsNeeded")
-    fun getInstallApp(context: Context = getBaseApp()): MutableList<ResolveInfo>? {
+    fun getInstallApp(
+        context: Context = getBaseApp(),
+        pkgName: String? = null
+    ): MutableList<ResolveInfo>? {
         return context.packageManager?.queryIntentActivities(
-            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER), 0
+            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).apply {
+                if (pkgName != null) {
+                    setPackage(pkgName)
+                }
+            }, 0
         )
     }
 
@@ -100,21 +113,6 @@ object AppHelper {
             e.printStackTrace()
             return null
         }
-    }
-
-    /**
-     * 通过查找返回app信息，相较于其它方式能获取更多信息
-     *
-     * 有些版本需要权限
-     */
-    @SuppressLint("QueryPermissionsNeeded")
-    fun getAppShowIcon(
-        context: Context = BaseApp.getInstance(),
-        pkgName: String
-    ): MutableList<ResolveInfo> {
-        return context.packageManager?.queryIntentActivities(
-            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setPackage(pkgName), 0
-        )?.takeIf { it.isNotEmpty() } ?: mutableListOf()
     }
 
     /**
@@ -148,6 +146,11 @@ object AppHelper {
                         putExtras(bundle)
                     }
                 } ?: return)
+    }
+
+    fun closeApp() {
+        Process.killProcess(Process.myPid())
+        exitProcess(0)
     }
 
     fun hideIm(activity: Activity) {

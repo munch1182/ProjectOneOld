@@ -43,6 +43,8 @@ android {
 
     def versionCodeNotice = '"注意：打包出来的文件的versionCode可能会被更改，应从PackageManager中获取"'
 
+    def buildTime = buildTime()
+
     buildTypes {
         release {
             if (keyProperties != null) {
@@ -55,6 +57,7 @@ android {
             buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
             buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
             buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"
+            buildConfigField 'String', 'BUILD_TIME', "\"${buildTime}\""
         }
         debug {
             if (keyProperties != null) {
@@ -64,6 +67,7 @@ android {
             buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
             buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
             buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"
+            buildConfigField 'String', 'BUILD_TIME', "\"${buildTime}\""
         }
     }
 
@@ -85,6 +89,14 @@ android {
     /*libraryVariants.all { variant ->
         setupModuleApk(variant, true)
     }*/
+}
+
+private static def buildTime() {
+    try {
+        return new Date().format("yyyyMMddHHmmss")
+    } catch (Exception ignored) {
+        return ""
+    }
 }
 
 private def findAndLoadKey(path) {

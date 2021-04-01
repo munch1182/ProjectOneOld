@@ -64,3 +64,9 @@ annotation class ATTENTION
  */
 @Retention(AnnotationRetention.SOURCE)
 annotation class DefaultDepend(val depend: Array<KClass<*>> = [])
+
+/**
+ * 如果该对象实际运用，应该注意其兼容性
+ */
+@Retention(AnnotationRetention.SOURCE)
+annotation class COMPATIBILITY

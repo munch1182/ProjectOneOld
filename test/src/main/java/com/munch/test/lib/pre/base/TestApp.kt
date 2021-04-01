@@ -1,4 +1,4 @@
-package com.munch.test.lib.pre
+package com.munch.test.lib.pre.base
 
 import com.munch.pre.lib.base.BaseApp
 

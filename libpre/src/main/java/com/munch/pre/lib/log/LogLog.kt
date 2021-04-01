@@ -61,7 +61,6 @@ object LogLog {
 
     private const val TAG_DEF = "loglog"
     private var tag: String? = null
-    private val sb = StringBuilder()
     private var logListener: ((msg: String, thread: Thread) -> Unit)? = null
     private var type = Log.DEBUG
     private var methodOffset = 0
@@ -158,7 +157,7 @@ object LogLog {
     }
 
     private fun formatThrowable(any: Throwable): String {
-        sb.clear()
+        val sb = StringBuilder()
         val cause = any.cause
         sb.append("EXCEPTION: [")
         sb.append(any.message).append("]").append(LINE_SEPARATOR)
@@ -179,19 +178,24 @@ object LogLog {
     }
 
     private fun formatMultiStr(any: String): String {
-        sb.clear()
-        any.split(LINE_SEPARATOR).forEach {
-            var index = 0
-            while (index < it.length) {
-                if (it.length < MAX_COUNT_IN_LINE) {
-                    sb.append(it.subSequence(index, it.length)).append(LINE_SEPARATOR)
-                } else {
-                    sb.append(it.subSequence(index, MAX_COUNT_IN_LINE))
-                    index += MAX_COUNT_IN_LINE
+        if (any.length < MAX_COUNT_IN_LINE) {
+            return "\"$any\""
+        } else {
+            val sb = StringBuilder()
+            any.split(LINE_SEPARATOR).forEach {
+                var index = 0
+                while (index < it.length) {
+                    index += if (it.length - index < MAX_COUNT_IN_LINE) {
+                        sb.append(it.subSequence(index, it.length)).append(LINE_SEPARATOR)
+                        it.length
+                    } else {
+                        sb.append(it.subSequence(index, MAX_COUNT_IN_LINE)).append(LINE_SEPARATOR)
+                        MAX_COUNT_IN_LINE
+                    }
                 }
             }
+            return "\"$sb\""
         }
-        return "\"$sb\""
     }
 
     private fun formatJson(any: String): String {
@@ -209,8 +213,8 @@ object LogLog {
     }
 
     private fun iterable2Str(iterable: Iterable<*>): String {
-        sb.clear()
-        return iterable.joinTo(sb, ", ", "[", "]", transform = { any2Str(it) }).toString()
+        return iterable.joinTo(StringBuilder(), ", ", "[", "]", transform = { any2Str(it) })
+            .toString()
     }
 
     private class Str {

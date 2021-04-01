@@ -1,6 +1,7 @@
 package com.munch.test.lib.pre.info
 
 import android.os.Bundle
+import com.munch.lib.fast.BuildConfig
 import com.munch.lib.fast.base.BaseTopActivity
 import com.munch.lib.fast.extend.load
 import com.munch.pre.lib.extend.StringHelper
@@ -31,10 +32,16 @@ class InfoActivity : BaseTopActivity() {
         sb.append(StringHelper.LINE_SEPARATOR)
         val vn = AppHelper.getVersionCodeAndName()
         sb.append("app version: ").append("${vn?.second}(${vn?.first})")
+        sb.append(StringHelper.LINE_SEPARATOR)
+        //build后有效
+        sb.append("build time: ").append(BuildConfig.BUILD_TIME)
         bind.infoPm.text = sb.toString()
 
         bind.infoIcon.load(AppHelper.getAppIcon(this, this.packageName))
-        bind.infoIconShow.load(AppHelper.getAppShowIcon(this, this.packageName))
+        val apps = AppHelper.getInstallApp(this, this.packageName)
+        if (!apps.isNullOrEmpty()) {
+            bind.infoIconShow.load(apps[0].loadIcon(packageManager))
+        }
     }
 
 }

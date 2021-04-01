@@ -31,10 +31,10 @@ open class BaseTopActivity : BaseActivity() {
         }
     }
 
-    protected val appBar by lazy {
+    protected open val appBar by lazy {
         View.inflate(this, R.layout.activity_base_top, null) as AppBarLayout
     }
-    protected val toolbar: MaterialToolbar? by lazy { appBar.findViewById(R.id.top_tool_bar) }
+    protected open val toolbar: MaterialToolbar? by lazy { appBar.findViewById(R.id.top_tool_bar) }
 
     override fun setTitle(@StringRes titleId: Int) {
         title = getString(titleId)
