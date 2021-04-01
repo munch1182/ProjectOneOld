@@ -142,6 +142,7 @@ object LogLog {
             is Number -> any.toString()
             is String -> formatStr(any)
             is Throwable -> formatThrowable(any)
+            is Iterator<*> -> iterator2Str(any)
             is Iterable<*> -> iterable2Str(any)
             is Array<*> -> any2Str(any.asList())
             is IntArray -> any2Str(any.asIterable())
@@ -160,14 +161,23 @@ object LogLog {
         val sb = StringBuilder()
         val cause = any.cause
         sb.append("EXCEPTION: [")
-        sb.append(any.message).append("]").append(LINE_SEPARATOR)
+        sb.append(any.javaClass.canonicalName)
+            .append(":")
+            .append(any.message)
+            .append("]")
+            .append(LINE_SEPARATOR)
         if (cause == null) {
-            any.stackTrace.forEach { sb.append(formatStackTrace(it)).append(LINE_SEPARATOR) }
+            any.stackTrace.forEach {
+                sb.append("\t").append(formatStackTrace(it)).append(LINE_SEPARATOR)
+            }
         } else {
             sb.append("CAUSED: [")
-            sb.append(cause.message).append("]").append(LINE_SEPARATOR)
+            sb.append(any.javaClass.canonicalName)
+                .append(cause.message)
+                .append("]")
+                .append(LINE_SEPARATOR)
             cause.stackTrace.forEach {
-                sb.append(formatStackTrace(it)).append(LINE_SEPARATOR)
+                sb.append("\t").append(formatStackTrace(it)).append(LINE_SEPARATOR)
             }
         }
         return sb.toString()
@@ -213,8 +223,28 @@ object LogLog {
     }
 
     private fun iterable2Str(iterable: Iterable<*>): String {
-        return iterable.joinTo(StringBuilder(), ", ", "[", "]", transform = { any2Str(it) })
-            .toString()
+        return iterator2Str(iterable.iterator())
+    }
+
+    private fun iterator2Str(iterator: Iterator<*>): String {
+        val sb = StringBuilder()
+        sb.append("[")
+        var index = 0
+        var sep = false
+        while (iterator.hasNext()) {
+            if (index > 0) {
+                sb.append(", ")
+                if (sep) {
+                    sb.append(LINE_SEPARATOR)
+                }
+            }
+            val str = any2Str(iterator.next())
+            sep = str.length >= 20
+            sb.append(str)
+            index++
+        }
+        sb.append("]")
+        return sb.toString()
     }
 
     private class Str {

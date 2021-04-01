@@ -24,8 +24,9 @@ open class BaseApp : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
-        Thread.setDefaultUncaughtExceptionHandler { t, e ->
+        Thread.setDefaultUncaughtExceptionHandler { _, e ->
             log(e)
+            e.printStackTrace()
             AppHelper.resetApp2Activity(this)
             Process.killProcess(Process.myPid())
         }

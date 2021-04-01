@@ -26,6 +26,7 @@
         <activity android:name=".info.InfoActivity" />
         <activity android:name=".log.LogActivity" />
         <activity android:name=".intent.IntentActivity" />
+        <activity android:name=".dag.DagActivity" />
     </application>
 
 </manifest>
