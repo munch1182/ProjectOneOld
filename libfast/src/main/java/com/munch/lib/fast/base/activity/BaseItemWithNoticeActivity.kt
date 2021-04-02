@@ -1,10 +1,12 @@
-package com.munch.lib.fast.base
+package com.munch.lib.fast.base.activity
 
 import android.widget.TextView
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.fast.R
+import com.munch.lib.fast.base.BaseBindAdapter
+import com.munch.lib.fast.base.BaseBindViewHolder
 import com.munch.lib.fast.databinding.ItemBaseTopBtBinding
 import com.munch.pre.lib.base.rv.SimpleAdapter
 
@@ -13,7 +15,7 @@ import com.munch.pre.lib.base.rv.SimpleAdapter
  */
 abstract class BaseItemWithNoticeActivity : BaseItemActivity() {
 
-    companion object{
+    companion object {
 
         private const val JSON = "{}"
     }
@@ -52,6 +54,8 @@ abstract class BaseItemWithNoticeActivity : BaseItemActivity() {
     }
 
     fun notice(notice: String) {
-        noticeAdapter?.set(0, notice)
+        runOnUiThread {
+            noticeAdapter?.set(0, notice)
+        }
     }
 }

@@ -18,5 +18,9 @@ dependencies {
     implementation rootProject.ext.dependencies['appcompat']
     implementation rootProject.ext.dependencies['material']
     implementation rootProject.ext.dependencies['gson']
+    implementation rootProject.ext.dependencies['livedata_ktx']
+    implementation rootProject.ext.dependencies['viewmodel_ktx']
+    implementation rootProject.ext.dependencies['lifecycle_runtime_ktx']
+
     debugImplementation rootProject.ext.dependencies['leakcanary']
 }

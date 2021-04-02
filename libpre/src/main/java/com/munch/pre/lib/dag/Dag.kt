@@ -1,5 +1,7 @@
 package com.munch.pre.lib.dag
 
+import androidx.annotation.IntDef
+
 /**
  * 有向无环图排序
  *
@@ -10,16 +12,55 @@ package com.munch.pre.lib.dag
  *
  * Create by munch1182 on 2021/4/1 14:17.
  */
+// TODO: 2021/4/2 需要保证线程安全
 class Dag<KEY> {
 
+    @IntDef(REPLACE_HIGHER_PRIORITY, REPLACE_LOWER_PRIORITY, NO_REPLACE)
+    @Retention(AnnotationRetention.SOURCE)
+    annotation class ReplaceStrategy
+
+    companion object {
+
+        const val REPLACE_HIGHER_PRIORITY = 2
+        const val REPLACE_LOWER_PRIORITY = 1
+        const val NO_REPLACE = 0
+    }
+
     /**
-     * @param key 区分各个点的标志，相同[KEY]的会被视为是同一点，与[priority]无关，且相同的[KEY]只会添加第一个[Point]
-     * @param priority 同一层的点的执行优先级，优先级越高越先排序，相同则先添加的先排序
+     * @param key 区分各个point的标志，相同[KEY]的会被视为是同一point，与[priority]无关
+     * @param priority 同一层的point的执行优先级，优先级越高越先排序，相同则先添加的先排序
+     * @param replaceStrategy 替换策略，相同[KEY]被视为相同的point，如果先后添加的相同[KEY]的point是不同对象，指定替换的策略，主要用于更新优先级
      */
-    data class Point<KEY>(val key: KEY, val priority: Int = 0) :
-        Comparable<Point<KEY>> {
+    data class Point<KEY>(
+        val key: KEY,
+        var priority: Int = 0,
+        @ReplaceStrategy var replaceStrategy: Int = NO_REPLACE
+    ) : Comparable<Point<KEY>> {
 
         internal var inDegree: Int = -1
+
+        internal fun update(point: Point<KEY>): Point<KEY> {
+            if (point.key == key) {
+                when (point.replaceStrategy) {
+                    REPLACE_HIGHER_PRIORITY -> {
+                        if (priority > point.priority) {
+                            return this
+                        }
+                    }
+                    REPLACE_LOWER_PRIORITY -> {
+                        if (priority < point.priority) {
+                            return this
+                        }
+                    }
+                    NO_REPLACE -> {
+
+                    }
+                }
+                priority = point.priority
+                replaceStrategy = point.replaceStrategy
+            }
+            return this
+        }
 
         override fun equals(other: Any?): Boolean {
             other ?: return false
@@ -138,7 +179,7 @@ class Dag<KEY> {
             //不是同一个对象但是equals方法比较是相同的
             val pointReal = pointList[index]
             pointReal.inDegree++
-            pointReal
+            pointReal.update(point)
         }
     }
 
@@ -148,7 +189,7 @@ class Dag<KEY> {
             pointList.add(point)
             return point
         }
-        return pointList[pointList.indexOf(point)]
+        return pointList[pointList.indexOf(point)].update(point)
     }
 
 }

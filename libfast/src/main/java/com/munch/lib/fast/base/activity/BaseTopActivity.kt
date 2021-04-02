@@ -1,4 +1,4 @@
-package com.munch.lib.fast.base
+package com.munch.lib.fast.base.activity
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable

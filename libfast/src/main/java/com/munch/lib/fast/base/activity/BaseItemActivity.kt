@@ -1,10 +1,12 @@
-package com.munch.lib.fast.base
+package com.munch.lib.fast.base.activity
 
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.munch.lib.fast.R
+import com.munch.lib.fast.base.BaseBindAdapter
+import com.munch.lib.fast.base.BaseBindViewHolder
 import com.munch.lib.fast.databinding.ActivityBaseRvBinding
 import com.munch.lib.fast.databinding.ItemBaseTopBtBinding
 

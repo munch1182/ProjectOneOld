@@ -6,7 +6,7 @@
         android:id="@+id/base_top_srl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context=".base.BaseRvActivity">
+        tools:context=".base.activity.BaseRvActivity">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/base_top_rv"

@@ -2,7 +2,7 @@ package com.munch.test.lib.pre.info
 
 import android.os.Bundle
 import com.munch.lib.fast.BuildConfig
-import com.munch.lib.fast.base.BaseTopActivity
+import com.munch.lib.fast.base.activity.BaseTopActivity
 import com.munch.lib.fast.extend.load
 import com.munch.pre.lib.extend.StringHelper
 import com.munch.pre.lib.helper.AppHelper

@@ -1,7 +1,7 @@
 package com.munch.test.lib.pre
 
 import android.os.Bundle
-import com.munch.lib.fast.base.BaseRvActivity
+import com.munch.lib.fast.base.activity.BaseRvActivity
 import com.munch.pre.lib.extend.startActivity
 import com.munch.test.lib.pre.dag.DagActivity
 import com.munch.test.lib.pre.info.InfoActivity
@@ -20,6 +20,7 @@ class MainActivity : BaseRvActivity() {
         return ItemClassBean.newItems(
             IntentActivity::class.java,
             DagActivity::class.java,
+            TestActivity::class.java,
             LogActivity::class.java,
             InfoActivity::class.java
         )
