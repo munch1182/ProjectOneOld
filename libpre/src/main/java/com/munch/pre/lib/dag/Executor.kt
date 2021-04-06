@@ -1,27 +1,64 @@
 package com.munch.pre.lib.dag
 
 import android.util.ArrayMap
+import com.munch.pre.lib.extend.log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
 
 /**
+ * 用于有依赖关系的系列任务执行
+ * 基于有向无环图
+ *
+ * 目前只能执行在执行之前已经确定了依赖关系的任务，不能动态添加任务
+ * 目前的实现方法是将协程作为切换线程的工具，实际上使用阻塞线程的方式来实现依赖的先后执行
+ *
  * Create by munch1182 on 2021/4/1 17:28.
  */
-class Executor {
+class Executor : CoroutineScope {
 
+    private val job = Job()
     private val dag = Dag<String>()
     private val taskMap = ArrayMap<String, Task>()
     private val dependMap = ArrayMap<String, MutableList<String>>()
+    internal var executeListener: ((key: String, executor: Executor) -> Unit)? = null
+    internal var exceptionListener: ((e: Exception) -> Unit)? = null
+
 
     /**
-     * 执行器所在线程，需要保证单线程
+     * 执行器所在线程，需要保证线程安全
      */
-    private val executorDispatcher = CoroutineName("executor") + Dispatchers.Default
-    private val executeDispatcher = CoroutineName("execute") + Dispatchers.IO
+    override val coroutineContext = CoroutineName("executor") + ExecutorCoroutineDispatcher + job
 
+    /**
+     * 执行部分所在线程，不干扰执行器线程
+     */
+    private val executeDispatcher = CoroutineName("execute") + Dispatchers.IO + job
+    private var executing = false
+
+    internal object ExecutorCoroutineDispatcher : CoroutineDispatcher() {
+
+        private val executorThread by lazy { Executors.newSingleThreadExecutor() }
+
+        override fun dispatch(context: CoroutineContext, block: Runnable) {
+            executorThread.execute(block)
+        }
+
+        fun release() {
+            executorThread.shutdown()
+        }
+    }
+
+    fun cancel() {
+        job.cancel()
+    }
 
     fun add(task: Task): Executor {
-        GlobalScope.launch(executorDispatcher) {
+        launch {
+            if (executing) {
+                throw IllegalStateException("cannot add task when executor is executing")
+            }
             taskMap[task.uniqueKey] = task
             task.copyDepends().forEach { key ->
                 if (dependMap.contains(key)) {
@@ -40,37 +77,71 @@ class Executor {
         return this
     }
 
-    fun execute() {
-        GlobalScope.launch(executorDispatcher) {
+    fun execute(): Executor {
+        launch {
+            executing = true
             taskMap[Task.TaskZero.KEY] = Task.TaskZero()
             dag.generaDag()
                 .map { taskMap[it.key]!! }
                 .asFlow()
-                .map { task ->
+                .collect { task ->
+                    //可以并发执行，但有依赖的任务仍需要等待依赖任务先完成
+                    //执行的逻辑是线性的且有依赖关系，因为并发而提高了效率，因此要使用线程的等待机制
                     launch(executeDispatcher) { task.run(this@Executor) }
-                    task.uniqueKey
-                }.catch { e ->
-                    e.printStackTrace()
-                    emit("")
-                }.collect {
                 }
+            executing = false
         }
+        return this
+    }
+
+    /**
+     * 添加每个任务的执行回调
+     *
+     * 任务完成是根据[Task.start]方法是否执行完毕来判断的
+     */
+    fun setExecuteListener(func: ((key: String, executor: Executor) -> Unit)? = null): Executor {
+        launch { executeListener = func }
+        return this
+    }
+
+    /**
+     * 回调执行异常
+     *
+     * 当异常发送时会回调此方法
+     *
+     * 注意：异常并不会阻碍任务流程顺序
+     *
+     */
+    fun setExceptionListener(func: ((e: Exception) -> Unit)? = null): Executor {
+        launch { exceptionListener = func }
+        return this
+    }
+
+    /**
+     * 主要用于关闭线程池
+     *
+     * 调用此方法后，此类将不可用，执行将报错，因此只能在最后退出时使用
+     *
+     */
+    fun release() {
+        launch { ExecutorCoroutineDispatcher.release() }
     }
 
     internal fun notifyBeDepended(uniqueKey: String) {
-        dependMap[uniqueKey]?.forEach {
-            val task = taskMap[it] ?: return@forEach
-            if (task.cd != null) {
-                task.countDown()
-            } else {
-                task.dependsOnCopy.remove(uniqueKey)
+        launch {
+            dependMap[uniqueKey]?.forEach {
+                val task = taskMap[it] ?: return@forEach
+                if (task.cd != null) {
+                    task.countDown()
+                } else {
+                    task.dependsOnCopy.remove(uniqueKey)
+                }
             }
         }
     }
 
     fun getTaskByKey(key: String): Task? {
-        return taskMap[key]
+        return runBlocking { withContext(coroutineContext) { taskMap[key] } }
     }
-
 
 }

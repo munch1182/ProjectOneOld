@@ -7,6 +7,7 @@ import com.munch.test.lib.pre.dag.DagActivity
 import com.munch.test.lib.pre.info.InfoActivity
 import com.munch.test.lib.pre.intent.IntentActivity
 import com.munch.test.lib.pre.log.LogActivity
+import com.munch.test.lib.pre.thread.ThreadActivity
 
 class MainActivity : BaseRvActivity() {
 
@@ -19,6 +20,7 @@ class MainActivity : BaseRvActivity() {
     override fun getClassItem(): MutableList<ItemClassBean> {
         return ItemClassBean.newItems(
             IntentActivity::class.java,
+            ThreadActivity::class.java,
             DagActivity::class.java,
             TestActivity::class.java,
             LogActivity::class.java,

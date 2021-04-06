@@ -7,12 +7,13 @@ import androidx.annotation.IntDef
  *
  * [KEY]是所有point的区分标志，因此相同逻辑的点要被多次添加应该有不同的[KEY]
  *
+ * 使用时注意线程安全
+ *
  * @see addEdge 对于此类来说，不允许直接添加点，只允许添加边
  * @see generaDag 生成方法，返回依赖顺序
  *
  * Create by munch1182 on 2021/4/1 14:17.
  */
-// TODO: 2021/4/2 需要保证线程安全
 class Dag<KEY> {
 
     @IntDef(REPLACE_HIGHER_PRIORITY, REPLACE_LOWER_PRIORITY, NO_REPLACE)
@@ -53,7 +54,6 @@ class Dag<KEY> {
                         }
                     }
                     NO_REPLACE -> {
-
                     }
                 }
                 priority = point.priority
@@ -80,7 +80,6 @@ class Dag<KEY> {
     }
 
     data class Edge<KEY>(val from: Point<KEY>, val to: Point<KEY>) {
-
 
         override fun hashCode(): Int {
             return from.hashCode() * 31 + to.hashCode()
@@ -111,7 +110,9 @@ class Dag<KEY> {
     }
 
     fun generaDag(): MutableList<Point<KEY>> {
-        putEdgeOnlyAndPoint()
+        edgeList.forEach {
+            edgeOnlyList.add(Edge(addZeroPoint(it.from), addDegreePoint(it.to)))
+        }
         edgeList.clear()
 
         if (pointList.isEmpty()) {
@@ -155,12 +156,6 @@ class Dag<KEY> {
             throw IllegalStateException("circular dependency")
         }
         return resSortList
-    }
-
-    private fun putEdgeOnlyAndPoint() {
-        edgeList.forEach {
-            edgeOnlyList.add(Edge(addZeroPoint(it.from), addDegreePoint(it.to)))
-        }
     }
 
     /**

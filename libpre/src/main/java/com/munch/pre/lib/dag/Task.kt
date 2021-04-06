@@ -4,13 +4,13 @@ import kotlinx.coroutines.*
 import java.util.concurrent.CountDownLatch
 import kotlin.coroutines.CoroutineContext
 
-
 /**
+ *
  * Create by munch1182 on 2021/4/1 17:28.
  */
 abstract class Task {
 
-    abstract suspend fun start(executor: Executor)
+    abstract fun start(executor: Executor)
 
     abstract val uniqueKey: String
 
@@ -41,16 +41,25 @@ abstract class Task {
         return dependsOnCopy
     }
 
+    /**
+     * 此方法在[Executor.executeDispatcher]中执行
+     * 而[start]方法才在指定线程中执行
+     */
     internal fun run(executor: Executor) {
+        //在Executor线程中执行此代码
         if (dependsOnCopy.isNotEmpty()) {
-            // TODO: 2021/4/2 有没有更协程的方式
             cd = CountDownLatch(dependsOnCopy.size)
-            //不同线程但有依赖关系的任务，需要等待
-            //如果是同一线程的依赖关系，dependsOnCopy应该为空
+            //需要等待依赖任务完成
             cd?.await()
         }
+        cd = null
         GlobalScope.launch(this@Task.coroutineContext) {
-            start(executor)
+            try {
+                start(executor)
+                executor.executeListener?.invoke(uniqueKey, executor)
+            } catch (e: Exception) {
+                executor.exceptionListener?.invoke(e)
+            }
             executor.notifyBeDepended(uniqueKey)
         }
     }
@@ -64,7 +73,7 @@ abstract class Task {
             const val KEY = "com.munch.pre.lib.dag.TaskZero"
         }
 
-        override suspend fun start(executor: Executor) {
+        override fun start(executor: Executor) {
         }
 
         override val uniqueKey: String = KEY

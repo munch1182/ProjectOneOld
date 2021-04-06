@@ -28,6 +28,7 @@
         <activity android:name=".intent.IntentActivity" />
         <activity android:name=".dag.DagActivity" />
         <activity android:name=".TestActivity" />
+        <activity android:name=".thread.ThreadActivity" />
     </application>
 
 </manifest>

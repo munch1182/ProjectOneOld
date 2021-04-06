@@ -1,7 +1,6 @@
 package com.munch.test.lib.pre.dag
 
 import android.os.Bundle
-import android.widget.Toast
 import com.munch.lib.fast.base.activity.BaseItemWithNoticeActivity
 import com.munch.lib.fast.base.dialog.SimpleDialog
 import com.munch.pre.lib.dag.Dag
@@ -61,6 +60,9 @@ class DagActivity : BaseItemWithNoticeActivity() {
                     .add(TaskBack7())
                     .add(TaskBack3())
                     .add(TaskBack6())
+                    .setExecuteListener { key, _ ->
+                        log("$key executed.")
+                    }
                     .execute()
             }
             2 -> {
@@ -85,8 +87,8 @@ class DagActivity : BaseItemWithNoticeActivity() {
 
     abstract class BTaskB : Task() {
 
-        override suspend fun start(executor: Executor) {
-            log("${this::class.simpleName} start")
+        override fun start(executor: Executor) {
+            log("${this.uniqueKey} start.")
         }
     }
 
@@ -139,9 +141,11 @@ class DagActivity : BaseItemWithNoticeActivity() {
 
         private val lock = Object()
 
-        override suspend fun start(executor: Executor) {
+        override fun start(executor: Executor) {
             super.start(executor)
-            delay(100L)
+            runBlocking {
+                delay(1000L)
+            }
             val res = Random.nextBoolean()
             val name = Thread.currentThread().name
             if (!res) {
@@ -155,7 +159,6 @@ class DagActivity : BaseItemWithNoticeActivity() {
                     .show()
             }
             //当前线程开始等待dialog回应，依赖于本任务的task也会相应等待
-            // TODO: 2021/4/2 更换成Coroutine的方式
             synchronized(lock) {
                 lock.wait()
             }
