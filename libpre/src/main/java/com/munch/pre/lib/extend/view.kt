@@ -11,7 +11,41 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.view.children
+import com.munch.pre.lib.UNTESTED
 import com.munch.pre.lib.base.listener.ViewIntTagClickListener
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
+
+/**
+ * 1s内重复点击只有第一次有效
+ */
+suspend fun View.setOnClickStart(action: suspend (view: View) -> Unit) {
+    setOnClickStart(action, 1000L)
+}
+
+/**
+ * 重复点击只有第一次有效
+ */
+@UNTESTED
+suspend fun View.setOnClickStart(action: suspend (view: View) -> Unit, delayTime: Long) {
+    /*flow {
+         setOnClickListener {
+             emit(Unit)
+         }
+     }.conflate()//conflate只会处理收集能够处理时的最新数据
+         .collect {
+             action.invoke(this@setOnClickStart)
+         }*/
+    val channel = Channel<Unit>()
+    setOnClickListener {
+        channel.offer(Unit)
+    }
+    for (i in channel) {
+        action.invoke(this)
+        delay(delayTime)
+    }
+}
 
 /**
  * 给ViewGroup子控件批量设置点击事件

@@ -1,6 +1,8 @@
 package com.munch.pre.lib.base
 
 import android.app.Application
+import android.os.Handler
+import android.os.Looper
 import android.os.Process
 import com.munch.pre.lib.BuildConfig
 import com.munch.pre.lib.extend.log
@@ -21,6 +23,8 @@ open class BaseApp : Application() {
 
     }
 
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
+
     override fun onCreate() {
         super.onCreate()
         instance = this
@@ -30,5 +34,9 @@ open class BaseApp : Application() {
             AppHelper.resetApp2Activity(this)
             Process.killProcess(Process.myPid())
         }
+    }
+
+    fun getMainHandler(): Handler {
+        return handler
     }
 }

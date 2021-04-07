@@ -15,11 +15,6 @@ import com.munch.pre.lib.base.rv.SimpleAdapter
  */
 abstract class BaseItemWithNoticeActivity : BaseItemActivity() {
 
-    companion object {
-
-        private const val JSON = "{}"
-    }
-
     private var noticeAdapter: SimpleAdapter<String>? = null
 
     override fun setItem(target: RecyclerView) {

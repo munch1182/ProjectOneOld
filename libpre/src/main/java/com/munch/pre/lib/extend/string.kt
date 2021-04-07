@@ -5,5 +5,5 @@ package com.munch.pre.lib.extend
  */
 object StringHelper {
 
-    val LINE_SEPARATOR = System.getProperty("line.separator")
+    val LINE_SEPARATOR: String? = System.getProperty("line.separator")
 }

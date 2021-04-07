@@ -1,38 +1,69 @@
 package com.munch.test.lib.pre.thread
 
-import com.munch.lib.fast.base.activity.BaseItemActivity
+import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
+import com.munch.lib.fast.base.activity.BaseItemWithNoticeActivity
+import com.munch.pre.lib.extend.StringHelper
 import com.munch.pre.lib.extend.log
+import com.munch.pre.lib.extend.obOnResume
 import com.munch.pre.lib.helper.ThreadPoolHelper
+import com.munch.pre.lib.log.LogLog
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.random.Random
 
 /**
  * Create by munch1182 on 2021/4/6 11:54.
  */
-class ThreadActivity : BaseItemActivity() {
+class ThreadActivity : BaseItemWithNoticeActivity() {
 
     private val testRun by lazy { TestRunnable() }
     private val oneCode by lazy { ThreadPoolHelper.newFixThread(1) }
     private val fix by lazy { ThreadPoolHelper.newFixThread(2) }
+    private val count = 5
+    private val tempSb = StringBuilder()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        obOnResume(
+            {
+                LogLog.setListener { msg, thread ->
+                    tempSb.append("$msg ${thread.name} ${StringHelper.LINE_SEPARATOR}")
+                }
+            },
+            { LogLog.setListener() })
+    }
+
     override fun clickItem(pos: Int) {
-        repeat(5) {
-            when (pos) {
-                0 -> {
+        when (pos) {
+            0 -> {
+                repeat(count) {
                     ThreadPoolHelper.CACHE.execute(testRun)
                 }
-                1 -> {
-                    ThreadPoolHelper.SCHEDULED.schedule(testRun, 1, TimeUnit.SECONDS)
-                }
-                2 -> {
-                    fix.execute(testRun)
-                }
-                3 -> {
-                    oneCode.execute(testRun)
-                }
-                else -> {
+            }
+            1 -> {
+                repeat(count) {
+                    ThreadPoolHelper.SCHEDULED.schedule(testRun, 10, TimeUnit.MILLISECONDS)
                 }
             }
+            2 -> {
+                repeat(count) {
+                    fix.execute(testRun)
+                }
+            }
+            3 -> {
+                repeat(count) {
+                    oneCode.execute(testRun)
+                }
+            }
+            else -> {
+            }
+        }
+        lifecycleScope.launch {
+            delay(500L)
+            notice(tempSb.toString())
+            tempSb.clear()
         }
     }
 
@@ -41,12 +72,16 @@ class ThreadActivity : BaseItemActivity() {
         private val testValue = AtomicInteger(1)
 
         override fun run() {
-            Thread.sleep(Random.nextLong(1000L))
             log("value:${testValue.getAndIncrement()}")
         }
     }
 
     override fun getItem(): MutableList<String> {
-        return mutableListOf("cache", "schedule", "fix", "one core")
+        return mutableListOf(
+            "pool:cache",
+            "pool:schedule",
+            "pool:fix",
+            "pool:one core"
+        )
     }
 }

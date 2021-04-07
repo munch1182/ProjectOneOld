@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
  */
 
 /**
- * 用于该目标标记未测试
+ * 用于该目标标记未测试或者未测试完成
  *
  * 设计上不允许出现在正式版中
  */
@@ -18,8 +18,6 @@ annotation class UNTESTED
 
 /**
  * 用于标记未完成的设计
- *
- * 比如
  */
 @Retention(AnnotationRetention.SOURCE)
 annotation class UNCOMPLETED(val need: String = "")

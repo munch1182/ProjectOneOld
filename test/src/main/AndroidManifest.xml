@@ -29,6 +29,7 @@
         <activity android:name=".dag.DagActivity" />
         <activity android:name=".TestActivity" />
         <activity android:name=".thread.ThreadActivity" />
+        <activity android:name=".Test2Activity" />
     </application>
 
 </manifest>
