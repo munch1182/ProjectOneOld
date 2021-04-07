@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import java.lang.ref.WeakReference
 import java.util.*
 
 /**
@@ -33,7 +34,7 @@ object AppStatusHelper {
         }
     }
 
-    private val stack = Stack<Activity>()
+    private var topActivity: WeakReference<Activity>? = null
 
     fun isForeground() = activityCount > 0
 
@@ -44,7 +45,7 @@ object AppStatusHelper {
      * 注意：需要在每一处使用时都判断是否为null，因为activity随时可能被关闭
      * 注意：注意内存泄漏的问题
      */
-    fun getTopActivity(): Activity? = if (stack.isEmpty()) null else stack.peek()
+    fun getTopActivity(): Activity? = topActivity?.get()
 
     /**
      * @see MutableLiveData.observeForever
@@ -56,7 +57,8 @@ object AppStatusHelper {
     fun register(app: Application): AppStatusHelper {
         app.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
             override fun onActivityPaused(activity: Activity) {
-                stack.pop()
+                topActivity?.clear()
+                topActivity = null
             }
 
             override fun onActivityStarted(activity: Activity) {
@@ -77,7 +79,7 @@ object AppStatusHelper {
             }
 
             override fun onActivityResumed(activity: Activity) {
-                stack.push(activity)
+                topActivity = WeakReference(activity)
             }
         })
         return this
