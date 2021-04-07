@@ -1,9 +1,9 @@
 package com.munch.pre.lib.dag
 
 import android.util.ArrayMap
-import com.munch.pre.lib.extend.log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
@@ -22,9 +22,17 @@ class Executor : CoroutineScope {
     private val dag = Dag<String>()
     private val taskMap = ArrayMap<String, Task>()
     private val dependMap = ArrayMap<String, MutableList<String>>()
-    internal var executeListener: ((key: String, executor: Executor) -> Unit)? = null
-    internal var exceptionListener: ((e: Exception) -> Unit)? = null
+    private var executeListener: ((key: String, executor: Executor) -> Unit)? = null
+    private var executedListener: ((executor: Executor) -> Unit)? = null
+    internal val executeCallBack: (key: String, executor: Executor) -> Unit = { key, executor ->
+        executeListener?.invoke(key, executor)
+        if (key == Task.TaskOne.KEY) {
+            executing = false
+            executedListener?.invoke(executor)
+        }
+    }
 
+    internal var exceptionListener: ((e: Exception) -> Unit)? = null
 
     /**
      * 执行器所在线程，需要保证线程安全
@@ -37,16 +45,22 @@ class Executor : CoroutineScope {
     private val executeDispatcher = CoroutineName("execute") + Dispatchers.IO + job
     private var executing = false
 
+    /**
+     * 此类是单例的保证线程池复用，因此需要手动关闭
+     */
     internal object ExecutorCoroutineDispatcher : CoroutineDispatcher() {
 
-        private val executorThread by lazy { Executors.newSingleThreadExecutor() }
+        private var executorThread: ExecutorService? = null
 
         override fun dispatch(context: CoroutineContext, block: Runnable) {
-            executorThread.execute(block)
+            if (executorThread == null) {
+                executorThread = Executors.newSingleThreadExecutor()
+            }
+            executorThread?.execute(block)
         }
 
         fun release() {
-            executorThread.shutdown()
+            executorThread?.shutdown()
         }
     }
 
@@ -79,8 +93,8 @@ class Executor : CoroutineScope {
 
     fun execute(): Executor {
         launch {
+            addDefTask()
             executing = true
-            taskMap[Task.TaskZero.KEY] = Task.TaskZero()
             dag.generaDag()
                 .map { taskMap[it.key]!! }
                 .asFlow()
@@ -89,9 +103,25 @@ class Executor : CoroutineScope {
                     //执行的逻辑是线性的且有依赖关系，因为并发而提高了效率，因此要使用线程的等待机制
                     launch(executeDispatcher) { task.run(this@Executor) }
                 }
-            executing = false
         }
         return this
+    }
+
+    private suspend fun addDefTask() {
+        executing = true
+        //添加t0
+        taskMap[Task.TaskZero.KEY] = Task.TaskZero()
+        //添加t1
+        val dependOn = mutableListOf<String>()
+        taskMap.keys.forEach {
+            if (!dependMap.containsKey(it)) {
+                dependOn.add(it)
+            }
+        }
+        executing = false
+        add(Task.TaskOne(dependOn))
+        //等待添加完成
+        yield()
     }
 
     /**
@@ -114,6 +144,14 @@ class Executor : CoroutineScope {
      */
     fun setExceptionListener(func: ((e: Exception) -> Unit)? = null): Executor {
         launch { exceptionListener = func }
+        return this
+    }
+
+    /**
+     * 执行完所有任务的回调
+     */
+    fun setExecutedListener(func: ((executor: Executor) -> Unit)? = null): Executor {
+        launch { executedListener = func }
         return this
     }
 

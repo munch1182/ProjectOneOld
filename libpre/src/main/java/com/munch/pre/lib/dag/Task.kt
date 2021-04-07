@@ -56,7 +56,7 @@ abstract class Task {
         GlobalScope.launch(this@Task.coroutineContext) {
             try {
                 start(executor)
-                executor.executeListener?.invoke(uniqueKey, executor)
+                executor.executeCallBack.invoke(uniqueKey, executor)
             } catch (e: Exception) {
                 executor.exceptionListener?.invoke(e)
             }
@@ -68,6 +68,9 @@ abstract class Task {
         cd?.countDown()
     }
 
+    /**
+     * 第一个任务
+     */
     internal class TaskZero : Task() {
         companion object {
             const val KEY = "com.munch.pre.lib.dag.TaskZero"
@@ -79,8 +82,24 @@ abstract class Task {
         override val uniqueKey: String = KEY
     }
 
+    /**
+     * 最后一个任务
+     */
+    internal class TaskOne(private val dependOn: MutableList<String>) : Task() {
+        companion object {
+            const val KEY = "com.munch.pre.lib.dag.TaskOne"
+        }
+
+        override fun start(executor: Executor) {
+        }
+
+        override fun dependsOn(): MutableList<String> = dependOn
+
+        override val uniqueKey: String = KEY
+    }
+
     override fun toString(): String {
         return "${this::class.java.simpleName}{uniqueKey=$uniqueKey, priority=$priority, " +
-                "dependsOn=${dependsOn()?.joinToString(", ") ?: "null"}}"
+                "dependsOn=${dependsOn()?.joinToString(", ", "[", "]") ?: "null"}}"
     }
 }
