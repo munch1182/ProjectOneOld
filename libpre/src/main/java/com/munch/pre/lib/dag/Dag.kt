@@ -100,7 +100,7 @@ class Dag<KEY> {
     private val edgeOnlyList = mutableListOf<Edge<KEY>>()
     private val pointList = mutableListOf<Point<KEY>>()
     private val zeroDegreeList = mutableListOf<Point<KEY>>()
-    private val resSortList = mutableListOf<Point<KEY>>()
+    private val resSortList = mutableListOf<KEY>()
 
     fun addEdge(edge: Edge<KEY>): Dag<KEY> {
         if (!edgeList.contains(edge)) {
@@ -109,7 +109,7 @@ class Dag<KEY> {
         return this
     }
 
-    fun generaDag(): MutableList<Point<KEY>> {
+    fun generaDag(): MutableList<KEY> {
         edgeList.forEach {
             edgeOnlyList.add(Edge(addZeroPoint(it.from), addDegreePoint(it.to)))
         }
@@ -130,7 +130,7 @@ class Dag<KEY> {
         zeroDegreeList.sort()
         do {
             zeroDegreeList.forEach {
-                resSortList.add(it)
+                resSortList.add(it.key)
                 pointList.remove(it)
                 //通过添加时保证每个点对象唯一，即可同步更改inDegree
                 it.inDegree = -1

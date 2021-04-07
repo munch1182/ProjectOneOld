@@ -17,6 +17,9 @@ import kotlin.random.Random
  * Create by munch1182 on 2021/4/1 15:19.
  */
 class DagActivity : BaseItemWithNoticeActivity() {
+
+    private val executor = Executor()
+
     override fun clickItem(pos: Int) {
         when (pos) {
             0 -> log(
@@ -49,7 +52,7 @@ class DagActivity : BaseItemWithNoticeActivity() {
                     .generaDag()
             )
             1 -> {
-                Executor()
+                executor
                     .add(TaskBack1())
                     .add(TaskBack2())
                     .add(TaskBack4())
@@ -74,6 +77,12 @@ class DagActivity : BaseItemWithNoticeActivity() {
             else -> {
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        executor.release()
+        executor.cancel()
     }
 
     override fun getItem(): MutableList<String> {

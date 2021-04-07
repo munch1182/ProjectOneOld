@@ -80,6 +80,7 @@ abstract class Task {
         }
 
         override val uniqueKey: String = KEY
+
     }
 
     /**

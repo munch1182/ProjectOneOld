@@ -14,7 +14,7 @@ class MainActivity : BaseRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         noBack()
-        startActivity(ThreadActivity::class.java)
+        startActivity(DagActivity::class.java)
     }
 
     override fun getClassItem(): MutableList<ItemClassBean> {

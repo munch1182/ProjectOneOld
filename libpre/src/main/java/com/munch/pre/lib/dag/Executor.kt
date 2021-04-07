@@ -61,6 +61,7 @@ class Executor : CoroutineScope {
 
         fun release() {
             executorThread?.shutdown()
+            executorThread = null
         }
     }
 
@@ -96,7 +97,7 @@ class Executor : CoroutineScope {
             addDefTask()
             executing = true
             dag.generaDag()
-                .map { taskMap[it.key]!! }
+                .map { taskMap[it]!! }
                 .asFlow()
                 .collect { task ->
                     //可以并发执行，但有依赖的任务仍需要等待依赖任务先完成
