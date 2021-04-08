@@ -1,11 +1,11 @@
 package com.munch.test.lib.pre.log
 
 import com.google.gson.Gson
-import com.munch.lib.fast.base.activity.BaseItemWithNoticeActivity
 import com.munch.pre.lib.extend.log
 import com.munch.pre.lib.extend.logJson
 import com.munch.pre.lib.log.LogLog
 import com.munch.test.lib.pre.R
+import com.munch.test.lib.pre.base.BaseItemWithNoticeActivity
 
 
 /**

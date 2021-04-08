@@ -8,7 +8,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/padding_def"
         android:layout_marginEnd="@dimen/padding_def"
-        android:backgroundTint="@color/colorPrimary"
+        android:backgroundTint="?attr/colorPrimary"
         android:textColor="@color/colorWhite"
         tools:text="12334" />
 </layout>

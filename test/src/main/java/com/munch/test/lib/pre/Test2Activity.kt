@@ -2,9 +2,9 @@ package com.munch.test.lib.pre
 
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
-import com.munch.lib.fast.base.activity.BaseTopActivity
 import com.munch.pre.lib.extend.log
 import com.munch.pre.lib.extend.setOnClickStart
+import com.munch.test.lib.pre.base.BaseTopActivity
 import com.munch.test.lib.pre.databinding.ActivityTest2Binding
 import kotlinx.coroutines.launch
 

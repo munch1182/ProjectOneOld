@@ -2,11 +2,11 @@ package com.munch.test.lib.pre.info
 
 import android.os.Bundle
 import com.munch.lib.fast.BuildConfig
-import com.munch.lib.fast.base.activity.BaseTopActivity
 import com.munch.lib.fast.extend.load
 import com.munch.pre.lib.extend.StringHelper
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.test.lib.pre.R
+import com.munch.test.lib.pre.base.BaseTopActivity
 import com.munch.test.lib.pre.databinding.ActivityInfoBinding
 
 /**
@@ -31,7 +31,8 @@ class InfoActivity : BaseTopActivity() {
         }
         sb.append(StringHelper.LINE_SEPARATOR)
         val vn = AppHelper.getVersionCodeAndName()
-        sb.append("app version: ").append("${vn?.second}(${vn?.first})")
+        sb.append("app version: ")
+            .append("${vn?.second}(${vn?.first})(${BuildConfig.VERSION_CODE_4_DEBUG})")
         sb.append(StringHelper.LINE_SEPARATOR)
         //build后有效
         sb.append("build time: ").append(BuildConfig.BUILD_TIME)

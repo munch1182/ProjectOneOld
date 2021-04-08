@@ -21,6 +21,7 @@ dependencies {
     implementation rootProject.ext.dependencies['livedata_ktx']
     implementation rootProject.ext.dependencies['viewmodel_ktx']
     implementation rootProject.ext.dependencies['lifecycle_runtime_ktx']
+    implementation rootProject.ext.dependencies['permissionx']
 
     debugImplementation rootProject.ext.dependencies['leakcanary']
 }

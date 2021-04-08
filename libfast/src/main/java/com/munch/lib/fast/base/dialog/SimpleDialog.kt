@@ -12,7 +12,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.munch.lib.fast.R
 import com.munch.pre.lib.base.listener.ViewIntTagClickListener
 import com.munch.pre.lib.extend.ViewHelper
-import com.munch.pre.lib.extend.setTextSizeSp
 
 /**
  * Create by munch1182 on 2021/4/2 15:21.

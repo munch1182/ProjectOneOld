@@ -1,4 +1,16 @@
 <resources>
     <!-- Base application theme. -->
     <style name="AppTestTheme" parent="AppTheme" />
+
+    <style name="AppTestTheme2" parent="AppTestTheme">
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/purple_500</item>
+        <item name="colorSecondaryVariant">@color/purple_700</item>
+
+        <item name="android:windowBackground">#909090</item>
+        <item name="pageBg">#909090</item>
+    </style>
 </resources>

@@ -2,12 +2,12 @@ package com.munch.test.lib.pre.thread
 
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
-import com.munch.lib.fast.base.activity.BaseItemWithNoticeActivity
 import com.munch.pre.lib.extend.StringHelper
 import com.munch.pre.lib.extend.log
 import com.munch.pre.lib.extend.obOnResume
 import com.munch.pre.lib.helper.ThreadPoolHelper
 import com.munch.pre.lib.log.LogLog
+import com.munch.test.lib.pre.base.BaseItemWithNoticeActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -39,7 +39,7 @@ class ThreadActivity : BaseItemWithNoticeActivity() {
         when (pos) {
             0 -> {
                 repeat(count) {
-                    ThreadPoolHelper.CACHE.execute(testRun)
+                    ThreadPoolHelper.CACHE_IO.execute(testRun)
                 }
             }
             1 -> {

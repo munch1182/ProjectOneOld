@@ -6,6 +6,7 @@
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".base.TestApp"
@@ -31,6 +32,9 @@
         <activity android:name=".thread.ThreadActivity" />
         <activity android:name=".Test2Activity" />
         <activity android:name=".dialog.DialogActivity" />
+        <activity android:name=".file.FileActivity" />
+        <activity android:name=".switch.SwitchActivity" />
+        <activity android:name=".view.WeightActivity" />
     </application>
 
 </manifest>

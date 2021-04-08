@@ -108,6 +108,12 @@ class Executor : CoroutineScope {
         return this
     }
 
+    fun clear() {
+        dag.clear()
+        taskMap.clear()
+        dependMap.clear()
+    }
+
     private suspend fun addDefTask() {
         executing = true
         //添加t0

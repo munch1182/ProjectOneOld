@@ -1,7 +1,6 @@
 package com.munch.test.lib.pre.dag
 
 import android.os.Bundle
-import com.munch.lib.fast.base.activity.BaseItemWithNoticeActivity
 import com.munch.lib.fast.base.dialog.SimpleDialog
 import com.munch.pre.lib.dag.Dag
 import com.munch.pre.lib.dag.Executor
@@ -10,6 +9,7 @@ import com.munch.pre.lib.extend.log
 import com.munch.pre.lib.extend.obOnResume
 import com.munch.pre.lib.helper.AppStatusHelper
 import com.munch.pre.lib.log.LogLog
+import com.munch.test.lib.pre.base.BaseItemWithNoticeActivity
 import kotlinx.coroutines.*
 import kotlin.random.Random
 
@@ -66,6 +66,7 @@ class DagActivity : BaseItemWithNoticeActivity() {
                     .setExecuteListener { key, _ ->
                         log("$key executed.")
                     }
+                    .setExecutedListener { it.clear() }
                     .execute()
             }
             2 -> {

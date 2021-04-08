@@ -1,7 +1,7 @@
 package com.munch.test.lib.pre.intent
 
-import com.munch.lib.fast.base.activity.BaseItemActivity
 import com.munch.pre.lib.helper.IntentHelper
+import com.munch.test.lib.pre.base.BaseItemActivity
 
 /**
  * Create by munch1182 on 2021/4/1 11:16.

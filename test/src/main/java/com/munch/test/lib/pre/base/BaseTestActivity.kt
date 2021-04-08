@@ -1,6 +1,5 @@
 package com.munch.test.lib.pre.base
 
-import com.munch.lib.fast.base.activity.BaseItemActivity
 
 /**
  * Create by munch1182 on 2021/4/2 10:30.

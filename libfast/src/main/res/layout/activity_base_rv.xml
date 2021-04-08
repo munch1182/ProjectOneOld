@@ -12,7 +12,7 @@
             android:id="@+id/base_top_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorWhite"
+            android:background="?attr/pageBg"
             tools:listitem="@layout/item_base_top_tv" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

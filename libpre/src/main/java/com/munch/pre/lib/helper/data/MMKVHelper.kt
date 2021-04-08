@@ -21,7 +21,7 @@ open class MMKVHelper constructor(private val id: String = ID_DEF, multiProcess:
 
     private var processMode =
         if (multiProcess) MMKV.MULTI_PROCESS_MODE else MMKV.SINGLE_PROCESS_MODE
-    protected open var instance = MMKV.mmkvWithID(id, processMode)!!
+    protected open val instance by lazy { MMKV.mmkvWithID(id, processMode)!! }
 
     companion object {
 

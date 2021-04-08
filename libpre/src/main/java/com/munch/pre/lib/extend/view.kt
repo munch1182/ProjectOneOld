@@ -1,11 +1,17 @@
 package com.munch.pre.lib.extend
 
+import android.app.Activity
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.text.method.DigitsKeyListener
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.text.method.ReplacementTransformationMethod
 import android.util.TypedValue
+import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -412,5 +418,27 @@ object ViewHelper {
             ViewGroup.LayoutParams.WRAP_CONTENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
+    }
+
+    @Suppress("DEPRECATION")
+    fun capture(activity: Activity, view: View): Bitmap {
+        val location = IntArray(2)
+        view.getLocationInWindow(location)
+        val bitmap: Bitmap
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888, true)
+            PixelCopy.request(
+                activity.window,
+                Rect(location[0], location[1], location[0] + view.width, location[1] + view.height),
+                bitmap,
+                {},
+                Handler(Looper.getMainLooper())
+            )
+        } else {
+            view.isDrawingCacheEnabled = true
+            view.buildDrawingCache()
+            bitmap = view.drawingCache
+        }
+        return bitmap
     }
 }

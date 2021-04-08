@@ -102,6 +102,14 @@ class Dag<KEY> {
     private val zeroDegreeList = mutableListOf<Point<KEY>>()
     private val resSortList = mutableListOf<KEY>()
 
+    fun clear() {
+        edgeList.clear()
+        edgeOnlyList.clear()
+        pointList.clear()
+        zeroDegreeList.clear()
+        resSortList.clear()
+    }
+
     fun addEdge(edge: Edge<KEY>): Dag<KEY> {
         if (!edgeList.contains(edge)) {
             edgeList.add(edge)

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:context=".view.WeightActivity">
+
+            <com.munch.lib.fast.view.CountView
+                android:id="@+id/weight_cv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/padding_def"
+                android:padding="@dimen/padding_def"
+                app:count_view_textColor="@color/colorTextDef"
+                app:count_view_textSize="25dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/weight_reduce"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/padding_bigger"
+                android:padding="@dimen/padding_def"
+                android:text="-"
+                app:layout_constraintBottom_toBottomOf="@id/weight_cv"
+                app:layout_constraintEnd_toStartOf="@id/weight_cv"
+                app:layout_constraintTop_toTopOf="@id/weight_cv" />
+
+            <TextView
+                android:id="@+id/weight_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/padding_bigger"
+                android:padding="@dimen/padding_def"
+                android:text="+"
+                app:layout_constraintBottom_toBottomOf="@id/weight_cv"
+                app:layout_constraintStart_toEndOf="@id/weight_cv"
+                app:layout_constraintTop_toTopOf="@id/weight_cv" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</layout>

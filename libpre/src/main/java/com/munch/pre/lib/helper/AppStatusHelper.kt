@@ -5,8 +5,10 @@ import android.app.Application
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.munch.pre.lib.helper.AppStatusHelper.getForegroundLiveData
+import com.munch.pre.lib.helper.AppStatusHelper.isForeground
+import com.munch.pre.lib.helper.AppStatusHelper.register
 import java.lang.ref.WeakReference
-import java.util.*
 
 /**
  * 1. 获取app当前前台activity对象

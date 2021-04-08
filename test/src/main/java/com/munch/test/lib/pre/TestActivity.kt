@@ -38,6 +38,11 @@ class TestActivity : BaseTestActivity() {
                 delay(1000L)
                 log(5)
             }
+
+            withContext(Dispatchers.Main){
+                log(6)
+            }
+            log(7)
         }
     }
 

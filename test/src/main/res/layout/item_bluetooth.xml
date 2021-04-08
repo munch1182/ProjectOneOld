@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="bt"
+            type="com.munch.pre.lib.bluetooth.BtDevice" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:padding="@dimen/padding_def">
+
+        <TextView
+            android:id="@+id/bt_scan_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{bt.name ?? &quot;N/A&quot;}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText"
+            tools:text="N/A" />
+
+        <TextView
+            android:id="@+id/bt_scan_mac"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{bt.mac}"
+            app:layout_constraintStart_toStartOf="@id/bt_scan_name"
+            app:layout_constraintTop_toBottomOf="@id/bt_scan_name"
+            tools:text="12:34:56:78:90" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{bt.rssiStr}"
+            app:layout_constraintBottom_toBottomOf="@id/bt_scan_mac"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintStart_toEndOf="@id/bt_scan_mac"
+            app:layout_constraintTop_toTopOf="@id/bt_scan_mac"
+            tools:text="-100 dBm" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

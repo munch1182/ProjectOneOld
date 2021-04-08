@@ -2,9 +2,9 @@ package com.munch.test.lib.pre.dialog
 
 import android.content.Context
 import androidx.appcompat.app.AlertDialog
-import com.munch.lib.fast.base.activity.BaseItemActivity
 import com.munch.pre.lib.dialog.DialogManager
 import com.munch.pre.lib.dialog.DialogManager.Companion.add
+import com.munch.test.lib.pre.base.BaseItemActivity
 import kotlinx.coroutines.*
 
 /**

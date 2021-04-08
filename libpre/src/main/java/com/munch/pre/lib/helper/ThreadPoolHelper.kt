@@ -12,14 +12,25 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 object ThreadPoolHelper {
 
-    private const val ID_CACHE = 1
+    private const val ID_CACHE_IO = 1
+    private const val ID_CACHE_CPU = 4
     private const val ID_SCHEDULED = 2
     private const val ID_FIX = 3
 
-    val CACHE by lazy {
+    private val CPU_COUNT = Runtime.getRuntime().availableProcessors()
+    private val CORE_POOL_SIZE = 1.coerceAtLeast((CPU_COUNT - 1).coerceAtMost(4))
+
+    val CACHE_IO by lazy {
         ThreadPoolExecutor(
-            0, 50, 30L, TimeUnit.SECONDS, SynchronousQueue(),
-            newThreadFactory(ID_CACHE)
+            0, 50, 3L, TimeUnit.SECONDS, SynchronousQueue(),
+            newThreadFactory(ID_CACHE_IO)
+        )
+    }
+
+    val CACHE_CPU by lazy {
+        ThreadPoolExecutor(
+            CORE_POOL_SIZE, 50, 30L, TimeUnit.SECONDS, SynchronousQueue(),
+            newThreadFactory(ID_CACHE_CPU)
         )
     }
 

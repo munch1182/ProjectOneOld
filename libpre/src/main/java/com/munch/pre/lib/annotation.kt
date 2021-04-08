@@ -68,3 +68,9 @@ annotation class DefaultDepend(val depend: Array<KClass<*>> = [])
  */
 @Retention(AnnotationRetention.SOURCE)
 annotation class COMPATIBILITY
+
+/**
+ * 用于标记该方法是同步实现，用于强调
+ */
+@Retention(AnnotationRetention.SOURCE)
+annotation class SYNCHRONIZED
