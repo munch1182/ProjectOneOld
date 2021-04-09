@@ -44,7 +44,9 @@ class BluetoothHelper private constructor() {
     }
 
     fun setConfig(btConfig: BtConfig?): BluetoothHelper {
-        this.btConfig = btConfig
+        if (btConfig != this.btConfig) {
+            this.btConfig = btConfig
+        }
         return this
     }
 
@@ -115,5 +117,8 @@ class BluetoothHelper private constructor() {
 
     fun stopScan() {
         scanner.stopScan()
+    }
+
+    fun connect(device: BtDevice) {
     }
 }

@@ -2,6 +2,7 @@ package com.munch.test.project.one
 
 import android.os.Bundle
 import com.munch.test.project.one.base.BaseRvActivity
+import com.munch.test.project.one.bluetooth.BluetoothActivity
 import com.munch.test.project.one.dag.DagActivity
 import com.munch.test.project.one.dialog.DialogActivity
 import com.munch.test.project.one.file.FileActivity
@@ -23,6 +24,7 @@ class MainActivity : BaseRvActivity() {
         return ItemClassBean.newItems(
             IntentActivity::class.java,
             DialogActivity::class.java,
+            BluetoothActivity::class.java,
             ThreadActivity::class.java,
             FileActivity::class.java,
             DagActivity::class.java,

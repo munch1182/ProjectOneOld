@@ -1,5 +1,10 @@
 package com.munch.pre.lib.extend
 
+import androidx.annotation.MainThread
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.munch.pre.lib.log.LogLog
 
 /**
@@ -17,3 +22,15 @@ fun log(vararg any: Any?) {
 fun logJson(json: String) {
     LogLog.methodOffset(1).isJson().log(json)
 }
+
+@MainThread
+inline fun <T> LiveData<T>.observe(
+    owner: LifecycleOwner,
+    crossinline onChanged: (T) -> Unit
+): Observer<T> {
+    val wrappedObserver = Observer<T> { t -> onChanged.invoke(t) }
+    observe(owner, wrappedObserver)
+    return wrappedObserver
+}
+
+fun <T> MutableLiveData<T>.toLiveData(): LiveData<T> = this

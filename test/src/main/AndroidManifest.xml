@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.munch.test.project.one">
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
@@ -35,6 +40,9 @@
         <activity android:name=".file.FileActivity" />
         <activity android:name=".switch.SwitchActivity" />
         <activity android:name=".view.WeightActivity" />
+        <activity android:name=".bluetooth.BluetoothConfigActivity" />
+        <activity android:name=".bluetooth.BluetoothActivity" />
+        <activity android:name=".bluetooth.BluetoothConnectActivity" />
     </application>
 
 </manifest>

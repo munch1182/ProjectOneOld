@@ -43,21 +43,20 @@ class BluetoothConfigActivity : BaseTopActivity() {
 
         private const val KEY_CONFIG = "key_ble_config"
 
-
-        /**
-         * 虽然不需要在协程中运行，但是建议还是在协程中运行，因为内部使用了runBlock，会阻塞线程
-         */
-        fun getConfigFromDb(): BtConfig {
-            return DataHelper.DEFAULT.get(KEY_CONFIG, BtConfig())
+        fun getConfigFromDb(): BtConfig? {
+            val default = DataHelper.DEFAULT
+            if (!default.hasKey(KEY_CONFIG)) {
+                return null
+            }
+            return default.get(KEY_CONFIG, BtConfig())
         }
 
         fun putConfig(config: BtConfig?) {
             DataHelper.DEFAULT.put(KEY_CONFIG, config ?: BtConfig())
         }
 
-
         @JvmStatic
-        @BindingAdapter("bindConfigMain")
+        @BindingAdapter("bind_config_main")
         fun bindConfigMain(et: EditText, value: BtConfig) {
             if (value.UUID_MAIN_SERVER != et.text.toString()) {
                 et.setText(value.UUID_MAIN_SERVER)
@@ -66,7 +65,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
         }
 
         @JvmStatic
-        @BindingAdapter("bindConfigWrite")
+        @BindingAdapter("bind_config_write")
         fun bindConfigWrite(et: EditText, value: BtConfig) {
             if (value.UUID_WRITE != et.text.toString()) {
                 et.setText(value.UUID_WRITE)
@@ -75,7 +74,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
         }
 
         @JvmStatic
-        @BindingAdapter("bindConfigNotify")
+        @BindingAdapter("bind_config_notify")
         fun bindConfigNotify(et: EditText, value: BtConfig) {
             if (value.UUID_NOTIFY != et.text.toString()) {
                 et.setText(value.UUID_NOTIFY)
@@ -88,7 +87,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
         }
 
         @JvmStatic
-        @BindingAdapter("bindConfigDesc")
+        @BindingAdapter("bind_config_desc")
         fun bindConfigDesc(et: EditText, value: BtConfig) {
             if (value.UUID_DESCRIPTOR_NOTIFY != et.text.toString()) {
                 et.setText(value.UUID_DESCRIPTOR_NOTIFY)
@@ -97,7 +96,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
         }
 
         @JvmStatic
-        @BindingAdapter("updateConfig")
+        @BindingAdapter("update_config")
         fun updateConfig(et: EditText, listener: InverseBindingListener?) {
             if (listener != null) {
                 et.addTextChangedListener(object : TextWatcher {
@@ -125,7 +124,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
         }
 
         @JvmStatic
-        @InverseBindingAdapter(attribute = "bindConfigMain", event = "updateConfig")
+        @InverseBindingAdapter(attribute = "bind_config_main", event = "update_config")
         fun changeConfigMain(et: EditText): BtConfig {
             val config = getConfig(et)
             config.UUID_MAIN_SERVER = et.text.toString()
@@ -140,7 +139,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
         }
 
         @JvmStatic
-        @InverseBindingAdapter(attribute = "bindConfigWrite", event = "updateConfig")
+        @InverseBindingAdapter(attribute = "bind_config_write", event = "update_config")
         fun changeConfigWrite(et: EditText): BtConfig {
             val data = getConfig(et)
             data.UUID_WRITE = et.text.toString()
@@ -149,7 +148,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
         }
 
         @JvmStatic
-        @InverseBindingAdapter(attribute = "bindConfigNotify", event = "updateConfig")
+        @InverseBindingAdapter(attribute = "bind_config_notify", event = "update_config")
         fun changeConfigNotify(et: EditText): BtConfig {
             val data = getConfig(et)
             data.UUID_NOTIFY = et.text.toString()
@@ -158,7 +157,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
         }
 
         @JvmStatic
-        @InverseBindingAdapter(attribute = "bindConfigDesc", event = "updateConfig")
+        @InverseBindingAdapter(attribute = "bind_config_desc", event = "update_config")
         fun changeConfigDesc(et: EditText): BtConfig {
             val data = getConfig(et)
             data.UUID_DESCRIPTOR_NOTIFY = et.text.toString()

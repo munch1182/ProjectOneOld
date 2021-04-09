@@ -2,18 +2,21 @@ package com.munch.pre.lib.bluetooth
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
+import android.os.Parcelable
 import androidx.annotation.RequiresPermission
+import kotlinx.android.parcel.Parcelize
 
 /**
  * Create by munch1182 on 2021/3/2 16:55.
  */
+@Parcelize
 data class BtDevice(
     val name: String? = null,
     val mac: String,
     val rssi: Int = 0,
     val type: BtType,
     val device: BluetoothDevice
-) {
+) : Parcelable {
 
     companion object {
 
@@ -49,11 +52,12 @@ data class BtDevice(
     }
 }
 
-sealed class BtType {
+sealed class BtType : Parcelable {
 
     /**
      * 经典蓝牙
      */
+    @Parcelize
     object Classic : BtType() {
 
         override fun toString(): String {
@@ -64,6 +68,7 @@ sealed class BtType {
     /**
      * 低功耗蓝牙
      */
+    @Parcelize
     object Ble : BtType() {
 
         override fun toString(): String {

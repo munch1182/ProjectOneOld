@@ -11,7 +11,7 @@ import com.munch.pre.lib.helper.file.FileHelper
 import com.munch.pre.lib.helper.file.StorageHelper
 import com.munch.pre.lib.log.LogLog
 import com.munch.test.project.one.base.BaseItemWithNoticeActivity
-import com.munch.test.project.one.request
+import com.munch.test.project.one.requestPermission
 
 /**
  * Create by munch1182 on 2021/4/8 11:48.
@@ -45,7 +45,7 @@ class FileActivity : BaseItemWithNoticeActivity() {
                 startActivity(StorageHelper.fileIntent())
             }
             1 -> {
-                request(android.Manifest.permission.READ_EXTERNAL_STORAGE) {
+                requestPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) {
                     log(StorageHelper.queryImages(this))
                 }
             }

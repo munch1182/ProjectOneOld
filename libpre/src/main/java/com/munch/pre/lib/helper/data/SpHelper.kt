@@ -38,7 +38,7 @@ class SpHelper private constructor(private var sharedPreferences: SharedPreferen
 
     private fun getSp() = sharedPreferences
 
-    override fun put(key: String, value: Any) {
+    override fun put(key: String, value: Any?) {
         getSp().edit().apply {
             putVal(key, value, this)
         }.apply()

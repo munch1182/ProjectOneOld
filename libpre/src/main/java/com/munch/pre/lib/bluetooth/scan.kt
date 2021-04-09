@@ -9,21 +9,24 @@ import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
+import android.os.Parcelable
 import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.SYNCHRONIZED
 import com.munch.pre.lib.helper.AddRemoveSetHelper
 import com.munch.pre.lib.helper.receiver.ReceiverHelper
+import kotlinx.android.parcel.Parcelize
 import android.bluetooth.le.ScanFilter as Filter
 
 /**
  * Create by munch1182 on 2021/3/2 17:22.
  */
+@Parcelize
 data class ScanFilter(
     var name: String? = null, var mac: String? = null,
     //是否严格匹配，即两个参数完全相同
     //在ble模式下，该值只能是true
     var strict: Boolean = true
-) {
+) : Parcelable {
     @RequiresPermission(android.Manifest.permission.BLUETOOTH)
     fun isFiltered(device: BluetoothDevice): Boolean {
         if (strict) {
@@ -35,6 +38,20 @@ data class ScanFilter(
             if (mac != null && !device.address.contains(mac!!)) {
                 return true
             }
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other is ScanFilter) {
+            return other.name == name && other.mac == mac && other.strict == strict
         }
         return false
     }
@@ -333,8 +350,12 @@ class BtScannerHelper(private val handler: Handler) : AddRemoveSetHelper<BtScanL
     @SYNCHRONIZED
     fun stopScan() {
         synchronized(this) {
-            classicScanner?.stop()
-            bleScanner?.stop()
+            if (classicScanner?.isScanning() == true) {
+                classicScanner?.stop()
+            }
+            if (bleScanner?.isScanning() == true) {
+                bleScanner?.stop()
+            }
         }
     }
 }

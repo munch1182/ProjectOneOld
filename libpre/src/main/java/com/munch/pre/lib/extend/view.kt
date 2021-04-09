@@ -19,9 +19,8 @@ import android.widget.TextView
 import androidx.core.view.children
 import com.munch.pre.lib.UNTESTED
 import com.munch.pre.lib.base.listener.ViewIntTagClickListener
-import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.delay
 
 /**
  * 1s内重复点击只有第一次有效

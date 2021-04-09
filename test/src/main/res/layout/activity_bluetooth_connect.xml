@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="device"
+            type="com.munch.pre.lib.bluetooth.BtDevice" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".bluetooth.BluetoothConnectActivity"
+        tools:ignore="HardcodedText">
+
+        <TextView
+            android:id="@+id/bt_device_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_def"
+            android:paddingTop="@dimen/padding_def"
+            android:paddingEnd="@dimen/padding_def"
+            android:text="@{device.name}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="123123" />
+
+        <TextView
+            android:id="@+id/bt_device_mac"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_def"
+            android:paddingTop="@dimen/padding_def"
+            android:paddingEnd="@dimen/padding_def"
+            android:text="@{device.mac}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/bt_device_name"
+            app:layout_constraintTop_toBottomOf="@id/bt_device_name"
+            tools:text="12:31:23:11:11:11" />
+
+        <TextView
+            android:id="@+id/bt_device_config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_def"
+            android:paddingTop="@dimen/padding_def"
+            android:paddingEnd="@dimen/padding_def"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/bt_device_name"
+            app:layout_constraintTop_toBottomOf="@id/bt_device_mac"
+            tools:text="未配置，点击配置" />
+
+        <TextView
+            android:id="@+id/bt_device_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_def"
+            android:paddingTop="@dimen/padding_def"
+            android:paddingEnd="@dimen/padding_def"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/bt_device_name"
+            app:layout_constraintTop_toBottomOf="@id/bt_device_config"
+            tools:text="未连接" />
+
+        <Button
+            android:id="@+id/bt_device_connect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_def"
+            android:text="连接"
+            app:layout_constraintBottom_toBottomOf="@id/bt_device_state"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@id/bt_device_mac"
+            app:layout_constraintTop_toTopOf="@id/bt_device_name" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

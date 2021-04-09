@@ -4,7 +4,6 @@ import android.util.Log
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
 
 /**
  * log方法
@@ -173,6 +172,7 @@ object LogLog {
         } else {
             sb.append("CAUSED: [")
             sb.append(any.javaClass.canonicalName)
+                .append(":")
                 .append(cause.message)
                 .append("]")
                 .append(LINE_SEPARATOR)

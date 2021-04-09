@@ -3,10 +3,10 @@ package com.munch.test.project.one.base
 import android.content.Context
 import android.os.Bundle
 import com.munch.test.project.one.switch.SwitchHelper
-import com.munch.lib.fast.base.activity.BaseTopActivity as BTA
 import com.munch.lib.fast.base.activity.BaseItemActivity as BIA
 import com.munch.lib.fast.base.activity.BaseItemWithNoticeActivity as BIWNA
 import com.munch.lib.fast.base.activity.BaseRvActivity as BRA
+import com.munch.lib.fast.base.activity.BaseTopActivity as BTA
 
 /**
  * Create by munch1182 on 2021/4/8 15:05.

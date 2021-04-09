@@ -35,35 +35,50 @@ open class MMKVHelper constructor(private val id: String = ID_DEF, multiProcess:
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun put(key: String, value: Any) {
-        when (value) {
-            is String -> instance.encode(key, value)
-            is Int -> instance.encode(key, value)
-            is Boolean -> instance.encode(key, value)
-            is Float -> instance.encode(key, value)
-            is Long -> instance.encode(key, value)
-            is Double -> instance.encode(key, value)
-            is ByteArray -> instance.encode(key, value)
-            is Parcelable -> instance.encode(key, value)
-            is MutableSet<*> -> instance.encode(key, value as MutableSet<String>?)
-            else -> throw UnsupportedOperationException("unsupported type: ${value.javaClass}")
+    override fun put(key: String, value: Any?) {
+        if (value == null && hasKey(key)) {
+            remove(key)
+        } else {
+            when (value) {
+                is String -> instance.encode(key, value)
+                is Int -> instance.encode(key, value)
+                is Boolean -> instance.encode(key, value)
+                is Float -> instance.encode(key, value)
+                is Long -> instance.encode(key, value)
+                is Double -> instance.encode(key, value)
+                is ByteArray -> instance.encode(key, value)
+                is Parcelable -> instance.encode(key, value)
+                is MutableSet<*> -> instance.encode(key, value as MutableSet<String>?)
+                else -> throw UnsupportedOperationException("unsupported type: ${value!!.javaClass}")
+            }
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: String, defValue: T): T {
-        return when (defValue) {
-            is String -> instance.decodeString(key, defValue as String) as? T?
-            is Int -> instance.decodeInt(key, defValue as Int) as? T?
-            is Boolean -> instance.decodeBool(key, defValue as Boolean) as? T?
-            is Float -> instance.decodeFloat(key, defValue as Float) as? T?
-            is Long -> instance.decodeLong(key, defValue as Long) as? T?
-            is Double -> instance.decodeDouble(key, defValue as Double) as? T?
-            is ByteArray -> instance.decodeBytes(key, defValue as ByteArray) as? T?
-            is Parcelable -> instance.decodeParcelable(key, defValue.javaClass, defValue)
-            is MutableSet<*> -> instance.getStringSet(key, defValue as MutableSet<String>) as? T?
-            else -> throw UnsupportedOperationException("unsupported type: ${defValue!!::class.java}")
-        } ?: defValue
+        return if (!hasKey(key)) {
+            defValue
+        } else {
+            when (defValue) {
+                is String -> instance.decodeString(key, defValue as String) as? T?
+                is Int -> instance.decodeInt(key, defValue as Int) as? T?
+                is Boolean -> instance.decodeBool(key, defValue as Boolean) as? T?
+                is Float -> instance.decodeFloat(key, defValue as Float) as? T?
+                is Long -> instance.decodeLong(key, defValue as Long) as? T?
+                is Double -> instance.decodeDouble(key, defValue as Double) as? T?
+                is ByteArray -> instance.decodeBytes(key, defValue as ByteArray) as? T?
+                is Parcelable -> instance.decodeParcelable<Parcelable>(
+                    key,
+                    defValue.javaClass,
+                    defValue
+                ) as? T?
+                is MutableSet<*> -> instance.getStringSet(
+                    key,
+                    defValue as MutableSet<String>
+                ) as? T?
+                else -> throw UnsupportedOperationException("unsupported type")
+            } ?: defValue
+        }
     }
 
     override fun remove(key: String): Boolean {

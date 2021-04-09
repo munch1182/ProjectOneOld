@@ -1,4 +1,4 @@
-package com.munch.lib.fast.view
+package com.munch.lib.fast.weight
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -29,6 +29,9 @@ class CountView @JvmOverloads constructor(
     private var endCy = 0f
     private var textHeight = 0f
 
+    /**
+     * 数字切换时不变的部分
+     */
     private var stableStr = ""
     private var stableStrWidth = 0f
 
@@ -40,11 +43,15 @@ class CountView @JvmOverloads constructor(
 
     private val valueAnimator = ValueAnimator.ofFloat(0f, 100f)
 
+    private var countChangeListener: ((count: Int) -> Unit)? = null
+
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.CountView)
         paint.color = typedArray.getColor(R.styleable.CountView_count_view_textColor, Color.GRAY)
         paint.textSize = typedArray.getDimension(R.styleable.CountView_count_view_textSize, 50f)
         curCount = typedArray.getInt(R.styleable.CountView_count_view_count, 0)
+        max = typedArray.getInt(R.styleable.CountView_count_view_max, max)
+        min = typedArray.getInt(R.styleable.CountView_count_view_min, min)
         typedArray.recycle()
         stableStr = curCount.toString()
         paint.style = Paint.Style.FILL
@@ -110,17 +117,18 @@ class CountView @JvmOverloads constructor(
     }
 
     fun setCount(count: Int) {
-        if (count < min || count > max) {
+        if (count < min || count > max || curCount == count) {
             return
         }
         lastCount = curCount
         curCount = count
         stableStr = curCount.toString()
         invalidate()
+        countChangeListener?.invoke(curCount)
     }
 
     fun animSetCount(count: Int) {
-        if (count < min || count > max) {
+        if (count < min || count > max || curCount == count) {
             return
         }
         lastCount = curCount
@@ -149,10 +157,18 @@ class CountView @JvmOverloads constructor(
                     super.onAnimationEnd(animation)
                     requestLayout()
                     valueAnimator.removeAllListeners()
+                    countChangeListener?.invoke(curCount)
                 }
             })
         }
         valueAnimator.start()
+    }
+
+    fun getCount() = curCount
+
+    fun setCountChangeListener(func: ((count: Int) -> Unit)? = null): CountView {
+        this.countChangeListener = func
+        return this
     }
 
     private fun compareCount() {
