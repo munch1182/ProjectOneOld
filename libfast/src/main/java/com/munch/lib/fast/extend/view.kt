@@ -1,6 +1,7 @@
 package com.munch.lib.fast.extend
 
 import android.widget.ImageView
+import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 
 /**
@@ -8,4 +9,9 @@ import com.bumptech.glide.Glide
  */
 fun ImageView.load(any: Any?) {
     Glide.with(context).load(any).into(this)
+}
+
+@BindingAdapter("load")
+fun loadFast(imageView: ImageView, any: Any?) {
+    imageView.load(any)
 }

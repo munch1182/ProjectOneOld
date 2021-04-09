@@ -4,7 +4,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import android.os.Parcelable
 import androidx.annotation.RequiresPermission
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * Create by munch1182 on 2021/3/2 16:55.

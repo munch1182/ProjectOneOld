@@ -14,7 +14,7 @@ import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.SYNCHRONIZED
 import com.munch.pre.lib.helper.AddRemoveSetHelper
 import com.munch.pre.lib.helper.receiver.ReceiverHelper
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import android.bluetooth.le.ScanFilter as Filter
 
 /**

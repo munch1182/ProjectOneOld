@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'kotlin-parcelize'
 }
 apply from: '../gradle/commonbuildktx.gradle'
 
@@ -22,6 +23,8 @@ dependencies {
     implementation rootProject.ext.dependencies['viewmodel_ktx']
     implementation rootProject.ext.dependencies['lifecycle_runtime_ktx']
     implementation rootProject.ext.dependencies['permissionx']
+    implementation rootProject.ext.dependencies['tiny_pinyin']
+    implementation rootProject.ext.dependencies['tiny_pinyin_dic']
 
     debugImplementation rootProject.ext.dependencies['leakcanary']
 }

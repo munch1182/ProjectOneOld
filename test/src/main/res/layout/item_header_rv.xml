@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="app"
+            type="com.munch.test.project.one.recyclerview.AppItemViewModel.AppItem" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/rv_header_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_def"
+            android:text="@{app.name}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="12312" />
+
+        <TextView
+            android:id="@+id/rv_header_pkg_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{app.pkgName}"
+            android:paddingStart="@dimen/padding_def"
+            android:paddingEnd="@dimen/padding_def"
+            app:layout_constraintEnd_toStartOf="@id/rv_header_icon"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/rv_header_name"
+            app:layout_constraintTop_toBottomOf="@id/rv_header_name"
+            tools:text="12312" />
+
+        <TextView
+            android:id="@+id/rv_header_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_def"
+            android:text="@{app.time}"
+            app:layout_constraintEnd_toStartOf="@id/rv_header_icon"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/rv_header_name"
+            app:layout_constraintTop_toBottomOf="@id/rv_header_pkg_name"
+            tools:text="12312" />
+
+        <ImageView
+            android:id="@+id/rv_header_icon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="icon"
+            android:padding="@dimen/padding_def"
+            app:layout_constraintBottom_toBottomOf="@id/rv_header_time"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/rv_header_name"
+            app:load="@{app.icon}"
+            tools:ignore="HardcodedText"
+            tools:src="@mipmap/ic_launcher" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

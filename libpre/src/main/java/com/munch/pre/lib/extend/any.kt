@@ -24,13 +24,11 @@ fun logJson(json: String) {
 }
 
 @MainThread
-inline fun <T> LiveData<T>.observe(
+fun <T> LiveData<T>.observeOnChanged(
     owner: LifecycleOwner,
-    crossinline onChanged: (T) -> Unit
-): Observer<T> {
-    val wrappedObserver = Observer<T> { t -> onChanged.invoke(t) }
-    observe(owner, wrappedObserver)
-    return wrappedObserver
+    onChanged: (T) -> Unit
+) {
+    observe(owner, Observer(onChanged))
 }
 
 fun <T> MutableLiveData<T>.toLiveData(): LiveData<T> = this

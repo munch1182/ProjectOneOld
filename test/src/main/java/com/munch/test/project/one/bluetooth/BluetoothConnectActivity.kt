@@ -42,7 +42,7 @@ class BluetoothConnectActivity : BaseTopActivity() {
             device = intent?.extras?.getParcelable(KEY_DEVICE) as? BtDevice? ?: return@apply
 
             btDeviceConnect.setOnClickListener {
-                BluetoothHelper.INSTANCE.connect(device)
+                BluetoothHelper.INSTANCE.connect(device!!)
             }
         }
     }

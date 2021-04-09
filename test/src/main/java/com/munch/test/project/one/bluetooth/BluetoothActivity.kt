@@ -89,9 +89,9 @@ class BluetoothActivity : BaseTopActivity() {
                 }
             }
         bind.btRv.adapter = adapter
-        model.isScanning().observe(this) { bind.btScan.text = if (it) "停止扫描" else "扫描" }
-        model.getNotice().observe(this) { bind.btNotice.text = it }
-        model.getResList().observe(this) { adapter.set(it) }
+        model.isScanning().observeOnChanged(this) { bind.btScan.text = if (it) "停止扫描" else "扫描" }
+        model.getNotice().observeOnChanged(this) { bind.btNotice.text = it }
+        model.getResList().observeOnChanged(this) { adapter.set(it) }
 
         obOnResume({}, { model.release() })
     }
