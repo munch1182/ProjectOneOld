@@ -5,6 +5,7 @@ import android.bluetooth.le.ScanResult
 import android.os.Parcelable
 import androidx.annotation.RequiresPermission
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 
 /**
  * Create by munch1182 on 2021/3/2 16:55.
@@ -14,7 +15,7 @@ data class BtDevice(
     val name: String? = null,
     val mac: String,
     val rssi: Int = 0,
-    val type: BtType,
+    val type: @RawValue BtType,
     val device: BluetoothDevice
 ) : Parcelable {
 

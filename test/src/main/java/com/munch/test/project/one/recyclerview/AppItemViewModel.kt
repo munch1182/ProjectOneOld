@@ -6,14 +6,10 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.github.promeg.pinyinhelper.Pinyin
-import com.github.promeg.pinyinhelper.PinyinDict
-import com.github.promeg.tinypinyin.lexicons.android.cncity.CnCityDict
 import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.formatDate
-import com.munch.pre.lib.extend.log
 import com.munch.pre.lib.helper.AppHelper
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -46,20 +42,21 @@ class AppItemViewModel : ViewModel() {
                 map[it.packageName] = it.totalTimeForegroundServiceUsed
             }
         }
-
-        emit(AppHelper.getInstallApp()?.map {
-            val pkgName = it.activityInfo.packageName
+        val apps = AppHelper.getInstallApp() ?: return@flow
+        emit(MutableList(apps.size) {
+            val i = apps[it]
+            val pkgName = i.activityInfo.packageName
             val info = pm.getPackageInfo(pkgName, PackageManager.GET_CONFIGURATIONS)
             AppItem(
-                it.loadLabel(pm)?.toString() ?: "null",
-                it.loadIcon(pm),
+                i.loadLabel(pm)?.toString() ?: "null",
+                i.loadIcon(pm),
                 pkgName,
                 0,
                 info.firstInstallTime,
                 info.lastUpdateTime,
                 map[pkgName] ?: 0L
             )
-        }?.toMutableList() ?: mutableListOf())
+        })
     }
 
     val appItemsSortByLetter = appItems.map {
