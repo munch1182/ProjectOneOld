@@ -2,6 +2,9 @@ package com.munch.pre.lib.helper
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AppOpsManager
+import android.app.usage.StorageStats
+import android.app.usage.StorageStatsManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -17,16 +20,21 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Process
+import android.os.storage.StorageManager
 import android.util.DisplayMetrics
 import android.util.Size
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.DefaultDepend
 import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.getAttrFromTheme
 import com.munch.pre.lib.extend.getService
+import com.munch.pre.lib.extend.log
+import java.util.*
 import kotlin.system.exitProcess
 
 /**
@@ -106,12 +114,70 @@ object AppHelper {
                 || (info.applicationInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP == 1)
     }
 
-    fun getAppIcon(context: Context = BaseApp.getInstance(), pkgName: String): Drawable? {
+    fun getAppIcon(context: Context = getBaseApp(), pkgName: String): Drawable? {
         try {
             return context.packageManager?.getApplicationIcon(pkgName) ?: return null
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
             return null
+        }
+    }
+
+    /**
+     * 获取app大小相关，应用大小，缓存大小和文件大小
+     *
+     * @see checkUsagePermission
+     * @see IntentHelper.usageIntent
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresPermission("android.permission.PACKAGE_USAGE_STATS")
+    fun getAppSize(context: Context = getBaseApp(), pkgName: String): StorageStats? {
+        val storageStatsManager =
+            context.getService<StorageStatsManager>(Context.STORAGE_STATS_SERVICE) ?: return null
+        val storageManager =
+            context.getService<StorageManager>(Context.STORAGE_SERVICE) ?: return null
+        val uid = getUid(context, pkgName).takeIf { it != -1 } ?: return null
+        storageManager.storageVolumes.forEach {
+            try {
+                val uuid =
+                    if (it.uuid != null) UUID.fromString(it.uuid) else StorageManager.UUID_DEFAULT
+                return storageStatsManager.queryStatsForUid(uuid, uid)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                log(e)
+                return@forEach
+            }
+        }
+        return null
+    }
+
+    /**
+     * @see getAppSize
+     * @see IntentHelper.usageIntent
+     */
+    @RequiresPermission("android.permission.PACKAGE_USAGE_STATS")
+    fun checkUsagePermission(context: Context = getBaseApp()): Boolean {
+        val opsManager = context.getService<AppOpsManager>(Context.APP_OPS_SERVICE) ?: return false
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            opsManager.unsafeCheckOp(
+                "android:get_usage_stats",
+                Process.myUid(),
+                context.packageName
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            opsManager.checkOp("android:get_usage_stats", Process.myUid(), context.packageName)
+        } == AppOpsManager.MODE_ALLOWED
+    }
+
+    fun getUid(context: Context = BaseApp.getInstance(), pkgName: String): Int {
+        return try {
+            context.packageManager?.getApplicationInfo(
+                pkgName,
+                PackageManager.GET_META_DATA
+            )?.uid ?: -1
+        } catch (e: Exception) {
+            -1
         }
     }
 

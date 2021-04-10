@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.COMPATIBILITY
 
 /**
@@ -41,6 +42,9 @@ object IntentHelper {
         return Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$sendTo"))
             .putExtra("sms_body", content)
     }
+
+    @RequiresPermission("android.permission.PACKAGE_USAGE_STATS")
+    fun usageIntent() = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
 
     fun shareIntent(content: String) =
         Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_TEXT, content).setType("text/plain")

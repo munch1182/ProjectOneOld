@@ -1,5 +1,7 @@
 package com.munch.lib.fast.base.activity
 
+import android.graphics.Color
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,9 +41,9 @@ abstract class BaseItemWithNoticeActivity : BaseItemActivity() {
             }
             noticeAdapter =
                 SimpleAdapter(R.layout.item_base_top_tv, mutableListOf("")) { holder, bean, _ ->
-                    if (holder.itemView is TextView) {
-                        (holder.itemView as TextView).text = bean
-                    }
+                    holder.itemView.findViewById<TextView>(R.id.item_base_top_tv)?.text = bean
+                    holder.itemView.findViewById<FrameLayout>(R.id.item_base_top_fl)
+                        ?.setBackgroundColor(Color.TRANSPARENT)
                 }
             val concatAdapter = ConcatAdapter(itemAdapter, noticeAdapter)
             adapter = concatAdapter

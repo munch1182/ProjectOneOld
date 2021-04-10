@@ -13,7 +13,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite">
 
         <TextView
             android:id="@+id/rv_header_name"
@@ -31,9 +32,9 @@
             android:id="@+id/rv_header_pkg_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{app.pkgName}"
             android:paddingStart="@dimen/padding_def"
             android:paddingEnd="@dimen/padding_def"
+            android:text="@{app.pkgName}"
             app:layout_constraintEnd_toStartOf="@id/rv_header_icon"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@id/rv_header_name"
