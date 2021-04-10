@@ -55,8 +55,8 @@
 
         <ImageView
             android:id="@+id/rv_header_icon"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
             android:contentDescription="icon"
             android:padding="@dimen/padding_def"
             app:layout_constraintBottom_toBottomOf="@id/rv_header_time"

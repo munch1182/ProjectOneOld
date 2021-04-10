@@ -80,25 +80,74 @@ open class AppItemViewModel : ViewModel() {
     }
 
     val appItemsSortByLetter by lazy {
-        appItems.map {
-            if (it.isEmpty()) {
-                return@map it
-            }
-            it.sort()
-            var last = it[0].char
+        sortByLetter().map {
+            val map = hashMapOf<Char, Int>()
+            var char = ' '
+            var index = 0
             it.forEach { app ->
-                if (app.char == last) {
-                    app.isHeader = false
-                } else {
-                    app.isHeader = true
-                    last = app.char
+                if (char != app.char) {
+                    map[char] = index
+                    char = app.char
                 }
+                index++
             }
-            it[0].isHeader = true
-            it
+            Pair(it, map)
         }.asLiveData(viewModelScope.coroutineContext + Dispatchers.Default)
     }
 
+    private fun sortByLetter() = appItems.map {
+        if (it.isEmpty()) {
+            return@map it
+        }
+        it.sort()
+        var last = it[0].char
+        it.forEach { app ->
+            if (app.char == last) {
+                app.isHeader = false
+            } else {
+                app.isHeader = true
+                last = app.char
+            }
+        }
+        it[0].isHeader = true
+        it
+    }
+
+    private var appSpan = 4
+
+    val appItemSortByGroup by lazy {
+        sortByLetter().map { list ->
+            val array = mutableListOf<AppGroupItem>()
+            var last = ' '
+            var charIndex = -1
+            val map = hashMapOf<Char, Int>()
+            list.forEach {
+                charIndex++
+                //如果该数据的char与上一个char不同，则需要另起一组
+                if (it.char != last && charIndex != 0) {
+                    //给每一组最后一个位置添加一个占据剩余整行的空数据来占位置，需要GridLayoutManager.SpanSizeLookup配合
+                    //此处计算上一个位置需要添加的空行数
+                    val i = appSpan - (charIndex - 1) % appSpan - 1
+                    //如果该组最后一个位置也是该行最后一个则不添加
+                    if (i != 0) {
+                        array.add(AppGroupItem.fromEmpty(last, charIndex, i))
+                    }
+                    charIndex = 0
+                }
+                last = it.char.toUpperCase()
+                array.add(AppGroupItem.fromIndex(it, charIndex))
+                if (charIndex == 0) {
+                    map[it.char] = array.size - 1
+                }
+            }
+            Pair(array, map)
+        }.asLiveData(viewModelScope.coroutineContext + Dispatchers.Default)
+    }
+
+    fun span(span: Int): AppItemViewModel {
+        appSpan = span
+        return this
+    }
 
     data class AppItem(
         val name: String,
@@ -149,6 +198,38 @@ open class AppItemViewModel : ViewModel() {
 
         override fun toString(): String {
             return "AppItem(name='$name', icon=$icon, pkgName='$pkgName', size=$size, installTime=$installTime, lastUpdateTime=$lastUpdateTime, useTimeIn7=$useTimeIn7, isHeader=$isHeader, letter='$letter', char=$char)"
+        }
+    }
+
+    data class AppGroupItem(
+        var char: Char,
+        var isEmpty: Boolean = false,
+        //在该分组下的序列
+        var indexInLetter: Int = -1,
+        //当前位置距离该行末尾的位置，如果不在最后一个，则为1
+        //其具体值取决于GridLayout的列数，更新时计算
+        var span2End: Int = 1,
+        val appItem: AppItem? = null
+    ) : Comparable<AppGroupItem> {
+
+        companion object {
+
+
+            fun fromIndex(appItem: AppItem, indexInLetter: Int) =
+                AppGroupItem(appItem.char, false, indexInLetter, 1, appItem)
+
+            fun fromEmpty(char: Char, indexInLetter: Int, span2End: Int) =
+                AppGroupItem(char, true, indexInLetter, span2End, null)
+        }
+
+        override fun compareTo(other: AppGroupItem): Int {
+            val compareTo = char.compareTo(other.char)
+            if (compareTo != 0) {
+                return compareTo
+            }
+            appItem ?: return 1
+            other.appItem ?: return -1
+            return appItem.compareTo(other.appItem)
         }
     }
 }

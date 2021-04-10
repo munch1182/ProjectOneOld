@@ -48,7 +48,7 @@
         <activity android:name=".bluetooth.BluetoothConnectActivity" />
         <activity android:name=".recyclerview.RecyclerViewActivity" />
         <activity android:name=".recyclerview.HeaderRvActivity" />
-        <activity android:name=".recyclerview.SlideRvActivity" />
+        <activity android:name=".recyclerview.GroupRvActivity" />
     </application>
 
 </manifest>

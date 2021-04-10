@@ -16,6 +16,6 @@ class RecyclerViewActivity : BaseRvActivity() {
         Pinyin.init(Pinyin.newConfig().with(CnCityDict.getInstance(BaseApp.getInstance())))
     }
     override fun getClassItem(): MutableList<ItemClassBean> {
-        return ItemClassBean.newItems(HeaderRvActivity::class.java, SlideRvActivity::class.java)
+        return ItemClassBean.newItems(HeaderRvActivity::class.java, GroupRvActivity::class.java)
     }
 }
