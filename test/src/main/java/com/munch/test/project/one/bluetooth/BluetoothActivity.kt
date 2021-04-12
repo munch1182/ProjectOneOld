@@ -26,11 +26,11 @@ import com.munch.test.project.one.base.DataHelper
 import com.munch.test.project.one.databinding.ActivityBluetoothBinding
 import com.munch.test.project.one.databinding.ItemBluetoothBinding
 import com.munch.test.project.one.requestPermission
-import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 
 /**
  * Create by munch1182 on 2021/4/8 17:14.
