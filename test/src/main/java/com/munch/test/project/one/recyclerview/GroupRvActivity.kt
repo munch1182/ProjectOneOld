@@ -1,5 +1,6 @@
 package com.munch.test.project.one.recyclerview
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -7,12 +8,12 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.fast.base.BaseBindAdapter
 import com.munch.lib.fast.base.BaseBindViewHolder
 import com.munch.lib.fast.extend.get
 import com.munch.pre.lib.base.rv.DiffItemCallback
-import com.munch.pre.lib.extend.log
 import com.munch.pre.lib.extend.observeOnChanged
 import com.munch.pre.lib.helper.drawTextInYCenter
 import com.munch.test.project.one.R
@@ -33,20 +34,32 @@ class GroupRvActivity : BaseTopActivity() {
     private lateinit var appAdapter: BaseBindAdapter<AppItemViewModel.AppGroupItem, ItemGroupRvBinding>
     private val spanCount = 4
     private val manager by lazy { bind.baseTopRv.layoutManager as GridLayoutManager }
+    private val smoothScroller by lazy { TopSmoothScroller(this) }
 
     private fun querySize() {
         model.span(spanCount).appItemSortByGroup.observeOnChanged(this) { data ->
             appAdapter.set(data.first)
-            val chars: MutableSet<Char> = data.second.keys
+            val map = data.second
             val letter = runBlocking {
                 withContext(lifecycleScope.coroutineContext + Dispatchers.Default) {
-                    chars.map { it.toString() }.toMutableList().apply { sort() }
+                    map.keys.map { it.toString() }.toMutableList().apply { sort() }
+                }
+            }
+            bind.groupLetter.clickListener = { s, _ ->
+                val pos = map[s.toCharArray()[0]]
+                if (pos != null) {
+                    smooth2Pos(pos)
                 }
             }
             bind.groupLetter.setLetters(letter)
             selectRange()
             hideSrl()
         }
+    }
+
+    private fun smooth2Pos(pos: Int) {
+        smoothScroller.targetPosition = pos
+        manager.startSmoothScroll(smoothScroller)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -151,6 +164,12 @@ class GroupRvActivity : BaseTopActivity() {
         //错开更新的时间
         bind.baseTopSrl.apply {
             postDelayed({ isRefreshing = false }, 500L)
+        }
+    }
+
+    class TopSmoothScroller(context: Context) : LinearSmoothScroller(context) {
+        override fun getVerticalSnapPreference(): Int {
+            return SNAP_TO_START
         }
     }
 }

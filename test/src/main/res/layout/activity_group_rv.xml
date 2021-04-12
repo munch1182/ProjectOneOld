@@ -37,6 +37,7 @@
                 android:layout_height="wrap_content"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="4"
+                android:overScrollMode="never"
                 tools:listitem="@layout/item_group_rv" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
