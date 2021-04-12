@@ -8,5 +8,5 @@
     <dimen name="sp_title_smaller">18sp</dimen>
     <dimen name="sp_smaller">12sp</dimen>
 
-    <dimen name="duration_anim">250</dimen>
+    <integer name="duration_anim">250</integer>
 </resources>
