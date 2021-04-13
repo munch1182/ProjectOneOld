@@ -2,6 +2,7 @@ package com.munch.lib.fast.base.activity
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -22,6 +23,7 @@ abstract class BaseRvActivity : BaseTopActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        bind.lifecycleOwner = this
         setItem(bind.baseTopRv)
         bind.baseTopSrl.run {
             setOnRefreshListener { refresh() }
@@ -40,10 +42,8 @@ abstract class BaseRvActivity : BaseTopActivity() {
                 R.layout.item_base_top_tv, getClassItem()
             ) {
                 init {
-                    setOnItemClickListener { _, bean, _, _ ->
-                        if (bean.target != null) {
-                            startActivity(bean.target)
-                        }
+                    setOnItemClickListener { _, bean, view, _ ->
+                        next(bean, view)
                     }
                 }
 
@@ -56,6 +56,12 @@ abstract class BaseRvActivity : BaseTopActivity() {
                 }
 
             }
+        }
+    }
+
+    protected open fun next(bean: ItemClassBean, view: View) {
+        if (bean.target != null) {
+            startActivity(bean.target)
         }
     }
 

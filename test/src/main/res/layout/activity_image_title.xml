@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".anim.ImageTitleActivity">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+                <ImageView
+                    android:id="@+id/image_title_iv_top"
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/test_png_426_240"
+                    app:layout_collapseMode="parallax"
+                    app:layout_collapseParallaxMultiplier="0.8"
+                    tools:ignore="ContentDescription" />
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            <!--使用可以将tv上移并盖住ImageView-->
+            <!--app:behavior_overlapTop="30dp"-->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/padding_def"
+                android:paddingLeft="@dimen/padding_def"
+                android:paddingTop="@dimen/padding_def"
+                android:paddingEnd="@dimen/padding_def"
+                android:paddingRight="@dimen/padding_def"
+                android:text="@string/test_page" />
+        </androidx.core.widget.NestedScrollView>
+
+        <!--组件化中behavior必须声明全路径-->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/image_title_tb"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:layout_anchor="@id/image_title_iv_top"
+            app:layout_behavior=".anim.TranslucentBehavior" />
+
+        <!--组件化中behavior必须声明全路径-->
+        <TextView
+            android:id="@+id/image_title_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="荷塘月色"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_title_smaller"
+            app:layout_anchor="@id/image_title_iv_top"
+            app:layout_behavior=".anim.TransferTitleBehavior"
+            tools:ignore="HardcodedText" />
+
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

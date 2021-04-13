@@ -1,6 +1,7 @@
 package com.munch.test.project.one
 
 import android.os.Bundle
+import com.munch.test.project.one.anim.AnimActivity
 import com.munch.test.project.one.base.BaseRvActivity
 import com.munch.test.project.one.bluetooth.BluetoothActivity
 import com.munch.test.project.one.dag.DagActivity
@@ -26,6 +27,7 @@ class MainActivity : BaseRvActivity() {
             IntentActivity::class.java,
             DialogActivity::class.java,
             RecyclerViewActivity::class.java,
+            AnimActivity::class.java,
             BluetoothActivity::class.java,
             ThreadActivity::class.java,
             FileActivity::class.java,

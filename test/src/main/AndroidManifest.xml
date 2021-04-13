@@ -49,6 +49,9 @@
         <activity android:name=".recyclerview.RecyclerViewActivity" />
         <activity android:name=".recyclerview.HeaderRvActivity" />
         <activity android:name=".recyclerview.GroupRvActivity" />
+        <activity android:name=".anim.AnimActivity" />
+        <activity android:name=".anim.ImageTitleActivity" />
+        <activity android:name=".anim.SimpleTitleActivity" />
     </application>
 
 </manifest>
