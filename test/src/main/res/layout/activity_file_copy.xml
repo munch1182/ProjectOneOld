@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".file.FileCopyActivity"
+        tools:ignore="HardcodedText">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/file_copy_line_center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <Button
+            android:id="@+id/file_copy_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_def"
+            android:text="start"
+            app:layout_constraintEnd_toStartOf="@id/file_copy_line_center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/file_copy_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="stop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/file_copy_line_center"
+            app:layout_constraintTop_toTopOf="@id/file_copy_start" />
+
+        <Button
+            android:id="@+id/file_copy_start1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="start1"
+            app:layout_constraintEnd_toStartOf="@id/file_copy_line_center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/file_copy_start" />
+
+        <Button
+            android:id="@+id/file_copy_start2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="start2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/file_copy_line_center"
+            app:layout_constraintTop_toBottomOf="@id/file_copy_start" />
+
+        <TextView
+            android:id="@+id/file_copy_start1_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/file_copy_line_center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/file_copy_start1"
+            tools:text="1232123" />
+
+        <TextView
+            android:id="@+id/file_copy_start2_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/file_copy_line_center"
+            app:layout_constraintTop_toBottomOf="@id/file_copy_start2"
+            tools:text="1232123" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

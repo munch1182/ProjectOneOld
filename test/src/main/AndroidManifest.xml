@@ -40,7 +40,7 @@
         <activity android:name=".thread.ThreadActivity" />
         <activity android:name=".Test2Activity" />
         <activity android:name=".dialog.DialogActivity" />
-        <activity android:name=".file.FileActivity" />
+        <activity android:name=".file.FileChoseActivity" />
         <activity android:name=".switch.SwitchActivity" />
         <activity android:name=".view.WeightActivity" />
         <activity android:name=".bluetooth.BluetoothConfigActivity" />
@@ -52,6 +52,8 @@
         <activity android:name=".anim.AnimActivity" />
         <activity android:name=".anim.ImageTitleActivity" />
         <activity android:name=".anim.SimpleTitleActivity" />
+        <activity android:name=".file.FileCopyActivity" />
+        <activity android:name=".file.FileActivity" />
     </application>
 
 </manifest>

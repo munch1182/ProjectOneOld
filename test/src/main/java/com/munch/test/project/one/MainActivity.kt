@@ -1,12 +1,14 @@
 package com.munch.test.project.one
 
 import android.os.Bundle
+import com.munch.pre.lib.extend.startActivity
 import com.munch.test.project.one.anim.AnimActivity
 import com.munch.test.project.one.base.BaseRvActivity
 import com.munch.test.project.one.bluetooth.BluetoothActivity
 import com.munch.test.project.one.dag.DagActivity
 import com.munch.test.project.one.dialog.DialogActivity
 import com.munch.test.project.one.file.FileActivity
+import com.munch.test.project.one.file.FileCopyActivity
 import com.munch.test.project.one.info.InfoActivity
 import com.munch.test.project.one.intent.IntentActivity
 import com.munch.test.project.one.log.LogActivity
@@ -20,6 +22,7 @@ class MainActivity : BaseRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         noBack()
+        startActivity(FileCopyActivity::class.java)
     }
 
     override fun getClassItem(): MutableList<ItemClassBean> {

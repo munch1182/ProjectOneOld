@@ -260,9 +260,7 @@ object FileHelper {
             } else if (isMediaDocument(uri)) {
                 val docId = DocumentsContract.getDocumentId(uri)
                 val split = docId.split(":".toRegex()).toTypedArray()
-                val type = split[0]
-                val contentUri: Uri
-                contentUri = when (type) {
+                val contentUri: Uri = when (split[0]) {
                     "image" -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                     "video" -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
                     "audio" -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
