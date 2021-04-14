@@ -150,20 +150,22 @@ abstract class BaseAdapter<D, V : BaseViewHolder> constructor(
     }
 
     open fun set(beanList: MutableList<D>?) {
-        val old = getData()
-        old.clear()
         if (!beanList.isNullOrEmpty()) {
             if (diffUtil != null) {
                 runBlocking {
                     withContext(Dispatchers.Default) {
-                        DiffUtil.calculateDiff(DiffCallBack(old, beanList, diffUtil!!))
+                        DiffUtil.calculateDiff(DiffCallBack(getData(), beanList, diffUtil!!))
                     }
                 }.dispatchUpdatesTo(this)
             }
+            getData().clear()
             getData().addAll(beanList)
             if (diffUtil == null) {
                 notifyDataSetChanged()
             }
+        } else {
+            getData().clear()
+            notifyDataSetChanged()
         }
     }
 

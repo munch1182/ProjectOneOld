@@ -10,6 +10,7 @@ import com.munch.test.project.one.file.FileActivity
 import com.munch.test.project.one.info.InfoActivity
 import com.munch.test.project.one.intent.IntentActivity
 import com.munch.test.project.one.log.LogActivity
+import com.munch.test.project.one.net.NetActivity
 import com.munch.test.project.one.recyclerview.RecyclerViewActivity
 import com.munch.test.project.one.switch.SwitchActivity
 import com.munch.test.project.one.thread.ThreadActivity
@@ -30,6 +31,7 @@ class MainActivity : BaseRvActivity() {
             AnimActivity::class.java,
             BluetoothActivity::class.java,
             ThreadActivity::class.java,
+            NetActivity::class.java,
             FileActivity::class.java,
             DagActivity::class.java,
             SwitchActivity::class.java,

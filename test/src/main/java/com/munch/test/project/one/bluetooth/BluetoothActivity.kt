@@ -85,7 +85,7 @@ class BluetoothActivity : BaseTopActivity() {
                     toast("已复制地址到剪切板")
                 }
                 setOnItemLongClickListener { _, bean, _, _ ->
-                    BluetoothConnectActivity.start(this@BluetoothActivity,bean)
+                    BluetoothConnectActivity.start(this@BluetoothActivity, bean)
                 }
             }
         bind.btRv.adapter = adapter
@@ -226,6 +226,9 @@ class BluetoothActivity : BaseTopActivity() {
         @JvmStatic
         @BindingAdapter("bind_view_count")
         fun bindViewCount(countView: CountView, count: Int) {
+            if (countView.getCount() == count) {
+                return
+            }
             countView.setCount(count)
         }
 
