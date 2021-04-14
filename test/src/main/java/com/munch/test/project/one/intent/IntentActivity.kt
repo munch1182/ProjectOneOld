@@ -22,6 +22,7 @@ class IntentActivity : BaseItemActivity() {
             9 -> startActivity(IntentHelper.notifyIntent(this))
             10 -> IntentHelper.startDevelopment(this)
             11 -> startActivity(IntentHelper.shareIntent("share content temp"))
+            12 -> startActivity(IntentHelper.usageIntent())
         }
     }
 
@@ -38,7 +39,8 @@ class IntentActivity : BaseItemActivity() {
             "bluetooth",
             "notify",
             "development",
-            "share"
+            "share",
+            "usage"
         )
     }
 }

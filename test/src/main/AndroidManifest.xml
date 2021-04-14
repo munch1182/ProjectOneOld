@@ -54,6 +54,11 @@
         <activity android:name=".anim.SimpleTitleActivity" />
         <activity android:name=".file.FileCopyActivity" />
         <activity android:name=".file.FileActivity" />
+        <activity android:name=".view.FlowActivity" />
+        <activity android:name=".view.ViewActivity" />
+        <activity android:name=".view.PaintModeActivity" />
+        <activity android:name=".view.BookActivity" />
+        <activity android:name=".view.FishActivity" />
     </application>
 
 </manifest>

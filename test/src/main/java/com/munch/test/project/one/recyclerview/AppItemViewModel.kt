@@ -62,18 +62,14 @@ open class AppItemViewModel : ViewModel() {
             val usage =
                 context.getService<UsageStatsManager>(Context.USAGE_STATS_SERVICE) ?: return null
             val currentTimeMillis = System.currentTimeMillis()
-            val usageStats = usage.queryUsageStats(
-                UsageStatsManager.INTERVAL_BEST,
-                currentTimeMillis - 24L * 60L * 60L * 1000L * 7, currentTimeMillis
-            )
+            val usageStats =
+                usage.queryUsageStats(UsageStatsManager.INTERVAL_YEARLY, 0L, currentTimeMillis)
             if (!usageStats.isNullOrEmpty()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val map = HashMap<String, Long>(usageStats.size)
-                    usageStats.forEach {
-                        map[it.packageName] = it.totalTimeVisible
-                    }
-                    return map
+                val map = HashMap<String, Long>(usageStats.size)
+                usageStats.forEach {
+                    map[it.packageName] = it.lastTimeUsed
                 }
+                return map
             }
         }
         return null
@@ -156,7 +152,7 @@ open class AppItemViewModel : ViewModel() {
         val size: String = "0",
         val installTime: Long,
         val lastUpdateTime: Long,
-        val useTimeIn7: Long
+        val lastUseTime: Long
     ) : Comparable<AppItem>, HeaderItemDecoration.IsHeader {
 
         internal var isHeader: Boolean = false
@@ -183,9 +179,9 @@ open class AppItemViewModel : ViewModel() {
         private val pattern = "yyyyMMdd HH:mm"
 
         fun time(): String {
-            return "${pattern.formatDate(installTime)} / ${
-                pattern.formatDate(lastUpdateTime)
-            }\r\n$useTimeIn7 $size"
+            return "$size " +
+                    "\r\n${pattern.formatDate(installTime)} / ${pattern.formatDate(lastUpdateTime)}" +
+                    "\r\n${pattern.formatDate(lastUseTime)} "
         }
 
         override fun compareTo(other: AppItem): Int {
@@ -197,7 +193,7 @@ open class AppItemViewModel : ViewModel() {
         override fun headerStr(): String = char.toString()
 
         override fun toString(): String {
-            return "AppItem(name='$name', icon=$icon, pkgName='$pkgName', size=$size, installTime=$installTime, lastUpdateTime=$lastUpdateTime, useTimeIn7=$useTimeIn7, isHeader=$isHeader, letter='$letter', char=$char)"
+            return "AppItem(name='$name', icon=$icon, pkgName='$pkgName', size=$size, installTime=$installTime, lastUpdateTime=$lastUpdateTime, useTimeIn7=$lastUseTime, isHeader=$isHeader, letter='$letter', char=$char)"
         }
     }
 

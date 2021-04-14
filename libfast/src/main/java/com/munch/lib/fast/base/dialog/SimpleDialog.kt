@@ -79,6 +79,20 @@ sealed class SimpleDialog {
             return this
         }
 
+        fun setOnItemClickListener(listener: ViewIntTagClickListener): Bottom {
+            this.clickListener = listener
+            return this
+        }
+
+        fun setOnItemClickListener(listener: (view: View, pos: Int) -> Unit): Bottom {
+            this.clickListener = object : ViewIntTagClickListener {
+                override fun onClick(v: View, index: Int) {
+                    listener.invoke(v, index)
+                }
+            }
+            return this
+        }
+
         fun setTitle(title: CharSequence): Bottom {
             val child = contentView.getChildAt(0)
             if (child is TextView) {

@@ -1,28 +1,25 @@
 package com.munch.test.project.one
 
 import android.os.Bundle
-import com.munch.pre.lib.extend.startActivity
 import com.munch.test.project.one.anim.AnimActivity
 import com.munch.test.project.one.base.BaseRvActivity
 import com.munch.test.project.one.bluetooth.BluetoothActivity
 import com.munch.test.project.one.dag.DagActivity
 import com.munch.test.project.one.dialog.DialogActivity
 import com.munch.test.project.one.file.FileActivity
-import com.munch.test.project.one.file.FileCopyActivity
 import com.munch.test.project.one.info.InfoActivity
 import com.munch.test.project.one.intent.IntentActivity
 import com.munch.test.project.one.log.LogActivity
 import com.munch.test.project.one.recyclerview.RecyclerViewActivity
 import com.munch.test.project.one.switch.SwitchActivity
 import com.munch.test.project.one.thread.ThreadActivity
-import com.munch.test.project.one.view.WeightActivity
+import com.munch.test.project.one.view.ViewActivity
 
 class MainActivity : BaseRvActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         noBack()
-        startActivity(FileCopyActivity::class.java)
     }
 
     override fun getClassItem(): MutableList<ItemClassBean> {
@@ -36,7 +33,7 @@ class MainActivity : BaseRvActivity() {
             FileActivity::class.java,
             DagActivity::class.java,
             SwitchActivity::class.java,
-            WeightActivity::class.java,
+            ViewActivity::class.java,
             TestActivity::class.java,
             Test2Activity::class.java,
             LogActivity::class.java,

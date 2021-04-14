@@ -18,6 +18,12 @@ class WeightActivity : BaseTopActivity() {
             lifecycleOwner = this@WeightActivity
             weightAdd.setOnClickListener { weightCv.countAdd() }
             weightReduce.setOnClickListener { weightCv.countSub() }
+            weightTeardropAngle.setOnClickListener {
+                weightTeardropAngle.setProperty { angle += 45 }
+            }
+            weightTeardrop.setOnClickListener {
+                weightTeardrop.setProperty { this.angle += 90 }
+            }
         }
     }
 }

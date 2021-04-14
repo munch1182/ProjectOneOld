@@ -10,7 +10,6 @@ import com.munch.pre.lib.extend.StringHelper
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.BarHelper
 import com.munch.test.project.one.R
-import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityInfoBinding
 
 /**

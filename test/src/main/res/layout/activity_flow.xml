@@ -5,16 +5,21 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
-        tools:context=".Test2Activity"
-        tools:ignore="HardcodedText">
+        tools:context=".view.FlowActivity">
 
         <Button
-            android:id="@+id/test2_bt1"
+            android:id="@+id/flow_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/padding_def"
-            android:text="test" />
+            android:text="align"
+            tools:ignore="HardcodedText" />
+
+        <com.munch.lib.fast.weight.FlowLayout
+            android:id="@+id/flow_flow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 </layout>
