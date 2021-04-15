@@ -1,8 +1,6 @@
 package com.munch.pre.lib.dag
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.concurrent.CountDownLatch
 import kotlin.coroutines.CoroutineContext
 
@@ -10,7 +8,7 @@ import kotlin.coroutines.CoroutineContext
  *
  * Create by munch1182 on 2021/4/1 17:28.
  */
-abstract class Task {
+abstract class Task : CoroutineScope {
 
     abstract fun start(executor: Executor)
 
@@ -23,10 +21,9 @@ abstract class Task {
     /**
      * 指定任务执行的线程
      */
-    open val coroutineContext: CoroutineContext = Dispatchers.Unconfined
+    override val coroutineContext: CoroutineContext = Dispatchers.Unconfined
 
     internal var cd: CountDownLatch? = null
-
     internal var dependsOnCopy = mutableListOf<String>()
 
     internal fun copyDepends(): MutableList<String> {
@@ -55,7 +52,7 @@ abstract class Task {
             cd?.await()
         }
         cd = null
-        GlobalScope.launch(this@Task.coroutineContext) {
+        executor.launch(this@Task.coroutineContext) {
             try {
                 start(executor)
                 executor.executeCallBack.invoke(uniqueKey, executor)

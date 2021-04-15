@@ -2,6 +2,7 @@ package com.munch.test.project.one.net
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
@@ -15,6 +16,8 @@ import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityNetIpBinding
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -42,6 +45,8 @@ class NetIpActivity : BaseTopActivity() {
             }
         }
     }
+    private var running = true
+    private val mutex = Mutex()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,11 +61,28 @@ class NetIpActivity : BaseTopActivity() {
             }
             netIpBtnAll.setOnClickListener { scanIp() }
         }
+        NetStatusHelper.getInstance(this).apply {
+            limitTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            setWhenResume(this@NetIpActivity, { available, _ ->
+                if (!available) {
+                    runBlocking(lifecycleScope.coroutineContext) {
+                        mutex.withLock { running = false }
+                    }
+                    toast("wifi已关闭")
+                    hideSrl()
+                } else {
+                    runBlocking(lifecycleScope.coroutineContext) {
+                        mutex.withLock { running = true }
+                    }
+                }
+            }, { register() }, { unregister() })
+        }
     }
+
 
     private fun scanIp() {
         itemAdapter.set(mutableListOf())
-        if (!isWifiEnable()) {
+        if (!isWifiEnable() || !NetStatusHelper.wifiAvailable(this@NetIpActivity)) {
             toast("wifi不可用")
             return
         }
@@ -70,24 +92,29 @@ class NetIpActivity : BaseTopActivity() {
             return
         }
         val ipSuffix = selfIp.subSequence(0, selfIp.lastIndexOf("."))
-        val cd by lazy { CountDownLatch(255) }
+        val cd = CountDownLatch(255)
         bind.netIpSrl.isRefreshing = true
         val list = mutableListOf<String>()
         lifecycleScope.launch(Dispatchers.IO) {
+            mutex.withLock { running = true }
             for (i in 1..255) {
                 val ip = "$ipSuffix.$i"
                 if (ip == selfIp) {
                     cd.countDown()
                     continue
                 }
-                lifecycleScope.launch(Dispatchers.IO) {
+                lifecycleScope.launch(Dispatchers.IO) exe@{
+                    if (!mutex.withLock { running }) {
+                        cd.countDown()
+                        return@exe
+                    }
                     var process: Process? = null
                     try {
                         //-c 1为发送的次数，-w 表示发送后等待响应的时间
                         process = Runtime.getRuntime().exec("ping -c 1 -w 3 $ip")
                         val res = process.waitFor()
                         if (res == 0) {
-                            list.add(ip)
+                            mutex.withLock { list.add(ip) }
                         }
                         cd.countDown()
                     } catch (e: Exception) {
@@ -109,9 +136,13 @@ class NetIpActivity : BaseTopActivity() {
             }
             withContext(Dispatchers.Main) {
                 itemAdapter.set(list)
-                bind.netIpSrl.postDelayed({ bind.netIpSrl.isRefreshing = false }, 500L)
+                hideSrl()
             }
         }
+    }
+
+    private fun hideSrl() {
+        bind.netIpSrl.postDelayed({ bind.netIpSrl.isRefreshing = false }, 500L)
     }
 
     private fun isWifiEnable(): Boolean {

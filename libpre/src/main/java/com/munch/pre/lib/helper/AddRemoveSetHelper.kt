@@ -99,11 +99,13 @@ abstract class AddRemoveSetHelper<T> {
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             fun onResume() {
                 add(t)
+                onResume?.invoke()
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
             fun onPause() {
                 remove(t)
+                onPause?.invoke()
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

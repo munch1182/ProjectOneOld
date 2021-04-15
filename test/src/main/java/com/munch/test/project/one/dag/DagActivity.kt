@@ -161,7 +161,7 @@ class DagActivity : BaseItemWithNoticeActivity() {
             if (!res) {
                 return
             }
-            GlobalScope.launch(Dispatchers.Main) {
+            launch(Dispatchers.Main) {
                 SimpleDialog.Normal(AppStatusHelper.getTopActivity() ?: return@launch)
                     .setContent("notice dialog from $KEY in $name")
                     .setSureClickListener({ notifyCurrentThread() })
@@ -200,6 +200,14 @@ class DagActivity : BaseItemWithNoticeActivity() {
 
         companion object {
             const val KEY = "T7"
+        }
+
+        override fun start(executor: Executor) {
+            super.start(executor)
+            if (Random.nextBoolean()) {
+                log("Executor cancel by $KEY")
+                executor.cancel()
+            }
         }
 
         override val uniqueKey: String = KEY
