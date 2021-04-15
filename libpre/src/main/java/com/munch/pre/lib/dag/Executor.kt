@@ -1,7 +1,6 @@
 package com.munch.pre.lib.dag
 
 import android.util.ArrayMap
-import com.munch.pre.lib.extend.log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
@@ -67,6 +66,9 @@ class Executor : CoroutineScope {
         }
     }
 
+    /**
+     * 取消会导致无法再次执行，需要另建对象
+     */
     fun cancel() {
         job.cancel()
     }
@@ -97,7 +99,6 @@ class Executor : CoroutineScope {
     fun execute(): Executor {
 
         launch {
-            log(job.isCancelled)
             addDefTask()
             executing = true
             dag.generaDag()

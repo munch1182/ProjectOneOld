@@ -149,8 +149,6 @@ class DagActivity : BaseItemWithNoticeActivity() {
             const val KEY = "T5"
         }
 
-        private val lock = Object()
-
         override fun start(executor: Executor) {
             super.start(executor)
             runBlocking {
@@ -162,22 +160,15 @@ class DagActivity : BaseItemWithNoticeActivity() {
                 return
             }
             launch(Dispatchers.Main) {
-                SimpleDialog.Normal(AppStatusHelper.getTopActivity() ?: return@launch)
+                val topActivity = AppStatusHelper.getTopActivity()
+                SimpleDialog.Normal(topActivity!!)
                     .setContent("notice dialog from $KEY in $name")
-                    .setSureClickListener({ notifyCurrentThread() })
-                    .setCancelClickListener({ notifyCurrentThread() })
+                    .setSureClickListener({ next() })
+                    .setCancelClickListener({ next() })
                     .show()
             }
-            //当前线程开始等待dialog回应，依赖于本任务的task也会相应等待
-            synchronized(lock) {
-                lock.wait()
-            }
-        }
-
-        private fun notifyCurrentThread() {
-            synchronized(lock) {
-                lock.notify()
-            }
+            //当前task开始等待dialog回应，依赖于本任务的task也会相应等待
+            await()
         }
 
         override val uniqueKey: String = KEY
@@ -200,14 +191,6 @@ class DagActivity : BaseItemWithNoticeActivity() {
 
         companion object {
             const val KEY = "T7"
-        }
-
-        override fun start(executor: Executor) {
-            super.start(executor)
-            if (Random.nextBoolean()) {
-                log("Executor cancel by $KEY")
-                executor.cancel()
-            }
         }
 
         override val uniqueKey: String = KEY

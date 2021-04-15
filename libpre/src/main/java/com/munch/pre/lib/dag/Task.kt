@@ -16,6 +16,9 @@ abstract class Task : CoroutineScope {
 
     open fun dependsOn(): MutableList<String>? = null
 
+    /**
+     * 该任务在同时执行的任务中的优先级
+     */
     open val priority: Int = 0
 
     /**
@@ -23,6 +26,24 @@ abstract class Task : CoroutineScope {
      */
     override val coroutineContext: CoroutineContext = Dispatchers.Unconfined
 
+    /**
+     * 当前任务需要进行等待
+     * 当前任务以及依赖此任务的任务都会进行等待，直到[next]被调用
+     *
+     * @see next
+     */
+    fun await() = runBlocking(coroutineContext) { await = true }
+    fun next() = runBlocking(coroutineContext) {
+        if (!await) {
+            return@runBlocking
+        }
+        await = false
+        next?.invoke()
+    }
+
+    //<editor-fold desc="">
+    private var next: (() -> Unit)? = null
+    private var await = false
     internal var cd: CountDownLatch? = null
     internal var dependsOnCopy = mutableListOf<String>()
 
@@ -55,6 +76,13 @@ abstract class Task : CoroutineScope {
         executor.launch(this@Task.coroutineContext) {
             try {
                 start(executor)
+                if (await) {
+                    next = {
+                        executor.executeCallBack.invoke(uniqueKey, executor)
+                        executor.notifyBeDepended(uniqueKey)
+                    }
+                    return@launch
+                }
                 executor.executeCallBack.invoke(uniqueKey, executor)
             } catch (e: Exception) {
                 executor.exceptionListener?.invoke(e)
@@ -97,6 +125,7 @@ abstract class Task : CoroutineScope {
 
         override val uniqueKey: String = KEY
     }
+    //</editor-fold>
 
     override fun toString(): String {
         return "${this::class.java.simpleName}{uniqueKey=$uniqueKey, priority=$priority, " +
