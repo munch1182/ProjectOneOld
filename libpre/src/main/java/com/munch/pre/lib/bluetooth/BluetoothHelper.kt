@@ -6,7 +6,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.provider.Settings
 import androidx.annotation.RequiresPermission
-import com.munch.pre.lib.extend.log
+import com.munch.pre.lib.log.log
 
 /**
  * Create by munch1182 on 2021/4/8 10:55.

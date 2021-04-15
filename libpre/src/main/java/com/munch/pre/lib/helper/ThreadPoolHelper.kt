@@ -1,7 +1,7 @@
 package com.munch.pre.lib.helper
 
 import com.munch.pre.lib.base.BaseApp
-import com.munch.pre.lib.extend.log
+import com.munch.pre.lib.log.log
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicInteger
 

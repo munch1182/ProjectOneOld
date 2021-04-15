@@ -1,3 +1,5 @@
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package com.munch.pre.lib.log
 
 import android.util.Log
@@ -14,9 +16,21 @@ import org.json.JSONObject
  * <p>
  * Create by munch1182 on 2021/3/30 16:29.
  */
-object LogLog {
+/**
+ * 全局单例类
+ */
+object LogLog : Logger() {
 
-    fun log(vararg any: Any?) {
+    override fun logOne(any: Any?) {
+        methodOffset++
+        super.logOne(any)
+        reset()
+    }
+}
+
+open class Logger {
+
+    open fun log(vararg any: Any?) {
         if (any.size == 1) {
             logOne(any[0])
         } else {
@@ -27,7 +41,7 @@ object LogLog {
     /**
      * 声明即将输出的字符串为json格式
      */
-    fun isJson(isJson: Boolean = true): LogLog {
+    fun isJson(isJson: Boolean = true): Logger {
         this.isJson = isJson
         return this
     }
@@ -35,7 +49,7 @@ object LogLog {
     /**
      * 设置调用堆栈的偏移值
      */
-    fun methodOffset(offset: Int): LogLog {
+    fun methodOffset(offset: Int): Logger {
         this.methodOffset = offset
         return this
     }
@@ -43,31 +57,34 @@ object LogLog {
     /**
      * @param type [Log.VERBOSE] [Log.DEBUG] [Log.INFO] [Log.WARN] [Log.ERROR]
      */
-    fun setLogType(type: Int): LogLog {
+    fun setLogType(type: Int): Logger {
         this.type = type
         return this
     }
 
-    fun setTag(tag: String): LogLog {
+    fun setTag(tag: String): Logger {
         this.tag = tag
         return this
     }
 
-    fun setListener(listener: ((msg: String, thread: Thread) -> Unit)? = null): LogLog {
+    fun setListener(listener: ((msg: String, thread: Thread) -> Unit)? = null): Logger {
         this.logListener = listener
         return this
     }
 
-    private const val TAG_DEF = "loglog"
-    private var tag: String? = null
-    private var logListener: ((msg: String, thread: Thread) -> Unit)? = null
-    private var type = Log.DEBUG
-    private var methodOffset = 0
-    private var isJson = false
-    private val LINE_SEPARATOR = System.getProperty("line.separator")
-    private const val MAX_COUNT_IN_LINE = 300
+    companion object {
+        private const val TAG_DEF = "loglog"
+        private const val MAX_COUNT_IN_LINE = 300
+        private val LINE_SEPARATOR = System.getProperty("line.separator")
+    }
 
-    private fun logOne(any: Any?) {
+    protected var tag: String? = null
+    protected var logListener: ((msg: String, thread: Thread) -> Unit)? = null
+    protected var type = Log.DEBUG
+    protected var methodOffset = 0
+    protected var isJson = false
+
+    protected open fun logOne(any: Any?) {
         val msg = any2Str(any)
         val thread = Thread.currentThread()
         val traceInfo = dumpTraceInfo()
@@ -81,17 +98,16 @@ object LogLog {
             print("--- (${thread.name}/$traceInfo)")
         }
         logListener?.invoke(msg, thread)
-        reset()
     }
 
-    private fun reset() {
+    protected open fun reset() {
         tag = TAG_DEF
         type = Log.DEBUG
         methodOffset = 0
         isJson = false
     }
 
-    private fun print(msg: String) {
+    protected open fun print(msg: String) {
         when (type) {
             Log.DEBUG -> Log.d(tag ?: TAG_DEF, msg)
             Log.ERROR -> Log.e(tag ?: TAG_DEF, msg)
@@ -106,12 +122,12 @@ object LogLog {
      *
      * 20210331：除inline函数外，其余调用都可以找到实际调用处
      */
-    private fun dumpTraceInfo(): String {
+    protected open fun dumpTraceInfo(): String {
         var index = -1
         val trace = Thread.currentThread().stackTrace
         trace.run {
             forEachIndexed { i, e ->
-                if (e.className == LogLog::class.qualifiedName) {
+                if (e.className == Logger::class.qualifiedName) {
                     index = i
                     return@run
                 }
@@ -120,7 +136,7 @@ object LogLog {
         if (index == -1) {
             return Str.EMPTY
         }
-        index += 3 + methodOffset
+        index += (methodOffset + 3)
         if (index < 0 || trace.size <= index) {
             return Str.EMPTY
         }
@@ -128,10 +144,10 @@ object LogLog {
         return formatStackTrace(e)
     }
 
-    private fun formatStackTrace(e: StackTraceElement) =
+    protected open fun formatStackTrace(e: StackTraceElement) =
         "${e.className}#${e.methodName}(${e.fileName}:${e.lineNumber})"
 
-    private fun any2Str(any: Any?): String {
+    protected open fun any2Str(any: Any?): String {
         return when (any) {
             null -> Str.NULL
             is Byte -> String.format("0x%02x", any)
@@ -156,7 +172,7 @@ object LogLog {
         }
     }
 
-    private fun formatThrowable(any: Throwable): String {
+    protected open fun formatThrowable(any: Throwable): String {
         val sb = StringBuilder()
         val cause = any.cause
         sb.append("EXCEPTION: [")
@@ -183,11 +199,11 @@ object LogLog {
         return sb.toString()
     }
 
-    private fun formatStr(any: String): String {
+    protected open fun formatStr(any: String): String {
         return if (isJson) formatJson(any) else formatMultiStr(any)
     }
 
-    private fun formatMultiStr(any: String): String {
+    protected open fun formatMultiStr(any: String): String {
         if (any.length < MAX_COUNT_IN_LINE) {
             return "\"$any\""
         } else {
@@ -208,7 +224,7 @@ object LogLog {
         }
     }
 
-    private fun formatJson(any: String): String {
+    protected open fun formatJson(any: String): String {
         return try {
             when {
                 any.startsWith("{") -> JSONObject(any).toString(4)
@@ -222,11 +238,11 @@ object LogLog {
         }
     }
 
-    private fun iterable2Str(iterable: Iterable<*>): String {
+    protected open fun iterable2Str(iterable: Iterable<*>): String {
         return iterator2Str(iterable.iterator())
     }
 
-    private fun iterator2Str(iterator: Iterator<*>): String {
+    protected open fun iterator2Str(iterator: Iterator<*>): String {
         val sb = StringBuilder()
         sb.append("[")
         var index = 0
@@ -247,10 +263,26 @@ object LogLog {
         return sb.toString()
     }
 
-    private class Str {
+    protected class Str {
         companion object {
             internal const val NULL = "null"
             internal const val EMPTY = ""
         }
     }
+}
+
+/**
+ * Create by munch1182 on 2021/3/31 13:40.
+ */
+fun log(vararg any: Any?) {
+    val a = when {
+        any.isEmpty() -> ""
+        any.size == 1 -> any[0]
+        else -> any
+    }
+    LogLog.methodOffset(1).log(a)
+}
+
+fun logJson(json: String) {
+    LogLog.methodOffset(1).isJson().log(json)
 }

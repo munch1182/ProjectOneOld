@@ -33,7 +33,7 @@ import com.munch.pre.lib.DefaultDepend
 import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.getAttrFromTheme
 import com.munch.pre.lib.extend.getService
-import com.munch.pre.lib.extend.log
+import com.munch.pre.lib.log.log
 import java.util.*
 import kotlin.system.exitProcess
 

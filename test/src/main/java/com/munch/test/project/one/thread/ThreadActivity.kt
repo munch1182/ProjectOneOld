@@ -3,7 +3,7 @@ package com.munch.test.project.one.thread
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.munch.pre.lib.extend.StringHelper
-import com.munch.pre.lib.extend.log
+import com.munch.pre.lib.log.log
 import com.munch.pre.lib.extend.obOnResume
 import com.munch.pre.lib.helper.ThreadPoolHelper
 import com.munch.pre.lib.log.LogLog

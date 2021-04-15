@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
-import com.munch.pre.lib.extend.log
+import com.munch.pre.lib.log.log
 import com.munch.pre.lib.extend.obOnResume
 import com.munch.pre.lib.helper.file.FileHelper
 import com.munch.pre.lib.helper.file.StorageHelper

@@ -9,7 +9,6 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.extend.SingletonHolder
-import com.munch.pre.lib.extend.log
 import java.net.Inet4Address
 import java.net.NetworkInterface
 import java.net.SocketException

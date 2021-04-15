@@ -1,9 +1,10 @@
 package com.munch.test.project.one.log
 
 import com.google.gson.Gson
-import com.munch.pre.lib.extend.log
-import com.munch.pre.lib.extend.logJson
+import com.munch.pre.lib.log.log
+import com.munch.pre.lib.log.logJson
 import com.munch.pre.lib.log.LogLog
+import com.munch.pre.lib.log.Logger
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseItemWithNoticeActivity
 
@@ -22,7 +23,10 @@ class LogActivity : BaseItemWithNoticeActivity() {
 
     override fun clickItem(pos: Int) {
         when (pos) {
-            0 -> log(list)
+            0 -> {
+                log(list)
+                Logger().log(list)
+            }
             1 -> test {
                 log("2.test inline :27")
             }

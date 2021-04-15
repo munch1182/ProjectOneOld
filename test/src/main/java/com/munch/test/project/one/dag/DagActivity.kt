@@ -5,7 +5,7 @@ import com.munch.lib.fast.base.dialog.SimpleDialog
 import com.munch.pre.lib.dag.Dag
 import com.munch.pre.lib.dag.Executor
 import com.munch.pre.lib.dag.Task
-import com.munch.pre.lib.extend.log
+import com.munch.pre.lib.log.log
 import com.munch.pre.lib.extend.obOnResume
 import com.munch.pre.lib.helper.AppStatusHelper
 import com.munch.pre.lib.log.LogLog

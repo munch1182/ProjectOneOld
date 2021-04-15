@@ -2,7 +2,7 @@ package com.munch.test.project.one
 
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
-import com.munch.pre.lib.extend.log
+import com.munch.pre.lib.log.log
 import com.munch.pre.lib.extend.setOnClickStart
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityTest2Binding
