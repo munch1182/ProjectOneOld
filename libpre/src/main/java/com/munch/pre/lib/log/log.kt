@@ -78,24 +78,31 @@ open class Logger {
         private val LINE_SEPARATOR = System.getProperty("line.separator")
     }
 
-    protected var tag: String? = null
+    var tag: String? = null
     protected var logListener: ((msg: String, thread: Thread) -> Unit)? = null
-    protected var type = Log.DEBUG
-    protected var methodOffset = 0
-    protected var isJson = false
+    var type = Log.DEBUG
+    var methodOffset = 0
+    var isJson = false
+    var noInfo = false
 
     protected open fun logOne(any: Any?) {
         val msg = any2Str(any)
-        val thread = Thread.currentThread()
-        val traceInfo = dumpTraceInfo()
+        val thread: Thread = Thread.currentThread()
+        val traceInfo: String? = if (noInfo) null else dumpTraceInfo()
         type = if (any is Throwable) Log.ERROR else type
 
         val split = msg.split(LINE_SEPARATOR)
         if (split.size == 1) {
-            print("$msg (${thread.name}/$traceInfo)")
+            if (noInfo) {
+                print(msg)
+            } else {
+                print("$msg (${thread.name}/$traceInfo)")
+            }
         } else {
             split.forEach { print(it) }
-            print("--- (${thread.name}/$traceInfo)")
+            if (!noInfo) {
+                print("--- (${thread.name}/$traceInfo)")
+            }
         }
         logListener?.invoke(msg, thread)
     }
