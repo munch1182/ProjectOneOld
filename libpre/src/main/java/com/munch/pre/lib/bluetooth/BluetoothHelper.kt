@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.provider.Settings
 import androidx.annotation.RequiresPermission
+import com.munch.pre.lib.helper.receiver.BluetoothStateReceiver
 import com.munch.pre.lib.log.log
 
 /**
@@ -34,6 +35,7 @@ class BluetoothHelper private constructor() {
     internal lateinit var device: BtDeviceInstance
     internal val btAdapter by lazy { device.btAdapter }
     internal lateinit var scanner: BtScannerHelper
+    internal lateinit var connector: BtConnectorHelper
     internal var btConfig: BtConfig? = null
 
     fun init(context: Context, config: BtConfig? = null) {
@@ -41,7 +43,21 @@ class BluetoothHelper private constructor() {
         initWorkThread()
         device = BtDeviceInstance(context)
         scanner = BtScannerHelper(handler)
+        connector = BtConnectorHelper(handler)
         setConfig(config)
+        watchState()
+    }
+
+    private fun watchState() {
+        device.getBtStateListeners().add { _, turning, available ->
+            //蓝牙正在关闭时关闭所有的操作以保证状态正确
+            //@see resetState
+            log(available, turning)
+            if (!available && turning) {
+                scanner.stopScan()
+                connector.disconnectNow()
+            }
+        }
     }
 
     fun setConfig(btConfig: BtConfig?): BluetoothHelper {
@@ -57,12 +73,12 @@ class BluetoothHelper private constructor() {
         handler = Handler(ht.looper)
     }
 
+    /**
+     * 当拒绝后，此方法无法再开启蓝牙
+     */
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
     fun open(): Boolean {
-        if (!isOpen()) {
-            return btAdapter.enable()
-        }
-        return true
+        return btAdapter.enable()
     }
 
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
@@ -121,6 +137,27 @@ class BluetoothHelper private constructor() {
     }
 
     fun connect(device: BtDevice) {
-        log(device)
+        connector.connect(device)
     }
+
+    fun disconnect() {
+        connector.disconnectNow()
+    }
+
+    fun getConnectListeners() = connector.getConnectListeners()
+    fun getStateListeners() = connector.getStateListeners()
+
+    fun getCurrent() = connector.getCurrent()
+
+    /**
+     * 当因为手动关闭蓝牙状态出错时，手动更新状态
+     *
+     * 完成时此方法应该隐藏，但是考虑到蓝牙设备的复杂性，此方法可以保留
+     */
+    fun resetState() {
+        connector.resetState()
+        scanner.resetState()
+    }
+
+    data class Current(val device: BtDevice?, @ConnectState val state: Int)
 }

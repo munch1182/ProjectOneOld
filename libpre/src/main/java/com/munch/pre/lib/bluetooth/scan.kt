@@ -24,7 +24,7 @@ import android.bluetooth.le.ScanFilter as Filter
 data class ScanFilter(
     var name: String? = null, var mac: String? = null,
     //是否严格匹配，即两个参数完全相同
-    //在ble模式下，该值只能是true
+    //多个匹配时此值需要保持一致
     var strict: Boolean = true
 ) : Parcelable {
     @RequiresPermission(android.Manifest.permission.BLUETOOTH)
@@ -76,7 +76,7 @@ internal sealed class BtScanner {
 
     protected var listener: BtScanListener? = null
     protected var res: MutableList<BtDevice> = mutableListOf()
-    protected var scanning = false
+    internal var scanning = false
 
     /**
      * 处理统一逻辑，并将回调结果通过[listener]传出
@@ -200,22 +200,16 @@ internal sealed class BtScanner {
             scanning = true
             super.start(filters)
             val scanSettings = ScanSettings.Builder()
+            val isStrict = !filters.isNullOrEmpty() && filters[0].strict
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                //此处可以更改模式
                 scanSettings.setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                scanSettings.setMatchMode(ScanSettings.MATCH_MODE_STICKY)
-                scanSettings.setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+                scanSettings.setMatchMode(if (isStrict) ScanSettings.MATCH_MODE_STICKY else ScanSettings.MATCH_MODE_AGGRESSIVE)
             }
-
+            //scan模式，此参数会影响扫描速度
+            scanSettings.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             BluetoothHelper.INSTANCE.btAdapter.bluetoothLeScanner?.startScan(
                 filters?.map {
-                    val filterBuilder = Filter.Builder().setDeviceName(it.name)
-                    try {
-                        filterBuilder.setDeviceAddress(it.mac)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                    filterBuilder.build()
+                    Filter.Builder().setDeviceName(it.name).setDeviceAddress(it.mac).build()
                 }, scanSettings.build(), callBack
             )
         }
@@ -357,5 +351,10 @@ class BtScannerHelper(private val handler: Handler) : AddRemoveSetHelper<BtScanL
                 bleScanner?.stop()
             }
         }
+    }
+
+    fun resetState() {
+        bleScanner?.let { it.scanning = false }
+        classicScanner?.let { it.scanning = false }
     }
 }

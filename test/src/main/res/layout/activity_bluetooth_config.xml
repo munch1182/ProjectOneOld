@@ -13,7 +13,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/test_bt_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:padding="@dimen/padding_def"

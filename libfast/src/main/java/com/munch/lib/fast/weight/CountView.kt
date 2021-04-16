@@ -150,17 +150,17 @@ class CountView @JvmOverloads constructor(
                 invalidate()
             }
         }
-        //递减缩位时需要在动画结束后重新测量大小
-        if (needLayout && !isAdd) {
-            valueAnimator.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
-                    super.onAnimationEnd(animation)
+        valueAnimator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator?) {
+                super.onAnimationEnd(animation)
+                //递减缩位时需要在动画结束后重新测量大小
+                if (needLayout && !isAdd) {
                     requestLayout()
-                    valueAnimator.removeAllListeners()
-                    countChangeListener?.invoke(curCount)
                 }
-            })
-        }
+                valueAnimator.removeAllListeners()
+                countChangeListener?.invoke(curCount)
+            }
+        })
         valueAnimator.start()
     }
 

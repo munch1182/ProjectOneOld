@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.KeyEvent
-import androidx.core.widget.doOnTextChanged
+import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
@@ -20,6 +20,7 @@ import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.bluetooth.*
 import com.munch.pre.lib.extend.*
 import com.munch.pre.lib.helper.AppHelper
+import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.base.DataHelper
@@ -31,6 +32,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import android.bluetooth.le.ScanFilter as Filter
 
 /**
  * Create by munch1182 on 2021/4/8 17:14.
@@ -48,17 +50,27 @@ class BluetoothActivity : BaseTopActivity() {
             btTimeoutAdd.setOnClickListener { btTimeoutCv.countAdd() }
             btTimeoutReduce.setOnClickListener { btTimeoutCv.countSub() }
             btScan.setOnClickListener {
+                val mac = bind.btFilterMacEt.text.toString()
+                if (bind.btTypeBle.isChecked && mac.isNotEmpty()) {
+                    try {
+                        Filter.Builder().setDeviceAddress(mac)
+                    } catch (e: IllegalArgumentException) {
+                        toast("请输入正确的mac地址")
+                        return@setOnClickListener
+                    }
+                }
+                btFilterMacEt.clearFocus()
                 requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) { model.scan() }
             }
             btRv.layoutManager = LinearLayoutManager(this@BluetoothActivity)
 
             btFilterMacEt.apply {
                 upperInput()
-                digitsInput("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+                digitsInput("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:")
                 var isDel = false
-                doOnTextChanged { text, _, _, _ ->
+                doAfterTextChanged { text ->
                     if (text != null && !isDel) {
-                        if (text.length - text.lastIndexOf(':') == 3) {
+                        if (text.length == 2 || text.length - text.lastIndexOf(':') == 3) {
                             editableText.append(':')
                         }
                     }
@@ -121,14 +133,18 @@ class BluetoothActivity : BaseTopActivity() {
         fun scan() {
             if (!BluetoothHelper.INSTANCE.isOpen()) {
                 BluetoothHelper.INSTANCE.open()
+                return
             }
             if (scanning.value == true) stopScan() else startScan()
         }
 
         private fun startScan() {
             scanning.postValue(true)
-            val value = getFilter().value ?: return
+            val value = getFilter().value!!
 
+            if (value.filter.mac.isNullOrEmpty()) {
+                value.filter.mac = null
+            }
             BluetoothHelper.INSTANCE.startScan(
                 value.getType(),
                 value.timeout.toLong() * 1000L,
@@ -148,10 +164,13 @@ class BluetoothActivity : BaseTopActivity() {
                     }
 
                     private fun countDown() {
+                        if (value.timeout <= 2) {
+                            return
+                        }
                         viewModelScope.launch {
                             val maxSec = value.timeout + 1
                             flow {
-                                for (i in 1..maxSec) {
+                                for (i in 2..maxSec) {
                                     if (end) {
                                         return@flow
                                     }
@@ -200,7 +219,7 @@ class BluetoothActivity : BaseTopActivity() {
     data class BtFilter(
         var isClassic: Boolean = true,
         var filter: ScanFilter = ScanFilter(strict = false),
-        var timeout: Int = 20,
+        var timeout: Int = 25,
         var noName: Boolean = true
     ) : Parcelable {
         fun getType(): BtType {

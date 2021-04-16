@@ -12,5 +12,14 @@ open class BtConfig(
     var UUID_WRITE: String? = null,
     var UUID_NOTIFY: String? = null,
     var UUID_DESCRIPTOR_NOTIFY: String? = null,
-    var MTU_MAX: Int? = null
-) : Parcelable
+    var MTU_VALUE: Int? = MAX_MTU
+) : Parcelable {
+
+    companion object {
+        const val MAX_MTU = 247
+    }
+
+    override fun toString(): String {
+        return "BtConfig(UUID_MAIN_SERVER=$UUID_MAIN_SERVER, UUID_WRITE=$UUID_WRITE, UUID_NOTIFY=$UUID_NOTIFY, UUID_DESCRIPTOR_NOTIFY=$UUID_DESCRIPTOR_NOTIFY, MTU_MAX=$MTU_VALUE)"
+    }
+}

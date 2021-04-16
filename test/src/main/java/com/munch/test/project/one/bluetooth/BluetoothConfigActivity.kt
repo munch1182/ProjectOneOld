@@ -1,10 +1,9 @@
 package com.munch.test.project.one.bluetooth
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
+import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
@@ -29,7 +28,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
         bind.apply {
             lifecycleOwner = this@BluetoothConfigActivity
             lifecycleScope.launch {
-                config = getConfigFromDb()
+                config = getConfigFromDb() ?: BtConfig()
             }
             testBtSure.setOnClickListener {
                 putConfig(bind.config)
@@ -98,28 +97,8 @@ class BluetoothConfigActivity : BaseTopActivity() {
         @JvmStatic
         @BindingAdapter("update_config")
         fun updateConfig(et: EditText, listener: InverseBindingListener?) {
-            if (listener != null) {
-                et.addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
-                    ) {
-                    }
-
-                    override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
-                    ) {
-                    }
-
-                    override fun afterTextChanged(s: Editable?) {
-                        listener.onChange()
-                    }
-                })
+            et.doAfterTextChanged {
+                listener?.onChange()
             }
         }
 
