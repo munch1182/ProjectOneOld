@@ -1,6 +1,5 @@
 package com.munch.test.project.one.intent
 
-import android.os.Bundle
 import com.munch.pre.lib.helper.IntentHelper
 import com.munch.test.project.one.base.BaseItemActivity
 
@@ -8,11 +7,6 @@ import com.munch.test.project.one.base.BaseItemActivity
  * Create by munch1182 on 2021/4/1 11:16.
  */
 class IntentActivity : BaseItemActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Thread.sleep(3000L)
-    }
 
     override fun clickItem(pos: Int) {
         when (pos) {

@@ -21,7 +21,6 @@ class MainActivity : BaseRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         noBack()
-        Thread.sleep(3000L)
     }
 
     override fun getClassItem(): MutableList<ItemClassBean> {
