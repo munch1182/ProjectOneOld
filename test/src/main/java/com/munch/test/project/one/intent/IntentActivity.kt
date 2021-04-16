@@ -1,5 +1,6 @@
 package com.munch.test.project.one.intent
 
+import android.os.Bundle
 import com.munch.pre.lib.helper.IntentHelper
 import com.munch.test.project.one.base.BaseItemActivity
 
@@ -7,6 +8,11 @@ import com.munch.test.project.one.base.BaseItemActivity
  * Create by munch1182 on 2021/4/1 11:16.
  */
 class IntentActivity : BaseItemActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Thread.sleep(3000L)
+    }
 
     override fun clickItem(pos: Int) {
         when (pos) {
@@ -23,6 +29,11 @@ class IntentActivity : BaseItemActivity() {
             10 -> IntentHelper.startDevelopment(this)
             11 -> startActivity(IntentHelper.shareIntent("share content temp"))
             12 -> startActivity(IntentHelper.usageIntent())
+            13 -> if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                startActivity(IntentHelper.allFileAccess())
+            } else {
+                toast("版本小于30")
+            }
         }
     }
 
@@ -40,7 +51,8 @@ class IntentActivity : BaseItemActivity() {
             "notify",
             "development",
             "share",
-            "usage"
+            "usage",
+            "file 30"
         )
     }
 }

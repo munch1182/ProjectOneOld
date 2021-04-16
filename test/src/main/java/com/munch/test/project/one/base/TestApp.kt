@@ -13,6 +13,6 @@ class TestApp : BaseFastApp() {
         super.onCreate()
         DataHelper.init()
         SwitchHelper.INSTANCE.registerApp(this)
-        Watcher().watchMainLoop()
+        Watcher().watchMainLoop().strictMode()
     }
 }

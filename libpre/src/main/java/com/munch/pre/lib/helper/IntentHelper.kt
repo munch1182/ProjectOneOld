@@ -5,7 +5,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.COMPATIBILITY
 
@@ -45,6 +47,11 @@ object IntentHelper {
 
     @RequiresPermission("android.permission.PACKAGE_USAGE_STATS")
     fun usageIntent() = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    @RequiresPermission("android.permission.MANAGE_EXTERNAL_STORAGE")
+    fun allFileAccess() =
+        Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
     fun shareIntent(content: String) =
         Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_TEXT, content).setType("text/plain")

@@ -5,10 +5,7 @@ import android.app.Activity
 import android.app.AppOpsManager
 import android.app.usage.StorageStats
 import android.app.usage.StorageStatsManager
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -223,6 +220,21 @@ object AppHelper {
         val im = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager?
             ?: return
         im.hideSoftInputFromWindow(activity.window.decorView.windowToken, 0)
+    }
+
+    /**
+     * 隐藏或者显示应用图标
+     *
+     * @param clazz ComponentClass，注意多启动图标应用传入不同的类会控制不同的图标
+     * @param show 是否显示图标
+     */
+    fun showIcon(context: Context = getBaseApp(), clazz: Class<*>, show: Boolean) {
+        val pm = context.packageManager ?: return
+        pm.setComponentEnabledSetting(
+            ComponentName(context, clazz),
+            if (!show) PackageManager.COMPONENT_ENABLED_STATE_DISABLED else PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
+            PackageManager.DONT_KILL_APP
+        )
     }
 
     fun showIm(view: View) {
