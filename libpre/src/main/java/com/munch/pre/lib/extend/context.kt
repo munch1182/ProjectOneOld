@@ -5,6 +5,7 @@ import android.app.ActivityManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -12,6 +13,7 @@ import android.os.Bundle
 import android.util.TypedValue
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
@@ -134,15 +136,26 @@ fun Context.getAttrFromTheme(attrId: Int): TypedValue {
     return typedValue
 }
 
+fun Context.getAttrArrayFromTheme(attrId: Int, get: TypedArray.() -> Int): Int {
+    val typedArray = theme.obtainStyledAttributes(intArrayOf(attrId))
+    val value = get.invoke(typedArray)
+    typedArray.recycle()
+    return value
+}
+
 /**
  * 获取actionbar高度，无缓存，未获取到则为-1
  */
 fun Context.getActionBarSize() = TypedValue.complexToDimensionPixelSize(
-    getAttrFromTheme(android.R.attr.actionBarSize).data,
-    resources.displayMetrics
+        getAttrFromTheme(android.R.attr.actionBarSize).data,
+        resources.displayMetrics
 )
 
 @ColorInt
 fun Context.getColorCompat(@ColorRes colorId: Int): Int {
     return ContextCompat.getColor(this, colorId)
+}
+
+fun Context.getDrawableCompat(@DrawableRes resId: Int): Drawable? {
+    return ContextCompat.getDrawable(this, resId)
 }
