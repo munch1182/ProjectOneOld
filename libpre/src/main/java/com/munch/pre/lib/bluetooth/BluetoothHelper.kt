@@ -1,13 +1,12 @@
 package com.munch.pre.lib.bluetooth
 
+import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.HandlerThread
 import android.provider.Settings
 import androidx.annotation.RequiresPermission
-import com.munch.pre.lib.helper.receiver.BluetoothStateReceiver
-import com.munch.pre.lib.log.log
 
 /**
  * Create by munch1182 on 2021/4/8 10:55.
@@ -26,6 +25,8 @@ class BluetoothHelper private constructor() {
 
         fun getBtSetIntent() = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
 
+        fun openIntent() = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+
         private const val HT_NAME = "BLUETOOTH_HANDLER_THREAD"
     }
 
@@ -33,7 +34,7 @@ class BluetoothHelper private constructor() {
     internal lateinit var ht: HandlerThread
     internal lateinit var handler: Handler
     internal lateinit var device: BtDeviceInstance
-    internal val btAdapter by lazy { device.btAdapter }
+    internal val btAdapter: BluetoothAdapter? by lazy { device.btAdapter }
     internal lateinit var scanner: BtScannerHelper
     internal lateinit var connector: BtConnectorHelper
     internal var btConfig: BtConfig? = null
@@ -52,7 +53,6 @@ class BluetoothHelper private constructor() {
         device.getBtStateListeners().add { _, turning, available ->
             //蓝牙正在关闭时关闭所有的操作以保证状态正确
             //@see resetState
-            log(available, turning)
             if (!available && turning) {
                 scanner.stopScan()
                 connector.disconnectNow()
@@ -74,23 +74,32 @@ class BluetoothHelper private constructor() {
     }
 
     /**
-     * 当拒绝后，此方法无法再开启蓝牙
+     * 当用户拒绝后，此方法会直接返回false
+     *
+     * 建议使用[openIntent]
+     * @see openIntent
+     *
+     * @see isBtSupport
+     * @see isBleSupport
      */
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
     fun open(): Boolean {
-        return btAdapter.enable()
+        return btAdapter?.enable() ?: false
     }
 
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
     fun close(): Boolean {
         if (isOpen()) {
-            return btAdapter.disable()
+            return btAdapter?.disable() ?: false
         }
         return true
     }
 
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
     fun isOpen() = device.isEnable()
+
+    fun isBtSupport() = device.isBtSupport()
+    fun isBleSupport() = device.isBleSupport()
 
     @RequiresPermission(
         allOf = [android.Manifest.permission.BLUETOOTH,

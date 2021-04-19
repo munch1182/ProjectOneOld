@@ -123,7 +123,7 @@ internal sealed class BtScanner {
             }
             classicBtReceiver.add(resScanCallBack)
             classicBtReceiver.register()
-            BluetoothHelper.INSTANCE.btAdapter.startDiscovery()
+            BluetoothHelper.INSTANCE.btAdapter?.startDiscovery()
         }
 
         override fun stop() {
@@ -132,7 +132,7 @@ internal sealed class BtScanner {
             }
             scanning = false
             super.stop()
-            BluetoothHelper.INSTANCE.btAdapter.cancelDiscovery()
+            BluetoothHelper.INSTANCE.btAdapter?.cancelDiscovery()
             classicBtReceiver.unregister()
         }
 
@@ -207,7 +207,7 @@ internal sealed class BtScanner {
             }
             //scan模式，此参数会影响扫描速度
             scanSettings.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-            BluetoothHelper.INSTANCE.btAdapter.bluetoothLeScanner?.startScan(
+            BluetoothHelper.INSTANCE.btAdapter?.bluetoothLeScanner?.startScan(
                 filters?.map {
                     Filter.Builder().setDeviceName(it.name).setDeviceAddress(it.mac).build()
                 }, scanSettings.build(), callBack
@@ -220,7 +220,7 @@ internal sealed class BtScanner {
             }
             scanning = false
             super.stop()
-            BluetoothHelper.INSTANCE.btAdapter.bluetoothLeScanner?.stopScan(callBack)
+            BluetoothHelper.INSTANCE.btAdapter?.bluetoothLeScanner?.stopScan(callBack)
         }
     }
 

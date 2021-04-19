@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.KeyEvent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
@@ -20,7 +21,6 @@ import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.bluetooth.*
 import com.munch.pre.lib.extend.*
 import com.munch.pre.lib.helper.AppHelper
-import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.base.DataHelper
@@ -42,6 +42,10 @@ class BluetoothActivity : BaseTopActivity() {
     private val bind by bind<ActivityBluetoothBinding>(R.layout.activity_bluetooth)
     private val model by get(BluetoothViewModel::class.java)
 
+    private val requestOpen =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind.apply {
@@ -50,6 +54,14 @@ class BluetoothActivity : BaseTopActivity() {
             btTimeoutAdd.setOnClickListener { btTimeoutCv.countAdd() }
             btTimeoutReduce.setOnClickListener { btTimeoutCv.countSub() }
             btScan.setOnClickListener {
+                if (!BluetoothHelper.INSTANCE.isBtSupport()) {
+                    toast("此手机不支持蓝牙")
+                    return@setOnClickListener
+                }
+                if (bind.btTypeBle.isChecked && !BluetoothHelper.INSTANCE.isBleSupport()) {
+                    toast("此手机不支持ble")
+                    return@setOnClickListener
+                }
                 val mac = bind.btFilterMacEt.text.toString()
                 if (bind.btTypeBle.isChecked && mac.isNotEmpty()) {
                     try {
@@ -60,6 +72,10 @@ class BluetoothActivity : BaseTopActivity() {
                     }
                 }
                 btFilterMacEt.clearFocus()
+                if (!BluetoothHelper.INSTANCE.isOpen()) {
+                    requestOpen.launch(BluetoothHelper.openIntent())
+                    return@setOnClickListener
+                }
                 requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) { model.scan() }
             }
             btRv.layoutManager = LinearLayoutManager(this@BluetoothActivity)
@@ -132,7 +148,6 @@ class BluetoothActivity : BaseTopActivity() {
 
         fun scan() {
             if (!BluetoothHelper.INSTANCE.isOpen()) {
-                BluetoothHelper.INSTANCE.open()
                 return
             }
             if (scanning.value == true) stopScan() else startScan()
