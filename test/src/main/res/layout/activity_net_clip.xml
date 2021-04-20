@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.munch.test.project.one.net.NetClipActivity.NetClipViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/net_clip_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".net.NetClipActivity"
+        tools:ignore="HardcodedText">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/net_clip_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            android:contentDescription="start"
+            android:src="@drawable/ic_baseline_comment_24"
+            android:text="start"
+            app:layout_constraintCircle="@id/net_clip_menu"
+            app:layout_constraintCircleAngle="0"
+            app:layout_constraintCircleRadius="80dp"
+            tools:alpha="1"
+            tools:ignore="MissingConstraints" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/net_clip_exit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            android:contentDescription="background"
+            android:src="@drawable/ic_baseline_exit_24"
+            android:text="back"
+            app:layout_constraintCircle="@id/net_clip_menu"
+            app:layout_constraintCircleAngle="270"
+            app:layout_constraintCircleRadius="80dp"
+            tools:alpha="1"
+            tools:ignore="MissingConstraints" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/net_clip_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="24dp"
+            android:contentDescription="menu"
+            android:src="@drawable/ic_baseline_start_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/net_clip_rv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:listitem="@layout/item_chat" />
+
+                <EditText
+                    android:id="@+id/net_clip_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:importantForAutofill="no"
+                    android:minHeight="150dp"
+                    android:padding="@dimen/padding_def"
+                    android:visibility="gone"
+                    tools:ignore="LabelFor,TextFields"
+                    tools:text="1231231312312312313123123123131231231231312312312313123123123131231231231312312312313123123123131231231231312312312313123123123131231231231312312312313123123123131231231231312312312313123"
+                    tools:visibility="visible" />
+
+                <Button
+                    android:id="@+id/net_clip_send"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/padding_def"
+                    android:text="send"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

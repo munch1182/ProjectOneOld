@@ -147,10 +147,16 @@ fun TextView.setTextSizeSp(spVal: Float) {
 }
 
 fun EditText.nonInput() {
-    keyListener = null
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         focusable = View.NOT_FOCUSABLE
     }
+    isFocusable = false
+    isFocusableInTouchMode = false
+}
+
+fun EditText.inputActive() {
+    isFocusable = true
+    isFocusableInTouchMode = true
 }
 
 fun EditText.setTextCompat(text: String?) {

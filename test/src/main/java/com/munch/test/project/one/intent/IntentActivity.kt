@@ -1,5 +1,6 @@
 package com.munch.test.project.one.intent
 
+import android.content.Intent
 import com.munch.pre.lib.helper.IntentHelper
 import com.munch.test.project.one.base.BaseItemActivity
 
@@ -29,6 +30,10 @@ class IntentActivity : BaseItemActivity() {
                 toast("版本小于30")
             }
         }
+    }
+
+    override fun startActivity(intent: Intent?) {
+        super.startActivity(intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     override fun getItem(): MutableList<String> {

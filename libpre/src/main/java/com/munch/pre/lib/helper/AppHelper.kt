@@ -24,8 +24,10 @@ import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import androidx.core.view.isVisible
 import com.munch.pre.lib.DefaultDepend
 import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.getAttrFromTheme
@@ -237,7 +239,14 @@ object AppHelper {
         )
     }
 
-    fun showIm(view: View) {
+    /**
+     * 没有焦点或者没有显示或者布局未加载完成则此方法无效
+     * @see View.requestFocus
+     */
+    fun showIm(view: EditText) {
+        if (!(view.isFocusable && view.isVisible)) {
+            return
+        }
         val im = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager?
             ?: return
         im.showSoftInput(view, 0)

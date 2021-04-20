@@ -7,6 +7,6 @@ import com.munch.test.project.one.base.BaseRvActivity
  */
 class NetActivity : BaseRvActivity() {
     override fun getClassItem(): MutableList<ItemClassBean> {
-        return ItemClassBean.newItems(NetIpActivity::class.java)
+        return ItemClassBean.newItems(NetIpActivity::class.java, NetClipActivity::class.java)
     }
 }
