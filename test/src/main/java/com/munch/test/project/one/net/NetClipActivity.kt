@@ -1,6 +1,7 @@
 package com.munch.test.project.one.net
 
 import android.animation.ValueAnimator
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.view.animation.Animation
@@ -18,6 +19,8 @@ import com.munch.lib.fast.base.BaseBindViewHolder
 import com.munch.lib.fast.extend.get
 import com.munch.pre.lib.extend.*
 import com.munch.pre.lib.helper.AppHelper
+import com.munch.pre.lib.helper.ImHelper
+import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityNetClipBinding
@@ -71,7 +74,6 @@ class NetClipActivity : BaseTopActivity() {
                 showInput()
                 AppHelper.showIm(netClipEt)
                 hideMenuNoAnim()
-
             }
             netClipExit.setOnClickListener {
                 model.exit()
@@ -101,6 +103,7 @@ class NetClipActivity : BaseTopActivity() {
             }
             netClipSend.setOnClickListener {
                 hideInput()
+                bind.netClipMenu.visibility = View.VISIBLE
                 AppHelper.hideIm(this@NetClipActivity)
                 val content = netClipEt.text.toString().trim()
                 if (content.isEmpty()) {
@@ -134,6 +137,9 @@ class NetClipActivity : BaseTopActivity() {
                 }
             }
         }
+        /*ImHelper.watchMoveViewChange(this, bind.netClipMenu) {
+
+        }*/
     }
 
     private fun hideMenuNoAnim() {
@@ -141,6 +147,7 @@ class NetClipActivity : BaseTopActivity() {
         val items =
             bind.netClipContainer.children.filter { it is FloatingActionButton && it != bind.netClipMenu }
         items.forEach { it.alpha = 0f }
+        bind.netClipMenu.visibility = View.GONE
     }
 
     override fun setContentView(view: View) {
@@ -195,7 +202,7 @@ class NetClipActivity : BaseTopActivity() {
             state.postValue(State.STATE_SCANNING)
 
             viewModelScope.launch {
-                delay(5000L)
+                delay(2000L)
                 state.postValue(State.STATE_CONNECTED)
             }
         }

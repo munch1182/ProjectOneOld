@@ -56,6 +56,7 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <androidx.core.widget.NestedScrollView
+            android:id="@+id/net_clip_nsv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true">
