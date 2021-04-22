@@ -25,16 +25,22 @@ object ImHelper {
         view: View = activity.findViewById(android.R.id.content),
         onChange: (diff: Int) -> Unit
     ) {
+        var start = 0
+        var diff = 0
         val listener = {
             if (activity.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                val r = Rect()
-                view.getWindowVisibleDisplayFrame(r)
-                val heightDiff = view.bottom - r.bottom
-                onChange.invoke(heightDiff)
+                val heightDiff = start - view.bottom
+                if (heightDiff != diff) {
+                    diff = heightDiff
+                    onChange.invoke(heightDiff)
+                }
             }
         }
         activity.obOnCreate({
-            view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+            view.post {
+                start = view.height
+                view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+            }
         }, {
             view.viewTreeObserver.removeOnGlobalLayoutListener(listener)
         })
@@ -54,12 +60,10 @@ object ImHelper {
         var start = view.y
         var diff = 0f
         val listener = {
-            if (activity.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                val heightDiff = start - view.y
-                if (diff != heightDiff) {
-                    diff = heightDiff
-                    onChange.invoke(heightDiff.toInt())
-                }
+            val heightDiff = start - view.y
+            if (diff != heightDiff) {
+                diff = heightDiff
+                onChange.invoke(heightDiff.toInt())
             }
         }
         activity.obOnCreate({

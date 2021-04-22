@@ -1,7 +1,7 @@
 package com.munch.test.project.one.net
 
 import android.animation.ValueAnimator
-import android.content.res.Configuration
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.view.animation.Animation
@@ -9,6 +9,7 @@ import android.view.animation.RotateAnimation
 import androidx.annotation.IntDef
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,7 +21,6 @@ import com.munch.lib.fast.extend.get
 import com.munch.pre.lib.extend.*
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.ImHelper
-import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityNetClipBinding
@@ -36,6 +36,7 @@ class NetClipActivity : BaseTopActivity() {
     private val model by get(NetClipViewModel::class.java)
     private val bind by bind<ActivityNetClipBinding>(R.layout.activity_net_clip)
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind.apply {
@@ -45,20 +46,8 @@ class NetClipActivity : BaseTopActivity() {
                 BaseBindAdapter<String, ItemChatBinding>(
                     R.layout.item_chat,
                     mutableListOf(
-                        "1",
-                        "2",
-                        "3",
-                        "4",
-                        "5",
-                        "6",
-                        "7",
-                        "1",
-                        "2",
-                        "3",
-                        "4",
-                        "5",
-                        "6",
-                        "7"
+                        "1", "2", "3", "4", "5", "6", "7", "11",
+                        "12", "13", "14", "15", "16", "17"
                     )
                 ) {
 
@@ -74,6 +63,14 @@ class NetClipActivity : BaseTopActivity() {
                 showInput()
                 AppHelper.showIm(netClipEt)
                 hideMenuNoAnim()
+                bind.netClipNsv.smoothScrollBy(0, netClipSend.height)
+            }
+            netClipEt.doAfterTextChanged {
+                if (netClipEt.text.trim().isEmpty()) {
+                    netClipSend.text = "cancel"
+                } else {
+                    netClipSend.text = "send"
+                }
             }
             netClipExit.setOnClickListener {
                 model.exit()
@@ -137,9 +134,9 @@ class NetClipActivity : BaseTopActivity() {
                 }
             }
         }
-        /*ImHelper.watchMoveViewChange(this, bind.netClipMenu) {
-
-        }*/
+        ImHelper.watchChange(this) {
+            bind.netClipNsv.smoothScrollBy(0, it)
+        }
     }
 
     private fun hideMenuNoAnim() {

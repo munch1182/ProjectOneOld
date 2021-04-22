@@ -92,7 +92,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/padding_def"
-                    android:text="send"
+                    android:text="cancel"
                     android:visibility="gone"
                     tools:visibility="visible" />
             </LinearLayout>
