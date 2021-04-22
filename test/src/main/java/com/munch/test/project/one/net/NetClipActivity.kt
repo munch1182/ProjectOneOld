@@ -5,20 +5,23 @@ import android.annotation.SuppressLint
 import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import androidx.annotation.IntDef
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
 import androidx.core.widget.doAfterTextChanged
+import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.munch.lib.fast.base.BaseBindAdapter
+import com.munch.lib.fast.base.BaseBindMultiAdapter
 import com.munch.lib.fast.base.BaseBindViewHolder
 import com.munch.lib.fast.extend.get
+import com.munch.pre.lib.base.rv.MultiTypeWithPos
 import com.munch.pre.lib.extend.*
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.ImHelper
@@ -27,7 +30,9 @@ import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityNetClipBinding
-import com.munch.test.project.one.databinding.ItemChatBinding
+import com.munch.test.project.one.databinding.ItemChatFromBinding
+import com.munch.test.project.one.databinding.ItemChatSendBinding
+import com.munch.test.project.one.databinding.ItemChatSystemBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -38,6 +43,45 @@ class NetClipActivity : BaseTopActivity() {
 
     private val model by get(NetClipViewModel::class.java)
     private val bind by bind<ActivityNetClipBinding>(R.layout.activity_net_clip)
+    private val contentAdapter by lazy {
+        object : BaseBindMultiAdapter<ClipData>() {
+            init {
+                register(ClipData.From.TYPE, R.layout.item_chat_from)
+                    .register(ClipData.Send.TYPE, R.layout.item_chat_send)
+                    .register(ClipData.System.TYPE, R.layout.item_chat_system)
+                    .setType(object : MultiTypeWithPos {
+                        override fun getItemTypeByPos(pos: Int): Int {
+                            return getData()[pos].getType()
+                        }
+                    })
+                setOnItemClickListener { _, bean, _, _ ->
+                    AppHelper.put2Clip(text = bean.content)
+                    toast("内容已复制")
+                }
+                setOnItemLongClickListener { _, bean, _, _ ->
+                    AppHelper.put2Clip(text = bean.content)
+                    toast("内容已复制")
+                }
+            }
+
+            override fun onBindViewHolder(
+                holder: BaseBindViewHolder<ViewDataBinding>,
+                bean: ClipData,
+                pos: Int
+            ) {
+                when (getItemViewType(pos)) {
+                    ClipData.From.TYPE ->
+                        holder.getVB<ItemChatFromBinding>().itemChatContent.text = bean.content
+                    ClipData.Send.TYPE ->
+                        holder.getVB<ItemChatSendBinding>().itemChatContent.text = bean.content
+                    ClipData.System.TYPE ->
+                        holder.getVB<ItemChatSystemBinding>().itemChatContent.text = bean.content
+                    else -> {
+                    }
+                }
+            }
+        }
+    }
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,17 +89,7 @@ class NetClipActivity : BaseTopActivity() {
         bind.apply {
             lifecycleOwner = this@NetClipActivity
             vm = model
-            val contentAdapter =
-                object : BaseBindAdapter<String, ItemChatBinding>(R.layout.item_chat) {
 
-                    override fun onBindViewHolder(
-                        holder: BaseBindViewHolder<ItemChatBinding>,
-                        bean: String,
-                        pos: Int
-                    ) {
-                        holder.bind.itemChatContent.text = bean
-                    }
-                }
             netClipComment.setOnClickListener {
                 showInput()
                 AppHelper.showIm(netClipEt)
@@ -96,10 +130,10 @@ class NetClipActivity : BaseTopActivity() {
                 adapter = contentAdapter
             }
             netClipSend.setOnClickListener {
-                hideInput()
                 bind.netClipMenu.visibility = View.VISIBLE
                 AppHelper.hideIm(this@NetClipActivity)
                 val content = netClipEt.text.toString().trim()
+                hideInput()
                 if (content.isEmpty()) {
                     return@setOnClickListener
                 }
@@ -131,6 +165,9 @@ class NetClipActivity : BaseTopActivity() {
                 }
             }
         }
+        model.getData().observe(this) {
+            contentAdapter.set(it)
+        }
         ImHelper.watchChange(this) {
             bind.netClipNsv.smoothScrollBy(0, it)
         }
@@ -140,6 +177,7 @@ class NetClipActivity : BaseTopActivity() {
                 model.updateIp()
                 if (available) {
                     model.sendBySystem("wifi已连接")
+                    model.sendBySystem("当前IP:${NetStatusHelper.getIpAddress()}")
                 } else {
                     model.sendBySystem("wifi不可用")
                 }
@@ -197,18 +235,24 @@ class NetClipActivity : BaseTopActivity() {
         anim.start()
     }
 
-    internal class NetClipViewModel : ViewModel() {
+    class NetClipViewModel : ViewModel() {
 
         private val state = MutableLiveData(State.STATE_ALONE)
         fun state() = state.toLiveData()
         private var ip: String? = null
+        private val clipList = mutableListOf<ClipData>()
+        private val clip = MutableLiveData(clipList)
+        fun getData() = clip.toLiveData()
 
         fun start() {
             state.postValue(State.STATE_SCANNING)
+            sendBySystem("开始扫描")
 
             viewModelScope.launch {
                 delay(2000L)
                 state.postValue(State.STATE_CONNECTED)
+                delay(1000L)
+                sendBy("123123", "1111")
             }
         }
 
@@ -220,21 +264,58 @@ class NetClipActivity : BaseTopActivity() {
             if (content.isEmpty()) {
                 return
             }
-            sendBy(content, ip ?: "null")
+            sendBy(content, ip ?: "null", true)
         }
 
         fun sendBySystem(s: String) {
             sendBy(s, null)
         }
 
-        private fun sendBy(content: String, ip: String?) {
-            log("$content ---by $ip")
+        private fun sendBy(content: String, ip: String?, isSelf: Boolean = false) {
+            clipList.add(
+                when {
+                    isSelf -> ClipData.Send(content, ip)
+                    ip == null -> ClipData.System(content)
+                    else -> ClipData.From(content, ip)
+                }
+            )
+            clip.postValue(clipList)
         }
 
         fun updateIp() {
             ip = NetStatusHelper.getIpAddress()
         }
 
+    }
+
+    sealed class ClipData {
+        abstract val content: String
+        abstract fun getType(): Int
+
+        internal data class Send(override val content: String, var ip: String?) : ClipData() {
+
+            companion object {
+                const val TYPE = 0
+            }
+
+            override fun getType() = TYPE
+        }
+
+        internal data class From(override val content: String, var ip: String) : ClipData() {
+            companion object {
+                const val TYPE = 1
+            }
+
+            override fun getType() = TYPE
+        }
+
+        internal data class System(override val content: String) : ClipData() {
+            companion object {
+                const val TYPE = 2
+            }
+
+            override fun getType() = TYPE
+        }
     }
 
     @IntDef(

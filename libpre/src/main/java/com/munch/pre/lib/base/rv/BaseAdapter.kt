@@ -1,9 +1,6 @@
 package com.munch.pre.lib.base.rv
 
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.annotation.LayoutRes
 import androidx.annotation.NonNull
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -17,8 +14,6 @@ import kotlinx.coroutines.withContext
  * Create by munch1182 on 2021/3/31 14:41.
  */
 abstract class BaseAdapter<D, V : BaseViewHolder> constructor(
-    @LayoutRes protected open var itemRes: Int = 0,
-    protected open var itemView: View? = null,
     dataInit: MutableList<D>? = null,
     protected open var diffUtil: DiffUtil.ItemCallback<D>? = null
 ) : RecyclerView.Adapter<V>() {
@@ -48,23 +43,6 @@ abstract class BaseAdapter<D, V : BaseViewHolder> constructor(
         if (!dataInit.isNullOrEmpty()) {
             dataList.addAll(dataInit)
         }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): V {
-        val itemView = onCreateItemView(parent)
-        return BaseViewHolder(itemView) as V
-    }
-
-    protected open fun onCreateItemView(parent: ViewGroup): View = when {
-        itemRes != 0 -> LayoutInflater.from(parent.context).inflate(itemRes, parent, false)
-        itemView != null -> {
-            if (itemView!!.parent != null) {
-                (itemView!!.parent as ViewGroup).removeView(itemView!!)
-            }
-            itemView!!
-        }
-        else -> throw IllegalStateException("cannot create view holder without item view")
     }
 
     override fun onBindViewHolder(holder: V, position: Int) {
@@ -181,42 +159,3 @@ abstract class BaseAdapter<D, V : BaseViewHolder> constructor(
     }
 
 }
-
-class DiffCallBack<D>(
-    private val old: MutableList<D>,
-    private val new: MutableList<D>,
-    private val itemCallback: DiffUtil.ItemCallback<D>
-) : DiffUtil.Callback() {
-    override fun getOldListSize(): Int {
-        return old.size
-    }
-
-    override fun getNewListSize(): Int {
-        return new.size
-    }
-
-    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val o = old[oldItemPosition] ?: return false
-        val n = new[newItemPosition] ?: return false
-        return itemCallback.areItemsTheSame(o, n)
-    }
-
-    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val o = old[oldItemPosition] ?: return false
-        val n = new[newItemPosition] ?: return false
-        return itemCallback.areContentsTheSame(o, n)
-    }
-}
-
-abstract class DiffItemCallback<D> : DiffUtil.ItemCallback<D>() {
-    override fun areItemsTheSame(oldItem: D, newItem: D): Boolean {
-        return oldItem == newItem
-    }
-}
-
-interface ItemClickListener<D, V : BaseViewHolder> {
-
-    fun onItemClick(adapter: BaseAdapter<D, V>, bean: D, view: View, pos: Int)
-}
-
-open class BaseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)

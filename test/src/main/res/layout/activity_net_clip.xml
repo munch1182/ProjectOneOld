@@ -14,6 +14,7 @@
         android:id="@+id/net_clip_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/colorWhite"
         tools:context=".net.NetClipActivity"
         tools:ignore="HardcodedText">
 
@@ -72,7 +73,7 @@
                     android:id="@+id/net_clip_rv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:listitem="@layout/item_chat" />
+                    tools:listitem="@layout/item_chat_from" />
 
                 <EditText
                     android:id="@+id/net_clip_et"
