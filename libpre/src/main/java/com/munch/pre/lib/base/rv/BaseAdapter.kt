@@ -182,7 +182,7 @@ abstract class BaseAdapter<D, V : BaseViewHolder> constructor(
 
 }
 
-private class DiffCallBack<D>(
+class DiffCallBack<D>(
     private val old: MutableList<D>,
     private val new: MutableList<D>,
     private val itemCallback: DiffUtil.ItemCallback<D>

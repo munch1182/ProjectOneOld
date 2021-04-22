@@ -2,6 +2,7 @@ package com.munch.test.project.one.net
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.view.View
 import android.view.animation.Animation
@@ -21,6 +22,8 @@ import com.munch.lib.fast.extend.get
 import com.munch.pre.lib.extend.*
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.ImHelper
+import com.munch.pre.lib.helper.NetStatusHelper
+import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityNetClipBinding
@@ -42,23 +45,17 @@ class NetClipActivity : BaseTopActivity() {
         bind.apply {
             lifecycleOwner = this@NetClipActivity
             vm = model
-            val contentAdapter = object :
-                BaseBindAdapter<String, ItemChatBinding>(
-                    R.layout.item_chat,
-                    mutableListOf(
-                        "1", "2", "3", "4", "5", "6", "7", "11",
-                        "12", "13", "14", "15", "16", "17"
-                    )
-                ) {
+            val contentAdapter =
+                object : BaseBindAdapter<String, ItemChatBinding>(R.layout.item_chat) {
 
-                override fun onBindViewHolder(
-                    holder: BaseBindViewHolder<ItemChatBinding>,
-                    bean: String,
-                    pos: Int
-                ) {
-                    holder.bind.itemChatContent.text = bean
+                    override fun onBindViewHolder(
+                        holder: BaseBindViewHolder<ItemChatBinding>,
+                        bean: String,
+                        pos: Int
+                    ) {
+                        holder.bind.itemChatContent.text = bean
+                    }
                 }
-            }
             netClipComment.setOnClickListener {
                 showInput()
                 AppHelper.showIm(netClipEt)
@@ -106,7 +103,7 @@ class NetClipActivity : BaseTopActivity() {
                 if (content.isEmpty()) {
                     return@setOnClickListener
                 }
-                model.send(content)
+                model.sendBySelf(content)
             }
             hideInput()
         }
@@ -136,6 +133,17 @@ class NetClipActivity : BaseTopActivity() {
         }
         ImHelper.watchChange(this) {
             bind.netClipNsv.smoothScrollBy(0, it)
+        }
+        NetStatusHelper.getInstance(this).apply {
+            limitTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            setWhenResume(this@NetClipActivity, { available, _ ->
+                model.updateIp()
+                if (available) {
+                    model.sendBySystem("wifi已连接")
+                } else {
+                    model.sendBySystem("wifi不可用")
+                }
+            }, { register() }, { unregister() })
         }
     }
 
@@ -189,11 +197,11 @@ class NetClipActivity : BaseTopActivity() {
         anim.start()
     }
 
-
-    class NetClipViewModel : ViewModel() {
+    internal class NetClipViewModel : ViewModel() {
 
         private val state = MutableLiveData(State.STATE_ALONE)
         fun state() = state.toLiveData()
+        private var ip: String? = null
 
         fun start() {
             state.postValue(State.STATE_SCANNING)
@@ -208,7 +216,23 @@ class NetClipActivity : BaseTopActivity() {
             state.postValue(State.STATE_ALONE)
         }
 
-        fun send(content: String) {
+        fun sendBySelf(content: String) {
+            if (content.isEmpty()) {
+                return
+            }
+            sendBy(content, ip ?: "null")
+        }
+
+        fun sendBySystem(s: String) {
+            sendBy(s, null)
+        }
+
+        private fun sendBy(content: String, ip: String?) {
+            log("$content ---by $ip")
+        }
+
+        fun updateIp() {
+            ip = NetStatusHelper.getIpAddress()
         }
 
     }

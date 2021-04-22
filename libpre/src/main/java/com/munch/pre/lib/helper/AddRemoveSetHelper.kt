@@ -20,19 +20,21 @@ abstract class AddRemoveSetHelper<T> {
      */
     protected val arrays: ArrayList<T> = arrayListOf()
 
-    open fun add(t: T) {
+    open fun add(t: T): AddRemoveSetHelper<T> {
         if (!arrays.contains(t)) {
             arrays.add(t)
         }
+        return this
     }
 
-    open fun remove(t: T) {
+    open fun remove(t: T): AddRemoveSetHelper<T> {
         if (arrays.contains(t)) {
             arrays.remove(t)
         }
+        return this
     }
 
-    open fun set(owner: LifecycleOwner, t: T, onDestroy: (() -> Unit)? = null) {
+    open fun set(owner: LifecycleOwner, t: T, onDestroy: (() -> Unit)? = null): AddRemoveSetHelper<T> {
         add(t)
         owner.lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -42,13 +44,14 @@ abstract class AddRemoveSetHelper<T> {
                 owner.lifecycle.removeObserver(this)
             }
         })
+        return this
     }
 
     @JvmOverloads
     open fun setWhenCreate(
         owner: LifecycleOwner, t: T, onCreate: (() -> Unit)? = null,
         onDestroy: (() -> Unit)? = null
-    ) {
+    ): AddRemoveSetHelper<T> {
         owner.lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun onCreate() {
@@ -63,13 +66,14 @@ abstract class AddRemoveSetHelper<T> {
                 owner.lifecycle.removeObserver(this)
             }
         })
+        return this
     }
 
     @JvmOverloads
     open fun setWhenStart(
         owner: LifecycleOwner, t: T, onStart: (() -> Unit)? = null,
         onStop: (() -> Unit)? = null
-    ) {
+    ): AddRemoveSetHelper<T> {
         owner.lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
@@ -88,13 +92,14 @@ abstract class AddRemoveSetHelper<T> {
                 owner.lifecycle.removeObserver(this)
             }
         })
+        return this
     }
 
     @JvmOverloads
     open fun setWhenResume(
         owner: LifecycleOwner, t: T, onResume: (() -> Unit)? = null,
         onPause: (() -> Unit)? = null
-    ) {
+    ): AddRemoveSetHelper<T> {
         owner.lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             fun onResume() {
@@ -113,6 +118,7 @@ abstract class AddRemoveSetHelper<T> {
                 owner.lifecycle.removeObserver(this)
             }
         })
+        return this
     }
 
     open fun clear(): AddRemoveSetHelper<T> {
