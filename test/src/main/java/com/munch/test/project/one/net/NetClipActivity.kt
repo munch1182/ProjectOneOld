@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import androidx.annotation.IntDef
@@ -21,12 +20,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.munch.lib.fast.base.BaseBindMultiAdapter
 import com.munch.lib.fast.base.BaseBindViewHolder
 import com.munch.lib.fast.extend.get
+import com.munch.pre.lib.base.rv.BaseAdapter
 import com.munch.pre.lib.base.rv.MultiTypeWithPos
 import com.munch.pre.lib.extend.*
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.ImHelper
 import com.munch.pre.lib.helper.NetStatusHelper
-import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityNetClipBinding
@@ -54,14 +53,16 @@ class NetClipActivity : BaseTopActivity() {
                             return getData()[pos].getType()
                         }
                     })
-                setOnItemClickListener { _, bean, _, _ ->
-                    AppHelper.put2Clip(text = bean.content)
-                    toast("内容已复制")
-                }
-                setOnItemLongClickListener { _, bean, _, _ ->
-                    AppHelper.put2Clip(text = bean.content)
-                    toast("内容已复制")
-                }
+                val listener: (
+                    adapter: BaseAdapter<ClipData, BaseBindViewHolder<ViewDataBinding>>,
+                    bean: ClipData, view: View, pos: Int
+                ) -> Unit =
+                    { _, bean, _, _ ->
+                        AppHelper.put2Clip(text = bean.content)
+                        toast("内容已复制")
+                    }
+                setOnItemClickListener(listener)
+                setOnItemLongClickListener(listener)
             }
 
             override fun onBindViewHolder(
@@ -244,11 +245,20 @@ class NetClipActivity : BaseTopActivity() {
         private val clip = MutableLiveData(clipList)
         fun getData() = clip.toLiveData()
 
+        private val helper = NetClipHelper().apply {
+            listen { msg, i ->
+                if (ip == i) {
+                    return@listen
+                }
+                sendBy(msg, ip)
+            }
+        }
+
         fun start() {
             state.postValue(State.STATE_SCANNING)
             sendBySystem("开始扫描")
-
             viewModelScope.launch {
+                helper.start()
                 delay(2000L)
                 state.postValue(State.STATE_CONNECTED)
                 delay(1000L)
@@ -257,6 +267,7 @@ class NetClipActivity : BaseTopActivity() {
         }
 
         fun exit() {
+            helper.stop()
             state.postValue(State.STATE_ALONE)
         }
 
