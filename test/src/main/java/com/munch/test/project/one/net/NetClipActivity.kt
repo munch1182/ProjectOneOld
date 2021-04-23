@@ -33,7 +33,6 @@ import com.munch.test.project.one.databinding.ActivityNetClipBinding
 import com.munch.test.project.one.databinding.ItemChatFromBinding
 import com.munch.test.project.one.databinding.ItemChatSendBinding
 import com.munch.test.project.one.databinding.ItemChatSystemBinding
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -59,8 +58,10 @@ class NetClipActivity : BaseTopActivity() {
                     bean: ClipData, view: View, pos: Int
                 ) -> Unit =
                     { _, bean, _, _ ->
-                        AppHelper.put2Clip(text = bean.content)
-                        toast("内容已复制")
+                        if (bean !is ClipData.System) {
+                            AppHelper.put2Clip(text = bean.content)
+                            toast("内容已复制")
+                        }
                     }
                 setOnItemClickListener(listener)
                 setOnItemLongClickListener(listener)
@@ -169,6 +170,10 @@ class NetClipActivity : BaseTopActivity() {
         }
         model.getData().observe(this) {
             contentAdapter.set(it)
+            val i = contentAdapter.getData().size - 1
+            if (i > 0) {
+                bind.netClipRv.smoothScrollToPosition(i)
+            }
         }
         ImHelper.watchChange(this) {
             bind.netClipNsv.smoothScrollBy(0, it)
@@ -269,9 +274,17 @@ class NetClipActivity : BaseTopActivity() {
                         showSendBy("exit", null)
                     }
                     isStart(state) -> {
+                        this@NetClipViewModel.state.postValue(State.STATE_CONNECTED)
                         showSendBy("start", null)
                     }
                 }
+            }.clear {
+                val first = clipList[0]
+                val second = clipList[1]
+                clipList.clear()
+                clipList.add(first)
+                clipList.add(second)
+                clip.postValue(clipList)
             }
         }
 

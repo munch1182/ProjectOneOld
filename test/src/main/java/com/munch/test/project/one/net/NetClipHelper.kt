@@ -5,14 +5,11 @@ import android.net.wifi.WifiManager
 import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.helper.ThreadPoolHelper
 import com.munch.pre.lib.helper.file.closeQuietly
-import com.munch.pre.lib.log.Logger
 import com.munch.pre.lib.log.log
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import java.lang.Runnable
 import java.net.*
 import java.nio.ByteBuffer
+import java.util.*
 import java.util.concurrent.ExecutorService
 
 /**
@@ -26,6 +23,7 @@ class NetClipHelper {
     private var notifyListener: ((msg: String, ip: String) -> Unit)? = null
     private var stateListener: ((state: Int, ip: String) -> Unit)? = null
     private val broadcastPool = ThreadPoolHelper.newFixThread(2)
+    private var clearListener: (() -> Unit)? = null
 
     companion object {
         const val IP_MULTI = "239.0.0.1"
@@ -60,9 +58,9 @@ class NetClipHelper {
                         broadcastPool.execute(broadcastSendThread)
                     }
                     ByteHelper.COMMAND_BROADCAST_SEND_STOP -> broadcastSendThread.stopBroadcast()
+                    ByteHelper.COMMAND_CLEAR -> clearListener?.invoke()
                 }
             }?.judgeType(ByteHelper.TYPE_NOTIFY) {
-                log("notify ${it.first}")
                 when (it.first) {
                     ByteHelper.NOTIFY_JOIN -> {
                         stateListener?.invoke(ByteHelper.NOTIFY_JOIN.toInt(), ip)
@@ -102,7 +100,12 @@ class NetClipHelper {
     }
 
     fun send(content: String) {
-        multiHelper.sendMessage(content.toByteArray())
+        when (content.trim().toLowerCase(Locale.getDefault())) {
+            ByteHelper.COMMAND_STR_CLEAR -> multiHelper.send(ByteHelper.clearMessage())
+            ByteHelper.COMMAND_STR_KEEP -> multiHelper.send(ByteHelper.scanKeepMessage())
+            ByteHelper.COMMAND_STR_STOP -> multiHelper.send(ByteHelper.scanStopMessage())
+            else -> multiHelper.sendMessage(content.toByteArray())
+        }
     }
 
     fun listen(func: (msg: String, ip: String) -> Unit): NetClipHelper {
@@ -112,6 +115,10 @@ class NetClipHelper {
 
     fun state(func: (state: Int, ip: String) -> Unit): NetClipHelper {
         stateListener = func
+        return this
+    }
+    fun clear(func:()->Unit): NetClipHelper {
+        clearListener = func
         return this
     }
 
@@ -146,7 +153,8 @@ class NetClipHelper {
                 var running = true
 
                 override fun run() {
-                    val packet = DatagramPacket(array, array.size)
+                    val packet =
+                        DatagramPacket(array, array.size)
                     running = true
                     while (running) {
                         try {
@@ -190,7 +198,7 @@ class NetClipHelper {
             receiverThread = ThreadPoolHelper.newFixThread()
             wifiLock()
             socket = MulticastSocket(port)
-            /*socket!!.loopbackMode = true*/
+            socket!!.timeToLive = 64
             socket!!.joinGroup(InetAddress.getByName(ip))
             this.port = socket!!.localPort
             this.ip = ip
@@ -254,6 +262,10 @@ class NetClipHelper {
                 return
             }
             val message = ByteHelper.message(ByteHelper.TYPE_MESSAGE, bytes = byte)
+            send(message)
+        }
+
+        fun send(message: ByteArray) {
             socket?.send(message)
         }
 
@@ -305,11 +317,10 @@ class NetClipHelper {
     private class BroadcastSendThread : Runnable {
 
         private var sending = true
-        private val mutex = Mutex()
         private var byteArray = byteArrayOf()
 
-        fun stopBroadcast() = runBlocking {
-            mutex.withLock { sending = false }
+        fun stopBroadcast() {
+            sending = false
         }
 
         override fun run() {
@@ -320,12 +331,11 @@ class NetClipHelper {
                 byteArray, byteArray.size,
                 InetAddress.getByName(IP_BROADCAST), PORT_BROADCAST
             )
-            runBlocking { mutex.withLock { sending = true } }
+            sending = true
             while (true) {
-                if (runBlocking { mutex.withLock { !sending } }) {
+                if (!sending) {
                     break
                 }
-                log(sending)
                 log("发送自己的广播")
                 socket.send(pack)
                 Thread.sleep(1000L)
@@ -362,6 +372,10 @@ class NetClipHelper {
 
         const val COMMAND_BROADCAST_SEND_KEEP = 0x01.toByte()
         const val COMMAND_BROADCAST_SEND_STOP = 0x02.toByte()
+        const val COMMAND_CLEAR = 0x03.toByte()
+        const val COMMAND_STR_CLEAR = "cls"
+        const val COMMAND_STR_KEEP = "scan"
+        const val COMMAND_STR_STOP = "stop"
 
         fun putMulitAddress(ip: String, port: Int): ByteArray {
             val ipArray = ip.toByteArray()
@@ -386,6 +400,7 @@ class NetClipHelper {
 
         fun scanStopMessage() = message(TYPE_COMMAND, COMMAND_BROADCAST_SEND_STOP)
         fun scanKeepMessage() = message(TYPE_COMMAND, COMMAND_BROADCAST_SEND_KEEP)
+        fun clearMessage() = message(TYPE_COMMAND, COMMAND_CLEAR)
 
         fun message(
             type: Byte,
