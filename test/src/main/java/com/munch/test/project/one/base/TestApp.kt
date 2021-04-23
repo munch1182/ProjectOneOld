@@ -9,6 +9,13 @@ import com.munch.test.project.one.watcher.Watcher
  */
 class TestApp : BaseFastApp() {
 
+    var btInited = false
+
+    companion object {
+
+        fun get() = getInstance() as TestApp
+    }
+
     override fun onCreate() {
         super.onCreate()
         DataHelper.init()

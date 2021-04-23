@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.munch.lib.fast.extend.get
 import com.munch.pre.lib.bluetooth.*
+import com.munch.pre.lib.extend.digitsInput
 import com.munch.pre.lib.extend.observeOnChanged
 import com.munch.pre.lib.extend.startActivity
 import com.munch.pre.lib.extend.toLiveData
@@ -51,7 +52,9 @@ class BluetoothConnectActivity : BaseTopActivity() {
                     model.connectOrDis()
                 }
             }
-            device = btDevice ?: return@apply
+
+            btDeviceEtSend.digitsInput("0123456789abcdefABCDEF, []x")
+            device = btDevice
 
         }
         model.init(btDevice)

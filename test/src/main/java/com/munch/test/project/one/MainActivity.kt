@@ -23,7 +23,7 @@ class MainActivity : BaseRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         noBack()
-        startActivity(NetClipActivity::class.java)
+        startActivity(BluetoothActivity::class.java)
     }
 
     override fun getClassItem(): MutableList<ItemClassBean> {

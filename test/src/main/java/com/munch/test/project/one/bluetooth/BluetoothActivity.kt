@@ -17,13 +17,13 @@ import com.munch.lib.fast.base.BaseBindAdapter
 import com.munch.lib.fast.base.BaseBindViewHolder
 import com.munch.lib.fast.extend.get
 import com.munch.lib.fast.weight.CountView
-import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.bluetooth.*
 import com.munch.pre.lib.extend.*
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.base.DataHelper
+import com.munch.test.project.one.base.TestApp
 import com.munch.test.project.one.databinding.ActivityBluetoothBinding
 import com.munch.test.project.one.databinding.ItemBluetoothBinding
 import com.munch.test.project.one.requestPermission
@@ -122,6 +122,7 @@ class BluetoothActivity : BaseTopActivity() {
         model.getResList().observeOnChanged(this) { adapter.set(it) }
 
         obOnResume({}, { model.release() })
+        BluetoothHelper.INSTANCE.getCurrent().device?.let { adapter.add(it) }
     }
 
     @SuppressLint("MissingPermission")
@@ -143,7 +144,11 @@ class BluetoothActivity : BaseTopActivity() {
         fun getResList() = res.toLiveData()
 
         init {
-            BluetoothHelper.INSTANCE.init(BaseApp.getInstance())
+            val app = TestApp.get()
+            if (!app.btInited) {
+                BluetoothHelper.INSTANCE.init(app)
+                app.btInited = true
+            }
         }
 
         fun scan() {
