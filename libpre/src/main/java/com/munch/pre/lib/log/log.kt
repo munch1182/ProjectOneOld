@@ -211,7 +211,7 @@ open class Logger {
     }
 
     protected open fun formatMultiStr(any: String): String {
-        if (any.length < MAX_COUNT_IN_LINE) {
+        /*if (any.length < MAX_COUNT_IN_LINE) {
             return "\"$any\""
         } else {
             val sb = StringBuilder()
@@ -228,7 +228,8 @@ open class Logger {
                 }
             }
             return "\"$sb\""
-        }
+        }*/
+        return "\"$any\""
     }
 
     protected open fun formatJson(any: String): String {

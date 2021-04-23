@@ -17,6 +17,7 @@ object ThreadPoolHelper {
     private const val ID_SCHEDULED = 2
     private const val ID_FIX = 3
     private const val ID_NEW_IO = 5
+    private val fixId = AtomicInteger(1)
 
     private val CPU_COUNT = Runtime.getRuntime().availableProcessors()
     private val CORE_POOL_SIZE = 1.coerceAtLeast((CPU_COUNT - 1).coerceAtMost(4))
@@ -44,7 +45,7 @@ object ThreadPoolHelper {
         return ThreadPoolExecutor(
             coreSize, coreSize,
             0L, TimeUnit.SECONDS,
-            LinkedBlockingQueue(), newThreadFactory(ID_FIX)
+            LinkedBlockingQueue(), newThreadFactory(ID_FIX * 10 + fixId.getAndIncrement())
         )
     }
 

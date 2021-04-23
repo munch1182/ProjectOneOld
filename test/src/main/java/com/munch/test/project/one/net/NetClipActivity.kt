@@ -26,6 +26,7 @@ import com.munch.pre.lib.extend.*
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.ImHelper
 import com.munch.pre.lib.helper.NetStatusHelper
+import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityNetClipBinding
@@ -247,23 +248,37 @@ class NetClipActivity : BaseTopActivity() {
 
         private val helper = NetClipHelper().apply {
             listen { msg, i ->
-                if (ip == i) {
-                    return@listen
+                log(msg)
+                showSendBy(msg, ip, ip == i)
+            }.state { state, ip ->
+                when {
+                    isConnected(state) -> {
+                        this@NetClipViewModel.state.postValue(State.STATE_CONNECTED)
+                        showSendBy("$ip joined", null)
+                    }
+                    isDisconnected(state) -> {
+                        if (ip == this@NetClipViewModel.ip) {
+                            this@NetClipViewModel.state.postValue(State.STATE_ALONE)
+                        } else {
+                            this@NetClipViewModel.state.postValue(State.STATE_CONNECTED)
+                        }
+                        showSendBy("$ip leaved", null)
+                    }
+                    isExit(state) -> {
+                        this@NetClipViewModel.state.postValue(State.STATE_ALONE)
+                        showSendBy("exit", null)
+                    }
+                    isStart(state) -> {
+                        showSendBy("start", null)
+                    }
                 }
-                sendBy(msg, ip)
             }
         }
 
         fun start() {
             state.postValue(State.STATE_SCANNING)
             sendBySystem("开始扫描")
-            viewModelScope.launch {
-                helper.start()
-                delay(2000L)
-                state.postValue(State.STATE_CONNECTED)
-                delay(1000L)
-                sendBy("123123", "1111")
-            }
+            viewModelScope.launch { helper.start() }
         }
 
         fun exit() {
@@ -275,14 +290,18 @@ class NetClipActivity : BaseTopActivity() {
             if (content.isEmpty()) {
                 return
             }
-            sendBy(content, ip ?: "null", true)
+            send(content)
         }
 
         fun sendBySystem(s: String) {
-            sendBy(s, null)
+            showSendBy(s, null)
         }
 
-        private fun sendBy(content: String, ip: String?, isSelf: Boolean = false) {
+        private fun send(content: String) {
+            helper.send(content)
+        }
+
+        private fun showSendBy(content: String, ip: String?, isSelf: Boolean = false) {
             clipList.add(
                 when {
                     isSelf -> ClipData.Send(content, ip)
