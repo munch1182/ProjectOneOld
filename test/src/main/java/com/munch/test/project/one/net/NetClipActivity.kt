@@ -251,7 +251,8 @@ class NetClipActivity : BaseTopActivity() {
         private val clip = MutableLiveData(clipList)
         fun getData() = clip.toLiveData()
 
-        private val helper = NetClipHelper().apply {
+        //leaked
+        private val helper = NetClipHelper.INSTANCE.apply {
             listen { msg, i ->
                 log(msg)
                 showSendBy(msg, ip, ip == i)
@@ -291,6 +292,11 @@ class NetClipActivity : BaseTopActivity() {
         fun start() {
             state.postValue(State.STATE_SCANNING)
             sendBySystem("开始扫描")
+            //暂时这样写
+            if (helper.updateFromInstance()) {
+                state.postValue(State.STATE_CONNECTED)
+                return
+            }
             viewModelScope.launch { helper.start() }
         }
 

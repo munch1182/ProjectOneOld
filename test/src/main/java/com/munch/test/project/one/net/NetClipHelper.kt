@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService
 /**
  * Create by munch1182 on 2021/4/22 9:35.
  */
-class NetClipHelper {
+class NetClipHelper private constructor() {
 
     private val broadcastSendThread = BroadcastSendThread()
     private val broadcastReceiveThread = BroadcastReceiveThread()
@@ -31,6 +31,12 @@ class NetClipHelper {
         const val PORT_BROADCAST = 20211
         const val IP_BROADCAST = "255.255.255.255"
 
+        val INSTANCE = NetClipHelper()
+
+    }
+
+    fun updateFromInstance(): Boolean {
+        return multiHelper.getIp() != null
     }
 
     private fun ByteArray.judgeType(
@@ -117,7 +123,8 @@ class NetClipHelper {
         stateListener = func
         return this
     }
-    fun clear(func:()->Unit): NetClipHelper {
+
+    fun clear(func: () -> Unit): NetClipHelper {
         clearListener = func
         return this
     }
