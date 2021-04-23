@@ -415,11 +415,11 @@ class NetClipHelper private constructor() {
             bytes: ByteArray = byteArrayOf()
         ): ByteArray {
             val size = bytes.size
-            val buffer = ByteBuffer.allocate(1 + 1 + 1 + 1 + size + 1)
+            val buffer = ByteBuffer.allocate(1 + 1 + 1 + 4 + size + 1)
             buffer.put(START)
             buffer.put(type)
             buffer.put(sign)
-            buffer.put(size.toByte())
+            buffer.putInt(size)
             if (size > 0) {
                 buffer.put(bytes)
             }
@@ -444,11 +444,12 @@ class NetClipHelper private constructor() {
                 return null
             }
             val sign = buf.get()
-            val size = buf.get()
+            val size = buf.int
             if (buf.limit() - buf.position() < size) {
+                log("长度错误")
                 return null
             }
-            val bytes = ByteArray(size.toInt())
+            val bytes = ByteArray(size)
             buf.get(bytes)
             if (buf.get() != END) {
                 return null

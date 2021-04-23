@@ -1,5 +1,6 @@
 package com.munch.test.project.one.net
 
+import com.munch.pre.lib.log.log
 import java.net.*
 import java.nio.ByteBuffer
 import java.util.*
@@ -13,10 +14,14 @@ const val IP_MULTI = "239.0.0.1"
 const val PORT_BROADCAST = 20211
 const val IP_BROADCAST = "255.255.255.255"
 
+private val ipSelf = Inet4Address.getLocalHost().hostAddress
 
+/**
+ * 执行：kotlinc NetClipForReceiverOnly.kt -include-runtime -d NetClipForReceiverOnly.jar && java -jar NetClipForReceiverOnly.jar
+ */
 fun main() {
     //ip需要保持在局域网
-    println(Inet4Address.getLocalHost().hostAddress)
+    println(ipSelf)
 
     val address = startBroadcastReceiver() ?: return
 
@@ -29,7 +34,7 @@ fun main() {
     val joinMessage = ByteHelper.joinMessage()
     socket.send(DatagramPacket(joinMessage, joinMessage.size, InetAddress.getByName(ip), port))
 
-    startReceiver(socket, ip, port)
+    startReceiver(socket)
 
     startInput(socket, ip, port)
 }
@@ -39,22 +44,33 @@ fun startInput(socket: MulticastSocket, ip: String, port: Int) {
 
     while (scanner.hasNext()) {
         val nextLine = scanner.nextLine()
+        if (nextLine.isEmpty()) {
+            continue
+        }
         val array = ByteHelper.message(ByteHelper.TYPE_MESSAGE, bytes = nextLine.toByteArray())
         socket.send(DatagramPacket(array, array.size, InetAddress.getByName(ip), port))
     }
 }
 
 
-fun startReceiver(socket: MulticastSocket, ip: String, port: Int) {
+fun startReceiver(socket: MulticastSocket) {
     thread {
         val array = ByteArray(1024)
-        val pack = DatagramPacket(array, array.size, InetAddress.getByName(ip), port)
+        val pack = DatagramPacket(array, array.size)
+        var hide = false
         while (true) {
             try {
-                println("wait multicast")
+                if (!hide) {
+                    println("wait multicast")
+                    hide = false
+                }
                 socket.receive(pack)
             } catch (e: SocketException) {
                 println("error: ${e.message}")
+                break
+            }
+            if (pack.address.hostAddress == ipSelf) {
+                hide = true
                 continue
             }
             val message = ByteHelper.getMessage(array, ByteHelper.TYPE_MESSAGE)
@@ -69,7 +85,7 @@ fun startReceiver(socket: MulticastSocket, ip: String, port: Int) {
 
 fun startBroadcastReceiver(): Pair<String, Int>? {
     val socket = DatagramSocket(PORT_BROADCAST)
-    val byteArray = ByteArray(20)
+    val byteArray = ByteArray(50)
     val pack = DatagramPacket(
         byteArray, byteArray.size,
         InetAddress.getByName(IP_BROADCAST), PORT_BROADCAST
@@ -113,6 +129,10 @@ private object ByteHelper {
 
     const val COMMAND_BROADCAST_SEND_KEEP = 0x01.toByte()
     const val COMMAND_BROADCAST_SEND_STOP = 0x02.toByte()
+    const val COMMAND_CLEAR = 0x03.toByte()
+    const val COMMAND_STR_CLEAR = "cls"
+    const val COMMAND_STR_KEEP = "scan"
+    const val COMMAND_STR_STOP = "stop"
 
     fun putMulitAddress(ip: String, port: Int): ByteArray {
         val ipArray = ip.toByteArray()
@@ -137,6 +157,7 @@ private object ByteHelper {
 
     fun scanStopMessage() = message(TYPE_COMMAND, COMMAND_BROADCAST_SEND_STOP)
     fun scanKeepMessage() = message(TYPE_COMMAND, COMMAND_BROADCAST_SEND_KEEP)
+    fun clearMessage() = message(TYPE_COMMAND, COMMAND_CLEAR)
 
     fun message(
         type: Byte,
@@ -144,11 +165,11 @@ private object ByteHelper {
         bytes: ByteArray = byteArrayOf()
     ): ByteArray {
         val size = bytes.size
-        val buffer = ByteBuffer.allocate(1 + 1 + 1 + 1 + size + 1)
+        val buffer = ByteBuffer.allocate(1 + 1 + 1 + 4 + size + 1)
         buffer.put(START)
         buffer.put(type)
         buffer.put(sign)
-        buffer.put(size.toByte())
+        buffer.putInt(size)
         if (size > 0) {
             buffer.put(bytes)
         }
@@ -173,11 +194,12 @@ private object ByteHelper {
             return null
         }
         val sign = buf.get()
-        val size = buf.get()
+        val size = buf.int
         if (buf.limit() - buf.position() < size) {
+            log("长度错误")
             return null
         }
-        val bytes = ByteArray(size.toInt())
+        val bytes = ByteArray(size)
         buf.get(bytes)
         if (buf.get() != END) {
             return null
