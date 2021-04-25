@@ -190,6 +190,8 @@ class NetClipActivity : BaseTopActivity() {
                 }
             }, { register() }, { unregister() })
         }
+
+        model.checkStateWhenCreate()
     }
 
     private fun hideMenuNoAnim() {
@@ -260,7 +262,7 @@ class NetClipActivity : BaseTopActivity() {
             const val STR_CLEAR = ":cls"
         }
 
-        private val helper = NetClipHelper.INSTANCE.apply {
+        private val helper = NetClipHelper.getInstance().apply {
             messageListener = { msg: String, ip: String ->
                 log(msg)
                 showSendBy(msg, ip, this@NetClipViewModel.ip == ip)
@@ -288,13 +290,16 @@ class NetClipActivity : BaseTopActivity() {
                         showSendBy("start", null)
                     }
                 }
+                showSendBy("background: ${isKeepAlive()}", null)
+            }
+            backgroundListener = {
+                showSendBy("background change: $it", null)
             }
         }
 
         fun start() {
             state.postValue(State.STATE_SCANNING)
             sendBySystem("开始扫描")
-            //暂时这样写
             if (helper.hadConnected()) {
                 state.postValue(State.STATE_CONNECTED)
                 return
@@ -303,12 +308,13 @@ class NetClipActivity : BaseTopActivity() {
         }
 
         fun exit() {
+            sendBySystem("退出")
             viewModelScope.launch { helper.stop() }
             state.postValue(State.STATE_ALONE)
         }
 
         fun destroy() {
-            viewModelScope.launch { helper.destroy() }
+            helper.destroy()
         }
 
         fun sendBySelf(content: String) {
@@ -352,6 +358,13 @@ class NetClipActivity : BaseTopActivity() {
 
         fun updateIp() {
             ip = NetStatusHelper.getIpAddress()
+        }
+
+        fun checkStateWhenCreate() {
+            if (helper.hadConnected()) {
+                state.postValue(State.STATE_CONNECTED)
+                return
+            }
         }
 
     }

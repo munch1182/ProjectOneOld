@@ -83,6 +83,7 @@ open class Logger {
     var type = Log.DEBUG
     var methodOffset = 0
     var isJson = false
+    var noStack = false
     var noInfo = false
 
     protected open fun logOne(any: Any?) {
@@ -93,15 +94,17 @@ open class Logger {
 
         val split = msg.split(LINE_SEPARATOR)
         if (split.size == 1) {
-            if (noInfo) {
-                print(msg)
-            } else {
-                print("$msg (${thread.name}/$traceInfo)")
+            when {
+                noInfo -> print(msg)
+                noStack -> print("$msg (${thread.name})")
+                else -> print("$msg (${thread.name}/$traceInfo)")
             }
         } else {
             split.forEach { print(it) }
             if (!noInfo) {
                 print("--- (${thread.name}/$traceInfo)")
+            } else if (noStack) {
+                print("--- (${thread.name})")
             }
         }
         logListener?.invoke(msg, thread)

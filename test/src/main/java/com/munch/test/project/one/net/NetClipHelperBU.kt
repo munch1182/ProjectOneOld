@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutorService
  * 发送组播线程
  * Create by munch1182 on 2021/4/22 9:35.
  */
+@Deprecated("backup")
 class NetClipHelperBU private constructor() {
 
     private val broadcastSendThread = BroadcastSendThread()

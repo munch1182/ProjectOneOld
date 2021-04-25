@@ -1,6 +1,9 @@
 package com.munch.test.project.one.net
 
+import android.content.Context
+import android.net.wifi.WifiManager
 import androidx.annotation.IntDef
+import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.helper.ThreadPoolHelper
 import com.munch.pre.lib.helper.file.closeQuietly
 import com.munch.pre.lib.log.Logger
@@ -26,31 +29,52 @@ import kotlin.coroutines.CoroutineContext
 class NetClipHelper private constructor() : CoroutineScope {
 
     companion object {
-        const val IP_MULTI = "239.4.25.904"
+        private const val IP_MULTI = "239.21.4.25"
 
-        const val PORT_BROADCAST = 20211
-        const val IP_BROADCAST = "255.255.255.255"
+        private const val PORT_BROADCAST = 20211
+        private const val IP_BROADCAST = "255.255.255.255"
+        private const val LOCK_TAG = "WIFI_NET_CLIP"
 
-        val INSTANCE = NetClipHelper()
+        private var INSTANCE: NetClipHelper? = NetClipHelper()
 
-        val log = Logger().apply { tag = "netClip" }
+        private val log = Logger().apply {
+            tag = "netClip"
+            noStack = true
+        }
+
+        fun getInstance(): NetClipHelper {
+            if (INSTANCE == null) {
+                synchronized(this) {
+                    if (INSTANCE == null) {
+                        INSTANCE = NetClipHelper()
+                    }
+                    return INSTANCE!!
+                }
+            }
+            return INSTANCE!!
+        }
     }
+
 
     /**
      * 任务调用线程(组播发送线程) *
      * 广播发送/接收线程 *
      * 组播接收线程 *
      */
-    private val pool = ThreadPoolHelper.newFixThread(3)
-    private val dispatcher = FixPoolDispatcher(pool)
-    private val multi = MultiHelper()
-    private val broadcastSend by lazy { BroadcastSend(pool) }
-    private val broadcastReceive = BroadcastReceive(pool)
+    //任务执行线程
+    private val mainPool = ThreadPoolHelper.newFixThread(name = "main")
+    private val broadcastPool = ThreadPoolHelper.newFixThread(name = "broadcast")
+    private val multiReceivePool = ThreadPoolHelper.newFixThread(name = "multi")
+    private val dispatcher = FixPoolDispatcher(mainPool)
+    private val multi = MultiHelper(multiReceivePool)
+    private val broadcastSend by lazy { BroadcastSend(broadcastPool) }
+    private val broadcastReceive = BroadcastReceive(broadcastPool)
     private val job = Job()
     override val coroutineContext: CoroutineContext = dispatcher + CoroutineName("NetClip") + job
     var messageListener: ((content: String, ip: String) -> Unit)? = null
     var notifyListener: ((state: Int, ip: String) -> Unit)? = null
     var stateListener: ((state: Int) -> Unit)? = null
+    var backgroundListener: ((alive: Boolean) -> Unit)? = null
     private var keepAlive = false
 
     @State
@@ -76,13 +100,18 @@ class NetClipHelper private constructor() : CoroutineScope {
                 ByteHelper.NOTIFY_LEAVE -> notifyListener?.invoke(it.sign.toInt(), it.ip)
             }
         }?.isType(ByteHelper.TYPE_COMMAND) {
-            when (it.getContentString()) {
-                ByteHelper.COMMAND_STR_SCAN_KEEP -> broadcastSend.start()
-                ByteHelper.COMMAND_STR_RECEIVE_KEEP -> broadcastReceive.start()
-                ByteHelper.COMMAND_STR_BACKGROUND -> runBlocking(coroutineContext) {
-                    keepAlive = true
+            when (it.sign) {
+                ByteHelper.COMMAND_BROADCAST_SEND_KEEP -> broadcastSend.start()
+                ByteHelper.COMMAND_BROADCAST_RECEIVE_KEEP -> broadcastReceive.start()
+                ByteHelper.COMMAND_WORK_IN_BACKGROUND -> {
+                    runBlocking(coroutineContext) { keepAlive = true }
+                    backgroundListener?.invoke(true)
                 }
-                ByteHelper.COMMAND_STR_STOP -> {
+                ByteHelper.COMMAND_NOT_WORK_IN_BACKGROUND -> {
+                    runBlocking(coroutineContext) { keepAlive = false }
+                    backgroundListener?.invoke(false)
+                }
+                ByteHelper.COMMAND_BROADCAST_STOP -> {
                     broadcastSend.stop()
                     broadcastReceive.stop()
                 }
@@ -95,12 +124,14 @@ class NetClipHelper private constructor() : CoroutineScope {
 
     fun start() {
         launch {
+            log.log("start")
             //开始接收广播
             broadcastReceive.apply {
                 addressListener = {
-                    multi.joinOrStart(it.ip!!, it.port).startReceive(receivedCallback)
+                    multi.joinOrStart(it.ip!!, it.port)
+                    launch { multi.startReceive(receivedCallback) }
                     state = State.STATE_JOINED
-
+                    //发送join消息
                     notify(ByteHelper.joinMessage())
                 }
             }.start()
@@ -111,26 +142,27 @@ class NetClipHelper private constructor() : CoroutineScope {
                 return@launch
             }
             //否则自己创建端口组播
-            multi.joinOrStart(IP_MULTI, 0).startReceive(receivedCallback)
+            multi.joinOrStart(IP_MULTI, 0)
+            launch { multi.startReceive(receivedCallback) }
             state = State.STATE_JOINED
-
+            //发送join消息
             notify(ByteHelper.startMessage())
             //然后发送广播
             broadcastSend.updateAddress(multi.getAddress()).start()
         }
     }
 
+    /**
+     * 停止所有活动，但没有销毁资源，仍可以调用[start]重新开始
+     */
     fun stop() {
         launch {
+            multi.send(ByteHelper.leaveMessage())
+
+            multi.leave()
             multi.stop()
             broadcastSend.stop()
             broadcastReceive.stop()
-        }
-    }
-
-    fun leave() {
-        launch {
-            multi.leave()
             state = State.STATE_IDLE
         }
     }
@@ -142,19 +174,31 @@ class NetClipHelper private constructor() : CoroutineScope {
                 ByteHelper.COMMAND_STR_SCAN_KEEP -> multi.send(ByteHelper.scanKeepMessage())
                 ByteHelper.COMMAND_STR_STOP -> multi.send(ByteHelper.stopMessage())
                 ByteHelper.COMMAND_STR_BACKGROUND -> multi.send(ByteHelper.keepAliveMessage())
-                else -> multi.send(message.toByteArray())
+                ByteHelper.COMMAND_STR_NOT_BACKGROUND -> multi.send(ByteHelper.notKeepAliveMessage())
+                else -> multi.send(ByteHelper.message(message.toByteArray()))
             }
         }
     }
 
+    /**
+     * 与[stop]的区别在于，此方法调用后，此类实例必须重建
+     *
+     * @see getInstance
+     */
     fun destroy() {
-        log.log("called destroy when keep alive = $keepAlive")
         launch {
+            log.log("called destroy when keep alive = $keepAlive")
             if (!keepAlive) {
                 job.cancel()
-                pool.shutdownNow()
+                mainPool.shutdownNow()
+                broadcastPool.shutdownNow()
+                multiReceivePool.shutdownNow()
                 state = State.STATE_DESTROYED
-                log.log("NetClipHelper destroyed")
+                INSTANCE = null
+                log.log(
+                    "NetClipHelper destroyed: job:${job}, pool shutdown:" +
+                            "${mainPool.isShutdown && broadcastPool.isShutdown && multiReceivePool.isShutdown}"
+                )
             }
         }
     }
@@ -190,15 +234,16 @@ class NetClipHelper private constructor() : CoroutineScope {
         }
     }
 
-    private class MultiHelper {
+    private class MultiHelper(private val pool: ThreadPoolExecutor) {
 
         private var socket: MulticastSocket? = null
         private val address = Address()
         private var receiveRunning = true
-            get() = runBlocking { mutex.withLock { false } }
+            get() = runBlocking { mutex.withLock { field } }
             set(value) = runBlocking { mutex.withLock { field = value } }
         private val mutex = Mutex()
         private var sendPack: DatagramPacket? = null
+        private var lock: WifiManager.MulticastLock? = null
 
         fun joinOrStart(ip: String, port: Int): MultiHelper {
             if (socket != null) {
@@ -211,35 +256,44 @@ class NetClipHelper private constructor() : CoroutineScope {
                     socket = null
                 }
             }
+            wifiLock()
             socket = MulticastSocket(port)
             socket!!.joinGroup(InetAddress.getByName(ip))
             address.ip = ip
             address.port = socket!!.localPort
             sendPack = DatagramPacket(byteArrayOf(), 0, address.getAddress())
-            log.log("join multicast: $ip:$port(${socket?.localPort})")
+            log.log("join multi cast: $ip:$port(${socket?.localPort})")
             return this
         }
 
         fun startReceive(listener: (receive: Received) -> Unit) {
-            val bytes = ByteArray(1024)
-            val pack = DatagramPacket(bytes, bytes.size, address.getAddress())
-            while (receiveRunning) {
-                try {
+            pool.execute {
+                val bytes = ByteArray(1024)
+                val pack = DatagramPacket(bytes, bytes.size, address.getAddress())
+                receiveRunning = true
+                log.log("start receive multi cast : $address")
+                while (receiveRunning) {
                     log.log("wait multi cast")
-                    socket?.receive(pack)
-                } catch (e: SocketException) {
-                    continue
-                }
-                val message = ByteHelper.getReceived(pack) ?: continue
+                    try {
+                        socket?.receive(pack)
+                    } catch (e: SocketException) {
+                        continue
+                    }
+                    val message = ByteHelper.getReceived(pack) ?: continue
 
-                log.log("receive multi cast: $message")
-                listener.invoke(message)
+                    log.log("receive multi cast: $message from: ${pack.address.hostName}:${pack.port}")
+                    listener.invoke(message)
+                }
+                log.log("stop receive multi cast")
+                socket?.closeQuietly()
+                socket = null
             }
         }
 
         fun stop() {
             receiveRunning = false
             socket?.closeQuietly()
+            unlock()
         }
 
         /**
@@ -247,6 +301,7 @@ class NetClipHelper private constructor() : CoroutineScope {
          */
         fun send(byte: ByteArray) {
             sendPack?.setData(byte) ?: return
+            log.log("try to send: ${byte.size} byte")
             socket?.send(sendPack)
         }
 
@@ -254,6 +309,25 @@ class NetClipHelper private constructor() : CoroutineScope {
 
         fun leave() {
             socket?.leaveGroup(InetAddress.getByName(address.ip))
+            log.log("leave multi cast")
+        }
+
+        private fun wifiLock() {
+            if (lock != null) {
+                if (!lock!!.isHeld) {
+                    lock!!.acquire()
+                }
+                return
+            }
+            val wm =
+                BaseApp.getInstance().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            lock = wm.createMulticastLock(LOCK_TAG)
+            lock?.acquire()
+        }
+
+        private fun unlock() {
+            lock?.release()
+            lock = null
         }
 
     }
@@ -261,10 +335,9 @@ class NetClipHelper private constructor() : CoroutineScope {
     private class BroadcastSend(private val pool: ThreadPoolExecutor) : Runnable {
 
         private var socket: DatagramSocket? = null
-        private var running = true
-            get() = runBlocking { mutex.withLock { false } }
-            set(value) = runBlocking { mutex.withLock { field = value } }
-        private var mutex = Mutex()
+        private var running = false
+            get() = synchronized(this) { field }
+            set(value) = synchronized(this) { field = value }
         private var address: Address? = null
 
         fun stop() = runBlocking {
@@ -284,11 +357,15 @@ class NetClipHelper private constructor() : CoroutineScope {
         override fun run() {
             running = true
             socket = DatagramSocket(PORT_BROADCAST)
-            val array = Address(IP_BROADCAST, PORT_BROADCAST).putMultiAddress()
-            if (address == null) {
+            val array = address?.putMultiAddress()
+            if (address == null || array == null) {
                 throw IllegalStateException("cannot send broadcast without address")
             }
-            val packet = DatagramPacket(array, array.size, address?.getAddress())
+            val packet = DatagramPacket(
+                array,
+                array.size,
+                Address(IP_BROADCAST, PORT_BROADCAST).getAddress()
+            )
             log.log("start send broadcast by self: $address ")
             while (running) {
                 try {
@@ -296,7 +373,11 @@ class NetClipHelper private constructor() : CoroutineScope {
                 } catch (e: SocketException) {
                     continue
                 }
-                Thread.sleep(1000L)
+                try {
+                    Thread.sleep(1000L)
+                } catch (e: InterruptedException) {
+                    break
+                }
             }
             log.log("stop send broadcast by self")
             socket?.closeQuietly()
@@ -312,12 +393,11 @@ class NetClipHelper private constructor() : CoroutineScope {
     private class BroadcastReceive(private val pool: ThreadPoolExecutor) : Runnable {
 
         private var socket: DatagramSocket? = null
-        private var running = true
-            get() = runBlocking { mutex.withLock { field } }
-            set(value) = runBlocking { mutex.withLock { field = value } }
+        private var running = false
+            get() = synchronized(this) { field }
+            set(value) = synchronized(this) { field = value }
 
         private var received = false
-        private var mutex = Mutex()
         var addressListener: ((address: Address) -> Unit)? = null
 
         override fun run() {
@@ -327,6 +407,7 @@ class NetClipHelper private constructor() : CoroutineScope {
             val packet = DatagramPacket(
                 array, array.size, InetAddress.getByName(IP_BROADCAST), PORT_BROADCAST
             )
+            log.log("try to receive broadcast")
             while (running) {
                 try {
                     log.log("start receive broadcast")
@@ -335,14 +416,14 @@ class NetClipHelper private constructor() : CoroutineScope {
                     continue
                 }
                 val address = Address.getAddress(packet) ?: continue
-                log.log("receive broadcast : $address")
+                log.log("received broadcast : $address")
                 received = true
                 running = false
                 addressListener?.invoke(address)
             }
             socket?.closeQuietly()
             socket = null
-            log.log("not receive broadcast")
+            log.log("not received broadcast")
         }
 
         fun start() {
@@ -367,7 +448,9 @@ class NetClipHelper private constructor() : CoroutineScope {
             socket?.closeQuietly()
         }
 
-        fun isReceived() = received
+        fun isReceived(): Boolean {
+            return received
+        }
     }
 
     private data class Received(val type: Byte, val sign: Byte, val content: ByteArray) {
@@ -483,11 +566,13 @@ class NetClipHelper private constructor() : CoroutineScope {
         const val COMMAND_BROADCAST_STOP = 0x00.toByte()
         const val COMMAND_CLEAR = 0x03.toByte()
         const val COMMAND_WORK_IN_BACKGROUND = 0x04.toByte()
+        const val COMMAND_NOT_WORK_IN_BACKGROUND = 0x05.toByte()
 
         const val COMMAND_STR_SCAN_KEEP = ":scan"
         const val COMMAND_STR_RECEIVE_KEEP = ":receive"
         const val COMMAND_STR_STOP = ":stop"
         const val COMMAND_STR_BACKGROUND = ":alive"
+        const val COMMAND_STR_NOT_BACKGROUND = ":alive not"
 
         fun joinMessage() = putBytes(TYPE_NOTIFY, NOTIFY_JOIN)
         fun leaveMessage() = putBytes(TYPE_NOTIFY, NOTIFY_LEAVE)
@@ -499,6 +584,7 @@ class NetClipHelper private constructor() : CoroutineScope {
         fun receiveKeepMessage() = putBytes(TYPE_COMMAND, COMMAND_BROADCAST_RECEIVE_KEEP)
         fun clearMessage() = putBytes(TYPE_COMMAND, COMMAND_CLEAR)
         fun keepAliveMessage() = putBytes(TYPE_COMMAND, COMMAND_WORK_IN_BACKGROUND)
+        fun notKeepAliveMessage() = putBytes(TYPE_COMMAND, COMMAND_NOT_WORK_IN_BACKGROUND)
 
         fun message(byteArray: ByteArray) = putBytes(TYPE_MESSAGE, bytes = byteArray)
 

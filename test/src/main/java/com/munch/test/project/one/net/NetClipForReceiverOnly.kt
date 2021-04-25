@@ -9,7 +9,7 @@ import kotlin.concurrent.thread
 /**
  * Create by munch1182 on 2021/4/23 15:09.
  */
-const val IP_MULTI = "239.4.25.904"
+const val IP_MULTI = "239.21.4.25"
 
 const val PORT_BROADCAST = 20211
 const val IP_BROADCAST = "255.255.255.255"

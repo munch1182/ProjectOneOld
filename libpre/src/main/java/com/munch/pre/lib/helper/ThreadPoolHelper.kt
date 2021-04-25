@@ -41,24 +41,26 @@ object ThreadPoolHelper {
     /**
      * 根据业务需求自行保存对象
      */
-    fun newFixThread(coreSize: Int = 1): ThreadPoolExecutor {
+    fun newFixThread(coreSize: Int = 1, name: String? = null): ThreadPoolExecutor {
         return ThreadPoolExecutor(
             coreSize, coreSize,
             0L, TimeUnit.SECONDS,
-            LinkedBlockingQueue(), newThreadFactory(ID_FIX * 10 + fixId.getAndIncrement())
+            LinkedBlockingQueue(), newThreadFactory(ID_FIX * 10 + fixId.getAndIncrement(), name)
         )
     }
 
-    fun newCachePool(coreSize: Int, maxSize: Int, aliveTime: Long) =
+    fun newCachePool(coreSize: Int, maxSize: Int, aliveTime: Long, name: String? = null) =
         ThreadPoolExecutor(
             coreSize, maxSize, aliveTime, TimeUnit.MILLISECONDS, SynchronousQueue(),
-            newThreadFactory(ID_NEW_IO)
+            newThreadFactory(ID_NEW_IO, name)
         )
 
     private val num by lazy { AtomicInteger(1) }
-    private fun newThreadFactory(id: Int): ThreadFactory =
+    private fun newThreadFactory(
+        id: Int, name: String? = null
+    ): ThreadFactory =
         ThreadFactory {
-            Thread(newThreadGroup(id), it, "pool$id-thread-${num.getAndIncrement()}")
+            Thread(newThreadGroup(id), it, name ?: "pool$id-thread-${num.getAndIncrement()}")
         }
 
     private val parentGroup by lazy { object : ThreadGroup("thread-pool-group") {} }

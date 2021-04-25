@@ -33,20 +33,6 @@
             tools:ignore="MissingConstraints" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/net_clip_background"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:alpha="0"
-            android:contentDescription="start"
-            android:src="@drawable/ic_baseline_dashboard_24"
-            android:text="start"
-            app:layout_constraintCircle="@id/net_clip_menu"
-            app:layout_constraintCircleAngle="315"
-            app:layout_constraintCircleRadius="80dp"
-            tools:alpha="1"
-            tools:ignore="MissingConstraints" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/net_clip_exit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
