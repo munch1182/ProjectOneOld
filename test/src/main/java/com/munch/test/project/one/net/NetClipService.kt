@@ -1,7 +1,6 @@
 package com.munch.test.project.one.net
 
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
@@ -9,7 +8,6 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.service.BaseForegroundService
-import com.munch.pre.lib.helper.service.ServiceBindHelper
 import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import kotlinx.coroutines.Dispatchers
@@ -33,11 +31,6 @@ class NetClipService : BaseForegroundService(Parameter("netclipservice", "netcli
     }
 
     private var netClipHelper: NetClipHelper? = null
-
-    override fun onCreate() {
-        super.onCreate()
-        log("NetClipService bind")
-    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
