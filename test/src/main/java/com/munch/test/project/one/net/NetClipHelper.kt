@@ -1,144 +1,162 @@
 package com.munch.test.project.one.net
 
-import android.content.Context
-import android.net.wifi.WifiManager
-import com.munch.pre.lib.base.BaseApp
+import androidx.annotation.IntDef
 import com.munch.pre.lib.helper.ThreadPoolHelper
 import com.munch.pre.lib.helper.file.closeQuietly
-import com.munch.pre.lib.log.log
+import com.munch.pre.lib.log.Logger
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.net.*
 import java.nio.ByteBuffer
-import java.util.*
-import java.util.concurrent.ExecutorService
+import java.util.concurrent.ThreadPoolExecutor
+import kotlin.coroutines.CoroutineContext
 
 /**
+ * 接收广播线程/发送广播线程
+ * 接收组播线程
+ * 发送组播线程
+ *
+ * 使用[receivedCallback]通知UI
+ * UI调用命令通过[sendMessage]然后回调[receivedCallback]进行识别进行
+ * 不允许直接调用，会因为混合调用而混乱
+ *
  * Create by munch1182 on 2021/4/22 9:35.
  */
-class NetClipHelper private constructor() {
-
-    private val broadcastSendThread = BroadcastSendThread()
-    private val broadcastReceiveThread = BroadcastReceiveThread()
-    private val multiHelper = MulticastHelper()
-    private var notifyListener: ((msg: String, ip: String) -> Unit)? = null
-    private var stateListener: ((state: Int, ip: String) -> Unit)? = null
-    private val broadcastPool = ThreadPoolHelper.newFixThread(2)
-    private var clearListener: (() -> Unit)? = null
+class NetClipHelper private constructor() : CoroutineScope {
 
     companion object {
-        const val IP_MULTI = "239.0.0.1"
+        const val IP_MULTI = "239.4.25.904"
 
         const val PORT_BROADCAST = 20211
         const val IP_BROADCAST = "255.255.255.255"
 
         val INSTANCE = NetClipHelper()
 
+        val log = Logger().apply { tag = "netClip" }
     }
 
-    fun updateFromInstance(): Boolean {
-        return multiHelper.getIp() != null
-    }
+    /**
+     * 任务调用线程(组播发送线程) *
+     * 广播发送/接收线程 *
+     * 组播接收线程 *
+     */
+    private val pool = ThreadPoolHelper.newFixThread(3)
+    private val dispatcher = FixPoolDispatcher(pool)
+    private val multi = MultiHelper()
+    private val broadcastSend by lazy { BroadcastSend(pool) }
+    private val broadcastReceive = BroadcastReceive(pool)
+    private val job = Job()
+    override val coroutineContext: CoroutineContext = dispatcher + CoroutineName("NetClip") + job
+    var messageListener: ((content: String, ip: String) -> Unit)? = null
+    var notifyListener: ((state: Int, ip: String) -> Unit)? = null
+    var stateListener: ((state: Int) -> Unit)? = null
+    private var keepAlive = false
 
-    private fun ByteArray.judgeType(
-        type: Byte,
-        func: (message: Pair<Byte, ByteArray>) -> Unit
-    ): ByteArray? {
-        if (ByteHelper.getType(this) == type) {
-            val message = ByteHelper.getMessage(this, type)
-            if (message != null) {
-                func.invoke(message)
+    @State
+    private var state: Int = State.STATE_IDLE
+        set(value) {
+            field = value
+            stateListener?.invoke(field)
+        }
+
+    fun isKeepAlive() = runBlocking(coroutineContext) { keepAlive }
+
+    private val receivedCallback: (receive: Received) -> Unit = { r ->
+        r.isType(ByteHelper.TYPE_ERROR) {
+            if (it == ErrorOutOfLength.get()) {
+                messageListener?.invoke("too much content", it.ip)
             }
-            return null
-        }
-        return this
-    }
-
-    suspend fun start() {
-        val msgListener: (msg: ByteArray, ip: String) -> Unit = { msg, ip ->
-
-            msg.judgeType(ByteHelper.TYPE_MESSAGE) {
-                notifyListener?.invoke(String(it.second), ip)
-            }?.judgeType(ByteHelper.TYPE_COMMAND) {
-                when (it.first) {
-                    ByteHelper.COMMAND_BROADCAST_SEND_KEEP -> {
-                        broadcastPool.execute(broadcastSendThread)
-                    }
-                    ByteHelper.COMMAND_BROADCAST_SEND_STOP -> broadcastSendThread.stopBroadcast()
-                    ByteHelper.COMMAND_CLEAR -> clearListener?.invoke()
-                }
-            }?.judgeType(ByteHelper.TYPE_NOTIFY) {
-                when (it.first) {
-                    ByteHelper.NOTIFY_JOIN -> {
-                        stateListener?.invoke(ByteHelper.NOTIFY_JOIN.toInt(), ip)
-                        broadcastSendThread.stopBroadcast()
-                    }
-                    ByteHelper.NOTIFY_LEAVE -> {
-                        stateListener?.invoke(ByteHelper.NOTIFY_LEAVE.toInt(), ip)
-                    }
-                    ByteHelper.NOTIFY_EXIT -> {
-                        stateListener?.invoke(ByteHelper.NOTIFY_EXIT.toInt(), ip)
-                        stop()
-                    }
-                    ByteHelper.NOTIFY_START -> {
-                        stateListener?.invoke(ByteHelper.NOTIFY_START.toInt(), ip)
-                    }
-                }
+            log.log("error: $it")
+        }?.isType(ByteHelper.TYPE_NOTIFY) {
+            when (it.sign) {
+                ByteHelper.NOTIFY_START -> notifyListener?.invoke(it.sign.toInt(), it.ip)
+                ByteHelper.NOTIFY_EXIT -> notifyListener?.invoke(it.sign.toInt(), it.ip)
+                ByteHelper.NOTIFY_JOIN -> notifyListener?.invoke(it.sign.toInt(), it.ip)
+                ByteHelper.NOTIFY_LEAVE -> notifyListener?.invoke(it.sign.toInt(), it.ip)
             }
-        }
-        broadcastReceiveThread.address = { address ->
-            broadcastReceiveThread.stopReceiver()
-            //收到组播广播则加入并接收
-            multiHelper.joinGroup(address.first, address.second, msgListener).start()
-        }
-        //接收广播
-        broadcastPool.execute(broadcastReceiveThread)
-        delay(3000L)
-        if (broadcastReceiveThread.received) {
-            return
-        }
-        //3m后未收到则关闭接收
-        broadcastReceiveThread.stopReceiver()
-        //并创建组播
-        multiHelper.joinGroup(IP_MULTI, 0, msgListener).start()
-        //并发送自己的广播
-        val array = ByteHelper.putMulitAddress(IP_MULTI, multiHelper.getPort())
-        broadcastPool.execute(broadcastSendThread.update(array))
-    }
+        }?.isType(ByteHelper.TYPE_COMMAND) {
+            when (it.getContentString()) {
+                ByteHelper.COMMAND_STR_SCAN_KEEP -> broadcastSend.start()
+                ByteHelper.COMMAND_STR_RECEIVE_KEEP -> broadcastReceive.start()
+                ByteHelper.COMMAND_STR_BACKGROUND -> runBlocking(coroutineContext) {
+                    keepAlive = true
+                }
+                ByteHelper.COMMAND_STR_STOP -> {
+                    broadcastSend.stop()
+                    broadcastReceive.stop()
+                }
 
-    fun send(content: String) {
-        when (content.trim().toLowerCase(Locale.getDefault())) {
-            ByteHelper.COMMAND_STR_CLEAR -> multiHelper.send(ByteHelper.clearMessage())
-            ByteHelper.COMMAND_STR_KEEP -> multiHelper.send(ByteHelper.scanKeepMessage())
-            ByteHelper.COMMAND_STR_STOP -> multiHelper.send(ByteHelper.scanStopMessage())
-            else -> multiHelper.sendMessage(content.toByteArray())
+            }
+        }?.isType(ByteHelper.TYPE_MESSAGE) {
+            messageListener?.invoke(it.getContentString(), it.ip)
         }
     }
 
-    fun listen(func: (msg: String, ip: String) -> Unit): NetClipHelper {
-        notifyListener = func
-        return this
-    }
+    fun start() {
+        launch {
+            //开始接收广播
+            broadcastReceive.apply {
+                addressListener = {
+                    multi.joinOrStart(it.ip!!, it.port).startReceive(receivedCallback)
+                    state = State.STATE_JOINED
 
-    fun state(func: (state: Int, ip: String) -> Unit): NetClipHelper {
-        stateListener = func
-        return this
-    }
+                    notify(ByteHelper.joinMessage())
+                }
+            }.start()
+            state = State.STATE_SCANNING
+            broadcastReceive.waitReceive(3000L)
+            //指定时间后接收到广播则走回调
+            if (broadcastReceive.isReceived()) {
+                return@launch
+            }
+            //否则自己创建端口组播
+            multi.joinOrStart(IP_MULTI, 0).startReceive(receivedCallback)
+            state = State.STATE_JOINED
 
-    fun clear(func: () -> Unit): NetClipHelper {
-        clearListener = func
-        return this
+            notify(ByteHelper.startMessage())
+            //然后发送广播
+            broadcastSend.updateAddress(multi.getAddress()).start()
+        }
     }
 
     fun stop() {
-        multiHelper.sendLeave()
-        broadcastSendThread.stopBroadcast()
-        multiHelper.stopMulti()
+        launch {
+            multi.stop()
+            broadcastSend.stop()
+            broadcastReceive.stop()
+        }
+    }
+
+    fun leave() {
+        launch {
+            multi.leave()
+            state = State.STATE_IDLE
+        }
+    }
+
+    fun sendMessage(message: String) {
+        launch {
+            when (message) {
+                ByteHelper.COMMAND_STR_RECEIVE_KEEP -> multi.send(ByteHelper.receiveKeepMessage())
+                ByteHelper.COMMAND_STR_SCAN_KEEP -> multi.send(ByteHelper.scanKeepMessage())
+                ByteHelper.COMMAND_STR_STOP -> multi.send(ByteHelper.stopMessage())
+                ByteHelper.COMMAND_STR_BACKGROUND -> multi.send(ByteHelper.keepAliveMessage())
+                else -> multi.send(message.toByteArray())
+            }
+        }
     }
 
     fun destroy() {
-        stop()
-        notifyListener = null
-        broadcastPool.shutdownNow()
+        log.log("called destroy when keep alive = $keepAlive")
+        launch {
+            if (!keepAlive) {
+                job.cancel()
+                pool.shutdownNow()
+                state = State.STATE_DESTROYED
+                log.log("NetClipHelper destroyed")
+            }
+        }
     }
 
     fun isConnected(state: Int) = state == ByteHelper.NOTIFY_JOIN.toInt()
@@ -146,216 +164,295 @@ class NetClipHelper private constructor() {
     fun isExit(state: Int) = state == ByteHelper.NOTIFY_EXIT.toInt()
     fun isStart(state: Int) = state == ByteHelper.NOTIFY_START.toInt()
 
-    private class MulticastHelper {
+    private fun notify(message: ByteArray) {
+        launch { multi.send(message) }
+    }
+
+    fun hadConnected(): Boolean {
+        return state == State.STATE_JOINED
+    }
+
+    @IntDef(State.STATE_SCANNING, State.STATE_JOINED, State.STATE_IDLE, State.STATE_DESTROYED)
+    @Retention(AnnotationRetention.SOURCE)
+    annotation class State {
+        companion object {
+
+            const val STATE_SCANNING = 0
+            const val STATE_JOINED = 1
+            const val STATE_IDLE = 2
+            const val STATE_DESTROYED = 3
+        }
+    }
+
+    private class FixPoolDispatcher(private val ex: ThreadPoolExecutor) : CoroutineDispatcher() {
+        override fun dispatch(context: CoroutineContext, block: Runnable) {
+            ex.execute(block)
+        }
+    }
+
+    private class MultiHelper {
 
         private var socket: MulticastSocket? = null
-        private var ip: String? = null
-        private var isCreated = false
-        private var port: Int = 0
-        private val array = ByteArray(1024)
-        private var listener: ((msg: ByteArray, ip: String) -> Unit)? = null
-        private val receiverRunnable by lazy {
+        private val address = Address()
+        private var receiveRunning = true
+            get() = runBlocking { mutex.withLock { false } }
+            set(value) = runBlocking { mutex.withLock { field = value } }
+        private val mutex = Mutex()
+        private var sendPack: DatagramPacket? = null
 
-            object : Runnable {
-                var running = true
-
-                override fun run() {
-                    val packet =
-                        DatagramPacket(array, array.size)
-                    running = true
-                    while (running) {
-                        try {
-                            log("开始接收组播")
-                            socket?.receive(packet)
-                        } catch (e: SocketException) {
-                            log(e)
-                            return
-                        }
-                        val msg = ByteHelper.format(array)
-                        log("收到组播: $msg")
-                        log("来自:${packet.address.hostName}:${packet.port}")
-                        listener?.invoke(array, packet.address.hostName)
-                    }
+        fun joinOrStart(ip: String, port: Int): MultiHelper {
+            if (socket != null) {
+                if (!socket!!.isClosed && socket!!.inetAddress.hostName == ip) {
+                    log.log("socket not null and same address")
+                    return this
+                } else {
+                    log.log("socket not null:${socket?.inetAddress?.hostName}:${socket?.localPort} ,closed:${socket?.isClosed},  ")
+                    socket.closeQuietly()
+                    socket = null
                 }
             }
-        }
-        private var receiverThread: ExecutorService? = null
-        private var lock: WifiManager.MulticastLock? = null
-        private fun DatagramSocket?.send(byte: ByteArray) {
-            val datagramPacket = DatagramPacket(
-                byte,
-                byte.size,
-                InetAddress.getByName(ip),
-                this@MulticastHelper.port
-            )
-            this?.send(datagramPacket)
-        }
-
-
-        companion object {
-            const val LOCK_TAG = "WIFI_NET_CLIP"
-        }
-
-        fun joinGroup(
-            ip: String, port: Int, listener: ((msg: ByteArray, ip: String) -> Unit)?
-        ): MulticastHelper {
-            if (socket != null) {
-                return this
-            }
-            receiverThread = ThreadPoolHelper.newFixThread()
-            wifiLock()
             socket = MulticastSocket(port)
-            socket!!.timeToLive = 64
             socket!!.joinGroup(InetAddress.getByName(ip))
-            this.port = socket!!.localPort
-            this.ip = ip
-            if (port != 0) {
-                isCreated = false
-                sendJoin()
-            } else {
-                isCreated = true
-                sendStart()
-            }
-            log("加入组播: $ip:$port(${this.port})")
-            this.listener = listener
+            address.ip = ip
+            address.port = socket!!.localPort
+            sendPack = DatagramPacket(byteArrayOf(), 0, address.getAddress())
+            log.log("join multicast: $ip:$port(${socket?.localPort})")
             return this
         }
 
-        private fun sendStart() {
-            socket.send(ByteHelper.startMessage())
-        }
+        fun startReceive(listener: (receive: Received) -> Unit) {
+            val bytes = ByteArray(1024)
+            val pack = DatagramPacket(bytes, bytes.size, address.getAddress())
+            while (receiveRunning) {
+                try {
+                    log.log("wait multi cast")
+                    socket?.receive(pack)
+                } catch (e: SocketException) {
+                    continue
+                }
+                val message = ByteHelper.getReceived(pack) ?: continue
 
-        private fun sendEnd() {
-            socket.send(ByteHelper.endMessage())
-        }
-
-        fun sendJoin() {
-            socket.send(ByteHelper.joinMessage())
-        }
-
-        fun sendLeave() {
-            if (isCreated) {
-                sendEnd()
-            } else {
-                socket.send(ByteHelper.leaveMessage())
+                log.log("receive multi cast: $message")
+                listener.invoke(message)
             }
         }
 
-        private fun wifiLock() {
-            if (lock != null) {
-                return
-            }
-            val wm =
-                BaseApp.getInstance().applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            lock = wm.createMulticastLock(LOCK_TAG)
-            lock?.acquire()
-        }
-
-        private fun unlock() {
-            lock?.release()
-            lock = null
-        }
-
-        fun stopMulti() {
-            receiverRunnable.running = false
-            receiverThread?.shutdownNow()
+        fun stop() {
+            receiveRunning = false
             socket?.closeQuietly()
-            unlock()
+        }
+
+        /**
+         * 此方法应该放在一个类里统一使用，不要分布在不同类里
+         */
+        fun send(byte: ByteArray) {
+            sendPack?.setData(byte) ?: return
+            socket?.send(sendPack)
+        }
+
+        fun getAddress() = address
+
+        fun leave() {
+            socket?.leaveGroup(InetAddress.getByName(address.ip))
+        }
+
+    }
+
+    private class BroadcastSend(private val pool: ThreadPoolExecutor) : Runnable {
+
+        private var socket: DatagramSocket? = null
+        private var running = true
+            get() = runBlocking { mutex.withLock { false } }
+            set(value) = runBlocking { mutex.withLock { field = value } }
+        private var mutex = Mutex()
+        private var address: Address? = null
+
+        fun stop() = runBlocking {
+            running = false
+            delay(1050L)
+            socket?.closeQuietly()
             socket = null
-        }
-
-        fun sendMessage(byte: ByteArray) {
-            if (byte.isEmpty() || socket == null || ip == null) {
-                return
-            }
-            val message = ByteHelper.message(ByteHelper.TYPE_MESSAGE, bytes = byte)
-            send(message)
-        }
-
-        fun send(message: ByteArray) {
-            socket?.send(message)
         }
 
         fun start() {
-            receiverThread?.execute(receiverRunnable)
+            if (running) {
+                return
+            }
+            pool.execute(this)
         }
 
-        fun getPort() = port
-        fun getIp() = ip
-    }
-
-    private class BroadcastReceiveThread : Runnable {
-        var address: ((address: Pair<String, Int>) -> Unit)? = null
-        private var socket: DatagramSocket? = null
-        var received = false
-
         override fun run() {
-            received = false
+            running = true
             socket = DatagramSocket(PORT_BROADCAST)
-            val byteArray = ByteArray(20)
-            val pack = DatagramPacket(
-                byteArray, byteArray.size,
-                InetAddress.getByName(IP_BROADCAST), PORT_BROADCAST
-            )
-
-            while (true) {
-                try {
-                    log("开始尝试接收广播")
-                    socket?.receive(pack)
-                } catch (e: SocketException) {
-                    break
-                }
-                log("接收到消息：${ByteHelper.format(byteArray)}")
-                val get = ByteHelper.getAddress(pack.data) ?: continue
-                received = true
-                log("接收到广播: ${get.first}:${get.second}")
-                address?.invoke(get)
+            val array = Address(IP_BROADCAST, PORT_BROADCAST).putMultiAddress()
+            if (address == null) {
+                throw IllegalStateException("cannot send broadcast without address")
             }
+            val packet = DatagramPacket(array, array.size, address?.getAddress())
+            log.log("start send broadcast by self: $address ")
+            while (running) {
+                try {
+                    socket?.send(packet)
+                } catch (e: SocketException) {
+                    continue
+                }
+                Thread.sleep(1000L)
+            }
+            log.log("stop send broadcast by self")
+            socket?.closeQuietly()
             socket = null
         }
 
-        fun stopReceiver() {
-            socket.closeQuietly()
-            address = null
-            log("不再接收广播")
+        fun updateAddress(address: Address): BroadcastSend {
+            this.address = address
+            return this
         }
     }
 
-    private class BroadcastSendThread : Runnable {
+    private class BroadcastReceive(private val pool: ThreadPoolExecutor) : Runnable {
 
-        private var sending = true
-        private var byteArray = byteArrayOf()
+        private var socket: DatagramSocket? = null
+        private var running = true
+            get() = runBlocking { mutex.withLock { field } }
+            set(value) = runBlocking { mutex.withLock { field = value } }
 
-        fun stopBroadcast() {
-            sending = false
-        }
+        private var received = false
+        private var mutex = Mutex()
+        var addressListener: ((address: Address) -> Unit)? = null
 
         override fun run() {
-
-            val socket = DatagramSocket()
-
-            val pack = DatagramPacket(
-                byteArray, byteArray.size,
-                InetAddress.getByName(IP_BROADCAST), PORT_BROADCAST
+            running = true
+            socket = DatagramSocket(PORT_BROADCAST)
+            val array = ByteArray(Address.LENGTH)
+            val packet = DatagramPacket(
+                array, array.size, InetAddress.getByName(IP_BROADCAST), PORT_BROADCAST
             )
-            sending = true
-            while (true) {
-                if (!sending) {
-                    break
+            while (running) {
+                try {
+                    log.log("start receive broadcast")
+                    socket?.receive(packet)
+                } catch (e: SocketException) {
+                    continue
                 }
-                log("发送自己的广播")
-                socket.send(pack)
-                Thread.sleep(1000L)
+                val address = Address.getAddress(packet) ?: continue
+                log.log("receive broadcast : $address")
+                received = true
+                running = false
+                addressListener?.invoke(address)
             }
-            socket.closeQuietly()
-            log("停止发送自己的广播")
+            socket?.closeQuietly()
+            socket = null
+            log.log("not receive broadcast")
         }
 
-        fun update(array: ByteArray): BroadcastSendThread {
-            byteArray = array
+        fun start() {
+            if (running) {
+                return
+            }
+            pool.execute(this)
+        }
+
+        /**
+         * 超过指定时间则关闭接收
+         */
+        suspend fun waitReceive(timeout: Long) {
+            delay(timeout)
+            if (!isReceived()) {
+                stop()
+            }
+        }
+
+        fun stop() {
+            running = false
+            socket?.closeQuietly()
+        }
+
+        fun isReceived() = received
+    }
+
+    private data class Received(val type: Byte, val sign: Byte, val content: ByteArray) {
+
+        lateinit var ip: String
+        var port: Int = 0
+
+        fun getContentString() = String(content)
+
+        fun isType(type: Byte, handle: (received: Received) -> Unit): Received? {
+            if (type == this.type) {
+                handle.invoke(this)
+                return null
+            }
             return this
         }
 
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+
+            if (other is Received) {
+                return type == other.type && sign == other.sign && content.contentEquals(other.content)
+            }
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = type.toInt()
+            result = 31 * result + sign
+            result = 31 * result + content.contentHashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            return when (type) {
+                ByteHelper.TYPE_MESSAGE -> "Received(${getContentString()})"
+                else -> "Received(type:$type,sign:$sign,content:${ByteHelper.format(content)})"
+            }
+        }
+    }
+
+    private object ErrorOutOfLength {
+
+        fun isError(r: Received): Boolean {
+            return received.type == r.type && received.sign == r.sign
+        }
+
+        fun get() = received
+
+        private val received =
+            Received(ByteHelper.TYPE_ERROR, ByteHelper.ERROR_OUT_LENGTH, byteArrayOf())
+    }
+
+    private class Address(var ip: String? = null, var port: Int = 0) {
+
+        companion object {
+            const val LENGTH = 20
+
+            fun getAddress(pack: DatagramPacket): Address? {
+                val message = ByteHelper.getReceived(pack)
+                    ?.takeIf { it.type == ByteHelper.TYPE_ADDRESS }
+                    ?.content
+                    ?: return null
+                val wrap = ByteBuffer.wrap(message)
+                val port = wrap.int
+                val ip = String(message, 4, message.size - 4)
+                return Address(ip, port)
+            }
+        }
+
+        fun putMultiAddress(): ByteArray {
+            val ipArray = ip?.toByteArray() ?: throw IllegalStateException("must set ip")
+            val buf = ByteBuffer.allocate(ipArray.size + 4)
+            buf.putInt(port)
+            buf.put(ipArray)
+            return ByteHelper.putBytes(ByteHelper.TYPE_ADDRESS, bytes = buf.array())
+        }
+
+        fun getAddress(): SocketAddress {
+            return InetSocketAddress(ip, port)
+        }
+
+        override fun toString(): String {
+            return "Address($ip:$port)"
+        }
     }
 
     private object ByteHelper {
@@ -363,14 +460,18 @@ class NetClipHelper private constructor() {
         const val START = 0x23.toByte()
         const val END = 0x32.toByte()
 
+        const val MIN_LENGTH = 4
+
         const val TYPE_MESSAGE = 0x00.toByte()
         const val TYPE_ADDRESS = 0x01.toByte()
         const val TYPE_NOTIFY = 0x02.toByte()
         const val TYPE_COMMAND = 0x03.toByte()
         const val TYPE_ERROR = 0xff.toByte()
 
+        const val ERROR_OUT_LENGTH = 0xfe.toByte()
 
-        const val SIGN_LOCATE = 0x00.toByte()
+        //占位字符
+        const val BYTE_LOCATE = 0x00.toByte()
 
         const val NOTIFY_JOIN = 0x00.toByte()
         const val NOTIFY_LEAVE = 0x01.toByte()
@@ -378,40 +479,32 @@ class NetClipHelper private constructor() {
         const val NOTIFY_START = 0x03.toByte()
 
         const val COMMAND_BROADCAST_SEND_KEEP = 0x01.toByte()
-        const val COMMAND_BROADCAST_SEND_STOP = 0x02.toByte()
+        const val COMMAND_BROADCAST_RECEIVE_KEEP = 0x02.toByte()
+        const val COMMAND_BROADCAST_STOP = 0x00.toByte()
         const val COMMAND_CLEAR = 0x03.toByte()
-        const val COMMAND_STR_CLEAR = "cls"
-        const val COMMAND_STR_KEEP = "scan"
-        const val COMMAND_STR_STOP = "stop"
+        const val COMMAND_WORK_IN_BACKGROUND = 0x04.toByte()
 
-        fun putMulitAddress(ip: String, port: Int): ByteArray {
-            val ipArray = ip.toByteArray()
-            val buf = ByteBuffer.allocate(ipArray.size + 4)
-            buf.putInt(port)
-            buf.put(ipArray)
-            return message(TYPE_ADDRESS, bytes = buf.array())
-        }
+        const val COMMAND_STR_SCAN_KEEP = ":scan"
+        const val COMMAND_STR_RECEIVE_KEEP = ":receive"
+        const val COMMAND_STR_STOP = ":stop"
+        const val COMMAND_STR_BACKGROUND = ":alive"
 
-        fun getAddress(byteArray: ByteArray): Pair<String, Int>? {
-            val message = getMessage(byteArray, TYPE_ADDRESS)?.second ?: return null
-            val wrap = ByteBuffer.wrap(message)
-            val port = wrap.int
-            val ip = String(message, 4, message.size - 4)
-            return Pair(ip, port)
-        }
+        fun joinMessage() = putBytes(TYPE_NOTIFY, NOTIFY_JOIN)
+        fun leaveMessage() = putBytes(TYPE_NOTIFY, NOTIFY_LEAVE)
+        fun startMessage() = putBytes(TYPE_NOTIFY, NOTIFY_START)
+        fun endMessage() = putBytes(TYPE_NOTIFY, NOTIFY_EXIT)
 
-        fun joinMessage() = message(TYPE_NOTIFY, NOTIFY_JOIN)
-        fun leaveMessage() = message(TYPE_NOTIFY, NOTIFY_LEAVE)
-        fun startMessage() = message(TYPE_NOTIFY, NOTIFY_START)
-        fun endMessage() = message(TYPE_NOTIFY, NOTIFY_EXIT)
+        fun stopMessage() = putBytes(TYPE_COMMAND, COMMAND_BROADCAST_STOP)
+        fun scanKeepMessage() = putBytes(TYPE_COMMAND, COMMAND_BROADCAST_SEND_KEEP)
+        fun receiveKeepMessage() = putBytes(TYPE_COMMAND, COMMAND_BROADCAST_RECEIVE_KEEP)
+        fun clearMessage() = putBytes(TYPE_COMMAND, COMMAND_CLEAR)
+        fun keepAliveMessage() = putBytes(TYPE_COMMAND, COMMAND_WORK_IN_BACKGROUND)
 
-        fun scanStopMessage() = message(TYPE_COMMAND, COMMAND_BROADCAST_SEND_STOP)
-        fun scanKeepMessage() = message(TYPE_COMMAND, COMMAND_BROADCAST_SEND_KEEP)
-        fun clearMessage() = message(TYPE_COMMAND, COMMAND_CLEAR)
+        fun message(byteArray: ByteArray) = putBytes(TYPE_MESSAGE, bytes = byteArray)
 
-        fun message(
+        fun putBytes(
             type: Byte,
-            sign: Byte = SIGN_LOCATE,
+            sign: Byte = BYTE_LOCATE,
             bytes: ByteArray = byteArrayOf()
         ): ByteArray {
             val size = bytes.size
@@ -427,34 +520,29 @@ class NetClipHelper private constructor() {
             return buffer.array()
         }
 
-        fun getType(byteArray: ByteArray): Byte {
-            return if (byteArray.isNotEmpty()) {
-                byteArray[1]
-            } else {
-                TYPE_ERROR
-            }
-        }
+        fun getType(byteArray: ByteArray) =
+            if (byteArray.size > MIN_LENGTH) byteArray[1] else TYPE_ERROR
 
-        fun getMessage(byteArray: ByteArray, type: Byte): Pair<Byte, ByteArray>? {
-            val buf = ByteBuffer.wrap(byteArray)
+        fun getReceived(pack: DatagramPacket): Received? {
+            val buf = ByteBuffer.wrap(pack.data)
             if (buf.get() != START) {
                 return null
             }
-            if (buf.get() != type) {
-                return null
-            }
+            val type = buf.get()
             val sign = buf.get()
             val size = buf.int
             if (buf.limit() - buf.position() < size) {
-                log("长度错误")
-                return null
+                return ErrorOutOfLength.get()
             }
             val bytes = ByteArray(size)
             buf.get(bytes)
             if (buf.get() != END) {
                 return null
             }
-            return Pair(sign, bytes)
+            return Received(type, sign, bytes).apply {
+                ip = pack.address.hostName
+                port = pack.port
+            }
         }
 
         fun format(byteArray: ByteArray) = byteArray.joinToString(
@@ -462,4 +550,5 @@ class NetClipHelper private constructor() {
             postfix = "]",
             transform = { String.format("0x%02x", it) })
     }
+
 }

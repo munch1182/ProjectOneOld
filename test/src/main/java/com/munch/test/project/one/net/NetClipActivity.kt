@@ -242,6 +242,11 @@ class NetClipActivity : BaseTopActivity() {
         anim.start()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        model.destroy()
+    }
+
     class NetClipViewModel : ViewModel() {
 
         private val state = MutableLiveData(State.STATE_ALONE)
@@ -251,12 +256,16 @@ class NetClipActivity : BaseTopActivity() {
         private val clip = MutableLiveData(clipList)
         fun getData() = clip.toLiveData()
 
-        //leaked
+        companion object {
+            const val STR_CLEAR = ":cls"
+        }
+
         private val helper = NetClipHelper.INSTANCE.apply {
-            listen { msg, i ->
+            messageListener = { msg: String, ip: String ->
                 log(msg)
-                showSendBy(msg, ip, ip == i)
-            }.state { state, ip ->
+                showSendBy(msg, ip, this@NetClipViewModel.ip == ip)
+            }
+            notifyListener = { state: Int, ip: String ->
                 when {
                     isConnected(state) -> {
                         this@NetClipViewModel.state.postValue(State.STATE_CONNECTED)
@@ -279,13 +288,6 @@ class NetClipActivity : BaseTopActivity() {
                         showSendBy("start", null)
                     }
                 }
-            }.clear {
-                val first = clipList[0]
-                val second = clipList[1]
-                clipList.clear()
-                clipList.add(first)
-                clipList.add(second)
-                clip.postValue(clipList)
             }
         }
 
@@ -293,7 +295,7 @@ class NetClipActivity : BaseTopActivity() {
             state.postValue(State.STATE_SCANNING)
             sendBySystem("开始扫描")
             //暂时这样写
-            if (helper.updateFromInstance()) {
+            if (helper.hadConnected()) {
                 state.postValue(State.STATE_CONNECTED)
                 return
             }
@@ -301,8 +303,12 @@ class NetClipActivity : BaseTopActivity() {
         }
 
         fun exit() {
-            helper.stop()
+            viewModelScope.launch { helper.stop() }
             state.postValue(State.STATE_ALONE)
+        }
+
+        fun destroy() {
+            viewModelScope.launch { helper.destroy() }
         }
 
         fun sendBySelf(content: String) {
@@ -317,7 +323,20 @@ class NetClipActivity : BaseTopActivity() {
         }
 
         private fun send(content: String) {
-            helper.send(content)
+            if (content == STR_CLEAR) {
+                clear()
+            } else {
+                viewModelScope.launch { helper.sendMessage(content) }
+            }
+        }
+
+        private fun clear() {
+            val first = clipList[0]
+            val second = clipList[1]
+            clipList.clear()
+            clipList.add(first)
+            clipList.add(second)
+            clip.postValue(clipList)
         }
 
         private fun showSendBy(content: String, ip: String?, isSelf: Boolean = false) {

@@ -9,7 +9,7 @@ import kotlin.concurrent.thread
 /**
  * Create by munch1182 on 2021/4/23 15:09.
  */
-const val IP_MULTI = "239.0.0.1"
+const val IP_MULTI = "239.4.25.904"
 
 const val PORT_BROADCAST = 20211
 const val IP_BROADCAST = "255.255.255.255"
@@ -29,7 +29,6 @@ fun main() {
     val ip = address.first
     println("join: $ip:$port")
     val socket = MulticastSocket(port)
-    socket.timeToLive = 64
     socket.joinGroup(InetAddress.getByName(ip))
     val joinMessage = ByteHelper.joinMessage()
     socket.send(DatagramPacket(joinMessage, joinMessage.size, InetAddress.getByName(ip), port))
