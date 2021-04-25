@@ -13,28 +13,32 @@ import androidx.lifecycle.OnLifecycleEvent
  *
  * Create by munch1182 on 2020/12/28 13:51.
  */
-abstract class AddRemoveSetHelper<T> {
+abstract class ARSHelper<T> {
 
     /**
      * 因为没有名字，所以不要直接使用，实现类应该建立有名字的方法返回本值，然后用方法调用
      */
     protected val arrays: ArrayList<T> = arrayListOf()
 
-    open fun add(t: T): AddRemoveSetHelper<T> {
+    open fun add(t: T): ARSHelper<T> {
         if (!arrays.contains(t)) {
             arrays.add(t)
         }
         return this
     }
 
-    open fun remove(t: T): AddRemoveSetHelper<T> {
+    open fun remove(t: T): ARSHelper<T> {
         if (arrays.contains(t)) {
             arrays.remove(t)
         }
         return this
     }
 
-    open fun set(owner: LifecycleOwner, t: T, onDestroy: (() -> Unit)? = null): AddRemoveSetHelper<T> {
+    open fun set(
+        owner: LifecycleOwner,
+        t: T,
+        onDestroy: (() -> Unit)? = null
+    ): ARSHelper<T> {
         add(t)
         owner.lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
@@ -47,11 +51,15 @@ abstract class AddRemoveSetHelper<T> {
         return this
     }
 
+    open fun notifyListener(notify: T.() -> Unit) {
+        arrays.forEach { notify.invoke(it) }
+    }
+
     @JvmOverloads
     open fun setWhenCreate(
         owner: LifecycleOwner, t: T, onCreate: (() -> Unit)? = null,
         onDestroy: (() -> Unit)? = null
-    ): AddRemoveSetHelper<T> {
+    ): ARSHelper<T> {
         owner.lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun onCreate() {
@@ -73,7 +81,7 @@ abstract class AddRemoveSetHelper<T> {
     open fun setWhenStart(
         owner: LifecycleOwner, t: T, onStart: (() -> Unit)? = null,
         onStop: (() -> Unit)? = null
-    ): AddRemoveSetHelper<T> {
+    ): ARSHelper<T> {
         owner.lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
@@ -99,7 +107,7 @@ abstract class AddRemoveSetHelper<T> {
     open fun setWhenResume(
         owner: LifecycleOwner, t: T, onResume: (() -> Unit)? = null,
         onPause: (() -> Unit)? = null
-    ): AddRemoveSetHelper<T> {
+    ): ARSHelper<T> {
         owner.lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             fun onResume() {
@@ -121,7 +129,7 @@ abstract class AddRemoveSetHelper<T> {
         return this
     }
 
-    open fun clear(): AddRemoveSetHelper<T> {
+    open fun clear(): ARSHelper<T> {
         arrays.clear()
         return this
     }

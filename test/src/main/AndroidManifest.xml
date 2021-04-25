@@ -72,6 +72,8 @@
         <activity android:name=".net.NetActivity" />
         <activity android:name=".net.NetIpActivity" />
         <activity android:name=".net.NetClipActivity" />
+
+        <service android:name=".net.NetClipService" />
     </application>
 
 </manifest>

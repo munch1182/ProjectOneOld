@@ -10,7 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-import com.munch.pre.lib.helper.AddRemoveSetHelper
+import com.munch.pre.lib.helper.ARSHelper
 
 /**
  * 广播动态注册的通用部分类
@@ -21,7 +21,7 @@ import com.munch.pre.lib.helper.AddRemoveSetHelper
 abstract class ReceiverHelper<T> constructor(
     private val context: Context,
     private val actions: Array<String>
-) : AddRemoveSetHelper<T>() {
+) : ARSHelper<T>() {
 
     private var receiver: Receiver? = null
 

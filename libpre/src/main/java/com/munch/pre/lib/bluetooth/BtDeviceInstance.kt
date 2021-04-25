@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.PERMISSIONS
-import com.munch.pre.lib.helper.AddRemoveSetHelper
+import com.munch.pre.lib.helper.ARSHelper
 import com.munch.pre.lib.helper.receiver.BluetoothStateReceiver
 
 /**
@@ -52,6 +52,6 @@ class BtDeviceInstance(private val context: Context) {
             ?: mutableListOf()
     }
 
-    fun getBtStateListeners(): AddRemoveSetHelper<(state: Int, turning: Boolean, available: Boolean) -> Unit> =
+    fun getBtStateListeners(): ARSHelper<(state: Int, turning: Boolean, available: Boolean) -> Unit> =
         stateReceiver
 }

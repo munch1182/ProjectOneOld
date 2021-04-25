@@ -12,7 +12,7 @@ import android.os.Handler
 import android.os.Parcelable
 import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.SYNCHRONIZED
-import com.munch.pre.lib.helper.AddRemoveSetHelper
+import com.munch.pre.lib.helper.ARSHelper
 import com.munch.pre.lib.helper.receiver.ReceiverHelper
 import kotlinx.parcelize.Parcelize
 import android.bluetooth.le.ScanFilter as Filter
@@ -252,7 +252,7 @@ internal sealed class BtScanner {
     }
 }
 
-class BtScannerHelper(private val handler: Handler) : AddRemoveSetHelper<BtScanListener>() {
+class BtScannerHelper(private val handler: Handler) : ARSHelper<BtScanListener>() {
 
     private var classicScanner: BtScanner? = null
     private var bleScanner: BtScanner? = null

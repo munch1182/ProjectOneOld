@@ -2,6 +2,7 @@ package com.munch.test.project.one.net
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.view.View
@@ -26,7 +27,7 @@ import com.munch.pre.lib.extend.*
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.ImHelper
 import com.munch.pre.lib.helper.NetStatusHelper
-import com.munch.pre.lib.log.log
+import com.munch.pre.lib.helper.service.ServiceBindHelper
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityNetClipBinding
@@ -191,6 +192,13 @@ class NetClipActivity : BaseTopActivity() {
             }, { register() }, { unregister() })
         }
 
+        model.isBackground().observeOnChanged(this) {
+            if (it) {
+                NetClipService.start(this)
+            } else {
+                NetClipService.stop(this)
+            }
+        }
         model.checkStateWhenCreate()
     }
 
@@ -262,40 +270,47 @@ class NetClipActivity : BaseTopActivity() {
             const val STR_CLEAR = ":cls"
         }
 
-        private val helper = NetClipHelper.getInstance().apply {
-            messageListener = { msg: String, ip: String ->
-                log(msg)
-                showSendBy(msg, ip, this@NetClipViewModel.ip == ip)
-            }
-            notifyListener = { state: Int, ip: String ->
-                when {
-                    isConnected(state) -> {
-                        this@NetClipViewModel.state.postValue(State.STATE_CONNECTED)
-                        showSendBy("$ip joined", null)
-                    }
-                    isDisconnected(state) -> {
-                        if (ip == this@NetClipViewModel.ip) {
-                            this@NetClipViewModel.state.postValue(State.STATE_ALONE)
-                        } else {
-                            this@NetClipViewModel.state.postValue(State.STATE_CONNECTED)
-                        }
-                        showSendBy("$ip leaved", null)
-                    }
-                    isExit(state) -> {
-                        this@NetClipViewModel.state.postValue(State.STATE_ALONE)
-                        showSendBy("exit", null)
-                    }
-                    isStart(state) -> {
-                        this@NetClipViewModel.state.postValue(State.STATE_CONNECTED)
-                        showSendBy("start", null)
-                    }
-                }
-                showSendBy("background: ${isKeepAlive()}", null)
-            }
-            backgroundListener = {
-                showSendBy("background change: $it", null)
-            }
+        private val messageListener = { msg: String, ip: String ->
+            showSendBy(msg, ip, this@NetClipViewModel.ip == ip)
         }
+        private val notifyListener = { state: Int, ip: String ->
+            when {
+                NetClipHelper.isConnected(state) -> {
+                    this@NetClipViewModel.state.postValue(State.STATE_CONNECTED)
+                    showSendBy("$ip joined", null)
+                }
+                NetClipHelper.isDisconnected(state) -> {
+                    if (ip == this@NetClipViewModel.ip) {
+                        this@NetClipViewModel.state.postValue(State.STATE_ALONE)
+                    } else {
+                        this@NetClipViewModel.state.postValue(State.STATE_CONNECTED)
+                    }
+                    showSendBy("$ip leaved", null)
+                }
+                NetClipHelper.isExit(state) -> {
+                    this@NetClipViewModel.state.postValue(State.STATE_ALONE)
+                    showSendBy("exit", null)
+                }
+                NetClipHelper.isStart(state) -> {
+                    this@NetClipViewModel.state.postValue(State.STATE_CONNECTED)
+                    showSendBy("start", null)
+                }
+            }
+            sendBySystem("background: ${NetClipHelper.getInstance().isKeepAlive()}")
+        }
+        private val backgroundListener: (alive: Boolean) -> Unit = {
+            if (background.value != it) {
+                background.postValue(it)
+            }
+            sendBySystem("background change: $it")
+        }
+        private val helper = NetClipHelper.getInstance().apply {
+            messageListener.add(this@NetClipViewModel.messageListener)
+            notifyListener.add(this@NetClipViewModel.notifyListener)
+            backgroundListener.add(this@NetClipViewModel.backgroundListener)
+        }
+        private val background = MutableLiveData(helper.isKeepAlive())
+        fun isBackground() = background.toLiveData()
 
         fun start() {
             state.postValue(State.STATE_SCANNING)
@@ -314,6 +329,9 @@ class NetClipActivity : BaseTopActivity() {
         }
 
         fun destroy() {
+            helper.messageListener.remove(messageListener)
+            helper.notifyListener.remove(notifyListener)
+            helper.backgroundListener.remove(backgroundListener)
             helper.destroy()
         }
 
@@ -363,8 +381,10 @@ class NetClipActivity : BaseTopActivity() {
         fun checkStateWhenCreate() {
             if (helper.hadConnected()) {
                 state.postValue(State.STATE_CONNECTED)
+                sendBySystem("background: ${NetClipHelper.getInstance().isKeepAlive()}")
                 return
             }
+            background.postValue(helper.isKeepAlive())
         }
 
     }

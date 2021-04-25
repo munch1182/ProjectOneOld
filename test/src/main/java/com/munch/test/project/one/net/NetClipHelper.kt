@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.wifi.WifiManager
 import androidx.annotation.IntDef
 import com.munch.pre.lib.base.BaseApp
+import com.munch.pre.lib.helper.ARSHelper
 import com.munch.pre.lib.helper.ThreadPoolHelper
 import com.munch.pre.lib.helper.file.closeQuietly
 import com.munch.pre.lib.log.Logger
@@ -53,6 +54,13 @@ class NetClipHelper private constructor() : CoroutineScope {
             }
             return INSTANCE!!
         }
+
+        fun isConnected(state: Int) = state == ByteHelper.NOTIFY_JOIN.toInt()
+        fun isDisconnected(state: Int) = state == ByteHelper.NOTIFY_LEAVE.toInt()
+        fun isExit(state: Int) = state == ByteHelper.NOTIFY_EXIT.toInt()
+        fun isStart(state: Int) = state == ByteHelper.NOTIFY_START.toInt()
+
+        fun isClosed(state: Int) = state == State.STATE_IDLE || state == State.STATE_DESTROYED
     }
 
 
@@ -71,17 +79,17 @@ class NetClipHelper private constructor() : CoroutineScope {
     private val broadcastReceive = BroadcastReceive(broadcastPool)
     private val job = Job()
     override val coroutineContext: CoroutineContext = dispatcher + CoroutineName("NetClip") + job
-    var messageListener: ((content: String, ip: String) -> Unit)? = null
-    var notifyListener: ((state: Int, ip: String) -> Unit)? = null
-    var stateListener: ((state: Int) -> Unit)? = null
-    var backgroundListener: ((alive: Boolean) -> Unit)? = null
+    var messageListener = object : ARSHelper<((content: String, ip: String) -> Unit)?>() {}
+    var notifyListener = object : ARSHelper<((state: Int, ip: String) -> Unit)?>() {}
+    var stateListener = object : ARSHelper<((state: Int) -> Unit)?>() {}
+    var backgroundListener = object : ARSHelper<((alive: Boolean) -> Unit)?>() {}
     private var keepAlive = false
 
     @State
     private var state: Int = State.STATE_IDLE
         set(value) {
             field = value
-            stateListener?.invoke(field)
+            stateListener.notifyListener { this?.invoke(field) }
         }
 
     fun isKeepAlive() = runBlocking(coroutineContext) { keepAlive }
@@ -89,15 +97,25 @@ class NetClipHelper private constructor() : CoroutineScope {
     private val receivedCallback: (receive: Received) -> Unit = { r ->
         r.isType(ByteHelper.TYPE_ERROR) {
             if (it == ErrorOutOfLength.get()) {
-                messageListener?.invoke("too much content", it.ip)
+                messageListener.notifyListener {
+                    this?.invoke("too much content", it.ip)
+                }
             }
             log.log("error: $it")
         }?.isType(ByteHelper.TYPE_NOTIFY) {
             when (it.sign) {
-                ByteHelper.NOTIFY_START -> notifyListener?.invoke(it.sign.toInt(), it.ip)
-                ByteHelper.NOTIFY_EXIT -> notifyListener?.invoke(it.sign.toInt(), it.ip)
-                ByteHelper.NOTIFY_JOIN -> notifyListener?.invoke(it.sign.toInt(), it.ip)
-                ByteHelper.NOTIFY_LEAVE -> notifyListener?.invoke(it.sign.toInt(), it.ip)
+                ByteHelper.NOTIFY_START -> notifyListener.notifyListener {
+                    this?.invoke(it.sign.toInt(), it.ip)
+                }
+                ByteHelper.NOTIFY_EXIT -> notifyListener.notifyListener {
+                    this?.invoke(it.sign.toInt(), it.ip)
+                }
+                ByteHelper.NOTIFY_JOIN -> notifyListener.notifyListener {
+                    this?.invoke(it.sign.toInt(), it.ip)
+                }
+                ByteHelper.NOTIFY_LEAVE -> notifyListener.notifyListener {
+                    this?.invoke(it.sign.toInt(), it.ip)
+                }
             }
         }?.isType(ByteHelper.TYPE_COMMAND) {
             when (it.sign) {
@@ -105,11 +123,11 @@ class NetClipHelper private constructor() : CoroutineScope {
                 ByteHelper.COMMAND_BROADCAST_RECEIVE_KEEP -> broadcastReceive.start()
                 ByteHelper.COMMAND_WORK_IN_BACKGROUND -> {
                     runBlocking(coroutineContext) { keepAlive = true }
-                    backgroundListener?.invoke(true)
+                    backgroundListener.notifyListener { this?.invoke(true) }
                 }
                 ByteHelper.COMMAND_NOT_WORK_IN_BACKGROUND -> {
                     runBlocking(coroutineContext) { keepAlive = false }
-                    backgroundListener?.invoke(false)
+                    backgroundListener.notifyListener { this?.invoke(false) }
                 }
                 ByteHelper.COMMAND_BROADCAST_STOP -> {
                     broadcastSend.stop()
@@ -118,7 +136,7 @@ class NetClipHelper private constructor() : CoroutineScope {
 
             }
         }?.isType(ByteHelper.TYPE_MESSAGE) {
-            messageListener?.invoke(it.getContentString(), it.ip)
+            messageListener.notifyListener { this?.invoke(it.getContentString(), it.ip) }
         }
     }
 
@@ -202,11 +220,6 @@ class NetClipHelper private constructor() : CoroutineScope {
             }
         }
     }
-
-    fun isConnected(state: Int) = state == ByteHelper.NOTIFY_JOIN.toInt()
-    fun isDisconnected(state: Int) = state == ByteHelper.NOTIFY_LEAVE.toInt()
-    fun isExit(state: Int) = state == ByteHelper.NOTIFY_EXIT.toInt()
-    fun isStart(state: Int) = state == ByteHelper.NOTIFY_START.toInt()
 
     private fun notify(message: ByteArray) {
         launch { multi.send(message) }

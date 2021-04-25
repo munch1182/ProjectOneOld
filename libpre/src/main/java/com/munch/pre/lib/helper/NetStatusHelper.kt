@@ -18,7 +18,7 @@ import java.util.*
  * Create by munch1182 on 2020/12/28 13:51.
  */
 class NetStatusHelper private constructor(private val manager: ConnectivityManager) :
-    AddRemoveSetHelper<(available: Boolean, capabilities: NetworkCapabilities?) -> Unit>() {
+    ARSHelper<(available: Boolean, capabilities: NetworkCapabilities?) -> Unit>() {
 
     companion object : SingletonHolder<NetStatusHelper, ConnectivityManager>(::NetStatusHelper) {
 

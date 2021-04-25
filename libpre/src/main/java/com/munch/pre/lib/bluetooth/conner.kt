@@ -5,7 +5,7 @@ import android.os.Handler
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.ATTENTION
-import com.munch.pre.lib.helper.AddRemoveSetHelper
+import com.munch.pre.lib.helper.ARSHelper
 import com.munch.pre.lib.helper.file.closeQuietly
 import java.util.*
 
@@ -491,7 +491,7 @@ class BtConnectorHelper(private val handler: Handler) {
             getConnectListenersArray().forEach { it.connectFail(e) }
         }
     }
-    private val connectListeners = object : AddRemoveSetHelper<BtConnectListener>() {
+    private val connectListeners = object : ARSHelper<BtConnectListener>() {
         fun getListeners() = arrays
     }
     private val connectStateCallback = object : BtConnectStateListener {
@@ -501,7 +501,7 @@ class BtConnectorHelper(private val handler: Handler) {
             }
         }
     }
-    private val connectStateListeners = object : AddRemoveSetHelper<BtConnectStateListener>() {
+    private val connectStateListeners = object : ARSHelper<BtConnectStateListener>() {
         fun getListeners() = arrays
     }
 
