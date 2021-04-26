@@ -1,12 +1,16 @@
 package com.munch.pre.lib.bluetooth
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.HandlerThread
 import android.provider.Settings
 import androidx.annotation.RequiresPermission
+import com.munch.pre.lib.base.Cancelable
+import com.munch.pre.lib.helper.ARSHelper
 
 /**
  * Create by munch1182 on 2021/4/8 10:55.
@@ -27,26 +31,73 @@ class BluetoothHelper private constructor() {
 
         fun openIntent() = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
 
+        fun checkMac(mac: String) = BluetoothAdapter.checkBluetoothAddress(mac)
+
         private const val HT_NAME = "BLUETOOTH_HANDLER_THREAD"
     }
 
     internal lateinit var context: Context
-    internal lateinit var ht: HandlerThread
-    internal lateinit var handler: Handler
-    internal lateinit var device: BtDeviceInstance
+    internal lateinit var device: BtInstance
     internal val btAdapter: BluetoothAdapter? by lazy { device.btAdapter }
-    internal lateinit var scanner: BtScannerHelper
-    internal lateinit var connector: BtConnectorHelper
     internal var btConfig: BtConfig? = null
+    private val cancelable = mutableListOf<Cancelable>()
+    private lateinit var handlerThread: HandlerThread
+    internal lateinit var handler: Handler
+    private var current: BleDevice? = null
+
+    private val bleScanner = BleScanner()
+    private val scanListeners = object : ARSHelper<BtScanListener>() {}
+    private val tempScanListeners = mutableListOf<BtScanListener>()
+    private val scanCallback = object : BtScanListener {
+        override fun onStart() {
+            handler.post { scanListeners.notifyListener { it.onStart() } }
+        }
+
+        override fun onScan(device: BtDevice) {
+            handler.post { scanListeners.notifyListener { it.onScan(device) } }
+        }
+
+        override fun onEnd(devices: MutableList<BtDevice>) {
+            handler.post { scanListeners.notifyListener { it.onEnd(devices) } }
+        }
+
+        override fun onFail(errorCode: Int) {
+            handler.post {
+                scanListeners.notifyListener { it.onFail(errorCode) }
+                tempScanListeners.forEach { scanListeners.remove(it) }
+            }
+        }
+    }
+
+    private val connectStateCallback = object : BtConnectStateListener {
+        override fun onStateChange(newState: Int) {
+            handler.post {
+                connectStateListeners.notifyListener { it.onStateChange(newState) }
+            }
+        }
+
+        override fun onStateChange(oldState: Int, newState: Int) {
+            super.onStateChange(oldState, newState)
+            handler.post {
+                connectStateListeners.notifyListener { it.onStateChange(oldState, newState) }
+            }
+        }
+    }
+    private val connectStateListeners = object : ARSHelper<BtConnectStateListener>() {}
 
     fun init(context: Context, config: BtConfig? = null) {
         this.context = context.applicationContext
         initWorkThread()
-        device = BtDeviceInstance(context)
-        scanner = BtScannerHelper(handler)
-        connector = BtConnectorHelper(handler)
+        device = BtInstance(context)
         setConfig(config)
+        cancelable.add(bleScanner)
         watchState()
+    }
+
+    private fun initWorkThread() {
+        handlerThread = HandlerThread(HT_NAME)
+        handlerThread.start()
+        handler = Handler(handlerThread.looper)
     }
 
     private fun watchState() {
@@ -54,8 +105,7 @@ class BluetoothHelper private constructor() {
             //蓝牙正在关闭时关闭所有的操作以保证状态正确
             //@see resetState
             if (!available && turning) {
-                scanner.stopScan()
-                connector.disconnectNow()
+                cancelable.forEach { it.cancel() }
             }
         }
     }
@@ -65,12 +115,6 @@ class BluetoothHelper private constructor() {
             this.btConfig = btConfig
         }
         return this
-    }
-
-    private fun initWorkThread() {
-        ht = HandlerThread(HT_NAME)
-        ht.start()
-        handler = Handler(ht.looper)
     }
 
     /**
@@ -106,28 +150,18 @@ class BluetoothHelper private constructor() {
             android.Manifest.permission.BLUETOOTH_ADMIN,
             android.Manifest.permission.ACCESS_FINE_LOCATION]
     )
-    fun startScan(
-        type: BtType,
-        timeout: Long = 0L,
-        scanFilter: MutableList<ScanFilter>? = null,
-        scanListener: BtScanListener? = null
-    ) {
-        scanner.startScan(type, timeout, scanFilter, scanListener)
-    }
-
-    @RequiresPermission(
-        allOf = [android.Manifest.permission.BLUETOOTH,
-            android.Manifest.permission.BLUETOOTH_ADMIN,
-            android.Manifest.permission.ACCESS_FINE_LOCATION]
-    )
     fun startClassicScan(
         timeout: Long = 0L,
-        scanFilter: MutableList<ScanFilter>? = null,
         scanListener: BtScanListener? = null
     ) {
-        startScan(BtType.Classic, timeout, scanFilter, scanListener)
+
     }
 
+    /**
+     * @param scanListener 该listener会在[BtScanListener.onEnd]回调后自动被移除，否则应该使用[getScanListeners]注册监听
+     *
+     * @see getScanListeners
+     */
     @RequiresPermission(
         allOf = [android.Manifest.permission.BLUETOOTH,
             android.Manifest.permission.BLUETOOTH_ADMIN,
@@ -135,38 +169,36 @@ class BluetoothHelper private constructor() {
     )
     fun startBleScan(
         timeout: Long = 0L,
-        scanFilter: MutableList<ScanFilter>? = null,
+        filter: MutableList<ScanFilter>? = null,
+        settings: ScanSettings? = null,
         scanListener: BtScanListener? = null
     ) {
-        startScan(BtType.Ble, timeout, scanFilter, scanListener)
+        if (scanListener != null) {
+            scanListeners.add(scanListener)
+            tempScanListeners.add(scanListener)
+        }
+        bleScanner.filter(filter).setting(settings).setScanListener(scanCallback).startScan()
+        if (timeout > 0) {
+            handler.postDelayed({ stopScan() }, timeout)
+        }
     }
 
+    fun getScanListeners() = scanListeners
+
+    @RequiresPermission(
+        allOf = [android.Manifest.permission.BLUETOOTH,
+            android.Manifest.permission.BLUETOOTH_ADMIN]
+    )
     fun stopScan() {
-        scanner.stopScan()
+        bleScanner.stopScan()
     }
 
-    fun connect(device: BtDevice) {
-        connector.connect(device)
+    fun setCurrent(connector: BleDevice) {
+        current = connector
+
+        current!!.stateListener = connectStateCallback
     }
 
-    fun disconnect() {
-        connector.disconnectNow()
-    }
+    fun getCurrent() = current
 
-    fun getConnectListeners() = connector.getConnectListeners()
-    fun getStateListeners() = connector.getStateListeners()
-
-    fun getCurrent() = connector.getCurrent()
-
-    /**
-     * 当因为手动关闭蓝牙状态出错时，手动更新状态
-     *
-     * 完成时此方法应该隐藏，但是考虑到蓝牙设备的复杂性，此方法可以保留
-     */
-    fun resetState() {
-        connector.resetState()
-        scanner.resetState()
-    }
-
-    data class Current(val device: BtDevice?, @ConnectState val state: Int)
 }

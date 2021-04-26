@@ -1,6 +1,7 @@
 package com.munch.test.project.one.bluetooth
 
 import android.annotation.SuppressLint
+import android.bluetooth.le.ScanFilter
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.KeyEvent
@@ -20,6 +21,7 @@ import com.munch.lib.fast.weight.CountView
 import com.munch.pre.lib.bluetooth.*
 import com.munch.pre.lib.extend.*
 import com.munch.pre.lib.helper.AppHelper
+import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.base.DataHelper
@@ -32,7 +34,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import android.bluetooth.le.ScanFilter as Filter
 
 /**
  * Create by munch1182 on 2021/4/8 17:14.
@@ -63,13 +64,11 @@ class BluetoothActivity : BaseTopActivity() {
                     return@setOnClickListener
                 }
                 val mac = bind.btFilterMacEt.text.toString()
-                if (bind.btTypeBle.isChecked && mac.isNotEmpty()) {
-                    try {
-                        Filter.Builder().setDeviceAddress(mac)
-                    } catch (e: IllegalArgumentException) {
-                        toast("请输入正确的mac地址")
-                        return@setOnClickListener
-                    }
+                if (bind.btTypeBle.isChecked && mac.isNotEmpty()
+                    && !BluetoothHelper.checkMac(mac)
+                ) {
+                    toast("请输入正确的mac地址")
+                    return@setOnClickListener
                 }
                 btFilterMacEt.clearFocus()
                 if (!BluetoothHelper.INSTANCE.isOpen()) {
@@ -122,7 +121,6 @@ class BluetoothActivity : BaseTopActivity() {
         model.getResList().observeOnChanged(this) { adapter.set(it) }
 
         obOnResume({}, { model.release() })
-        BluetoothHelper.INSTANCE.getCurrent().device?.let { adapter.add(it) }
     }
 
     @SuppressLint("MissingPermission")
@@ -162,13 +160,12 @@ class BluetoothActivity : BaseTopActivity() {
             scanning.postValue(true)
             val value = getFilter().value!!
 
-            if (value.filter.mac.isNullOrEmpty()) {
-                value.filter.mac = null
+            if (value.name.isNullOrEmpty()) {
+                value.name = null
             }
-            BluetoothHelper.INSTANCE.startScan(
-                value.getType(),
-                value.timeout.toLong() * 1000L,
-                mutableListOf(value.filter),
+            BluetoothHelper.INSTANCE.startBleScan(
+                value.timeout.toLong() * 1000L, mutableListOf(value.toScanFilter()),
+                null,
                 object : BtScanListener {
 
                     private var end = false
@@ -215,17 +212,20 @@ class BluetoothActivity : BaseTopActivity() {
                         res.postValue(list)
                     }
 
-                    override fun onEnd(device: MutableList<BtDevice>) {
+                    override fun onEnd(devices: MutableList<BtDevice>) {
                         end = true
+                        scanning.postValue(false)
                         notice.postValue("已结束，共扫描到${list.size}个设备，历时${time}s")
-                        stopScan()
+                    }
+
+                    override fun onFail(@ScanFailReason errorCode: Int) {
+                        log(errorCode)
                     }
                 }
             )
         }
 
         private fun stopScan() {
-            scanning.postValue(false)
             BluetoothHelper.INSTANCE.stopScan()
         }
 
@@ -238,10 +238,12 @@ class BluetoothActivity : BaseTopActivity() {
     @Parcelize
     data class BtFilter(
         var isClassic: Boolean = true,
-        var filter: ScanFilter = ScanFilter(strict = false),
+        var name: String? = null,
+        var mac: String? = null,
         var timeout: Int = 25,
         var noName: Boolean = true
     ) : Parcelable {
+
         fun getType(): BtType {
             return if (isClassic) BtType.Classic else BtType.Ble
         }
@@ -255,9 +257,21 @@ class BluetoothActivity : BaseTopActivity() {
                 return true
             }
             if (other is BtFilter) {
-                return other.isClassic == isClassic && other.filter == filter && other.timeout == timeout
+                return other.isClassic == isClassic && other.name == name && other.mac == mac && other.timeout == timeout
             }
             return false
+        }
+
+        fun toScanFilter(): ScanFilter {
+            return ScanFilter.Builder()
+                .apply {
+                    if (!name.isNullOrEmpty()) {
+                        setDeviceName(name)
+                    }
+                    if (!mac.isNullOrEmpty()) {
+                        setDeviceAddress(mac)
+                    }
+                }.build()
         }
     }
 

@@ -54,7 +54,7 @@ abstract class ARSHelper<T> {
     /**
      * 未考虑线程的问题
      */
-    open fun notifyListener(notify: T.() -> Unit) {
+    open fun notifyListener(notify: (T) -> Unit) {
         arrays.forEach { notify.invoke(it) }
     }
 

@@ -89,45 +89,45 @@ class NetClipHelper private constructor() : CoroutineScope {
     private var state: Int = State.STATE_IDLE
         set(value) {
             field = value
-            stateListener.notifyListener { this?.invoke(field) }
+            stateListener.notifyListener { it?.invoke(field) }
         }
 
     fun isKeepAlive() = runBlocking(coroutineContext) { keepAlive }
 
     private val receivedCallback: (receive: Received) -> Unit = { r ->
-        r.isType(ByteHelper.TYPE_ERROR) {
-            if (it == ErrorOutOfLength.get()) {
+        r.isType(ByteHelper.TYPE_ERROR) { re ->
+            if (re == ErrorOutOfLength.get()) {
                 messageListener.notifyListener {
-                    this?.invoke("too much content", it.ip)
+                    it?.invoke("too much content", re.ip)
                 }
             }
-            log.log("error: $it")
-        }?.isType(ByteHelper.TYPE_NOTIFY) {
-            when (it.sign) {
+            log.log("error: $re")
+        }?.isType(ByteHelper.TYPE_NOTIFY) { re ->
+            when (re.sign) {
                 ByteHelper.NOTIFY_START -> notifyListener.notifyListener {
-                    this?.invoke(it.sign.toInt(), it.ip)
+                    it?.invoke(re.sign.toInt(), re.ip)
                 }
                 ByteHelper.NOTIFY_EXIT -> notifyListener.notifyListener {
-                    this?.invoke(it.sign.toInt(), it.ip)
+                    it?.invoke(re.sign.toInt(), re.ip)
                 }
                 ByteHelper.NOTIFY_JOIN -> notifyListener.notifyListener {
-                    this?.invoke(it.sign.toInt(), it.ip)
+                    it?.invoke(re.sign.toInt(), re.ip)
                 }
                 ByteHelper.NOTIFY_LEAVE -> notifyListener.notifyListener {
-                    this?.invoke(it.sign.toInt(), it.ip)
+                    it?.invoke(re.sign.toInt(), re.ip)
                 }
             }
-        }?.isType(ByteHelper.TYPE_COMMAND) {
-            when (it.sign) {
+        }?.isType(ByteHelper.TYPE_COMMAND) { re ->
+            when (re.sign) {
                 ByteHelper.COMMAND_BROADCAST_SEND_KEEP -> broadcastSend.start()
                 ByteHelper.COMMAND_BROADCAST_RECEIVE_KEEP -> broadcastReceive.start()
                 ByteHelper.COMMAND_WORK_IN_BACKGROUND -> {
                     runBlocking(coroutineContext) { keepAlive = true }
-                    backgroundListener.notifyListener { this?.invoke(true) }
+                    backgroundListener.notifyListener { it?.invoke(true) }
                 }
                 ByteHelper.COMMAND_NOT_WORK_IN_BACKGROUND -> {
                     runBlocking(coroutineContext) { keepAlive = false }
-                    backgroundListener.notifyListener { this?.invoke(false) }
+                    backgroundListener.notifyListener { it?.invoke(false) }
                 }
                 ByteHelper.COMMAND_BROADCAST_STOP -> {
                     broadcastSend.stop()
@@ -135,8 +135,8 @@ class NetClipHelper private constructor() : CoroutineScope {
                 }
 
             }
-        }?.isType(ByteHelper.TYPE_MESSAGE) {
-            messageListener.notifyListener { this?.invoke(it.getContentString(), it.ip) }
+        }?.isType(ByteHelper.TYPE_MESSAGE) { re ->
+            messageListener.notifyListener { it?.invoke(re.getContentString(), re.ip) }
         }
     }
 

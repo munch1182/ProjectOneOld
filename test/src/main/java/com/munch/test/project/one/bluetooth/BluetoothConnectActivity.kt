@@ -59,47 +59,8 @@ class BluetoothConnectActivity : BaseTopActivity() {
         }
         model.init(btDevice)
         model.getState().observeOnChanged(this) {
-            val title: String
-            val state: String
-            when (it) {
-                ConnectState.STATE_CONNECTED -> {
-                    title = "断开连接"
-                    state = "已连接"
-                }
-                ConnectState.STATE_CONNECTING -> {
-                    title = "连接中"
-                    state = "连接中"
-                }
-                ConnectState.STATE_DISCONNECTED -> {
-                    title = "连接"
-                    state = "未连接"
-                }
-                ConnectState.STATE_DISCONNECTING -> {
-                    title = "断开连接"
-                    state = "正在断开"
-                }
-                else -> throw IllegalStateException("state: $it")
-            }
-            bind.btDeviceConnect.text = title
-            bind.btDeviceState.text = state
         }
-        BluetoothHelper.INSTANCE.getStateListeners()
-            .setWhenResume(this, object : BtConnectStateListener {
-                override fun onStateChange(oldState: Int, newState: Int) {
-                    model.updateState(newState)
-                }
-            })
-        BluetoothHelper.INSTANCE.getConnectListeners()
-            .setWhenResume(this, object : BtConnectFailListener() {
-                @SuppressLint("SetTextI18n")
-                override fun connectFail(e: Exception) {
-                    runOnUiThread { bind.btDeviceState.text = "连接失败: ${getReason(e)}" }
-                }
 
-                private fun getReason(e: Exception): String {
-                    return e.message ?: e.cause?.message ?: "null"
-                }
-            })
     }
 
     @SuppressLint("SetTextI18n")
@@ -116,16 +77,16 @@ class BluetoothConnectActivity : BaseTopActivity() {
 
     internal class BluetoothConnectViewModel : ViewModel() {
 
-        private val state = MutableLiveData(ConnectState.STATE_DISCONNECTED)
+        private val state = MutableLiveData(1)
         fun getState() = state.toLiveData()
         private var dev: BtDevice? = null
 
         fun init(device: BtDevice?) {
             dev = device
-            val currentDev = BluetoothHelper.INSTANCE.getCurrent()
+           /* val currentDev = BluetoothHelper.INSTANCE.getCurrent()
             if (currentDev.device != null && currentDev.device == dev) {
                 updateState(currentDev.state)
-            }
+            }*/
         }
 
         fun connectOrDis() {
@@ -134,12 +95,12 @@ class BluetoothConnectActivity : BaseTopActivity() {
                 return
             }
             val stateVal = state.value!!
-            if (ConnectState.isConnected(stateVal)) {
+            /*if (ConnectState.isConnected(stateVal)) {
                 BluetoothHelper.INSTANCE.disconnect()
             } else if (ConnectState.unConnected(stateVal)) {
                 val device = dev ?: return
                 BluetoothHelper.INSTANCE.connect(device)
-            }
+            }*/
         }
 
         fun updateState(newState: Int) {

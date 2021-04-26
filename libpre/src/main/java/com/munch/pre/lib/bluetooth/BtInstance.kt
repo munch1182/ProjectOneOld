@@ -16,7 +16,7 @@ import com.munch.pre.lib.helper.receiver.BluetoothStateReceiver
         android.Manifest.permission.BLUETOOTH,
         android.Manifest.permission.BLUETOOTH_ADMIN]
 )
-class BtDeviceInstance(private val context: Context) {
+class BtInstance(private val context: Context) {
 
     internal val btAdapter = BluetoothAdapter.getDefaultAdapter()
     private val stateReceiver = BluetoothStateReceiver(context)

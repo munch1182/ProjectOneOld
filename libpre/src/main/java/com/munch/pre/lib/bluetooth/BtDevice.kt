@@ -36,6 +36,12 @@ data class BtDevice(
             val device = result.device
             return BtDevice(device.name, device.address, result.rssi, BtType.Ble, device)
         }
+
+        @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH_ADMIN, android.Manifest.permission.BLUETOOTH])
+        fun from(mac: String): BtDevice? {
+            val device = BluetoothHelper.INSTANCE.btAdapter?.getRemoteDevice(mac) ?: return null
+            return from(device)
+        }
     }
 
     fun getRssiStr() = "$rssi dBm"
