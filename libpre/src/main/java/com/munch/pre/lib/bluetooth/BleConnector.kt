@@ -6,6 +6,7 @@ import android.os.Handler
 import androidx.annotation.RequiresApi
 import com.munch.pre.lib.base.Cancelable
 import com.munch.pre.lib.base.Destroyable
+import com.munch.pre.lib.base.Manager
 import java.util.*
 
 /**
@@ -214,11 +215,14 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
     fun disconnect() {
         state = ConnectState.STATE_DISCONNECTING
         gatt?.disconnect()
-        gatt = null
     }
 
     @ConnectState
     fun getState() = state
+
+    fun send(byteArray: ByteArray) {
+        opHelper.send(byteArray)
+    }
 
     override fun cancel() {
         BluetoothHelper.logHelper.withEnable { "connector cancel" }
@@ -230,92 +234,16 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
         BluetoothHelper.logHelper.withEnable { "connector destroy" }
         cancel()
         opHelper.destroy()
+        gatt?.close()
+        gatt = null
     }
 
-    fun setWrite(write: BluetoothGattCharacteristic) {
+    internal fun setWrite(write: BluetoothGattCharacteristic) {
         opHelper.setWrite(write)
     }
 
-    fun setNotify(notify: BluetoothGattCharacteristic) {
+    internal fun setNotify(notify: BluetoothGattCharacteristic) {
         opHelper.setNotify(notify)
-    }
-
-    fun send(byteArray: ByteArray) {
-        opHelper.send(byteArray)
-    }
-
-    internal class OpHelper : Cancelable, Destroyable {
-
-        private val logHelp = BluetoothHelper.logHelper
-        val characteristicListener = object : CharacteristicChangedListener {
-            override fun onRead(characteristic: BluetoothGattCharacteristic?) {
-                logHelp.withEnable { "${System.currentTimeMillis()}: onRead" }
-            }
-
-            override fun onSend(characteristic: BluetoothGattCharacteristic?, status: Int) {
-                logHelp.withEnable { "${System.currentTimeMillis()}: onSend: status: $status" }
-            }
-        }
-        private var gatt: BluetoothGatt? = null
-        private var write: BluetoothGattCharacteristic? = null
-        private var notify: BluetoothGattCharacteristic? = null
-        private val bytesList = LinkedList<ByteArray>()
-
-        fun send(bytes: ByteArray) {
-            //添加到队列等待当前执行完毕
-            /*bytesList.add(bytes)*/
-            BluetoothHelper.INSTANCE.handler.post { writeByte(bytes) }
-            BluetoothHelper.logHelper.withEnable {
-                //此方法会延迟速度
-                val isNull = if (gatt == null || write == null) "gatt/write: null, " else ""
-                "${isNull}${System.currentTimeMillis()}: send: ${BytesHelper.format(bytes)}"
-            }
-        }
-
-        private fun writeByte(bytes: ByteArray) {
-            synchronized(this) {
-                if (gatt != null) {
-                    write?.value = bytes
-                    gatt?.writeCharacteristic(write)
-                }
-            }
-        }
-
-        fun setGatt(gatt: BluetoothGatt) {
-            this.gatt = gatt
-            BluetoothHelper.logHelper.withEnable { "setGatt" }
-        }
-
-        override fun cancel() {
-            synchronized(this) {
-                gatt?.close()
-                gatt = null
-                write = null
-                notify = null
-                bytesList.clear()
-            }
-        }
-
-        override fun destroy() {
-            cancel()
-        }
-
-        fun setWrite(write: BluetoothGattCharacteristic) {
-            this.write = write
-            BluetoothHelper.logHelper.withEnable { "setWrite" }
-        }
-
-        fun setNotify(notify: BluetoothGattCharacteristic) {
-            this.notify = notify
-            BluetoothHelper.logHelper.withEnable { "setNotify" }
-        }
-    }
-
-    internal interface CharacteristicChangedListener {
-
-        fun onRead(characteristic: BluetoothGattCharacteristic?)
-
-        fun onSend(characteristic: BluetoothGattCharacteristic?, status: Int)
     }
 
 }

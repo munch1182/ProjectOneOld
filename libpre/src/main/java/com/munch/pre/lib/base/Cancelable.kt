@@ -25,3 +25,11 @@ interface Resettable {
 
     fun reset()
 }
+
+/**
+ * 声明该类是一个管理类
+ */
+interface Manager {
+
+    fun manage()
+}

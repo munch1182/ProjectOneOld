@@ -133,7 +133,7 @@ class BluetoothHelper private constructor() {
     private val delayStopScan = { stopScan() }
 
 
-    private fun <T> notify(helper: ARSHelper<T>, notify: (T) -> Unit) {
+    internal fun <T> notify(helper: ARSHelper<T>, notify: (T) -> Unit) {
         handler.post { helper.notifyListener { notify.invoke(it) } }
     }
 
