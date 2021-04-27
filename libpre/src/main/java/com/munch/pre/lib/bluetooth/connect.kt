@@ -72,13 +72,21 @@ annotation class ConnectState {
     }
 }
 
+@IntDef(
+    ConnectFailReason.FAIL_CONNECT_BY_SYSTEM,
+    ConnectFailReason.FAIL_FIND_SERVICE,
+    ConnectFailReason.FAIL_REQUEST_MTU,
+    ConnectFailReason.FAIL_WRITE_DESCRIPTOR,
+)
 @Retention(AnnotationRetention.SOURCE)
 annotation class ConnectFailReason {
 
     companion object {
 
-        const val FILE_CONNECT_BY_SYSTEM = 0
-        const val FILE_FIND_SERVICE = 1
-        const val FILE_REQUEST_MTU = 2
+        const val FAIL_CONNECT_BY_SYSTEM = 0
+        const val FAIL_FIND_SERVICE = 1
+        const val FAIL_REQUEST_MTU = 2
+        const val FAIL_WRITE_DESCRIPTOR = 3
+        const val FAIL_READ_DESCRIPTOR = 3
     }
 }

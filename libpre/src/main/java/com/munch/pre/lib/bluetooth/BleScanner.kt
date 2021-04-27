@@ -46,6 +46,10 @@ class BleScanner : Cancelable, Destroyable {
             result ?: return
             val device = BtDevice.from(result)
             if (!res.contains(device)) {
+                //因为BtScanListener.onEnd时收到调用，所以会先于bluetoothLeScanner?.stopScan调用
+                if (!scanning) {
+                    return
+                }
                 res.add(device)
                 scanListener?.onScan(device)
             }

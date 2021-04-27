@@ -11,6 +11,8 @@ import androidx.lifecycle.OnLifecycleEvent
  * 专门用于设置add、remove、set三个方法的工具类
  * 但其实主要是提取set方法
  *
+ * LifecycleOwner的相关方法晚于activity的相关方法执行
+ *
  * Create by munch1182 on 2020/12/28 13:51.
  */
 abstract class ARSHelper<T> {
@@ -112,6 +114,7 @@ abstract class ARSHelper<T> {
         onPause: (() -> Unit)? = null
     ): ARSHelper<T> {
         owner.lifecycle.addObserver(object : LifecycleObserver {
+
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             fun onResume() {
                 add(t)

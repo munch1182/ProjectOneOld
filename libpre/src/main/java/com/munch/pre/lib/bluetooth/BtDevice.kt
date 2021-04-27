@@ -38,9 +38,9 @@ data class BtDevice(
         }
 
         @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH_ADMIN, android.Manifest.permission.BLUETOOTH])
-        fun from(mac: String): BtDevice? {
+        fun from(mac: String, type: BtType = BtType.Ble): BtDevice? {
             val device = BluetoothHelper.INSTANCE.btAdapter?.getRemoteDevice(mac) ?: return null
-            return from(device)
+            return BtDevice(device.name, device.address, 0, type, device)
         }
     }
 

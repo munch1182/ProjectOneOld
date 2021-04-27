@@ -6,6 +6,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 
 /**
+ * LifecycleOwner的相关方法晚于activity的相关方法执行
+ *
  * Create by munch1182 on 2021/4/1 15:22.
  */
 inline fun LifecycleOwner.obOnResume(

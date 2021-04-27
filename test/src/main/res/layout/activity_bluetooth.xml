@@ -128,6 +128,7 @@
                 android:layout_marginStart="-5dp"
                 android:text="严格模式"
                 android:textColor="@color/colorTextGray"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="@id/bt_filter_mac"
                 app:layout_constraintTop_toBottomOf="@id/bt_filter_mac_et" />
 
@@ -209,6 +210,20 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/bt_notice" />
+
+            <CheckBox
+                android:id="@+id/bt_connect_now"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/padding_def"
+                android:checked="@={vm.filter.connectNow}"
+                android:text="有地址时直接连接"
+                android:textColor="@color/colorTextGray"
+                app:layout_constraintBottom_toBottomOf="@id/bt_no_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@id/bt_no_name"
+                app:layout_constraintTop_toTopOf="@id/bt_no_name" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/bt_rv"

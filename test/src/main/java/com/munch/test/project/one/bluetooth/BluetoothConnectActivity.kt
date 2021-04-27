@@ -2,22 +2,22 @@ package com.munch.test.project.one.bluetooth
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
 import android.content.Context
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.munch.lib.fast.extend.get
 import com.munch.pre.lib.bluetooth.*
-import com.munch.pre.lib.extend.digitsInput
-import com.munch.pre.lib.extend.observeOnChanged
-import com.munch.pre.lib.extend.startActivity
-import com.munch.pre.lib.extend.toLiveData
+import com.munch.pre.lib.extend.*
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityBluetoothConnectBinding
 import com.munch.test.project.one.requestPermission
+import java.util.*
 
 /**
  * Create by munch1182 on 2021/4/9 14:51.
@@ -42,6 +42,7 @@ class BluetoothConnectActivity : BaseTopActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -60,11 +61,18 @@ class BluetoothConnectActivity : BaseTopActivity() {
                     } else {
                         requestOpen.launch(BluetoothHelper.openIntent())
                     }
-
                 }
             }
 
             btDeviceEtSend.digitsInput("0123456789abcdefABCDEF, []x")
+            btDeviceEtSend.setOnKeyListener { _, keyCode, keyEvent ->
+                if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.action == KeyEvent.ACTION_DOWN) {
+                    btDevice?.getConnector()
+                        ?.send(btDeviceEtSend.text.trim().toString().toByteArray())
+                    return@setOnKeyListener true
+                }
+                return@setOnKeyListener false
+            }
             device = btDevice
         }
         model.init(btDevice)
@@ -106,36 +114,66 @@ class BluetoothConnectActivity : BaseTopActivity() {
                     @SuppressLint("SetTextI18n")
                     override fun onConnectFail(device: BtDevice, reason: Int) {
                         val reasonStr = when (reason) {
-                            ConnectFailReason.FILE_FIND_SERVICE -> "发现服务失败"
+                            ConnectFailReason.FAIL_FIND_SERVICE -> "发现服务失败"
+                            ConnectFailReason.FAIL_REQUEST_MTU -> "设置MTU失败"
                             else -> "连接失败"
                         }
                         runOnUiThread { bind.btDeviceState.text = "连接失败: $reasonStr" }
                     }
                 })
+            obOnResume({
+                val config = BluetoothConfigActivity.getConfigFromDb()
+                if (config == null) {
+                    bind.btDeviceConfig.text = "未配置UUID，点击配置"
+                } else {
+                    bind.btDeviceConfig.text = "已配置UUID"
+                    model.connect()
+                }
+                BluetoothHelper.INSTANCE.setConfig(object : BtConfig() {
+                    override var mtu: Int = MAX_MTU
 
+                    override fun onDiscoverService(
+                        device: BtDevice,
+                        gatt: BluetoothGatt,
+                        server: MutableList<BluetoothGattService>
+                    ): Boolean {
+                        if (config == null) {
+                            return super.onDiscoverService(device, gatt, server)
+                        }
+                        val log = BluetoothHelper.logHelper
+                        log.log("service-service")
+                        val service =
+                            gatt.getService(UUID.fromString(config.UUID_MAIN_SERVER))
+                                ?: return false
+                        log.log("service-write")
+                        val write =
+                            service.getCharacteristic(UUID.fromString(config.UUID_WRITE))
+                                ?: return false
+                        log.log("service-notify")
+                        val notify =
+                            service.getCharacteristic(UUID.fromString(config.UUID_NOTIFY))
+                                ?: return false
+                        log.log("service-set-notify")
+                        if (!gatt.setCharacteristicNotification(notify, true)) {
+                            return false
+                        }
+                        log.log("service-notifyDesc")
+                        val notifyDesc =
+                            notify.getDescriptor(UUID.fromString(config.UUID_DESCRIPTOR_NOTIFY))
+                                ?: return false
+                        notifyDesc.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                        log.log("service-writeDescriptor")
+                        if (!gatt.writeDescriptor(notifyDesc)) {
+                            return false
+                        }
+                        log.log("service-success")
+                        setNotify(notify)
+                        setWrite(write)
+                        return true
+                    }
+                })
+            }, {})
         }
-    }
-
-    @SuppressLint("SetTextI18n")
-    override fun onResume() {
-        super.onResume()
-        val config = BluetoothConfigActivity.getConfigFromDb()
-        if (config == null) {
-            bind.btDeviceConfig.text = "未配置UUID，点击配置"
-        } else {
-            bind.btDeviceConfig.text = "已配置UUID"
-        }
-        BluetoothHelper.INSTANCE.setConfig(object : BtConfig() {
-            override var mtu: Int = MAX_MTU
-
-            override fun onDiscoverService(
-                device: BtDevice,
-                gatt: BluetoothGatt,
-                server: MutableList<BluetoothGattService>
-            ): Boolean {
-                return super.onDiscoverService(device, gatt, server)
-            }
-        })
     }
 
     internal class BluetoothConnectViewModel : ViewModel() {
@@ -153,20 +191,33 @@ class BluetoothConnectActivity : BaseTopActivity() {
         }
 
         fun connectOrDis() {
+            val dev = this.dev ?: return
             if (!BluetoothHelper.INSTANCE.isOpen()) {
                 BluetoothHelper.INSTANCE.open()
                 return
             }
             val stateVal = state.value!!
             if (ConnectState.isConnected(stateVal)) {
-                dev?.getConnector()?.disconnect()
+                dev.getConnector().disconnect()
             } else if (ConnectState.unConnected(stateVal)) {
-                dev?.getConnector()?.connect()
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    dev.getConnector().connect()
+                } else {
+                    dev.getConnector().connectCompat()
+                }
             }
         }
 
         fun updateState(newState: Int) {
             state.postValue(newState)
+        }
+
+        fun connect() {
+            val state = BluetoothHelper.INSTANCE.getCurrent()?.getState() ?: this.state.value!!
+            this.state.postValue(state)
+            if (ConnectState.unConnected(state)) {
+                connectOrDis()
+            }
         }
 
     }

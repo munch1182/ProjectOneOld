@@ -10,6 +10,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
+import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,6 +35,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import java.util.*
 
 /**
  * Create by munch1182 on 2021/4/8 17:14.
@@ -75,7 +77,18 @@ class BluetoothActivity : BaseTopActivity() {
                     requestOpen.launch(BluetoothHelper.openIntent())
                     return@setOnClickListener
                 }
-                requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) { model.scan() }
+                requestPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) {
+                    if (it.isSelected) {
+                        val bean = BtDevice.from(mac)
+                        if (bean == null) {
+                            toast("找不到该设备")
+                            return@requestPermission
+                        }
+                        start(bean)
+                    } else {
+                        model.scan()
+                    }
+                }
             }
             btRv.layoutManager = LinearLayoutManager(this@BluetoothActivity)
 
@@ -90,12 +103,17 @@ class BluetoothActivity : BaseTopActivity() {
                         }
                     }
                     isDel = false
+                    if (btConnectNow.isChecked) {
+                        checkCanConnectNow()
+                    }
                 }
                 setOnKeyListener { _, keyCode, _ ->
                     isDel = keyCode == KeyEvent.KEYCODE_DEL
                     return@setOnKeyListener false
                 }
             }
+
+            btConnectNow.setOnClickListener { checkCanConnectNow() }
         }
         val adapter =
             object : BaseBindAdapter<BtDevice, ItemBluetoothBinding>(R.layout.item_bluetooth) {
@@ -112,15 +130,37 @@ class BluetoothActivity : BaseTopActivity() {
                     toast("已复制地址到剪切板")
                 }
                 setOnItemLongClickListener { _, bean, _, _ ->
-                    BluetoothConnectActivity.start(this@BluetoothActivity, bean)
+                    start(bean)
                 }
             }
         bind.btRv.adapter = adapter
-        model.isScanning().observeOnChanged(this) { bind.btScan.text = if (it) "停止扫描" else "扫描" }
+        model.isScanning().observeOnChanged(this) {
+            bind.btConnectNow.isEnabled = !it
+            bind.btScan.text = if (it) "停止扫描" else "扫描"
+        }
         model.getNotice().observeOnChanged(this) { bind.btNotice.text = it }
         model.getResList().observeOnChanged(this) { adapter.set(it) }
 
-        obOnResume({}, { model.release() })
+        obOnResume({ checkCanConnectNow() }, { model.release() })
+    }
+
+    private fun start(bean: BtDevice) {
+        BluetoothConnectActivity.start(this@BluetoothActivity, bean)
+    }
+
+    private fun checkCanConnectNow() {
+        bind.apply {
+            if (btConnectNow.isChecked) {
+                val mac = btFilterMacEt.text.trim().toString()
+                if (BluetoothHelper.checkMac(mac)) {
+                    btScan.text = "连接"
+                    btScan.isSelected = true
+                    return@apply
+                }
+            }
+            btScan.text = "扫描"
+            btScan.isSelected = false
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -130,7 +170,7 @@ class BluetoothActivity : BaseTopActivity() {
             const val KEY_FILTER = "key_filter"
         }
 
-        private var saved = DataHelper.DEFAULT.get(KEY_FILTER, BtFilter())
+        private var saved = DataHelper.DEFAULT.get(KEY_FILTER, BtScanConfig())
         private val filter = MutableLiveData(saved)
         fun getFilter() = filter.toLiveData()
         private val scanning = MutableLiveData(false)
@@ -146,6 +186,11 @@ class BluetoothActivity : BaseTopActivity() {
             if (!app.btInited) {
                 BluetoothHelper.INSTANCE.init(app)
                 app.btInited = true
+            }
+            val current = BluetoothHelper.INSTANCE.getCurrent()
+            if (current != null) {
+                list.add(0, current.device)
+                res.postValue(list)
             }
         }
 
@@ -237,12 +282,13 @@ class BluetoothActivity : BaseTopActivity() {
     }
 
     @Parcelize
-    data class BtFilter(
+    data class BtScanConfig(
         var isClassic: Boolean = true,
         var name: String? = null,
         var mac: String? = null,
         var timeout: Int = 25,
-        var noName: Boolean = true
+        var noName: Boolean = true,
+        var connectNow: Boolean = true
     ) : Parcelable {
 
         fun getType(): BtType {
@@ -257,7 +303,7 @@ class BluetoothActivity : BaseTopActivity() {
             if (this === other) {
                 return true
             }
-            if (other is BtFilter) {
+            if (other is BtScanConfig) {
                 return other.isClassic == isClassic && other.name == name && other.mac == mac && other.timeout == timeout
             }
             return false
