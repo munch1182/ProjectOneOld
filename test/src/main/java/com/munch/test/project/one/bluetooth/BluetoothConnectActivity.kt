@@ -1,8 +1,11 @@
 package com.munch.test.project.one.bluetooth
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattService
 import android.content.Context
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.munch.lib.fast.extend.get
@@ -35,6 +38,9 @@ class BluetoothConnectActivity : BaseTopActivity() {
     private val bind by bind<ActivityBluetoothConnectBinding>(R.layout.activity_bluetooth_connect)
     private val model by get(BluetoothConnectViewModel::class.java)
 
+    private val requestOpen =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,18 +55,65 @@ class BluetoothConnectActivity : BaseTopActivity() {
 
             btDeviceConnect.setOnClickListener {
                 requestPermission(*BluetoothHelper.permissions()) {
-                    model.connectOrDis()
+                    if (BluetoothHelper.INSTANCE.isOpen()) {
+                        model.connectOrDis()
+                    } else {
+                        requestOpen.launch(BluetoothHelper.openIntent())
+                    }
+
                 }
             }
 
             btDeviceEtSend.digitsInput("0123456789abcdefABCDEF, []x")
             device = btDevice
-
         }
         model.init(btDevice)
         model.getState().observeOnChanged(this) {
+            val title: String
+            val state: String
+            when (it) {
+                ConnectState.STATE_CONNECTED -> {
+                    title = "断开连接"
+                    state = "已连接"
+                }
+                ConnectState.STATE_CONNECTING -> {
+                    title = "连接中"
+                    state = "连接中"
+                }
+                ConnectState.STATE_DISCONNECTED -> {
+                    title = "连接"
+                    state = "未连接"
+                }
+                ConnectState.STATE_DISCONNECTING -> {
+                    title = "断开连接"
+                    state = "正在断开"
+                }
+                else -> throw IllegalStateException("state: $it")
+            }
+            bind.btDeviceConnect.text = title
+            bind.btDeviceState.text = state
         }
+        BluetoothHelper.INSTANCE.apply {
+            connectStateListeners.setWhenResume(this@BluetoothConnectActivity,
+                object : BtConnectStateListener {
 
+                    override fun onStateChange(oldState: Int, newState: Int) {
+                        model.updateState(newState)
+                    }
+                })
+            connectListeners.setWhenResume(this@BluetoothConnectActivity,
+                object : BtConnectFailListener {
+                    @SuppressLint("SetTextI18n")
+                    override fun onConnectFail(device: BtDevice, reason: Int) {
+                        val reasonStr = when (reason) {
+                            ConnectFailReason.FILE_FIND_SERVICE -> "发现服务失败"
+                            else -> "连接失败"
+                        }
+                        runOnUiThread { bind.btDeviceState.text = "连接失败: $reasonStr" }
+                    }
+                })
+
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -72,21 +125,31 @@ class BluetoothConnectActivity : BaseTopActivity() {
         } else {
             bind.btDeviceConfig.text = "已配置UUID"
         }
-        BluetoothHelper.INSTANCE.setConfig(config)
+        BluetoothHelper.INSTANCE.setConfig(object : BtConfig() {
+            override var mtu: Int = MAX_MTU
+
+            override fun onDiscoverService(
+                device: BtDevice,
+                gatt: BluetoothGatt,
+                server: MutableList<BluetoothGattService>
+            ): Boolean {
+                return super.onDiscoverService(device, gatt, server)
+            }
+        })
     }
 
     internal class BluetoothConnectViewModel : ViewModel() {
 
-        private val state = MutableLiveData(1)
+        private val state = MutableLiveData(ConnectState.STATE_DISCONNECTED)
         fun getState() = state.toLiveData()
         private var dev: BtDevice? = null
 
         fun init(device: BtDevice?) {
             dev = device
-           /* val currentDev = BluetoothHelper.INSTANCE.getCurrent()
-            if (currentDev.device != null && currentDev.device == dev) {
-                updateState(currentDev.state)
-            }*/
+            val currentDev = BluetoothHelper.INSTANCE.getCurrent() ?: return
+            if (currentDev.device == dev) {
+                updateState(currentDev.getState())
+            }
         }
 
         fun connectOrDis() {
@@ -95,12 +158,11 @@ class BluetoothConnectActivity : BaseTopActivity() {
                 return
             }
             val stateVal = state.value!!
-            /*if (ConnectState.isConnected(stateVal)) {
-                BluetoothHelper.INSTANCE.disconnect()
+            if (ConnectState.isConnected(stateVal)) {
+                dev?.getConnector()?.disconnect()
             } else if (ConnectState.unConnected(stateVal)) {
-                val device = dev ?: return
-                BluetoothHelper.INSTANCE.connect(device)
-            }*/
+                dev?.getConnector()?.connect()
+            }
         }
 
         fun updateState(newState: Int) {

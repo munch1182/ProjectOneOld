@@ -1,6 +1,7 @@
 package com.munch.test.project.one.bluetooth
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import android.widget.EditText
 import androidx.core.widget.doAfterTextChanged
@@ -8,13 +9,13 @@ import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.lifecycleScope
-import com.munch.pre.lib.bluetooth.BtConfig
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.base.DataHelper
 import com.munch.test.project.one.databinding.ActivityBluetoothConfigBinding
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 
 /**
  * Create by munch1182 on 2021/4/8 17:57.
@@ -28,7 +29,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
         bind.apply {
             lifecycleOwner = this@BluetoothConfigActivity
             lifecycleScope.launch {
-                config = getConfigFromDb() ?: BtConfig()
+                config = getConfigFromDb() ?: BtUUIDConfig()
             }
             testBtSure.setOnClickListener {
                 putConfig(bind.config)
@@ -40,23 +41,23 @@ class BluetoothConfigActivity : BaseTopActivity() {
 
     companion object {
 
-        private const val KEY_CONFIG = "key_ble_config"
+        private const val KEY_CONFIG = "key_ble_config_uuid"
 
-        fun getConfigFromDb(): BtConfig? {
+        fun getConfigFromDb(): BtUUIDConfig? {
             val default = DataHelper.DEFAULT
             if (!default.hasKey(KEY_CONFIG)) {
                 return null
             }
-            return default.get(KEY_CONFIG, BtConfig())
+            return default.get(KEY_CONFIG, BtUUIDConfig())
         }
 
-        fun putConfig(config: BtConfig?) {
-            DataHelper.DEFAULT.put(KEY_CONFIG, config ?: BtConfig())
+        fun putConfig(config: BtUUIDConfig?) {
+            DataHelper.DEFAULT.put(KEY_CONFIG, config ?: BtUUIDConfig())
         }
 
         @JvmStatic
         @BindingAdapter("bind_config_main")
-        fun bindConfigMain(et: EditText, value: BtConfig) {
+        fun bindConfigMain(et: EditText, value: BtUUIDConfig) {
             if (value.UUID_MAIN_SERVER != et.text.toString()) {
                 et.setText(value.UUID_MAIN_SERVER)
                 saveConfig(et, value)
@@ -65,7 +66,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
 
         @JvmStatic
         @BindingAdapter("bind_config_write")
-        fun bindConfigWrite(et: EditText, value: BtConfig) {
+        fun bindConfigWrite(et: EditText, value: BtUUIDConfig) {
             if (value.UUID_WRITE != et.text.toString()) {
                 et.setText(value.UUID_WRITE)
                 saveConfig(et, value)
@@ -74,20 +75,20 @@ class BluetoothConfigActivity : BaseTopActivity() {
 
         @JvmStatic
         @BindingAdapter("bind_config_notify")
-        fun bindConfigNotify(et: EditText, value: BtConfig) {
+        fun bindConfigNotify(et: EditText, value: BtUUIDConfig) {
             if (value.UUID_NOTIFY != et.text.toString()) {
                 et.setText(value.UUID_NOTIFY)
                 saveConfig(et, value)
             }
         }
 
-        private fun saveConfig(et: EditText, value: BtConfig) {
+        private fun saveConfig(et: EditText, value: BtUUIDConfig) {
             (et.parent as View).tag = value
         }
 
         @JvmStatic
         @BindingAdapter("bind_config_desc")
-        fun bindConfigDesc(et: EditText, value: BtConfig) {
+        fun bindConfigDesc(et: EditText, value: BtUUIDConfig) {
             if (value.UUID_DESCRIPTOR_NOTIFY != et.text.toString()) {
                 et.setText(value.UUID_DESCRIPTOR_NOTIFY)
                 saveConfig(et, value)
@@ -104,22 +105,22 @@ class BluetoothConfigActivity : BaseTopActivity() {
 
         @JvmStatic
         @InverseBindingAdapter(attribute = "bind_config_main", event = "update_config")
-        fun changeConfigMain(et: EditText): BtConfig {
+        fun changeConfigMain(et: EditText): BtUUIDConfig {
             val config = getConfig(et)
             config.UUID_MAIN_SERVER = et.text.toString()
             saveConfig(et, config)
             return config
         }
 
-        private fun getConfig(et: EditText): BtConfig {
+        private fun getConfig(et: EditText): BtUUIDConfig {
             val tag = (et.parent as View).tag
-            return if (tag is BtConfig) tag else BtConfig()
+            return if (tag is BtUUIDConfig) tag else BtUUIDConfig()
 
         }
 
         @JvmStatic
         @InverseBindingAdapter(attribute = "bind_config_write", event = "update_config")
-        fun changeConfigWrite(et: EditText): BtConfig {
+        fun changeConfigWrite(et: EditText): BtUUIDConfig {
             val data = getConfig(et)
             data.UUID_WRITE = et.text.toString()
             saveConfig(et, data)
@@ -128,7 +129,7 @@ class BluetoothConfigActivity : BaseTopActivity() {
 
         @JvmStatic
         @InverseBindingAdapter(attribute = "bind_config_notify", event = "update_config")
-        fun changeConfigNotify(et: EditText): BtConfig {
+        fun changeConfigNotify(et: EditText): BtUUIDConfig {
             val data = getConfig(et)
             data.UUID_NOTIFY = et.text.toString()
             saveConfig(et, data)
@@ -137,11 +138,24 @@ class BluetoothConfigActivity : BaseTopActivity() {
 
         @JvmStatic
         @InverseBindingAdapter(attribute = "bind_config_desc", event = "update_config")
-        fun changeConfigDesc(et: EditText): BtConfig {
+        fun changeConfigDesc(et: EditText): BtUUIDConfig {
             val data = getConfig(et)
             data.UUID_DESCRIPTOR_NOTIFY = et.text.toString()
             saveConfig(et, data)
             return data
+        }
+    }
+
+    @Parcelize
+    open class BtUUIDConfig(
+        var UUID_MAIN_SERVER: String? = null,
+        var UUID_WRITE: String? = null,
+        var UUID_NOTIFY: String? = null,
+        var UUID_DESCRIPTOR_NOTIFY: String? = null,
+    ) : Parcelable {
+
+        override fun toString(): String {
+            return "BtConfig(UUID_MAIN_SERVER=$UUID_MAIN_SERVER, UUID_WRITE=$UUID_WRITE, UUID_NOTIFY=$UUID_NOTIFY, UUID_DESCRIPTOR_NOTIFY=$UUID_DESCRIPTOR_NOTIFY)"
         }
     }
 }

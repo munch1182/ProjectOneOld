@@ -20,3 +20,8 @@ interface Destroyable {
 
     fun destroy()
 }
+
+interface Resettable {
+
+    fun reset()
+}

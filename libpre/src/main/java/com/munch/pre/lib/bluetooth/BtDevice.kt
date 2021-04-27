@@ -57,6 +57,10 @@ data class BtDevice(
         }
         return false
     }
+
+    fun getConnector(): BleConnector {
+        return BluetoothHelper.INSTANCE.getConnector(this)
+    }
 }
 
 sealed class BtType : Parcelable {

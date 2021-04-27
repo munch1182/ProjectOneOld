@@ -7,7 +7,7 @@
 
         <variable
             name="config"
-            type="com.munch.pre.lib.bluetooth.BtConfig" />
+            type="com.munch.test.project.one.bluetooth.BluetoothConfigActivity.BtUUIDConfig" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

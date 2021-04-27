@@ -1,7 +1,6 @@
 package com.munch.pre.lib.bluetooth
 
 import android.bluetooth.BluetoothGatt
-import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothProfile
 import androidx.annotation.IntDef
 import com.munch.pre.lib.ATTENTION
@@ -17,21 +16,18 @@ interface BtConnectListener {
 
     fun onStart(device: BtDevice)
 
-    fun onConnecting(device: BtDevice)
+    fun onConnectFail(device: BtDevice, @ConnectFailReason reason: Int)
 
-    /**
-     * 当连接成功后开始查找服务，在此方法内检查找到的服务
-     *
-     * @return 返回值会影响最终的连接结果，true则回调连接成功，false则回调连接失败[ConnectFailReason.FILE_FIND_SERVICE]
-     */
-    fun onDiscoverService(gattService: MutableList<BluetoothGattService>): Boolean {
-        return true
+    fun onConnectSuccess(device: BtDevice, gatt: BluetoothGatt)
+}
+
+interface BtConnectFailListener : BtConnectListener {
+
+    override fun onStart(device: BtDevice) {
     }
 
-    fun onConnectFail(@ConnectFailReason reason: Int)
-
-    fun onConnectSuccess(gatt: BluetoothGatt)
-
+    override fun onConnectSuccess(device: BtDevice, gatt: BluetoothGatt) {
+    }
 }
 
 /**
@@ -41,9 +37,7 @@ interface BtConnectListener {
  */
 interface BtConnectStateListener {
 
-    fun onStateChange(@ConnectState newState: Int)
-
-    fun onStateChange(@ConnectState oldState: Int, @ConnectState newState: Int) {}
+    fun onStateChange(@ConnectState oldState: Int, @ConnectState newState: Int)
 }
 
 
@@ -67,6 +61,14 @@ annotation class ConnectState {
         fun from(state: Int): Int {
             return state
         }
+
+        fun isConnected(state: Int): Boolean {
+            return state == STATE_CONNECTED
+        }
+
+        fun unConnected(state: Int): Boolean {
+            return state == STATE_DISCONNECTED
+        }
     }
 }
 
@@ -77,5 +79,6 @@ annotation class ConnectFailReason {
 
         const val FILE_CONNECT_BY_SYSTEM = 0
         const val FILE_FIND_SERVICE = 1
+        const val FILE_REQUEST_MTU = 2
     }
 }

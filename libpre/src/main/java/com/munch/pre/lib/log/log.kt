@@ -30,6 +30,12 @@ object LogLog : Logger() {
 
 open class Logger {
 
+    open fun withEnable(func: () -> Any?) {
+        if (enable) {
+            logOne(func.invoke())
+        }
+    }
+
     open fun log(vararg any: Any?) {
         if (any.size == 1) {
             logOne(any[0])
@@ -85,8 +91,12 @@ open class Logger {
     var isJson = false
     var noStack = false
     var noInfo = false
+    var enable = true
 
     protected open fun logOne(any: Any?) {
+        if (!enable) {
+            return
+        }
         val msg = any2Str(any)
         val thread: Thread = Thread.currentThread()
         val traceInfo: String? = if (noInfo) null else dumpTraceInfo()

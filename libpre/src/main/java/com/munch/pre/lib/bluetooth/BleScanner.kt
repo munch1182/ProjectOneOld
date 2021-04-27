@@ -11,8 +11,6 @@ import com.munch.pre.lib.base.Cancelable
 import com.munch.pre.lib.base.Destroyable
 
 /**
- * 内部没有维护scanning的状态，这是因为因为[ScanFailReason.SCAN_FAILED_ALREADY_STARTED]会回调失败
- *
  * Create by munch1182 on 2021/4/26 14:59.
  */
 class BleScanner : Cancelable, Destroyable {
@@ -33,11 +31,18 @@ class BleScanner : Cancelable, Destroyable {
     private val res = mutableListOf<BtDevice>()
     private var filter: MutableList<ScanFilter>? = null
     private var settings: ScanSettings? = null
+    private var scanning = false
+        get() = synchronized(this) { field }
+        set(value) = synchronized(this) {
+            field = value
+            BluetoothHelper.logHelper.withEnable { "scanning change: $value" }
+        }
 
     @SuppressLint("MissingPermission")
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
+            BluetoothHelper.logSystem.withEnable { "onScanResult: ${result?.device?.address ?: "null"}" }
             result ?: return
             val device = BtDevice.from(result)
             if (!res.contains(device)) {
@@ -48,6 +53,7 @@ class BleScanner : Cancelable, Destroyable {
 
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
+            BluetoothHelper.logSystem.withEnable { "onScanFailed: errorCode: $errorCode" }
             val code = ScanFailReason.fromErrorCode(errorCode)
             scanListener?.onFail(code)
             stopScan()
@@ -55,6 +61,7 @@ class BleScanner : Cancelable, Destroyable {
 
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
             super.onBatchScanResults(results)
+            BluetoothHelper.logSystem.withEnable { "onBatchScanResults: results: ${results?.size ?: 0}" }
             stopScan()
         }
     }
@@ -81,6 +88,10 @@ class BleScanner : Cancelable, Destroyable {
             android.Manifest.permission.ACCESS_FINE_LOCATION]
     )
     fun startScan() {
+        if (scanning) {
+            return
+        }
+        scanning = true
         val scanner = BluetoothHelper.INSTANCE.btAdapter?.bluetoothLeScanner
         if (scanner == null) {
             scanListener?.onFail(ScanFailReason.SCAN_FAILED_NO_SCANNER)
@@ -88,16 +99,24 @@ class BleScanner : Cancelable, Destroyable {
         }
         res.clear()
         this.scanListener?.onStart()
-        scanner.startScan(filter, settings ?: defScanSettingBuilder().build(), scanCallback)
+        scanner.startScan(filter, getScanSettings(), scanCallback)
     }
+
+    fun getScanSettings() = settings ?: defScanSettingBuilder().build()
+
+    fun getFilter() = filter
 
     @RequiresPermission(
         allOf = [android.Manifest.permission.BLUETOOTH,
             android.Manifest.permission.BLUETOOTH_ADMIN]
     )
     fun stopScan() {
-        val scanner = BluetoothHelper.INSTANCE.btAdapter?.bluetoothLeScanner ?: return
-        scanner.stopScan(scanCallback)
+        if (!scanning) {
+            return
+        }
+        scanning = false
+        //当蓝牙关闭时，bluetoothLeScanner为null
+        BluetoothHelper.INSTANCE.btAdapter?.bluetoothLeScanner?.stopScan(scanCallback)
         scanListener?.onEnd(res)
     }
 
@@ -106,6 +125,7 @@ class BleScanner : Cancelable, Destroyable {
             android.Manifest.permission.BLUETOOTH_ADMIN]
     )
     override fun cancel() {
+        BluetoothHelper.logHelper.withEnable { "scanner cancel" }
         stopScan()
     }
 
@@ -114,6 +134,7 @@ class BleScanner : Cancelable, Destroyable {
             android.Manifest.permission.BLUETOOTH_ADMIN]
     )
     override fun destroy() {
+        BluetoothHelper.logHelper.withEnable { "scanner destroy" }
         cancel()
         res.clear()
         scanListener = null
