@@ -119,6 +119,9 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
          * 此流程将[onMtuChanged]作为连接的最后一步，所以每一个回调都会调用此方法
          */
         private fun requestMtu(gatt: BluetoothGatt) {
+            if (state == ConnectState.STATE_CONNECTED) {
+                return
+            }
             val config = BluetoothHelper.INSTANCE.config
             if (config.mtu != -1) {
                 gatt.requestMtu(config.mtu)

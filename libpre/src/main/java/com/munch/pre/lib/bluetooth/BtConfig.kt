@@ -56,11 +56,17 @@ open class BtConfig {
         return mtu == this.mtu
     }
 
+    /**
+     * 传递写入数据的特征值
+     */
     fun setWrite(write: BluetoothGattCharacteristic): BtConfig {
         BluetoothHelper.INSTANCE.getCurrent()?.setWrite(write)
         return this
     }
 
+    /**
+     * 传递读取数据的特征值
+     */
     fun setNotify(notify: BluetoothGattCharacteristic): BtConfig {
         BluetoothHelper.INSTANCE.getCurrent()?.setNotify(notify)
         return this

@@ -10,7 +10,11 @@ import com.munch.pre.lib.ATTENTION
  */
 
 /**
- * 连接回调
+ * 连接结果回调
+ *
+ * 如果要监听连接状态，使用[BtConnectStateListener]
+ *
+ * @see BtConnectStateListener
  */
 interface BtConnectListener {
 

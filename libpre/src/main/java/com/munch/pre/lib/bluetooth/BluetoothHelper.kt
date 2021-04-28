@@ -39,11 +39,11 @@ class BluetoothHelper private constructor() {
 
         private const val HT_NAME = "BLUETOOTH_HANDLER_THREAD"
 
-        val logSystem = Logger().apply {
+        internal val logSystem = Logger().apply {
             tag = "bluetooth-system"
             noStack = true
         }
-        val logHelper = Logger().apply {
+        internal val logHelper = Logger().apply {
             tag = "bluetooth-helper"
             noStack = true
         }

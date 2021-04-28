@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel
 import com.munch.lib.fast.extend.get
 import com.munch.pre.lib.bluetooth.*
 import com.munch.pre.lib.extend.*
+import com.munch.pre.lib.log.Logger
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityBluetoothConnectBinding
@@ -140,7 +141,11 @@ class BluetoothConnectActivity : BaseTopActivity() {
                         if (config == null) {
                             return super.onDiscoverService(device, gatt, server)
                         }
-                        val log = BluetoothHelper.logHelper
+                        val log = Logger().apply {
+                            tag = "bluetooth-helper"
+                            noStack = true
+                            enable = false
+                        }
                         log.log("service-service")
                         val service =
                             gatt.getService(UUID.fromString(config.UUID_MAIN_SERVER))

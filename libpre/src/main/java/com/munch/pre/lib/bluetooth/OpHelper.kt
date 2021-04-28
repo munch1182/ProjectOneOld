@@ -106,7 +106,7 @@ class OpHelper : Cancelable, Destroyable {
                 onReceived?.onReceived(buf)
             }
         }
-        private var running = true
+        private var running = false
 
         companion object {
             private const val PIPE_SIZE = 4096
@@ -114,7 +114,9 @@ class OpHelper : Cancelable, Destroyable {
 
         fun setNotify(notify: BluetoothGattCharacteristic, pool: ThreadPoolExecutor) {
             this.notify = notify
-            pool.execute(receivedRunnable)
+            if (!running) {
+                pool.execute(receivedRunnable)
+            }
         }
 
         fun onReadListener(characteristic: BluetoothGattCharacteristic?) {
@@ -154,6 +156,7 @@ class OpHelper : Cancelable, Destroyable {
         private val lock = Object()
         private var sendSuccess = false
         private val sendRunnable = Runnable {
+            running = true
             while (running) {
 
                 if (bytesList.isEmpty()) {
@@ -186,8 +189,9 @@ class OpHelper : Cancelable, Destroyable {
 
         fun setWrite(write: BluetoothGattCharacteristic, pool: ThreadPoolExecutor) {
             this.write = write
-            pool.execute(sendRunnable)
-            running = true
+            if (!running) {
+                pool.execute(sendRunnable)
+            }
         }
 
         fun onSend(characteristic: BluetoothGattCharacteristic?) {
