@@ -151,7 +151,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
             super.onCharacteristicChanged(gatt, characteristic)
             BluetoothHelper.logSystem.withEnable {
                 val bytes = characteristic?.value
-                "onCharacteristicChanged: ${bytes?.format() ?: "[]"}"
+                "onCharacteristicChanged: ${System.currentTimeMillis()}, ${bytes?.format() ?: "[]"}"
             }
             opHelper.characteristicListener.onRead(characteristic)
         }
@@ -164,7 +164,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
             super.onCharacteristicRead(gatt, characteristic, status)
             BluetoothHelper.logSystem.withEnable {
                 val bytes = characteristic?.value
-                "onCharacteristicRead: ${bytes?.format() ?: "[]"}"
+                "onCharacteristicRead: ${System.currentTimeMillis()}, ${bytes?.format() ?: "[]"}"
             }
         }
 
@@ -175,7 +175,8 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
         ) {
             super.onCharacteristicWrite(gatt, characteristic, status)
             BluetoothHelper.logSystem.withEnable {
-                "onCharacteristicChanged: ${System.currentTimeMillis()}"
+                val bytes = characteristic?.value
+                "onCharacteristicWrite: ${System.currentTimeMillis()}, ${bytes?.format() ?: "[]"}"
             }
             opHelper.characteristicListener.onSend(characteristic, status)
         }
@@ -216,13 +217,18 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
     fun disconnect() {
         state = ConnectState.STATE_DISCONNECTING
         gatt?.disconnect()
+        gatt = null
     }
 
     @ConnectState
     fun getState() = state
 
     fun send(byteArray: ByteArray) {
-        opHelper.send(byteArray)
+        send(SendPack(byteArray))
+    }
+
+    fun send(pack: SendPack) {
+        opHelper.send(pack)
     }
 
     override fun cancel() {

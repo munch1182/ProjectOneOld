@@ -14,6 +14,17 @@ inline fun <reified T> Array<T>.split(length: Int): Array<Array<T>> {
     }
 }
 
+inline fun <reified T> Array<T?>.splitNullable(length: Int): Array<Array<T?>> {
+    val end = size % length
+    val arraySize = if (end == 0) size / length else (size / length) + 1
+    return Array(arraySize) {
+        val l = if (it == arraySize - 1 && end > 0) end else length
+        val array = Array<T?>(l) { null }
+        System.arraycopy(this, it * length, this, 0, l)
+        array
+    }
+}
+
 fun ByteArray.split(length: Int): Array<ByteArray> {
     val end = size % length
     val arraySize = if (end == 0) size / length else (size / length) + 1

@@ -6,4 +6,12 @@ package com.munch.pre.lib.bluetooth
 interface OnReceivedListener {
 
     fun onReceived(bytes: ByteArray)
+
+    fun onTimeout() {}
+}
+
+interface OnReceivedCheckedListener : OnReceivedListener {
+
+    fun onChecked(bytes: ByteArray): Boolean
+
 }

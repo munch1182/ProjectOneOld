@@ -4,13 +4,16 @@ import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import com.munch.pre.lib.base.Cancelable
 import com.munch.pre.lib.base.Destroyable
-import com.munch.pre.lib.helper.ARSHelper
+import com.munch.pre.lib.extend.split
 import com.munch.pre.lib.helper.ThreadPoolHelper
+import com.munch.pre.lib.helper.file.closeQuietly
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.util.*
 import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 /**
  * Create by munch1182 on 2021/4/27 17:29.
@@ -20,12 +23,12 @@ class OpHelper : Cancelable, Destroyable {
     private val logHelp = BluetoothHelper.logHelper
     val characteristicListener = object : CharacteristicChangedListener {
         override fun onRead(characteristic: BluetoothGattCharacteristic?) {
-            reader.onReadListener(characteristic)
+            reader.onRead(characteristic)
             logHelp.withEnable { "${System.currentTimeMillis()}: onRead" }
         }
 
         override fun onSend(characteristic: BluetoothGattCharacteristic?, status: Int) {
-            sender.onSend(characteristic)
+            sender.onSend()
             logHelp.withEnable { "${System.currentTimeMillis()}: onSend: status: $status" }
         }
     }
@@ -33,30 +36,23 @@ class OpHelper : Cancelable, Destroyable {
     private val reader by lazy { DataReader() }
     private val onReceived = object : OnReceivedListener {
         override fun onReceived(bytes: ByteArray) {
-            BluetoothHelper.INSTANCE.notify(receivedListeners) { it.onReceived(bytes) }
+            sender.onReceived(bytes)
+            BluetoothHelper.INSTANCE.apply {
+                notify(receivedListeners) { it.onReceived(bytes) }
+            }
         }
     }
-    val receivedListeners = object : ARSHelper<OnReceivedListener>() {}
-    private val maxPackSize = BluetoothHelper.INSTANCE.config.mtu
     private val handler = BluetoothHelper.INSTANCE.handler
     private var executePool: ThreadPoolExecutor? = null
         get() {
             if (field == null) {
-                field = ThreadPoolHelper.newFixThread()
+                field = ThreadPoolHelper.newFixThread(2)
             }
             return field
         }
 
-    //sendListener
-    fun send(bytes: ByteArray) {
-        handler.post {
-            if (bytes.size > maxPackSize) {
-                //
-                sender.send(bytes)
-            } else {
-                sender.send(bytes)
-            }
-        }
+    fun send(pack: SendPack) {
+        handler.post { sender.send(pack) }
     }
 
     internal fun setGatt(gatt: BluetoothGatt) {
@@ -92,33 +88,44 @@ class OpHelper : Cancelable, Destroyable {
     internal class DataReader : Cancelable, Destroyable {
         private var notify: BluetoothGattCharacteristic? = null
         private var onReceived: OnReceivedListener? = null
-        private val pis by lazy { PipedInputStream(PIPE_SIZE) }
-        private val pos by lazy { PipedOutputStream(pis) }
+        private val mtu = BluetoothHelper.INSTANCE.config.mtu - 3
+        private val pis by lazy { PipedInputStream(mtu) }
+        private val pos by lazy { PipedOutputStream() }
         private var receivedRunnable = Runnable {
             running = true
-            val buf = ByteArray(PIPE_SIZE)
+            val buf = ByteArray(mtu)
             while (running) {
-                val read = pis.read(buf)
-                if (running || read <= 0) {
+                val read: Int
+                try {
+                    //当线程池被关闭时
+                    read = pis.read(buf)
+                } catch (e: InterruptedIOException) {
                     break
                 }
-                onReceived?.onReceived(buf)
+                if (!running || read <= 0) {
+                    break
+                }
+
+                onReceived?.onReceived(buf.copyOfRange(0, read))
             }
         }
         private var running = false
 
-        companion object {
-            private const val PIPE_SIZE = 4096
-        }
-
         fun setNotify(notify: BluetoothGattCharacteristic, pool: ThreadPoolExecutor) {
-            this.notify = notify
-            if (!running) {
-                pool.execute(receivedRunnable)
+            if (running) {
+                throw IllegalStateException("must stop first")
             }
+            this.notify = notify
+            try {
+                //因为没有判断绑定的方法
+                pos.connect(pis)
+            } catch (e: IOException) {
+                //ignore
+            }
+            pool.execute(receivedRunnable)
         }
 
-        fun onReadListener(characteristic: BluetoothGattCharacteristic?) {
+        fun onRead(characteristic: BluetoothGattCharacteristic?) {
             characteristic ?: return
             val value = characteristic.value
             try {
@@ -136,50 +143,99 @@ class OpHelper : Cancelable, Destroyable {
         }
 
         override fun cancel() {
-            running = false
             onReceived = null
+            running = false
             notify = null
         }
 
         override fun destroy() {
             cancel()
+            pos.closeQuietly()
+            pis.closeQuietly()
         }
 
     }
 
     internal class DataSender : Cancelable, Destroyable {
-        private val bytesList = LinkedList<ByteArray>()
+        private val mtu = BluetoothHelper.INSTANCE.config.mtu
+        private val bytesList = LinkedList<SendPack>()
         private var gatt: BluetoothGatt? = null
         private var write: BluetoothGattCharacteristic? = null
         private var running = false
         private val lock = Object()
-        private var sendSuccess = false
+        private var writed = false
+        private var received = false
+        private var receivedBytes: ByteArray? = null
         private val sendRunnable = Runnable {
             running = true
             while (running) {
 
                 if (bytesList.isEmpty()) {
-                    lock.wait()
+                    synchronized(lock) {
+                        try {
+                            //当线程池先关闭时，此方法会报错
+                            lock.wait()
+                        } catch (e: Exception) {
+                            return@Runnable
+                        }
+                    }
                 }
                 if (!running) {
                     break
                 }
-                sendSuccess = false
-                if (gatt != null) {
-                    write?.value = bytesList.first
-                    gatt?.writeCharacteristic(write)
-
-                    //wait sendSuccess or timeout
+                if (bytesList.isEmpty()) {
+                    continue
                 }
+
+                val pack = bytesList.removeFirst()
+                val content = pack.bytes
+                if (content.size > mtu) {
+                    content.split(mtu).forEach { write(it) }
+                } else {
+                    write(content)
+                }
+                if (!pack.needReceived) {
+                    pack.listener?.onReceived(byteArrayOf())
+                } else {
+                    received = false
+                    receivedBytes = null
+                    val timeSleep = 3L
+                    val count = pack.timeout / timeSleep
+                    while (count > 0L) {
+                        Thread.sleep(timeSleep)
+                        if (received && receivedBytes != null) {
+                            received = false
+                            pack.listener?.onReceived(receivedBytes!!)
+                            break
+                        }
+                    }
+                    pack.listener?.onTimeout()
+                }
+            }
+        }
+
+        private fun write(byte: ByteArray) {
+            if (gatt != null) {
+                writed = false
+                write?.value = byte
+                gatt?.writeCharacteristic(write)
+
+                var time = 100L
+                do {
+                    time--
+                    TimeUnit.MILLISECONDS.sleep(1)
+                } while (time > 0 && !writed)
             }
         }
 
         /**
          * 此方法没有检查bytes的大小是否超过最大值
          */
-        fun send(bytes: ByteArray) {
-            bytesList.add(bytes)
-            lock.notify()
+        fun send(pack: SendPack) {
+            bytesList.add(pack)
+            synchronized(lock) {
+                lock.notify()
+            }
         }
 
         fun setGatt(gatt: BluetoothGatt) {
@@ -187,22 +243,30 @@ class OpHelper : Cancelable, Destroyable {
         }
 
         fun setWrite(write: BluetoothGattCharacteristic, pool: ThreadPoolExecutor) {
-            this.write = write
-            if (!running) {
-                pool.execute(sendRunnable)
+            if (running) {
+                throw IllegalStateException("must stop first")
             }
+            this.write = write
+            pool.execute(sendRunnable)
         }
 
-        fun onSend(characteristic: BluetoothGattCharacteristic?) {
-            characteristic ?: return
-            sendSuccess = true
+        fun onSend() {
+            writed = true
         }
 
         override fun cancel() {
             bytesList.clear()
+            running = false
+            synchronized(lock) { lock.notify() }
         }
 
         override fun destroy() {
+            cancel()
+        }
+
+        fun onReceived(bytes: ByteArray) {
+            received = true
+            receivedBytes = bytes
         }
     }
 

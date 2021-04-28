@@ -13,7 +13,9 @@ import androidx.lifecycle.ViewModel
 import com.munch.lib.fast.extend.get
 import com.munch.pre.lib.bluetooth.*
 import com.munch.pre.lib.extend.*
+import com.munch.pre.lib.helper.format
 import com.munch.pre.lib.log.Logger
+import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityBluetoothConnectBinding
@@ -68,8 +70,12 @@ class BluetoothConnectActivity : BaseTopActivity() {
             btDeviceEtSend.digitsInput("0123456789abcdefABCDEF, []x")
             btDeviceEtSend.setOnKeyListener { _, keyCode, keyEvent ->
                 if (keyCode == KeyEvent.KEYCODE_ENTER && keyEvent.action == KeyEvent.ACTION_DOWN) {
-                    btDevice?.getConnector()
-                        ?.send(btDeviceEtSend.text.trim().toString().toByteArray())
+                    val byteArray = changeContent2Bytes(btDeviceEtSend.text.trim().toString())
+                    if (byteArray.isEmpty()) {
+                        return@setOnKeyListener true
+                    }
+                    bind.btDeviceReceived.text = "wait to receive"
+                    btDevice?.getConnector()?.send(byteArray)
                     return@setOnKeyListener true
                 }
                 return@setOnKeyListener false
@@ -144,40 +150,59 @@ class BluetoothConnectActivity : BaseTopActivity() {
                         val log = Logger().apply {
                             tag = "bluetooth-helper"
                             noStack = true
-                            enable = false
                         }
-                        log.log("service-service")
                         val service =
                             gatt.getService(UUID.fromString(config.UUID_MAIN_SERVER))
                                 ?: return false
-                        log.log("service-write")
                         val write =
                             service.getCharacteristic(UUID.fromString(config.UUID_WRITE))
                                 ?: return false
-                        log.log("service-notify")
                         val notify =
                             service.getCharacteristic(UUID.fromString(config.UUID_NOTIFY))
                                 ?: return false
-                        log.log("service-set-notify")
                         if (!gatt.setCharacteristicNotification(notify, true)) {
                             return false
                         }
-                        log.log("service-notifyDesc")
                         val notifyDesc =
                             notify.getDescriptor(UUID.fromString(config.UUID_DESCRIPTOR_NOTIFY))
                                 ?: return false
                         notifyDesc.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                        log.log("service-writeDescriptor")
                         if (!gatt.writeDescriptor(notifyDesc)) {
                             return false
                         }
-                        log.log("service-success")
                         setNotify(notify)
                         setWrite(write)
+                        log.log("onServiceSuccess")
                         return true
                     }
                 })
             }, {})
+            receivedListeners.setWhenResume(this@BluetoothConnectActivity,
+                object : OnReceivedListener {
+                    override fun onReceived(bytes: ByteArray) {
+                        runOnUiThread { bind.btDeviceReceived.text = bytes.format() }
+                    }
+
+                    override fun onTimeout() {
+                        runOnUiThread { bind.btDeviceReceived.text = "timeout" }
+                    }
+                })
+        }
+    }
+
+    private fun changeContent2Bytes(str: String): ByteArray {
+        return try {
+            str.split(",")
+                .map {
+                    it.trim().toLowerCase(Locale.getDefault())
+                        .replace("0x", "")
+                        .toInt(16).toByte()
+                }
+                .toByteArray()
+        } catch (e: Exception) {
+            log(e)
+            toast("数据错误，无法发送")
+            byteArrayOf()
         }
     }
 

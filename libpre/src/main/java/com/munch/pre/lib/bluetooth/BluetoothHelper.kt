@@ -111,6 +111,7 @@ class BluetoothHelper private constructor() {
     private val connectCallback = object : BtConnectListener {
         override fun onStart(device: BtDevice) {
             setCurrent(getConnector(device))
+            logHelper.withEnable { "setCurrentConnector" }
             notify(connectListeners) { it.onStart(device) }
         }
 
@@ -128,6 +129,7 @@ class BluetoothHelper private constructor() {
             tempConnectListener.forEach { connectListeners.remove(it) }
         }
     }
+    val receivedListeners = object : ARSHelper<OnReceivedListener>() {}
 
     @SuppressLint("MissingPermission")
     private val delayStopScan = { stopScan() }

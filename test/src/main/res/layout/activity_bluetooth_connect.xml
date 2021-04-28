@@ -98,6 +98,7 @@
                 android:layout_marginTop="18dp"
                 android:background="@null"
                 android:gravity="start|top"
+                android:hint="0x00, 0x01, 0x02"
                 android:importantForAutofill="no"
                 android:minHeight="300dp"
                 android:textColor="@color/colorTextGray"
@@ -105,8 +106,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/bt_device_received"
-                tools:ignore="LabelFor,TextFields"
-                tools:text="[0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09]" />
+                tools:ignore="LabelFor,TextFields" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
