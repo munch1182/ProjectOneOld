@@ -5,8 +5,8 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Process
 import com.munch.pre.lib.BuildConfig
-import com.munch.pre.lib.log.log
 import com.munch.pre.lib.helper.AppHelper
+import com.munch.pre.lib.log.log
 
 /**
  * Create by munch1182 on 2021/3/30 16:19.

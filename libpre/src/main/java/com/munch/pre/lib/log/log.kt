@@ -80,7 +80,7 @@ open class Logger {
 
     companion object {
         private const val TAG_DEF = "loglog"
-        private const val MAX_COUNT_IN_LINE = 300
+        private const val MAX_COUNT_IN_LINE = 150
         private val LINE_SEPARATOR = System.getProperty("line.separator")
     }
 
@@ -165,7 +165,7 @@ open class Logger {
     }
 
     protected open fun formatStackTrace(e: StackTraceElement) =
-        "${e.className}#${e.methodName}(${e.fileName}:${e.lineNumber})"
+        "${e.className.split(".").last()}#${e.methodName}(${e.fileName}:${e.lineNumber})"
 
     protected open fun any2Str(any: Any?): String {
         return when (any) {
@@ -224,25 +224,25 @@ open class Logger {
     }
 
     protected open fun formatMultiStr(any: String): String {
-        /*if (any.length < MAX_COUNT_IN_LINE) {
+        if (any.length <= MAX_COUNT_IN_LINE) {
             return "\"$any\""
         } else {
             val sb = StringBuilder()
             any.split(LINE_SEPARATOR).forEach {
                 var index = 0
                 while (index < it.length) {
-                    index += if (it.length - index < MAX_COUNT_IN_LINE) {
+                    index += if (it.length - index <= MAX_COUNT_IN_LINE) {
                         sb.append(it.subSequence(index, it.length)).append(LINE_SEPARATOR)
                         it.length
                     } else {
-                        sb.append(it.subSequence(index, MAX_COUNT_IN_LINE)).append(LINE_SEPARATOR)
+                        sb.append(it.subSequence(index, MAX_COUNT_IN_LINE + index))
+                            .append(LINE_SEPARATOR)
                         MAX_COUNT_IN_LINE
                     }
                 }
             }
-            return "\"$sb\""
-        }*/
-        return "\"$any\""
+            return "\"${sb.toString().removeSuffix(LINE_SEPARATOR)}\""
+        }
     }
 
     protected open fun formatJson(any: String): String {

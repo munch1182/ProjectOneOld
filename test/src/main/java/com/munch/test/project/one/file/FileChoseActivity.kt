@@ -5,11 +5,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
-import com.munch.pre.lib.log.log
 import com.munch.pre.lib.extend.obOnResume
 import com.munch.pre.lib.helper.file.FileHelper
 import com.munch.pre.lib.helper.file.StorageHelper
 import com.munch.pre.lib.log.LogLog
+import com.munch.pre.lib.log.log
 import com.munch.test.project.one.base.BaseItemWithNoticeActivity
 import com.munch.test.project.one.requestPermission
 

@@ -9,11 +9,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.munch.lib.fast.extend.get
 import com.munch.pre.lib.base.BaseApp
-import com.munch.pre.lib.log.log
 import com.munch.pre.lib.extend.observeOnChanged
 import com.munch.pre.lib.extend.toLiveData
 import com.munch.pre.lib.helper.file.FileHelper
 import com.munch.pre.lib.helper.file.closeQuietly
+import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityFileCopyBinding

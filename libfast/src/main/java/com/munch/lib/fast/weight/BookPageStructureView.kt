@@ -7,10 +7,10 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Scroller
 import androidx.annotation.IntDef
-import com.munch.pre.lib.log.log
 import com.munch.pre.lib.helper.RectArrayHelper
 import com.munch.pre.lib.helper.isSet
 import com.munch.pre.lib.helper.reset
+import com.munch.pre.lib.log.log
 import kotlin.math.absoluteValue
 import kotlin.math.pow
 

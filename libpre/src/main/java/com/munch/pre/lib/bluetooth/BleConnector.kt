@@ -6,7 +6,7 @@ import android.os.Handler
 import androidx.annotation.RequiresApi
 import com.munch.pre.lib.base.Cancelable
 import com.munch.pre.lib.base.Destroyable
-import com.munch.pre.lib.base.Manager
+import com.munch.pre.lib.helper.format
 import java.util.*
 
 /**
@@ -151,8 +151,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
             super.onCharacteristicChanged(gatt, characteristic)
             BluetoothHelper.logSystem.withEnable {
                 val bytes = characteristic?.value
-                val byteStr = if (bytes == null) "[]" else BytesHelper.format(bytes)
-                "onCharacteristicChanged: $byteStr"
+                "onCharacteristicChanged: ${bytes?.format() ?: "[]"}"
             }
             opHelper.characteristicListener.onRead(characteristic)
         }
@@ -165,8 +164,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
             super.onCharacteristicRead(gatt, characteristic, status)
             BluetoothHelper.logSystem.withEnable {
                 val bytes = characteristic?.value
-                val byteStr = if (bytes == null) "[]" else BytesHelper.format(bytes)
-                "onCharacteristicRead: $byteStr"
+                "onCharacteristicRead: ${bytes?.format() ?: "[]"}"
             }
         }
 

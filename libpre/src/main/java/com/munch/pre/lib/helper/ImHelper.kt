@@ -1,11 +1,9 @@
 package com.munch.pre.lib.helper
 
-import android.graphics.Rect
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
 import com.munch.pre.lib.extend.obOnCreate
-import com.munch.pre.lib.log.log
 
 /**
  * Create by munch1182 on 2021/4/21 17:37.

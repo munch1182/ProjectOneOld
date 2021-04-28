@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".thread.ThreadConcurrentActivity"
+        tools:ignore="HardcodedText">
+
+        <Button
+            android:id="@+id/thread_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:text="start"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/thread_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:text="stop"
+            app:layout_constraintBottom_toBottomOf="@id/thread_start"
+            app:layout_constraintStart_toEndOf="@id/thread_start"
+            app:layout_constraintTop_toTopOf="@id/thread_start" />
+
+        <Button
+            android:id="@+id/thread_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="test"
+            app:layout_constraintStart_toStartOf="@id/thread_start"
+            app:layout_constraintTop_toBottomOf="@id/thread_start" />
+
+        <Button
+            android:id="@+id/thread_test_loop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:text="test loop"
+            app:layout_constraintBottom_toBottomOf="@id/thread_test"
+            app:layout_constraintStart_toEndOf="@id/thread_test"
+            app:layout_constraintTop_toTopOf="@id/thread_test" />
+
+        <Button
+            android:id="@+id/thread_test_loop2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:text="test loop2"
+            app:layout_constraintBottom_toBottomOf="@id/thread_test"
+            app:layout_constraintStart_toEndOf="@id/thread_test_loop"
+            app:layout_constraintTop_toTopOf="@id/thread_test" />
+
+        <Button
+            android:id="@+id/thread_test_loop3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="test loop3"
+            app:layout_constraintStart_toStartOf="@id/thread_test"
+            app:layout_constraintTop_toBottomOf="@id/thread_test" />
+
+        <TextView
+            android:id="@+id/thread_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/thread_test_loop3"
+            app:layout_constraintTop_toBottomOf="@id/thread_test_loop3"
+            tools:text="123123" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

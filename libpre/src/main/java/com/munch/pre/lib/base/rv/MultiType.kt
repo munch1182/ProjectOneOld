@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.core.util.contains
-import com.munch.pre.lib.log.log
 
 /**
  * Create by munch1182 on 2021/4/22 10:17.

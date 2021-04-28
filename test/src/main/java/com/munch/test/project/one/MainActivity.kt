@@ -1,7 +1,6 @@
 package com.munch.test.project.one
 
 import android.os.Bundle
-import com.munch.pre.lib.extend.startActivity
 import com.munch.test.project.one.anim.AnimActivity
 import com.munch.test.project.one.base.BaseRvActivity
 import com.munch.test.project.one.bluetooth.BluetoothActivity
@@ -12,7 +11,6 @@ import com.munch.test.project.one.info.InfoActivity
 import com.munch.test.project.one.intent.IntentActivity
 import com.munch.test.project.one.log.LogActivity
 import com.munch.test.project.one.net.NetActivity
-import com.munch.test.project.one.net.NetClipActivity
 import com.munch.test.project.one.recyclerview.RecyclerViewActivity
 import com.munch.test.project.one.switch.SwitchActivity
 import com.munch.test.project.one.thread.ThreadActivity
@@ -23,7 +21,6 @@ class MainActivity : BaseRvActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         noBack()
-        startActivity(BluetoothActivity::class.java)
     }
 
     override fun getClassItem(): MutableList<ItemClassBean> {
