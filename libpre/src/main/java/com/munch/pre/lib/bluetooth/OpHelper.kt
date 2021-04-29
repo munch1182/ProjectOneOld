@@ -190,28 +190,39 @@ class OpHelper : Cancelable, Destroyable {
 
                 val pack = bytesList.removeFirst()
                 val content = pack.bytes
-                if (content.size > mtu) {
-                    content.split(mtu).forEach { write(it) }
-                } else {
-                    write(content)
-                }
-                if (!pack.needReceived) {
-                    pack.listener?.onReceived(byteArrayOf())
-                } else {
-                    received = false
-                    receivedBytes = null
-                    val timeSleep = 3L
-                    val count = pack.timeout / timeSleep
-                    while (count > 0L) {
-                        Thread.sleep(timeSleep)
-                        if (received && receivedBytes != null) {
-                            received = false
-                            pack.listener?.onReceived(receivedBytes!!)
+                for (i in 1..pack.retryCount) {
+                    if (content.size > mtu) {
+                        content.split(mtu).forEach { write(it) }
+                    } else {
+                        write(content)
+                    }
+                    if (!pack.needReceived) {
+                        pack.listener?.onReceived(byteArrayOf())
+                        break
+                    } else {
+                        received = false
+                        receivedBytes = null
+                        val timeSleep = 3L
+                        var count = pack.timeout / timeSleep
+                        while (count > 0L) {
+                            Thread.sleep(timeSleep)
+                            count--
+                            if (received && receivedBytes != null) {
+                                //此处接收验证错误，视为未接收，等待下一次接收
+                                if (pack.listener != null && !pack.listener.onChecked(receivedBytes!!)) {
+                                    received = false
+                                    continue
+                                }
+                                pack.listener?.onReceived(receivedBytes!!)
+                                break
+                            }
+                        }
+                        if (received) {
                             break
                         }
                     }
-                    pack.listener?.onTimeout()
                 }
+                pack.listener?.onTimeout()
             }
         }
 

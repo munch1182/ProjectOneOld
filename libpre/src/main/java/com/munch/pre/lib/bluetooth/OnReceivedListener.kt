@@ -7,11 +7,12 @@ interface OnReceivedListener {
 
     fun onReceived(bytes: ByteArray)
 
-    fun onTimeout() {}
 }
 
 interface OnReceivedCheckedListener : OnReceivedListener {
 
-    fun onChecked(bytes: ByteArray): Boolean
+    fun onChecked(bytes: ByteArray): Boolean = true
+
+    fun onTimeout()
 
 }

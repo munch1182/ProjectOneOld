@@ -75,7 +75,16 @@ class BluetoothConnectActivity : BaseTopActivity() {
                         return@setOnKeyListener true
                     }
                     bind.btDeviceReceived.text = "wait to receive"
-                    btDevice?.getConnector()?.send(byteArray)
+                    btDevice?.getConnector()
+                        ?.send(SendPack(byteArray, listener = object : OnReceivedCheckedListener {
+                            override fun onReceived(bytes: ByteArray) {
+                                runOnUiThread { bind.btDeviceReceived.text = bytes.format() }
+                            }
+
+                            override fun onTimeout() {
+                                runOnUiThread { bind.btDeviceReceived.text = "timeout" }
+                            }
+                        }))
                     return@setOnKeyListener true
                 }
                 return@setOnKeyListener false
@@ -178,16 +187,6 @@ class BluetoothConnectActivity : BaseTopActivity() {
                     }
                 })
             }, {})
-            receivedListeners.setWhenResume(this@BluetoothConnectActivity,
-                object : OnReceivedListener {
-                    override fun onReceived(bytes: ByteArray) {
-                        runOnUiThread { bind.btDeviceReceived.text = bytes.format() }
-                    }
-
-                    override fun onTimeout() {
-                        runOnUiThread { bind.btDeviceReceived.text = "timeout" }
-                    }
-                })
         }
     }
 

@@ -7,7 +7,10 @@ import com.munch.pre.lib.helper.format
  */
 data class SendPack(
     val bytes: ByteArray,
-    val timeout: Long = 5000L,
+    // 每次发送等待时间
+    val timeout: Long = 3000L,
+    // 重试次数
+    val retryCount: Int = 3,
     val needReceived: Boolean = true,
     //接收回调
     val listener: OnReceivedCheckedListener? = null

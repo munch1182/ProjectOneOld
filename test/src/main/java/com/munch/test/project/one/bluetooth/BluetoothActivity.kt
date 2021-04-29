@@ -217,7 +217,6 @@ class BluetoothActivity : BaseTopActivity() {
                     private val noName = value.noName
 
                     override fun onStart() {
-                        log("bluetooth-${list.size}")
                         end = false
                         list.clear()
                         res.postValue(list)
