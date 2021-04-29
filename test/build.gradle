@@ -12,6 +12,12 @@ android {
     }
 }
 
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas".toString())
+    }
+}
+
 dependencies {
 
     implementation project(':libfast')
@@ -31,4 +37,8 @@ dependencies {
     /*https://github.com/yanzhenjie/AndServer*/
     implementation 'com.yanzhenjie.andserver:api:2.1.9'
     kapt 'com.yanzhenjie.andserver:processor:2.1.9'
+
+    api rootProject.ext.dependencies['room']
+    api rootProject.ext.dependencies['room_ktx']
+    kapt rootProject.ext.dependencies['room_compiler']
 }

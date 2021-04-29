@@ -9,6 +9,8 @@ import com.yanzhenjie.andserver.annotation.*
 import com.yanzhenjie.andserver.framework.config.Multipart
 import com.yanzhenjie.andserver.framework.config.WebConfig
 import com.yanzhenjie.andserver.framework.website.AssetsWebsite
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 /**
@@ -20,6 +22,7 @@ class AndServiceHelper private constructor() {
         val INSTANCE by lazy { AndServiceHelper() }
 
         const val PORT = 8080
+
     }
 
     private var server: Server? = null
@@ -93,9 +96,25 @@ class AndServiceController {
         return "yyyy-MM-dd HH:mm:ss".formatDate(System.currentTimeMillis())
     }
 
-    @GetMapping("/request/urls")
-    fun getUrls() {
+    @GetMapping("/test/urls")
+    fun testUrls(): List<ItemLink> {
+        return runBlocking(Dispatchers.IO) {
+            DbHelper.getLinkDao().queryAllLink()
+        }
+    }
 
+    @GetMapping("/test/types")
+    fun testTypes(): List<ItemType> {
+        return runBlocking(Dispatchers.IO) {
+            DbHelper.getLinkDao().queryAllType()
+        }
+    }
+
+    @GetMapping("/test/types/add")
+    fun testAddTypes(@RequestParam("tag") tag: String) {
+        runBlocking(Dispatchers.IO) {
+            DbHelper.getLinkDao().addTag(tag)
+        }
     }
 
 }

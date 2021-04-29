@@ -33,12 +33,19 @@ class NetKeepService : BaseForegroundService(Parameter("net service", "keep", 42
 
     private val instance by lazy { NetStatusHelper.getInstance(this) }
     private val service by lazy { AndServiceHelper.INSTANCE }
-
+    private val listener: (available: Boolean, capabilities: NetworkCapabilities?) -> Unit =
+        { a, _ -> notify(a) }
 
     override fun onCreate() {
         super.onCreate()
-        instance.add { a, _ -> notify(a) }
+        instance.add(listener)
         instance.limitTransportType(NetworkCapabilities.TRANSPORT_WIFI).register()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        instance.remove(listener)
+        instance.unregister()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -59,11 +66,6 @@ class NetKeepService : BaseForegroundService(Parameter("net service", "keep", 42
         } else {
             "WIFI已开启"
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        instance.unregister()
     }
 
     override fun buildNotification(title: String?): NotificationCompat.Builder {
