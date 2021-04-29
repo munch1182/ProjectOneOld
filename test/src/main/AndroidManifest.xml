@@ -74,8 +74,10 @@
         <activity android:name=".net.NetClipActivity" />
         <activity android:name=".thread.ThreadPoolActivity" />
         <activity android:name=".thread.ThreadConcurrentActivity" />
+        <activity android:name=".net.service.NetServiceActivity" />
 
         <service android:name=".net.NetClipService" />
+        <service android:name=".net.service.NetKeepService" />
     </application>
 
 </manifest>

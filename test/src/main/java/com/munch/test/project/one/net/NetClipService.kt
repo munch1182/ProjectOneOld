@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
+import com.munch.pre.lib.extend.startServiceInForeground
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.service.BaseForegroundService
 import com.munch.pre.lib.log.log
@@ -21,11 +22,11 @@ class NetClipService : BaseForegroundService(Parameter("netclipservice", "netcli
     companion object {
 
         fun start(context: Context) {
-            context.startService(Intent(context, NetClipService::class.java))
+            startForegroundService(context, Intent(context, NetClipService::class.java))
         }
 
         fun stop(context: Context) {
-            context.stopService(Intent(context, NetClipService::class.java))
+            stop(context, Intent(context, NetClipService::class.java))
         }
 
     }

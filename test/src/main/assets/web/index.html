@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <title>Marked in the browser</title>
+    <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    .quarter-div {
+      width: 49%;
+      height: 100%;
+      float: left;
+      padding: 5px;
+    }
+
+    .textarea {
+      width: 100%;
+      height: 100%;
+      border: none;
+      resize: none;
+      outline: none;
+      font-size: 18px;
+      line-height: 30px;
+      font-family: 'Courier New', Courier, monospace;
+      padding-top: 5px;
+    }
+
+    </style>
+</head>
+
+<body>
+<div id="input" class="quarter-div">
+    <textarea id="markdown" class="textarea" oninput="onchange2()"></textarea>
+</div>
+<div id="content" class="quarter-div" style="width: 49%;font-size:22px;">
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    function onchange2() {
+      var mark = document.getElementById('markdown').value.toString()
+      document.getElementById('content').innerHTML = marked(mark);
+    }
+
+</script>
+</body>
+
+</html>
