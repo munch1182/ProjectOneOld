@@ -22,7 +22,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
                 if (field != value) {
                     field = value
                     stateListener?.onStateChange(old, field)
-                    BluetoothHelper.logSystem.withEnable { "onStateChange: $old -> $value" }
+                    logSystem.withEnable { "onStateChange: $old -> $value" }
                 }
             }
         }
@@ -30,26 +30,30 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
     private val opHelper = OpHelper()
     internal var stateListener: BtConnectStateListener? = null
     internal var connectListener: BtConnectListener? = null
+
     private val connectCallback = object : BtConnectListener {
         override fun onStart(device: BtDevice) {
-            BluetoothHelper.logHelper.withEnable { "onStart connect:${device.mac}" }
             state = ConnectState.STATE_CONNECTING
             connectListener?.onStart(device)
+            logHelper.withEnable { "onStart connect:${device.mac}" }
         }
 
         override fun onConnectFail(device: BtDevice, @ConnectFailReason reason: Int) {
             state = ConnectState.STATE_DISCONNECTED
-            BluetoothHelper.logHelper.withEnable { "connect fail:${device.mac}, reason:${reason}" }
             connectListener?.onConnectFail(device, reason)
+            logHelper.withEnable { "connect fail:${device.mac}, reason:${reason}" }
         }
 
         override fun onConnectSuccess(device: BtDevice, gatt: BluetoothGatt) {
             state = ConnectState.STATE_CONNECTED
             opHelper.setGatt(gatt)
-            BluetoothHelper.logHelper.withEnable { "connect success:${device.mac}" }
             connectListener?.onConnectSuccess(device, gatt)
+            logHelper.withEnable { "connect success:${device.mac}" }
         }
     }
+    private val helper = BluetoothHelper.INSTANCE
+    private val logHelper = BluetoothHelper.logHelper
+    private val logSystem = BluetoothHelper.logSystem
 
     /**
      * 系统层的外调
@@ -57,7 +61,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
     private val gattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
-            BluetoothHelper.logSystem.withEnable { "onConnectionStateChange: newState: $newState, states:$status" }
+            logSystem.withEnable { "onConnectionStateChange: newState: $newState, states:$status" }
             if (status == BluetoothGatt.GATT_SUCCESS && gatt != null) {
                 //连接成功状态需要等待服务发现完成后更新
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
@@ -76,8 +80,8 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             super.onServicesDiscovered(gatt, status)
             val gattService = gatt.services
-            BluetoothHelper.logSystem.withEnable { "onServicesDiscovered: service: ${gattService.size}, states:$status" }
-            val config = BluetoothHelper.INSTANCE.config
+            logSystem.withEnable { "onServicesDiscovered: service: ${gattService.size}, states:$status" }
+            val config = helper.config
             if (status != BluetoothGatt.GATT_SUCCESS ||
                 !config.onDiscoverService(device, gatt, gattService)
             ) {
@@ -93,7 +97,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
             status: Int
         ) {
             super.onDescriptorRead(gatt, descriptor, status)
-            BluetoothHelper.logSystem.withEnable { "onDescriptorRead: status:$status" }
+            logSystem.withEnable { "onDescriptorRead: status:$status" }
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 connectCallback.onConnectFail(device, ConnectFailReason.FAIL_READ_DESCRIPTOR)
             } else {
@@ -107,7 +111,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
             status: Int
         ) {
             super.onDescriptorWrite(gatt, descriptor, status)
-            BluetoothHelper.logSystem.withEnable { "onDescriptorWrite: status:$status" }
+            logSystem.withEnable { "onDescriptorWrite: status:$status" }
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 connectCallback.onConnectFail(device, ConnectFailReason.FAIL_WRITE_DESCRIPTOR)
             } else {
@@ -122,10 +126,10 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
             if (state == ConnectState.STATE_CONNECTED) {
                 return
             }
-            val config = BluetoothHelper.INSTANCE.config
+            val config = helper.config
             if (config.mtu != -1) {
                 gatt.requestMtu(config.mtu)
-                BluetoothHelper.logSystem.withEnable { "requestMtu: ${config.mtu}" }
+                logSystem.withEnable { "requestMtu: ${config.mtu}" }
             } else {
                 this@BleConnector.gatt = gatt
                 connectCallback.onConnectSuccess(device, gatt)
@@ -134,10 +138,11 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
 
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
             super.onMtuChanged(gatt, mtu, status)
-            val request = BluetoothHelper.INSTANCE.config.mtu
-            BluetoothHelper.logSystem.withEnable { "onMtuChanged: request: $request, mtu: $mtu, states:$status" }
-            if (BluetoothHelper.INSTANCE.config.onMtuChanged(gatt, mtu, status)) {
+            val request = helper.config.mtu
+            logSystem.withEnable { "onMtuChanged: request: $request, mtu: $mtu, states:$status" }
+            if (helper.config.onMtuChanged(gatt, mtu, status)) {
                 this@BleConnector.gatt = gatt
+                helper.config.mtu = mtu
                 connectCallback.onConnectSuccess(device, gatt)
             } else {
                 connectCallback.onConnectFail(device, ConnectFailReason.FAIL_REQUEST_MTU)
@@ -149,11 +154,11 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
             characteristic: BluetoothGattCharacteristic?
         ) {
             super.onCharacteristicChanged(gatt, characteristic)
-            BluetoothHelper.logSystem.withEnable {
+            opHelper.characteristicListener.onRead(characteristic)
+            logSystem.withEnable {
                 val bytes = characteristic?.value
                 "onCharacteristicChanged: ${System.currentTimeMillis()}, ${bytes?.format() ?: "[]"}"
             }
-            opHelper.characteristicListener.onRead(characteristic)
         }
 
         override fun onCharacteristicRead(
@@ -162,7 +167,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
             status: Int
         ) {
             super.onCharacteristicRead(gatt, characteristic, status)
-            BluetoothHelper.logSystem.withEnable {
+            logSystem.withEnable {
                 val bytes = characteristic?.value
                 "onCharacteristicRead: ${System.currentTimeMillis()}, ${bytes?.format() ?: "[]"}"
             }
@@ -174,11 +179,11 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
             status: Int
         ) {
             super.onCharacteristicWrite(gatt, characteristic, status)
-            BluetoothHelper.logSystem.withEnable {
+            opHelper.characteristicListener.onSend(characteristic, status)
+            logSystem.withEnable {
                 val bytes = characteristic?.value
                 "onCharacteristicWrite: ${System.currentTimeMillis()}, ${bytes?.format() ?: "[]"}"
             }
-            opHelper.characteristicListener.onSend(characteristic, status)
         }
     }
 
@@ -188,9 +193,9 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
      * 如果要自行维护listener的生命周期，使用[BluetoothHelper.connectListeners]
      */
     fun connectCompat(connectListener: BtConnectListener? = null) {
-        if (connectListener != null) {
-            BluetoothHelper.INSTANCE.tempConnectListener.add(connectListener)
-            BluetoothHelper.INSTANCE.connectListeners.add(connectListener)
+        connectListener?.let {
+            helper.tempConnectListener.add(it)
+            helper.connectListeners.add(it)
         }
         connectCallback.onStart(device)
         device.device.connectGatt(null, false, gattCallback)
@@ -198,17 +203,18 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
 
     /**
      * @param handler 连接的回调会回调到该handler所在线程
+     * @param connectListener 当连接成功或者失败后，该connectListener会被自动移除
      */
     @RequiresApi(Build.VERSION_CODES.O)
     fun connect(
         transport: Int = BluetoothDevice.TRANSPORT_AUTO,
         phy: Int = BluetoothDevice.PHY_LE_1M_MASK,
-        handler: Handler? = BluetoothHelper.INSTANCE.handler,
+        handler: Handler? = helper.handler,
         connectListener: BtConnectListener? = null
     ) {
-        if (connectListener != null) {
-            BluetoothHelper.INSTANCE.tempConnectListener.add(connectListener)
-            BluetoothHelper.INSTANCE.connectListeners.add(connectListener)
+        connectListener?.let {
+            helper.tempConnectListener.add(it)
+            helper.connectListeners.add(it)
         }
         connectCallback.onStart(device)
         device.device.connectGatt(null, false, gattCallback, transport, phy, handler)
@@ -232,13 +238,13 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
     }
 
     override fun cancel() {
-        BluetoothHelper.logHelper.withEnable { "connector cancel" }
+        logHelper.withEnable { "connector cancel" }
         disconnect()
         opHelper.cancel()
     }
 
     override fun destroy() {
-        BluetoothHelper.logHelper.withEnable { "connector destroy" }
+        logHelper.withEnable { "connector destroy" }
         cancel()
         opHelper.destroy()
         gatt?.close()

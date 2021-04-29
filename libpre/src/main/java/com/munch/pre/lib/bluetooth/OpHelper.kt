@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
 class OpHelper : Cancelable, Destroyable {
 
     private val logHelp = BluetoothHelper.logHelper
-    val characteristicListener = object : CharacteristicChangedListener {
+    internal val characteristicListener = object : CharacteristicChangedListener {
         override fun onRead(characteristic: BluetoothGattCharacteristic?) {
             reader.onRead(characteristic)
             logHelp.withEnable { "${System.currentTimeMillis()}: onRead" }
@@ -88,7 +88,8 @@ class OpHelper : Cancelable, Destroyable {
     internal class DataReader : Cancelable, Destroyable {
         private var notify: BluetoothGattCharacteristic? = null
         private var onReceived: OnReceivedListener? = null
-        private val mtu = BluetoothHelper.INSTANCE.config.mtu - 3
+        private val mtu =
+            BluetoothHelper.INSTANCE.config.mtu.takeIf { it != -1 } ?: BtConfig.DEF_MTU
         private val pis by lazy { PipedInputStream(mtu) }
         private val pos by lazy { PipedOutputStream() }
         private var receivedRunnable = Runnable {
@@ -97,8 +98,8 @@ class OpHelper : Cancelable, Destroyable {
             while (running) {
                 val read: Int
                 try {
-                    //当线程池被关闭时
                     read = pis.read(buf)
+                    //当线程池被关闭时
                 } catch (e: InterruptedIOException) {
                     break
                 }
@@ -157,7 +158,6 @@ class OpHelper : Cancelable, Destroyable {
     }
 
     internal class DataSender : Cancelable, Destroyable {
-        private val mtu = BluetoothHelper.INSTANCE.config.mtu
         private val bytesList = LinkedList<SendPack>()
         private var gatt: BluetoothGatt? = null
         private var write: BluetoothGattCharacteristic? = null
@@ -168,6 +168,7 @@ class OpHelper : Cancelable, Destroyable {
         private var receivedBytes: ByteArray? = null
         private val sendRunnable = Runnable {
             running = true
+            val mtu = BluetoothHelper.INSTANCE.config.mtu.takeIf { it != -1 } ?: BtConfig.DEF_MTU
             while (running) {
 
                 if (bytesList.isEmpty()) {

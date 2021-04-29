@@ -123,6 +123,7 @@ class BluetoothConnectActivity : BaseTopActivity() {
                         val reasonStr = when (reason) {
                             ConnectFailReason.FAIL_FIND_SERVICE -> "发现服务失败"
                             ConnectFailReason.FAIL_REQUEST_MTU -> "设置MTU失败"
+                            ConnectFailReason.FAIL_WRITE_DESCRIPTOR, ConnectFailReason.FAIL_READ_DESCRIPTOR -> "设置服务失败"
                             else -> "连接失败"
                         }
                         runOnUiThread { bind.btDeviceState.text = "连接失败: $reasonStr" }

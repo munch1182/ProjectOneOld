@@ -81,6 +81,7 @@ annotation class ConnectState {
     ConnectFailReason.FAIL_FIND_SERVICE,
     ConnectFailReason.FAIL_REQUEST_MTU,
     ConnectFailReason.FAIL_WRITE_DESCRIPTOR,
+    ConnectFailReason.FAIL_READ_DESCRIPTOR
 )
 @Retention(AnnotationRetention.SOURCE)
 annotation class ConnectFailReason {
@@ -91,6 +92,6 @@ annotation class ConnectFailReason {
         const val FAIL_FIND_SERVICE = 1
         const val FAIL_REQUEST_MTU = 2
         const val FAIL_WRITE_DESCRIPTOR = 3
-        const val FAIL_READ_DESCRIPTOR = 3
+        const val FAIL_READ_DESCRIPTOR = 4
     }
 }

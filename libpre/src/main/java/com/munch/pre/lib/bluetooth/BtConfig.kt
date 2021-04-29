@@ -11,6 +11,7 @@ open class BtConfig {
 
     companion object {
         const val MAX_MTU = 247
+        const val DEF_MTU = 20
     }
 
     /**
