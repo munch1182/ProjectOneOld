@@ -8,7 +8,6 @@ import androidx.core.app.NotificationCompat
 import com.munch.pre.lib.helper.NetStatusHelper
 import com.munch.pre.lib.helper.service.BaseForegroundService
 import com.munch.test.project.one.R
-import com.munch.test.project.one.net.NetClipActivity
 
 /**
  * Create by munch1182 on 2021/4/29 16:18.
@@ -74,7 +73,7 @@ class NetKeepService : BaseForegroundService(Parameter("net service", "keep", 42
                 PendingIntent.getActivity(
                     this,
                     111,
-                    Intent(this, NetClipActivity::class.java),
+                    Intent(this, NetServiceActivity::class.java),
                     PendingIntent.FLAG_UPDATE_CURRENT
                 )
             )
