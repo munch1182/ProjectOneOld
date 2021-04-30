@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.0.11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tag</title>
+</head>
+
+<body>
+<div id="types">
+    <section v-if="errored">
+        <p>请求失败</p>
+    </section>
+    <section v-else>
+        <div v-if="loading">Loading...</div>
+
+        <div v-else>
+            <li v-for="item in types" v-on:click="type(item.tag)">
+                {{ item.tag }}({{item.count}})
+            </li>
+        </div>
+
+    </section>
+</div>
+<script>
+        Vue.createApp({
+            data() {
+                return {
+                    types: null,
+                    loading: true,
+                    errored: false
+                }
+            },
+            mounted() {
+                axios
+                    .get('./req/tags')
+                    .then(response => (this.types = response.data))
+                    .catch(error => {
+                        console.log(error)
+                        this.errored = true
+                    })
+                    .finally(() => this.loading = false)
+            },
+            methods: {
+                type: function (type) {
+                     window.location.href = "./tag/" + type;
+                }
+            }
+        }).mount('#types')
+
+
+</script>
+</body>
+
+</html>

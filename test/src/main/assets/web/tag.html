@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.0.11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        created: {
+            var keyValue = location.href.split("?");
+            if (keyValue.length == 2) {
+                var value = keyValue[1]
+                document.title = value.substring(value.indexOf('=') + 1)
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div id="links">
+        <section v-if="errored">
+            <p>请求失败</p>
+        </section>
+        <section v-else>
+            <div v-if="loading">Loading...</div>
+
+            <div v-else>
+                <li v-for="item in links">
+                    <a v-bind:href="item.url" target="_blank">
+                        {{ item.name }}
+                    </a>
+                </li>
+            </div>
+
+        </section>
+    </div>
+    <script>
+        const App = {
+            data() {
+                return {
+                    links: null,
+                    loading: true,
+                    errored: false
+                }
+            },
+            mounted() {
+                var keyValue = location.href.split("?");
+                if (keyValue.length == 2) {
+                    var value = keyValue[1]
+                    var tag = value.substring(value.indexOf('=') + 1)
+                    axios.get('./req/queryLinks?tag=' + tag)
+                        .then(response => (this.links = response.data))
+                        .catch(error => {
+                            console.log(error)
+                            this.errored = true
+                        })
+                        .finally(() => this.loading = false)
+                }
+            }
+        }
+        Vue.createApp(App).mount('#links')
+    </script>
+</body>
+
+</html>

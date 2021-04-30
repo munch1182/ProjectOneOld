@@ -16,14 +16,31 @@ data class ItemLink(
     var priority: Int = 0,
     val addTime: Long = System.currentTimeMillis(),
     @PrimaryKey(autoGenerate = true) val id: Int = 0
-)
+) : ToJson {
+    override fun toJson(): String {
+        return "{\"url\":\"$url\", \"name\":\"$name\"}"
+    }
+}
 
-@Entity(tableName = AppDatabase.TB_LINK_TYPE)
-data class ItemType(
+@Entity(tableName = AppDatabase.TB_LINK_TAG)
+data class ItemTag(
     val tag: String,
     var count: Int = 1,
     @PrimaryKey(autoGenerate = true) val id: Int = 0
-)
+) : ToJson {
+    fun add(): ItemTag {
+        return ItemTag(tag, count + 1, id)
+    }
+
+    override fun toJson(): String {
+        return "{\"tag\":\"$tag\", \"count\":$count, \"id\":$id}"
+    }
+}
+
+interface ToJson {
+
+    fun toJson(): String
+}
 
 class TagConverts {
 
@@ -45,25 +62,32 @@ class TagConverts {
 @Dao
 interface LinkDao {
 
-    @Query("SELECT * FROM ${AppDatabase.TB_LINK_TYPE}")
-    suspend fun queryAllType(): MutableList<ItemType>
+    @Query("SELECT * FROM ${AppDatabase.TB_LINK_TAG}")
+    suspend fun queryAllTag(): MutableList<ItemTag>
 
     @Query("SELECT * FROM ${AppDatabase.TB_LINK} WHERE :tag IN (tag) ORDER BY priority")
-    suspend fun queryByType(tag: String): MutableList<ItemLink>
+    suspend fun queryByTag(tag: String): MutableList<ItemLink>
 
     @Query("SELECT * FROM ${AppDatabase.TB_LINK} ORDER BY addTime")
     suspend fun queryAllLink(): MutableList<ItemLink>
 
-    @Query("SELECT count FROM ${AppDatabase.TB_LINK_TYPE} WHERE tag == :tag")
-    suspend fun getTagCount(tag: String): Int?
+    @Query("SELECT * FROM ${AppDatabase.TB_LINK_TAG} WHERE tag == :tag")
+    suspend fun getTagCount(tag: String): ItemTag?
 
     @Insert
-    suspend fun addTag(type: ItemType)
+    suspend fun addTag(type: ItemTag)
+
+    @Update
+    suspend fun updateTag(type: ItemTag)
 
     @Transaction
-    suspend fun addTag(tag: String) {
-        val count = getTagCount(tag) ?: 1
-        addTag(ItemType(tag, count))
+    suspend fun updateTag(tag: String) {
+        val type = getTagCount(tag)
+        if (type == null) {
+            addTag(ItemTag(tag, 1))
+        } else {
+            updateTag(type.add())
+        }
     }
 
     @Insert
@@ -72,16 +96,16 @@ interface LinkDao {
     @Transaction
     suspend fun addLinkAndUpdateTag(link: ItemLink) {
         addLink(link)
-        link.tag.forEach { addTag(it) }
+        link.tag.forEach { updateTag(it) }
     }
 }
 
-@Database(entities = [ItemLink::class, ItemType::class], version = 1)
+@Database(entities = [ItemLink::class, ItemTag::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         const val TB_LINK = "tb_link_item"
-        const val TB_LINK_TYPE = "tb_link_item_type"
+        const val TB_LINK_TAG = "tb_link_item_tag"
     }
 
     abstract fun linkDao(): LinkDao
