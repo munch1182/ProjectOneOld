@@ -21,7 +21,7 @@
             app:letter_max_space="@dimen/padding_def"
             app:letter_select_color="?attr/colorPrimary"
             app:letter_text_color="@color/colorTextGray"
-            app:letter_text_size="@dimen/sp_def" />
+            app:letter_text_size="12sp" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/base_top_srl"
@@ -35,9 +35,9 @@
                 android:id="@+id/base_top_rv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:overScrollMode="never"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="4"
-                android:overScrollMode="never"
                 tools:listitem="@layout/item_group_rv" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

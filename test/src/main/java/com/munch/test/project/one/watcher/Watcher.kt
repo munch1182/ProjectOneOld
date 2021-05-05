@@ -22,8 +22,10 @@ class Watcher {
     fun watchMainLoop(): Watcher {
         var time = 0L
         Looper.getMainLooper().setMessageLogging {
-            if (it.startsWith("<")) {
+            //>>>>> Dispatching to Handler
+            if (it.startsWith(">")) {
                 time = System.currentTimeMillis()
+                //<<<<< Finished to Handler
             } else {
                 if (time == 0L) {
                     return@setMessageLogging

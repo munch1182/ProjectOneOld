@@ -29,6 +29,19 @@ class IntentActivity : BaseItemActivity() {
             } else {
                 toast("版本小于30")
             }
+            14 -> {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    startActivity(BatteryOpHelper.getRequestOptimizationsIntent(this))
+                } else {
+                    toast("版本小于23")
+                }
+            }
+            15 -> if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                startActivity(BatteryOpHelper.getRequestOptimizationsSettingIntent())
+            } else {
+                toast("版本小于23")
+            }
+            16 -> BatteryOpHelper.toWhiteList(this)
         }
     }
 
@@ -51,7 +64,10 @@ class IntentActivity : BaseItemActivity() {
             "development",
             "share",
             "usage",
-            "file 30"
+            "file 30",
+            "battery optimize",
+            "battery optimize2",
+            "white list"
         )
     }
 }

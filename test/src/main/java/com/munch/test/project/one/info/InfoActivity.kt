@@ -3,6 +3,7 @@ package com.munch.test.project.one.info
 import android.os.Bundle
 import com.munch.lib.fast.BuildConfig
 import com.munch.lib.fast.extend.load
+import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.StringHelper
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.test.project.one.R
@@ -31,7 +32,7 @@ class InfoActivity : BaseTopActivity() {
         sb.append(StringHelper.LINE_SEPARATOR)
         val vn = AppHelper.getVersionCodeAndName()
         sb.append("app version: ")
-            .append("${vn?.second}(${vn?.first})(${BuildConfig.VERSION_CODE_4_DEBUG})")
+            .append("${vn?.second}${if (BaseApp.debug()) "-dev" else ""}(${vn?.first})(${BuildConfig.VERSION_CODE_4_DEBUG})")
         sb.append(StringHelper.LINE_SEPARATOR)
         //build后有效
         sb.append("build time: ").append(BuildConfig.BUILD_TIME)

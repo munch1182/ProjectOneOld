@@ -26,9 +26,9 @@ class ImageTitleActivity : BaseActivity() {
         bind.imageTitleTb.apply {
             title = "荷塘月色"
             layoutParams = layoutParams.apply {
-                height += AppHelper.PARAMETER.getNavigationBarHeight()
+                height += AppHelper.PARAMETER.getStatusBarHeight()
             }
-            setPadding(0, AppHelper.PARAMETER.getNavigationBarHeight(), 0, 0)
+            setPadding(0, AppHelper.PARAMETER.getStatusBarHeight(), 0, 0)
             navigationIcon = getBackIconWhite()
             setNavigationOnClickListener { onBackPressed() }
         }

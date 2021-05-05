@@ -19,6 +19,8 @@ import java.util.concurrent.ArrayBlockingQueue
  *
  * 主要让多个不定dialog弹出时依序弹出，而不是一起弹出
  *
+ * 开发中应该避免从后台不定时的弹出弹窗
+ *
  * Create by munch1182 on 2021/4/7 16:43.
  */
 @DefaultDepend([BaseApp::class, AppStatusHelper::class])
@@ -79,8 +81,14 @@ class DialogManager private constructor() : Observer<Boolean> {
         }
         true
     }
+    private var isShowing = false
+        get() = runBlocking { mutex.withLock { field } }
+        set(value) = runBlocking { mutex.withLock { field = value } }
 
     private fun check() {
+        if (isShowing) {
+            return
+        }
         //如果应用不在前台
         if (!AppStatusHelper.isForeground()) {
             //等待前台
@@ -99,10 +107,16 @@ class DialogManager private constructor() : Observer<Boolean> {
             mutex.withLock {
                 creator = (queue.poll() ?: return@runBlocking)
             }
+            isShowing = true
             //显示dialog
             creator.create(topActivity)
-                .setOnHandleListener { check() }
+                .setOnHandleListener {
+                    isShowing = false
+                    //延迟显示
+                    BaseApp.getInstance().getMainHandler().postDelayed({ check() }, 300L)
+                }
                 .show()
+
         }
     }
 
@@ -111,8 +125,9 @@ class DialogManager private constructor() : Observer<Boolean> {
             mutex.withLock {
                 if (!queue.contains(creator)) {
                     queue.put(creator)
-                    handler.removeMessages(WHAT_ADD)
-                    handler.sendMessageDelayed(Message.obtain(handler, WHAT_ADD), 500L)
+                    /*handler.removeMessages(WHAT_ADD)
+                    handler.sendMessageDelayed(Message.obtain(handler, WHAT_ADD), 500L)*/
+                    handler.sendMessage(Message.obtain(handler, WHAT_ADD))
                 }
             }
         }
@@ -135,7 +150,7 @@ class DialogManager private constructor() : Observer<Boolean> {
     override fun onChanged(foreground: Boolean) {
         if (foreground) {
             AppStatusHelper.getForegroundLiveData().removeObserver(this)
-            check()
+            BaseApp.getInstance().getMainHandler().postDelayed({ check() }, 300L)
         }
     }
 }

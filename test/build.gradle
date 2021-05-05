@@ -7,6 +7,9 @@ plugins {
 apply from: '../gradle/commonbuildktx.gradle'
 
 android {
+    defaultConfig {
+        versionName 'longtime'
+    }
     buildFeatures {
         dataBinding = true
     }

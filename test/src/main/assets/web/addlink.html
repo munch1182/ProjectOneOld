@@ -11,8 +11,30 @@
 </head>
 
 <body>
-
-    <input >
+    <div align="center" id="links">
+        <input style="min-width:300px;min-height: 30px;border: none;"><br>
+        <textarea style="min-width:300px;min-height: 30px;margin-top: 10px;"></textarea><br>
+        <div>
+            <input type="checkbox" style="margin-top: 10px;"></input>
+        </div><br>
+        <button style="margin-top: 10px;">提交</button>
+    </div>
 </body>
+<script>
+    const App = {
+        data() {
+            return {
+                links: null,
+                loading: true,
+                errored: false,
+                tag: null
+            }
+        },
+        mounted() {
+
+        }
+    }
+    Vue.createApp(App).mount('#links')
+</script>
 
 </html>

@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.IBinder
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import com.munch.pre.lib.extend.startServiceInForeground
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.service.BaseForegroundService
 import com.munch.pre.lib.log.log
