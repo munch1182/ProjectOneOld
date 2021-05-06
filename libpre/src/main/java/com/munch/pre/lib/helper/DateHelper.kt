@@ -44,8 +44,13 @@ object DateHelper {
      *
      * @see DateUtils.FORMAT_SHOW_TIME
      */
-    fun getDateStr2Now(time: Long, type: Int,minResolution:Long = 0L): CharSequence {
-        return DateUtils.getRelativeTimeSpanString(time, System.currentTimeMillis(), minResolution, type)
+    fun getDateStr2Now(time: Long, type: Int, minResolution: Long = 0L): CharSequence {
+        return DateUtils.getRelativeTimeSpanString(
+            time,
+            System.currentTimeMillis(),
+            minResolution,
+            type
+        )
     }
 
     /**
@@ -88,11 +93,14 @@ object DateHelper {
     /**
      * 判断两个时间是否在同一天
      */
-    fun isOneDay(time1: Long, time2: Long, timeZone: TimeZone = TimeZone.getDefault()): Boolean {
-        val interval = time1 - time2
-        return interval in -TIME_HOUR_MIN_SEC + 1 until TIME_HOUR_MIN_SEC
-                && (dayMillis(time1, timeZone) == dayMillis(time2, timeZone))
+    fun isOneDay(time1: Long, time2: Long): Boolean {
+        return getDayGapCount(time1, time2) == 0
     }
+
+    /**
+     * 获取两个日期之间间隔天数
+     */
+    fun getDayGapCount(start: Long, end: Long) = ((end - start) / TIME_HOUR_MIN_SEC).toInt()
 
     /**
      * 清除时分秒，获取年月日的毫秒值
@@ -116,3 +124,26 @@ object DateHelper {
     }
 
 }
+
+fun Calendar.getYear() = get(Calendar.YEAR)
+fun Calendar.setYear(year: Int) = set(Calendar.YEAR, year)
+fun Calendar.getMonth() = get(Calendar.MONTH)
+fun Calendar.setMonth(month: Int) = set(Calendar.MONTH, month)
+fun Calendar.getDay() = get(Calendar.DAY_OF_MONTH)
+fun Calendar.setDay(day: Int) = set(Calendar.DAY_OF_MONTH, day)
+fun Calendar.getWeek() = get(Calendar.DAY_OF_WEEK)
+fun Calendar.getMaxDay() = getMaximum(Calendar.DAY_OF_WEEK)
+
+/**
+ * 星期一-星期天安装1-7返回
+ */
+fun Calendar.getWeekInNum(): Int {
+    val week = get(Calendar.DAY_OF_WEEK)
+    return if (week == Calendar.SUNDAY) {
+        7
+    } else {
+        week - 1
+    }
+}
+
+fun Calendar.getFirstDayOfWeekInNum() = if (firstDayOfWeek == Calendar.SUNDAY) 7 else firstDayOfWeek
