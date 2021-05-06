@@ -18,6 +18,7 @@ object ThreadPoolHelper {
     private const val ID_FIX = 3
     private const val ID_NEW_IO = 5
     private val fixId = AtomicInteger(1)
+    private val newCacheId = AtomicInteger(1)
 
     private val CPU_COUNT = Runtime.getRuntime().availableProcessors()
     private val CORE_POOL_SIZE = 1.coerceAtLeast((CPU_COUNT - 1).coerceAtMost(4))
@@ -52,7 +53,7 @@ object ThreadPoolHelper {
     fun newCachePool(coreSize: Int, maxSize: Int, aliveTime: Long, name: String? = null) =
         ThreadPoolExecutor(
             coreSize, maxSize, aliveTime, TimeUnit.MILLISECONDS, SynchronousQueue(),
-            newThreadFactory(ID_NEW_IO, name)
+            newThreadFactory(ID_NEW_IO * 10 + newCacheId.getAndIncrement(), name)
         )
 
     private val num by lazy { AtomicInteger(1) }

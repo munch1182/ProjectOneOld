@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.text.format.Formatter
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
@@ -110,6 +111,9 @@ object FileHelper {
             }
         }
     }
+
+    fun formatSizeStr(context: Context? = null, size: Long) =
+        Formatter.formatFileSize(context, size)
 
     const val STR_BITE = "B"
     const val STR_KB = "KB"

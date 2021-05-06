@@ -37,7 +37,6 @@ class MainActivity : BaseRvActivity() {
             SwitchActivity::class.java,
             ViewActivity::class.java,
             TestActivity::class.java,
-            Test2Activity::class.java,
             LogActivity::class.java,
             InfoActivity::class.java
         )

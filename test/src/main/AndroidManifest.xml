@@ -15,7 +15,6 @@
     <uses-permission android:name="android.permission.GET_PACKAGE_SIZE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
@@ -51,7 +50,6 @@
         <activity android:name=".dag.DagActivity" />
         <activity android:name=".TestActivity" />
         <activity android:name=".thread.ThreadActivity" />
-        <activity android:name=".Test2Activity" />
         <activity android:name=".dialog.DialogActivity" />
         <activity android:name=".file.FileChoseActivity" />
         <activity android:name=".switch.SwitchActivity" />
@@ -74,13 +72,24 @@
         <activity android:name=".view.FishActivity" />
         <activity android:name=".net.NetActivity" />
         <activity android:name=".net.NetIpActivity" />
-        <activity android:name=".net.NetClipActivity" />
+        <activity android:name=".net.clip.NetClipActivity" />
         <activity android:name=".thread.ThreadPoolActivity" />
         <activity android:name=".thread.ThreadConcurrentActivity" />
         <activity android:name=".net.service.NetServiceActivity" />
+        <activity android:name=".net.capture.NetVpnActivity" />
 
-        <service android:name=".net.NetClipService" />
+        <service android:name=".net.clip.NetClipService" />
         <service android:name=".net.service.NetKeepService" />
+
+        <service
+            android:name=".net.capture.NetVpnActivity$VpnTestService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.munch.test.project.one.net
+package com.munch.test.project.one.net.clip
 
 import android.content.Context
 import android.net.wifi.WifiManager

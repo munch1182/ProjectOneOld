@@ -20,7 +20,7 @@ abstract class ARSHelper<T> {
     /**
      * 因为没有名字，所以不要直接使用，实现类应该建立有名字的方法返回本值，然后用方法调用
      */
-    protected val arrays: ArrayList<T> = arrayListOf()
+    protected open val arrays: ArrayList<T> = arrayListOf()
 
     open fun add(t: T): ARSHelper<T> {
         if (!arrays.contains(t)) {

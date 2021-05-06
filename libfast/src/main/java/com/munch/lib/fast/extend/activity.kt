@@ -11,10 +11,10 @@ import androidx.lifecycle.ViewModelProvider
 /**
  * Create by munch1182 on 2021/3/31 9:54.
  */
-fun <V : ViewDataBinding> Activity.bind(@LayoutRes resId: Int): Lazy<V> {
+inline fun <reified V : ViewDataBinding> Activity.bind(@LayoutRes resId: Int): Lazy<V> {
     return lazy { DataBindingUtil.setContentView(this, resId) }
 }
 
-fun <M : ViewModel> ComponentActivity.get(target: Class<M>): Lazy<M> {
+inline fun <reified M : ViewModel> ComponentActivity.get(target: Class<M>): Lazy<M> {
     return lazy { ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(target) }
 }

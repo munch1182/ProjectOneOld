@@ -1,4 +1,4 @@
-package com.munch.test.project.one.net
+package com.munch.test.project.one.net.clip
 
 import android.app.PendingIntent
 import android.content.Context

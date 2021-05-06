@@ -3,19 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-
-        <variable
-            name="vm"
-            type="com.munch.test.project.one.net.NetClipActivity.NetClipViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/net_clip_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorWhite"
-        tools:context=".net.NetClipActivity"
+        tools:context=".net.clip.NetClipActivity"
         tools:ignore="HardcodedText">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

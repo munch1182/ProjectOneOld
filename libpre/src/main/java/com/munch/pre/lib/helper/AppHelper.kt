@@ -2,6 +2,7 @@ package com.munch.pre.lib.helper
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityManager
 import android.app.AppOpsManager
 import android.app.usage.StorageStats
 import android.app.usage.StorageStatsManager
@@ -14,9 +15,7 @@ import android.content.res.Resources
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Process
+import android.os.*
 import android.os.storage.StorageManager
 import android.util.DisplayMetrics
 import android.util.Size
@@ -32,7 +31,9 @@ import com.munch.pre.lib.DefaultDepend
 import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.getAttrFromTheme
 import com.munch.pre.lib.extend.getService
+import com.munch.pre.lib.helper.file.FileHelper
 import com.munch.pre.lib.log.log
+import java.io.File
 import java.util.*
 import kotlin.system.exitProcess
 
@@ -281,6 +282,18 @@ object AppHelper {
 
         fun getAbis(): Array<String> = Build.SUPPORTED_ABIS
 
+        fun getMemoryInfo(context: Context = BaseApp.getInstance()): ActivityManager.MemoryInfo? {
+            val manager =
+                context.getService<ActivityManager>(Context.ACTIVITY_SERVICE) ?: return null
+            val info = ActivityManager.MemoryInfo()
+            manager.getMemoryInfo(info)
+            return info
+        }
+
+        fun getRom(): StatFs {
+            return StatFs(Environment.getDataDirectory().path)
+        }
+
         /**
          * 分辨率
          */
@@ -361,6 +374,8 @@ object AppHelper {
         }
 
         fun collect(context: Context = BaseApp.getInstance()): Array<Pair<String, String?>> {
+            val memory = getMemoryInfo()
+            val rom = getRom()
             return arrayOf(
                 Pair("brand", getBrand()),
                 Pair("sdk_version", getVersion().toString()),
@@ -375,8 +390,25 @@ object AppHelper {
                 ),
                 Pair("status bar height", "${getStatusBarHeight(context)}"),
                 Pair("navigation bar height", "${getNavigationBarHeight(context)}"),
-                Pair("action bar height", "${getActionBarSize(context)}")
+                Pair("action bar height", "${getActionBarSize(context)}"),
+                Pair("ram", memory?.formatString()),
+                Pair("rom", rom.formatString())
             )
+        }
+
+        private fun StatFs.formatString(): String {
+            /*return "Rom(total:${FileHelper.formatSize2Str((availableBlocksLong * blockSizeLong).toDouble())},avail:${
+                FileHelper.formatSize2Str((blockCountLong * blockSizeLong).toDouble())
+            })"*/
+            return "Rom:${FileHelper.formatSize2Str(availableBytes.toDouble())}/${
+                FileHelper.formatSize2Str(totalBytes.toDouble())
+            }"
+        }
+
+        private fun ActivityManager.MemoryInfo.formatString(): String {
+            return "Ram:${FileHelper.formatSize2Str(availMem.toDouble())}/${
+                FileHelper.formatSize2Str(totalMem.toDouble())
+            }, isLow:${this.lowMemory}"
         }
 
         override fun toString(): String {

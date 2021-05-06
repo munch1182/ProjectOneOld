@@ -7,7 +7,10 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.SingletonHolder
 import java.net.Inet4Address
 import java.net.NetworkInterface
@@ -23,17 +26,17 @@ class NetStatusHelper private constructor(private val manager: ConnectivityManag
     companion object : SingletonHolder<NetStatusHelper, ConnectivityManager>(::NetStatusHelper) {
 
         @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
-        fun getInstance(context: Context): NetStatusHelper {
+        fun getInstance(context: Context = BaseApp.getInstance()): NetStatusHelper {
             return getInstance((context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager))
         }
 
         @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
-        fun wifiAvailable(context: Context): Boolean {
+        fun wifiAvailable(context: Context = BaseApp.getInstance()): Boolean {
             val manager =
                 context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
                     ?: return false
             val capabilities =
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     manager.getNetworkCapabilities(manager.activeNetwork)
                 } else {
                     val allNetworks = manager.allNetworks
@@ -51,7 +54,7 @@ class NetStatusHelper private constructor(private val manager: ConnectivityManag
             available =
                     //wifi网络功能开启
                 available && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 available =
                         //wifi网络已验证连接
                     available && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
@@ -64,7 +67,7 @@ class NetStatusHelper private constructor(private val manager: ConnectivityManag
             var available = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
             available =
                 available && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 available =
                     available && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
             }
@@ -75,7 +78,7 @@ class NetStatusHelper private constructor(private val manager: ConnectivityManag
             var available = networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
             available =
                 available && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 available =
                     available && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
             }
@@ -103,6 +106,34 @@ class NetStatusHelper private constructor(private val manager: ConnectivityManag
             }
             return null
         }
+
+        @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
+        fun getActiveNet(manager: ConnectivityManager? = getManager()): Network? {
+            manager ?: return null
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                manager.activeNetwork
+            } else {
+                val allNetworks = manager.allNetworks
+                if (allNetworks.isEmpty()) {
+                    null
+                } else {
+                    allNetworks[allNetworks.lastIndex]
+                }
+            }
+        }
+
+        @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
+        fun getLink(manager: ConnectivityManager? = getManager()) = manager?.getLinkProperties(
+            getActiveNet(manager)
+        )
+
+        @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
+        fun getCapabilities(manager: ConnectivityManager? = getManager()) =
+            manager?.getNetworkCapabilities(getActiveNet(manager))
+
+        private fun getManager() =
+            BaseApp.getInstance()
+                .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
     }
 
     private var capabilities: NetworkCapabilities? = null
@@ -126,7 +157,7 @@ class NetStatusHelper private constructor(private val manager: ConnectivityManag
             super.onAvailable(network)
             networkId = network.toString()
             capabilities =
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     manager.getNetworkCapabilities(manager.activeNetwork)
                 } else {
                     //当一条网络可用时启用另一条可用网络，则allNetworks有多个参数

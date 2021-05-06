@@ -1,4 +1,4 @@
-package com.munch.test.project.one.net
+package com.munch.test.project.one.net.clip
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -90,7 +90,6 @@ class NetClipActivity : BaseTopActivity() {
         super.onCreate(savedInstanceState)
         bind.apply {
             lifecycleOwner = this@NetClipActivity
-            vm = model
 
             netClipComment.setOnClickListener {
                 showInput()
