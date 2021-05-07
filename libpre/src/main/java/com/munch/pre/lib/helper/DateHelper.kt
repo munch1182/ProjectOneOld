@@ -132,18 +132,7 @@ fun Calendar.setMonth(month: Int) = set(Calendar.MONTH, month)
 fun Calendar.getDay() = get(Calendar.DAY_OF_MONTH)
 fun Calendar.setDay(day: Int) = set(Calendar.DAY_OF_MONTH, day)
 fun Calendar.getWeek() = get(Calendar.DAY_OF_WEEK)
-fun Calendar.getMaxDay() = getMaximum(Calendar.DAY_OF_WEEK)
-
-/**
- * 星期一-星期天安装1-7返回
- */
-fun Calendar.getWeekInNum(): Int {
-    val week = get(Calendar.DAY_OF_WEEK)
-    return if (week == Calendar.SUNDAY) {
-        7
-    } else {
-        week - 1
-    }
-}
-
-fun Calendar.getFirstDayOfWeekInNum() = if (firstDayOfWeek == Calendar.SUNDAY) 7 else firstDayOfWeek
+fun Calendar.getMaxDay() = getActualMaximum(Calendar.DAY_OF_MONTH)
+fun Calendar.addDay(day: Int) = add(Calendar.DAY_OF_MONTH, day)
+fun Calendar.addMonth(month: Int) = add(Calendar.MONTH, month)
+fun Calendar.addYear(year: Int) = add(Calendar.YEAR, year)

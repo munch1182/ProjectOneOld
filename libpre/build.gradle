@@ -12,4 +12,5 @@ dependencies {
     implementation rootProject.ext.dependencies['mmkv']
     //不可或缺的关键组件
     api rootProject.ext.dependencies['recyclerview']
+    api rootProject.ext.dependencies['viewpager2']
 }

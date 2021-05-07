@@ -1,156 +1,189 @@
 package com.munch.pre.lib.calender
 
 import com.munch.pre.lib.helper.*
-import kotlinx.parcelize.IgnoredOnParcel
 import java.util.*
+import kotlin.math.absoluteValue
 
 /**
  * 日期数据类，主要是操作符重载，以及统一week格式
  *
+ * 这些类中，年月日既可以表示具体的年月日，即1990年1月1日，也可以表示计数值，即1年1个月
+ *
  * Create by munch1182 on 2021/5/6 16:42.
  */
-//week 1-7
-open class Date(
-    open var year: Int,
-    open var month: Int,
-    open var day: Int,
-    open var week: Int,
-    open var firstDayOfWeek: Int = 1
-) : Comparator<Date> {
+open class Year(open var year: Int) {
 
-    companion object {
-
-        fun now() = from(Calendar.getInstance())
-
-        fun from(instance: Calendar): Date {
-            return Date(
-                instance.getYear(),
-                instance.getMonth(),
-                instance.getDay(),
-                instance.getWeekInNum(),
-                instance.getFirstDayOfWeekInNum()
-            )
-        }
+    operator fun plus(year: Year) = this.year + year.year
+    operator fun minus(year: Year) = this.year - year.year
+    operator fun compareTo(year: Year) = this - year
+    operator fun minusAssign(year: Year) {
+        this.year = this - year
     }
 
-    @IgnoredOnParcel
-    protected val instance: Calendar by lazy {
-        Calendar.getInstance().apply {
-            set(year, month, day, 0, 0, 0)
-        }
+    operator fun plusAssign(year: Year) {
+        this.year = this + year
     }
 
-    operator fun compareTo(date: Date): Int {
-        var compareTo = year - date.year
-        if (compareTo == 0) {
-            compareTo = month - date.month
-            if (compareTo == 0) {
-                compareTo = day - date.day
-            }
-        }
-        return compareTo
-    }
-
-    /**
-     * 当前日期加上对应天数
-     */
-    operator fun plus(day: Int): Date {
-        resetIfNeed()
-        instance.add(day, Calendar.DAY_OF_MONTH)
-        return update(instance)
-    }
-
-    protected open fun resetNow() {
-        instance.set(year, month, day)
-    }
-
-    protected fun getLastDayOfWeek(): Int {
-        return if (firstDayOfWeek == 1) 7 else 6
-    }
-
-    protected open fun resetIfNeed() {
-        if (!isSame()) {
-            resetNow()
-        }
-    }
-
-    private fun isSame() =
-        year == instance.getYear() && month == instance.getMonth() && day == instance.getDay()
-
-    /**
-     * 当前日期减去对应天数
-     */
-    operator fun minus(day: Int) = plus(-day)
-
-    /**
-     * 两个时间相减，返回间隔毫秒数
-     */
-    operator fun minus(date: Date): Long {
-        return toCalendar().timeInMillis - date.toCalendar().timeInMillis
-    }
-
-    override fun compare(o1: Date?, o2: Date?): Int {
-        if (o1 == o2) return 0
-        o1 ?: return -1
-        o2 ?: return 1
-        return (o1 - o2).toInt()
-    }
-
-    open fun toCalendar(): Calendar {
-        resetIfNeed()
-        return instance
-    }
-
-    open fun update(instance: Calendar): Date {
-        year = instance.get(Calendar.YEAR)
-        month = instance.get(Calendar.MONTH)
-        day = instance.get(Calendar.DAY_OF_MONTH)
-        week = instance.get(Calendar.DAY_OF_WEEK)
-        resetIfNeed()
-        return this
+    override fun toString(): String {
+        return "$year y"
     }
 }
 
-class Month(override var year: Int, override var month: Int, override var firstDayOfWeek: Int) :
-    Date(year, month, 1, 0) {
+open class Month(override var year: Int, open var month: Int) : Year(year) {
 
     companion object {
 
         fun now() = from(Calendar.getInstance())
 
-        fun from(instance: Calendar): Month {
-            return Month(
-                instance.getYear(),
-                instance.getMonth(),
-                instance.getFirstDayOfWeekInNum()
-            )
+        fun from(calendar: Calendar): Month {
+            return Month(calendar.getYear(), calendar.getMonth() + 1)
         }
     }
 
+    open operator fun plus(value: Int): Month {
+        var m = this.month + value
+        var y: Int
+        if (m == 0) {
+            y = -1
+            m = 12
+        } else {
+            y = m / 12
+            m %= 12
+            if (m == 0) {
+                m = 12
+                y--
+            }
+        }
+        return Month(year + y, m)
+    }
+
+    open operator fun plus(month: Month): Month {
+        val m = this + month.month
+        m.year += month.year
+        return m
+    }
+
+    open operator fun minus(value: Int): Month {
+        return this + (-value)
+    }
+
+    open operator fun minus(month: Month): Month {
+        val m = this.month - month.month
+        return if (m <= 0) {
+            val y = m.absoluteValue / 12
+            Month(year - y - month.year, m.absoluteValue % 12)
+        } else {
+            Month(year - month.year, m)
+        }
+    }
+
+    open operator fun compareTo(month: Month): Int {
+        val y = this.year - month.year
+        val m = this.month - month.month
+        return y * 12 + m
+    }
+
+    open operator fun minusAssign(month: Month) {
+        update(this - month)
+    }
+
+    open operator fun minusAssign(value: Int) {
+        update(this - value)
+    }
+
+    open operator fun plusAssign(month: Month) {
+        update(this + month)
+    }
+
+    open operator fun plusAssign(value: Int) {
+        update(this + value)
+    }
+
+    open fun update(month: Month): Month {
+        this.year = month.year
+        this.month = month.month
+        return this
+    }
+
+    fun getYear() = this as Year
+
+    /**
+     * 1年3个月=> 15个月
+     */
+    fun getMonths() = year * 12 + month
+
+    override fun toString(): String {
+        return "$year.$month"
+    }
+
+    open fun toCalendar(): Calendar = Calendar.getInstance().apply {
+        set(year, month - 1, 1, 0, 0, 0)
+    }
+}
+
+class MonthHelper(var month: Month, private val instance: Calendar = Calendar.getInstance()) {
+
+    companion object {
+
+        fun Month.getHelper(firstDayOfWeek: Int = Calendar.MONDAY) =
+            MonthHelper(this, Calendar.getInstance().apply {
+                this.firstDayOfWeek = firstDayOfWeek
+            })
+    }
+
+    /**
+     * 本月第一天的星期
+     */
     private var startWeek: Int = 0
+    fun getStartWeek() = startWeek
+
+    /**
+     * 本月的天数
+     */
     private var days = 0
+    fun getDays() = days
+
+    /**
+     * 本月最后一天的星期
+     */
     private var endWeek = 0
+    fun getEndWeek() = endWeek
+
+    /**
+     * 本月经历的周数
+     */
     private var weeks = 0
+    fun getWeeks() = weeks
+    private var firstDayOfWeek = 0
+    fun getFirstDayOfWeek() = firstDayOfWeek
 
     init {
         collect()
     }
 
-    private fun collect() {
-        resetIfNeed()
-        startWeek = instance.getWeekInNum()
-        days = instance.getMaxDay()
-        instance.setDay(days)
-        endWeek = instance.getWeekInNum()
-        weeks = getWeeks()
+    fun change(month: Month): MonthHelper {
+        this.month = month
+        collect()
+        return this
     }
 
-    private fun getWeeks(): Int {
+    private fun collect() {
+        resetIfNeed()
+        firstDayOfWeek = instance.firstDayOfWeek
+        instance.setDay(1)
+        startWeek = instance.getWeek()
+        days = instance.getMaxDay()
+        instance.setDay(days)
+        endWeek = instance.getWeek()
+        weeks = collectWeeks()
+    }
+
+    private fun collectWeeks(): Int {
         //只有28天并且第一天是一周第一天，则此月只有4周
         return if (days == 28 && startWeek == firstDayOfWeek) {
             4
             //有31天且第一天至少是一周最后两天，则此月有6周
-        } else if (days == 31 && startWeek >= getLastDayOfWeek() - 1) {
+        } else if (days == 31 && isLastTwoDays()) {
             6
             //否则只有5周
         } else {
@@ -158,47 +191,127 @@ class Month(override var year: Int, override var month: Int, override var firstD
         }
     }
 
-    override fun resetNow() {
-        super.resetNow()
-        collect()
+    private fun isLastTwoDays(): Boolean {
+        return if (firstDayOfWeek == 1) {
+            startWeek == 1 || startWeek == 7
+        } else {
+            startWeek >= firstDayOfWeek - 1
+        }
     }
 
-    override fun update(instance: Calendar): Date {
-        val update = super.update(instance)
-        collect()
-        return update
+    private fun resetIfNeed() {
+        if (!isSame()) {
+            resetNow()
+        }
     }
 
-    //unComplete
-    /*operator fun minus(month: Month): Long {
-         return (this - (month as Date))
-     }*/
+    private fun resetNow() {
+        instance.set(month.year, month.month - 1, 1, 0, 0, 0)
+    }
+
+    private fun isSame() =
+        month.year == instance.getYear() && month.month - 1 == instance.getMonth()
+
+
+    override fun toString(): String {
+        return "$month:{startWeek:$startWeek, endWeek:$endWeek, days:$days, weeks:$weeks, firstDayOfWeek:$firstDayOfWeek}"
+    }
 }
 
-class Day(
-    override var year: Int,
-    override var month: Int,
-    override var day: Int,
-    override var week: Int = 0
-) : Date(year, month, day, week) {
-
+open class Day(override var year: Int, override var month: Int, open var day: Int) :
+    Month(year, month) {
     companion object {
+
         fun now() = from(Calendar.getInstance())
 
-        fun from(instance: Calendar): Day {
-            return Day(
-                instance.getYear(),
-                instance.getMonth(),
-                instance.getDay(),
-                instance.getWeekInNum()
-            )
+        fun from(calendar: Calendar): Day {
+            return Day(calendar.getYear(), calendar.getMonth() + 1, calendar.getDay())
         }
     }
 
-    init {
-        if (week == 0) {
-            resetIfNeed()
-            week = instance.getWeek()
+    protected open val instance: Calendar = Calendar.getInstance()
+
+    fun getMonth() = this as Month
+
+    override operator fun plus(value: Int): Day {
+        resetIfNeed()
+        instance.addDay(value)
+        return from(instance)
+    }
+
+    operator fun plus(day: Day): Day {
+        resetIfNeed()
+        return from(instance.apply {
+            addDay(day.day)
+            addMonth(day.month)
+            addYear(day.year)
+        })
+    }
+
+    override operator fun minus(value: Int): Day {
+        return this + (-value)
+    }
+
+    operator fun minus(day: Day): Day {
+        resetIfNeed()
+        return from(instance.apply {
+            addDay(-day.day)
+            addMonth(-day.month)
+            addYear(-day.year)
+        })
+    }
+
+    /**
+     * 相距天数
+     */
+    operator fun compareTo(day: Day): Int {
+        return DateHelper.getDayGapCount(
+            instance.timeInMillis,
+            day.instance.timeInMillis
+        )
+    }
+
+    operator fun minusAssign(day: Day) {
+        update(this - day)
+    }
+
+    override operator fun minusAssign(value: Int) {
+        update(this - value)
+    }
+
+    operator fun plusAssign(day: Day) {
+        update(this + day)
+    }
+
+    override operator fun plusAssign(value: Int) {
+        update(this + value)
+    }
+
+    fun update(day: Day): Day {
+        this.year = day.year
+        this.month = day.month
+        this.day = day.day
+        return this
+    }
+
+    private fun resetIfNeed() {
+        if (!isSame()) {
+            resetNow()
         }
+    }
+
+    private fun resetNow() {
+        instance.set(year, month - 1, day, 0, 0, 0)
+    }
+
+    private fun isSame() =
+        year == instance.getYear() && month - 1 == instance.getMonth() && day == instance.getDay()
+
+    override fun toCalendar(): Calendar = Calendar.getInstance().apply {
+        set(year, month - 1, day, 0, 0, 0)
+    }
+
+    override fun toString(): String {
+        return "$year.$month.$day"
     }
 }
