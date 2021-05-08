@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="padding_def">8dp</dimen>
+    <dimen name="padding_bigger">16dp</dimen>
+
+    <dimen name="sp_def">14sp</dimen>
+    <dimen name="sp_title">32sp</dimen>
+    <dimen name="sp_title_smaller">18sp</dimen>
+    <dimen name="sp_smaller">12sp</dimen>
+
+    <integer name="duration_anim">250</integer>
+</resources>

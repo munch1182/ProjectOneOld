@@ -15,7 +15,7 @@ open class BaseApp : Application() {
 
     companion object {
 
-        fun debug() = BuildConfig.DEBUG
+        fun debug() = instance.debug()
 
         private lateinit var instance: BaseApp
 
@@ -39,4 +39,6 @@ open class BaseApp : Application() {
     fun getMainHandler(): Handler {
         return handler
     }
+
+    open fun debug() = BuildConfig.DEBUG
 }

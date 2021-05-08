@@ -8,7 +8,6 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.SingletonHolder
