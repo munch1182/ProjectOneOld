@@ -7,6 +7,42 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
+//-assumenosideeffects class android.util.Log {
+//
+//    public static *** d(...);
+//
+//    public static *** e(...);
+//
+//    public static *** i(...);
+//
+//    public static *** v(...);
+//
+//    public static *** println(...);
+//
+//    public static *** w(...);
+//
+//    public static *** wtf(...);
+//
+//}
+//
+//-assumenosideeffects class com.munch.pre.lib.log.Logger {
+//
+//    public static *** log(...);
+//
+//    public static *** isJson(...);
+//
+//    public static *** withEnable(...);
+//
+//    public static *** setListener(...);
+//}
+
+//-assumenosideeffects class com.munch.pre.lib.log.LogKt {
+//
+//    public static *** log(...);
+//
+//    public static *** logJson(...);
+//}
+
 /**
  * log方法
  * <p>
@@ -128,12 +164,13 @@ open class Logger {
     }
 
     protected open fun print(msg: String) {
+        val tag = if (this.tag != null) "${this.tag}-$TAG_DEF" else TAG_DEF
         when (type) {
-            Log.DEBUG -> Log.d(tag ?: TAG_DEF, msg)
-            Log.ERROR -> Log.e(tag ?: TAG_DEF, msg)
-            Log.INFO -> Log.i(tag ?: TAG_DEF, msg)
-            Log.WARN -> Log.w(tag ?: TAG_DEF, msg)
-            Log.VERBOSE -> Log.v(tag ?: TAG_DEF, msg)
+            Log.DEBUG -> Log.d(tag, msg)
+            Log.ERROR -> Log.e(tag, msg)
+            Log.INFO -> Log.i(tag, msg)
+            Log.WARN -> Log.w(tag, msg)
+            Log.VERBOSE -> Log.v(tag, msg)
         }
     }
 

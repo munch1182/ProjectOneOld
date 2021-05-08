@@ -1,10 +1,14 @@
 package com.munch.project.launcher.base
 
+import android.os.Process
+import com.munch.pre.lib.BuildConfig
 import com.munch.pre.lib.base.BaseApp
+import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.AppStatusHelper
+import com.munch.pre.lib.helper.measure.MeasureTimeHelper
+import com.munch.pre.lib.helper.measure.SimpleMeasureTime
 import com.munch.pre.lib.log.Logger
 import com.munch.pre.lib.watcher.Watcher
-import kotlin.system.measureTimeMillis
 
 /**
  * Create by munch1182 on 2021/5/8 10:53.
@@ -15,13 +19,18 @@ class LauncherApp : BaseApp() {
 
         val appLog = Logger().apply {
             tag = "Launcher-p1"
+            enable = BuildConfig.DEBUG
         }
+
+        val measureHelper = SimpleMeasureTime()
+
+        fun getInstance() = BaseApp.getInstance() as LauncherApp
     }
 
     override fun onCreate() {
         super.onCreate()
         if (debug()) {
-            appLog.log("app init: ${measureTimeMillis { initNeed() }} ms")
+            measureHelper.measure("app init") { initNeed() }
         } else {
             initNeed()
         }
@@ -31,5 +40,14 @@ class LauncherApp : BaseApp() {
         AppStatusHelper.register(this)
         DataHelper.init()
         Watcher().watchMainLoop().strictMode()
+    }
+
+    override fun handleUncaught() {
+        Thread.setDefaultUncaughtExceptionHandler { _, e ->
+            appLog.log(e)
+            e.printStackTrace()
+            AppHelper.resetApp2Activity(this)
+            Process.killProcess(Process.myPid())
+        }
     }
 }

@@ -3,11 +3,11 @@
     package="com.munch.project.launcher">
 
     <application
+        android:name=".base.LauncherApp"
         android:allowBackup="true"
         android:fullBackupContent="@xml/content_backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name=".base.LauncherApp"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -20,7 +20,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".item.AppActivity" />
+        <activity
+            android:name=".item.AppActivity"
+            android:theme="@style/TransTheme" />
     </application>
 
 </manifest>

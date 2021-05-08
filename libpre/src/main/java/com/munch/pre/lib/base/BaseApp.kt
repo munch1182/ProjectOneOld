@@ -28,6 +28,10 @@ open class BaseApp : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        handleUncaught()
+    }
+
+    protected open fun handleUncaught() {
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
             log(e)
             e.printStackTrace()

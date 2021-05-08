@@ -28,6 +28,7 @@ class MainActivity : BaseActivity() {
         /*super.toggleTheme()*/
     }
 
+
     private val fragmentAdapter = object : FragmentStateAdapter(this) {
 
         private val homeFragment: HomeFragment = HomeFragment()
@@ -45,7 +46,7 @@ class MainActivity : BaseActivity() {
         }
 
         fun showHomeItem(vp: ViewPager2) {
-            vp.currentItem = itemCount - 1
+            vp.setCurrentItem(itemCount - 1, false)
         }
     }
 }

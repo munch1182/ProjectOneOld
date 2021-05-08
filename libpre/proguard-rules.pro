@@ -19,3 +19,38 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-assumenosideeffects class android.util.Log {
+
+    public static *** d(...);
+
+    public static *** e(...);
+
+    public static *** i(...);
+
+    public static *** v(...);
+
+    public static *** println(...);
+
+    public static *** w(...);
+
+    public static *** wtf(...);
+
+}
+
+-assumenosideeffects class com.munch.pre.lib.log.Logger {
+
+    public *** log(...);
+
+    public *** isJson(...);
+
+    public *** withEnable(...);
+
+    public *** setListener(...);
+}
+
+-assumenosideeffects class com.munch.pre.lib.log.LogKt {
+
+    public static *** log(...);
+
+    public static *** logJson(...);
+}
