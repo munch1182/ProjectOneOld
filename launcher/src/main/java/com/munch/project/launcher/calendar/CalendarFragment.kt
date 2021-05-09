@@ -1,6 +1,5 @@
-package com.munch.project.launcher.main
+package com.munch.project.launcher.calendar
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import com.munch.project.launcher.R
@@ -14,9 +13,8 @@ class CalendarFragment : BaseFragment() {
 
     private val bind by bind<FragmentCalendarBinding>(R.layout.fragment_calendar)
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        bind.homeTest.text = "333"
+        bind.lifecycleOwner = this
     }
 }

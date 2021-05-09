@@ -7,8 +7,8 @@ import android.view.*
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import androidx.fragment.app.Fragment
 import com.munch.pre.lib.base.BaseRootActivity
+import com.munch.pre.lib.base.BaseRootFragment
 import com.munch.pre.lib.helper.BarHelper
 
 /**
@@ -34,10 +34,10 @@ open class BaseActivity : BaseRootActivity(), TestFun {
 
 }
 
-open class BaseFragment : Fragment(), TestFun {
+open class BaseFragment : BaseRootFragment(), TestFun {
 
     private var resId: Int = 0
-    private lateinit var vb: ViewDataBinding
+    private var vb: ViewDataBinding? = null
 
     @Suppress("UNCHECKED_CAST")
     protected fun <T : ViewDataBinding> bind(@LayoutRes resId: Int): Lazy<T> {
@@ -52,15 +52,21 @@ open class BaseFragment : Fragment(), TestFun {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        measureHelper.startFragmentShow(this)
+        measureHelper.count(this, "onCreateView", 2)
+        if (resId == 0) {
+            return null
+        }
+        measureHelper.startFragmentInflate(this)
         vb = DataBindingUtil.inflate(inflater, resId, container, false)
-        vb.lifecycleOwner = this
-        measureHelper.stopFragmentShow(this)
-        return vb.root
+        vb?.lifecycleOwner = this
+        measureHelper.stopFragmentInflate(this)
+        return vb?.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        vb.unbind()
+        measureHelper.reset(this, "onCreateView")
+        vb?.unbind()
+        vb = null
     }
 }

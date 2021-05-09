@@ -16,7 +16,6 @@ import androidx.core.view.contains
 import com.munch.pre.lib.base.Orientation
 import com.munch.pre.lib.extend.ViewHelper
 import com.munch.pre.lib.extend.obOnDestroy
-import com.munch.pre.lib.log.log
 import kotlin.math.absoluteValue
 
 /**
@@ -61,12 +60,16 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
         var enable = true
 
         /**
+         * 在移动一个方向后，在一次移动中，能够移动相反方向且超出边界
+         */
+        var opposite = false
+
+        /**
          * 在两个方向上最小移动view的边长的最小比率
          * 超过这个比率的长被视为完全滑动，后续部分动画自动实现
          */
         var minRate = 0.35f
             set(value) {
-                log(123)
                 if (field == value) {
                     return
                 }
@@ -104,6 +107,7 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
          * 用以保持单方向移动，因此此类不适应非四向移动
          */
         private var currentOrientation = -1
+        var animHandle: ((ObjectAnimator) -> Unit)? = null
         private var totalMove = 0f
         private val gestureDetector =
             GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
@@ -123,19 +127,72 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
                 ): Boolean {
                     e1 ?: return false
                     when (currentOrientation) {
-                        -1 -> {
-                            return if (distanceX.absoluteValue > distanceY.absoluteValue) {
-                                currentOrientation = Orientation.HORIZONTAL
-                                scrollX(distanceX)
-                            } else {
-                                currentOrientation = Orientation.VERTICAL
-                                scrollY(distanceY)
-                            }
-                        }
-                        Orientation.HORIZONTAL -> scrollX(distanceX)
-                        Orientation.VERTICAL -> scrollY(distanceY)
+                        //如果是按下后的第一此移动，则需要据此计算出此次移动的方向
+                        -1 -> return setOrientationAndMove(distanceX, distanceY)
+                        //根据第一次移动的方向继续移动
+                        Orientation.RL, Orientation.LR -> scrollX(distanceX)
+                        Orientation.TB, Orientation.BT -> scrollY(distanceY)
+                        else -> return false
                     }
                     return true
+                }
+
+                private fun setOrientationAndMove(distanceX: Float, distanceY: Float): Boolean {
+                    //两方向同时移动
+                    return if (distanceX != 0f && distanceY != 0f) {
+                        //则取最大移动距离的方向
+                        return if (distanceX.absoluteValue > distanceY.absoluteValue) {
+                            //水平移动，则先尝试水平移动，如果不符合设置，则换方向移动
+                            setHorizontalAndMove(distanceX) ||
+                                    (distanceY.absoluteValue > minTimeDis &&
+                                            setVerticalAndMove(distanceY))
+                        } else {
+                            //垂直移动
+                            setVerticalAndMove(distanceY) ||
+                                    (distanceX.absoluteValue > minTimeDis &&
+                                            setHorizontalAndMove(distanceX))
+                        }
+                    }
+                    //水平单向移动
+                    else if (distanceX > 0f) {
+                        setHorizontalAndMove(distanceX)
+                    }
+                    //垂直单向移动
+                    else {
+                        setVerticalAndMove(distanceY)
+                    }
+                }
+
+                private fun setVerticalAndMove(distanceY: Float): Boolean {
+                    return if (distanceY > 0 && hasOrientation(Orientation.BT)) {
+                        currentOrientation = Orientation.BT
+                        scrollX(distanceY)
+                        true
+                    } else if (distanceY < 0 && hasOrientation(Orientation.TB)) {
+                        currentOrientation = Orientation.TB
+                        scrollX(distanceY)
+                        true
+                    } else {
+                        //此次移动不再处理
+                        currentOrientation = -2
+                        false
+                    }
+                }
+
+                private fun setHorizontalAndMove(distanceX: Float): Boolean {
+                    return if (distanceX > 0 && hasOrientation(Orientation.RL)) {
+                        currentOrientation = Orientation.RL
+                        scrollX(distanceX)
+                        true
+                    } else if (distanceX < 0 && hasOrientation(Orientation.LR)) {
+                        currentOrientation = Orientation.LR
+                        scrollX(distanceX)
+                        true
+                    } else {
+                        //此次移动不再处理
+                        currentOrientation = -2
+                        false
+                    }
                 }
             })
 
@@ -165,8 +222,8 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
 
         private fun anim2End() {
             val end = when (currentOrientation) {
-                Orientation.HORIZONTAL -> view.width * if (totalMove < 0) 1f else -1f
-                Orientation.VERTICAL -> view.height * if (totalMove < 0) 1f else -1f
+                Orientation.LR, Orientation.RL -> view.width * if (totalMove < 0) 1f else -1f
+                Orientation.TB, Orientation.BT -> view.height * if (totalMove < 0) 1f else -1f
                 else -> return
             }
             animMove(end)
@@ -179,9 +236,10 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
         }
 
         private fun animMove(dis: Float) {
-            val isX = currentOrientation == Orientation.HORIZONTAL
+            val isX = (Orientation.HORIZONTAL and currentOrientation) != 0
             anim = ObjectAnimator.ofFloat(view, if (isX) TRANSLATION_X else TRANSLATION_Y, dis)
                 .apply {
+                    animHandle?.invoke(this)
                     addUpdateListener {
                         val process = if (isX) {
                             view.translationX / view.width.toFloat()
@@ -207,30 +265,28 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
             anim?.start()
         }
 
-        private fun scrollY(distanceY: Float): Boolean {
-            return if ((distanceY > 0 && hasOrientation(Orientation.BT)) || (distanceY < 0 && hasOrientation(
-                    Orientation.TB
-                ))
-            ) {
-                totalMove += distanceY
-                view.translationY = -totalMove
-                processListener?.invoke(totalMove.absoluteValue / height)
-                true
-            } else
-                false
+        private fun scrollY(distanceY: Float) {
+            val preMove = totalMove + distanceY
+            val valid = opposite || (preMove > 0f && currentOrientation == Orientation.BT) ||
+                    (preMove < 0f && currentOrientation == Orientation.TB)
+            if (!valid) {
+                return
+            }
+            totalMove = preMove
+            view.translationY = -totalMove
+            processListener?.invoke(totalMove.absoluteValue / height)
         }
 
-        private fun scrollX(distanceX: Float): Boolean {
-            return if ((distanceX > 0 && hasOrientation(Orientation.RL)) ||
-                (distanceX < 0 && hasOrientation(Orientation.LR))
-            ) {
-                totalMove += distanceX
-                view.translationX = -totalMove
-                processListener?.invoke(totalMove.absoluteValue / width)
-                true
-            } else {
-                false
+        private fun scrollX(distanceX: Float) {
+            val preMove = totalMove + distanceX
+            val valid = opposite || (preMove > 0f && currentOrientation == Orientation.RL) ||
+                    (preMove < 0f && currentOrientation == Orientation.LR)
+            if (!valid) {
+                return
             }
+            totalMove = preMove
+            view.translationX = -totalMove
+            processListener?.invoke(totalMove.absoluteValue / width)
         }
 
         @SuppressLint("ClickableViewAccessibility")
@@ -243,7 +299,8 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
             }
         }
 
-        private fun hasOrientation(orientation: @Orientation Int) = (flags and orientation) != 0
+        private fun hasOrientation(orientation: @Orientation Int) =
+            (flags and orientation) != 0
 
         /**
          * 使用位移运算来标识位置
@@ -258,6 +315,7 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
         private fun isHorizontal(orientation: @Orientation Int) =
             orientation == Orientation.HORIZONTAL
 
-        private fun isVertical(orientation: @Orientation Int) = orientation == Orientation.VERTICAL
+        private fun isVertical(orientation: @Orientation Int) =
+            orientation == Orientation.VERTICAL
     }
 }

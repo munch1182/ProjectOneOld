@@ -3,12 +3,14 @@ package com.munch.project.launcher.base
 import android.os.Process
 import com.munch.pre.lib.BuildConfig
 import com.munch.pre.lib.base.BaseApp
+import com.munch.pre.lib.dag.Executor
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.AppStatusHelper
 import com.munch.pre.lib.helper.measure.MeasureTimeHelper
 import com.munch.pre.lib.helper.measure.SimpleMeasureTime
 import com.munch.pre.lib.log.Logger
 import com.munch.pre.lib.watcher.Watcher
+import com.munch.project.launcher.item.AppItemTask
 
 /**
  * Create by munch1182 on 2021/5/8 10:53.
@@ -40,6 +42,7 @@ class LauncherApp : BaseApp() {
         AppStatusHelper.register(this)
         DataHelper.init()
         Watcher().watchMainLoop().strictMode()
+        Executor().add(AppItemTask()).execute()
     }
 
     override fun handleUncaught() {

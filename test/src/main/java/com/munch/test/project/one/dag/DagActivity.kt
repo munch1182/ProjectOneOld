@@ -97,7 +97,7 @@ class DagActivity : BaseItemWithNoticeActivity() {
 
     abstract class BTaskB : Task() {
 
-        override fun start(executor: Executor) {
+        override suspend fun start(executor: Executor) {
             log("${this.uniqueKey} start.")
         }
     }
@@ -149,11 +149,9 @@ class DagActivity : BaseItemWithNoticeActivity() {
             const val KEY = "T5"
         }
 
-        override fun start(executor: Executor) {
+        override suspend fun start(executor: Executor) {
             super.start(executor)
-            runBlocking {
-                delay(1000L)
-            }
+            delay(1000L)
             val res = Random.nextBoolean()
             val name = Thread.currentThread().name
             if (!res) {

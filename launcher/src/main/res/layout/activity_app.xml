@@ -1,12 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
         android:id="@+id/app_container"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorWhite"
         tools:context=".item.AppActivity">
+
+        <com.munch.project.launcher.weight.LetterNavigationBarView
+            android:id="@+id/item_letter"
+            android:layout_width="10dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="80dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:letter_select_color="?attr/colorPrimary"
+            app:letter_text_color="@color/colorTextGray" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/item_rv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/item_letter"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            tools:listitem="@layout/item_app_item" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

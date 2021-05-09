@@ -309,7 +309,7 @@ open class Logger {
             if (index > 0) {
                 sb.append(", ")
                 if (sep) {
-                    sb.append(LINE_SEPARATOR)
+                    sb.append(LINE_SEPARATOR).append(" ")
                 }
             }
             val str = any2Str(iterator.next())

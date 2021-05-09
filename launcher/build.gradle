@@ -33,4 +33,7 @@ dependencies {
     api rootProject.ext.dependencies['room']
     api rootProject.ext.dependencies['room_ktx']
     kapt rootProject.ext.dependencies['room_compiler']
+
+    implementation rootProject.ext.dependencies['tiny_pinyin']
+    implementation rootProject.ext.dependencies['tiny_pinyin_dic']
 }

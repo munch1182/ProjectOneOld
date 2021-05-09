@@ -10,7 +10,7 @@ import kotlin.coroutines.CoroutineContext
  */
 abstract class Task : CoroutineScope {
 
-    abstract fun start(executor: Executor)
+    abstract suspend fun start(executor: Executor)
 
     abstract val uniqueKey: String
 
@@ -103,7 +103,7 @@ abstract class Task : CoroutineScope {
             const val KEY = "com.munch.pre.lib.dag.TaskZero"
         }
 
-        override fun start(executor: Executor) {
+        override suspend fun start(executor: Executor) {
         }
 
         override val uniqueKey: String = KEY
@@ -118,7 +118,7 @@ abstract class Task : CoroutineScope {
             const val KEY = "com.munch.pre.lib.dag.TaskOne"
         }
 
-        override fun start(executor: Executor) {
+        override suspend fun start(executor: Executor) {
         }
 
         override fun dependsOn(): MutableList<String> = dependOn

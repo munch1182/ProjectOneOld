@@ -22,11 +22,11 @@ class SimpleMeasureTime : MeasureTimeHelper() {
         stop("${activity.javaClass.simpleName}$MEASURE_ACTIVITY_SHOW")
     }
 
-    fun startFragmentShow(fragment: Fragment) {
+    fun startFragmentInflate(fragment: Fragment) {
         start("${fragment.javaClass.simpleName}$MEASURE_FRAGMENT_SHOW", 100L)
     }
 
-    fun stopFragmentShow(fragment: Fragment) {
+    fun stopFragmentInflate(fragment: Fragment) {
         stop("${fragment.javaClass.simpleName}$MEASURE_FRAGMENT_SHOW")
     }
 }
