@@ -9,7 +9,7 @@ import androidx.annotation.LayoutRes
 /**
  * Create by munch1182 on 2021/3/31 15:20.
  */
-class SimpleAdapter<D> private constructor(
+open class SimpleAdapter<D> private constructor(
     override var res: Int,
     override var view: View?,
     dataInit: MutableList<D>? = null,
@@ -37,7 +37,7 @@ class SimpleAdapter<D> private constructor(
     }
 }
 
-class SimpleMultiAdapter<D> private constructor(
+open class SimpleMultiAdapter<D> private constructor(
     dataInit: MutableList<D>? = null,
     private val onBind: ((holder: BaseViewHolder, bean: D, pos: Int) -> Unit)? = null,
 ) : BaseAdapter<D, BaseViewHolder>(dataInit), MultiType<BaseViewHolder> {

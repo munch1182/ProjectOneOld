@@ -27,6 +27,7 @@ dependencies {
     implementation rootProject.ext.dependencies['lifecycle_runtime_ktx']
     implementation rootProject.ext.dependencies['permissionx']
     implementation rootProject.ext.dependencies['glide']
+    implementation rootProject.ext.dependencies['swiperefreshlayout']
 
     debugImplementation rootProject.ext.dependencies['leakcanary']
 

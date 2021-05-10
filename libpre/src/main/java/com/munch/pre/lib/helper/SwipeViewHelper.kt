@@ -35,9 +35,7 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
             swipeFrameLayout.addView(contentView)
             addView(swipeFrameLayout, ViewHelper.newParamsMM())
         }
-        activity.obOnDestroy {
-            /*swipeFrameLayout.cancelAnim()*/
-        }
+        activity.obOnDestroy { swipeFrameLayout.cancelAnim() }
     }
 
     fun getSwipeView(): SwipeFrameLayout = swipeFrameLayout
@@ -109,6 +107,7 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
         private var currentOrientation = -1
         var animHandle: ((ObjectAnimator) -> Unit)? = null
         private var totalMove = 0f
+        private var canMove = false
         private val gestureDetector =
             GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
 
@@ -116,7 +115,7 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
                     totalMove = 0f
                     currentOrientation = -1
                     downTime = System.currentTimeMillis()
-                    return enable
+                    return false
                 }
 
                 override fun onScroll(
@@ -208,8 +207,8 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
                 return true
             } else {
                 //有一个方向移动了最小距离
-                if ((isHorizontal(currentOrientation) && totalMove.absoluteValue > minWidthMove) ||
-                    (isVertical(currentOrientation) && totalMove.absoluteValue > minHeightMove)
+                if ((hasOrientation(currentOrientation) && totalMove.absoluteValue > minWidthMove) ||
+                    (hasOrientation(currentOrientation) && totalMove.absoluteValue > minHeightMove)
                 ) {
                     anim2End()
                     return true
@@ -266,6 +265,7 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
         }
 
         private fun scrollY(distanceY: Float) {
+            if (!canMove) return
             val preMove = totalMove + distanceY
             val valid = opposite || (preMove > 0f && currentOrientation == Orientation.BT) ||
                     (preMove < 0f && currentOrientation == Orientation.TB)
@@ -278,6 +278,7 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
         }
 
         private fun scrollX(distanceX: Float) {
+            if (!canMove) return
             val preMove = totalMove + distanceX
             val valid = opposite || (preMove > 0f && currentOrientation == Orientation.RL) ||
                     (preMove < 0f && currentOrientation == Orientation.LR)
@@ -289,11 +290,26 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
             processListener?.invoke(totalMove.absoluteValue / width)
         }
 
+        override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+            canMove = false
+            if (!enable) {
+                return super.onInterceptTouchEvent(ev)
+            }
+            return handle(ev)
+        }
+
         @SuppressLint("ClickableViewAccessibility")
         override fun onTouchEvent(event: MotionEvent?): Boolean {
+            canMove = true
+            return handle(event)
+        }
+
+        private fun handle(event: MotionEvent?): Boolean {
             event ?: return false
+            if (!enable) return false
             return if (event.action == MotionEvent.ACTION_UP) {
                 onUp()
+                false
             } else {
                 gestureDetector.onTouchEvent(event)
             }
@@ -312,10 +328,8 @@ class SwipeViewHelper(private val activity: ComponentActivity) {
             return this
         }
 
-        private fun isHorizontal(orientation: @Orientation Int) =
-            orientation == Orientation.HORIZONTAL
-
-        private fun isVertical(orientation: @Orientation Int) =
-            orientation == Orientation.VERTICAL
+        fun cancelAnim() {
+            anim?.cancel()
+        }
     }
 }

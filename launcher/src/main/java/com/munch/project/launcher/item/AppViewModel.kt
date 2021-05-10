@@ -48,7 +48,7 @@ class AppViewModel : ViewModel() {
         val array = mutableListOf<AppGroupItem>()
         var last = ' '
         var charIndex = -1
-        val map = hashMapOf<Char, Int>()
+        val map = linkedMapOf<Char, Int>()
         list.forEach {
             charIndex++
             //如果该数据的char与上一个char不同，则需要另起一组

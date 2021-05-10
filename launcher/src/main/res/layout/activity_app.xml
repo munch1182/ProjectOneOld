@@ -9,30 +9,45 @@
         android:background="@color/colorWhite"
         tools:context=".item.AppActivity">
 
-        <com.munch.project.launcher.weight.LetterNavigationBarView
-            android:id="@+id/item_letter"
-            android:layout_width="10dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="80dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:letter_select_color="?attr/colorPrimary"
-            app:letter_text_color="@color/colorTextGray" />
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/item_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="0dp"
-            android:paddingEnd="10dp"
+            android:overScrollMode="never"
+            android:scrollbars="none"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/item_letter"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
             tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             tools:listitem="@layout/item_app_item"
             tools:spanCount="4" />
 
+        <com.munch.project.launcher.weight.LetterNavigationBarView
+            android:id="@+id/item_letter"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
+            android:layout_marginBottom="48dp"
+            android:paddingTop="30dp"
+            android:paddingBottom="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:letter_max_space="@dimen/padding_def"
+            app:letter_select_color="?attr/colorPrimary"
+            app:letter_text_color="@color/colorTextGray"
+            app:letter_text_size="@dimen/sp_smaller" />
+
+        <com.munch.project.launcher.weight.TeardropAngleView
+            android:id="@+id/item_teardrop"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@id/item_letter"
+            app:layout_constraintTop_toTopOf="@id/item_letter"
+            app:teardrop_angle="0"
+            app:teardrop_color="?attr/colorPrimary"
+            tools:teardrop_text="A"
+            tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

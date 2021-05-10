@@ -1,5 +1,6 @@
 package com.munch.project.launcher.base
 
+import android.content.Context
 import android.util.SparseArray
 import android.util.SparseIntArray
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import com.munch.pre.lib.base.rv.*
+import com.munch.pre.lib.helper.AppHelper
 
 /**
  * Create by munch1182 on 2021/3/31 15:27.
@@ -66,3 +68,11 @@ open class BaseBindViewHolder<V : ViewDataBinding>(open val bind: V) : BaseViewH
     @Suppress("UNCHECKED_CAST")
     fun <VB : ViewDataBinding> getVB(): VB = bind as VB
 }
+
+
+class StatusAdapter(context: Context) : SimpleAdapter<Int>(View(context).apply {
+    layoutParams = ViewGroup.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        AppHelper.PARAMETER.getStatusBarHeight()
+    )
+}, arrayListOf(1))
