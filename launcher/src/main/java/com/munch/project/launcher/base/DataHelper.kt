@@ -15,4 +15,10 @@ object DataHelper {
     val SET = MMKVHelper(ID_SET)
 
     fun init() = MMKVHelper.init(BaseApp.getInstance())
+
+
+    private const val KEY_SPAN_COUNT = "key_span_count"
+
+    fun getSpanCount() = SET.get(KEY_SPAN_COUNT, 4)
+    fun spanCount(count: Int) = SET.put(KEY_SPAN_COUNT, count)
 }

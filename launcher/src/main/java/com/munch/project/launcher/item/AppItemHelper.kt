@@ -37,7 +37,6 @@ object AppItemHelper {
     }
 
     fun preScan() {
-        log.log("app item pre scan")
         appItems.start()
     }
 

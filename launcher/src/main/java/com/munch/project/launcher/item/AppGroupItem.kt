@@ -1,19 +1,57 @@
 package com.munch.project.launcher.item
 
+import com.github.promeg.pinyinhelper.Pinyin
+import java.util.*
+
 /**
  * Create by munch1182 on 2021/5/9 17:24.
  */
-data class AppGroupItem(val name: String, val icon: Any?) : Comparator<AppGroupItem> {
+data class AppGroupItem(val name: String, val icon: Any?, val pkg: String) :
+    Comparable<AppGroupItem> {
 
-    var letter: Char = '?'
+    var letter: Char = ' '
+        get() {
+            if (field == ' ') {
+                field = letters[0]
+            }
+            return field
+        }
+
+    //在该分组下的序列
+    var indexInLetter: Int = -1
+
+    //当前位置距离该行末尾的位置，如果不在最后一个，则为1
+    //其具体值取决于GridLayout的列数，更新时计算
+    var span2End: Int = 1
+
+    private var letters: String = ""
+        get() {
+            if (field.isEmpty()) {
+                val sb = StringBuilder()
+                name.toCharArray().forEach {
+                    sb.append(Pinyin.toPinyin(it).toUpperCase(Locale.getDefault()))
+                }
+                field = sb.toString()
+            }
+            return field
+        }
 
     companion object {
-        fun empty() = AppGroupItem("", null)
+        fun empty(last: Char, indexInLetter: Int, span2End: Int): AppGroupItem {
+            return AppGroupItem("", null, "").apply {
+                this.indexInLetter = indexInLetter
+                letter = last
+                this.span2End = span2End
+            }
+        }
     }
 
-    override fun compare(o1: AppGroupItem?, o2: AppGroupItem?): Int {
-        o1 ?: return 1
-        o2 ?: return -1
-        return o1.letter.compareTo(o2.letter)
+    override fun compareTo(other: AppGroupItem): Int {
+        return letters.compareTo(other.letters)
     }
+
+    override fun toString(): String {
+        return "AppGroupItem(name=$name,icon=$icon,pkg=$pkg,letter=$letter,indexInLetter=$indexInLetter,span2End=$span2End)"
+    }
+
 }
