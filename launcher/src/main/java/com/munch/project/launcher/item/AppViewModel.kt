@@ -29,7 +29,7 @@ class AppViewModel : ViewModel() {
 
     private suspend fun scanFromPhone(): List<AppGroupItem> {
         return AppItemHelper.getItems().map {
-            AppGroupItem(it.info.showName, it.info.showIcon, it.info.pkgName)
+            AppGroupItem(it.info.showName, it.info.showIcon, it.info.pkgName, it.info.launch)
         }.sorted()
     }
 

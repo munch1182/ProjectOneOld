@@ -81,6 +81,7 @@ data class AppInfo(
     var showIcon: Any?,
     //包名
     val pkgName: String,
+    val launch: String,
     //文件大小
     var size: String = "0",
     //是否是系统应用
@@ -98,6 +99,7 @@ data class AppInfo(
             val packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_CONFIGURATIONS)
             val name = pm.getApplicationLabel(packageInfo.applicationInfo).toString()
             val showName = info.activityInfo.loadLabel(pm).toString()
+            val launch = info.activityInfo.name
             val icon = packageInfo.applicationInfo.loadIcon(pm)
             val showIcon = info.loadIcon(pm)
             val size = getSize(packageName)
@@ -105,7 +107,7 @@ data class AppInfo(
             val installTime = packageInfo.firstInstallTime
             val lastUpdateTime = packageInfo.lastUpdateTime
             return AppInfo(
-                name, showName, icon, showIcon, packageName,
+                name, showName, icon, showIcon, packageName, launch,
                 size, isSystem, installTime, lastUpdateTime
             )
         }

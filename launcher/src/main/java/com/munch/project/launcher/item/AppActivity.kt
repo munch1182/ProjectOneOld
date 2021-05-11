@@ -2,7 +2,9 @@ package com.munch.project.launcher.item
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -16,6 +18,7 @@ import com.munch.pre.lib.base.rv.DiffItemCallback
 import com.munch.pre.lib.extend.dp2Px
 import com.munch.pre.lib.extend.observeOnChanged
 import com.munch.pre.lib.extend.startActivity
+import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.SwipeViewHelper
 import com.munch.pre.lib.helper.drawTextInYCenter
 import com.munch.project.launcher.R
@@ -184,7 +187,14 @@ class AppActivity : BaseActivity() {
     }
 
     private class AppAdapterHelper(context: Context) {
-        private val appAdapter = AppAdapter()
+        private val appAdapter = AppAdapter().apply {
+            setOnItemClickListener { _, bean, _, _ ->
+                context.startActivity(
+                    Intent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .setComponent(ComponentName(bean.pkg, bean.launch))
+                )
+            }
+        }
         private val statusAdapter = StatusAdapter(context)
         private val adapter = ConcatAdapter(statusAdapter, appAdapter)
 

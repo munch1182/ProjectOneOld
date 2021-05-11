@@ -6,7 +6,12 @@ import java.util.*
 /**
  * Create by munch1182 on 2021/5/9 17:24.
  */
-data class AppGroupItem(val name: String, val icon: Any?, val pkg: String) :
+data class AppGroupItem(
+    val name: String,
+    val icon: Any?,
+    val pkg: String,
+    var launch: String
+) :
     Comparable<AppGroupItem> {
 
     var letter: Char = ' '
@@ -38,7 +43,7 @@ data class AppGroupItem(val name: String, val icon: Any?, val pkg: String) :
 
     companion object {
         fun empty(last: Char, indexInLetter: Int, span2End: Int): AppGroupItem {
-            return AppGroupItem("", null, "").apply {
+            return AppGroupItem("", null, "", "").apply {
                 this.indexInLetter = indexInLetter
                 letter = last
                 this.span2End = span2End
@@ -51,7 +56,7 @@ data class AppGroupItem(val name: String, val icon: Any?, val pkg: String) :
     }
 
     override fun toString(): String {
-        return "AppGroupItem(name=$name,icon=$icon,pkg=$pkg,letter=$letter,indexInLetter=$indexInLetter,span2End=$span2End)"
+        return "AppGroupItem(name=$name,icon=$icon,pkg=$pkg,launch=$launch,letter=$letter,indexInLetter=$indexInLetter,span2End=$span2End)"
     }
 
 }
