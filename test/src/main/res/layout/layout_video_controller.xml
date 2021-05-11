@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="controller"
+            type="com.munch.test.project.one.player.media.MediaControllerView" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="HardcodedText">
+
+        <View
+            android:id="@+id/controller_top_bg"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="#33000000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/controller_top_back"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:contentDescription="back"
+            android:padding="@dimen/padding_def"
+            android:src="@drawable/ic_baseline_arrow_back"
+            app:layout_constraintBottom_toBottomOf="@id/controller_top_bg"
+            app:layout_constraintStart_toStartOf="@id/controller_top_bg"
+            app:layout_constraintTop_toTopOf="@id/controller_top_bg"
+            app:tint="@color/colorWhite" />
+
+        <ImageView
+            android:id="@+id/controller_top_set"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:contentDescription="set"
+            android:padding="@dimen/padding_def"
+            android:src="@drawable/ic_action_dark_settings"
+            app:layout_constraintBottom_toBottomOf="@id/controller_top_bg"
+            app:layout_constraintEnd_toEndOf="@id/controller_top_bg"
+            app:layout_constraintTop_toTopOf="@id/controller_top_bg" />
+
+        <TextView
+            android:id="@+id/controller_top_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_title_smaller"
+            app:layout_constraintBottom_toBottomOf="@id/controller_top_bg"
+            app:layout_constraintEnd_toStartOf="@id/controller_top_set"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/controller_top_back"
+            app:layout_constraintTop_toTopOf="@id/controller_top_bg"
+            tools:text="12312312" />
+
+        <View
+            android:id="@+id/controller_bottom_bg"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="#33000000"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/controller_progress_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_def"
+            android:textColor="@color/colorWhite"
+            app:layout_constraintBottom_toBottomOf="@id/controller_bottom_bg"
+            app:layout_constraintEnd_toStartOf="@id/controller_progress_sb"
+            app:layout_constraintStart_toStartOf="@id/controller_bottom_bg"
+            app:layout_constraintTop_toTopOf="@id/controller_bottom_bg"
+            tools:text="12:00/12:00" />
+
+        <SeekBar
+            android:id="@+id/controller_progress_sb"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:progressTint="?attr/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="@id/controller_bottom_bg"
+            app:layout_constraintEnd_toStartOf="@id/controller_play"
+            app:layout_constraintStart_toEndOf="@id/controller_progress_tv"
+            app:layout_constraintTop_toTopOf="@id/controller_bottom_bg" />
+
+        <ImageView
+            android:id="@+id/controller_play"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:contentDescription="start"
+            android:padding="@dimen/padding_def"
+            android:src="@drawable/ic_theme_play_arrow"
+            app:layout_constraintBottom_toBottomOf="@id/controller_bottom_bg"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/controller_progress_sb"
+            app:layout_constraintTop_toTopOf="@id/controller_bottom_bg"
+            app:tint="?attr/colorPrimary" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/controller_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="controller_top_bg,controller_top_back,controller_top_title,controller_top_set" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/controller_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="controller_progress_tv,controller_progress_sb,controller_play" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

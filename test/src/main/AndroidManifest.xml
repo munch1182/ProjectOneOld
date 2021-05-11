@@ -78,6 +78,7 @@
         <activity android:name=".net.service.NetServiceActivity" />
         <activity android:name=".net.capture.NetVpnActivity" />
         <activity android:name=".view.CalendarActivity" />
+        <activity android:name=".player.IjkPlayerActivity" />
 
         <service android:name=".net.clip.NetClipService" />
         <service android:name=".net.service.NetKeepService" />

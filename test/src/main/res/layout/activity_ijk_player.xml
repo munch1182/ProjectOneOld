@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".player.IjkPlayerActivity">
+
+        <com.munch.test.project.one.player.media.VideoView
+            android:id="@+id/player_video_view"
+            android:layout_width="match_parent"
+            android:layout_height="360dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/player_chose_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="chose"
+            app:layout_constraintEnd_toStartOf="@id/player_chose_danmu"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/player_video_view"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/player_chose_danmu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="dan mu"
+            app:layout_constraintBottom_toBottomOf="@id/player_chose_file"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/player_chose_file"
+            app:layout_constraintTop_toTopOf="@id/player_chose_file"
+            tools:ignore="HardcodedText" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
