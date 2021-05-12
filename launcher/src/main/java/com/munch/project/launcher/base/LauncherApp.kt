@@ -27,10 +27,25 @@ class LauncherApp : BaseApp() {
         val measureHelper = SimpleMeasureTime()
 
         fun getInstance() = BaseApp.getInstance() as LauncherApp
+
+        private const val TAG_SHOW_APP = "App -> MainActivity"
+
+        fun startMeasureLaunch() {
+            if (debug()) {
+                measureHelper.start(TAG_SHOW_APP, 0L)
+            }
+        }
+
+        fun stopMeasureLaunch() {
+            if (debug()) {
+                measureHelper.stop(TAG_SHOW_APP)
+            }
+        }
     }
 
     override fun onCreate() {
         super.onCreate()
+        startMeasureLaunch()
         if (debug()) {
             measureHelper.measure("app init") { initNeed() }
         } else {

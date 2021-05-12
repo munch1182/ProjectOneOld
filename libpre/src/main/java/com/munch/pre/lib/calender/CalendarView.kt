@@ -13,16 +13,10 @@ class CalendarView(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    internal var maxDay = Day.now().apply {
-        year += 999
-        month = 12
-        day = 31
-    }
-    internal var minDay = Day(1, 1, 1)
     private var current = Day.now()
+    var config = CalendarConfig()
 
-    private var monthViewPager = MonthViewPager(context, current, CalendarConfig())
-
+    private var monthViewPager = MonthViewPager(context, current, config)
 
     fun updateMonth(month: Month) = monthViewPager.updateMonth(month)
 }

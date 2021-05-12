@@ -5,11 +5,13 @@
     <FrameLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
         android:padding="@dimen/padding_def"
         tools:context="com.munch.project.launcher.calendar.CalendarFragment">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
+            android:layout_margin="@dimen/padding_def"
             android:layout_height="300dp"
             app:cardBackgroundColor="#88ffffff" />
 

@@ -2,6 +2,7 @@ package com.munch.pre.lib.calender
 
 import com.munch.pre.lib.helper.*
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.absoluteValue
 
 /**
@@ -26,6 +27,18 @@ open class Year(open var year: Int) {
 
     override fun toString(): String {
         return "$year y"
+    }
+
+    override fun hashCode(): Int {
+        return year
+    }
+
+    override fun equals(other: Any?): Boolean {
+        other ?: return false
+        if (other is Year) {
+            return other.year == year
+        }
+        return false
     }
 }
 
@@ -119,6 +132,18 @@ open class Month(override var year: Int, open var month: Int) : Year(year) {
     open fun toCalendar(): Calendar = Calendar.getInstance().apply {
         set(year, month - 1, 1, 0, 0, 0)
     }
+
+    override fun equals(other: Any?): Boolean {
+        other ?: return false
+        if (other is Month) {
+            return other.year == year && other.month == month
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return year * 31 + month
+    }
 }
 
 class MonthHelper(var month: Month, private val instance: Calendar = Calendar.getInstance()) {
@@ -132,7 +157,7 @@ class MonthHelper(var month: Month, private val instance: Calendar = Calendar.ge
     }
 
     /**
-     * 本月第一天的星期
+     * 本月第一天的星期数
      */
     private var startWeek: Int = 0
     fun getStartWeek() = startWeek
@@ -150,18 +175,31 @@ class MonthHelper(var month: Month, private val instance: Calendar = Calendar.ge
     fun getEndWeek() = endWeek
 
     /**
-     * 本月经历的周数
+     * 本月经历的周数(4、5、6)
      */
     private var weeks = 0
     fun getWeeks() = weeks
+
+    /**
+     * 设置的起始星期
+     */
     private var firstDayOfWeek = 0
     fun getFirstDayOfWeek() = firstDayOfWeek
+
+    /**
+     * 本月的所有天数，共6*7天，本月之外的天数用相邻的补齐并占据对应位置
+     * 如果第一天即本月的第一天且本月只有28天，则用下个月的两周补足后面的位置
+     */
+    private val daysIn42 = ArrayList<Day>(6 * 7)
 
     init {
         collect()
     }
 
     fun change(month: Month): MonthHelper {
+        if (month == this.month) {
+            return this
+        }
         this.month = month
         collect()
         return this
@@ -176,6 +214,46 @@ class MonthHelper(var month: Month, private val instance: Calendar = Calendar.ge
         instance.setDay(days)
         endWeek = instance.getWeek()
         weeks = collectWeeks()
+        collectAllDays()
+    }
+
+    private fun collectAllDays() {
+        daysIn42.clear()
+        var index = 0
+        if (startWeek != firstDayOfWeek) {
+            val inIndex = getStartWeekInIndex()
+            val day = Day(month, 1) - inIndex
+            index++
+            daysIn42.add(day)
+            for (i in 1 until inIndex) {
+                index++
+                daysIn42.add(day.update(day.day + i))
+            }
+        }
+        for (i in 1..days) {
+            index++
+            daysIn42.add(Day(this.month, i))
+        }
+        val nextDay = Day(month + 1, 1)
+        index++
+        daysIn42.add(nextDay)
+        val more = 42 - index + 1
+        for (i in 2..more) {
+            daysIn42.add(nextDay.update(i))
+        }
+    }
+
+    /**
+     * 需要在[collect]之后使用，返回的是本月第一天到开始星期空缺的天数
+     */
+    private fun getStartWeekInIndex(): Int {
+        if (startWeek == firstDayOfWeek) {
+            return 0
+        }
+        if (startWeek == Calendar.SUNDAY) {
+            return 8 - firstDayOfWeek
+        }
+        return startWeek - firstDayOfWeek
     }
 
     private fun collectWeeks(): Int {
@@ -214,12 +292,18 @@ class MonthHelper(var month: Month, private val instance: Calendar = Calendar.ge
 
 
     override fun toString(): String {
-        return "$month:{startWeek:$startWeek, endWeek:$endWeek, days:$days, weeks:$weeks, firstDayOfWeek:$firstDayOfWeek}"
+        return "$month:{startWeek:$startWeek, endWeek:$endWeek, days:$days, weeks:$weeks, firstDayOfWeek:$firstDayOfWeek, daysIn42=$daysIn42}"
     }
+
+    fun getIndexDay(index: Int): Day = daysIn42[index]
+    fun getIndexDays() = daysIn42
 }
 
 open class Day(override var year: Int, override var month: Int, open var day: Int) :
     Month(year, month) {
+
+    constructor(month: Month, day: Int) : this(month.year, month.month, day)
+
     companion object {
 
         fun now() = from(Calendar.getInstance())
@@ -231,7 +315,16 @@ open class Day(override var year: Int, override var month: Int, open var day: In
 
     protected open val instance: Calendar = Calendar.getInstance()
 
+    init {
+        resetIfNeed()
+    }
+
     fun getMonth() = this as Month
+
+    fun getWeek(): Int {
+        resetIfNeed()
+        return instance.getWeek()
+    }
 
     override operator fun plus(value: Int): Day {
         resetIfNeed()
@@ -287,12 +380,19 @@ open class Day(override var year: Int, override var month: Int, open var day: In
         update(this + value)
     }
 
-    fun update(day: Day): Day {
+    private fun update(day: Day): Day {
         this.year = day.year
         this.month = day.month
         this.day = day.day
         return this
     }
+
+    /**
+     * 更改天数并返回一个新的对象
+     *
+     * 主要是为了少进行时间的更新
+     */
+    fun update(day: Int) = Day(year, month, day)
 
     private fun resetIfNeed() {
         if (!isSame()) {
@@ -302,6 +402,9 @@ open class Day(override var year: Int, override var month: Int, open var day: In
 
     private fun resetNow() {
         instance.set(year, month - 1, day, 0, 0, 0)
+        year = instance.getYear()
+        month = instance.getMonth() + 1
+        day = instance.getDay()
     }
 
     private fun isSame() =
@@ -313,5 +416,21 @@ open class Day(override var year: Int, override var month: Int, open var day: In
 
     override fun toString(): String {
         return "$year.$month.$day"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        other ?: return false
+        if (other is Day) {
+            return other.year == year && other.month == month && other.day == day
+        } else if (other is Month) {
+            return other == this
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        var code = year * 31
+        code += month * 31
+        return code + day
     }
 }

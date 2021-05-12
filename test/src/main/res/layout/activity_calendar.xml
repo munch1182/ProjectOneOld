@@ -2,10 +2,16 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <FrameLayout xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
         android:id="@+id/calendar_container"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".view.CalendarActivity">
+
+        <com.munch.pre.lib.calender.MonthView
+            android:id="@+id/calendar_month"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_def" />
 
     </FrameLayout>
 </layout>

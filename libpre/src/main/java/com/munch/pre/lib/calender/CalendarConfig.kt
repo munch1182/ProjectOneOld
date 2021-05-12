@@ -1,5 +1,6 @@
 package com.munch.pre.lib.calender
 
+import android.graphics.Canvas
 import java.util.*
 
 
@@ -10,7 +11,8 @@ data class CalendarConfig(
     var firstDayOfWeek: Int = Calendar.MONDAY,
     val wh: WH = WH(),
     val height: Height = Height(),
-    var max: Day = Day(2999, 12, 31), var min: Day = Day(999, 1, 1)
+    var max: Day = Day(2999, 12, 31), var min: Day = Day(999, 1, 1),
+    var drawConfig: DrawConfig? = null
 ) {
 
     data class WH(
@@ -18,9 +20,9 @@ data class CalendarConfig(
         var maxWidth: Int = -1,
         var minHeight: Int = -1,
         var maxHeight: Int = -1,
-        var width: Int = 80,
-        var height: Int = 80,
-        var borderWidth: Int = 1
+        var width: Int = -1,
+        var height: Int = -1,
+        var borderSize: Int = 1
     )
 
     data class Height(
@@ -34,4 +36,13 @@ data class CalendarConfig(
         //显示前后月份的数据来填满
         var showNear: Boolean = false,
     )
+}
+
+interface DrawConfig {
+
+    fun onDrawStart(canvas: Canvas, month: Month, monthView: MonthView) {}
+
+    fun onDrawDay(canvas: Canvas, l: Float, t: Float, r: Float, b: Float, day: Day)
+
+    fun onDrawOver(canvas: Canvas, month: Month, monthView: MonthView) {}
 }

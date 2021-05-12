@@ -57,10 +57,25 @@ class DateTest {
     }
 
     @Test
-    fun testMonth(){
+    fun testMonth() {
         val any = Month(2021, 5).getHelper()
         log(any)
-        log(any.change(Month(2021,2)))
-        log(Month(2021,4).getHelper())
+        log(Month(2021, 4).getHelper())
+        log(any.change(Month(2021, 2)))
+    }
+
+    @Test
+    fun testDay() {
+        val day = Day.now()
+        log(day, day - 3, day + 1)
+        val any = Day(2021, 5, 1)
+        log(any, any - 1)
+    }
+
+    @Test
+    fun testMonth2() {
+        log(Month.now() == Month(2021, 5))
+        log(Month.now() == Day(2021, 5, 4))
+        log(Day.now() == Day(2021, 5, 12))
     }
 }

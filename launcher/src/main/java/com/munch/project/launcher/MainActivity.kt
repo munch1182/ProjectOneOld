@@ -10,6 +10,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.munch.pre.lib.base.BaseApp
 import com.munch.project.launcher.base.BaseActivity
+import com.munch.project.launcher.base.LauncherApp
 import com.munch.project.launcher.calendar.CalendarFragment
 import com.munch.project.launcher.databinding.ActivityMainBinding
 import com.munch.project.launcher.extend.bind
@@ -57,6 +58,7 @@ class MainActivity : BaseActivity() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LauncherApp.stopMeasureLaunch()
         bind.lifecycleOwner = this
         bind.mainVp.adapter = fragmentAdapter
         fragmentAdapter.showHomeItem(bind.mainVp)
