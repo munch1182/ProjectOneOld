@@ -113,7 +113,7 @@ data class AppInfo(
         }
 
         private fun getSize(pkgName: String): String {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && AppHelper.checkUsagePermission()) {
                 val appSize = AppHelper.getAppSize(BaseApp.getInstance(), pkgName) ?: return "0"
                 val size = FileHelper.formatSize(appSize.appBytes.toDouble())
                 return "${size.first.split(".")[0]} ${size.second}"

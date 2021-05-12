@@ -18,7 +18,7 @@ import com.munch.pre.lib.base.rv.DiffItemCallback
 import com.munch.pre.lib.extend.dp2Px
 import com.munch.pre.lib.extend.observeOnChanged
 import com.munch.pre.lib.extend.startActivity
-import com.munch.pre.lib.helper.AppHelper
+import com.munch.pre.lib.helper.BarHelper
 import com.munch.pre.lib.helper.SwipeViewHelper
 import com.munch.pre.lib.helper.drawTextInYCenter
 import com.munch.project.launcher.R
@@ -75,6 +75,12 @@ class AppActivity : BaseActivity() {
             handleLetter(it.second)
         }
         model.getSpanCount().observeOnChanged(this) { gridLayoutManager.spanCount = it }
+    }
+
+    override fun handleBar() {
+        /*super.handleBar()*/
+        BarHelper(this).hideStatusBar(true).colorStatusBar(Color.TRANSPARENT)
+        window.navigationBarColor = Color.WHITE
     }
 
     private fun syncScroll() {

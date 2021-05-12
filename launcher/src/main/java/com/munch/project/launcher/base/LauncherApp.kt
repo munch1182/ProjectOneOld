@@ -9,6 +9,7 @@ import com.munch.pre.lib.helper.AppStatusHelper
 import com.munch.pre.lib.helper.measure.SimpleMeasureTime
 import com.munch.pre.lib.log.Logger
 import com.munch.pre.lib.watcher.Watcher
+import com.munch.project.launcher.test.TestTask
 import kotlin.concurrent.thread
 
 /**
@@ -42,7 +43,7 @@ class LauncherApp : BaseApp() {
         AppStatusHelper.register(this)
         Watcher().watchMainLoop().strictMode()
         //因为Executor中使用了协程且此时会进行初始化，放在子线程进行可以减少主线程执行时间(大概10ms)
-        thread { Executor().add(DelayInitTask()).add(AppItemTask()).execute() }
+        thread { Executor().add(DelayInitTask()).add(AppItemTask()).add(TestTask()).execute() }
     }
 
     override fun handleUncaught() {

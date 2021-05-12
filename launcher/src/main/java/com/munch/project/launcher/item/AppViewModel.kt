@@ -7,7 +7,6 @@ import com.munch.pre.lib.extend.toLiveData
 import com.munch.project.launcher.base.DataHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.collections.HashMap
 
 /**
  * Create by munch1182 on 2021/5/9 15:52.

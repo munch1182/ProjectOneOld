@@ -10,7 +10,10 @@ import com.munch.pre.lib.helper.AppStatusHelper
 import com.munch.pre.lib.log.LogLog
 import com.munch.pre.lib.log.log
 import com.munch.test.project.one.base.BaseItemWithNoticeActivity
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 /**

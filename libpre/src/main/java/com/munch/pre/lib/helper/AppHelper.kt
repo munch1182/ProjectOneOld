@@ -125,6 +125,8 @@ object AppHelper {
     /**
      * 获取app大小相关，应用大小，缓存大小和文件大小
      *
+     * 注意：该权限需要跳转设置界面开启
+     *
      * @see checkUsagePermission
      * @see IntentHelper.usageIntent
      */

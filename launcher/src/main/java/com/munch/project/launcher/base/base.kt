@@ -3,7 +3,9 @@ package com.munch.project.launcher.base
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -24,8 +26,13 @@ open class BaseActivity : BaseRootActivity(), TestFun {
         measureHelper.startActivityShow(this)
         toggleTheme()
         super.onCreate(savedInstanceState)
-        BarHelper(this).hideStatusBar(true).colorStatusBar(Color.TRANSPARENT)
+        handleBar()
         delayLoad { measureHelper.stopActivityShow(this) }
+    }
+
+    protected open fun handleBar() {
+        BarHelper(this).hideStatusBar(true).colorStatusBar(Color.TRANSPARENT)
+        window.navigationBarColor = Color.TRANSPARENT
     }
 
     protected open fun toggleTheme() {

@@ -10,11 +10,11 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.munch.pre.lib.base.BaseApp
 import com.munch.project.launcher.base.BaseActivity
+import com.munch.project.launcher.calendar.CalendarFragment
 import com.munch.project.launcher.databinding.ActivityMainBinding
 import com.munch.project.launcher.extend.bind
-import com.munch.project.launcher.item.AppActivity
-import com.munch.project.launcher.calendar.CalendarFragment
 import com.munch.project.launcher.home.HomeFragment
+import com.munch.project.launcher.item.AppActivity
 import com.munch.project.launcher.list.ListFragment
 import kotlin.math.absoluteValue
 
