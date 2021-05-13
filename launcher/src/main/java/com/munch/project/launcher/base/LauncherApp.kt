@@ -39,6 +39,7 @@ class LauncherApp : BaseApp() {
         fun stopMeasureLaunch() {
             if (debug()) {
                 measureHelper.stop(TAG_SHOW_APP)
+                measureHelper.remove(TAG_SHOW_APP)
             }
         }
     }
@@ -56,7 +57,7 @@ class LauncherApp : BaseApp() {
     private fun initNeed() {
         DataHelper.init()
         AppStatusHelper.register(this)
-        Watcher().watchMainLoop().strictMode()
+        Watcher().watchMainLoop().strictMode().startFpsMonitor()
         //因为Executor中使用了协程且此时会进行初始化，放在子线程进行可以减少主线程执行时间(大概10ms)
         thread { Executor().add(DelayInitTask()).add(AppItemTask()).add(TestTask()).execute() }
     }

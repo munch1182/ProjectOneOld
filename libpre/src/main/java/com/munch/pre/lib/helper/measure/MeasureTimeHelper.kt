@@ -45,6 +45,10 @@ open class MeasureTimeHelper {
         getTimerOrNull(tag)?.stop()
     }
 
+    open fun remove(tag: String){
+        map.remove(tag.hashCode())
+    }
+
     protected open fun getTimerOrNew(tag: String, warnTime: Long): Timer {
         val key = tag.hashCode()
         return if (map.indexOfKey(key) >= 0) {

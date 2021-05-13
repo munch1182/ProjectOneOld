@@ -24,6 +24,10 @@ open class BaseApp : Application() {
     }
 
     private val handler by lazy { Handler(Looper.getMainLooper()) }
+    private val handlerInThread by lazy {
+        ThreadHandler.start()
+        ThreadHandler.getHandler()
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -40,9 +44,9 @@ open class BaseApp : Application() {
         }
     }
 
-    fun getMainHandler(): Handler {
-        return handler
-    }
+    fun getMainHandler() = handler
+
+    fun getThreadHandler() = handlerInThread
 
     open fun debug() = BuildConfig.DEBUG
 }

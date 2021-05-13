@@ -1,6 +1,8 @@
 package com.munch.pre.lib.watcher
 
 import android.os.*
+import android.view.Choreographer
+import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.helper.file.checkOrNew
 import com.munch.pre.lib.log.Logger
 import java.io.File
@@ -40,6 +42,20 @@ class Watcher {
     }
 
     /**
+     * 此方法会一直监听fpx，不建议一直开启
+     */
+    fun startFpsMonitor(min: Int = 40): Watcher {
+        FpsMonitor.listener {
+            if (it < min) {
+                log.log("fps: $it")
+            }
+        }.start()
+        return this
+    }
+
+    fun stopFpsMonitor() = FpsMonitor.stop()
+
+    /**
      * 严苛模式
      *
      * 输出在Logcat，tag为StrictMode
@@ -72,5 +88,56 @@ class Watcher {
         val file1 = file.checkOrNew() ?: return null
         Debug.dumpHprofData(file.absolutePath)
         return file1
+    }
+
+    object FpsMonitor {
+
+        private const val FPS_INTERVAL_TIME = 1000L
+        private var isStarted = false
+        private var count = 0
+        private val handler by lazy { BaseApp.getInstance().getThreadHandler() }
+        private val fpsRunnable by lazy { FpsRunnable() }
+        private var listener: ((count: Int) -> Unit)? = null
+
+        fun start() {
+            if (!isStarted) {
+                isStarted = true
+                //1s后重置
+                handler.postDelayed(fpsRunnable, FPS_INTERVAL_TIME)
+                Choreographer.getInstance().postFrameCallback(fpsRunnable)
+            }
+        }
+
+        fun listener(listener: (count: Int) -> Unit): FpsMonitor {
+            this.listener = listener
+            return this
+        }
+
+        fun stop() {
+            count = 0
+            handler.removeCallbacks(fpsRunnable)
+            Choreographer.getInstance().removeFrameCallback(fpsRunnable)
+            isStarted = false
+        }
+
+        class FpsRunnable : Choreographer.FrameCallback, Runnable {
+
+            /**
+             * 计算绘制次数
+             */
+            override fun doFrame(frameTimeNanos: Long) {
+                count++
+                Choreographer.getInstance().postFrameCallback(this)
+            }
+
+            /**
+             * 统计结果并重置
+             */
+            override fun run() {
+                listener?.invoke(count)
+                count = 0
+                handler.postDelayed(this, FPS_INTERVAL_TIME)
+            }
+        }
     }
 }

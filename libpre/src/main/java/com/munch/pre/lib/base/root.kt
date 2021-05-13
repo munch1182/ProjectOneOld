@@ -14,10 +14,14 @@ open class BaseRootActivity : AppCompatActivity() {
      * 因为在onCreate中执行所以只会执行一次
      *
      * 适用于延迟显示，加快页面启动速度
+     *
+     * 执行顺序：
+     * attachBaseContext -> onCreate -> onResume -> onWindowFocusChanged -> delayLoad
      */
     open fun delayLoad(load: () -> Unit) {
         window.decorView.post { BaseApp.getInstance().getMainHandler().post { load.invoke() } }
     }
+
 
     open fun toast(msg: String) {
         runOnUiThread { Toast.makeText(this, msg, Toast.LENGTH_SHORT).show() }

@@ -1,6 +1,7 @@
 package com.munch.project.launcher
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -55,10 +56,14 @@ class MainActivity : BaseActivity() {
         })
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase)
+        LauncherApp.stopMeasureLaunch()
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        LauncherApp.stopMeasureLaunch()
         bind.lifecycleOwner = this
         bind.mainVp.adapter = fragmentAdapter
         fragmentAdapter.showHomeItem(bind.mainVp)
