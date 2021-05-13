@@ -3,30 +3,82 @@ package com.munch.pre.lib.calender
 import com.munch.pre.lib.helper.*
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.absoluteValue
 
 /**
- * 日期数据类，主要是操作符重载，以及统一week格式
+ * 日期数据类，主要是操作符重载
  *
- * 这些类中，年月日既可以表示具体的年月日，即1990年1月1日，也可以表示计数值，即1年1个月
+ * 这些类中，年月日可以表示具体的年月日，用于显示，
+ * 当其参与计算时，则可以表示计数值
+ * 即Day(1990.1.1)表示为1990年1月1日
+ * 参与运算时则表示为1990年零一个月1天
+ * 因此不能使用Day(0.0.1)来显示，但可以用其来表示1天参与运算
+ * 更建议使用1来直接表示一天与Day进行运算
+ *
+ * 操作符
+ * 注意：不同类(Year,Month,Day)调起的运算会调用不同的实现返回不同层级的结果，即Day-Year!=Year-Day
+ *
+ *  Year(1991) + 1 = Year(1992)
+ *  Year(1991) + Year(1) = Year(1992)
+ *  Year(1991) - 1 = Year(1990)
+ *  Year(1991) - Year(1990) = 1年
+ *
+ *  Month(1991.12) + 1 = Month(1992.1)
+ *  Month(1991.1) + Month(1.1) = Month(1992.2)
+ *  Month(1991) - 1 = Month(1990)
+ *  Month(1991) - Month(1990) = 12个月
+ *
+ *  Day(1991.12.31) + 1 = Day(1992.1.1)
+ *  Day(1991.1.1) + Day(1.1.1) = Day(1992.2.2)
+ *  Day(1991.1.1) - 1 = Day(1990.12.31)
+ *  Day(1991.1.1) - Day(1990.1.1) = 365/366天
  *
  * Create by munch1182 on 2021/5/6 16:42.
  */
-open class Year(open var year: Int) {
+open class Year(open var year: Int) : Comparable<Year> {
 
-    operator fun plus(year: Year) = this.year + year.year
-    operator fun minus(year: Year) = this.year - year.year
-    operator fun compareTo(year: Year) = this - year
+    companion object {
+        fun now() = from(Calendar.getInstance())
+
+        fun from(calendar: Calendar): Year {
+            return Year(calendar.getYear())
+        }
+    }
+
+    operator fun plus(value: Year): Year = Year(this.year + value.year)
+    open operator fun plus(value: Int): Year = Year(this.year + value)
+    open operator fun minus(value: Year): Int = this.year - value.year
+    open operator fun minus(value: Int): Year = Year(this.year - value)
+
+    open operator fun dec(): Year {
+        this.year--
+        return this
+    }
+
+    open operator fun inc(): Year {
+        this.year++
+        return this
+    }
+
     operator fun minusAssign(year: Year) {
-        this.year = this - year
+        this.year = this.year - year.year
+    }
+
+    open operator fun minusAssign(value: Int) {
+        this.year = this.year - value
     }
 
     operator fun plusAssign(year: Year) {
-        this.year = this + year
+        this.year = this.year + year.year
     }
 
+    open operator fun plusAssign(value: Int) {
+        this.year = this.year + year
+    }
+
+    override operator fun compareTo(other: Year) = this.year - other.year
+
     override fun toString(): String {
-        return "$year y"
+        return "$year"
     }
 
     override fun hashCode(): Int {
@@ -39,6 +91,19 @@ open class Year(open var year: Int) {
             return other.year == year
         }
         return false
+    }
+
+    open fun beYear() = Year(year)
+    open fun beMonth() = when (this) {
+        is Month -> Month(year, month)
+        is Day -> Month(year, month)
+        else -> Month(year, 1)
+    }
+
+    open fun beDay() = when (this) {
+        is Day -> Day(year, month, day)
+        is Month -> Day(this, 1)
+        else -> Day(this.year, 1, 1)
     }
 }
 
@@ -53,21 +118,17 @@ open class Month(override var year: Int, open var month: Int) : Year(year) {
         }
     }
 
-    open operator fun plus(value: Int): Month {
+    override operator fun plus(value: Int): Month {
         var m = this.month + value
-        var y: Int
-        if (m == 0) {
-            y = -1
-            m = 12
-        } else {
-            y = m / 12
-            m %= 12
-            if (m == 0) {
-                m = 12
-                y--
-            }
+        var y: Int = year
+        if (m <= 0) {
+            y--
+            m += 12
+        } else if (m > 12) {
+            y++
+            m -= 12
         }
-        return Month(year + y, m)
+        return Month(y, m)
     }
 
     open operator fun plus(month: Month): Month {
@@ -76,39 +137,42 @@ open class Month(override var year: Int, open var month: Int) : Year(year) {
         return m
     }
 
-    open operator fun minus(value: Int): Month {
+    override operator fun minus(value: Int): Month {
         return this + (-value)
     }
 
-    open operator fun minus(month: Month): Month {
-        val m = this.month - month.month
-        return if (m <= 0) {
-            val y = m.absoluteValue / 12
-            Month(year - y - month.year, m.absoluteValue % 12)
-        } else {
-            Month(year - month.year, m)
+    override operator fun minus(value: Year): Int {
+        val beMonth = value.beMonth()
+        var m = this.month - beMonth.month
+        if (m <= 0) {
+            year--
+            m += 12
+        } else if (m > 12) {
+            year++
+            m -= 12
         }
+        return (year - beMonth.year) * 12 + m
     }
 
-    open operator fun compareTo(month: Month): Int {
-        val y = this.year - month.year
-        val m = this.month - month.month
-        return y * 12 + m
+    override fun dec(): Month {
+        this -= 1
+        return this
     }
 
-    open operator fun minusAssign(month: Month) {
-        update(this - month)
+    override fun inc(): Month {
+        this += 1
+        return this
     }
 
-    open operator fun minusAssign(value: Int) {
+    override operator fun compareTo(other: Year): Int {
+        return this - other.beMonth()
+    }
+
+    override operator fun minusAssign(value: Int) {
         update(this - value)
     }
 
-    open operator fun plusAssign(month: Month) {
-        update(this + month)
-    }
-
-    open operator fun plusAssign(value: Int) {
+    override operator fun plusAssign(value: Int) {
         update(this + value)
     }
 
@@ -117,8 +181,6 @@ open class Month(override var year: Int, open var month: Int) : Year(year) {
         this.month = month.month
         return this
     }
-
-    fun getYear() = this as Year
 
     /**
      * 1年3个月=> 15个月
@@ -313,13 +375,15 @@ open class Day(override var year: Int, override var month: Int, open var day: In
         }
     }
 
-    protected open val instance: Calendar = Calendar.getInstance()
+    protected open val instance: Calendar by lazy { Calendar.getInstance() }
 
+    /**
+     * 没有必要初始化同步因为可能单纯使用实例作为计算符合右边的一方
+     * 只有作为计算符左边一方的时候才需要同步
+     *//*
     init {
         resetIfNeed()
-    }
-
-    fun getMonth() = this as Month
+    }*/
 
     fun getWeek(): Int {
         resetIfNeed()
@@ -345,23 +409,38 @@ open class Day(override var year: Int, override var month: Int, open var day: In
         return this + (-value)
     }
 
-    operator fun minus(day: Day): Day {
-        resetIfNeed()
-        return from(instance.apply {
-            addDay(-day.day)
-            addMonth(-day.month)
-            addYear(-day.year)
-        })
-    }
-
     /**
      * 相距天数
      */
-    operator fun compareTo(day: Day): Int {
+    override operator fun minus(value: Year): Int {
+        resetIfNeed()
         return DateHelper.getDayGapCount(
-            instance.timeInMillis,
-            day.instance.timeInMillis
+            value.beDay().instance.timeInMillis,
+            instance.timeInMillis
         )
+    }
+
+    override fun dec(): Day {
+        this -= 1
+        return this
+    }
+
+    override fun inc(): Day {
+        this += 1
+        return this
+    }
+
+    override operator fun compareTo(other: Year): Int {
+        val day = other.beDay()
+        var res = this.year - day.year
+        if (res != 0) {
+            return res
+        }
+        res = this.month - day.month
+        if (res != 0) {
+            return res
+        }
+        return this.day - day.day
     }
 
     operator fun minusAssign(day: Day) {
@@ -401,7 +480,7 @@ open class Day(override var year: Int, override var month: Int, open var day: In
     }
 
     private fun resetNow() {
-        instance.set(year, month - 1, day, 0, 0, 0)
+        instance.set(year, if (month == 0) 0 else month - 1, day, 0, 0, 0)
         year = instance.getYear()
         month = instance.getMonth() + 1
         day = instance.getDay()
@@ -433,4 +512,5 @@ open class Day(override var year: Int, override var month: Int, open var day: In
         code += month * 31
         return code + day
     }
+
 }

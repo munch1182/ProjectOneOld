@@ -2,21 +2,30 @@ package com.munch.pre.lib.calender
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
+import android.widget.FrameLayout
+import com.munch.pre.lib.extend.ViewHelper
 
 /**
  * Create by munch1182 on 2021/5/6 15:07.
  */
-class CalendarView(
+class CalendarView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
+) : FrameLayout(context, attrs, defStyleAttr) {
 
     private var current = Day.now()
-    var config = CalendarConfig()
+    private var config: CalendarConfig? = null
 
-    private var monthViewPager = MonthViewPager(context, current, config)
+    fun update(current: Day, config: CalendarConfig) {
+        this.current = current
+        this.config = config
+        monthViewPager.updateMonth(current.beMonth(), config)
+    }
 
-    fun updateMonth(month: Month) = monthViewPager.updateMonth(month)
+    private var monthViewPager = MonthViewPager(context, current.beMonth(), config)
+
+    init {
+        addView(monthViewPager.vp, ViewHelper.newParamsMW())
+    }
 }

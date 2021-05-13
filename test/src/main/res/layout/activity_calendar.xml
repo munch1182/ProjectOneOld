@@ -7,7 +7,7 @@
         android:layout_height="match_parent"
         tools:context=".view.CalendarActivity">
 
-        <com.munch.pre.lib.calender.MonthView
+        <com.munch.pre.lib.calender.CalendarView
             android:id="@+id/calendar_month"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

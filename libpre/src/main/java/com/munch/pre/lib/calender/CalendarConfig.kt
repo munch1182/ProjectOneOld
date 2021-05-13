@@ -42,7 +42,7 @@ interface DrawConfig {
 
     fun onDrawStart(canvas: Canvas, month: Month, monthView: MonthView) {}
 
-    fun onDrawDay(canvas: Canvas, l: Float, t: Float, r: Float, b: Float, day: Day)
+    fun onDrawDay(canvas: Canvas, p: MonthView.DayParameter)
 
     fun onDrawOver(canvas: Canvas, month: Month, monthView: MonthView) {}
 }

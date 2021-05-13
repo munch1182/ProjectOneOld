@@ -2,6 +2,7 @@ package com.munch.pre.lib.watcher
 
 import android.os.*
 import android.view.Choreographer
+import androidx.annotation.MainThread
 import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.helper.file.checkOrNew
 import com.munch.pre.lib.log.Logger
@@ -43,7 +44,10 @@ class Watcher {
 
     /**
      * 此方法会一直监听fpx，不建议一直开启
+     *
+     * 此方法不能在子线程中调用
      */
+    @MainThread
     fun startFpsMonitor(min: Int = 40): Watcher {
         FpsMonitor.listener {
             if (it < min) {
