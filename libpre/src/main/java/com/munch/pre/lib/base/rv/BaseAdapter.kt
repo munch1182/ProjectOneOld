@@ -2,24 +2,21 @@ package com.munch.pre.lib.base.rv
 
 import android.view.View
 import androidx.annotation.NonNull
-import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.AdapterListUpdateCallback
+import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.pre.lib.base.listener.ViewIntTagClickListener
 import com.munch.pre.lib.base.listener.ViewIntTagLongClickListener
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
 /**
  * Create by munch1182 on 2021/3/31 14:41.
  */
-abstract class BaseAdapter<D, V : BaseViewHolder> constructor(
-    dataInit: MutableList<D>? = null,
-    protected open var diffUtil: DiffUtil.ItemCallback<D>? = null
-) : RecyclerView.Adapter<V>() {
+abstract class BaseAdapter<D, V : BaseViewHolder>(dataInt: MutableList<D>? = null) :
+    RecyclerView.Adapter<V>(), FastFun<D, V> {
 
-    @NonNull
-    protected val dataList: MutableList<D> = mutableListOf()
+    protected open val dataList: MutableList<D>
+            by lazy { if (dataInt.isNullOrEmpty()) mutableListOf() else ArrayList(dataInt) }
     protected var itemClickListener: ItemClickListener<D, V>? = null
     protected var itemLongClickListener: ItemClickListener<D, V>? = null
     protected open val viewClickListener by lazy {
@@ -36,12 +33,6 @@ abstract class BaseAdapter<D, V : BaseViewHolder> constructor(
                     ?: return false
                 return true
             }
-        }
-    }
-
-    init {
-        if (!dataInit.isNullOrEmpty()) {
-            dataList.addAll(dataInit)
         }
     }
 
@@ -96,66 +87,69 @@ abstract class BaseAdapter<D, V : BaseViewHolder> constructor(
         return this
     }
 
-    @NonNull
-    open fun getData() = dataList
+    override fun getData(): MutableList<D> = dataList
 
-    open fun get(index: Int): D? = getData()[index]
+    override fun getAdapter(): BaseAdapter<D, V> = this
+}
 
-    open fun add(bean: D, index: Int = -1) {
-        val pos: Int
-        if (index == -1) {
-            pos = getData().size
-            getData().add(bean)
-        } else {
-            pos = index
-            getData().add(index, bean)
+/**
+ * 更适合经常变更数据源的，比如重数据库或者后台返回的数据
+ *
+ * @see androidx.recyclerview.widget.ListAdapter
+ */
+abstract class BaseDifferAdapter<D, V : BaseViewHolder>(private val config: AsyncDifferConfig<D>) :
+    BaseAdapter<D, V>(null) {
+
+    private val differ by lazy { AsyncListDiffer(AdapterListUpdateCallback(this), config) }
+
+    init {
+        differ.addListListener { previousList, currentList ->
+            onCurrentListChanged(previousList, currentList)
         }
-        notifyItemInserted(pos)
     }
 
-    open fun add(beanList: MutableList<D>?, index: Int = -1) {
+    override fun getItemCount(): Int = differ.currentList.size
+
+    protected open fun onCurrentListChanged(
+        previousList: MutableList<D>,
+        currentList: MutableList<D>
+    ) {
+    }
+
+    private fun getNewList(): MutableList<D> = ArrayList(getData())
+
+    fun submitList(newList: MutableList<D>, commitCallback: Runnable) {
+        differ.submitList(newList, commitCallback)
+    }
+
+    fun submitList(newList: MutableList<D>) {
+        differ.submitList(newList)
+    }
+
+    override fun getData(): MutableList<D> = differ.currentList
+
+    override fun add(bean: D, index: Int) {
+        val newList = getNewList()
+        newList.add(index, bean)
+        submitList(newList)
+    }
+
+    override fun add(beanList: MutableList<D>, index: Int) {
         if (!beanList.isNullOrEmpty()) {
-            val start: Int
-            if (index == -1) {
-                start = getData().size
-                getData().addAll(beanList)
-            } else {
-                start = index
-                getData().addAll(index, beanList)
-            }
-            notifyItemRangeInserted(start, beanList.size)
+            val newList = getNewList()
+            newList.addAll(index, beanList)
+            submitList(newList)
         }
     }
 
-    open fun set(beanList: MutableList<D>?) {
-        if (!beanList.isNullOrEmpty()) {
-            if (diffUtil != null) {
-                runBlocking {
-                    withContext(Dispatchers.Default) {
-                        DiffUtil.calculateDiff(DiffCallBack(getData(), beanList, diffUtil!!))
-                    }
-                }.dispatchUpdatesTo(this)
-            }
-            getData().clear()
-            getData().addAll(beanList)
-            if (diffUtil == null) {
-                notifyDataSetChanged()
-            }
-        } else {
-            getData().clear()
-            notifyDataSetChanged()
-        }
+    override fun set(beanList: MutableList<D>?) {
+        submitList(beanList ?: mutableListOf())
     }
 
-    open fun set(index: Int, bean: D) {
-        getData()[index] = bean
-        notifyItemChanged(index)
-    }
-
-    open fun remove(index: Int): D {
-        val element = getData().removeAt(index)
-        notifyItemRemoved(index)
-        return element
+    override fun set(index: Int, bean: D) {
+        val newList = getNewList()
+        newList[index] = bean
+        submitList(newList)
     }
 
 }

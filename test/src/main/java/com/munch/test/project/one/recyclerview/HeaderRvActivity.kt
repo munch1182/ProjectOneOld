@@ -8,7 +8,6 @@ import com.munch.lib.fast.base.BaseBindViewHolder
 import com.munch.lib.fast.base.dialog.SimpleDialog
 import com.munch.lib.fast.databinding.ActivityBaseRvBinding
 import com.munch.lib.fast.extend.get
-import com.munch.pre.lib.base.rv.DiffItemCallback
 import com.munch.pre.lib.extend.observeOnChanged
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.IntentHelper
@@ -41,17 +40,6 @@ class HeaderRvActivity : BaseTopActivity() {
         bind.lifecycleOwner = this
         appAdapter = object :
             BaseBindAdapter<AppItemViewModel.AppItem, ItemHeaderRvBinding>(R.layout.item_header_rv) {
-            init {
-                diffUtil = object : DiffItemCallback<AppItemViewModel.AppItem>() {
-
-                    override fun areContentsTheSame(
-                        oldItem: AppItemViewModel.AppItem,
-                        newItem: AppItemViewModel.AppItem
-                    ): Boolean {
-                        return oldItem.name == newItem.name && oldItem.pkgName == newItem.pkgName
-                    }
-                }
-            }
 
             override fun onBindViewHolder(
                 holder: BaseBindViewHolder<ItemHeaderRvBinding>,

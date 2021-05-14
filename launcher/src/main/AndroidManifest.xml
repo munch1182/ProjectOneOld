@@ -30,6 +30,7 @@
         <activity
             android:name=".item.AppActivity"
             android:theme="@style/TransTheme" />
+        <activity android:name=".set.SettingActivity" />
     </application>
 
 </manifest>

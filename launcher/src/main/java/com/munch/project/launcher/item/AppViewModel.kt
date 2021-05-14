@@ -1,10 +1,15 @@
 package com.munch.project.launcher.item
 
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.toLiveData
+import com.munch.pre.lib.helper.AppHelper
+import com.munch.project.launcher.R
 import com.munch.project.launcher.base.DataHelper
+import com.munch.project.launcher.set.SettingActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -19,17 +24,24 @@ class AppViewModel : ViewModel() {
     fun getSpanCount() = spanCount.toLiveData()
 
     init {
-        viewModelScope.launch(Dispatchers.Default) {
-            val appSpan = getAndSetSpan()
-            val list = scanFromPhone()
-            items.postValue(splitBySpan(list, appSpan))
-        }
+        load(false)
     }
 
-    private suspend fun scanFromPhone(): List<AppGroupItem> {
+    private suspend fun scanFromPhone(): MutableList<AppGroupItem> {
+        val context = BaseApp.getInstance()
+        val icon = AppCompatResources.getDrawable(context, R.mipmap.ic_launcher)
         return AppItemHelper.getItems().map {
-            AppGroupItem(it.info.showName, it.info.showIcon, it.info.pkgName, it.info.launch)
-        }.sorted()
+            if (it.info.pkgName == context.packageName &&
+                it.info.showName == context.getString(R.string.app_name)
+            ) {
+                AppGroupItem.set(context, icon)
+            } else {
+                AppGroupItem(it.info.showName, it.info.showIcon, it.info.pkgName, it.info.launch)
+            }
+        }.toMutableList().apply {
+            add(AppGroupItem.refresh(context, icon))
+            sort()
+        }
     }
 
     private fun getAndSetSpan(): Int {
@@ -41,7 +53,7 @@ class AppViewModel : ViewModel() {
     }
 
     private fun splitBySpan(
-        list: List<AppGroupItem>,
+        list: MutableList<AppGroupItem>,
         appSpan: Int
     ): Pair<MutableList<AppGroupItem>, HashMap<Char, Int>> {
         val array = mutableListOf<AppGroupItem>()
@@ -70,4 +82,17 @@ class AppViewModel : ViewModel() {
         }
         return Pair(array, map)
     }
+
+    private fun load(reload: Boolean) {
+        viewModelScope.launch(Dispatchers.Default) {
+            if (reload) {
+                AppItemHelper.refresh()
+            }
+            val appSpan = getAndSetSpan()
+            val list = scanFromPhone()
+            items.postValue(splitBySpan(list, appSpan))
+        }
+    }
+
+    fun refresh() = load(true)
 }

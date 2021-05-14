@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.fast.base.BaseBindAdapter
 import com.munch.lib.fast.base.BaseBindViewHolder
 import com.munch.lib.fast.extend.get
-import com.munch.pre.lib.base.rv.DiffItemCallback
 import com.munch.pre.lib.extend.observeOnChanged
 import com.munch.pre.lib.helper.drawTextInYCenter
 import com.munch.test.project.one.R
@@ -67,19 +66,6 @@ class GroupRvActivity : BaseTopActivity() {
         bind.lifecycleOwner = this
         appAdapter = object :
             BaseBindAdapter<AppItemViewModel.AppGroupItem, ItemGroupRvBinding>(R.layout.item_group_rv) {
-            init {
-                diffUtil = object : DiffItemCallback<AppItemViewModel.AppGroupItem>() {
-
-                    override fun areContentsTheSame(
-                        oldItem: AppItemViewModel.AppGroupItem,
-                        newItem: AppItemViewModel.AppGroupItem
-                    ): Boolean {
-                        val old = oldItem.appItem ?: return false
-                        val new = newItem.appItem ?: return false
-                        return old.name == new.name && old.pkgName == new.pkgName
-                    }
-                }
-            }
 
             override fun onBindViewHolder(
                 holder: BaseBindViewHolder<ItemGroupRvBinding>,
@@ -93,7 +79,7 @@ class GroupRvActivity : BaseTopActivity() {
             layoutManager = GridLayoutManager(this@GroupRvActivity, spanCount).apply {
                 spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                     override fun getSpanSize(position: Int): Int {
-                        return appAdapter.get(position)!!.span2End
+                        return appAdapter.get(position).span2End
                     }
                 }
             }
@@ -118,7 +104,10 @@ class GroupRvActivity : BaseTopActivity() {
                         return
                     }
                     for (i in firstPos..endPos) {
-                        val bean = appAdapter.get(i) ?: return
+                        if (!appAdapter.hasIndex(i)) {
+                            return
+                        }
+                        val bean = appAdapter.get(i)
                         if (bean.indexInLetter == 0) {
                             val view = parent.getChildAt(i - firstPos) ?: return
                             c.drawTextInYCenter(
@@ -148,8 +137,11 @@ class GroupRvActivity : BaseTopActivity() {
         if (firstPos == -1 || lastPos == -1) {
             return
         }
-        val firstBean = appAdapter.get(firstPos) ?: return
-        val lastBean = appAdapter.get(lastPos) ?: return
+        if (!appAdapter.hasIndex(firstPos) || !appAdapter.hasIndex(lastPos)){
+            return
+        }
+        val firstBean = appAdapter.get(firstPos)
+        val lastBean = appAdapter.get(lastPos)
         bind.groupLetter.selectRange(
             firstBean.char.toString(),
             lastBean.char.toString()

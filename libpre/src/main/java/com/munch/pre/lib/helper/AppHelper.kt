@@ -44,6 +44,8 @@ object AppHelper {
 
     val PARAMETER by lazy { PhoneParameter() }
 
+    fun getPkgName(context: Context = getBaseApp()) = context.packageName
+
     fun getVersionCodeAndName(context: Context = getBaseApp()): Pair<Long, String>? {
         val packageInfo = context.packageManager?.getPackageInfo(
             context.packageName,

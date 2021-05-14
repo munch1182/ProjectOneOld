@@ -7,6 +7,8 @@ import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.file.FileHelper
 import com.munch.project.launcher.base.LauncherApp
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
@@ -17,30 +19,43 @@ object AppItemHelper {
 
     private val log = LauncherApp.appLog
 
-    private val appItems by lazy {
-        val hide = queryHide()
-        val freeze = queryFreeze()
-        runBlocking {
-            async {
+    private var appItems: MutableList<AppItem>? = null
+
+    private val name = CoroutineName("query_app_items")
+
+    private fun queryItemsAsync(): Deferred<MutableList<AppItem>> {
+        return runBlocking {
+            return@runBlocking async(name) {
                 log.log("app item querying")
+                val hide = queryHide()
+                val freeze = queryFreeze()
                 val context = BaseApp.getInstance()
                 val apps = AppHelper.getInstallApp(context) ?: return@async mutableListOf<AppItem>()
-                return@async MutableList(apps.size) {
+                appItems = MutableList(apps.size) {
                     val info = apps[it]
                     val appInfo = AppInfo.from(info, context.packageManager)
                     val key = appInfo.hashCode()
                     val prop = AppProp.from(hide.contains(key), freeze.contains(key))
                     AppItem(key, appInfo, prop)
                 }
+                log.log("app item be queried")
+                return@async appItems!!
             }
         }
     }
 
     fun preScan() {
-        appItems.start()
+        if (appItems == null) {
+            queryItemsAsync().start()
+        }
     }
 
-    suspend fun getItems() = appItems.await()
+    suspend fun getItems(): MutableList<AppItem> {
+        if (appItems == null) {
+            return queryItemsAsync().await()
+        }
+        return appItems!!
+    }
 
     private fun queryFreeze(): MutableList<Int> {
         return mutableListOf()
@@ -48,6 +63,10 @@ object AppItemHelper {
 
     private fun queryHide(): MutableList<Int> {
         return mutableListOf()
+    }
+
+    fun refresh() {
+        appItems = null
     }
 }
 

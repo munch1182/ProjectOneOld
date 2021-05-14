@@ -1,6 +1,9 @@
 package com.munch.project.launcher.item
 
+import android.content.Context
 import com.github.promeg.pinyinhelper.Pinyin
+import com.munch.project.launcher.R
+import com.munch.project.launcher.set.SettingActivity
 import java.util.*
 
 /**
@@ -11,8 +14,7 @@ data class AppGroupItem(
     val icon: Any?,
     val pkg: String,
     var launch: String
-) :
-    Comparable<AppGroupItem> {
+) : Comparable<AppGroupItem> {
 
     var letter: Char = ' '
         get() {
@@ -42,12 +44,31 @@ data class AppGroupItem(
         }
 
     companion object {
+
         fun empty(last: Char, indexInLetter: Int, span2End: Int): AppGroupItem {
             return AppGroupItem("", null, "", "").apply {
                 this.indexInLetter = indexInLetter
                 letter = last
                 this.span2End = span2End
             }
+        }
+
+        fun set(context: Context, icon: Any?): AppGroupItem {
+            return AppGroupItem(
+                context.getString(R.string.app_set),
+                icon,
+                context.packageName,
+                SettingActivity::class.java.canonicalName!!
+            )
+        }
+
+        fun refresh(context: Context, icon: Any?): AppGroupItem {
+            return AppGroupItem(
+                context.getString(R.string.app_refresh),
+                icon,
+                context.packageName,
+                ""
+            )
         }
     }
 

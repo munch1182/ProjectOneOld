@@ -14,7 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.*
 import com.munch.pre.lib.base.Orientation
-import com.munch.pre.lib.base.rv.DiffItemCallback
+import com.munch.pre.lib.base.rv.ItemDiffCallBack
 import com.munch.pre.lib.extend.dp2Px
 import com.munch.pre.lib.extend.observeOnChanged
 import com.munch.pre.lib.extend.startActivity
@@ -192,13 +192,21 @@ class AppActivity : BaseActivity() {
         overridePendingTransition(0, R.anim.anim_exit_down)
     }
 
-    private class AppAdapterHelper(context: Context) {
+    fun refresh() {
+        model.refresh()
+    }
+
+    private inner class AppAdapterHelper(context: Context) {
         private val appAdapter = AppAdapter().apply {
             setOnItemClickListener { _, bean, _, _ ->
-                context.startActivity(
-                    Intent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        .setComponent(ComponentName(bean.pkg, bean.launch))
-                )
+                if (bean.launch.isEmpty()) {
+                    refresh()
+                } else {
+                    context.startActivity(
+                        Intent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .setComponent(ComponentName(bean.pkg, bean.launch))
+                    )
+                }
             }
         }
         private val statusAdapter = StatusAdapter(context)
@@ -219,28 +227,10 @@ class AppActivity : BaseActivity() {
     }
 
     private class AppAdapter :
-        BaseBindAdapter<AppGroupItem, ItemAppItemBinding>(R.layout.item_app_item) {
-
-        init {
-            diffUtil = object : DiffItemCallback<AppGroupItem>() {
-                override fun areItemsTheSame(
-                    oldItem: AppGroupItem,
-                    newItem: AppGroupItem
-                ): Boolean {
-                    return areContentsTheSame(
-                        oldItem,
-                        newItem
-                    ) && oldItem.indexInLetter == newItem.indexInLetter
-                }
-
-                override fun areContentsTheSame(
-                    oldItem: AppGroupItem,
-                    newItem: AppGroupItem
-                ): Boolean {
-                    return oldItem.name == newItem.name && oldItem.pkg == newItem.pkg
-                }
-            }
-        }
+        BaseDifferBindAdapter<AppGroupItem, ItemAppItemBinding>(
+            R.layout.item_app_item,
+            ItemDiffCallBack({ it.pkg }, { it.name })
+        ) {
 
         override fun onBindViewHolder(
             holder: BaseBindViewHolder<ItemAppItemBinding>,
@@ -273,7 +263,7 @@ class AppActivity : BaseActivity() {
                     val view = parent.getChildAt(i - firstPos) ?: return
                     c.drawTextInYCenter(
                         bean.letter.toString(), padding,
-                        view.top + padding + 50f / 2f, paint
+                        view.top + padding + 50f, paint
                     )
                 }
             }

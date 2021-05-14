@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.fast.base.BaseBindAdapter
 import com.munch.lib.fast.base.BaseBindViewHolder
 import com.munch.lib.fast.databinding.ItemBaseTopTvBinding
-import com.munch.pre.lib.base.rv.DiffItemCallback
 import com.munch.pre.lib.helper.NetStatusHelper
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
@@ -29,14 +28,6 @@ class NetIpActivity : BaseTopActivity() {
     private val bind by bind<ActivityNetIpBinding>(R.layout.activity_net_ip)
     private val itemAdapter by lazy {
         object : BaseBindAdapter<String, ItemBaseTopTvBinding>(R.layout.item_base_top_tv) {
-
-            init {
-                diffUtil = object : DiffItemCallback<String>() {
-                    override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-                        return oldItem == newItem
-                    }
-                }
-            }
 
             override fun onBindViewHolder(
                 holder: BaseBindViewHolder<ItemBaseTopTvBinding>, bean: String, pos: Int
