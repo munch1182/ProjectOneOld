@@ -2,6 +2,7 @@ package com.munch.pre.lib.calender
 
 import android.content.Context
 import android.view.ViewGroup
+import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.munch.pre.lib.extend.ViewHelper
@@ -29,33 +30,40 @@ internal class MonthViewPager(
         initMonthViewPager()
     }
 
+    private val unLimitScrollCallback by lazy {
+        object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageScrollStateChanged(state: Int) {
+                super.onPageScrollStateChanged(state)
+                if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    val position = vp.currentItem
+
+                    if (position == 1) {
+                        return
+                    }
+                    val currentView = (vp.getChildAt(0) as ViewGroup)[position] as MonthView
+                    current = currentView.getMonth().beMonth()
+                    updateVpMonth()
+                    vp.setCurrentItem(1, false)
+                }
+            }
+        }
+    }
 
     private fun initMonthViewPager() {
         if (config != null) {
+            vp.unregisterOnPageChangeCallback(unLimitScrollCallback)
             vp.adapter = MonthViewPagerAdapter()
             vp.setCurrentItem(1, false)
             vp.offscreenPageLimit = 3
-            vp.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-
-                override fun onPageScrollStateChanged(state: Int) {
-                    super.onPageScrollStateChanged(state)
-                    if (state == ViewPager2.SCROLL_STATE_IDLE) {
-                        val position = vp.currentItem
-                        if (position == 1) {
-                            return
-                        }
-                        //1->0
-                        if (position < 1) {
-                            current--
-                            //2->1
-                        } else {
-                            current++
-                        }
-                        vp.setCurrentItem(1, false)
-                    }
-                }
-            })
+            vp.registerOnPageChangeCallback(unLimitScrollCallback)
         }
+    }
+
+    private fun updateVpMonth() {
+        val viewGroup = vp.getChildAt(0) as ViewGroup
+        (viewGroup[1] as MonthView).updateMonth(current)
+        (viewGroup[0] as MonthView).updateMonth(current - 1)
+        (viewGroup[2] as MonthView).updateMonth(current + 1)
     }
 
     internal class MonthViewPagerViewHolder(val view: MonthView) : RecyclerView.ViewHolder(view)
@@ -70,7 +78,6 @@ internal class MonthViewPager(
         }
 
         override fun onBindViewHolder(holder: MonthViewPagerViewHolder, position: Int) {
-            log("onBindViewHolder", holder.view)
             when (position) {
                 0 -> holder.view.updateMonth(current.beMonth() - 1)
                 1 -> holder.view.updateMonth(current)

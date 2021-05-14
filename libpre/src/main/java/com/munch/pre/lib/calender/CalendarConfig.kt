@@ -1,6 +1,7 @@
 package com.munch.pre.lib.calender
 
 import android.graphics.Canvas
+import androidx.annotation.IntRange
 import java.util.*
 
 
@@ -27,14 +28,10 @@ data class CalendarConfig(
 
     data class Height(
         //固定高度
-        //当为-1时随着每月周数变化
-        //否则固定几周显示
-        //最大不超过6
-        var fixHeight: Int = -1,
+        //固定6周显示或者随着每月周数变化
+        var fixHeight: Boolean = false,
         //当固定显示几周时，从此周开始显示
-        var startWeek: Int = 1,
-        //显示前后月份的数据来填满
-        var showNear: Boolean = false,
+        var startWeek: Int = 1
     )
 }
 

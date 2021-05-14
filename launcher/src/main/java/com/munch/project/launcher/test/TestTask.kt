@@ -1,9 +1,11 @@
 package com.munch.project.launcher.test
 
 import com.munch.pre.lib.dag.Executor
+import com.munch.pre.lib.extend.formatDate
 import com.munch.project.launcher.base.DataHelper
 import com.munch.project.launcher.base.DataHelper.increment
 import com.munch.project.launcher.base.LogTask
+import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -26,6 +28,7 @@ class TestRunnable : Runnable {
         private const val MIN_15 = 15L * 60L * 1000L
         private const val ID_TEST = "KEY_TEST"
         private const val KEY_START = "key_start"
+        private const val KEY_START_TIME = "key_start_time"
     }
 
     private val time = AtomicLong(0)
@@ -36,12 +39,17 @@ class TestRunnable : Runnable {
             val now = System.currentTimeMillis()
             if (!new.hasKey(KEY_START)) {
                 new.put(KEY_START, 1)
+                new.put(KEY_START_TIME, "yyyy-MM-dd HH:mm:ss".formatDate(Date()))
             } else if (time.get() == 0L) {
                 new.increment(KEY_START, 2)
+                new.put(
+                    "$KEY_START_TIME ${"yyyy-MM-dd HH:mm:ss".formatDate(Date())}",
+                    "应用重启导致数据归0"
+                )
             } else {
                 val duration = now - time.get()
                 if (duration > MIN_15 * 2L) {
-                    new.put(now.toString(), true)
+                    new.put(now.toString(), "应用休眠导致线程未运行")
                 }
             }
             time.set(now)

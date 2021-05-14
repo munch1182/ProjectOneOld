@@ -331,11 +331,16 @@ class MonthHelper(var month: Month, private val instance: Calendar = Calendar.ge
         }
     }
 
+    /**
+     * 第一天至少是一周最后两天
+     */
     private fun isLastTwoDays(): Boolean {
-        return if (firstDayOfWeek == 1) {
-            startWeek == 1 || startWeek == 7
+        return if (firstDayOfWeek == Calendar.SUNDAY) {
+            startWeek == Calendar.FRIDAY || startWeek == Calendar.SATURDAY
+        } else if (firstDayOfWeek == Calendar.MONDAY) {
+            startWeek == Calendar.SUNDAY || startWeek == Calendar.SATURDAY
         } else {
-            startWeek >= firstDayOfWeek - 1
+            startWeek > firstDayOfWeek || startWeek < firstDayOfWeek - 2
         }
     }
 

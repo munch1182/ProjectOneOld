@@ -8,7 +8,6 @@ import android.view.MotionEvent
 import android.view.View
 import com.munch.pre.lib.calender.MonthHelper.Companion.getHelper
 import com.munch.pre.lib.helper.RectArrayHelper
-import com.munch.pre.lib.log.log
 
 /**
  * Create by munch1182 on 2021/5/6 16:12.
@@ -29,7 +28,7 @@ class MonthView @JvmOverloads constructor(
 
     constructor(context: Context) : this(context, null)
 
-    private val helper = month.getHelper()
+    internal val helper = month.getHelper()
 
     private var widthUnit = 0f
     private var heightUnit = 0f
@@ -41,10 +40,11 @@ class MonthView @JvmOverloads constructor(
 
     fun updateMonth(month: Month) {
         helper.change(month)
-        log(month, helper)
         requestLayout()
         invalidate()
     }
+
+    fun getMonth() = helper.month
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val config = config ?: return super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -66,8 +66,7 @@ class MonthView @JvmOverloads constructor(
         }
         val width = widthUnit * 7 + border8 + paddingLeft + paddingRight
 
-        val weeks =
-            if (config.height.fixHeight == -1) helper.getWeeks() else config.height.fixHeight
+        val weeks = if (!config.height.fixHeight) helper.getWeeks() else 6
         val borderHeight = (weeks + 1) * wh.borderSize
         heightUnit = if (wh.height != -1) {
             wh.height.toFloat()
@@ -111,7 +110,7 @@ class MonthView @JvmOverloads constructor(
         val config = config ?: return
         val draw = config.drawConfig ?: return
         draw.onDrawStart(canvas, helper.month, this)
-        val count = if (config.height.showNear) {
+        val count = if (config.height.fixHeight) {
             6 * 7
         } else {
             helper.getWeeks() * 7

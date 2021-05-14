@@ -50,17 +50,12 @@ class CalendarActivity : BaseTopActivity() {
                         }
 
                         override fun onDrawDay(canvas: Canvas, p: MonthView.DayParameter) {
+                            if (p.view.getMonth() != p.day) {
+                                return
+                            }
                             canvas.drawTextInCenter(
                                 p.day.day.toString(), p.rect.centerX(), p.rect.centerY(), paint
                             )
-                        }
-
-                        override fun onDrawOver(
-                            canvas: Canvas,
-                            month: Month,
-                            monthView: MonthView
-                        ) {
-                            super.onDrawOver(canvas, month, monthView)
                         }
 
                     })

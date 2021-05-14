@@ -31,13 +31,7 @@ class AppViewModel : ViewModel() {
         val context = BaseApp.getInstance()
         val icon = AppCompatResources.getDrawable(context, R.mipmap.ic_launcher)
         return AppItemHelper.getItems().map {
-            if (it.info.pkgName == context.packageName &&
-                it.info.showName == context.getString(R.string.app_name)
-            ) {
-                AppGroupItem.set(context, icon)
-            } else {
-                AppGroupItem(it.info.showName, it.info.showIcon, it.info.pkgName, it.info.launch)
-            }
+            AppGroupItem(it.info.showName, it.info.showIcon, it.info.pkgName, it.info.launch)
         }.toMutableList().apply {
             add(AppGroupItem.refresh(context, icon))
             sort()

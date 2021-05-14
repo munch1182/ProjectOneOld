@@ -86,5 +86,15 @@ object IntentHelper {
         }
     }
 
+    /**
+     * 跳转到进阶页面，该页面包括默认应用设置和特殊权限页面
+     *
+     * 未在所有机型上测试
+     *
+     * @see appIntent
+     */
+    fun advancedIntent() =
+        Intent().setComponent(ComponentName.unflattenFromString("com.android.settings/.Settings\$AdvancedAppsActivity"))
+
     class StartActivityFailException(s: String) : Exception("cannot start activity to $s page.")
 }

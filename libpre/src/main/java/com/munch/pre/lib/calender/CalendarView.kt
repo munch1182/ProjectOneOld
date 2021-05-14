@@ -1,6 +1,7 @@
 package com.munch.pre.lib.calender
 
 import android.content.Context
+import android.graphics.Canvas
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import com.munch.pre.lib.extend.ViewHelper
@@ -27,5 +28,11 @@ class CalendarView @JvmOverloads constructor(
 
     init {
         addView(monthViewPager.vp, ViewHelper.newParamsMW())
+    }
+
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
+        canvas ?: return
+        config?.drawConfig
     }
 }
