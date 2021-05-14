@@ -21,6 +21,7 @@ class LauncherApp : BaseApp() {
 
         val appLog = Logger().apply {
             tag = "Launcher-p1"
+            noStack = true
             enable = BuildConfig.DEBUG
         }
 

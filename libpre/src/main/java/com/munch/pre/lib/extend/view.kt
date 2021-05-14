@@ -142,6 +142,18 @@ fun View.setMargin(
     }
 }
 
+fun View.setParams(func: (param: ViewGroup.LayoutParams) -> Unit) {
+    this.layoutParams = when (val params = this.layoutParams) {
+        null -> {
+            (ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )).apply(func)
+        }
+        else -> params.apply(func)
+    }
+}
+
 fun TextView.setTextSizeSp(spVal: Float) {
     setTextSize(TypedValue.COMPLEX_UNIT_SP, spVal)
 }

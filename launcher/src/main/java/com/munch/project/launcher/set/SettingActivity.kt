@@ -2,15 +2,16 @@ package com.munch.project.launcher.set
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import com.munch.pre.lib.extend.addPadding
 import com.munch.pre.lib.helper.AppHelper
+import com.munch.pre.lib.helper.BarHelper
 import com.munch.pre.lib.helper.IntentHelper
 import com.munch.project.launcher.R
 import com.munch.project.launcher.base.BaseActivity
 import com.munch.project.launcher.databinding.ActivitySetBinding
 import com.munch.project.launcher.extend.bind
-import java.lang.Exception
 
 /**
  * Create by munch1182 on 2021/5/14 11:21.
@@ -22,9 +23,31 @@ class SettingActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind.lifecycleOwner = this
-        bind.setContainer.addPadding(t = AppHelper.PARAMETER.getStatusBarHeight())
-        bind.setDefault.setOnClickListener {
-            queryOrRequest()
+        bind.setContainer.addPadding(0, AppHelper.PARAMETER.getStatusBarHeight(), 0, 0)
+        bind.setDefault.setOnClickListener { queryOrRequest() }
+        bind.setDevelop.setOnClickListener { startDevelop() }
+        bind.setLog.setOnClickListener { queryLog() }
+    }
+
+    private fun queryLog() {
+    }
+
+    override fun handleBar() {
+        /*super.handleBar()*/
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            BarHelper(this).hideStatusBar(true).colorStatusBar(Color.TRANSPARENT)
+                .setTextColorBlack()
+            window.navigationBarColor = Color.TRANSPARENT
+        } else {
+            super.handleBar()
+        }
+    }
+
+    private fun startDevelop() {
+        try {
+            startActivity(IntentHelper.developmentIntent())
+        } catch (e: Exception) {
+            startActivity(IntentHelper.setIntent())
         }
     }
 

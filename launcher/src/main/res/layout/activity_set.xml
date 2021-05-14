@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/set_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
         android:orientation="vertical"
+        android:padding="@dimen/padding_def"
+        app:divider="@drawable/shape_line"
+        app:showDividers="middle"
         tools:context=".set.SettingActivity"
         tools:ignore="HardcodedText">
 
         <FrameLayout
             android:id="@+id/set_default"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:background="@color/colorWhite"
+            android:layout_height="wrap_content"
             android:foreground="?android:attr/selectableItemBackground"
             android:padding="@dimen/padding_def">
 
@@ -22,9 +26,35 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="设置默认启动器"
-                android:textSize="@dimen/sp_def" />
+                android:text="设置默认启动器" />
         </FrameLayout>
 
+        <FrameLayout
+            android:id="@+id/set_develop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:padding="@dimen/padding_def">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="开发者模式" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/set_log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:padding="@dimen/padding_def">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="阅读日志" />
+        </FrameLayout>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>
