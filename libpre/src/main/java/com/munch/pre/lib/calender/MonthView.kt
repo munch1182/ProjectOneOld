@@ -37,6 +37,7 @@ class MonthView @JvmOverloads constructor(
     private val rect = RectF()
     private var clickDay: Day? = null
     private var onDaySelectListener: OnDaySelectListener? = null
+    var selectHelper: DaySelectHelper? = config?.daySelect
 
     fun updateMonth(month: Month) {
         helper.change(month)
@@ -109,6 +110,7 @@ class MonthView @JvmOverloads constructor(
         canvas ?: return
         val config = config ?: return
         val draw = config.drawConfig ?: return
+        parameter.daySelect = selectHelper
         draw.onDrawStart(canvas, helper.month, this)
         val count = if (config.height.fixHeight) {
             6 * 7
@@ -145,13 +147,16 @@ class MonthView @JvmOverloads constructor(
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 clickDay = getDayByTouch(event) ?: return false
+                selectHelper?.onDown(clickDay!!)
                 onDaySelectListener?.onDaySelect(clickDay!!)
+                invalidate()
                 return false
             }
             MotionEvent.ACTION_MOVE -> {
                 val day = getDayByTouch(event) ?: return false
                 if (clickDay != day) {
                     clickDay = day
+                    selectHelper?.onMove(day)
                     onDaySelectListener?.onDaySelect(clickDay!!)
                     invalidate()
                 }
@@ -159,6 +164,7 @@ class MonthView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_UP -> {
                 performClick()
+                selectHelper?.onUp()
                 onDaySelectListener?.onDaySelectEnd()
                 clickDay = null
                 return false
@@ -206,12 +212,110 @@ class MonthView @JvmOverloads constructor(
         var view: MonthView,
         //当前绘制天数在整个天数中的序列(包括非本月的补充天数)
         var index: Int,
+        //处理选中的天数
+        var daySelect: DaySelectHelper? = null
     )
 
-    interface OnDaySelectListener {
+}
 
-        fun onDaySelect(day: Day)
+abstract class DaySelectHelper {
 
-        fun onDaySelectEnd()
+    open fun onDown(day: Day) {}
+
+    open fun onMove(day: Day) {}
+
+    open fun onUp() {}
+
+    class DayClickHelper : DaySelectHelper(), DayClick {
+
+        private var clickDay: Day? = null
+
+        override fun onDown(day: Day) {
+            super.onDown(day)
+            clickDay = day
+        }
+
+        override fun onMove(day: Day) {
+            super.onMove(day)
+            clickDay = day
+        }
+
+        override fun getClickedDay(): Day? {
+            return clickDay
+        }
     }
+
+    class DayRangeSelectHelper : DaySelectHelper(), DayRangSelect {
+
+        private var firstDay: Day? = null
+        private var lastDay: Day? = null
+        private var rangeDay = mutableListOf<Day>()
+        override fun onDown(day: Day) {
+            super.onDown(day)
+            if (lastDay != null) {
+                clear()
+            }
+            if (firstDay == null) {
+                firstDay = day
+            } else if (lastDay == null) {
+                lastDay = day
+            }
+        }
+
+        private fun clear() {
+            firstDay = null
+            lastDay = null
+            rangeDay.clear()
+        }
+
+        override fun onMove(day: Day) {
+            super.onMove(day)
+            lastDay = day
+        }
+
+        override fun onUp() {
+            super.onUp()
+            firstDay ?: return
+            lastDay ?: return
+            rangeDay.clear()
+            if (firstDay!! > lastDay!!) {
+                val temp = firstDay
+                firstDay = lastDay
+                lastDay = temp
+            }
+            val days = lastDay!! - firstDay!!
+            for (i in 1..days) {
+                rangeDay.add(firstDay!! + i)
+            }
+        }
+
+        override fun getFirstClickedDay(): Day? = firstDay
+
+        override fun getLastClickedDay(): Day? = lastDay
+
+        override fun getRangeDay(): MutableList<Day> = rangeDay
+    }
+}
+
+interface DaySelect
+
+interface DayClick : DaySelect {
+
+    fun getClickedDay(): Day?
+}
+
+interface DayRangSelect : DaySelect {
+
+    fun getFirstClickedDay(): Day?
+
+    fun getLastClickedDay(): Day?
+
+    fun getRangeDay(): MutableList<Day>
+}
+
+interface OnDaySelectListener {
+
+    fun onDaySelect(day: Day)
+
+    fun onDaySelectEnd()
 }

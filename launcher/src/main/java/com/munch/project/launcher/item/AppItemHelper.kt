@@ -7,10 +7,7 @@ import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.file.FileHelper
 import com.munch.project.launcher.base.LauncherApp
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 /**
  * Create by munch1182 on 2021/5/9 14:41.
@@ -21,7 +18,7 @@ object AppItemHelper {
 
     private var appItems: MutableList<AppItem>? = null
 
-    private val name = CoroutineName("query_app_items")
+    private val name = CoroutineName("query_app_items") + Dispatchers.Default
 
     private fun queryItemsAsync(): Deferred<MutableList<AppItem>> {
         return runBlocking {

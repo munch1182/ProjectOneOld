@@ -396,9 +396,14 @@ open class Day(override var year: Int, override var month: Int, open var day: In
     }
 
     override operator fun plus(value: Int): Day {
-        resetIfNeed()
-        instance.addDay(value)
-        return from(instance)
+        val preDay = day + value
+        return if (preDay in 1..28) {
+            Day(year, month, preDay)
+        } else {
+            resetIfNeed()
+            instance.addDay(value)
+            from(instance)
+        }
     }
 
     operator fun plus(day: Day): Day {

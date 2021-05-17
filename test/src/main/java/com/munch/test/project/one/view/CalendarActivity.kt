@@ -21,6 +21,7 @@ class CalendarActivity : BaseTopActivity() {
         super.onCreate(savedInstanceState)
         bind.lifecycleOwner = this
         bind.calendarMonth.apply {
+
             update(
                 Day.now(),
                 CalendarConfig(
@@ -28,7 +29,7 @@ class CalendarActivity : BaseTopActivity() {
                         private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                             color = Color.BLACK
                             textSize = 30f
-                            style = Paint.Style.STROKE
+                            style = Paint.Style.FILL
                         }
 
                         override fun onDrawStart(
@@ -53,12 +54,27 @@ class CalendarActivity : BaseTopActivity() {
                             if (p.view.getMonth() != p.day) {
                                 return
                             }
+                            if (p.daySelect is DayClick) {
+                                if ((p.daySelect as DayClick).getClickedDay() == p.day) {
+                                    paint.color = Color.RED
+                                    canvas.drawRoundRect(p.rect.apply {
+                                        val w = width() / 8f
+                                        val h = height() / 8f
+                                        set(left + w, top + h, right - w, bottom - h)
+                                    }, 5f, 5f, paint)
+                                    paint.color = Color.WHITE
+                                } else {
+                                    paint.color = Color.BLACK
+                                }
+                            }
                             canvas.drawTextInCenter(
                                 p.day.day.toString(), p.rect.centerX(), p.rect.centerY(), paint
                             )
                         }
 
-                    })
+                    },
+                    daySelect = DaySelectHelper.DayClickHelper()
+                )
             )
         }
     }

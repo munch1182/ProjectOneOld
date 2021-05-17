@@ -12,7 +12,8 @@ data class CalendarConfig(
     val wh: WH = WH(),
     val height: Height = Height(),
     var max: Day = Day(2999, 12, 31), var min: Day = Day(999, 1, 1),
-    var drawConfig: DrawConfig? = null
+    var drawConfig: DrawConfig? = null,
+    var daySelect: DaySelectHelper? = null
 ) {
 
     data class WH(
