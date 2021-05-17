@@ -1,7 +1,6 @@
 package com.munch.pre.lib.base.rv
 
 import android.view.View
-import androidx.annotation.NonNull
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.AsyncListDiffer

@@ -13,6 +13,7 @@ import com.munch.test.project.one.log.LogActivity
 import com.munch.test.project.one.net.NetActivity
 import com.munch.test.project.one.player.IjkPlayerActivity
 import com.munch.test.project.one.recyclerview.RecyclerViewActivity
+import com.munch.test.project.one.service.SkipActivity
 import com.munch.test.project.one.switch.SwitchActivity
 import com.munch.test.project.one.thread.ThreadActivity
 import com.munch.test.project.one.view.ViewActivity
@@ -38,6 +39,7 @@ class MainActivity : BaseRvActivity() {
             SwitchActivity::class.java,
             ViewActivity::class.java,
             IjkPlayerActivity::class.java,
+            SkipActivity::class.java,
             TestActivity::class.java,
             LogActivity::class.java,
             InfoActivity::class.java

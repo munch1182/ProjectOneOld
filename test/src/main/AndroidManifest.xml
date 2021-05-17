@@ -79,6 +79,7 @@
         <activity android:name=".net.capture.NetVpnActivity" />
         <activity android:name=".view.CalendarActivity" />
         <activity android:name=".player.IjkPlayerActivity" />
+        <activity android:name=".service.SkipActivity" />
 
         <service android:name=".net.clip.NetClipService" />
         <service android:name=".net.service.NetKeepService" />
@@ -91,6 +92,21 @@
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
+        </service>
+
+
+        <service
+            android:name=".service.SkipService"
+            android:enabled="true"
+            android:exported="true"
+            android:label="AutoSkip"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility" />
         </service>
     </application>
 

@@ -7,12 +7,15 @@ import android.net.NetworkCapabilities
 import androidx.core.app.NotificationCompat
 import com.munch.pre.lib.helper.NetStatusHelper
 import com.munch.pre.lib.helper.service.BaseForegroundService
+import com.munch.pre.lib.helper.service.IForegroundService
 import com.munch.test.project.one.R
 
 /**
  * Create by munch1182 on 2021/4/29 16:18.
  */
-class NetKeepService : BaseForegroundService(Parameter("net service", "keep", 429)) {
+class NetKeepService : BaseForegroundService(
+    IForegroundService.Parameter("net service", "keep", 429)
+) {
 
     companion object {
 
@@ -31,7 +34,7 @@ class NetKeepService : BaseForegroundService(Parameter("net service", "keep", 42
     }
 
     private val instance by lazy { NetStatusHelper.getInstance(this) }
-    private val service by lazy { AndServiceHelper.INSTANCE }
+    private val serviceHelper by lazy { AndServiceHelper.INSTANCE }
     private val listener: (available: Boolean, capabilities: NetworkCapabilities?) -> Unit =
         { a, _ -> notify(a) }
 
@@ -60,7 +63,7 @@ class NetKeepService : BaseForegroundService(Parameter("net service", "keep", 42
     private fun getContent(available: Boolean) = if (!available) {
         "wifi已关闭"
     } else {
-        if (service.isRunning()) {
+        if (serviceHelper.isRunning()) {
             "局域网服务器服务(${getIp()})正在后台运行中"
         } else {
             "WIFI已开启"

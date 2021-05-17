@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.toLiveData
-import com.munch.pre.lib.log.log
 import com.munch.project.launcher.R
 import com.munch.project.launcher.base.DataHelper
 import kotlinx.coroutines.Dispatchers

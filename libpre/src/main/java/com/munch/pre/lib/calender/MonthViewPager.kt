@@ -6,7 +6,6 @@ import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.munch.pre.lib.extend.ViewHelper
-import com.munch.pre.lib.log.log
 
 /**
  * Create by munch1182 on 2021/5/6 16:11.

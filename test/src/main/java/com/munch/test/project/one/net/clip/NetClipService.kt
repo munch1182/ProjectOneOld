@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.service.BaseForegroundService
+import com.munch.pre.lib.helper.service.IForegroundService
 import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +17,9 @@ import kotlinx.coroutines.runBlocking
 /**
  * Create by munch1182 on 2021/4/25 15:12.
  */
-class NetClipService : BaseForegroundService(Parameter("netclipservice", "netclip", 1607)) {
+class NetClipService : BaseForegroundService(
+    IForegroundService.Parameter("netclipservice", "netclip", 1607)
+) {
 
     companion object {
 
