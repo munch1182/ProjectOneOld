@@ -1,6 +1,5 @@
 package com.munch.project.launcher.item
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
@@ -18,6 +17,7 @@ import com.munch.pre.lib.base.rv.ItemDiffCallBack
 import com.munch.pre.lib.extend.dp2Px
 import com.munch.pre.lib.extend.observeOnChanged
 import com.munch.pre.lib.extend.startActivity
+import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.BarHelper
 import com.munch.pre.lib.helper.SwipeViewHelper
 import com.munch.pre.lib.helper.drawTextInYCenter
@@ -48,7 +48,6 @@ class AppActivity : BaseActivity() {
     private val swipeViewHelper by lazy { SwipeViewHelper(this) }
     private val smoothScroller by lazy { TopSmoothScroller(this) }
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind.lifecycleOwner = this
@@ -75,6 +74,13 @@ class AppActivity : BaseActivity() {
             handleLetter(it.second)
         }
         model.getSpanCount().observeOnChanged(this) { gridLayoutManager.spanCount = it }
+
+        LauncherApp.getInstance().appUpdate = { model.update() }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        LauncherApp.getInstance().appUpdate = null
     }
 
     override fun handleBar() {
@@ -192,7 +198,7 @@ class AppActivity : BaseActivity() {
         overridePendingTransition(0, R.anim.anim_exit_down)
     }
 
-    fun refresh() {
+    private fun refresh() {
         model.refresh()
     }
 
@@ -207,6 +213,9 @@ class AppActivity : BaseActivity() {
                             .setComponent(ComponentName(bean.pkg, bean.launch))
                     )
                 }
+            }
+            setOnItemLongClickListener { _, bean, _, _ ->
+                AppHelper.uninstall(this@AppActivity, bean.pkg)
             }
         }
         private val statusAdapter = StatusAdapter(context)

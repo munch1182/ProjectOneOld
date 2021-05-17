@@ -6,10 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.munch.pre.lib.base.BaseApp
 import com.munch.pre.lib.extend.toLiveData
-import com.munch.pre.lib.helper.AppHelper
+import com.munch.pre.lib.log.log
 import com.munch.project.launcher.R
 import com.munch.project.launcher.base.DataHelper
-import com.munch.project.launcher.set.SettingActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -89,4 +88,5 @@ class AppViewModel : ViewModel() {
     }
 
     fun refresh() = load(true)
+    fun update() = load(false)
 }

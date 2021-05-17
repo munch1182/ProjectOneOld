@@ -25,6 +25,6 @@ class ItemDiffCallBack<D>(vararg parameter: (D) -> Any) : DiffUtil.ItemCallback<
     }
 
     override fun areContentsTheSame(oldItem: D, newItem: D): Boolean {
-        return areItemsTheSame(oldItem, newItem)
+        return oldItem.hashCode() == newItem.hashCode()
     }
 }

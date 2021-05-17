@@ -45,6 +45,13 @@ class LauncherApp : BaseApp() {
         }
     }
 
+    var appUpdate: (() -> Unit)? = null
+        set(value) {
+            field = value
+            appItemTask.update = value
+        }
+    private val appItemTask by lazy { AppItemTask() }
+
     override fun onCreate() {
         super.onCreate()
         startMeasureLaunch()
@@ -60,7 +67,13 @@ class LauncherApp : BaseApp() {
         AppStatusHelper.register(this)
         Watcher().watchMainLoop().strictMode().startFpsMonitor()
         //因为Executor中使用了协程且此时会进行初始化，放在子线程进行可以减少主线程执行时间(大概10ms)
-        thread { Executor().add(DelayInitTask()).add(AppItemTask()).add(TestTask()).execute() }
+        thread {
+            Executor()
+                .add(DelayInitTask())
+                .add(appItemTask)
+                .add(TestTask())
+                .execute()
+        }
     }
 
     override fun handleUncaught() {

@@ -26,7 +26,6 @@ class TestRunnable : Runnable {
 
     companion object {
         private const val MIN_15 = 15L * 60L * 1000L
-        private const val ID_TEST = "KEY_TEST"
         private const val KEY_START = "key_start"
         private const val KEY_START_TIME = "key_start_time"
     }
@@ -49,7 +48,7 @@ class TestRunnable : Runnable {
             } else {
                 val duration = now - time.get()
                 if (duration > MIN_15 * 2L) {
-                    new.put(now.toString(), "应用休眠导致线程未运行")
+                    new.put("yyyy-MM-dd HH:mm:ss".formatDate(now), "应用休眠导致线程未运行")
                 }
             }
             time.set(now)
