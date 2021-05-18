@@ -43,6 +43,7 @@ class CalendarView @JvmOverloads constructor(
             LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
                 setMargins(0, config?.height?.weekLineHeight?.toInt() ?: 0, 0, 0)
             })
+        setWillNotDraw(false)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {

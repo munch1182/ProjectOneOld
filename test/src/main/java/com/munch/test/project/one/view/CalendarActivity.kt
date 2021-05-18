@@ -7,7 +7,6 @@ import android.graphics.RectF
 import android.os.Bundle
 import com.munch.pre.lib.calender.*
 import com.munch.pre.lib.helper.drawTextInCenter
-import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityCalendarBinding
@@ -80,6 +79,7 @@ class CalendarActivity : BaseTopActivity() {
                             rectF: RectF
                         ) {
                             super.onDrawWeekLine(canvas, week, rectF)
+                            paint.color = Color.BLACK
                             canvas.drawTextInCenter(
                                 getStr(week),
                                 rectF.centerX(),
