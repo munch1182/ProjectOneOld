@@ -378,6 +378,10 @@ open class Day(override var year: Int, override var month: Int, open var day: In
         fun from(calendar: Calendar): Day {
             return Day(calendar.getYear(), calendar.getMonth() + 1, calendar.getDay())
         }
+
+        fun from(time: Long) = from(Calendar.getInstance().apply {
+            timeInMillis = time
+        })
     }
 
     protected open val instance: Calendar by lazy { Calendar.getInstance() }

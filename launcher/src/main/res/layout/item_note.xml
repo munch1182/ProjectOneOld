@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="note"
+            type="com.munch.project.launcher.calendar.Note" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/padding_def"
+        android:minHeight="30dp"
+        app:cardBackgroundColor="?attr/colorPrimary"
+        app:cardCornerRadius="5dp"
+        app:cardMaxElevation="3dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_def">
+
+            <TextView
+                android:id="@+id/note_content"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:singleLine="false"
+                android:text="@{note.note}"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/note_end_time"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="2123123123123123123asdasd121d1d1d1d1d1d1eqwdqwqweadqd12312d12ed121ead121dqqd12ead12e1dsd1d1d1d1d12ad1d1wdasd1dasd1d1dad1d" />
+
+            <TextView
+                android:id="@+id/note_end_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/padding_def"
+                android:text="@{note.finishTimeStr}"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintBottom_toBottomOf="@id/note_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@id/note_content"
+                app:layout_constraintTop_toTopOf="@id/note_content"
+                tools:text="1233:12:12" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</layout>
