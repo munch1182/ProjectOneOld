@@ -1,6 +1,7 @@
 package com.munch.pre.lib.calender
 
 import android.graphics.Canvas
+import android.graphics.RectF
 import java.util.*
 
 
@@ -31,7 +32,9 @@ data class CalendarConfig(
         //固定6周显示或者随着每月周数变化
         var fixHeight: Boolean = false,
         //当固定显示几周时，从此周开始显示
-        var startWeek: Int = 1
+        var startWeek: Int = 1,
+        //显示星期行的高度，如果高度为0，则不显示
+        var weekLineHeight: Float = 80f
     )
 }
 
@@ -42,4 +45,6 @@ interface DrawConfig {
     fun onDrawDay(canvas: Canvas, p: MonthView.DayParameter)
 
     fun onDrawOver(canvas: Canvas, month: Month, monthView: MonthView) {}
+
+    fun onDrawWeekLine(canvas: Canvas, week: Int, rectF: RectF) {}
 }

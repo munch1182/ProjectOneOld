@@ -11,7 +11,6 @@ import com.munch.project.launcher.item.AppItemHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Create by munch1182 on 2021/5/9 14:40.

@@ -3,12 +3,15 @@ package com.munch.test.project.one.view
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Bundle
 import com.munch.pre.lib.calender.*
 import com.munch.pre.lib.helper.drawTextInCenter
+import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityCalendarBinding
+import java.util.*
 
 /**
  * Create by munch1182 on 2021/5/6 14:49.
@@ -21,7 +24,6 @@ class CalendarActivity : BaseTopActivity() {
         super.onCreate(savedInstanceState)
         bind.lifecycleOwner = this
         bind.calendarMonth.apply {
-
             update(
                 Day.now(),
                 CalendarConfig(
@@ -70,6 +72,33 @@ class CalendarActivity : BaseTopActivity() {
                             canvas.drawTextInCenter(
                                 p.day.day.toString(), p.rect.centerX(), p.rect.centerY(), paint
                             )
+                        }
+
+                        override fun onDrawWeekLine(
+                            canvas: Canvas,
+                            week: Int,
+                            rectF: RectF
+                        ) {
+                            super.onDrawWeekLine(canvas, week, rectF)
+                            canvas.drawTextInCenter(
+                                getStr(week),
+                                rectF.centerX(),
+                                rectF.centerY(),
+                                paint
+                            )
+                        }
+
+                        private fun getStr(week: Int): String {
+                            return when (week) {
+                                Calendar.SUNDAY -> "日"
+                                Calendar.MONDAY -> "一"
+                                Calendar.TUESDAY -> "二"
+                                Calendar.WEDNESDAY -> "三"
+                                Calendar.THURSDAY -> "四"
+                                Calendar.FRIDAY -> "五"
+                                Calendar.SATURDAY -> "六"
+                                else -> throw UnsupportedOperationException()
+                            }
                         }
 
                     },

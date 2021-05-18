@@ -2,9 +2,10 @@ package com.munch.pre.lib.calender
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.widget.FrameLayout
-import com.munch.pre.lib.extend.ViewHelper
+import androidx.core.view.marginTop
 
 /**
  * Create by munch1182 on 2021/5/6 15:07.
@@ -17,22 +18,56 @@ class CalendarView @JvmOverloads constructor(
 
     private var current = Day.now()
     private var config: CalendarConfig? = null
+    private var weekRect = RectF()
+    private var widthUnit = 0f
+    private var heightUnit = 0f
 
     fun update(current: Day, config: CalendarConfig) {
         this.current = current
         this.config = config
         monthViewPager.updateMonth(current.beMonth(), config)
+        if (monthViewPager.vp.layoutParams is LayoutParams) {
+            val weekHeight = config.height.weekLineHeight.toInt()
+            if (marginTop != weekHeight) {
+                (monthViewPager.vp.layoutParams as LayoutParams)
+                    .setMargins(0, weekHeight, 0, 0)
+            }
+        }
     }
 
     private var monthViewPager = MonthViewPager(context, current.beMonth(), config)
 
     init {
-        addView(monthViewPager.vp, ViewHelper.newParamsMW())
+        addView(
+            monthViewPager.vp,
+            LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
+                setMargins(0, config?.height?.weekLineHeight?.toInt() ?: 0, 0, 0)
+            })
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        widthUnit =
+            (right - left - paddingLeft - paddingRight - (config?.wh?.borderSize ?: 0) * 8) / 7f
+        heightUnit = config?.height?.weekLineHeight ?: 0f
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas ?: return
-        config?.drawConfig
+        val config = config ?: return
+        val draw = config.drawConfig ?: return
+        val border = config.wh.borderSize.toFloat()
+        for (i in 0..6) {
+            val left = paddingStart + border * (i + 1f) + widthUnit * i
+            val top = paddingTop + border
+            weekRect.set(left, top, widthUnit + left, top + heightUnit)
+            var week = (config.firstDayOfWeek + i) % 7
+            if (week == 0) {
+                week = 7
+            }
+            draw.onDrawWeekLine(canvas, week, weekRect)
+        }
     }
+
 }
