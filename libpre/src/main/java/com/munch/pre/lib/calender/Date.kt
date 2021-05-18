@@ -424,8 +424,10 @@ open class Day(override var year: Int, override var month: Int, open var day: In
      */
     override operator fun minus(value: Year): Int {
         resetIfNeed()
+        val beDay = value.beDay()
+        beDay.resetIfNeed()
         return DateHelper.getDayGapCount(
-            value.beDay().instance.timeInMillis,
+            beDay.instance.timeInMillis,
             instance.timeInMillis
         )
     }
