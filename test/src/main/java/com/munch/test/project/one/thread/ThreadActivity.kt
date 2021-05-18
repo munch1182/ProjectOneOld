@@ -9,7 +9,8 @@ class ThreadActivity : BaseRvActivity() {
     override fun getClassItem(): MutableList<ItemClassBean> {
         return ItemClassBean.newItems(
             ThreadPoolActivity::class.java,
-            ThreadConcurrentActivity::class.java
+            ThreadConcurrentActivity::class.java,
+            CoroutinesActivity::class.java
         )
     }
 }

@@ -9,6 +9,8 @@ import com.munch.pre.lib.helper.receiver.AppInstallReceiver
 import com.munch.project.launcher.extend.preLoad
 import com.munch.project.launcher.item.AppItemHelper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -29,23 +31,21 @@ class AppItemTask : LogTask() {
 
     override suspend fun start(executor: Executor) {
         super.start(executor)
-        AppItemHelper.preScan()
-        AppItemHelper.getItems().forEach { it.info.icon?.preLoad() }
-        withContext(Dispatchers.Main) {
-            AppInstallReceiver(BaseApp.getInstance())
-                .apply {
-                    add { _, action, pkg ->
-                        log.log("$pkg:$action")
-                        if (AppInstallReceiver.isReplaced(action)) {
-                            return@add
-                        }
-                        AppItemHelper.refresh()
-                        AppItemHelper.preScan()
-                        update?.invoke()
+        AppItemHelper.getItems(true).forEach { it.info.icon?.preLoad() }
+        AppInstallReceiver(BaseApp.getInstance())
+            .apply {
+                add { _, action, pkg ->
+                    log.log("$pkg->$action")
+                    if (AppInstallReceiver.isReplaced(action)) {
+                        return@add
                     }
+                    GlobalScope.launch(coroutineContext) {
+                        AppItemHelper.getItems(true)
+                    }
+                    update?.invoke()
                 }
-                .register()
-        }
+            }
+            .register()
     }
 
     override val uniqueKey = "key_app_item"

@@ -8,50 +8,63 @@ import com.munch.pre.lib.helper.AppHelper
 import com.munch.pre.lib.helper.file.FileHelper
 import com.munch.project.launcher.base.LauncherApp
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Create by munch1182 on 2021/5/9 14:41.
  */
-object AppItemHelper {
+object AppItemHelper : CoroutineScope {
 
     private val log = LauncherApp.appLog
+    private val job = Job()
+    override val coroutineContext: CoroutineContext = Dispatchers.Default + job
 
-    private var appItems: MutableList<AppItem>? = null
+    private var currentAsync: Deferred<MutableList<AppItem>>? = null
+    private val lock = Mutex()
 
-    private val name = CoroutineName("query_app_items") + Dispatchers.Default
 
     private fun queryItemsAsync(): Deferred<MutableList<AppItem>> {
-        return runBlocking {
-            return@runBlocking async(name) {
-                log.log("app item querying")
-                val hide = queryHide()
-                val freeze = queryFreeze()
-                val context = BaseApp.getInstance()
-                val apps = AppHelper.getInstallApp(context) ?: return@async mutableListOf<AppItem>()
-                appItems = MutableList(apps.size) {
-                    val info = apps[it]
-                    val appInfo = AppInfo.from(info, context.packageManager)
-                    val key = appInfo.hashCode()
-                    val prop = AppProp.from(hide.contains(key), freeze.contains(key))
-                    AppItem(key, appInfo, prop)
-                }
-                log.log("app item be queried")
-                return@async appItems!!
+        return async {
+            log.log("app item querying")
+            val hide = queryHide()
+            val freeze = queryFreeze()
+            val context = BaseApp.getInstance()
+            ensureActive()
+            val apps = AppHelper.getInstallApp(context) ?: return@async mutableListOf<AppItem>()
+            ensureActive()
+            log.log("app item be queried")
+            return@async MutableList(apps.size) {
+                val info = apps[it]
+                val appInfo = AppInfo.from(info, context.packageManager)
+                val key = appInfo.hashCode()
+                val prop = AppProp.from(hide.contains(key), freeze.contains(key))
+                AppItem(key, appInfo, prop)
             }
         }
     }
 
-    fun preScan() {
-        if (appItems == null) {
-            queryItemsAsync().start()
+    /**
+     * @param reload 是否要重新获取，而不是从缓存中获取
+     */
+    suspend fun getItems(reload: Boolean = false): MutableList<AppItem> {
+        lock.withLock {
+            //如果需要重新获取
+            if (reload) {
+                //如果上一次任务未完成，则取消该任务
+                if (currentAsync?.isCompleted == false) {
+                    currentAsync?.cancel()
+                    log.log("cancel query")
+                }
+                currentAsync = null
+            }
+            //如果是第一次查询或者要重新查询
+            if (currentAsync == null) {
+                currentAsync = queryItemsAsync()
+            }
         }
-    }
-
-    suspend fun getItems(): MutableList<AppItem> {
-        if (appItems == null) {
-            return queryItemsAsync().await()
-        }
-        return appItems!!
+        return currentAsync?.await() ?: mutableListOf()
     }
 
     private fun queryFreeze(): MutableList<Int> {
@@ -60,10 +73,6 @@ object AppItemHelper {
 
     private fun queryHide(): MutableList<Int> {
         return mutableListOf()
-    }
-
-    fun refresh() {
-        appItems = null
     }
 }
 

@@ -75,7 +75,7 @@ class AppActivity : BaseActivity() {
         }
         model.getSpanCount().observeOnChanged(this) { gridLayoutManager.spanCount = it }
 
-        LauncherApp.getInstance().appUpdate = { model.update() }
+        LauncherApp.getInstance().appUpdate = { model.refresh() }
     }
 
     override fun onDestroy() {

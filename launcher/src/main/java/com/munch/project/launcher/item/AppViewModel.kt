@@ -22,13 +22,14 @@ class AppViewModel : ViewModel() {
     fun getSpanCount() = spanCount.toLiveData()
 
     init {
-        load(false)
+        load()
     }
 
     private suspend fun scanFromPhone(): MutableList<AppGroupItem> {
         val context = BaseApp.getInstance()
         val icon = AppCompatResources.getDrawable(context, R.mipmap.ic_launcher)
-        return AppItemHelper.getItems().map {
+        //对于页面获取来说，不必关系是否需要重新获取，这个逻辑由内部自行判断
+        return AppItemHelper.getItems(false).map {
             AppGroupItem(it.info.showName, it.info.showIcon, it.info.pkgName, it.info.launch)
         }.toMutableList().apply {
             add(AppGroupItem.refresh(context, icon))
@@ -75,17 +76,13 @@ class AppViewModel : ViewModel() {
         return Pair(array, map)
     }
 
-    private fun load(reload: Boolean) {
+    private fun load() {
         viewModelScope.launch(Dispatchers.Default) {
-            if (reload) {
-                AppItemHelper.refresh()
-            }
             val appSpan = getAndSetSpan()
             val list = scanFromPhone()
             items.postValue(splitBySpan(list, appSpan))
         }
     }
 
-    fun refresh() = load(true)
-    fun update() = load(false)
+    fun refresh() = load()
 }
