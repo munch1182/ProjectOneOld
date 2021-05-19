@@ -31,6 +31,7 @@ class TestRunnable : Runnable {
     }
 
     private val time = AtomicLong(0)
+    private val index = AtomicLong(0)
 
     override fun run() {
         val new = DataHelper.test()
@@ -48,7 +49,13 @@ class TestRunnable : Runnable {
             } else {
                 val duration = now - time.get()
                 if (duration > MIN_15 * 2L) {
+                    index.incrementAndGet()
                     new.put("yyyy-MM-dd HH:mm:ss".formatDate(now), "应用休眠导致线程未运行")
+                } else {
+                    new.put(
+                        "此时应用仍在运行$index",
+                        "yyyy-MM-dd HH:mm:ss".formatDate(now)
+                    )
                 }
             }
             time.set(now)

@@ -80,7 +80,10 @@ class MainActivity : BaseActivity() {
         }
 
         fun showHomeItem(vp: ViewPager2) {
-            vp.setCurrentItem(homeItem(), false)
+            val homeItem = homeItem()
+            if (homeItem != 0) {
+                vp.setCurrentItem(homeItem, false)
+            }
         }
 
         fun homeItem(): Int {

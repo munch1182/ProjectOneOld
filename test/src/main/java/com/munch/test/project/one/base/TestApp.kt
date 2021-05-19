@@ -1,6 +1,7 @@
 package com.munch.test.project.one.base
 
 import com.munch.lib.fast.base.FastApp
+import com.munch.pre.lib.helper.AppStatusHelper
 import com.munch.pre.lib.log.log
 import com.munch.pre.lib.watcher.Watcher
 import com.munch.test.project.one.switch.SwitchHelper
@@ -24,6 +25,7 @@ class TestApp : FastApp() {
         super.onCreate()
         measureHelper.measure("app init") {
             DataHelper.init()
+            AppStatusHelper.register(this)
             SwitchHelper.INSTANCE.registerApp(this)
             Watcher().watchMainLoop().strictMode().startFpsMonitor()
             thread {

@@ -17,7 +17,7 @@ interface FastFun<D, V : BaseViewHolder> {
      */
     fun get(index: Int): D = getData()[index]
 
-    fun hasIndex(index: Int) = index >= 0 && getData().size < index
+    fun hasIndex(index: Int) = index in 0..getData().size
 
     fun add(bean: D, index: Int = -1) {
         val pos: Int

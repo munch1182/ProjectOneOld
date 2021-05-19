@@ -72,7 +72,7 @@ interface LinkDao {
     suspend fun queryAllLink(): MutableList<ItemLink>
 
     @Query("SELECT * FROM ${AppDatabase.TB_LINK_TAG} WHERE tag == :tag")
-    suspend fun getTagCount(tag: String): ItemTag?
+    suspend fun getTagCount(tag: String): MutableList<ItemTag>
 
     @Insert
     suspend fun addTag(type: ItemTag)
@@ -83,10 +83,10 @@ interface LinkDao {
     @Transaction
     suspend fun updateTag(tag: String) {
         val type = getTagCount(tag)
-        if (type == null) {
+        if (type.isEmpty()) {
             addTag(ItemTag(tag, 1))
         } else {
-            updateTag(type.add())
+            updateTag(type[0].add())
         }
     }
 

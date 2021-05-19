@@ -74,7 +74,7 @@ class MonthView @JvmOverloads constructor(
             wh.height.toFloat()
         } else {
             var h = (heightSize - paddingTop - paddingBottom - borderHeight) / weeks.toFloat()
-            if (h > widthUnit) {
+            if (h <= 0f) {
                 h = widthUnit
             }
             when {

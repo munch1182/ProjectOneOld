@@ -5,8 +5,6 @@ import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.pre.lib.base.listener.ViewIntTagClickListener
-import com.munch.pre.lib.base.listener.ViewIntTagLongClickListener
 
 /**
  * Create by munch1182 on 2021/3/31 14:41.
@@ -18,32 +16,15 @@ abstract class BaseAdapter<D, V : BaseViewHolder>(dataInt: MutableList<D>? = nul
             by lazy { if (dataInt.isNullOrEmpty()) mutableListOf() else ArrayList(dataInt) }
     protected var itemClickListener: ItemClickListener<D, V>? = null
     protected var itemLongClickListener: ItemClickListener<D, V>? = null
-    protected open val viewClickListener by lazy {
-        object : ViewIntTagClickListener {
-            override fun onClick(v: View, index: Int) {
-                itemClickListener?.onItemClick(this@BaseAdapter, getData()[index], v, index)
-            }
-        }
-    }
-    protected open val viewLongClickListener by lazy {
-        object : ViewIntTagLongClickListener {
-            override fun onLongClick(v: View, index: Int): Boolean {
-                itemLongClickListener?.onItemClick(this@BaseAdapter, getData()[index], v, index)
-                    ?: return false
-                return true
-            }
-        }
-    }
 
     override fun onBindViewHolder(holder: V, position: Int) {
         onBindViewHolder(holder, getData()[position], position)
-        holder.itemView.tag = position
-        if (itemClickListener != null) {
-            holder.itemView.setOnClickListener(viewClickListener)
-        }
-        if (itemLongClickListener != null) {
-            holder.itemView.setOnLongClickListener(viewLongClickListener)
-        }
+        handClick(holder, position)
+    }
+
+    protected open fun handClick(holder: V, position: Int) {
+        holder.setOnItemClickListener(itemClickListener, this)
+        holder.setOnItemLongClickListener(itemLongClickListener, this)
     }
 
     override fun getItemCount(): Int = getData().size
@@ -89,10 +70,24 @@ abstract class BaseAdapter<D, V : BaseViewHolder>(dataInt: MutableList<D>? = nul
     override fun getData(): MutableList<D> = dataList
 
     override fun getAdapter(): BaseAdapter<D, V> = this
+
+    @Suppress("UNCHECKED_CAST")
+    open fun sort() {
+        if (getData().isEmpty()) {
+            return
+        }
+        val d = getData()[0]
+        if (d is Comparable<*>) {
+            (getData() as MutableList<Comparable<D>>).sort()
+        } else {
+            throw UnsupportedOperationException()
+        }
+        notifyDataSetChanged()
+    }
 }
 
 /**
- * 更适合经常变更数据源的，比如重数据库或者后台返回的数据
+ * 更适合经常变更数据源的，比如从数据库或者后台返回的数据
  *
  * @see androidx.recyclerview.widget.ListAdapter
  */
@@ -151,4 +146,20 @@ abstract class BaseDifferAdapter<D, V : BaseViewHolder>(private val config: Asyn
         submitList(newList)
     }
 
+    @Suppress("UNCHECKED_CAST")
+    override fun sort() {
+        val data = getData()
+        if (data.isEmpty()) {
+            return
+        }
+        val d = data[0]
+        if (d is Comparable<*>) {
+            val newData = getNewList()
+            (newData as MutableList<Comparable<D>>).sort()
+            set(newData)
+        } else {
+            throw UnsupportedOperationException()
+        }
+
+    }
 }

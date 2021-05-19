@@ -9,6 +9,7 @@
 
         <com.munch.pre.lib.calender.CalendarView
             android:id="@+id/calender_view"
+            android:minHeight="200dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp" />

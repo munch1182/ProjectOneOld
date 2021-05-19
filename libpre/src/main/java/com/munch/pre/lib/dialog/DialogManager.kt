@@ -102,22 +102,22 @@ class DialogManager private constructor() : Observer<Boolean> {
             BaseApp.getInstance().getMainHandler().postDelayed({ check() }, 500L)
             return
         }
+        var creator: IDialogCreator? = null
         runBlocking {
-            val creator: IDialogCreator
             mutex.withLock {
                 creator = (queue.poll() ?: return@runBlocking)
             }
             isShowing = true
-            //显示dialog
-            creator.create(topActivity)
-                .setOnHandleListener {
-                    isShowing = false
-                    //延迟显示
-                    BaseApp.getInstance().getMainHandler().postDelayed({ check() }, 300L)
-                }
-                .show()
-
         }
+        creator ?: return
+        //显示dialog
+        creator!!.create(topActivity)
+            .setOnHandleListener {
+                isShowing = false
+                //延迟显示
+                BaseApp.getInstance().getMainHandler().postDelayed({ check() }, 300L)
+            }
+            .show()
     }
 
     fun add(creator: IDialogCreator) {
