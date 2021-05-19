@@ -13,7 +13,8 @@ class ViewActivity : BaseRvActivity() {
             BookActivity::class.java,
             FishActivity::class.java,
             PaintModeActivity::class.java,
-            CalendarActivity::class.java
+            CalendarActivity::class.java,
+            ColorPaletteActivity::class.java
         )
     }
 }

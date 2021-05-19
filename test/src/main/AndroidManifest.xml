@@ -81,6 +81,7 @@
         <activity android:name=".player.IjkPlayerActivity" />
         <activity android:name=".service.SkipActivity" />
         <activity android:name=".thread.CoroutinesActivity" />
+        <activity android:name=".view.ColorPaletteActivity" />
 
         <service android:name=".net.clip.NetClipService" />
         <service android:name=".net.service.NetKeepService" />
@@ -109,6 +110,8 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility" />
         </service>
+
+        <receiver android:name=".TestActivity$Broad"/>
     </application>
 
 </manifest>

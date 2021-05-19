@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/padding_bigger"
+        tools:context=".view.ColorPaletteActivity">
+
+        <com.munch.lib.fast.weight.ColorPaletteView
+            android:id="@+id/color_palette_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/color_palette_rgb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:hint="000,000,000,000"
+                android:importantForAutofill="no"
+                android:inputType="textNoSuggestions"
+                android:maxLength="15"
+                android:maxLines="1"
+                android:textColor="@color/colorWhite"
+                android:textColorHint="@color/colorWhite"
+                tools:ignore="HardcodedText,LabelFor" />
+
+            <TextView
+                android:id="@+id/color_palette_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/padding_def"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/sp_title_smaller"
+                tools:text="#123132" />
+        </LinearLayout>
+    </FrameLayout>
+</layout>
