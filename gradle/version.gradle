@@ -21,7 +21,7 @@ ext {
             lifecycleVersion : "2.3.0",
 
             /*https://developer.android.google.cn/studio/releases?hl=zh_cn*/
-            kotlinVersion    : "1.4.32",
+            kotlinVersion    : "1.5.0",
 
             pagingVersion    : "3.0.0-beta02",
 
