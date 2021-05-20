@@ -23,7 +23,7 @@ class ColorPaletteActivity : BaseTopActivity() {
         bind.apply {
             lifecycleOwner = this@ColorPaletteActivity
             colorPaletteRgb.apply {
-                digitsInput("ABCDEFabcdef1234567890,")
+                digitsInput("ABCDEFabcdef1234567890,")/**/
                 addTextChangedListener(afterTextChanged = newTextWatcher())
             }
         }
@@ -42,13 +42,9 @@ class ColorPaletteActivity : BaseTopActivity() {
                     val a = colors[0].toInt()
                     color = Color.argb(a, colors[1].toInt(), colors[2].toInt(), colors[3].toInt())
                 }
-            } catch (e: Exception) {
-                //ignore
-            }
-            if (color != -1) {
                 bind.colorPaletteView.setColor(color)
                 bind.colorPaletteValue.text = String.format("#%06X", color)
-            } else {
+            } catch (e: Exception) {
                 bind.colorPaletteView.reset()
                 bind.colorPaletteValue.text = ""
             }
@@ -58,17 +54,13 @@ class ColorPaletteActivity : BaseTopActivity() {
             }
             try {
                 color = Color.parseColor(text)
-            } catch (e: Exception) {
-                //ignore
-            }
-            if (color != -1) {
                 bind.colorPaletteView.setColor(color)
                 val a = color shr 24 and 0xff
                 val r = color shr 16 and 0xff
                 val g = color shr 8 and 0xff
                 val b = color and 0xff
                 bind.colorPaletteValue.text = "$a,$r,$g,$b"
-            } else {
+            } catch (e: Exception) {
                 bind.colorPaletteView.reset()
                 bind.colorPaletteValue.text = ""
             }
