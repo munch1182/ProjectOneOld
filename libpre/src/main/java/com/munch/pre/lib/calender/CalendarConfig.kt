@@ -18,13 +18,13 @@ data class CalendarConfig(
 ) {
 
     data class WH(
+        var width: Int = -1,
+        var height: Int = -1,
+        var borderSize: Int = 1,
         var minWidth: Int = -1,
         var maxWidth: Int = -1,
         var minHeight: Int = -1,
         var maxHeight: Int = -1,
-        var width: Int = -1,
-        var height: Int = -1,
-        var borderSize: Int = 1
     )
 
     data class Height(

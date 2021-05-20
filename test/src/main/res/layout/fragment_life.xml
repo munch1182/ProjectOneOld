@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.munch.test.project.one.life.TestVG
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context="com.munch.test.project.one.life.LifeActivity.LifeFragment">
+
+        <com.munch.test.project.one.life.TestView
+            android:id="@+id/life_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.munch.test.project.one.life.TestVG>
+
+</layout>

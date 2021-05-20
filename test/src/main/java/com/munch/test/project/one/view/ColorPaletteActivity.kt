@@ -7,7 +7,6 @@ import android.text.Editable
 import android.widget.EditText
 import androidx.core.widget.addTextChangedListener
 import com.munch.pre.lib.extend.digitsInput
-import com.munch.pre.lib.log.log
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityColorPaletteBinding
@@ -36,21 +35,12 @@ class ColorPaletteActivity : BaseTopActivity() {
         var color = -1
         if (text.contains(",")) {
             val colors = text.split(",")
-            log(colors)
             try {
                 if (colors.size == 3) {
-                    color = Color.rgb(
-                        colors[0].toInt(),
-                        colors[1].toInt(),
-                        colors[2].toInt()
-                    )
+                    color = Color.rgb(colors[0].toInt(), colors[1].toInt(), colors[2].toInt())
                 } else if (colors.size == 4) {
-                    color = Color.argb(
-                        colors[0].toInt(),
-                        colors[1].toInt(),
-                        colors[2].toInt(),
-                        colors[3].toInt()
-                    )
+                    val a = colors[0].toInt()
+                    color = Color.argb(a, colors[1].toInt(), colors[2].toInt(), colors[3].toInt())
                 }
             } catch (e: Exception) {
                 //ignore

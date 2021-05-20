@@ -46,10 +46,9 @@ class CalendarView @JvmOverloads constructor(
         setWillNotDraw(false)
     }
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-        widthUnit =
-            (right - left - paddingLeft - paddingRight - (config?.wh?.borderSize ?: 0) * 8) / 7f
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        widthUnit = (w - paddingLeft - paddingRight - (config?.wh?.borderSize ?: 0) * 8) / 7f
         heightUnit = config?.height?.weekLineHeight ?: 0f
     }
 

@@ -9,6 +9,7 @@ import com.munch.test.project.one.dialog.DialogActivity
 import com.munch.test.project.one.file.FileActivity
 import com.munch.test.project.one.info.InfoActivity
 import com.munch.test.project.one.intent.IntentActivity
+import com.munch.test.project.one.life.LifeActivity
 import com.munch.test.project.one.log.LogActivity
 import com.munch.test.project.one.net.NetActivity
 import com.munch.test.project.one.player.IjkPlayerActivity
@@ -27,6 +28,7 @@ class MainActivity : BaseRvActivity() {
 
     override fun getClassItem(): MutableList<ItemClassBean> {
         return ItemClassBean.newItems(
+            LifeActivity::class.java,
             IntentActivity::class.java,
             DialogActivity::class.java,
             RecyclerViewActivity::class.java,

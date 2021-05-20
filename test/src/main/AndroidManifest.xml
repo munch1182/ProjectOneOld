@@ -82,6 +82,7 @@
         <activity android:name=".service.SkipActivity" />
         <activity android:name=".thread.CoroutinesActivity" />
         <activity android:name=".view.ColorPaletteActivity" />
+        <activity android:name=".life.LifeActivity" />
 
         <service android:name=".net.clip.NetClipService" />
         <service android:name=".net.service.NetKeepService" />
