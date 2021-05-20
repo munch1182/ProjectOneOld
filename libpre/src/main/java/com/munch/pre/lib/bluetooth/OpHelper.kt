@@ -158,6 +158,8 @@ class OpHelper : Cancelable, Destroyable {
     }
 
     internal class DataSender : Cancelable, Destroyable {
+
+        private var currentPack: SendPack? = null
         private val bytesList = LinkedList<SendPack>()
         private var gatt: BluetoothGatt? = null
         private var write: BluetoothGattCharacteristic? = null
@@ -200,6 +202,7 @@ class OpHelper : Cancelable, Destroyable {
                         pack.listener?.onReceived(byteArrayOf())
                         break
                     } else {
+                        currentPack = pack
                         received = false
                         receivedBytes = null
                         val timeSleep = 3L
@@ -208,11 +211,6 @@ class OpHelper : Cancelable, Destroyable {
                             Thread.sleep(timeSleep)
                             count--
                             if (received && receivedBytes != null) {
-                                //此处接收验证错误，视为未接收，等待下一次接收
-                                if (pack.listener != null && !pack.listener.onChecked(receivedBytes!!)) {
-                                    received = false
-                                    continue
-                                }
                                 pack.listener?.onReceived(receivedBytes!!)
                                 break
                             }
@@ -222,7 +220,9 @@ class OpHelper : Cancelable, Destroyable {
                         }
                     }
                 }
-                pack.listener?.onTimeout()
+                if (!received) {
+                    pack.listener?.onTimeout()
+                }
             }
         }
 
@@ -277,8 +277,12 @@ class OpHelper : Cancelable, Destroyable {
         }
 
         fun onReceived(bytes: ByteArray) {
-            received = true
-            receivedBytes = bytes
+            //因为发送是依次单项发送，因此可以直接当作单向接收
+            //但是此次没有考虑线程问题
+            received = currentPack?.listener?.onChecked(bytes) == true
+            if (received) {
+                receivedBytes = bytes
+            }
         }
     }
 

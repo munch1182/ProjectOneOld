@@ -56,35 +56,50 @@ class MonthView @JvmOverloads constructor(
         val wh = config.wh
         val border8 = wh.borderSize * 8f
 
-        widthUnit = if (wh.width != -1) {
-            wh.width.toFloat()
-        } else {
-            val w = (widthSize - paddingLeft - paddingRight - border8) / 7f
-            when {
-                wh.minWidth != -1 && w < wh.minWidth.toFloat() -> wh.minWidth.toFloat()
-                wh.maxWidth != -1 && w > wh.maxWidth.toFloat() -> wh.maxWidth.toFloat()
-                else -> w
+        if (widthUnit == 0f) {
+            widthUnit = if (wh.width != -1) {
+                wh.width.toFloat()
+            } else {
+                val w = (widthSize - paddingLeft - paddingRight - border8) / 7f
+                when {
+                    wh.minWidth != -1 && w < wh.minWidth.toFloat() -> wh.minWidth.toFloat()
+                    wh.maxWidth != -1 && w > wh.maxWidth.toFloat() -> wh.maxWidth.toFloat()
+                    else -> w
+                }
             }
         }
         val width = widthUnit * 7 + border8 + paddingLeft + paddingRight
 
-        val weeks = if (!config.height.fixHeight) helper.getWeeks() else 6
+        val allWeeks = 6
+        val weeks = if (!config.height.fixHeight) helper.getWeeks() else allWeeks
         val borderHeight = (weeks + 1) * wh.borderSize
-        heightUnit = if (wh.height != -1) {
-            wh.height.toFloat()
-        } else {
-            var h = (heightSize - paddingTop - paddingBottom - borderHeight) / weeks.toFloat()
-            if (h <= 0f) {
-                h = widthUnit
-            }
-            when {
-                wh.minHeight != -1 && h < wh.minHeight.toFloat() -> wh.minWidth.toFloat()
-                wh.maxHeight != -1 && h > wh.maxHeight.toFloat() -> wh.maxWidth.toFloat()
-                else -> h
+
+        if (heightUnit == 0f) {
+            val allBorderHeight = (allWeeks + 1) * wh.borderSize
+            heightUnit = if (wh.height != -1) {
+                wh.height.toFloat()
+            } else {
+                var h: Float
+                if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY) {
+                    //为了保证布局一致，平均高度按照最大周数平分，但实际传递的是本月需要的高度
+                    h =
+                        (heightSize - paddingTop - paddingBottom - allBorderHeight) / allWeeks.toFloat()
+                    if (h <= 0f) {
+                        h = widthUnit
+                    }
+                } else {
+                    h = widthUnit
+                }
+                when {
+                    wh.minHeight != -1 && h < wh.minHeight.toFloat() -> wh.minWidth.toFloat()
+                    wh.maxHeight != -1 && h > wh.maxHeight.toFloat() -> wh.maxWidth.toFloat()
+                    else -> h
+                }
             }
         }
         val height = heightUnit * weeks + borderHeight + paddingTop + paddingBottom
         setMeasuredDimension(width.toInt(), height.toInt())
+
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -96,12 +111,7 @@ class MonthView @JvmOverloads constructor(
             val week = i % 7
             val left = week * widthUnit + config.wh.borderSize * (week + 1) + paddingStart
             val top = weekIndex * heightUnit + config.wh.borderSize * (weekIndex + 1) + paddingTop
-            rectArray.addArray(
-                left,
-                top,
-                (left + widthUnit),
-                (top + heightUnit)
-            )
+            rectArray.addArray(left, top, (left + widthUnit), (top + heightUnit))
         }
         parameter = DayParameter(helper.getIndexDay(0), rect, this, 0)
     }

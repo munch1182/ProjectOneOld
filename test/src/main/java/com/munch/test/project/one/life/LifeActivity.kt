@@ -43,9 +43,7 @@ class LifeActivity : BaseTopActivity() {
     private val log = Logger().apply {
         noInfo = true
         tag = "life"
-        setListener { msg, _ ->
-            list?.add(msg)
-        }
+        setListener { msg, _ -> list?.add(msg) }
     }
     private val bind by bind<ActivityLifeBinding>(R.layout.activity_life)
 
@@ -103,7 +101,6 @@ class LifeActivity : BaseTopActivity() {
     override fun onDestroy() {
         super.onDestroy()
         log.log("Activity onDestroy")
-        log.setListener()
         list?.clear()
         list = null
     }
@@ -115,9 +112,7 @@ class LifeFragment : BaseFragment() {
     private val log = Logger().apply {
         noInfo = true
         tag = "life"
-        setListener { msg, _ ->
-            LifeActivity.list?.add(msg)
-        }
+        setListener { msg, _ -> LifeActivity.list?.add(msg) }
     }
 
     private val bind by bind<FragmentLifeBinding>(R.layout.fragment_life)
@@ -176,6 +171,8 @@ class LifeFragment : BaseFragment() {
             LifeActivity.list?.addAll(list)
             val text = LifeActivity.list?.joinToString("\n") ?: "null"
             bind.lifeTv.setText(text)
+            bind.lifeTv.removeListener()
+            bind.lifeVg.removeListener()
         }
     }
 
@@ -235,9 +232,7 @@ class TestVG @JvmOverloads constructor(
     private val log = Logger().apply {
         noInfo = true
         tag = "life"
-        setListener { msg, _ ->
-            LifeActivity.list?.add(msg)
-        }
+        setListener { msg, _ -> LifeActivity.list?.add(msg) }
     }
 
     init {
@@ -296,6 +291,10 @@ class TestVG @JvmOverloads constructor(
         log.log("ViewGroup onInterceptTouchEvent")
         return super.onInterceptTouchEvent(ev)
     }
+
+    fun removeListener() {
+        log.setListener()
+    }
 }
 
 class TestView @JvmOverloads constructor(
@@ -307,9 +306,7 @@ class TestView @JvmOverloads constructor(
     private val log = Logger().apply {
         noInfo = true
         tag = "life"
-        setListener { msg, _ ->
-            LifeActivity.list?.add(msg)
-        }
+        setListener { msg, _ -> LifeActivity.list?.add(msg) }
     }
     private var text: String? = null
     private val paint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -383,5 +380,9 @@ class TestView @JvmOverloads constructor(
         this.text = text
         requestLayout()
         invalidate()
+    }
+
+    fun removeListener() {
+        log.setListener()
     }
 }

@@ -5,13 +5,13 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         tools:context=".player.IjkPlayerActivity">
 
         <com.munch.test.project.one.player.media.VideoView
             android:id="@+id/player_video_view"
             android:layout_width="match_parent"
-            android:layout_height="360dp"
+            android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

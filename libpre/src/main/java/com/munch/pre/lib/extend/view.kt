@@ -142,7 +142,7 @@ fun View.setMargin(
     }
 }
 
-fun View.setParams(func: (param: ViewGroup.LayoutParams) -> Unit) {
+fun View.setParams(func: ViewGroup.LayoutParams.() -> Unit) {
     this.layoutParams = when (val params = this.layoutParams) {
         null -> {
             (ViewGroup.LayoutParams(

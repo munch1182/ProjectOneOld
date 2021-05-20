@@ -1,6 +1,7 @@
 package com.munch.test.project.one.player.media
 
 import android.content.Context
+import android.graphics.Color
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
@@ -9,8 +10,9 @@ import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.widget.FrameLayout
-import com.munch.pre.lib.extend.ViewHelper
+import com.munch.pre.lib.extend.setParams
 import com.munch.pre.lib.log.Logger
+import com.munch.pre.lib.log.log
 import tv.danmaku.ijk.media.player.AndroidMediaPlayer
 import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
@@ -21,7 +23,6 @@ import java.util.*
 /**
  * Create by munch1182 on 2021/5/11 13:53.
  */
-
 class VideoView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -61,9 +62,12 @@ class VideoView @JvmOverloads constructor(
         }
     }
     private var mRotate = 0
+    private var player: IMediaPlayer? = null
 
     init {
-        addView(holder, ViewHelper.newParamsMM())
+        //黑色背景
+        setBackgroundColor(Color.BLACK)
+        addView(holder)
     }
 
     fun attachControllerView(
@@ -134,8 +138,6 @@ class VideoView @JvmOverloads constructor(
         controller?.settingChange(setting)
     }
 
-    private var player: IMediaPlayer? = null
-
     private fun newMediaPlayer(): IMediaPlayer {
         if (player != null) {
             release()
@@ -183,8 +185,15 @@ class VideoView @JvmOverloads constructor(
             controller?.onPrepared()
             if (getSettingOrDef().autoPlay) {
                 player?.start()
+                controller?.start()
             }
             log.log(player?.trackInfo)
+        }
+
+        override fun onCompletion(player: IMediaPlayer?) {
+            super.onCompletion(player)
+            log.log("onCompletion")
+            controller?.onComplete()
         }
 
         override fun onInfo(player: IMediaPlayer?, what: Int, extra: Int): Boolean {
@@ -249,6 +258,7 @@ class VideoView @JvmOverloads constructor(
 
     //<editor-fold desc="proxy">
     override fun start(timeout: Long) {
+        log("player onStart")
         player?.start()
     }
 
@@ -305,6 +315,30 @@ class VideoView @JvmOverloads constructor(
         throw UnsupportedOperationException()
     }
     //</editor-fold>
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        val width = MeasureSpec.getSize(widthMeasureSpec)
+        val height = when (MeasureSpec.getMode(heightMeasureSpec)) {
+            MeasureSpec.EXACTLY -> MeasureSpec.getSize(heightMeasureSpec)
+            //未考虑竖屏的情形
+            else -> (width / getSettingOrDef().aspectRatio).toInt()
+        }
+        setMeasuredDimension(width, height)
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        log.log("onSizeChanged")
+        holder.post {
+            holder.setParams {
+                width = w
+                height = h
+            }
+        }
+        log.log("attachControllerView")
+        controller?.onVideoViewSizeChanged(this, w, h)
+    }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()

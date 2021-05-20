@@ -1,11 +1,13 @@
 package com.munch.pre.lib.calender
 
 import android.content.Context
+import android.graphics.Color
 import android.view.ViewGroup
 import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.munch.pre.lib.extend.ViewHelper
+import com.munch.pre.lib.log.log
 
 /**
  * Create by munch1182 on 2021/5/6 16:11.
@@ -73,6 +75,7 @@ internal class MonthViewPager(
         ): MonthViewPagerViewHolder {
             return MonthViewPagerViewHolder(MonthView(parent.context, current, config).apply {
                 layoutParams = ViewHelper.newParamsMM()
+                setBackgroundColor(Color.parseColor("#fffccc"))
             })
         }
 

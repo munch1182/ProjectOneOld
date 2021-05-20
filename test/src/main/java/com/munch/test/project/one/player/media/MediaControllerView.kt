@@ -1,6 +1,7 @@
 package com.munch.test.project.one.player.media
 
 /**
+ * 不带on前缀的方法是调用方法，应该回调给[IMediaController]并调用对应的on方法
  * Create by munch1182 on 2021/5/11 14:37.
  */
 abstract class MediaControllerView : IMediaControllerView {
@@ -20,6 +21,7 @@ abstract class MediaControllerView : IMediaControllerView {
 
     override fun start(timeout: Long) {
         listener?.start(timeout)
+        onStart(timeout)
     }
 
     abstract fun onStart(timeout: Long)
@@ -31,12 +33,14 @@ abstract class MediaControllerView : IMediaControllerView {
 
     override fun pause() {
         listener?.pause()
+        onPause()
     }
 
     abstract fun onPause()
 
     override fun stop() {
         listener?.stop()
+        onStop()
     }
 
     abstract fun onStop()

@@ -15,4 +15,8 @@ interface IMediaControllerView : IMediaController {
     fun startPrepare()
 
     fun onPrepared()
+
+    fun onComplete()
+
+    fun onVideoViewSizeChanged(videoView: VideoView, w: Int, h: Int)
 }

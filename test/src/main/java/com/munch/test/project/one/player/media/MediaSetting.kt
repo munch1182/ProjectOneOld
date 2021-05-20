@@ -19,9 +19,10 @@ data class MediaSetting(
     var useSLES: Boolean = false,
     var enableNoView: Boolean = true,
     var lastDir: String? = null,
-    var autoPlay: Boolean = true,
+    var autoPlay: Boolean = false,
     //保持进度条
-    var keepProgress: Boolean = false
+    var keepProgress: Boolean = false,
+    var aspectRatio: Float = 16f / 9f
 )
 
 @IntDef(PlayerType.PLAYER_IJK, PlayerType.PLAYER_ANDROID)
