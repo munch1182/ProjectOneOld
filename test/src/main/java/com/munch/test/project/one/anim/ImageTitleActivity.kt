@@ -2,6 +2,7 @@ package com.munch.test.project.one.anim
 
 import android.graphics.Color
 import android.os.Bundle
+import android.transition.*
 import androidx.core.view.ViewCompat
 import com.munch.lib.fast.base.activity.BaseActivity
 import com.munch.lib.fast.extend.bind
@@ -32,6 +33,18 @@ class ImageTitleActivity : BaseActivity() {
             navigationIcon = getBackIconWhite()
             setNavigationOnClickListener { onBackPressed() }
         }
+        //1. 设置相同的TransitionName
         ViewCompat.setTransitionName(bind.imageTitleTitle, getString(R.string.share_element_title))
+        //2. 给未设置ShareElement的元素设置动画
+        window.exitTransition = Fade()
+        window.enterTransition = Fade()
+        //3. 设置ShareElement动画
+        val trans = AutoTransition().apply {
+            addTransition(ChangeTransform())
+            ordering = TransitionSet.ORDERING_TOGETHER
+            addTarget(bind.imageTitleTitle)
+        }
+        window.sharedElementEnterTransition = trans
+        window.sharedElementExitTransition = trans
     }
 }

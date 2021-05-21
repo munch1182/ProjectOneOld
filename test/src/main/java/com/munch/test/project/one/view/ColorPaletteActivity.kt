@@ -23,7 +23,7 @@ class ColorPaletteActivity : BaseTopActivity() {
         bind.apply {
             lifecycleOwner = this@ColorPaletteActivity
             colorPaletteRgb.apply {
-                digitsInput("ABCDEFabcdef1234567890,")/**/
+                digitsInput("ABCDEFabcdef1234567890,")
                 addTextChangedListener(afterTextChanged = newTextWatcher())
             }
         }

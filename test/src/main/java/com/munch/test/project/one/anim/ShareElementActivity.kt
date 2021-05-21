@@ -2,6 +2,11 @@ package com.munch.test.project.one.anim
 
 import android.graphics.Color
 import android.os.Bundle
+import android.transition.AutoTransition
+import android.transition.ChangeTransform
+import android.transition.Fade
+import android.transition.TransitionSet
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
@@ -14,12 +19,15 @@ import com.munch.test.project.one.base.BaseTopActivity
  */
 open class ShareElementActivity : BaseTopActivity() {
 
+    private var targetView: View? = null
+
     override fun setToolBar(toolbar: Toolbar?) {
         super.setToolBar(toolbar)
         toolbar ?: return
         toolbar.children.forEach {
             if (it is TextView) {
                 ViewCompat.setTransitionName(it, getString(R.string.share_element_title))
+                targetView = it
                 return
             }
         }

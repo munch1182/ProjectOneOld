@@ -1,10 +1,7 @@
 package com.munch.lib.fast.weight
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.SweepGradient
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
@@ -19,6 +16,7 @@ class ColorPaletteView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val saturationPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var centerX = 0f
     private var centerY = 0f
     private var radius = 0f
@@ -49,6 +47,14 @@ class ColorPaletteView @JvmOverloads constructor(
             ),
             null
         )
+        saturationPaint.shader = RadialGradient(
+            centerX,
+            centerY,
+            radius,
+            Color.WHITE,
+            0x00ffffff,
+            Shader.TileMode.CLAMP
+        )
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -65,5 +71,6 @@ class ColorPaletteView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas?.drawCircle(centerX, centerY, radius, paint)
+        canvas?.drawCircle(centerX, centerY, radius, saturationPaint)
     }
 }
