@@ -62,8 +62,6 @@ fun Path.lineTo(point: PointF): Path {
 }
 
 fun Path.lineTo(vararg point: PointF): Path {
-    point.forEach {
-        lineTo(it)
-    }
+    point.forEach { lineTo(it) }
     return this
 }

@@ -54,4 +54,8 @@ data class Note(
         }
         return (targetTime - other.targetTime).toInt()
     }
+
+    fun new(): Note {
+        return Note(note, targetTime, color, isFinished, finishedTime, createTime)
+    }
 }

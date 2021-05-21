@@ -14,11 +14,10 @@ import java.util.*
  */
 object CalendarHelper {
 
-    fun def(calendarView: CalendarView) {
+    fun def(calendarView: CalendarView, now: Day = Day.now()) {
         val colorPrimary = calendarView.context.getAttrArrayFromTheme(R.attr.colorPrimary) {
             getColor(0, Color.RED)
         }
-        val now = Day.now()
         calendarView.update(
             now,
             CalendarConfig(

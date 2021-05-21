@@ -1,13 +1,11 @@
 package com.munch.pre.lib.calender
 
 import android.content.Context
-import android.graphics.Color
 import android.view.ViewGroup
 import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.munch.pre.lib.extend.ViewHelper
-import com.munch.pre.lib.log.log
 
 /**
  * Create by munch1182 on 2021/5/6 16:11.
@@ -29,6 +27,13 @@ internal class MonthViewPager(
         current = month
         this.config = config
         initMonthViewPager()
+    }
+
+    fun updateMonth(month: Month) {
+        if (current != month) {
+            current = month
+            updateVpMonth()
+        }
     }
 
     private val unLimitScrollCallback by lazy {
@@ -61,6 +66,9 @@ internal class MonthViewPager(
     }
 
     private fun updateVpMonth() {
+        if (vp.childCount == 0) {
+            return
+        }
         val viewGroup = vp.getChildAt(0) as ViewGroup
         (viewGroup[1] as MonthView).updateMonth(current)
         (viewGroup[0] as MonthView).updateMonth(current - 1)
@@ -75,7 +83,6 @@ internal class MonthViewPager(
         ): MonthViewPagerViewHolder {
             return MonthViewPagerViewHolder(MonthView(parent.context, current, config).apply {
                 layoutParams = ViewHelper.newParamsMM()
-                setBackgroundColor(Color.parseColor("#fffccc"))
             })
         }
 

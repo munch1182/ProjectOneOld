@@ -1,6 +1,7 @@
 package com.munch.pre.lib.base.rv
 
 import android.view.View
+import android.view.ViewGroup
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.AsyncListDiffer
@@ -14,22 +15,36 @@ abstract class BaseAdapter<D, V : BaseViewHolder>(dataInt: MutableList<D>? = nul
 
     protected open val dataList: MutableList<D>
             by lazy { if (dataInt.isNullOrEmpty()) mutableListOf() else ArrayList(dataInt) }
-    protected var itemClickListener: ItemClickListener<D, V>? = null
-    protected var itemLongClickListener: ItemClickListener<D, V>? = null
+    protected open var itemClickListener: ItemClickListener<D, V>? = null
+    protected open var itemClickCallBack = object : ItemClickListener<D, V> {
+        override fun onItemClick(adapter: BaseAdapter<D, V>, bean: D, view: View, pos: Int) {
+            itemClickListener?.onItemClick(adapter, bean, view, pos)
+        }
+    }
+    protected open var itemLongClickListener: ItemClickListener<D, V>? = null
+    protected open var itemLongClickCallBack = object : ItemClickListener<D, V> {
+        override fun onItemClick(adapter: BaseAdapter<D, V>, bean: D, view: View, pos: Int) {
+            itemLongClickListener?.onItemClick(adapter, bean, view, pos)
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): V {
+        return createVH(parent, viewType).apply { handClick(this) }
+    }
 
     override fun onBindViewHolder(holder: V, position: Int) {
         onBindViewHolder(holder, getData()[position], position)
-        handClick(holder, position)
     }
 
-    protected open fun handClick(holder: V, position: Int) {
-        holder.setOnItemClickListener(itemClickListener, this)
-        holder.setOnItemLongClickListener(itemLongClickListener, this)
+    protected open fun handClick(holder: V) {
+        holder.setOnItemClickListener(itemClickCallBack, this)
+        holder.setOnItemLongClickListener(itemLongClickCallBack, this)
     }
 
     override fun getItemCount(): Int = getData().size
 
     protected abstract fun onBindViewHolder(holder: V, bean: D, pos: Int)
+    protected abstract fun createVH(parent: ViewGroup, viewType: Int): V
 
     open fun setOnItemClickListener(listener: ((adapter: BaseAdapter<D, V>, bean: D, view: View, pos: Int) -> Unit)? = null): BaseAdapter<D, V> {
         if (listener == null) {
@@ -72,8 +87,8 @@ abstract class BaseAdapter<D, V : BaseViewHolder>(dataInt: MutableList<D>? = nul
     override fun getAdapter(): BaseAdapter<D, V> = this
 
     @Suppress("UNCHECKED_CAST")
-    open fun sort() {
-        if (getData().isEmpty()) {
+    open suspend fun sort() {
+        if (getData().size <= 1) {
             return
         }
         val d = getData()[0]
@@ -110,7 +125,7 @@ abstract class BaseDifferAdapter<D, V : BaseViewHolder>(private val config: Asyn
     ) {
     }
 
-    private fun getNewList(): MutableList<D> = ArrayList(getData())
+    fun getNewList(): MutableList<D> = ArrayList(getData())
 
     fun submitList(newList: MutableList<D>, commitCallback: Runnable) {
         differ.submitList(newList, commitCallback)
@@ -124,7 +139,11 @@ abstract class BaseDifferAdapter<D, V : BaseViewHolder>(private val config: Asyn
 
     override fun add(bean: D, index: Int) {
         val newList = getNewList()
-        newList.add(index, bean)
+        if (index != -1) {
+            newList.add(index, bean)
+        } else {
+            newList.add(bean)
+        }
         submitList(newList)
     }
 
@@ -146,10 +165,18 @@ abstract class BaseDifferAdapter<D, V : BaseViewHolder>(private val config: Asyn
         submitList(newList)
     }
 
+    override fun remove(index: Int): D {
+        val newList = getNewList()
+        val bean = newList[index]
+        newList.removeAt(index)
+        set(newList)
+        return bean
+    }
+
     @Suppress("UNCHECKED_CAST")
-    override fun sort() {
+    override suspend fun sort() {
         val data = getData()
-        if (data.isEmpty()) {
+        if (data.size <= 1) {
             return
         }
         val d = data[0]

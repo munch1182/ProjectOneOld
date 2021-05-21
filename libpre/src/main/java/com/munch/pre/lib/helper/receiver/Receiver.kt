@@ -37,15 +37,9 @@ open class ScreenReceiver constructor(context: Context) :
         t: ScreenStateListener
     ) {
         when (action) {
-            Intent.ACTION_SCREEN_ON -> {
-                t.onScreenOn(context)
-            }
-            Intent.ACTION_SCREEN_OFF -> {
-                t.onScreenOff(context)
-            }
-            Intent.ACTION_USER_PRESENT -> {
-                t.onUserPresent(context)
-            }
+            Intent.ACTION_SCREEN_ON -> t.onScreenOn(context)
+            Intent.ACTION_SCREEN_OFF -> t.onScreenOff(context)
+            Intent.ACTION_USER_PRESENT -> t.onUserPresent(context)
         }
     }
 }

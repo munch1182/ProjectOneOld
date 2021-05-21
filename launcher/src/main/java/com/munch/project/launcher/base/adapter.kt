@@ -86,7 +86,7 @@ abstract class BaseBindMultiAdapter<D>(
 abstract class BaseDifferBindMultiAdapter<D>(
     callback: DiffUtil.ItemCallback<D>
 ) : BaseDifferAdapter<D, BaseBindViewHolder<ViewDataBinding>>(
-    AsyncDifferConfig.Builder<D>(callback).build()
+    AsyncDifferConfig.Builder(callback).build()
 ), MultiType<BaseBindViewHolder<ViewDataBinding>> {
 
     override fun onCreateViewHolder(
@@ -122,9 +122,29 @@ open class BaseBindViewHolder<V : ViewDataBinding>(open val bind: V) : BaseViewH
     fun <VB : ViewDataBinding> getVB(): VB = bind as VB
 }
 
+/**
+ * ConcatAdapter.Config.Builder()
+ *      //SHARED_STABLE_IDS需要每个adapter的STABLE_ID保持唯一
+ *      //如果ConcatAdapter使用STABLE_ID，则所有加入的adapter都需要设置setHasStableIds(true)
+ *   .setStableIdMode(ConcatAdapter.Config.StableIdMode.SHARED_STABLE_IDS)
+ *   .build(),
+ */
 class StatusAdapter(context: Context) : SimpleAdapter<Int>(View(context).apply {
     layoutParams = ViewGroup.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT,
         AppHelper.PARAMETER.getStatusBarHeight()
     )
-}, arrayListOf(1))
+}, arrayListOf(1)) {
+
+    init {
+        setHasStableIds(true)
+    }
+
+    companion object {
+        const val STABLE_ID = 10000L
+    }
+
+    override fun getItemId(position: Int): Long {
+        return STABLE_ID
+    }
+}

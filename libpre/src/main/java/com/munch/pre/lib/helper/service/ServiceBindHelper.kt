@@ -39,31 +39,31 @@ class ServiceBindHelper<S : Service>(private val intent: Intent) {
     private var isBound = false
     var onBind: ((s: S?) -> Unit)? = null
     private var conn: ServiceConnection? = null
-        get() {
-            if (field == null) {
-                field = object : ServiceConnection {
-                    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                        @Suppress("UNCHECKED_CAST")
-                        if (service is SimpleBinder<*>) {
-                            binder = service as SimpleBinder<S>
-                            isBound = true
-                            onBind?.invoke(binder!!.get())
-                        }
-                    }
-
-                    override fun onServiceDisconnected(name: ComponentName?) {
-                        isBound = false
+    private fun getConnOrNew(): ServiceConnection {
+        if (conn == null) {
+            conn = object : ServiceConnection {
+                override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                    @Suppress("UNCHECKED_CAST")
+                    if (service is SimpleBinder<*>) {
+                        binder = service as SimpleBinder<S>
+                        isBound = true
+                        onBind?.invoke(binder!!.get())
                     }
                 }
+
+                override fun onServiceDisconnected(name: ComponentName?) {
+                    isBound = false
+                }
             }
-            return field
         }
+        return conn!!
+    }
 
     fun bind(context: Context) {
         if (isBound) {
             return
         }
-        context.bindService(intent, conn!!, Service.BIND_AUTO_CREATE)
+        context.bindService(intent, getConnOrNew(), Service.BIND_AUTO_CREATE)
     }
 
     fun unbind(context: Context) {

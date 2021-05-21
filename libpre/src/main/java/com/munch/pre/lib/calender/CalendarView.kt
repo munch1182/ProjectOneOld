@@ -35,6 +35,13 @@ class CalendarView @JvmOverloads constructor(
         }
     }
 
+    fun update(current: Day) {
+        if (this.current != current) {
+            this.current = current
+            monthViewPager.updateMonth(current)
+        }
+    }
+
     private var monthViewPager = MonthViewPager(context, current.beMonth(), config)
 
     init {

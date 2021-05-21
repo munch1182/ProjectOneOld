@@ -34,8 +34,8 @@ open class SimpleAdapter<D> private constructor(
         onBind?.invoke(holder, bean, pos)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        return createVH(parent, viewType)
+    override fun createVH(parent: ViewGroup, viewType: Int): BaseViewHolder {
+        return super.createVH(parent, viewType)
     }
 }
 
@@ -48,12 +48,12 @@ open class SimpleMultiAdapter<D> private constructor(
         onBind?.invoke(holder, bean, pos)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        return createVH(parent, viewType)
-    }
-
     override fun getItemViewType(position: Int): Int {
         return posType?.getItemTypeByPos(position) ?: super.getItemViewType(position)
+    }
+
+    override fun createVH(parent: ViewGroup, viewType: Int): BaseViewHolder {
+        return super.createVH(parent, viewType)
     }
 
     override var viewResMap: SparseIntArray? = null
@@ -85,8 +85,8 @@ open class SimpleDifferAdapter<D> private constructor(
         onBind?.invoke(holder, bean, pos)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        return createVH(parent, viewType)
+    override fun createVH(parent: ViewGroup, viewType: Int): BaseViewHolder {
+        return super.createVH(parent, viewType)
     }
 }
 
@@ -100,12 +100,12 @@ open class SimpleDifferMultiAdapter<D> private constructor(
         onBind?.invoke(holder, bean, pos)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
-        return createVH(parent, viewType)
-    }
-
     override fun getItemViewType(position: Int): Int {
         return posType?.getItemTypeByPos(position) ?: super.getItemViewType(position)
+    }
+
+    override fun createVH(parent: ViewGroup, viewType: Int): BaseViewHolder {
+        return super.createVH(parent, viewType)
     }
 
     override var viewResMap: SparseIntArray? = null
