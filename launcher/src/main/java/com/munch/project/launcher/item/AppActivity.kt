@@ -13,7 +13,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.*
 import com.munch.pre.lib.base.Orientation
-import com.munch.pre.lib.base.rv.ItemDiffCallBack
+import com.munch.pre.lib.base.rv.DiffUtilCallBack
 import com.munch.pre.lib.extend.dp2Px
 import com.munch.pre.lib.extend.observeOnChanged
 import com.munch.pre.lib.extend.startActivity
@@ -238,7 +238,7 @@ class AppActivity : BaseActivity() {
     private class AppAdapter :
         BaseDifferBindAdapter<AppGroupItem, ItemAppItemBinding>(
             R.layout.item_app_item,
-            ItemDiffCallBack({ it.pkg }, { it.name })
+            DiffUtilCallBack({ it.pkg }, { it.name })
         ) {
 
         override fun onBindViewHolder(

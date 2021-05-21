@@ -18,7 +18,7 @@ data class Note(
     var isFinished: Boolean = false,
     var finishedTime: Long = 0,
     val createTime: Long = System.currentTimeMillis(),
-) : Comparable<Note> {
+) : Comparable<Note>, Cloneable {
 
     fun getFinishTimeStr(): String {
         return "${"yyyy/MM/dd".formatDate(createTime)}\n - \n${"yyyy/MM/dd".formatDate(targetTime)} \n" +
@@ -55,7 +55,7 @@ data class Note(
         return (targetTime - other.targetTime).toInt()
     }
 
-    fun new(): Note {
+    public override fun clone(): Note {
         return Note(note, targetTime, color, isFinished, finishedTime, createTime)
     }
 }

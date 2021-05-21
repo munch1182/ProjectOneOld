@@ -25,9 +25,6 @@ class CalendarFragment : BaseFragment() {
             calendarRv.layoutManager = LinearLayoutManager(requireContext())
             calendarRv.adapter = adapterHelper.getAdapter()
         }
-        adapterHelper.getNoteAdapter().set(MutableList(15) { Note.test() }.apply {
-            sort()
-        })
     }
 
     override fun onResume() {

@@ -1,11 +1,10 @@
 package com.munch.project.launcher.calendar
 
 import android.content.Context
-import android.content.res.ColorStateList
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.pre.lib.base.rv.ItemDiffCallBack
 import com.munch.pre.lib.calender.CalendarHelper
 import com.munch.pre.lib.calender.CalendarView
 import com.munch.pre.lib.calender.Day
@@ -36,8 +35,10 @@ class CalendarAdapterHelper(context: Context, scope: LifecycleCoroutineScope) {
     )
 
     fun getAdapter() = adapter
-    fun getCalendarView() {
-        throw UnsupportedOperationException("UNCOMPLETED")
+
+    fun getCalendarView(rv: RecyclerView): CalendarView? {
+        val holder = rv.findViewHolderForItemId(CalendarAdapter.STABLE_ID) ?: return null
+        return holder.itemView.findViewById(R.id.calender_view)
     }
 
     fun set(list: MutableList<Note>) {
@@ -45,27 +46,40 @@ class CalendarAdapterHelper(context: Context, scope: LifecycleCoroutineScope) {
     }
 
     fun updateDay(day: Day, rv: RecyclerView) {
-        val holder = rv.findViewHolderForItemId(CalendarAdapter.STABLE_ID) ?: return
-        holder.itemView.findViewById<CalendarView>(R.id.calender_view)?.update(day)
+        getCalendarView(rv)?.update(day)
     }
 
     class NoteAdapter(private val scope: LifecycleCoroutineScope) :
         BaseDifferBindAdapter<Note, ItemNoteBinding>(
             R.layout.item_note,
-            ItemDiffCallBack({ it.note }, { it.finishedTime })
+            object : DiffUtil.ItemCallback<Note>() {
+                override fun areItemsTheSame(oldItem: Note, newItem: Note): Boolean {
+                    return oldItem.note == newItem.note
+                }
+
+                override fun areContentsTheSame(oldItem: Note, newItem: Note): Boolean {
+                    return oldItem.color == newItem.color && oldItem.isFinished == newItem.isFinished
+                }
+
+            }
         ) {
 
         init {
             setHasStableIds(true)
-            setOnItemLongClickListener { adapter, bean, _, _ ->
+            setOnItemLongClickListener { _, bean, _, _ ->
                 scope.launch {
-                    bean.isFinished = !bean.isFinished
-                    if (bean.isFinished) {
-                        bean.finishedTime = System.currentTimeMillis()
+                    val newBean = bean.clone()
+                    newBean.isFinished = !newBean.isFinished
+                    if (newBean.isFinished) {
+                        newBean.finishedTime = System.currentTimeMillis()
                     } else {
-                        bean.finishedTime = 0L
+                        newBean.finishedTime = 0L
                     }
-                    adapter.sort()
+                    val newList = getNewList()
+                    newList.remove(bean)
+                    newList.add(newBean)
+                    newList.sort()
+                    set(newList)
                 }
             }
         }
@@ -76,23 +90,14 @@ class CalendarAdapterHelper(context: Context, scope: LifecycleCoroutineScope) {
             pos: Int
         ) {
             holder.bind.note = bean
-            holder.bind.noteCv.apply {
-                isSelected = bean.isFinished
-                setCardBackgroundColor(
-                    ColorStateList(
-                        arrayOf(
-                            intArrayOf(android.R.attr.state_selected),
-                            intArrayOf(-android.R.attr.state_selected)
-                        ),
-                        intArrayOf(Note.getColorFinished(), bean.color)
-                    )
-                )
+            if (bean.isFinished) {
+                holder.bind.noteCv.setCardBackgroundColor(Note.getColorFinished())
+            } else {
+                holder.bind.noteCv.setCardBackgroundColor(bean.color)
             }
         }
 
-        override fun getItemId(position: Int): Long {
-            return 1000L + position
-        }
+        override fun getItemId(position: Int) = getData()[position].hashCode().toLong()
     }
 
     class CalendarAdapter :

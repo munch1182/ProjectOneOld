@@ -21,10 +21,6 @@ abstract class BaseBindAdapter<D, V : ViewDataBinding>(
     data: MutableList<D>? = null
 ) : BaseAdapter<D, BaseBindViewHolder<V>>(data), SingleType<BaseBindViewHolder<V>> {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseBindViewHolder<V> {
-        return createVH(parent, viewType)
-    }
-
     override fun createVH(parent: ViewGroup, viewType: Int): BaseBindViewHolder<V> {
         val from = LayoutInflater.from(parent.context)
         return BaseBindViewHolder(DataBindingUtil.inflate(from, res, parent, false))
@@ -36,12 +32,8 @@ abstract class BaseBindAdapter<D, V : ViewDataBinding>(
 abstract class BaseDifferBindAdapter<D, V : ViewDataBinding>(
     override var res: Int,
     callback: DiffUtil.ItemCallback<D>
-) : BaseDifferAdapter<D, BaseBindViewHolder<V>>(AsyncDifferConfig.Builder<D>(callback).build()),
+) : BaseDifferAdapter<D, BaseBindViewHolder<V>>(AsyncDifferConfig.Builder(callback).build()),
     SingleType<BaseBindViewHolder<V>> {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseBindViewHolder<V> {
-        return createVH(parent, viewType)
-    }
 
     override fun createVH(parent: ViewGroup, viewType: Int): BaseBindViewHolder<V> {
         val from = LayoutInflater.from(parent.context)
@@ -55,13 +47,6 @@ abstract class BaseBindMultiAdapter<D>(
     data: MutableList<D>? = null
 ) : BaseAdapter<D, BaseBindViewHolder<ViewDataBinding>>(data),
     MultiType<BaseBindViewHolder<ViewDataBinding>> {
-
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): BaseBindViewHolder<ViewDataBinding> {
-        return createVH(parent, viewType)
-    }
 
     override fun createVH(parent: ViewGroup, viewType: Int): BaseBindViewHolder<ViewDataBinding> {
         if (viewResMap == null) {
@@ -88,13 +73,6 @@ abstract class BaseDifferBindMultiAdapter<D>(
 ) : BaseDifferAdapter<D, BaseBindViewHolder<ViewDataBinding>>(
     AsyncDifferConfig.Builder(callback).build()
 ), MultiType<BaseBindViewHolder<ViewDataBinding>> {
-
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): BaseBindViewHolder<ViewDataBinding> {
-        return createVH(parent, viewType)
-    }
 
     override fun createVH(parent: ViewGroup, viewType: Int): BaseBindViewHolder<ViewDataBinding> {
         if (viewResMap == null) {

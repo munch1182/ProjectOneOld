@@ -55,12 +55,6 @@ object CalendarHelper {
                         }
                         if (p.day == now) {
                             paint.color = colorPrimary
-                            canvas.drawRoundRect(p.rect.apply {
-                                val w = width() / 8f
-                                val h = height() / 8f
-                                set(left + w, top + h, right - w, bottom - h)
-                            }, 5f, 5f, paint)
-                            paint.color = Color.WHITE
                         } else {
                             paint.color = Color.BLACK
                         }

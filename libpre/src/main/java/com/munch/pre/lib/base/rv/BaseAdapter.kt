@@ -2,10 +2,7 @@ package com.munch.pre.lib.base.rv
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.AdapterListUpdateCallback
-import androidx.recyclerview.widget.AsyncDifferConfig
-import androidx.recyclerview.widget.AsyncListDiffer
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 
 /**
  * Create by munch1182 on 2021/3/31 14:41.
@@ -16,17 +13,7 @@ abstract class BaseAdapter<D, V : BaseViewHolder>(dataInt: MutableList<D>? = nul
     protected open val dataList: MutableList<D>
             by lazy { if (dataInt.isNullOrEmpty()) mutableListOf() else ArrayList(dataInt) }
     protected open var itemClickListener: ItemClickListener<D, V>? = null
-    protected open var itemClickCallBack = object : ItemClickListener<D, V> {
-        override fun onItemClick(adapter: BaseAdapter<D, V>, bean: D, view: View, pos: Int) {
-            itemClickListener?.onItemClick(adapter, bean, view, pos)
-        }
-    }
     protected open var itemLongClickListener: ItemClickListener<D, V>? = null
-    protected open var itemLongClickCallBack = object : ItemClickListener<D, V> {
-        override fun onItemClick(adapter: BaseAdapter<D, V>, bean: D, view: View, pos: Int) {
-            itemLongClickListener?.onItemClick(adapter, bean, view, pos)
-        }
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): V {
         return createVH(parent, viewType).apply { handClick(this) }
@@ -37,8 +24,8 @@ abstract class BaseAdapter<D, V : BaseViewHolder>(dataInt: MutableList<D>? = nul
     }
 
     protected open fun handClick(holder: V) {
-        holder.setOnItemClickListener(itemClickCallBack, this)
-        holder.setOnItemLongClickListener(itemLongClickCallBack, this)
+        holder.setOnItemClickListener(itemClickListener)
+        holder.setOnItemLongClickListener(itemLongClickListener)
     }
 
     override fun getItemCount(): Int = getData().size
@@ -173,6 +160,11 @@ abstract class BaseDifferAdapter<D, V : BaseViewHolder>(private val config: Asyn
         return bean
     }
 
+    /**
+     * 注意数据通过地址引用方式时，更改其属性然后排序，[getData]与[getNewList]是否会产生差异
+     * 同时要注意[ConcatAdapter.Config.StableIdMode]设置下[androidx.recyclerview.widget.RecyclerView.Adapter.getItemId]的返回值
+     * 这些都会影响是否正确生效
+     */
     @Suppress("UNCHECKED_CAST")
     override suspend fun sort() {
         val data = getData()
