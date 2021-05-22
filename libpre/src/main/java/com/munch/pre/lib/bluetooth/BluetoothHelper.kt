@@ -13,13 +13,14 @@ import android.provider.Settings
 import android.util.ArrayMap
 import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.base.Cancelable
+import com.munch.pre.lib.base.Destroyable
 import com.munch.pre.lib.helper.ARSHelper
 import com.munch.pre.lib.log.Logger
 
 /**
  * Create by munch1182 on 2021/4/8 10:55.
  */
-class BluetoothHelper private constructor() {
+class BluetoothHelper private constructor() : Cancelable, Destroyable {
 
     companion object {
         val INSTANCE by lazy { BluetoothHelper() }
@@ -53,6 +54,7 @@ class BluetoothHelper private constructor() {
     internal lateinit var device: BtInstance
     internal val btAdapter: BluetoothAdapter? by lazy { device.btAdapter }
     private val cancelable = mutableListOf<Cancelable>()
+    private val destroyable = mutableListOf<Destroyable>()
     private lateinit var handlerThread: HandlerThread
     internal lateinit var handler: Handler
 
@@ -134,7 +136,6 @@ class BluetoothHelper private constructor() {
     @SuppressLint("MissingPermission")
     private val delayStopScan = { stopScan() }
 
-
     internal fun <T> notify(helper: ARSHelper<T>, notify: (T) -> Unit) {
         handler.post { helper.notifyListener { notify.invoke(it) } }
     }
@@ -143,7 +144,10 @@ class BluetoothHelper private constructor() {
         this.context = context.applicationContext
         initWorkThread()
         device = BtInstance(context)
+        cancelable.add(device)
         cancelable.add(bleScanner)
+        destroyable.add(device)
+        destroyable.add(bleScanner)
         setConfig(config ?: BtConfig())
         watchState()
     }
@@ -163,8 +167,7 @@ class BluetoothHelper private constructor() {
         device.getBtStateListeners().add { _, turning, available ->
             //蓝牙正在关闭时关闭所有的操作以保证状态正确
             if (!available && turning) {
-                cancelable.forEach { it.cancel() }
-                handler.removeCallbacks(delayStopScan)
+                cancel()
             }
         }
     }
@@ -249,7 +252,16 @@ class BluetoothHelper private constructor() {
         }
         bleConnector[btDevice.mac] = connector
         cancelable.add(connector)
+        destroyable.add(connector)
         return connector
     }
 
+    override fun cancel() {
+        cancelable.forEach { it.cancel() }
+        handler.removeCallbacks(delayStopScan)
+    }
+
+    override fun destroy() {
+        destroyable.forEach { it.destroy() }
+    }
 }

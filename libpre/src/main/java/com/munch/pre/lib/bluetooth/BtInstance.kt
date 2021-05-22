@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.annotation.RequiresPermission
 import com.munch.pre.lib.PERMISSIONS
+import com.munch.pre.lib.base.Cancelable
+import com.munch.pre.lib.base.Destroyable
 import com.munch.pre.lib.helper.ARSHelper
 import com.munch.pre.lib.helper.receiver.BluetoothStateReceiver
 
@@ -16,7 +18,7 @@ import com.munch.pre.lib.helper.receiver.BluetoothStateReceiver
         android.Manifest.permission.BLUETOOTH,
         android.Manifest.permission.BLUETOOTH_ADMIN]
 )
-class BtInstance(private val context: Context) {
+class BtInstance(private val context: Context) : Cancelable, Destroyable {
 
     internal val btAdapter = BluetoothAdapter.getDefaultAdapter()
     private val stateReceiver = BluetoothStateReceiver(context)
@@ -54,4 +56,13 @@ class BtInstance(private val context: Context) {
 
     fun getBtStateListeners(): ARSHelper<(state: Int, turning: Boolean, available: Boolean) -> Unit> =
         stateReceiver
+
+    override fun cancel() {
+        stateReceiver.clear()
+    }
+
+    override fun destroy() {
+        cancel()
+        stateReceiver.unregister()
+    }
 }

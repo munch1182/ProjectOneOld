@@ -2,10 +2,6 @@ package com.munch.test.project.one.anim
 
 import android.graphics.Color
 import android.os.Bundle
-import android.transition.AutoTransition
-import android.transition.ChangeTransform
-import android.transition.Fade
-import android.transition.TransitionSet
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar

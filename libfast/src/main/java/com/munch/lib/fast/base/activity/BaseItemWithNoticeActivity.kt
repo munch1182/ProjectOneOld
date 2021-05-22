@@ -25,7 +25,7 @@ abstract class BaseItemWithNoticeActivity : BaseItemActivity() {
                     holder.itemView.findViewById<FrameLayout>(R.id.item_base_top_fl)
                         ?.setBackgroundColor(Color.TRANSPARENT)
                 }
-            adapter = ConcatAdapter(newBlankAdapter(), newItemAdapter())
+            adapter = ConcatAdapter(newBlankAdapter(), newItemAdapter(), noticeAdapter)
         }
     }
 

@@ -80,7 +80,8 @@ class MonthView @JvmOverloads constructor(
                 wh.height.toFloat()
             } else {
                 var h: Float
-                if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY) {
+                val mode = MeasureSpec.getMode(heightMeasureSpec)
+                if (mode == MeasureSpec.EXACTLY) {
                     //为了保证布局一致，平均高度按照最大周数平分，但实际传递的是本月需要的高度
                     h =
                         (heightSize - paddingTop - paddingBottom - allBorderHeight) / allWeeks.toFloat()
@@ -242,6 +243,10 @@ abstract class DaySelectHelper {
 
     open fun onUp() = false
 
+    open fun isDaySelect(day: Day): Boolean {
+        return false
+    }
+
     class DayClickHelper : DaySelectHelper(), DayClick {
 
         private var clickDay: Day? = null
@@ -268,6 +273,10 @@ abstract class DaySelectHelper {
         override fun getClickedDay(): Day? {
             return upDay
         }
+
+        override fun isDaySelect(day: Day): Boolean {
+            return getClickedDay() == day
+        }
     }
 
     class DayRangeSelectHelper : DaySelectHelper(), DayRangSelect {
@@ -282,8 +291,13 @@ abstract class DaySelectHelper {
             }
             if (firstDay == null) {
                 firstDay = day
+                rangeDay.clear()
+                rangeDay.add(day)
                 return true
             } else if (lastDay == null) {
+                if (firstDay == lastDay) {
+                    return false
+                }
                 lastDay = day
                 return true
             }
@@ -305,12 +319,18 @@ abstract class DaySelectHelper {
         override fun onUp(): Boolean {
             super.onUp()
             firstDay ?: return false
-            lastDay ?: return false
             rangeDay.clear()
+            rangeDay.add(firstDay!!)
+            lastDay ?: return false
+            if (firstDay == lastDay) {
+                return false
+            }
             if (firstDay!! > lastDay!!) {
                 val temp = firstDay
                 firstDay = lastDay
                 lastDay = temp
+                rangeDay.clear()
+                rangeDay.add(firstDay!!)
             }
             val days = lastDay!! - firstDay!!
             for (i in 1..days) {
@@ -324,6 +344,10 @@ abstract class DaySelectHelper {
         override fun getLastClickedDay(): Day? = lastDay
 
         override fun getRangeDay(): MutableList<Day> = rangeDay
+
+        override fun isDaySelect(day: Day): Boolean {
+            return day in getRangeDay()
+        }
     }
 }
 

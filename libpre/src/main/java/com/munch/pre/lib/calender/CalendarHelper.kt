@@ -53,10 +53,18 @@ object CalendarHelper {
                         if (p.view.getMonth() != p.day) {
                             return
                         }
-                        if (p.day == now) {
-                            paint.color = colorPrimary
-                        } else {
-                            paint.color = Color.BLACK
+                        when {
+                            p.daySelect?.isDaySelect(p.day) == true -> {
+                                paint.color = colorPrimary
+                                canvas.drawRoundRect(p.rect.apply {
+                                    val w = width() / 8f
+                                    val h = height() / 8f
+                                    set(left + w, top + h, right - w, bottom - h)
+                                }, 5f, 5f, paint)
+                                paint.color = Color.WHITE
+                            }
+                            p.day == now -> paint.color = colorPrimary
+                            else -> paint.color = Color.BLACK
                         }
                         canvas.drawTextInCenter(
                             p.day.day.toString(),

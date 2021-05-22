@@ -165,7 +165,7 @@ class OpHelper : Cancelable, Destroyable {
         private var write: BluetoothGattCharacteristic? = null
         private var running = false
         private val lock = Object()
-        private var writed = false
+        private var hadWrite = false
         private var received = false
         private var receivedBytes: ByteArray? = null
         private val sendRunnable = Runnable {
@@ -228,7 +228,7 @@ class OpHelper : Cancelable, Destroyable {
 
         private fun write(byte: ByteArray) {
             if (gatt != null) {
-                writed = false
+                hadWrite = false
                 write?.value = byte
                 gatt?.writeCharacteristic(write)
 
@@ -236,7 +236,7 @@ class OpHelper : Cancelable, Destroyable {
                 do {
                     time--
                     TimeUnit.MILLISECONDS.sleep(1)
-                } while (time > 0 && !writed)
+                } while (time > 0 && !hadWrite)
             }
         }
 
@@ -263,7 +263,7 @@ class OpHelper : Cancelable, Destroyable {
         }
 
         fun onSend() {
-            writed = true
+            hadWrite = true
         }
 
         override fun cancel() {

@@ -2,14 +2,14 @@ package com.munch.test.project.one.anim
 
 import android.content.Intent
 import android.os.Bundle
+import android.transition.Slide
+import android.view.Gravity
 import android.view.View
 import android.widget.TextView
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseRvActivity
-import android.transition.Slide
-import android.view.Gravity
 
 /**
  * Create by munch1182 on 2021/4/13 10:40.

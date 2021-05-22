@@ -247,8 +247,6 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
         logHelper.withEnable { "connector destroy" }
         cancel()
         opHelper.destroy()
-        gatt?.close()
-        gatt = null
     }
 
     internal fun setWrite(write: BluetoothGattCharacteristic) {
