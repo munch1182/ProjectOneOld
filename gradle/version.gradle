@@ -33,8 +33,8 @@ ext {
 
             leakcanaryVersion: "2.7",
 
-            hiltVersion      : "1.0.0-alpha02",
-            hiltCoreVersion  : "2.30-alpha"
+            hiltVersion      : "1.0.0",
+            hiltCoreVersion  : "2.35.1"
 
     ]
 
@@ -149,7 +149,7 @@ ext {
             "gson"                            : "com.google.code.gson:gson:2.8.6",
 
             /*https://github.com/alibaba/fastjson*/
-            "fastjson"                        : "com.alibaba:fastjson:1.2.75.android",
+            "fastjson"                        : "com.alibaba:fastjson:1.2.76.android",
 
             /*https://github.com/HujiangTechnology/gradle_plugin_android_aspectjx*/
             "aspectjx_hujiang_plugin"         : "com.hujiang.aspectjx:gradle-android-plugin-aspectjx:2.0.8",

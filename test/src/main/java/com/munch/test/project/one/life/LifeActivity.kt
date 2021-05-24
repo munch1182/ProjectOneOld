@@ -137,7 +137,7 @@ class LifeFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        log.log("Fragment onCreateView")
+        log.log("Fragment onViewCreated")
         delayLoad {
             log.log("Fragment delayLoad")
             val list = arrayOf(
