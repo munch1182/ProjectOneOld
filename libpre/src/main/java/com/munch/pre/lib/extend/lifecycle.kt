@@ -6,7 +6,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 
 /**
- * LifecycleOwner的相关方法晚于activity的相关方法执行
+ * LifecycleOwner的相关方法晚于activity的相关方法执行,先于activity的相关方法注销
  *
  * Create by munch1182 on 2021/4/1 15:22.
  */

@@ -18,15 +18,71 @@ interface DataFunHelper<KEY> {
      */
     fun put(key: KEY, value: Any?)
 
+    fun remove(key: KEY): Boolean
+
+    fun clear()
+
+    fun update(key: KEY, defValue: Any?, updateValue: Any?) {
+        if (hasKey(key)) {
+            put(key, updateValue)
+        } else {
+            put(key, defValue)
+        }
+    }
+
+    fun update(key: KEY, updateValue: Any?) = update(key, updateValue, updateValue)
+
+    fun update(key: KEY, defValue: Any?, update: Any?.() -> Any) {
+        if (hasKey(key)) {
+            put(key, update.invoke(get(key, defValue)))
+        } else {
+            put(key, defValue)
+        }
+    }
+
     /**
      * @see hasKey
      */
     fun <T> get(key: KEY, defValue: T): T
 
-    fun remove(key: KEY): Boolean
-
     fun hasKey(key: KEY): Boolean
 
-    fun clear()
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Number> plus(key: KEY, defValue: T, plusValue: T) {
+        update(key, defValue) {
+            when (this) {
+                is Int -> this + plusValue.toInt()
+                is Long -> this + plusValue.toLong()
+                is Float -> this + plusValue.toFloat()
+                is Double -> this + plusValue.toDouble()
+                else -> throw UnsupportedOperationException()
+            }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Number> minus(key: KEY, defValue: T, minusValue: T) {
+        update(key, defValue) {
+            when (this) {
+                is Int -> this - minusValue.toInt()
+                is Long -> this - minusValue.toLong()
+                is Float -> this - minusValue.toFloat()
+                is Double -> this - minusValue.toDouble()
+                else -> throw UnsupportedOperationException()
+            }
+        }
+    }
+
+    fun <T : Number> increment(key: KEY, defValue: T) = plus(key, defValue, 1)
+    fun <T : Number> decrement(key: KEY, defValue: T) = minus(key, defValue, 1)
+
+    fun toggle(key: KEY, defValue: Boolean) {
+        update(key, defValue) {
+            if (this is Boolean) {
+                return@update !this
+            }
+            throw UnsupportedOperationException()
+        }
+    }
 
 }

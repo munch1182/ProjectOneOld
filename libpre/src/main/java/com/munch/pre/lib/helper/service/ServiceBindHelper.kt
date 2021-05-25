@@ -22,7 +22,7 @@ class ServiceBindHelper<S : Service>(private val intent: Intent) {
 
     companion object {
 
-        fun <S : Service> newBinder(service: S) = SimpleBinder(service)
+        inline fun <reified S : Service> newBinder(service: S) = SimpleBinder(service)
 
         inline fun <reified S : Service> bindActivity(activity: ComponentActivity): ServiceBindHelper<S> {
             return ServiceBindHelper(Intent(activity, S::class.java))
@@ -31,7 +31,7 @@ class ServiceBindHelper<S : Service>(private val intent: Intent) {
         inline fun <reified S : Service> bindApp(app: Application) =
             ServiceBindHelper<S>(Intent(app, S::class.java))
 
-        fun <S : Service> bindService(action: String) =
+        inline fun <reified S : Service> bindService(action: String) =
             ServiceBindHelper<S>(Intent(action))
     }
 

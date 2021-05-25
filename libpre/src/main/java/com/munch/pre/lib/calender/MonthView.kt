@@ -6,6 +6,7 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.munch.pre.lib.base.ViewExecutePending
 import com.munch.pre.lib.calender.MonthHelper.Companion.getHelper
 import com.munch.pre.lib.helper.RectArrayHelper
 import java.util.*
@@ -18,7 +19,7 @@ class MonthView @JvmOverloads constructor(
     month: Month,
     var config: CalendarConfig?,
     attrs: AttributeSet? = null
-) : View(context, attrs) {
+) : View(context, attrs), ViewExecutePending<MonthView> {
 
     constructor(context: Context, attrs: AttributeSet?) : this(
         context,

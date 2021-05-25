@@ -52,12 +52,6 @@ interface ExecutePending<T> {
 
 interface ViewExecutePending<T : View> : ExecutePending<T> {
 
-    @Suppress("UNCHECKED_CAST")
-    override fun executePending(pending: T.() -> Unit) {
-        pending.invoke(this as T)
-        execute()
-    }
-
     override fun execute() {
         (this as View).invalidate()
     }

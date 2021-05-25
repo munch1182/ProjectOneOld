@@ -9,7 +9,6 @@ import com.munch.pre.lib.helper.AppStatusHelper
 import com.munch.pre.lib.helper.measure.SimpleMeasureTime
 import com.munch.pre.lib.log.Logger
 import com.munch.pre.lib.watcher.Watcher
-import com.munch.project.launcher.test.TestTask
 import kotlin.concurrent.thread
 
 /**
@@ -71,7 +70,7 @@ class LauncherApp : BaseApp() {
             Executor()
                 .add(DelayInitTask())
                 .add(appItemTask)
-                .add(TestTask())
+                /*.add(TestTask())*/
                 .execute()
         }
     }
