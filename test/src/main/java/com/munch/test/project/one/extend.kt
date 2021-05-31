@@ -1,7 +1,7 @@
 package com.munch.test.project.one
 
-import androidx.fragment.app.Fragment
 import com.munch.lib.fast.base.activity.BaseTopActivity
+import com.munch.test.project.one.base.BaseFragment
 import com.permissionx.guolindev.PermissionX
 
 /**
@@ -19,16 +19,14 @@ fun BaseTopActivity.requestPermission(vararg permission: String, action: () -> U
         }
 }
 
-fun Fragment.requestPermission(vararg permission: String, action: () -> Unit) {
+fun BaseFragment.requestPermission(vararg permission: String, action: () -> Unit) {
     PermissionX.init(this)
         .permissions(*permission)
         .request { allGranted, _, _ ->
             if (allGranted) {
                 action.invoke()
             } else {
-                if (activity is BaseTopActivity) {
-                    (activity as BaseTopActivity).toast("有权限未获得")
-                }
+                toast("有权限未获得")
             }
         }
 }

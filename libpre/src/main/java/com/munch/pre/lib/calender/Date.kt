@@ -385,7 +385,7 @@ open class Day(override var year: Int, override var month: Int, open var day: In
     protected open val instance: Calendar by lazy { Calendar.getInstance() }
 
     /**
-     * 没有必要初始化同步因为可能单纯使用实例作为计算符合右边的一方
+     * 没有必要初始化同步因为可能单纯使用实例作为计算符号右边的一方
      * 只有作为计算符左边一方的时候才需要同步
      *//*
     init {

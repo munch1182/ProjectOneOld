@@ -15,12 +15,18 @@ class TranslucentBehavior(context: Context?, attrs: AttributeSet?) :
     CoordinatorLayout.Behavior<Toolbar>(context, attrs) {
 
     private var toolbarHeight = 0
+    private var lastY = -1f
 
     override fun layoutDependsOn(
         parent: CoordinatorLayout,
         child: Toolbar,
         dependency: View
     ): Boolean {
+        //初始化高度
+        if (toolbarHeight == 0) {
+            //变得更慢
+            toolbarHeight = child.bottom * 2
+        }
         return dependency is ImageView
     }
 
@@ -30,19 +36,18 @@ class TranslucentBehavior(context: Context?, attrs: AttributeSet?) :
         dependency: View
     ): Boolean {
 
-        //初始化高度
-        if (toolbarHeight == 0) {
-            //变得更慢
-            toolbarHeight = child.bottom * 2
+        if (lastY == dependency.y) {
+            return true
         }
+        lastY = dependency.y
 
-        var percent = dependency.y / toolbarHeight
+        var percent = lastY / toolbarHeight
 
-        if (percent >= 1) {
+        if (percent >= 1f) {
             percent = 1f
         }
 
-        val alpha = percent * 255
+        val alpha = percent * 254f
 
         child.setBackgroundColor(Color.argb(alpha.toInt(), 3, 218, 197))
 

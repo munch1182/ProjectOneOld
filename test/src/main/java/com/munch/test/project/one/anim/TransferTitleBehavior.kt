@@ -24,6 +24,7 @@ class TransferTitleBehavior(context: Context?, attrs: AttributeSet) :
     private var textStartSize = 80f
     private var targetX = 0.0f
     private var targetY = 0.0f
+    private var lastScale = -1f
 
     @SuppressLint("SetTextI18n")
     override fun layoutDependsOn(
@@ -61,6 +62,11 @@ class TransferTitleBehavior(context: Context?, attrs: AttributeSet) :
         if (percentScale >= 1f) {
             percentScale = 1f
         }
+
+        if (lastScale == percentScale){
+            return true
+        }
+        lastScale = percentScale
 
         val scale = 1 - percentScale
         var size = textStartSize * scale

@@ -17,7 +17,6 @@ class CalendarFragment : BaseFragment() {
 
     private val bind by bind<FragmentCalenderBinding>(R.layout.fragment_calender)
     private val adapterHelper by lazy { CalendarAdapterHelper(requireContext(), lifecycleScope) }
-    private val calendar = Calendar.getInstance()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -29,6 +28,6 @@ class CalendarFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        adapterHelper.updateDay(Day.from(calendar), bind.calendarRv)
+        adapterHelper.updateDay(Day.from(Calendar.getInstance()), bind.calendarRv)
     }
 }

@@ -36,6 +36,9 @@ class ImageTitleActivity : BaseActivity() {
             navigationIcon = getBackIconWhite()
             setNavigationOnClickListener { onBackPressed() }
         }
+        //未生效的原因可能与动画与behavior的先后顺序有关
+        //可能需要监听并等到behavior之后再实现动画
+        //或者先固定behavior的位置
         //1. 设置相同的TransitionName
         ViewCompat.setTransitionName(bind.imageTitleTitle, getString(R.string.share_element_title))
         //2. 给未设置ShareElement的元素设置动画
