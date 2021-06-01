@@ -16,6 +16,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission
+        android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+        tools:ignore="ProtectedPermissions" />
+
+    <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
 
@@ -26,7 +30,6 @@
     <uses-permission
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-
 
     <application
         android:name=".base.TestApp"
@@ -83,6 +86,9 @@
         <activity android:name=".thread.CoroutinesActivity" />
         <activity android:name=".view.ColorPaletteActivity" />
         <activity android:name=".life.LifeActivity" />
+        <activity android:name=".player.MediaActivity" />
+        <activity android:name=".player.SoundActivity" />
+        <activity android:name=".player.controller.MediaControllerActivity" />
 
         <service android:name=".net.clip.NetClipService" />
         <service android:name=".net.service.NetKeepService" />
@@ -112,7 +118,17 @@
                 android:resource="@xml/accessibility" />
         </service>
 
-        <receiver android:name=".TestActivity$Broad"/>
+        <receiver android:name=".TestActivity$Broad" />
+
+        <service
+            android:name=".player.controller.MediaControllerHelper$NotificationListener"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+
+        </service>
     </application>
 
 </manifest>

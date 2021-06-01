@@ -37,6 +37,8 @@ dependencies {
     implementation rootProject.ext.dependencies['tiny_pinyin']
     implementation rootProject.ext.dependencies['tiny_pinyin_dic']
 
+    implementation rootProject.ext.dependencies['media2_session']
+
     debugImplementation rootProject.ext.dependencies['leakcanary']
 
     /*https://github.com/yanzhenjie/AndServer*/

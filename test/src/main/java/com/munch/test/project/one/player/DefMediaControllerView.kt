@@ -1,26 +1,63 @@
 package com.munch.test.project.one.player
 
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.SeekBar
-import androidx.core.view.contains
-import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
-import com.munch.pre.lib.extend.setParams
-import com.munch.pre.lib.log.log
-import com.munch.test.project.one.R
-import com.munch.test.project.one.databinding.LayoutVideoControllerBinding
+import com.munch.test.project.one.player.media.IMediaController
 import com.munch.test.project.one.player.media.MediaControllerView
+import com.munch.test.project.one.player.media.MediaMate
 import com.munch.test.project.one.player.media.MediaSetting
-import com.munch.test.project.one.player.media_old.VideoView
 
 
 /**
  * Create by munch1182 on 2021/5/11 14:41.
  */
 class DefMediaControllerView : MediaControllerView() {
+    override fun onStart(timeout: Long) {
+        TODO("Not yet implemented")
+    }
 
+    override fun onPause() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onStop() {
+        TODO("Not yet implemented")
+    }
+
+    override fun startPrepare() {
+        TODO("Not yet implemented")
+    }
+
+    override fun showInfo(info: MediaMate) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onPrepared() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onComplete() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onVideoViewSizeChanged(videoView: IMediaController, w: Int, h: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getDurationLong(): Long {
+        TODO("Not yet implemented")
+    }
+
+    override fun getCurrentPositionLong(): Long {
+        TODO("Not yet implemented")
+    }
+
+    override fun seekToLong(pos: Long) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onSettingChange(setting: MediaSetting) {
+        TODO("Not yet implemented")
+    }
+/*
     private var controller: LayoutVideoControllerBinding? = null
     private var setting: MediaSetting? = null
     private var videoView: VideoView? = null
@@ -30,7 +67,7 @@ class DefMediaControllerView : MediaControllerView() {
         private const val EIGHT_HOUR: Long = 8 * 60 * 60 * 1000
     }
 
-    override fun attachVideo(videoView: VideoView, setting: MediaSetting) {
+    override fun attachView(videoView: IMediaController, setting: MediaSetting) {
         if (controller == null) {
             controller = DataBindingUtil.inflate(
                 LayoutInflater.from(videoView.context),
@@ -80,7 +117,7 @@ class DefMediaControllerView : MediaControllerView() {
         this.videoView = videoView
     }
 
-    override fun onVideoViewSizeChanged(videoView: VideoView, w: Int, h: Int) {
+    override fun onVideoViewSizeChanged(videoView: IMediaController, w: Int, h: Int) {
         controller?.root?.setParams {
             width = w
             height = h
@@ -188,5 +225,5 @@ class DefMediaControllerView : MediaControllerView() {
 
     override fun onSettingChange(setting: MediaSetting) {
         this.setting = setting
-    }
+    }*/
 }

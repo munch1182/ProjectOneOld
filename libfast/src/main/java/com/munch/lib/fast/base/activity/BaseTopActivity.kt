@@ -27,7 +27,9 @@ open class BaseTopActivity : BaseActivity() {
             setContentView(resId)
             //因为是先添加的contentView，再添加的top
             val contentView = findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
-            return@lazy DataBindingUtil.bind<V>(contentView)!!
+            return@lazy DataBindingUtil.bind<V>(contentView)!!.apply {
+                this.lifecycleOwner = this@BaseTopActivity
+            }
         }
     }
 

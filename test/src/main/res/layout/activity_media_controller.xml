@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/controller_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".player.controller.MediaControllerActivity"
+        tools:ignore="HardcodedText">
+
+        <Button
+            android:id="@+id/controller_previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding_def"
+            android:text="PREVIOUS"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/controller_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/padding_def"
+            android:text="NEXT"
+            app:layout_constraintBottom_toBottomOf="@id/controller_previous"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/controller_previous" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PLAY/PAUSE"
+            app:layout_constraintBottom_toBottomOf="@id/controller_previous"
+            app:layout_constraintEnd_toStartOf="@id/controller_next"
+            app:layout_constraintStart_toEndOf="@id/controller_previous"
+            app:layout_constraintTop_toTopOf="@id/controller_previous" />
+
+        <Button
+            android:id="@+id/controller_volume_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VOLUME DOWN"
+            app:layout_constraintEnd_toStartOf="@id/controller_volume_up"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/controller_previous" />
+
+        <Button
+            android:id="@+id/controller_volume_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VOLUME UP"
+            app:layout_constraintBottom_toBottomOf="@id/controller_volume_down"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/controller_volume_down"
+            app:layout_constraintTop_toTopOf="@id/controller_volume_down" />
+
+        <Button
+            android:id="@+id/controller_permission"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PERMISSION"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/controller_volume_down" />
+
+        <TextView
+            android:id="@+id/controller_player"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_def"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/controller_permission"
+            tools:text="1231231" />
+
+        <TextView
+            android:id="@+id/controller_op"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_def"
+            android:paddingEnd="@dimen/padding_def"
+            android:paddingBottom="@dimen/padding_def"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/controller_player"
+            tools:text="123123111111" />
+
+        <TextView
+            android:id="@+id/controller_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_def"
+            android:paddingEnd="@dimen/padding_def"
+            android:paddingBottom="@dimen/padding_def"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/controller_op"
+            tools:text="123123111111asdad" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

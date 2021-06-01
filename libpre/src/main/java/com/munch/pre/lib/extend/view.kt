@@ -66,14 +66,23 @@ fun ViewGroup.clickItem(listener: (v: View, index: Int) -> Unit, vararg clazz: C
         }
     }
     var index = 0
-    this.children.forEach {
-        if (clazz.isNotEmpty() && it::class.java !in clazz) {
+    this.children.forEach { view ->
+        if (clazz.isNotEmpty() && !isAssignable(clazz, view)) {
             return@forEach
         }
-        it.tag = index
+        view.tag = index
         index++
-        it.setOnClickListener(viewIndexClickListener)
+        view.setOnClickListener(viewIndexClickListener)
     }
+}
+
+private fun isAssignable(clazz: Array<out Class<out View>>, view: View): Boolean {
+    clazz.forEach { target ->
+        if (target.isAssignableFrom(view::class.java)) {
+            return@isAssignable true
+        }
+    }
+    return false
 }
 
 fun View.setPaddingCompat(

@@ -284,16 +284,16 @@ class VideoView @JvmOverloads constructor(
         player?.pause()
     }
 
-    override fun getDuration(): Int {
-        return player?.duration?.toInt() ?: throw IllegalStateException("cannot get value")
+    override fun getDurationLong(): Long {
+        return  player?.duration ?: 0L
     }
 
-    override fun getCurrentPosition(): Int {
-        return player?.currentPosition?.toInt() ?: throw IllegalStateException("cannot get value")
+    override fun getCurrentPositionLong(): Long {
+        return  player?.currentPosition ?: 0L
     }
 
-    override fun seekTo(pos: Int) {
-        player?.seekTo(pos.toLong())
+    override fun seekToLong(pos: Long) {
+        player?.seekTo(pos)
     }
 
     override fun isPlaying(): Boolean {
