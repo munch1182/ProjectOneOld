@@ -5,18 +5,23 @@ package com.munch.test.project.one.player.media
  */
 interface IMediaControllerView : IMediaController {
 
-    fun attachVideoView(videoView: VideoView, setting: MediaSetting)
+    /**
+     * 关联操作视图与实现
+     */
+    fun attachView(videoView: IMediaController, setting: MediaSetting)
 
+    /**
+     * 将视图层的操作回调给操作层
+     */
     fun setControlListener(listener: IMediaController)
 
-    //尚未决定info的信息结构
-    fun showInfo() {}
-
     fun startPrepare()
+
+    fun showInfo(info: MediaMate)
 
     fun onPrepared()
 
     fun onComplete()
 
-    fun onVideoViewSizeChanged(videoView: VideoView, w: Int, h: Int)
+    fun onVideoViewSizeChanged(videoView: IMediaController, w: Int, h: Int)
 }

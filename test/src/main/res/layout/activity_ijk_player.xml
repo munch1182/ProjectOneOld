@@ -8,7 +8,7 @@
         android:layout_height="wrap_content"
         tools:context=".player.IjkPlayerActivity">
 
-        <com.munch.test.project.one.player.media.VideoView
+        <com.munch.test.project.one.player.media_old.VideoView
             android:id="@+id/player_video_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

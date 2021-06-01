@@ -13,7 +13,7 @@ import com.munch.test.project.one.R
 import com.munch.test.project.one.databinding.LayoutVideoControllerBinding
 import com.munch.test.project.one.player.media.MediaControllerView
 import com.munch.test.project.one.player.media.MediaSetting
-import com.munch.test.project.one.player.media.VideoView
+import com.munch.test.project.one.player.media_old.VideoView
 
 
 /**
@@ -186,7 +186,7 @@ class DefMediaControllerView : MediaControllerView() {
 
     }
 
-    override fun settingChange(setting: MediaSetting) {
+    override fun onSettingChange(setting: MediaSetting) {
         this.setting = setting
     }
 }

@@ -6,14 +6,11 @@ package com.munch.test.project.one.player.media
  */
 abstract class MediaControllerView : IMediaControllerView {
 
-    private var videoView: VideoView? = null
+    private var videoView: IMediaController? = null
     private var listener: IMediaController? = null
-    override fun attachVideoView(videoView: VideoView, setting: MediaSetting) {
+    override fun attachView(videoView: IMediaController, setting: MediaSetting) {
         this.videoView = videoView
-        attachVideo(videoView, setting)
     }
-
-    abstract fun attachVideo(videoView: VideoView, setting: MediaSetting)
 
     override fun setControlListener(listener: IMediaController) {
         this.listener = listener
