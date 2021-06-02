@@ -3,7 +3,6 @@ package com.munch.test.project.one.player.media
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
-import tv.danmaku.ijk.media.player.IMediaPlayer
 
 /**
  * Create by munch1182 on 2021/5/31 11:41.
@@ -14,24 +13,20 @@ abstract class PlayerView @JvmOverloads constructor(
     defAttr: Int = 0
 ) : FrameLayout(context, attrs, defAttr), IMediaController {
 
-    protected var player: IMediaPlayer? = null
+    /**
+     * 实际的播放器实现，应该由子类设置或实现
+     */
+    protected abstract var player: IMediaController?
+
+    /**
+     * 给播放加入的控制视图，由[attachControllerView]设置，即可以转由外部传入自行定制
+     */
     protected var view: IMediaControllerView? = null
-    protected open var setting = MediaSetting()
-        set(value) {
-            if (field != value) {
-                field = value
-                onSettingChange(field)
-            }
-        }
-    protected open var state = MediaState.STATE_IDEL
+    protected abstract var setting: IMediaSetting
 
-    protected open fun initPlayer() {
-
-    }
-
-    fun attachView(view: IMediaControllerView) {
+    fun attachControllerView(view: IMediaControllerView) {
         this.view = view
-        this.view?.attachView(this, setting)
+        this.view?.attachPlayer(this, setting)
         this.view?.setControlListener(this)
     }
 
@@ -43,25 +38,27 @@ abstract class PlayerView @JvmOverloads constructor(
         player?.pause()
     }
 
-    override fun getDurationLong() = player?.duration ?: 0L
+    override fun getDurationLong() = player?.getDurationLong() ?: 0L
 
-    override fun getCurrentPositionLong(): Long = player?.currentPosition ?: 0L
+    override fun getCurrentPositionLong(): Long = player?.getCurrentPositionLong() ?: 0L
 
     override fun seekToLong(pos: Long) {
-        player?.seekTo(pos)
+        player?.seekToLong(pos)
     }
 
     override fun isPlaying(): Boolean = player?.isPlaying ?: false
 
     override fun release() {
         player?.release()
+        player = null
     }
 
     override fun stop() {
         player?.stop()
     }
 
-    override fun onSettingChange(setting: MediaSetting) {
+    override fun onSettingChange(setting: IMediaSetting) {
+        player?.onSettingChange(setting)
     }
 
     override fun getBufferPercentage(): Int {

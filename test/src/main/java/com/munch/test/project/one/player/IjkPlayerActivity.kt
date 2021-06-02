@@ -9,7 +9,6 @@ import com.munch.pre.lib.helper.file.StorageHelper
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityIjkPlayerBinding
-import com.munch.test.project.one.player.media.MediaSetting
 import com.munch.test.project.one.requestPermission
 
 
@@ -31,22 +30,18 @@ class IjkPlayerActivity : BaseTopActivity() {
             }
         }) {
             it ?: return@registerForActivityResult
-            bind.playerVideoView.setData(it)
+            /*bind.playerVideoView.setData(it)*/
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind.lifecycleOwner = this
-        bind.playerVideoView.attachControllerView(
-            DefMediaControllerView(),
-            MediaSetting(autoPlay = true)
-        )
+        bind.playerVideoView.attachControllerView(DefMediaControllerView())
         bind.playerChoseFile.setOnClickListener {
             requestPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) {
                 requestFile.launch("video/*")
             }
         }
     }
-
 
 }

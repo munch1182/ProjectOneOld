@@ -8,7 +8,7 @@ interface IMediaControllerView : IMediaController {
     /**
      * 关联操作视图与实现
      */
-    fun attachView(videoView: IMediaController, setting: MediaSetting)
+    fun attachPlayer(player: IMediaController, setting: IMediaSetting)
 
     /**
      * 将视图层的操作回调给操作层

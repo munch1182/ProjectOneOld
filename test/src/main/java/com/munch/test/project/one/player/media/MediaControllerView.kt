@@ -6,10 +6,10 @@ package com.munch.test.project.one.player.media
  */
 abstract class MediaControllerView : IMediaControllerView {
 
-    private var videoView: IMediaController? = null
+    private var player: IMediaController? = null
     private var listener: IMediaController? = null
-    override fun attachView(videoView: IMediaController, setting: MediaSetting) {
-        this.videoView = videoView
+    override fun attachPlayer(player: IMediaController, setting: IMediaSetting) {
+        this.player = player
     }
 
     override fun setControlListener(listener: IMediaController) {
@@ -24,7 +24,7 @@ abstract class MediaControllerView : IMediaControllerView {
     abstract fun onStart(timeout: Long)
 
     override fun release() {
-        videoView = null
+        player = null
         listener = null
     }
 
@@ -42,23 +42,23 @@ abstract class MediaControllerView : IMediaControllerView {
 
     abstract fun onStop()
 
-    override fun getDuration(): Int = videoView?.duration ?: 0
+    override fun getDuration(): Int = player?.duration ?: 0
 
-    override fun getCurrentPosition() = videoView?.currentPosition ?: 0
+    override fun getCurrentPosition() = player?.currentPosition ?: 0
 
     override fun seekTo(pos: Int) {
         listener?.seekTo(pos)
     }
 
-    override fun isPlaying() = videoView?.isPlaying ?: false
+    override fun isPlaying() = player?.isPlaying ?: false
 
-    override fun getBufferPercentage() = videoView?.bufferPercentage ?: 0
+    override fun getBufferPercentage() = player?.bufferPercentage ?: 0
 
-    override fun canPause(): Boolean = videoView?.canPause() ?: false
+    override fun canPause(): Boolean = player?.canPause() ?: false
 
-    override fun canSeekBackward(): Boolean = videoView?.canSeekBackward() ?: false
+    override fun canSeekBackward(): Boolean = player?.canSeekBackward() ?: false
 
-    override fun canSeekForward(): Boolean = videoView?.canSeekForward() ?: false
+    override fun canSeekForward(): Boolean = player?.canSeekForward() ?: false
 
-    override fun getAudioSessionId(): Int = videoView?.audioSessionId ?: -1
+    override fun getAudioSessionId(): Int = player?.audioSessionId ?: -1
 }

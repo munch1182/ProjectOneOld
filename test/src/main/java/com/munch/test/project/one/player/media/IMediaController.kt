@@ -23,7 +23,7 @@ interface IMediaController : MediaController.MediaPlayerControl {
     override fun isPlaying(): Boolean
     fun release()
     fun stop()
-    fun onSettingChange(setting: MediaSetting)
+    fun onSettingChange(setting: IMediaSetting)
 
     override fun getBufferPercentage(): Int
     override fun canPause(): Boolean = true

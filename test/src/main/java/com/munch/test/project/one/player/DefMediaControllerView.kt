@@ -1,10 +1,6 @@
 package com.munch.test.project.one.player
 
-import com.munch.test.project.one.player.media.IMediaController
-import com.munch.test.project.one.player.media.MediaControllerView
-import com.munch.test.project.one.player.media.MediaMate
-import com.munch.test.project.one.player.media.MediaSetting
-
+import com.munch.test.project.one.player.media.*
 
 /**
  * Create by munch1182 on 2021/5/11 14:41.
@@ -54,9 +50,10 @@ class DefMediaControllerView : MediaControllerView() {
         TODO("Not yet implemented")
     }
 
-    override fun onSettingChange(setting: MediaSetting) {
+    override fun onSettingChange(setting: IMediaSetting) {
         TODO("Not yet implemented")
     }
+
 /*
     private var controller: LayoutVideoControllerBinding? = null
     private var setting: MediaSetting? = null
