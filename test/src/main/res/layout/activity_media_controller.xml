@@ -102,5 +102,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/controller_op"
             tools:text="123123111111asdad" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/controller_apps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/controller_info"
+            tools:listitem="@layout/item_media_app" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

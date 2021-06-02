@@ -6,12 +6,18 @@ import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.os.Bundle
 import android.widget.Button
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.munch.lib.fast.base.BaseBindAdapter
+import com.munch.lib.fast.base.BaseBindViewHolder
 import com.munch.pre.lib.extend.clickItem
 import com.munch.pre.lib.extend.getAttrArrayFromTheme
 import com.munch.pre.lib.extend.getColorCompat
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.databinding.ActivityMediaControllerBinding
+import com.munch.test.project.one.databinding.ItemMediaAppBinding
+import kotlinx.coroutines.launch
 
 /**
  * Create by munch1182 on 2021/6/1 11:17.
@@ -29,6 +35,9 @@ class MediaControllerActivity : BaseTopActivity() {
     private val callback: MediaController.Callback by lazy {
         object : MediaController.Callback() {
 
+            /**
+             * 此方法无法正确回调
+             */
             override fun onMetadataChanged(metadata: MediaMetadata?) {
                 super.onMetadataChanged(metadata)
                 showInfo(metadata)
@@ -57,6 +66,28 @@ class MediaControllerActivity : BaseTopActivity() {
                     5 -> permission()
                 }
             }, Button::class.java)
+            controllerApps.layoutManager = LinearLayoutManager(this@MediaControllerActivity)
+            val rv = object : BaseBindAdapter<Apps, ItemMediaAppBinding>(R.layout.item_media_app) {
+                override fun onBindViewHolder(
+                    holder: BaseBindViewHolder<ItemMediaAppBinding>,
+                    bean: Apps,
+                    pos: Int
+                ) {
+                    holder.bind.app = bean
+                }
+
+            }
+            controllerApps.adapter = rv
+            lifecycleScope.launch {
+                val manager = packageManager
+                rv.set(MediaControllerHelper.queryApps().map {
+                    Apps(
+                        it.loadLabel(manager).toString(),
+                        it.loadIcon(manager),
+                        it.serviceInfo.packageName
+                    )
+                }.toMutableList())
+            }
         }
     }
 
@@ -67,8 +98,7 @@ class MediaControllerActivity : BaseTopActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        helper.onControllerChange()
-        helper.unregisterCallback(callback)
+        helper.destroy()
     }
 
     private fun permission() {
@@ -123,4 +153,6 @@ class MediaControllerActivity : BaseTopActivity() {
             }
         }
     }
+
+    data class Apps(val name: String, val icon: Any, val packName: String)
 }

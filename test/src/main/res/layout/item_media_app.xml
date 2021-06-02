@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="app"
+            type="com.munch.test.project.one.player.controller.MediaControllerActivity.Apps" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/controller_app_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="@dimen/padding_def"
+            android:contentDescription="icon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:load="@{app.icon}"
+            tools:ignore="HardcodedText"
+            tools:src="@mipmap/ic_launcher" />
+
+        <TextView
+            android:id="@+id/controller_app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_def"
+            android:paddingEnd="@dimen/padding_def"
+            android:text="@{app.name}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/controller_app_icon"
+            app:layout_constraintTop_toTopOf="@id/controller_app_icon"
+            tools:text="123" />
+
+        <TextView
+            android:id="@+id/controller_app_pack_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/padding_def"
+            android:paddingEnd="@dimen/padding_def"
+            android:text="@{app.packName}"
+            app:layout_constraintBottom_toBottomOf="@id/controller_app_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/controller_app_name"
+            app:layout_constraintTop_toBottomOf="@id/controller_app_name"
+            tools:text="123123" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -12,14 +12,20 @@ import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
 import android.os.Handler
 import android.service.notification.NotificationListenerService
+import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.munch.pre.lib.base.BaseApp
+import com.munch.pre.lib.base.Destroyable
+import com.munch.pre.lib.log.Logger
 
 /**
  * Create by munch1182 on 2021/6/1 14:32.
  */
-class MediaControllerHelper(private val context: Context = BaseApp.getInstance()) {
+class MediaControllerHelper(
+    private val context: Context = BaseApp.getInstance(),
+    private val handler: Handler? = BaseApp.getInstance().getThreadHandler()
+) : Destroyable {
 
     companion object {
 
@@ -46,31 +52,41 @@ class MediaControllerHelper(private val context: Context = BaseApp.getInstance()
         /**
          * 查询向系统注册过的音乐app
          */
-        fun queryApps(context: Context = BaseApp.getInstance()): MutableList<ResolveInfo> {
-            return context.packageManager.queryIntentServices(
+        fun queryApps(pm: PackageManager = BaseApp.getInstance().packageManager): MutableList<ResolveInfo> {
+            return pm.queryIntentServices(
                 Intent(MediaBrowserServiceCompat.SERVICE_INTERFACE),
                 PackageManager.GET_RESOLVED_FILTER
             )
         }
     }
 
-    private val manager by lazy {
-        (context.getSystemService(Context.MEDIA_SESSION_SERVICE) as? MediaSessionManager?)?.apply {
-            addOnActiveSessionsChangedListener(
-                {
-                    currentController = if (!it.isNullOrEmpty()) it[0] else null
-                    onChange?.invoke(this@MediaControllerHelper.currentController)
-                },
-                ComponentName(context, NotificationListener::class.java),
-                BaseApp.getInstance().getThreadHandler()
-            )
-        }
-    }
     private var currentController: MediaController? = null
     private var onChange: ((MediaController?) -> Unit)? = null
+    private val onActiveSessionsChangedListener by lazy {
+        MediaSessionManager.OnActiveSessionsChangedListener {
+            currentController = if (!it.isNullOrEmpty()) it[0] else null
+            onChange?.invoke(this@MediaControllerHelper.currentController)
+        }
+    }
+    private var manager: MediaSessionManager? = null
+    private var callbacks: MutableList<MediaController.Callback?> = mutableListOf()
 
+    /**
+     * 获取当前的控制器, 可以直接调用[MediaController]
+     *
+     * @see setCurrentController
+     */
     fun getMediaController(): MediaController? {
         if (currentController == null) {
+            if (manager == null) {
+                manager =
+                    (context.getSystemService(Context.MEDIA_SESSION_SERVICE) as? MediaSessionManager?)?.apply {
+                        addOnActiveSessionsChangedListener(
+                            onActiveSessionsChangedListener,
+                            ComponentName(context, NotificationListener::class.java), handler
+                        )
+                    }
+            }
             val controllers = query(context, manager)
             if (controllers.isNotEmpty()) {
                 currentController = controllers[0]
@@ -79,11 +95,10 @@ class MediaControllerHelper(private val context: Context = BaseApp.getInstance()
         return currentController
     }
 
-    /*test*/
-    /*fun setCurrentController(currentController: MediaController? = null): MediaControllerHelper {
+    fun setCurrentController(currentController: MediaController? = null): MediaControllerHelper {
         this.currentController = currentController
         return this
-    }*/
+    }
 
     fun onControllerChange(onChange: ((MediaController?) -> Unit)? = null): MediaControllerHelper {
         this.onChange = onChange
@@ -127,14 +142,16 @@ class MediaControllerHelper(private val context: Context = BaseApp.getInstance()
 
     fun registerCallback(
         callback: MediaController.Callback,
-        handler: Handler? = BaseApp.getInstance().getThreadHandler()
+        handler: Handler? = this.handler
     ): MediaControllerHelper {
         getMediaController()?.registerCallback(callback, handler)
+        callbacks.add(callback)
         return this
     }
 
     fun unregisterCallback(callback: MediaController.Callback) {
         getMediaController()?.unregisterCallback(callback)
+        callbacks.remove(callback)
     }
 
     /**
@@ -149,5 +166,37 @@ class MediaControllerHelper(private val context: Context = BaseApp.getInstance()
                     .getEnabledListenerPackages(context)
                     .contains(context.packageName)
         }
+
+        private val log = Logger().apply {
+            tag = "notification"
+            noStack = true
+        }
+
+        override fun onNotificationPosted(sbn: StatusBarNotification?) {
+            super.onNotificationPosted(sbn)
+            log.log("onNotificationPosted: ${sbn?.packageName}, ${sbn?.notification}")
+        }
+
+        override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+            super.onNotificationRemoved(sbn)
+            log.log("onNotificationRemoved: ${sbn?.packageName}")
+        }
+
+    }
+
+    override fun destroy() {
+        if (callbacks.isNotEmpty()) {
+            callbacks.forEach {
+                if (it != null) {
+                    getMediaController()?.unregisterCallback(it)
+                }
+            }
+            callbacks.clear()
+        }
+        onControllerChange()
+        if (manager != null) {
+            manager?.removeOnActiveSessionsChangedListener(onActiveSessionsChangedListener)
+        }
+        currentController = null
     }
 }
