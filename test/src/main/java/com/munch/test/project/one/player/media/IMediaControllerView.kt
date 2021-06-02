@@ -1,5 +1,7 @@
 package com.munch.test.project.one.player.media
 
+import java.lang.UnsupportedOperationException
+
 /**
  * Create by munch1182 on 2021/5/11 14:14.
  */
@@ -24,4 +26,12 @@ interface IMediaControllerView : IMediaController {
     fun onComplete()
 
     fun onVideoViewSizeChanged(videoView: IMediaController, w: Int, h: Int)
+
+    override fun getCurrentPositionLong(): Long {
+        throw UnsupportedOperationException()
+    }
+
+    override fun getDurationLong(): Long {
+        throw UnsupportedOperationException()
+    }
 }

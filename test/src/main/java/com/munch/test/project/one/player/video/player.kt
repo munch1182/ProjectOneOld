@@ -1,9 +1,11 @@
-package com.munch.test.project.one.player.media
+package com.munch.test.project.one.player.video
 
 import android.content.Context
 import android.net.Uri
 import android.view.Surface
 import android.view.SurfaceHolder
+import com.munch.test.project.one.player.media.IMediaController
+import com.munch.test.project.one.player.media.IMediaSetting
 import tv.danmaku.ijk.media.player.*
 import tv.danmaku.ijk.media.player.misc.IMediaDataSource
 import java.io.FileDescriptor
@@ -11,7 +13,27 @@ import java.io.FileDescriptor
 /**
  * Create by munch1182 on 2021/6/2 11:26.
  */
-abstract class AbstractPlayer(protected var setting: VideoView.VideoSetting) : IMediaController {
+interface IPlayer : IMediaController {
+    fun setDataSource(source: IMediaDataSource)
+
+    fun setDataSource(context: Context, uri: Uri)
+
+    fun setDataSource(context: Context?, uri: Uri?, map: Map<String?, String?>?)
+
+    fun setDataSource(descriptor: FileDescriptor?)
+
+    fun setDataSource(path: String?)
+
+    fun setSurface(surface: Surface)
+
+    fun setHolder(holder: SurfaceHolder?)
+
+    fun getVideoWidth(): Int
+
+    fun getVideoHeight(): Int
+}
+
+abstract class AbstractPlayer(protected var setting: VideoView.VideoSetting) : IPlayer {
 
     protected abstract val player: AbstractMediaPlayer
 
@@ -19,7 +41,7 @@ abstract class AbstractPlayer(protected var setting: VideoView.VideoSetting) : I
         player.start()
     }
 
-    override fun pause() {/**/
+    override fun pause() {
         player.pause()
     }
 
@@ -43,31 +65,31 @@ abstract class AbstractPlayer(protected var setting: VideoView.VideoSetting) : I
 
     override fun getBufferPercentage(): Int = 0
 
-    open fun setDataSource(source: IMediaDataSource) {
+    override fun setDataSource(source: IMediaDataSource) {
         player.setDataSource(source)
     }
 
-    open fun setDataSource(context: Context, uri: Uri) {
+    override fun setDataSource(context: Context, uri: Uri) {
         player.setDataSource(context, uri)
     }
 
-    open fun setDataSource(context: Context?, uri: Uri?, map: Map<String?, String?>?) {
+    override fun setDataSource(context: Context?, uri: Uri?, map: Map<String?, String?>?) {
         player.setDataSource(context, uri, map)
     }
 
-    open fun setDataSource(descriptor: FileDescriptor?) {
+    override fun setDataSource(descriptor: FileDescriptor?) {
         player.setDataSource(descriptor)
     }
 
-    open fun setDataSource(path: String?) {
+    override fun setDataSource(path: String?) {
         player.dataSource = path
     }
 
-    open fun setSurface(surface: Surface) {
+    override fun setSurface(surface: Surface) {
         player.setSurface(surface)
     }
 
-    open fun setHolder(holder: SurfaceHolder) {
+    override fun setHolder(holder: SurfaceHolder?) {
         player.setDisplay(holder)
     }
 
@@ -83,18 +105,24 @@ abstract class AbstractPlayer(protected var setting: VideoView.VideoSetting) : I
         }
         return this
     }
+
+    override fun getVideoHeight(): Int = player.videoHeight
+
+    override fun getVideoWidth(): Int = player.videoWidth
 }
 
 class IJKPlayer(setting: VideoView.VideoSetting) : AbstractPlayer(setting) {
     private val ijkPlayer = IjkMediaPlayer().apply {
         IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG)
-        setIjkBySetting(setting)
+        setIjkBySetting(this, setting)
+        setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", 1)
+        setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0)
         setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0)
         setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48)
     }
 
-    private fun setIjkBySetting(setting: VideoView.VideoSetting) {
-        ijkPlayer.apply {
+    private fun setIjkBySetting(player: IjkMediaPlayer, setting: VideoView.VideoSetting) {
+        player.apply {
             //硬解码
             val option = IjkMediaPlayer.OPT_CATEGORY_PLAYER
             if (setting.decodeType == VideoView.DecodeType.DECODE_HARD) {
@@ -112,8 +140,6 @@ class IJKPlayer(setting: VideoView.VideoSetting) : AbstractPlayer(setting) {
                 setOption(option, "mediacodec", 0)
             }
             setOption(option, "opensles", if (setting.useSLES) 1 else 0)
-            setOption(option, "framedrop", 1)
-            setOption(option, "start-on-prepared", 0)
         }
     }
 
@@ -121,7 +147,7 @@ class IJKPlayer(setting: VideoView.VideoSetting) : AbstractPlayer(setting) {
 
     override fun onSettingChange(setting: IMediaSetting) {
         if (setting is VideoView.VideoSetting) {
-            setIjkBySetting(setting)
+            setIjkBySetting(ijkPlayer, setting)
         }
     }
 }

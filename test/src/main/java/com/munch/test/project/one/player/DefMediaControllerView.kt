@@ -1,83 +1,46 @@
 package com.munch.test.project.one.player
 
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.SeekBar
+import androidx.core.view.contains
+import androidx.core.view.isVisible
+import androidx.databinding.DataBindingUtil
+import com.munch.test.project.one.R
+import com.munch.test.project.one.databinding.LayoutVideoControllerBinding
 import com.munch.test.project.one.player.media.*
+import com.munch.test.project.one.player.video.VideoView
+import java.lang.UnsupportedOperationException
 
 /**
  * Create by munch1182 on 2021/5/11 14:41.
  */
 class DefMediaControllerView : MediaControllerView() {
-    override fun onStart(timeout: Long) {
-        TODO("Not yet implemented")
-    }
 
-    override fun onPause() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onStop() {
-        TODO("Not yet implemented")
-    }
-
-    override fun startPrepare() {
-        TODO("Not yet implemented")
-    }
-
-    override fun showInfo(info: MediaMate) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onPrepared() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onComplete() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onVideoViewSizeChanged(videoView: IMediaController, w: Int, h: Int) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getDurationLong(): Long {
-        TODO("Not yet implemented")
-    }
-
-    override fun getCurrentPositionLong(): Long {
-        TODO("Not yet implemented")
-    }
-
-    override fun seekToLong(pos: Long) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onSettingChange(setting: IMediaSetting) {
-        TODO("Not yet implemented")
-    }
-
-/*
     private var controller: LayoutVideoControllerBinding? = null
-    private var setting: MediaSetting? = null
+    private var setting: IMediaSetting? = null
     private var videoView: VideoView? = null
-    private var allStr = ""
 
-    companion object {
-        private const val EIGHT_HOUR: Long = 8 * 60 * 60 * 1000
-    }
-
-    override fun attachView(videoView: IMediaController, setting: MediaSetting) {
+    override fun attachPlayer(player: IMediaController, setting: IMediaSetting) {
+        super.attachPlayer(player, setting)
+        if (player !is VideoView) {
+            throw  UnsupportedOperationException()
+        }
+        videoView = player
+        this.setting = setting
         if (controller == null) {
             controller = DataBindingUtil.inflate(
-                LayoutInflater.from(videoView.context),
+                LayoutInflater.from(player.context),
                 R.layout.layout_video_controller,
                 null,
                 false
             )
         }
-        allStr = ""
         controller?.apply {
             root.visibility = View.GONE
-            if (!videoView.contains(root)) {
-                videoView.addView(root, ViewGroup.LayoutParams(videoView.width, videoView.height))
+            if (!player.contains(root)) {
+                player.addView(root, ViewGroup.LayoutParams(player.width, player.height))
             }
             controllerPlay.setOnClickListener { toggle() }
             controllerProgressSb.setOnSeekBarChangeListener(object :
@@ -88,7 +51,6 @@ class DefMediaControllerView : MediaControllerView() {
                     fromUser: Boolean
                 ) {
                     seekBar ?: return
-                    showProgressBySb(seekBar.progress)
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -101,29 +63,18 @@ class DefMediaControllerView : MediaControllerView() {
                     start()
                 }
             })
-            root.setOnClickListener { showController() }
+            /*root.setOnClickListener { showController() }*/
         }
-        videoView.setOnClickListener {
+        player.setOnClickListener {
             if (controller?.root?.isVisible == true) {
-                hideController()
+                /*hideController()*/
             } else {
                 controller?.root?.visibility = View.VISIBLE
             }
         }
-        this.setting = setting
-        this.videoView = videoView
-    }
-
-    override fun onVideoViewSizeChanged(videoView: IMediaController, w: Int, h: Int) {
-        controller?.root?.setParams {
-            width = w
-            height = h
-        }
     }
 
     override fun onStart(timeout: Long) {
-        log("view onStart")
-        requestProgress()
     }
 
     override fun onPause() {
@@ -133,94 +84,22 @@ class DefMediaControllerView : MediaControllerView() {
     }
 
     override fun startPrepare() {
-        controller?.apply {
-            root.visibility = View.VISIBLE
-            root.postDelayed({ hideController() }, 1000L)
-            controllerProgressTv.text = formatProgress()
-        }
     }
 
-    private fun requestProgress() {
-        if (!isPlaying) {
-            return
-        }
-        controller?.apply {
-            showProgress()
-            root.postDelayed({ requestProgress() }, 1000L)
-        }
+    override fun showInfo(info: MediaMate) {
     }
 
     override fun onPrepared() {
-        showController()
-        showProgress()
-        controller?.apply { controllerProgressSb.max = duration }
     }
 
     override fun onComplete() {
-        controller?.apply {
-            controllerProgressSb.progress = duration
-            controllerProgressTv.text = formatProgress(getAllStr(), getAllStr())
-            root.visibility = View.VISIBLE
-        }
     }
 
-    private fun formatProgress(progress: String = "00:00", allStr: String = "00:00") =
-        "$progress/$allStr"
-
-    private fun showController() {
-        controller?.apply {
-            if (controllerTop.isShown) {
-                return
-            }
-            controllerTop.visibility = View.VISIBLE
-            root.visibility = View.VISIBLE
-            root.postDelayed({ hideController() }, 1000L)
-        }
+    override fun onVideoViewSizeChanged(videoView: IMediaController, w: Int, h: Int) {
     }
 
-    private fun hideController() {
-        controller?.apply {
-            if (setting?.keepProgress == true) {
-                controllerTop.visibility = View.GONE
-            } else {
-                root.visibility = View.GONE
-            }
-        }
-    }
-
-    private fun showProgress(offset: Int = 0) {
-        controller?.apply {
-            controllerProgressTv.text = formatProgress(getCurrentStr(offset), getAllStr())
-            controllerProgressSb.progress = currentPosition
-        }
-    }
-
-    private fun showProgressBySb(current: Int) {
-        controller?.apply {
-            controllerProgressTv.text = formatProgress(getCurrentStr(current), getAllStr())
-        }
-    }
-
-    private fun getAllStr(): String {
-        //只适配了东八区时间
-        val str = String.format("%tT", duration.toLong() - EIGHT_HOUR)
-        if (str.startsWith("00:")) {
-            return str.substring(3)
-        }
-        return str
-    }
-
-    private fun getCurrentStr(current: Int = currentPosition): String {
-        //只适配了东八区时间
-        val str = String.format("%tT", (current).toLong() - EIGHT_HOUR)
-        if (str.startsWith("00:")) {
-            return str.substring(3)
-        }
-        return str
-
-    }
-
-    override fun onSettingChange(setting: MediaSetting) {
+    override fun onSettingChange(setting: IMediaSetting) {
         this.setting = setting
-    }*/
+    }
+
 }

@@ -24,7 +24,7 @@ abstract class PlayerView @JvmOverloads constructor(
     protected var view: IMediaControllerView? = null
     protected abstract var setting: IMediaSetting
 
-    fun attachControllerView(view: IMediaControllerView) {
+    open fun attachControllerView(view: IMediaControllerView) {
         this.view = view
         this.view?.attachPlayer(this, setting)
         this.view?.setControlListener(this)

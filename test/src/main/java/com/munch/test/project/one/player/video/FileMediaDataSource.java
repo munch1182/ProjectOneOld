@@ -1,4 +1,4 @@
-package com.munch.test.project.one.player.media;
+package com.munch.test.project.one.player.video;
 
 import java.io.File;
 import java.io.IOException;

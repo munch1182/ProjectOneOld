@@ -50,6 +50,10 @@ abstract class MediaControllerView : IMediaControllerView {
         listener?.seekTo(pos)
     }
 
+    override fun seekToLong(pos: Long) {
+        listener?.seekToLong(pos)
+    }
+
     override fun isPlaying() = player?.isPlaying ?: false
 
     override fun getBufferPercentage() = player?.bufferPercentage ?: 0

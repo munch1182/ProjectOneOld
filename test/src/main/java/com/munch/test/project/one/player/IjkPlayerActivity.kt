@@ -30,12 +30,14 @@ class IjkPlayerActivity : BaseTopActivity() {
             }
         }) {
             it ?: return@registerForActivityResult
-            /*bind.playerVideoView.setData(it)*/
+            bind.playerVideoView.setDataSource(it)
+            bind.playerVideoView.start()
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind.lifecycleOwner = this
+        bind.playerVideoView.initView()
         bind.playerVideoView.attachControllerView(DefMediaControllerView())
         bind.playerChoseFile.setOnClickListener {
             requestPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) {

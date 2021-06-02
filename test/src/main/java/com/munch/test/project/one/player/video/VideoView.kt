@@ -1,12 +1,21 @@
-package com.munch.test.project.one.player.media
+package com.munch.test.project.one.player.video
 
 import android.content.Context
+import android.graphics.Color
+import android.net.Uri
 import android.util.AttributeSet
+import android.view.Gravity
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.annotation.IntDef
+import androidx.core.view.contains
 import com.munch.pre.lib.log.Logger
+import com.munch.test.project.one.player.media.*
 import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import tv.danmaku.ijk.media.player.IjkTimedText
+import tv.danmaku.ijk.media.player.misc.IMediaDataSource
+import java.io.FileDescriptor
 
 /**
  * Create by munch1182 on 2021/5/31 11:58.
@@ -17,7 +26,19 @@ class VideoView @JvmOverloads constructor(
     defAttr: Int = 0
 ) : PlayerView(context, attrs, defAttr) {
 
+    companion object {
+        val ALL_ASPECT_RATIO = intArrayOf(
+            IRenderView.AR_ASPECT_FIT_PARENT,
+            IRenderView.AR_ASPECT_FILL_PARENT,
+            IRenderView.AR_ASPECT_WRAP_CONTENT,
+            /*IRenderView.AR_MATCH_PARENT,*/
+            IRenderView.AR_16_9_FIT_PARENT,
+            IRenderView.AR_4_3_FIT_PARENT
+        )
+    }
+
     override var player: IMediaController? = null
+    private var renderView: IRenderView? = null
     override var setting: IMediaSetting = VideoSetting()
         set(value) {
             if (field != value) {
@@ -30,12 +51,54 @@ class VideoView @JvmOverloads constructor(
         noStack = true
     }
     private var state = MediaState.STATE_IDEL
+    private var currentAspectRatio = ALL_ASPECT_RATIO[0]
+    private val playerImp: IPlayer?
+        get() = player as IPlayer?
 
-    private fun initPlayer(setting: IMediaSetting) {
+    init {
+        setBackgroundColor(Color.BLACK)
+    }
+
+    fun initView(setting: IMediaSetting = VideoSetting()) {
         if (setting !is VideoSetting) {
             throw UnsupportedOperationException("must be VideoSetting")
         }
-        //不能通过更改设置直接更改播放器类型
+        initPlayer(setting)
+        initView()
+        setViewByPlayer()
+        addView()
+    }
+
+    private fun addView() {
+        if (renderView != null && contains(renderView!!.getView())) {
+            return
+        }
+        addView(
+            renderView!!.getView().apply {
+                layoutParams = LayoutParams(
+                    LayoutParams.MATCH_PARENT,
+                    LayoutParams.WRAP_CONTENT,
+                    Gravity.CENTER
+                )
+            }
+        )
+    }
+
+    private fun setViewByPlayer() {
+        if (playerImp != null && renderView != null) {
+            playerImp!!.setHolder(renderView!!.getHolder())
+            renderView!!.bindPlayer(playerImp!!)
+            renderView!!.setAspectRatio(currentAspectRatio)
+        }
+    }
+
+    private fun initView() {
+        if (renderView == null) {
+            renderView = TextureRenderView(context)
+        }
+    }
+
+    private fun initPlayer(setting: VideoSetting) {
         if (player == null) {
             player = when (setting.playerType) {
                 PlayerType.PLAYER_IJK -> IJKPlayer(setting)
@@ -120,6 +183,26 @@ class VideoView @JvmOverloads constructor(
         override fun onTimedText(player: IMediaPlayer?, text: IjkTimedText?) {
             log.log("ijk onTimedText: $text")
         }
+    }
+
+    fun setDataSource(source: IMediaDataSource) {
+        playerImp?.setDataSource(source)
+    }
+
+    fun setDataSource(uri: Uri) {
+        playerImp?.setDataSource(context, uri)
+    }
+
+    fun setDataSource(uri: Uri?, map: Map<String?, String?>?) {
+        playerImp?.setDataSource(context, uri, map)
+    }
+
+    fun setDataSource(descriptor: FileDescriptor?) {
+        playerImp?.setDataSource(descriptor)
+    }
+
+    fun setDataSource(path: String?) {
+        playerImp?.setDataSource(path)
     }
 
     data class VideoSetting(
