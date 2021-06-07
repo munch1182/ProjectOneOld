@@ -4,15 +4,13 @@ import android.bluetooth.*
 import android.os.Build
 import android.os.Handler
 import androidx.annotation.RequiresApi
-import com.munch.pre.lib.base.Cancelable
-import com.munch.pre.lib.base.Destroyable
 import com.munch.pre.lib.helper.format
 import java.util.*
 
 /**
  * Create by munch1182 on 2021/4/26 14:50.
  */
-class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
+class BleConnector constructor(val device: BtDevice) : Manageable {
 
     @ConnectState
     private var state: Int = ConnectState.STATE_DISCONNECTED
@@ -138,8 +136,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
 
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
             super.onMtuChanged(gatt, mtu, status)
-            val request = helper.config.mtu
-            logSystem.withEnable { "onMtuChanged: request: $request, mtu: $mtu, states:$status" }
+            logSystem.withEnable { "onMtuChanged: request: ${helper.config.mtu}, mtu: $mtu, states:$status" }
             if (helper.config.onMtuChanged(gatt, mtu, status)) {
                 this@BleConnector.gatt = gatt
                 helper.config.mtu = mtu
@@ -194,7 +191,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
      */
     fun connectCompat(connectListener: BtConnectListener? = null) {
         connectListener?.let {
-            helper.tempConnectListener.add(it)
+            helper.tempConnectListeners.add(it)
             helper.connectListeners.add(it)
         }
         connectCallback.onStart(device)
@@ -213,7 +210,7 @@ class BleConnector constructor(val device: BtDevice) : Cancelable, Destroyable {
         connectListener: BtConnectListener? = null
     ) {
         connectListener?.let {
-            helper.tempConnectListener.add(it)
+            helper.tempConnectListeners.add(it)
             helper.connectListeners.add(it)
         }
         connectCallback.onStart(device)

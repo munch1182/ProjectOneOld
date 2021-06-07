@@ -53,17 +53,15 @@ class BluetoothHelper private constructor() : Cancelable, Destroyable {
     internal lateinit var context: Context
     internal lateinit var device: BtInstance
     internal val btAdapter: BluetoothAdapter? by lazy { device.btAdapter }
-    private val cancelable = mutableListOf<Cancelable>()
-    private val destroyable = mutableListOf<Destroyable>()
     private lateinit var handlerThread: HandlerThread
     internal lateinit var handler: Handler
+
+    private val manager = LifeManager()
 
     private var bleConnector = ArrayMap<String, BleConnector>()
     private val bleScanner = BleScanner()
     private var currentConnector: BleConnector? = null
 
-    val scanListeners = object : ARSHelper<BtScanListener>() {}
-    private val tempScanListeners = mutableListOf<BtScanListener>()
     private val scanCallback = object : BtScanListener {
         override fun onStart() {
             logHelper.withEnable {
@@ -89,7 +87,11 @@ class BluetoothHelper private constructor() : Cancelable, Destroyable {
         }
 
         private fun onFinish() {
-            handler.post { tempScanListeners.forEach { scanListeners.remove(it) } }
+            handler.post {
+                tempScanListeners.forEach { scanListeners.remove(it) }
+                tempScanListeners.clear()
+                logHelper.withEnable { "scan finish: tempScanListeners: ${tempScanListeners.size}" }
+            }
         }
 
         override fun onFail(errorCode: Int) {
@@ -106,9 +108,8 @@ class BluetoothHelper private constructor() : Cancelable, Destroyable {
             }
         }
     }
-    val connectStateListeners = object : ARSHelper<BtConnectStateListener>() {}
-    val connectListeners = object : ARSHelper<BtConnectListener>() {}
-    internal val tempConnectListener = mutableListOf<BtConnectListener>()
+    private val tempScanListeners = mutableListOf<BtScanListener>()
+    internal val tempConnectListeners = mutableListOf<BtConnectListener>()
     internal lateinit var config: BtConfig
     private val connectCallback = object : BtConnectListener {
         override fun onStart(device: BtDevice) {
@@ -119,19 +120,29 @@ class BluetoothHelper private constructor() : Cancelable, Destroyable {
 
         override fun onConnectFail(device: BtDevice, reason: Int) {
             notify(connectListeners) { it.onConnectFail(device, reason) }
-            clear()
+            clearTempConnect()
         }
 
         override fun onConnectSuccess(device: BtDevice, gatt: BluetoothGatt) {
             notify(connectListeners) { it.onConnectSuccess(device, gatt) }
-            clear()
+            clearTempConnect()
         }
 
-        private fun clear() {
-            tempConnectListener.forEach { connectListeners.remove(it) }
+        private fun clearTempConnect() {
+            handler.post {
+                tempConnectListeners.forEach {
+                    connectListeners.remove(it)
+                }
+                tempConnectListeners.clear()
+                logHelper.withEnable { "connect finish: tempConnectListeners: ${tempConnectListeners.size}" }
+            }
         }
     }
+
     val receivedListeners = object : ARSHelper<OnReceivedListener>() {}
+    val scanListeners = object : ARSHelper<BtScanListener>() {}
+    val connectStateListeners = object : ARSHelper<BtConnectStateListener>() {}
+    val connectListeners = object : ARSHelper<BtConnectListener>() {}
 
     @SuppressLint("MissingPermission")
     private val delayStopScan = { stopScan() }
@@ -144,10 +155,7 @@ class BluetoothHelper private constructor() : Cancelable, Destroyable {
         this.context = context.applicationContext
         initWorkThread()
         device = BtInstance(context)
-        cancelable.add(device)
-        cancelable.add(bleScanner)
-        destroyable.add(device)
-        destroyable.add(bleScanner)
+        manager.manage(device, bleScanner)
         setConfig(config ?: BtConfig())
         watchState()
     }
@@ -200,6 +208,9 @@ class BluetoothHelper private constructor() : Cancelable, Destroyable {
     fun isBtSupport() = device.isBtSupport()
     fun isBleSupport() = device.isBleSupport()
 
+    @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
+    fun getBondedDevices() = device.getBondedDevices()
+
     /**
      * @param scanListener 该listener会在[BtScanListener.onEnd]回调后自动被移除，否则应该使用[scanListeners]注册监听
      *
@@ -235,6 +246,10 @@ class BluetoothHelper private constructor() : Cancelable, Destroyable {
         handler.removeCallbacks(delayStopScan)
     }
 
+    /**
+     * 更新当前连接器
+     * 并未对上一个连接进行保护性操作，需要自行处理
+     */
     private fun setCurrent(connector: BleConnector) {
         currentConnector = connector
     }
@@ -251,17 +266,17 @@ class BluetoothHelper private constructor() : Cancelable, Destroyable {
             connectListener = connectCallback
         }
         bleConnector[btDevice.mac] = connector
-        cancelable.add(connector)
-        destroyable.add(connector)
+        manager.manage(connector)
         return connector
     }
 
     override fun cancel() {
-        cancelable.forEach { it.cancel() }
+        manager.cancel()
         handler.removeCallbacks(delayStopScan)
     }
 
     override fun destroy() {
-        destroyable.forEach { it.destroy() }
+        manager.destroy()
     }
+
 }

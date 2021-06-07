@@ -5,12 +5,13 @@ import android.graphics.Color
 import android.net.Uri
 import android.util.AttributeSet
 import android.view.Gravity
-import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.annotation.IntDef
 import androidx.core.view.contains
 import com.munch.pre.lib.log.Logger
-import com.munch.test.project.one.player.media.*
+import com.munch.test.project.one.player.media.IMediaController
+import com.munch.test.project.one.player.media.IMediaSetting
+import com.munch.test.project.one.player.media.MediaState
+import com.munch.test.project.one.player.media.PlayerView
 import tv.danmaku.ijk.media.player.IMediaPlayer
 import tv.danmaku.ijk.media.player.IjkMediaPlayer
 import tv.danmaku.ijk.media.player.IjkTimedText

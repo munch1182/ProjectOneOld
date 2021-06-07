@@ -7,13 +7,11 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.os.Build
 import androidx.annotation.RequiresPermission
-import com.munch.pre.lib.base.Cancelable
-import com.munch.pre.lib.base.Destroyable
 
 /**
  * Create by munch1182 on 2021/4/26 14:59.
  */
-class BleScanner : Cancelable, Destroyable {
+class BleScanner : Manageable {
 
     companion object {
         fun defScanSettingBuilder(): ScanSettings.Builder {

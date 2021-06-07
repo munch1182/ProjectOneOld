@@ -15,7 +15,7 @@ open class BtConfig {
     }
 
     /**
-     * 注意：如果此值过大，甚至不会回调onMtuChanged
+     * 注意：如果此值对设备来说不合适，会导致设置失败
      */
     open var mtu: Int = -1
 

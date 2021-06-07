@@ -9,9 +9,11 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import com.munch.test.project.one.R
 import com.munch.test.project.one.databinding.LayoutVideoControllerBinding
-import com.munch.test.project.one.player.media.*
+import com.munch.test.project.one.player.media.IMediaController
+import com.munch.test.project.one.player.media.IMediaSetting
+import com.munch.test.project.one.player.media.MediaControllerView
+import com.munch.test.project.one.player.media.MediaMate
 import com.munch.test.project.one.player.video.VideoView
-import java.lang.UnsupportedOperationException
 
 /**
  * Create by munch1182 on 2021/5/11 14:41.

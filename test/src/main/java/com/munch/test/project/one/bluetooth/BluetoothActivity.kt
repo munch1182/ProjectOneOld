@@ -53,22 +53,23 @@ class BluetoothActivity : BaseTopActivity() {
         bind.apply {
             lifecycleOwner = this@BluetoothActivity
             vm = model
+            if (!BluetoothHelper.INSTANCE.isBtSupport()) {
+                btScan.text = "此手机不支持蓝牙"
+                btScan.isEnabled = false
+                return
+            }
+            if (bind.btTypeBle.isChecked && !BluetoothHelper.INSTANCE.isBleSupport()) {
+                bind.btTypeBle.isEnabled = false
+                return
+            }
             btTimeoutAdd.setOnClickListener { btTimeoutCv.countAdd() }
             btTimeoutReduce.setOnClickListener { btTimeoutCv.countSub() }
             btScan.setOnClickListener {
-                if (!BluetoothHelper.INSTANCE.isBtSupport()) {
-                    toast("此手机不支持蓝牙")
-                    return@setOnClickListener
-                }
-                if (bind.btTypeBle.isChecked && !BluetoothHelper.INSTANCE.isBleSupport()) {
-                    toast("此手机不支持ble")
-                    return@setOnClickListener
-                }
                 val mac = bind.btFilterMacEt.text.toString()
                 if (bind.btTypeBle.isChecked && mac.isNotEmpty()
                     && !BluetoothHelper.checkMac(mac)
                 ) {
-                    toast("请输入正确的mac地址")
+                    toast("请输入正确的mac地址:$mac")
                     return@setOnClickListener
                 }
                 btFilterMacEt.clearFocus()

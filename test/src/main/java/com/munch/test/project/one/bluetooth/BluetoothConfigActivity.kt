@@ -1,21 +1,30 @@
 package com.munch.test.project.one.bluetooth
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
 import android.widget.EditText
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
 import com.munch.pre.lib.helper.AppHelper
+import com.munch.pre.lib.helper.file.FileHelper
+import com.munch.pre.lib.helper.file.StorageHelper
 import com.munch.test.project.one.R
 import com.munch.test.project.one.base.BaseTopActivity
 import com.munch.test.project.one.base.DataHelper
 import com.munch.test.project.one.databinding.ActivityBluetoothConfigBinding
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import java.io.File
+import java.io.FileReader
 
 /**
  * Create by munch1182 on 2021/4/8 17:57.
@@ -23,6 +32,30 @@ import kotlinx.parcelize.Parcelize
 class BluetoothConfigActivity : BaseTopActivity() {
 
     private val bind by bind<ActivityBluetoothConfigBinding>(R.layout.activity_bluetooth_config)
+    private val choseFile =
+        registerForActivityResult(object : ActivityResultContract<String, Uri?>() {
+            override fun createIntent(context: Context, input: String): Intent {
+                return StorageHelper.fileIntent(input)
+            }
+
+            override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
+                return intent?.data
+            }
+        }) {
+            val path = FileHelper.getPathFromUri(uri = it ?: return@registerForActivityResult)
+                ?: return@registerForActivityResult
+            try {
+                Gson().fromJson(FileReader(File(path)), BtUUIDConfig::class.java).apply {
+                    bind.testBtServiceMainEt.setText(this.UUID_MAIN_SERVER)
+                    bind.testBtServiceNotifyEt.setText(this.UUID_NOTIFY)
+                    bind.testBtServiceWriteEt.setText(this.UUID_WRITE)
+                    bind.testBtServiceNotifyDescEt.setText(this.UUID_DESCRIPTOR_NOTIFY)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                toast("解析JSON错误")
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +68,9 @@ class BluetoothConfigActivity : BaseTopActivity() {
                 putConfig(bind.config)
                 toast("保存成功")
                 AppHelper.hideIm(this@BluetoothConfigActivity)
+            }
+            testBtJson.setOnClickListener {
+                choseFile.launch("*/*")
             }
         }
     }
