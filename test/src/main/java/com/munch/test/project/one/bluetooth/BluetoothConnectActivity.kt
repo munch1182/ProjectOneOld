@@ -133,7 +133,7 @@ class BluetoothConnectActivity : BaseTopActivity() {
                             ConnectFailReason.FAIL_FIND_SERVICE -> "发现服务失败"
                             ConnectFailReason.FAIL_REQUEST_MTU -> "设置MTU失败"
                             ConnectFailReason.FAIL_WRITE_DESCRIPTOR, ConnectFailReason.FAIL_READ_DESCRIPTOR -> "设置服务失败"
-                            else -> "$reason"
+                            else -> "系统连接失败"
                         }
                         runOnUiThread { bind.btDeviceState.text = "连接失败: $reasonStr" }
                     }
@@ -194,7 +194,7 @@ class BluetoothConnectActivity : BaseTopActivity() {
         return try {
             str.split(",")
                 .map {
-                    it.trim().toLowerCase(Locale.getDefault())
+                    it.trim().lowercase(Locale.getDefault())
                         .replace("0x", "")
                         .toInt(16).toByte()
                 }
@@ -235,6 +235,8 @@ class BluetoothConnectActivity : BaseTopActivity() {
                 } else {
                     dev.getConnector().connectCompat()
                 }
+            } else if (ConnectState.isConnecting(stateVal)) {
+                dev.getConnector().disconnect()
             }
         }
 

@@ -60,18 +60,23 @@ class BleConnector constructor(val device: BtDevice) : Manageable {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
             logSystem.withEnable { "onConnectionStateChange: newState: $newState, states:$status" }
-            if (status == BluetoothGatt.GATT_SUCCESS && gatt != null) {
-                //连接成功状态需要等待服务发现完成后更新
-                if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    gatt.discoverServices()
-                } else {
-                    state = ConnectState.from(newState)
-                }
-            } else {
-                //连接中回调失败则连接失败
-                if (state == ConnectState.STATE_CONNECTING) {
-                    connectCallback.onConnectFail(device, ConnectFailReason.FAIL_CONNECT_BY_SYSTEM)
-                }
+            //连接成功状态需要等待服务发现完成后更新
+            if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED && gatt != null) {
+                gatt.discoverServices()
+                return
+            }
+            //否则更新状态
+            state = ConnectState.from(newState)
+            //连接中回调失败则连接失败
+            if (status != BluetoothGatt.GATT_SUCCESS && state == ConnectState.STATE_CONNECTING) {
+                state = ConnectState.STATE_DISCONNECTED
+                connectCallback.onConnectFail(device, ConnectFailReason.FAIL_CONNECT_BY_SYSTEM)
+            }
+            if (ConnectState.unConnected(state) && this@BleConnector.gatt != null) {
+                //完全关闭连接
+                this@BleConnector.gatt?.close()
+                this@BleConnector.gatt = null
+                logHelper.withEnable { "gatt close" }
             }
         }
 
@@ -218,9 +223,18 @@ class BleConnector constructor(val device: BtDevice) : Manageable {
     }
 
     fun disconnect() {
-        state = ConnectState.STATE_DISCONNECTING
-        gatt?.disconnect()
-        gatt = null
+        logHelper.withEnable { "disconnect: gatt ${if (gatt == null) "= null" else "!= null"}" }
+        //未连接状态调用此方法会卡住状态
+        if (gatt == null) {
+            state = ConnectState.STATE_DISCONNECTED
+        } else {
+            //断开连接会回调BluetoothGattCallback#onConnectionStateChange
+            state = ConnectState.STATE_DISCONNECTING
+            gatt?.disconnect()
+            /*如果关闭，则不会回调断开*/
+            /*gatt?.close()
+            gatt = null*/
+        }
     }
 
     @ConnectState

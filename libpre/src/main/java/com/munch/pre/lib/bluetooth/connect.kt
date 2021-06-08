@@ -66,13 +66,10 @@ annotation class ConnectState {
             return state
         }
 
-        fun isConnected(state: Int): Boolean {
-            return state == STATE_CONNECTED
-        }
-
-        fun unConnected(state: Int): Boolean {
-            return state == STATE_DISCONNECTED
-        }
+        fun isConnected(state: Int): Boolean = state == STATE_CONNECTED
+        fun unConnected(state: Int): Boolean = state == STATE_DISCONNECTED
+        fun isConnecting(state: Int) = state == STATE_CONNECTING
+        fun isDisConnecting(state: Int) = state == STATE_DISCONNECTING
     }
 }
 
