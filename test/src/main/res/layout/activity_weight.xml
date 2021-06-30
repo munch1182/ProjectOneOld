@@ -73,6 +73,27 @@
                 app:teardrop_color="?attr/colorPrimary"
                 app:teardrop_text="A" />
 
+            <com.munch.lib.fast.weight.SwitchView
+                android:id="@+id/weight_switch_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/padding_def"
+                android:layout_marginTop="@dimen/padding_def"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/weight_teardrop"
+                app:sv_checked="true"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/weight_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:checked="true"
+                app:layout_constraintBottom_toBottomOf="@id/weight_switch_view"
+                app:layout_constraintStart_toEndOf="@+id/weight_switch_view"
+                app:layout_constraintTop_toTopOf="@id/weight_switch_view" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 </layout>

@@ -69,7 +69,6 @@ class BleConnector constructor(val device: BtDevice) : Manageable {
             state = ConnectState.from(newState)
             //连接中回调失败则连接失败
             if (status != BluetoothGatt.GATT_SUCCESS && state == ConnectState.STATE_CONNECTING) {
-                state = ConnectState.STATE_DISCONNECTED
                 connectCallback.onConnectFail(device, ConnectFailReason.FAIL_CONNECT_BY_SYSTEM)
             }
             if (ConnectState.unConnected(state) && this@BleConnector.gatt != null) {

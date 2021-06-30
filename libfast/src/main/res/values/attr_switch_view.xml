@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SwitchView">
+        <attr name="sv_main_color" format="color" />
+        <attr name="sv_checked_main_color" format="color" />
+        <attr name="sv_bg_color" format="color" />
+        <attr name="sv_checked_bg_color" format="color" />
+        <attr name="sv_checked" format="boolean"/>
+    </declare-styleable>
+</resources>

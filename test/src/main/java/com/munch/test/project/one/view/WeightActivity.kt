@@ -24,6 +24,9 @@ class WeightActivity : BaseTopActivity() {
             weightTeardrop.setOnClickListener {
                 weightTeardrop.setProperty { this.angle += 90 }
             }
+            weightSwitch.setOnCheckedChangeListener { _, isChecked ->
+                weightSwitchView.isChecked = isChecked
+            }
         }
     }
 }

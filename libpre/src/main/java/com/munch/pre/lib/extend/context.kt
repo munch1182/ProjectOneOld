@@ -85,10 +85,18 @@ fun Context.getListDivider(): Drawable? {
 }
 
 fun Context.dp2Px(dpVal: Float): Float {
-    return dpVal * this.resources.displayMetrics.scaledDensity + 0.5f
+    return dpVal * this.resources.displayMetrics.density + 0.5f
 }
 
 fun Context.px2Dp(pxVal: Float): Float {
+    return pxVal / this.resources.displayMetrics.density + 0.5f
+}
+
+fun Context.dp2Sp(dpVal: Float): Float {
+    return dpVal * this.resources.displayMetrics.scaledDensity + 0.5f
+}
+
+fun Context.sp2Dp(pxVal: Float): Float {
     return pxVal / this.resources.displayMetrics.scaledDensity + 0.5f
 }
 
@@ -147,8 +155,8 @@ fun Context.getAttrArrayFromTheme(attrId: Int, get: TypedArray.() -> Int): Int {
  * 获取actionbar高度，无缓存，未获取到则为-1
  */
 fun Context.getActionBarSize() = TypedValue.complexToDimensionPixelSize(
-        getAttrFromTheme(android.R.attr.actionBarSize).data,
-        resources.displayMetrics
+    getAttrFromTheme(android.R.attr.actionBarSize).data,
+    resources.displayMetrics
 )
 
 @ColorInt

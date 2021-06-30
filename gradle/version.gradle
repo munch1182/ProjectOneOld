@@ -45,7 +45,7 @@ ext {
             "kotlin"                          : "org.jetbrains.kotlin:kotlin-stdlib:${versions['kotlinVersion']}",
             "kotlin_gradle"                   : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions['kotlinVersion']}",
             /*https://github.com/Kotlin/kotlinx.coroutines*/
-            "kotlinx_coroutines"              : "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3",
+            "kotlinx_coroutines"              : "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0",
 
             /*androidx版本*/
             /*https://developer.android.google.cn/jetpack/androidx/versions?hl=zh_cn*/
