@@ -25,7 +25,50 @@ class CoroutinesActivity : BaseItemWithNoticeActivity(), CoroutineScope {
                 returnLastQuery()
             }
             1 -> testAwait()
+            2 -> composeScope()
         }
+    }
+
+    /**
+     * 组合Scope
+     */
+    private fun composeScope() {
+        val scope1 = CoroutineScope(Dispatchers.Default + CoroutineName("scope1"))
+        val scope2 = CoroutineScope(Dispatchers.Default + CoroutineName("scope2"))
+        val scope3 =
+            CoroutineScope(scope1.coroutineContext + scope2.coroutineContext + CoroutineName("scope1+2"))
+
+        val scope4 =
+            CoroutineScope(scope2.coroutineContext + scope1.coroutineContext + CoroutineName("scope2+1"))
+        log.log(scope1.coroutineContext)
+        log.log(scope2.coroutineContext)
+        launch {
+            //scope1:1-3000L
+            delay(3000L)
+            scope1.cancel()
+            //scope2:1-6000L
+            delay(3000L)
+            scope2.cancel()
+        }
+        launch {
+            /*log.log("0ms,$scope3,$scope4")*/
+            sureAlive(scope3, scope4)
+            delay(3100L)
+            /*log.log("3100ms,$scope3,$scope4")*/
+            //1 cancel
+            //1+2能执行，
+            // 2+1不能执行
+            // 因为组合的scope的job是使用右边的
+            sureAlive(scope3, scope4)
+            delay(6100L)
+            /*log.log("6100L,$scope3,$scope4")*/
+            sureAlive(scope3, scope4)
+        }
+    }
+
+    private fun sureAlive(scope3: CoroutineScope, scope4: CoroutineScope) {
+        scope3.launch { log.log("scope3 execute") }
+        scope4.launch { log.log("scope4 execute") }
     }
 
     /**
@@ -81,7 +124,7 @@ class CoroutinesActivity : BaseItemWithNoticeActivity(), CoroutineScope {
     }
 
     override fun getItem(): MutableList<String> {
-        return mutableListOf("start async", "test await")
+        return mutableListOf("start async", "test await", "compose scope")
     }
 
     override fun onDestroy() {

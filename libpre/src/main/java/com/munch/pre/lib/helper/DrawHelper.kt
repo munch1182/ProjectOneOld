@@ -2,10 +2,7 @@
 
 package com.munch.pre.lib.helper
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.Paint
+import android.graphics.*
 import androidx.annotation.FloatRange
 import kotlin.math.absoluteValue
 import kotlin.math.pow
@@ -75,6 +72,26 @@ fun Canvas.drawTextInYCenter(text: String, cx: Float, cy: Float, paint: Paint) {
     val fontMetrics = paint.fontMetrics
     val baseLineY = cy + (fontMetrics.bottom - fontMetrics.top) / 2f - fontMetrics.bottom
     drawText(text, cx, baseLineY, paint)
+}
+
+/**
+ * 获取该列表文字的最大宽度和高度
+ */
+fun Paint.measureMaxTextSpace(array: Array<String>): Pair<Int, Int> {
+    if (array.isEmpty()) {
+        return Pair(0, 0)
+    }
+    val rect = Rect()
+    var maxWidth = 0
+    array.forEach {
+        getTextBounds(it, 0, it.length, rect)
+        val width = rect.width()
+        if (maxWidth < width) {
+            maxWidth = width
+        }
+    }
+    val height = rect.height()
+    return Pair(maxWidth, height)
 }
 
 /**
