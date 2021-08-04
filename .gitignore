@@ -9,3 +9,5 @@
 .cxx
 local.properties
 /.gradle
+./buildSrc/build
+./buildSrc/.gradle

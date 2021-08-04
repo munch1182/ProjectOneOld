@@ -4,34 +4,30 @@
 // 注意文件路径
 
 //versions及dependencies定义在gradle文件夹下version.gradle中，调用在project的build.gradle的buildscript内
+apply from: '../gradle/gitversion.gradle'
 
 android {
-    compileSdkVersion rootProject.ext.versions['compileSdkVersion']
-    buildToolsVersion rootProject.ext.versions['buildToolsVersion']
+    compileSdk Version.compileSdk
 
-    def versionCode4Release = rootProject.ext.versions['versionCode']
-    def versionCode4Debug = rootProject.ext.versions['versionCode4Debug']
+    def versionCode4Release = gitVersion['versionCode']
+    def versionCode4Debug = gitVersion['versionCode4Debug']
 
     defaultConfig {
+        minSdk Version.misSdk
+        targetSdk Version.targetSdk
 
-        /*library不能设置applicationId，而module可以不设置使用默认值*/
-        /*applicationId rootProject.ext.versions['applicationId']*/
-        minSdkVersion rootProject.ext.versions['minSdkVersion']
-        targetSdkVersion rootProject.ext.versions['targetSdkVersion']
-        //默认的versionCode是debug，在输出release包时可以取消applicationVariants.all的注释以自动更改release的versionCode
-        /*versionCode versionCode4Debug*/
         versionCode versionCode4Release
-        versionName rootProject.ext.versions['versionName']
+        versionName gitVersion['versionName']
+
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
     }
 
     def path = "key/key.properties"
     def keyProperties = findAndLoadKey(path)
 
-    signingConfigs {
-        if (keyProperties != null) {
+    if (keyProperties != null) {
+        signingConfigs {
             release {
                 storeFile file(keyProperties['keyFile'])
                 storePassword keyProperties['storePassword']
@@ -40,8 +36,6 @@ android {
             }
         }
     }
-
-    def versionCodeNotice = '"注意：打包出来的文件的versionCode可能会被更改，应从PackageManager中获取"'
 
     buildTypes {
         release {
@@ -54,7 +48,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
             buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
-            buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"
         }
         debug {
             if (keyProperties != null) {
@@ -63,7 +56,6 @@ android {
             debuggable true
             buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
             buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
-            buildConfigField 'String', 'VERSION_CODE_NOTICE', "${versionCodeNotice}"
         }
     }
 
@@ -134,9 +126,9 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation rootProject.ext.dependencies['appcompat']
+    implementation Deps.appcompat
 
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.3.0'
     androidTestImplementation 'androidx.test:core:1.3.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

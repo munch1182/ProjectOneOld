@@ -5,6 +5,5 @@ apply from: '../gradle/commonbuild.gradle'
 
 dependencies {
 
-    implementation rootProject.ext.dependencies['kotlin']
-    implementation rootProject.ext.dependencies['core_ktx']
+    implementation Deps.core_ktx
 }
