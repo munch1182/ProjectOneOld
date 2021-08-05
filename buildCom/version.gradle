@@ -4,7 +4,7 @@
 // *
 // * androidX：https://developer.android.google.cn/jetpack/androidx/migrate
 // */
-//apply from: './gradle/gitversion.gradle'
+//apply from: './buildCom/gitversion.gradle'
 //
 //
 //ext {

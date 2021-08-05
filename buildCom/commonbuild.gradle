@@ -3,8 +3,8 @@
 // 各个library或module可以覆盖配置
 // 注意文件路径
 
-//versions及dependencies定义在gradle文件夹下version.gradle中，调用在project的build.gradle的buildscript内
-apply from: '../gradle/gitversion.gradle'
+//versions及dependencies定义在buildCom文件夹下version.gradle中
+apply from: '../buildCom/gitversion.gradle'
 
 android {
     compileSdk Version.compileSdk
@@ -106,15 +106,19 @@ static def setupModuleApk(variant, isLib, versionCode) {
             // 且不会更改BuildConfig里的VERSION_CODE
             // 修改后的versionCode需要从PackageManager中获取
             output.versionCodeOverride = versionCode
-            def date = new Date().format("yyyyMMddHHmmss", TimeZone.getTimeZone("GMT+08"))
+            def date = new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("GMT+08"))
             // 文件名前缀 + 渠道名
-            def startName = "app_${variant.flavorName}_${date}"
+            def startName = "app_release"
+            def flavorName = variant.flavorName
+            if (flavorName != null && flavorName != "") {
+                startName += "_$flavorName"
+            }
             // 文件名后缀
             def endName
             if (isLib) {
-                endName = "_${variant.versionName}_${variant.versionCode}.aar"
+                endName = "_${variant.versionName}(${date}).aar"
             } else {
-                endName = "_${variant.versionName}_${variant.versionCode}.apk"
+                endName = "_${variant.versionName}(${date}).apk"
             }
             output.outputFileName = startName + endName
         }

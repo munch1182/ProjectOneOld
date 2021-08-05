@@ -2,11 +2,11 @@ plugins {
     id 'com.android.application'
 }
 
-apply from: '../gradle/commonbuildktx.gradle'
+apply from: '../buildCom/commonbuildktx.gradle'
 
 dependencies {
 
     implementation Deps.material
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation Deps.constraintLayout
 
 }

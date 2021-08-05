@@ -12,27 +12,27 @@ object Version {
 @Suppress("unused")
 object Deps {
 
-    /*https://developer.android.google.cn/jetpack/androidx/versions?hl=zh_cn*/
+    // https://developer.android.google.cn/jetpack/androidx/versions?hl=zh_cn
     /*https://developer.android.google.cn/jetpack/androidx/releases/activity?hl=zh_cn*/
     const val appcompat = "androidx.appcompat:appcompat:1.3.0"
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/core*/
     const val core_ktx = "androidx.core:core-ktx:1.6.0"
 
-    // https://github.com/material-components/material-components-android
-    // https://maven.google.com/web/index.html
+    /*https://github.com/material-components/material-components-android*/
+    /*https://maven.google.com/web/index.html*/
     const val material = "com.google.android.material:material:1.4.0"
 
-    // https://developer.android.google.cn/jetpack/androidx/releases/constraintlayout
+    /*https://developer.android.google.cn/jetpack/androidx/releases/constraintlayout*/
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.4"
 
-    // https://developer.android.google.cn/jetpack/androidx/releases/cardview
+    /*https://developer.android.google.cn/jetpack/androidx/releases/cardview*/
     const val cardView = "androidx.cardview:cardview:1.0.0"
 
-    // https://developer.android.google.cn/jetpack/androidx/releases/viewpager
+    /*https://developer.android.google.cn/jetpack/androidx/releases/viewpager*/
     const val viewPager = "androidx.viewpager:viewpager:1.0.0"
 
-    // https://developer.android.google.cn/jetpack/androidx/releases/viewpager2
+    /*https://developer.android.google.cn/jetpack/androidx/releases/viewpager2*/
     const val viewPager2 = "androidx.viewpager2:viewpager2:1.0.0"
 
     /*https://developer.android.google.cn/topic/libraries/app-startup*/
@@ -43,6 +43,13 @@ object Deps {
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/swiperefreshlayout?hl=en*/
     const val swipeRefreshLayout = "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+    /*https://developer.android.google.cn/jetpack/androidx/releases/recyclerview?hl=zh_cn*/
+    const val recyclerview = "androidx.recyclerview:recyclerview:1.2.1"
+
+    /*https://developer.android.google.cn/kotlin/ktx/extensions-list?hl=zh_cn*/
+    const val activityKtx = "androidx.activity:activity-ktx:1.2.4"
+    const val fragmentKtx = "androidx.fragment:fragment-ktx:1.3.6"
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/lifecycle*/
     /*https://developer.android.google.cn/kotlin/ktx?hl=zh_cn#lifecycle*/
@@ -70,6 +77,9 @@ object Deps {
     const val paging = "androidx.paging:paging-runtime:$PAGING_VERSION"
     const val pagingTest = "androidx.paging:paging-common:$PAGING_VERSION"
 
+    /*https://github.com/Kotlin/kotlinx.coroutines*/
+    const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
+
     /*https://github.com/bumptech/glide*/
     private const val GLIDE_VERSION = "4.12.0"
     const val glide = "com.github.bumptech.glide:glide:$GLIDE_VERSION"
@@ -83,12 +93,7 @@ object Deps {
     const val okhttpInterceptor = "com.squareup.okhttp3:logging-interceptor:$OKHTTP_VERSION"
 
     /*https://github.com/square/leakcanary*/
-    private const val LEAKCANARY_VERSION = "2.7"
-    const val leakcanary = "com.squareup.leakcanary:leakcanary-android:$LEAKCANARY_VERSION"
-    const val leakcanaryFragment =
-        "com.squareup.leakcanary:leakcanary-support-fragment:$LEAKCANARY_VERSION"
-    const val leakcanaryRelease =
-        "com.squareup.leakcanary:leakcanary-android-no-op:$LEAKCANARY_VERSION"
+    const val leakcanary = "com.squareup.leakcanary:leakcanary-android:2.7"
 
     /*https://github.com/square/retrofit*/
     /*https://github.com/square/retrofit/tree/master/retrofit-converters/gson*/
@@ -103,14 +108,9 @@ object Deps {
     /*https://developer.android.google.cn/training/dependency-injection/hilt-android?hl=zh_cn*/
     /*https://developer.android.google.cn/jetpack/androidx/releases/hilt*/
     private const val HILT_CORE_VERSION = "2.38.1"
-    private const val HILT_VERSION = "1.0.0"
     const val hilt = "com.google.dagger:hilt-android:$HILT_CORE_VERSION"
     const val hiltCompiler = "com.google.dagger:hilt-android-compiler:$HILT_CORE_VERSION"
     const val hiltGradle = "com.google.dagger:hilt-android-gradle-plugin:$HILT_CORE_VERSION"
-
-    /*const val hiltViewModel = "androidx.hilt:hilt-lifecycle-viewmodel:$HILT_VERSION"
-    const val hiltViewModelCompiler = "androidx.hilt:hilt-compiler:$HILT_VERSION"
-    const val hiltWork = "androidx.hilt:hilt-work:$HILT_VERSION"*/
 
     /*https://github.com/guolindev/PermissionX*/
     const val permissionX = "com.permissionx.guolindev:permissionx:1.5.0"

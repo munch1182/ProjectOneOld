@@ -6,9 +6,7 @@
 
 /**
  * 获取当前分支的提交次数
- * @return
- * @throws IOException
- * @throws NumberFormatException //项目未加入git会报错，但不影响编译
+ * 项目未加入git会报错，但不影响编译
  */
 static def getGitCommitCount() throws IOException, NumberFormatException {
     /*return */ 'git rev-list HEAD --count'.execute().text.toInteger()
@@ -16,9 +14,6 @@ static def getGitCommitCount() throws IOException, NumberFormatException {
 
 /**
  * 获取当前git的tag的个数
- * @return
- * @throws IOException
- * @throws NumberFormatException
  */
 static def getGitTagCount() throws IOException, NumberFormatException {
     'git tag --list'.execute().text.trim().size()
@@ -28,7 +23,7 @@ static def getGitTagCount() throws IOException, NumberFormatException {
  * 获取离当前提交最近的tag描述
  * 将返回tag的内容
  * git tag命令：git tag -a "[tag_name]" -m "[tag_message]"
- * @return
+ * 建议tag_name为1.0,1.1等两个版本的名称，因为会拼凑该tag提交次数到末尾
  */
 static def getGitTagName() throws IOException {
     'git describe --tags'.execute().text.trim()
@@ -37,7 +32,6 @@ static def getGitTagName() throws IOException {
 /**
  * 将git提交的tag次数转换为versionCode
  * 如果出错，将默认1.0
- * @return
  */
 static def getGitVersionCode4Debug() {
     def versionCode = 0
@@ -77,15 +71,17 @@ static def getGitVersionCode() {
 /**
  * 拼凑versionName
  * 结果如"v0.1.1.33" => v0.1.1为tag，33为此tag的提交次数
- * @return
+ * 此处使用正式版的版本名
  */
 static def getGitVersionName() {
     def versionName = null
     try {
         versionName = getGitTagName()
-        def matcher = versionName =~ "-(\\d+)-g" //进行局部匹配，返回java.util.regex.Matcher对象
+        //进行局部匹配，返回java.util.regex.Matcher对象
+        //匹配:(一个字符)(数字).(数字)
+        def matcher = versionName =~ "^.?\\d\\.\\d\$"
         if (matcher) { //调用的是matcher.find()方法
-            versionName = versionName.substring(0, matcher.start()) + "." + matcher[0][1]
+            versionName = versionName + "." + getGitVersionCode()
         }
     } catch (IOException e) {
         e.printStackTrace()
