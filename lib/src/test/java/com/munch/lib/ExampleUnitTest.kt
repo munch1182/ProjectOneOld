@@ -1,4 +1,4 @@
-package com.munch.project.one
+package com.munch.lib
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

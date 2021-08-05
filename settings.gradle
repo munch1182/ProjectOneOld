@@ -8,3 +8,6 @@ dependencyResolutionManagement {
 }
 include ':app'
 rootProject.name = "P1"
+include ':lib'
+include ':libfast'
+include ':apptest'
