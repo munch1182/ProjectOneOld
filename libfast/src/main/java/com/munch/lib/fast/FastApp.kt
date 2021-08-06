@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.StatFs
 import com.munch.lib.app.AppHelper
 import com.munch.lib.helper.PhoneHelper
+import com.munch.lib.log.log
 
 /**
  * 快速接入lib，可以直接使用或者继承[FastApp]，也可以使用[FastAppHelper.init]
@@ -23,6 +24,7 @@ object FastAppHelper {
 
     fun init(app: Application) {
         AppHelper.init(app)
+        Thread.setDefaultUncaughtExceptionHandler { _, e -> log(e) }
     }
 
     fun collectPhoneInfo(): LinkedHashMap<String, String?> {

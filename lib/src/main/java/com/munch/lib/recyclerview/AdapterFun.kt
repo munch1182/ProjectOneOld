@@ -3,18 +3,16 @@ package com.munch.lib.recyclerview
 /**
  * Create by munch1182 on 2021/8/5 17:01.
  */
-interface AdapterFun<D, BVH : BaseViewHolder> {
-
+interface AdapterFun<D> : IsAdapter {
 
     val data: MutableList<D?>
-    val adapter: BaseRecyclerViewAdapter<D, BVH>
 
     //<editor-fold desc="add">
     fun add(element: D?) = add(data.size, element)
 
     fun add(index: Int, element: D?) {
         data.add(index, element)
-        adapter.notifyItemInserted(index)
+        noTypeAdapter.notifyItemInserted(index)
     }
 
     fun add(elements: Collection<D?>) = add(data.size, elements)
@@ -24,15 +22,18 @@ interface AdapterFun<D, BVH : BaseViewHolder> {
      */
     fun add(index: Int, elements: Collection<D?>) {
         data.addAll(index, elements)
-        adapter.notifyItemRangeInserted(index, elements.size)
+        noTypeAdapter.notifyItemRangeInserted(index, elements.size)
     }
     //</editor-fold>
 
     //<editor-fold desc="remove">
     fun remove(element: D) {
-        val pos = data.size - 1
+        val pos = data.indexOf(element)
+        if (pos == -1) {
+            return
+        }
         data.remove(element)
-        adapter.notifyItemRemoved(pos)
+        noTypeAdapter.notifyItemRemoved(pos)
     }
 
     fun remove(index: Int) = remove(index, 1)
@@ -43,7 +44,7 @@ interface AdapterFun<D, BVH : BaseViewHolder> {
     fun remove(startIndex: Int, size: Int) {
         val subList = data.subList(startIndex, startIndex + size)
         data.removeAll(subList)
-        adapter.notifyItemRangeRemoved(startIndex, size)
+        noTypeAdapter.notifyItemRangeRemoved(startIndex, size)
     }
 
     /**
@@ -53,7 +54,7 @@ interface AdapterFun<D, BVH : BaseViewHolder> {
     fun remove(element: Collection<D?>) {
         element.forEach {
             val index = get(it ?: return@forEach) ?: return@forEach
-            adapter.notifyItemRemoved(index)
+            noTypeAdapter.notifyItemRemoved(index)
         }
     }
     //</editor-fold>
@@ -67,7 +68,7 @@ interface AdapterFun<D, BVH : BaseViewHolder> {
     fun update(element: D) {
         val index = get(element) ?: return
         data[index] = element
-        adapter.notifyItemChanged(index)
+        noTypeAdapter.notifyItemChanged(index)
     }
 
     /**
@@ -84,11 +85,11 @@ interface AdapterFun<D, BVH : BaseViewHolder> {
             //索引为数据末尾则增加
             index == size -> {
                 add(element)
-                adapter.notifyItemInserted(index)
+                noTypeAdapter.notifyItemInserted(index)
             }
             else -> {
                 data[index] = element
-                adapter.notifyItemChanged(index)
+                noTypeAdapter.notifyItemChanged(index)
             }
         }
     }
@@ -112,7 +113,7 @@ interface AdapterFun<D, BVH : BaseViewHolder> {
         elements.forEach {
             val index = get(it) ?: return@forEach
             data[index] = it
-            adapter.notifyItemChanged(index)
+            noTypeAdapter.notifyItemChanged(index)
         }
     }
 
@@ -127,7 +128,7 @@ interface AdapterFun<D, BVH : BaseViewHolder> {
             //索引为数据末尾则增加
             startIndex == size -> {
                 data.addAll(elements)
-                adapter.notifyItemRangeInserted(startIndex, elements.size)
+                noTypeAdapter.notifyItemRangeInserted(startIndex, elements.size)
             }
             else -> {
                 val length = elements.size
@@ -136,7 +137,7 @@ interface AdapterFun<D, BVH : BaseViewHolder> {
                     elements.forEachIndexed { index, d ->
                         data[startIndex + index] = d
                     }
-                    adapter.notifyItemRangeChanged(startIndex, length)
+                    noTypeAdapter.notifyItemRangeChanged(startIndex, length)
                 } else {
                     val split = startIndex + length - size
                     elements.forEachIndexed { index, d ->
@@ -146,8 +147,8 @@ interface AdapterFun<D, BVH : BaseViewHolder> {
                             data.add(d)
                         }
                     }
-                    adapter.notifyItemChanged(startIndex, split - 1)
-                    adapter.notifyItemRangeInserted(startIndex + split - 1, length - split)
+                    noTypeAdapter.notifyItemChanged(startIndex, split - 1)
+                    noTypeAdapter.notifyItemRangeInserted(startIndex + split - 1, length - split)
                 }
             }
         }

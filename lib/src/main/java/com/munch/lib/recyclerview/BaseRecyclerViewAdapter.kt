@@ -1,5 +1,6 @@
 package com.munch.lib.recyclerview
 
+import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
 /**
@@ -15,19 +16,48 @@ import androidx.recyclerview.widget.RecyclerView
  */
 
 /**
- * 实现crud的基本方法，只涉及数据，不涉及页面布局
+ * 实现crud的基本方法，以及页面布局
  *
  * @see AdapterFun
+ * @see AdapterViewImp
+ * @see SingleViewModule
+ * @see MultiViewModule
  */
-abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder> : RecyclerView.Adapter<VH>(),
-    AdapterFun<D, VH> {
+abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder> :
+    RecyclerView.Adapter<VH>(), AdapterFun<D>, IsAdapter {
 
     protected open val list = mutableListOf<D?>()
 
     override val data: MutableList<D?>
         get() = list
-    override val adapter: BaseRecyclerViewAdapter<D, VH>
+    override val noTypeAdapter: BaseRecyclerViewAdapter<*, *>
+        get() = this
+    val adapter: BaseRecyclerViewAdapter<D, VH>
         get() = this
 
+    internal lateinit var adapterViewHelper: AdapterViewImp
+
+    init {
+        checkAdapterView()
+    }
+
+    /**
+     * 检查并设置视图
+     */
+    private fun checkAdapterView() {
+        adapterViewHelper = when (this) {
+            is SingleViewModule -> SingleViewHelper()
+            is MultiViewModule -> MultiViewHelper()
+            else -> throw IllegalStateException("必须实现AdapterViewImp,可选SingleViewModule或MultiViewModule")
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        @Suppress("UNCHECKED_CAST")
+        return adapterViewHelper.createVH(parent, viewType) as VH
+    }
+
     override fun getItemCount() = data.size
+
+    override fun getItemViewType(position: Int) = adapterViewHelper.getItemViewType(position)
 }
