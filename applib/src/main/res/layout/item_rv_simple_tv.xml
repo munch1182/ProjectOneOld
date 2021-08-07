@@ -8,9 +8,21 @@
             type="java.util.Date" />
     </data>
 
-    <TextView xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@{date.toString()}"
-        tools:text="123" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/item_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{date.toString()}"
+            tools:text="123" />
+
+        <Button
+            android:id="@+id/item_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 </layout>

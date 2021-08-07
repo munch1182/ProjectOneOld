@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
  * @see MultiViewModule
  */
 abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder> :
-    RecyclerView.Adapter<VH>(), AdapterFun<D>, IsAdapter {
+    RecyclerView.Adapter<VH>(), AdapterFun<D>, IsAdapter, AdapterListener {
 
     protected open val list = mutableListOf<D?>()
 
@@ -35,29 +35,70 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder> :
     val adapter: BaseRecyclerViewAdapter<D, VH>
         get() = this
 
-    internal lateinit var adapterViewHelper: AdapterViewImp
+    internal var adapterViewHelper: AdapterViewImp? = null
 
     init {
         checkAdapterView()
     }
 
     /**
-     * 检查并设置视图
+     * 检查并设置视图实现
      */
     private fun checkAdapterView() {
         adapterViewHelper = when (this) {
             is SingleViewModule -> SingleViewHelper()
             is MultiViewModule -> MultiViewHelper()
-            else -> throw IllegalStateException("必须实现AdapterViewImp,可选SingleViewModule或MultiViewModule")
+            else -> return
         }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        @Suppress("UNCHECKED_CAST")
-        return adapterViewHelper.createVH(parent, viewType) as VH
     }
 
     override fun getItemCount() = data.size
 
-    override fun getItemViewType(position: Int) = adapterViewHelper.getItemViewType(position)
+    override fun getItemViewType(position: Int): Int {
+        check(adapterViewHelper != null) { throw IllegalStateException("必须实现AdapterViewImp,可选SingleViewModule或MultiViewModule") }
+        return adapterViewHelper!!.getItemViewType(position)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        check(adapterViewHelper != null) { throw IllegalStateException("必须实现AdapterViewImp,可选SingleViewModule或MultiViewModule") }
+        @Suppress("UNCHECKED_CAST")
+        return adapterViewHelper!!.createVH(parent, viewType) as VH
+    }
+
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        handleClick(holder)
+    }
+
+    //<editor-fold desc="click">
+    protected open val clickHelper = AdapterListenerHelper()
+
+    protected open fun handleClick(holder: VH) {
+        holder.setOnItemClickListener(clickHelper.itemClickListener)
+        holder.setOnItemLongClickListener(clickHelper.itemLongClickListener)
+        if (clickHelper.clickIds.isNotEmpty()) {
+            holder.setOnViewClickListener(clickHelper.viewClickListener, clickHelper.clickIds)
+        }
+        if (clickHelper.longClickIds.isNotEmpty()) {
+            holder.setOnViewClickListener(
+                clickHelper.viewLongClickListener, clickHelper.longClickIds
+            )
+        }
+    }
+
+    override fun setOnItemClickListener(listener: OnItemClickListener?) {
+        clickHelper.setOnItemClickListener(listener)
+    }
+
+    override fun setOnItemLongClickListener(listener: OnItemClickListener?) {
+        clickHelper.setOnItemLongClickListener(listener)
+    }
+
+    override fun setOnViewClickListener(listener: OnItemClickListener?, ids: MutableList<Int>) {
+        clickHelper.setOnViewClickListener(listener, ids)
+    }
+
+    override fun setOnViewLongClickListener(listener: OnItemClickListener?, ids: MutableList<Int>) {
+        clickHelper.setOnViewLongClickListener(listener, ids)
+    }
+    //</editor-fold>
 }

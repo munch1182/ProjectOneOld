@@ -53,7 +53,7 @@ interface AdapterFun<D> : IsAdapter {
      */
     fun remove(element: Collection<D?>) {
         element.forEach {
-            val index = get(it ?: return@forEach) ?: return@forEach
+            val index = getIndex(it ?: return@forEach) ?: return@forEach
             noTypeAdapter.notifyItemRemoved(index)
         }
     }
@@ -66,7 +66,7 @@ interface AdapterFun<D> : IsAdapter {
      * 如果该元素可能为null，需要使用索引[update]
      */
     fun update(element: D) {
-        val index = get(element) ?: return
+        val index = getIndex(element) ?: return
         data[index] = element
         noTypeAdapter.notifyItemChanged(index)
     }
@@ -111,7 +111,7 @@ interface AdapterFun<D> : IsAdapter {
      */
     fun update(elements: Collection<D>) {
         elements.forEach {
-            val index = get(it) ?: return@forEach
+            val index = getIndex(it) ?: return@forEach
             data[index] = it
             noTypeAdapter.notifyItemChanged(index)
         }
@@ -176,7 +176,7 @@ interface AdapterFun<D> : IsAdapter {
 
     //<editor-fold desc="get">
     fun get(index: Int) = if (data.size <= index) null else data[index]
-    fun get(element: D): Int? = data.indexOf(element).takeIf { it != -1 }
+    fun getIndex(element: D): Int? = data.indexOf(element).takeIf { it != -1 }
     fun contains(element: D): Boolean = data.contains(element)
     //</editor-fold>
 }

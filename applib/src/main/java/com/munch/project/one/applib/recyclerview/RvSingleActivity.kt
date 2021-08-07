@@ -5,9 +5,11 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.munch.lib.UnComplete
 import com.munch.lib.recyclerview.BaseRecyclerViewAdapter
 import com.munch.lib.recyclerview.BaseViewHolder
 import com.munch.lib.recyclerview.SingleViewModule
+import com.munch.lib.recyclerview.setContentView
 import com.munch.project.one.applib.R
 import com.munch.project.one.applib.databinding.ActivityRvBinding
 import kotlin.random.Random
@@ -18,6 +20,7 @@ import kotlin.random.Random
  * @see com.munch.lib.recyclerview.BaseRecyclerViewAdapter
  * Create by munch1182 on 2021/8/6 16:54.
  */
+@UnComplete
 class RvSingleActivity : AppCompatActivity() {
 
     private val bind by lazy {

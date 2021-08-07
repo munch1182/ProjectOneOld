@@ -1,6 +1,5 @@
 package com.munch.lib.recyclerview
 
-import android.content.Context
 import android.util.SparseArray
 import android.util.SparseIntArray
 import android.view.LayoutInflater
@@ -52,14 +51,6 @@ class SingleViewHelper(
 
     fun setContentView(itemView: ViewCreator) {
         this.viewCreator = itemView
-    }
-
-    fun setContentView(creator: (Context) -> View) {
-        this.viewCreator = object : ViewCreator {
-            override fun create(context: Context): View {
-                return creator.invoke(context)
-            }
-        }
     }
 
     fun setContentView(@LayoutRes resId: Int) {
@@ -124,15 +115,6 @@ class MultiViewHelper : AdapterViewImp {
         return this
     }
 
-    fun setType(getter: (pos: Int) -> Int): MultiViewHelper {
-        typeGetter = object : ItemViewTypeGetter {
-            override fun getItemViewType(pos: Int): Int {
-                return getter.invoke(pos)
-            }
-        }
-        return this
-    }
-
     /**
      * 为[type]类型设置一个[layoutRes]布局
      *
@@ -156,15 +138,6 @@ class MultiViewHelper : AdapterViewImp {
             viewCreatorMap = SparseArray(DEF_INITIAL)
         }
         viewCreatorMap?.put(type, creator)
-        return this
-    }
-
-    fun setTypeView(type: Int, creator: (Context) -> View): MultiViewHelper {
-        setTypeView(type, object : ViewCreator {
-            override fun create(context: Context): View {
-                return creator.invoke(context)
-            }
-        })
         return this
     }
 
