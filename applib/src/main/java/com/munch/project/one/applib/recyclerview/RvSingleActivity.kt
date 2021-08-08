@@ -6,10 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.UnComplete
-import com.munch.lib.recyclerview.BaseRecyclerViewAdapter
-import com.munch.lib.recyclerview.BaseViewHolder
-import com.munch.lib.recyclerview.SingleViewModule
-import com.munch.lib.recyclerview.setContentView
+import com.munch.lib.recyclerview.*
 import com.munch.project.one.applib.R
 import com.munch.project.one.applib.databinding.ActivityRvBinding
 import kotlin.random.Random
@@ -30,12 +27,9 @@ class RvSingleActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val adapter =
-            object : BaseRecyclerViewAdapter<String, BaseViewHolder>(), SingleViewModule {
-                init {
-                    singleViewHelper.setContentView { TextView(it) }
-                }
-
+            object : SimpleAdapter<String>({ TextView(it) }) {
                 override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
+                    super.onBindViewHolder(holder, position)
                     (holder.itemView as? TextView)?.text = data[position] ?: "null"
                 }
             }

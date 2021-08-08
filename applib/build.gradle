@@ -20,5 +20,5 @@ dependencies {
     implementation Deps.activityKtx
     implementation Deps.fragmentKtx
 
-    implementation project(':lib')
+    implementation project(':libfast')
 }

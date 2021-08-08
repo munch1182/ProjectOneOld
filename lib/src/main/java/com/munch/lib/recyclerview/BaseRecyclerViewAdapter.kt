@@ -1,12 +1,13 @@
 package com.munch.lib.recyclerview
 
 import android.view.ViewGroup
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 
 /**
  * rv需要考虑的情况:
  * 1. 简单展示的快速使用 --> 由子类实现
- * 2. 有无DiffUtil相关实现下的通用方法(crud)及局部刷新
+ * 2. 有无DiffUtil相关实现下的通用方法(crud)及局部刷新 --> AdapterFun
  * 3. 多类型以及ConcatAdapter --> 由组装的方法实现，并由子类实现常用的，其余的应根据场景自行组装
  * 4. 是否需要对PagingDataAdapter进行兼容 --> AdapterFun
  * 5. dataBinding --> 由子类实现
@@ -28,8 +29,11 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder> :
 
     protected open val list = mutableListOf<D?>()
 
+    override val differ: AsyncListDiffer<D>?
+        get() = null
     override val data: MutableList<D?>
-        get() = list
+        get() = differ?.currentList ?: list
+
     override val noTypeAdapter: BaseRecyclerViewAdapter<*, *>
         get() = this
     val adapter: BaseRecyclerViewAdapter<D, VH>

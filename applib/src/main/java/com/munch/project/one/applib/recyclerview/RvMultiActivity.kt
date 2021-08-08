@@ -30,7 +30,7 @@ class RvMultiActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val adapter = object : BaseRecyclerViewAdapter<String, BaseViewHolder>(), MultiViewModule {
+        val adapter = object : SimpleMutliAdapter<String>() {
             init {
                 multiViewHelper
                     .setType {
@@ -50,6 +50,7 @@ class RvMultiActivity : AppCompatActivity() {
                     TYPE1 -> (holder.itemView as? TextView)?.text = data[position] ?: "null"
                 }
             }
+
         }
         bind.rvRv.apply {
             layoutManager = LinearLayoutManager(this@RvMultiActivity)
@@ -61,7 +62,7 @@ class RvMultiActivity : AppCompatActivity() {
         adapter.setOnViewClickListener(onClick = { _, pos, _ ->
             Toast.makeText(this, "btn:$pos", Toast.LENGTH_SHORT).show()
         }, R.id.item_btn)
-        adapter.add(
+        adapter.set(
             mutableListOf(
                 Random.nextInt().toString(),
                 Random.nextInt().toString(),
@@ -72,5 +73,7 @@ class RvMultiActivity : AppCompatActivity() {
                 Random.nextInt().toString()
             )
         )
+
+        adapter.add("???")
     }
 }
