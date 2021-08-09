@@ -121,7 +121,7 @@ open class Logger {
     }
 
     protected open fun reset() {
-        tag = TAG_DEF
+        tag = null
         type = Log.DEBUG
         methodOffset = 0
         isJson = false

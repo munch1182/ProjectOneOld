@@ -1,12 +1,14 @@
 package com.munch.lib.recyclerview
 
 import android.content.Context
+import android.util.ArrayMap
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
+import com.munch.lib.base.ViewCreator
 
 /**
  * 用于快速实现RecyclerView的类，主要是简化BaseRecyclerViewAdapter的代码
@@ -80,4 +82,22 @@ open class SimpleDiffAdapter<D> private constructor(
     }
 }
 
-open class SimpleMutliAdapter<D> : BaseRecyclerViewAdapter<D, BaseViewHolder>(), MultiViewModule
+open class SimpleMutliAdapter<D>(getter: ItemViewTypeGetter, arrayMap: ArrayMap<Int, Any>) :
+    BaseRecyclerViewAdapter<D, BaseViewHolder>(), MultiViewModule {
+
+    init {
+        setMultiType(getter, arrayMap)
+    }
+
+    private fun setMultiType(getter: ItemViewTypeGetter, arrayMap: ArrayMap<Int, Any>) {
+        multiViewHelper.setType(getter)
+        arrayMap.forEach {
+            when (it.value) {
+                is Int -> multiViewHelper.setTypeView(it.key, it.value as Int)
+                is ViewCreator -> multiViewHelper.setTypeView(it.key, it.value as ViewCreator)
+                else -> throw IllegalStateException()
+            }
+        }
+    }
+
+}

@@ -12,3 +12,5 @@ rootProject.name = "P1"
 include ':lib'
 include ':libfast'
 include ':applib'
+include ':libtest'
+include ':dev'
