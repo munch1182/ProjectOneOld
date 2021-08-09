@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--不会受到AppTheme影响，但是会被同名样式覆盖-->
+    <style name="AppTheme.TextBig" parent="TextAppearance.MaterialComponents.Headline5" />
+
+    <style name="AppTheme.TextTitle" parent="TextAppearance.MaterialComponents.Subtitle1" />
+
+    <style name="AppTheme.TextSubtitle" parent="TextAppearance.MaterialComponents.Subtitle2" />
+
+    <style name="AppTheme.TextBigger" parent="TextAppearance.MaterialComponents.Body1" />
+
+    <style name="AppTheme.Text" parent="TextAppearance.MaterialComponents.Body2" />
+
+    <style name="AppTheme.Button" parent="TextAppearance.MaterialComponents.Button" />
+
+    <style name="AppTheme.Caption" parent="TextAppearance.MaterialComponents.Caption" />
+
+    <style name="AppTheme.Overline" parent="TextAppearance.MaterialComponents.Overline" />
+</resources>

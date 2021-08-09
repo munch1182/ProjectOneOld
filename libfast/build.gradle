@@ -15,5 +15,6 @@ android {
 
 dependencies {
 
+    api Deps.material
     api project(':lib')
 }

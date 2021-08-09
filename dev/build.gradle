@@ -15,4 +15,5 @@ dependencies {
 
     implementation Deps.material
     implementation Deps.constraintLayout
+    implementation project(':libtest')
 }
