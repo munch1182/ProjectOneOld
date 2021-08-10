@@ -1,11 +1,13 @@
 package com.munch.project.one.dev
 
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import com.munch.lib.fast.base.BaseActivity
+import com.munch.lib.fast.base.BaseRvActivity
 
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-    }
+class MainActivity : BaseRvActivity() {
+
+    override val targets: MutableList<Class<out BaseActivity>> =
+        mutableListOf(IntentActivity::class.java, AboutActivity::class.java)
+
+    override fun canBack() = false
 }
+

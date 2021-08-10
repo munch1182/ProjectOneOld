@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!--不会受到AppTheme影响，但是会被同名样式覆盖-->
+    <!--不会受到AppTheme影响，能被同名样式覆盖-->
     <style name="AppTheme.TextBig" parent="TextAppearance.MaterialComponents.Headline5" />
 
     <style name="AppTheme.TextTitle" parent="TextAppearance.MaterialComponents.Subtitle1" />
@@ -17,4 +17,10 @@
     <style name="AppTheme.Caption" parent="TextAppearance.MaterialComponents.Caption" />
 
     <style name="AppTheme.Overline" parent="TextAppearance.MaterialComponents.Overline" />
+
+    <dimen name="paddingDef">16dp</dimen>
+
+    <style name="AppTheme.Clickable" parent="Theme.MaterialComponents">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
 </resources>

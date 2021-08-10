@@ -82,14 +82,20 @@ open class SimpleDiffAdapter<D> private constructor(
     }
 }
 
-open class SimpleMutliAdapter<D>(getter: ItemViewTypeGetter, arrayMap: ArrayMap<Int, Any>) :
-    BaseRecyclerViewAdapter<D, BaseViewHolder>(), MultiViewModule {
+open class SimpleMutliAdapter<D>(
+    getter: ItemViewTypeGetter? = null,
+    arrayMap: ArrayMap<Int, Any>? = null
+) : BaseRecyclerViewAdapter<D, BaseViewHolder>(), MultiViewModule {
+
+    constructor() : this(null, null)
 
     init {
         setMultiType(getter, arrayMap)
     }
 
-    private fun setMultiType(getter: ItemViewTypeGetter, arrayMap: ArrayMap<Int, Any>) {
+    private fun setMultiType(getter: ItemViewTypeGetter?, arrayMap: ArrayMap<Int, Any>?) {
+        getter ?: return
+        arrayMap ?: return
         multiViewHelper.setType(getter)
         arrayMap.forEach {
             when (it.value) {

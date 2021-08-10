@@ -16,5 +16,7 @@ android {
 dependencies {
 
     api Deps.material
+    api Deps.swipeRefreshLayout
+    api Deps.recyclerview
     api project(':lib')
 }

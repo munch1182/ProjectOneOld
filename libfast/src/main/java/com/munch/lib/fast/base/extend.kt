@@ -1,11 +1,16 @@
 package com.munch.lib.fast.base
 
 import android.app.Activity
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.util.ArrayMap
 import androidx.annotation.LayoutRes
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.*
+import com.munch.lib.base.getAttrArrayFromTheme
 
 /**
  * Create by munch1182 on 2021/8/9 15:00.
@@ -86,5 +91,15 @@ class VMStore : ViewModelStoreOwner {
             }
         })
 
+    }
+}
+
+fun Context.getBackIcon(): Drawable? {
+    return getAttrArrayFromTheme(android.R.attr.homeAsUpIndicator) { getDrawable(0) }
+}
+
+fun Context.getBackIconWhite(): Drawable? {
+    return getBackIcon()?.apply {
+        DrawableCompat.setTint(this, Color.WHITE)
     }
 }

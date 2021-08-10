@@ -18,8 +18,8 @@ interface OnItemClickListener : View.OnClickListener, View.OnLongClickListener {
         return onLongClick(v, holder.bindingAdapterPosition, holder)
     }
 
-    fun onClick(v: View?, pos: Int, holder: BaseViewHolder)
-    fun onLongClick(v: View?, pos: Int, holder: BaseViewHolder): Boolean
+    fun onClick(v: View?, pos: Int, holder: BaseViewHolder) {}
+    fun onLongClick(v: View?, pos: Int, holder: BaseViewHolder): Boolean = false
 }
 
 interface AdapterListener {

@@ -3,6 +3,7 @@
     package="com.munch.project.one.dev">
 
     <application
+        android:name="com.munch.lib.fast.FastApp"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_scheme"
         android:icon="@mipmap/ic_launcher"
@@ -19,6 +20,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".AboutActivity" />
+        <activity android:name=".IntentActivity" />
     </application>
 
 </manifest>
