@@ -18,7 +18,7 @@ import com.munch.lib.helper.PhoneHelper
  */
 open class BaseTitleActivity : BaseActivity() {
 
-    protected val container: FrameLayout by lazy { findViewById(android.R.id.content) }
+    protected open val container: FrameLayout by lazy { findViewById(android.R.id.content) }
     protected open val tb by lazy { MaterialToolbar(this).apply { setToolbar(this) } }
 
     protected open fun setToolbar(tb: MaterialToolbar) {

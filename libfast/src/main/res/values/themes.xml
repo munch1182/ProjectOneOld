@@ -12,7 +12,14 @@
 
     <style name="AppTheme.Text" parent="TextAppearance.MaterialComponents.Body2" />
 
-    <style name="AppTheme.Button" parent="TextAppearance.MaterialComponents.Button" />
+    <!--显示文字和填充色的button样式-->
+    <style name="AppTheme.Button" parent="Widget.MaterialComponents.Button" />
+
+    <!--只显示文字的button样式-->
+    <style name="AppTheme.Button.Text" parent="Widget.MaterialComponents.Button.TextButton" />
+
+    <!--显示文字和边框线的button样式-->
+    <style name="AppTheme.Button.Outline" parent="Widget.MaterialComponents.Button.OutlinedButton" />
 
     <style name="AppTheme.Caption" parent="TextAppearance.MaterialComponents.Caption" />
 

@@ -3,12 +3,12 @@ package com.munch.project.one.dev
 import android.os.Bundle
 import android.widget.TextView
 import com.munch.lib.fast.FastAppHelper
-import com.munch.lib.fast.base.BaseTitleActivity
+import com.munch.lib.fast.base.BaseBigTextTitleActivity
 
 /**
  * Create by munch1182 on 2021/8/10 15:08.
  */
-class AboutActivity : BaseTitleActivity() {
+class AboutActivity : BaseBigTextTitleActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

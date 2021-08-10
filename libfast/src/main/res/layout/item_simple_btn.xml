@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_btn_view"
+    style="@style/AppTheme.Button.Outline"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/paddingDef"
+    android:layout_marginEnd="@dimen/paddingDef"
+    android:textColor="#000"
+    tools:text="textview" />
+
