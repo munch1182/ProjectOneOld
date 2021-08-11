@@ -5,8 +5,8 @@
     style="@style/AppTheme.Button.Outline"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/paddingDef"
-    android:layout_marginEnd="@dimen/paddingDef"
+    android:insetTop="0dp"
+    android:insetBottom="0dp"
     android:textColor="#000"
     tools:text="textview" />
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import androidx.core.view.setPadding
 import com.munch.lib.base.OnViewIndexClickListener
 import com.munch.lib.fast.R
 import com.munch.lib.weight.FlowLayout
@@ -15,6 +16,10 @@ import com.munch.lib.weight.FlowLayout
  */
 open class BaseBtnFlowActivity : BaseBigTextTitleActivity() {
 
+    protected val flowLayout by lazy {
+        FlowLayout(this).apply { setPadding(16) }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -23,14 +28,14 @@ open class BaseBtnFlowActivity : BaseBigTextTitleActivity() {
                 onClick(pos)
             }
         }
-        setContentView(FlowLayout(this).apply {
+        setContentView(flowLayout.apply {
             val li = LayoutInflater.from(this.context)
             getData()?.forEachIndexed { index, s ->
-                li.inflate(R.layout.item_simple_btn, this, true).apply {
+                this.addView(li.inflate(R.layout.item_simple_btn, this, false).apply {
                     this.findViewById<TextView>(R.id.item_btn_view)?.text = s
                     this.tag = index
                     setOnClickListener(onItemClick)
-                }
+                })
             }
         })
     }
