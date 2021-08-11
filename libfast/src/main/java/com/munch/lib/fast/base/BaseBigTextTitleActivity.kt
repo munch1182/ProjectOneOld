@@ -5,13 +5,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.core.widget.NestedScrollView
 import com.munch.lib.base.ViewHelper
 import com.munch.lib.fast.R
 import com.munch.lib.helper.BarHelper
-import com.munch.lib.helper.PhoneHelper
 
 /**
  * 用大文字当作标题的基类
+ *
+ * 当前不能使用SwipeRefreshLayout作为根布局
  *
  * Create by munch1182 on 2021/8/10 16:20.
  */
@@ -21,23 +23,10 @@ open class BaseBigTextTitleActivity : BaseActivity() {
     protected open val titleTv: TextView by lazy { findViewById(R.id.title_tv) }
 
     override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
-        val titleView = View.inflate(this, R.layout.layout_big_text_title, null)
-        titleView.measure(0, 0)
-        val statusBarHeight = PhoneHelper.getStatusBarHeight() ?: 0
-        val lp = FrameLayout.LayoutParams(
-            ViewHelper.newMarginLP(
-                t = titleView.measuredHeight + statusBarHeight,
-                view = view,
-                lpIfNo = params
-            )
-        )
-        super.setContentView(view, lp)
+        super.setContentView(R.layout.layout_big_text_title)
 
-        container.addView(
-            titleView,
-            FrameLayout.LayoutParams(ViewHelper.newMarginLP(statusBarHeight, view = titleView))
-        )
-        titleView.findViewById<View>(R.id.title_back).apply {
+        findViewById<NestedScrollView>(R.id.title_scroll_view).apply { addView(view, params) }
+        findViewById<View>(R.id.title_back).apply {
             if (canBack()) {
                 setOnClickListener { onBackPressed() }
             } else {

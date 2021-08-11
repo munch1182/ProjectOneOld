@@ -3,8 +3,6 @@ package com.munch.lib.fast.base
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.munch.lib.base.getColorPrimary
 import com.munch.lib.base.startActivity
 import com.munch.lib.fast.R
 import com.munch.lib.fast.databinding.ItemSimpleTvBinding
@@ -21,7 +19,7 @@ abstract class BaseRvActivity : BaseBigTextTitleActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.layout_rv)
+        setContentView(R.layout.layout_rv_only)
 
         val simpleAdapter =
             SimpleAdapter<String, ItemSimpleTvBinding>(R.layout.item_simple_tv, getData())
@@ -29,10 +27,6 @@ abstract class BaseRvActivity : BaseBigTextTitleActivity() {
         findViewById<RecyclerView>(R.id.rv_view).apply {
             layoutManager = LinearLayoutManager(this.context)
             adapter = simpleAdapter
-        }
-        findViewById<SwipeRefreshLayout>(R.id.srl_view).apply {
-            setColorSchemeColors(getColorPrimary())
-            setOnRefreshListener { this.postDelayed({ this.isRefreshing = false }, 800L) }
         }
         simpleAdapter.setOnItemClickListener { _, pos, _ -> onClick(pos) }
     }

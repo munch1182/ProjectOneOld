@@ -19,6 +19,6 @@ class MainActivity : BaseRvActivity() {
             AboutActivity::class.java
         )
 
-    override fun canBack() = false
+    /*override fun canBack() = false*/
 }
 

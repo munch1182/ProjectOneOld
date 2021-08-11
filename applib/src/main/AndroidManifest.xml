@@ -3,6 +3,7 @@
     package="com.munch.project.one.applib">
 
     <application
+        android:name="com.munch.lib.fast.FastApp"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_scheme"
         android:icon="@mipmap/ic_launcher"
@@ -21,6 +22,8 @@
         </activity>
         <activity android:name=".recyclerview.RvSingleActivity" />
         <activity android:name=".recyclerview.RvMultiActivity" />
+        <activity android:name=".WeightActivity" />
+        <activity android:name=".weight.FlowLayoutActivity" />
     </application>
 
 </manifest>

@@ -1,35 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/title_container"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:orientation="vertical"
+    tools:context=".base.BaseBigTextTitleActivity"
     tools:ignore="UseCompoundDrawables">
 
-    <FrameLayout
-        android:id="@+id/title_back"
-        style="@style/AppTheme.Clickable"
-        android:layout_width="48dp"
-        android:layout_height="48dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="?android:attr/homeAsUpIndicator"
-            tools:ignore="ContentDescription" />
-    </FrameLayout>
-
-    <TextView
-        android:id="@+id/title_tv"
-        style="@style/AppTheme.TextBig"
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/paddingDef"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="@dimen/paddingDef"
-        android:layout_marginBottom="32dp"
-        android:textSize="32sp"
-        tools:text="textView" />
+        android:background="@android:color/transparent"
+        android:orientation="vertical"
+        app:elevation="0dp">
 
-</LinearLayout>
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                app:layout_collapseMode="pin">
+
+                <FrameLayout
+                    android:id="@+id/title_back"
+                    style="@style/AppTheme.Clickable"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:src="?android:attr/homeAsUpIndicator"
+                        tools:ignore="ContentDescription" />
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/title_tv"
+                style="@style/AppTheme.Text.Big"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/paddingDef"
+                android:layout_marginTop="96dp"
+                android:layout_marginEnd="@dimen/paddingDef"
+                android:layout_marginBottom="16dp"
+                android:textSize="32sp"
+                tools:text="textView" />
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/title_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:overScrollMode="never"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

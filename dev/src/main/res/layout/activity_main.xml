@@ -13,7 +13,7 @@
         android:elevation="3dp">
 
         <TextView
-            style="@style/AppTheme.TextBig"
+            style="@style/AppTheme.Text.Big"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="123"

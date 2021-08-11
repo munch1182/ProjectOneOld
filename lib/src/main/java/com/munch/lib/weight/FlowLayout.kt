@@ -38,16 +38,18 @@ class FlowLayout @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+        val wMode = MeasureSpec.getMode(widthMeasureSpec)
         val widthSize = MeasureSpec.getSize(widthMeasureSpec)
-        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+        val hMode = MeasureSpec.getMode(heightMeasureSpec)
         val heightSize = MeasureSpec.getSize(heightMeasureSpec)
 
         layoutHelper.reset()
         //可用宽度
         val rowsMaxWidth = widthSize - paddingLeft - paddingRight
         //已用宽度
-        var rowsUsedWidth = paddingLeft + paddingRight
+        var rowsUsedWidth = paddingLeft
+        //所有行使用的最长宽度
+        var rowsUsedMaxWidth = rowsUsedWidth
         //上一行为止的行高度
         var lastRowsHeight = paddingTop
         //上一行的行高度+本行已计算的高度
@@ -75,23 +77,19 @@ class FlowLayout @JvmOverloads constructor(
             viewWidth += marginL + marginR
             viewHeight += marginT + marginB
             //2. 根据新的子view的宽高，来更新行数据
-            val leftWidth = rowsMaxWidth - rowsUsedWidth
+            val leftWidth = rowsMaxWidth - rowsUsedWidth - paddingRight
             //如果剩余宽度足够
             //index == 0时走上面的判断，避免第一个宽度过大显示错误
             //第一个时无需考虑间隔
-            val space = if (layoutHelper.lineInfo.lineViewCount == 0) 0 else itemSpace
+            val space = if (index == 0) 0 else itemSpace
             if (index == 0 || leftWidth >= viewWidth + space) {
                 rowsUsedWidth += viewWidth + space
                 //如果这个view更高，则更新高度
                 if (lastRowsHeight + viewHeight > rowsHeight) {
                     rowsHeight = lastRowsHeight + viewHeight
                 }
-                if (index == 0) {
-                    layoutHelper.lineInfo.lineNum = 0
-                    layoutHelper.lineInfo.lineViewCount = 1
-                } else {
-                    layoutHelper.lineInfo.lineViewCount++
-                }
+
+                layoutHelper.lineInfo.lineViewCount++
                 //本行剩余宽度不够，需要换行
             } else {
                 //先更新此行数据
@@ -100,8 +98,11 @@ class FlowLayout @JvmOverloads constructor(
                     lineSpaceLeft = leftWidth
                     layoutHelper.updateLineInfo()
                 }
+                if (rowsUsedMaxWidth < rowsUsedWidth + paddingRight) {
+                    rowsUsedMaxWidth = rowsUsedWidth + paddingRight
+                }
                 //然后换行
-                rowsUsedWidth = paddingLeft + paddingRight + viewWidth
+                rowsUsedWidth = paddingLeft + viewWidth
                 lastRowsHeight = rowsHeight + itemLinesSpace
                 rowsHeight += viewHeight
 
@@ -111,7 +112,7 @@ class FlowLayout @JvmOverloads constructor(
                 }
             }
 
-            //3. 记录每个view的位置
+            //3. 记录每个view的位置:每个位置挨着存放位置，更改布局方式只需要对空余位置进行偏移即可
             val l = rowsUsedWidth - viewWidth + marginL
             val t = lastRowsHeight + marginT
             val r = rowsUsedWidth - marginR
@@ -130,15 +131,9 @@ class FlowLayout @JvmOverloads constructor(
         layoutHelper.lineInfo.lineSpaceLeft = rowsMaxWidth - rowsUsedWidth
         layoutHelper.updateLineInfo()
 
-        var width = if (!oneLine) widthSize else rowsUsedWidth
-        var height = rowsHeight + paddingBottom
 
-        if (oneLine && heightMode == MeasureSpec.EXACTLY) {
-            height = heightSize
-        }
-        if (widthMode == MeasureSpec.EXACTLY) {
-            width = widthSize
-        }
+        val height = if (hMode == MeasureSpec.EXACTLY) heightSize else (rowsHeight + paddingBottom)
+        val width = if (wMode == MeasureSpec.EXACTLY) widthSize else rowsUsedMaxWidth
         setMeasuredDimension(width, height)
     }
 
@@ -186,6 +181,7 @@ class FlowLayout @JvmOverloads constructor(
         fun reset() {
             rectArrayHelper.clear()
             lineInfoArrayHelper.clear()
+            lineInfo.reset()
         }
 
         /**
@@ -256,6 +252,13 @@ class FlowLayout @JvmOverloads constructor(
     }
 
     private class LineInfo {
+        fun reset() {
+            lineNum = 0
+            lineViewCount = 0
+            lineCenterY = 0
+            lineSpaceLeft = 0
+        }
+
         /**
          * 行号
          */

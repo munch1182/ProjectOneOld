@@ -3,8 +3,6 @@ package com.munch.lib.fast.base
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.munch.lib.base.getColorPrimary
 import com.munch.lib.fast.R
 import com.munch.lib.fast.databinding.ItemSimpleBtnWithNoticeBinding
 import com.munch.lib.fast.recyclerview.SimpleAdapter
@@ -19,7 +17,7 @@ open class BaseBtnWithNoticeActivity : BaseBigTextTitleActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.layout_rv)
+        setContentView(R.layout.layout_rv_only)
 
         val simpleAdapter =
             SimpleAdapter<String, ItemSimpleBtnWithNoticeBinding>(
@@ -29,10 +27,7 @@ open class BaseBtnWithNoticeActivity : BaseBigTextTitleActivity() {
             layoutManager = LinearLayoutManager(this.context)
             adapter = simpleAdapter
         }
-        findViewById<SwipeRefreshLayout>(R.id.srl_view).apply {
-            setColorSchemeColors(getColorPrimary())
-            setOnRefreshListener { this.postDelayed({ this.isRefreshing = false }, 800L) }
-        }
+
         simpleAdapter.setOnItemClickListener { _, pos, bind -> onClick(pos, bind) }
     }
 

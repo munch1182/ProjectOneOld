@@ -1,24 +1,27 @@
 package com.munch.project.one.applib
 
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModel
 import com.munch.lib.base.startActivity
-import com.munch.lib.fast.base.bind
-import com.munch.lib.fast.base.get
-import com.munch.project.one.applib.databinding.ActivityMainBinding
-import com.munch.project.one.applib.recyclerview.RvSingleActivity
+import com.munch.lib.fast.base.BaseActivity
+import com.munch.lib.fast.base.BaseBtnFlowActivity
+import com.munch.lib.fast.base.BaseRvActivity
+import com.munch.project.one.applib.weight.FlowLayoutActivity
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseRvActivity() {
 
-    private val view by bind<ActivityMainBinding>(R.layout.activity_main)
-    private val vm by get(VM::class.java)
+    override val targets: MutableList<Class<out BaseActivity>> =
+        mutableListOf(WeightActivity::class.java)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        startActivity(RvSingleActivity::class.java)
-    }
+    /*override fun canBack() = false*/
 }
 
-class VM : ViewModel() {}
+class WeightActivity : BaseBtnFlowActivity() {
+
+    override fun getData() = mutableListOf("FlowLayout")
+
+    override fun onClick(pos: Int) {
+        super.onClick(pos)
+        when (pos) {
+            0 -> startActivity(FlowLayoutActivity::class.java)
+        }
+    }
+}

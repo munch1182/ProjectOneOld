@@ -2,13 +2,13 @@
 <resources>
 
     <!--不会受到AppTheme影响，能被同名样式覆盖-->
-    <style name="AppTheme.TextBig" parent="TextAppearance.MaterialComponents.Headline5" />
+    <style name="AppTheme.Text.Big" parent="TextAppearance.MaterialComponents.Headline5" />
 
-    <style name="AppTheme.TextTitle" parent="TextAppearance.MaterialComponents.Subtitle1" />
+    <style name="AppTheme.Text.Title" parent="TextAppearance.MaterialComponents.Subtitle1" />
 
-    <style name="AppTheme.TextSubtitle" parent="TextAppearance.MaterialComponents.Subtitle2" />
+    <style name="AppTheme.Text.Subtitle" parent="TextAppearance.MaterialComponents.Subtitle2" />
 
-    <style name="AppTheme.TextBigger" parent="TextAppearance.MaterialComponents.Body1" />
+    <style name="AppTheme.Text.Bigger" parent="TextAppearance.MaterialComponents.Body1" />
 
     <style name="AppTheme.Text" parent="TextAppearance.MaterialComponents.Body2" />
 
