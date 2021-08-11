@@ -16,6 +16,14 @@ class MainActivity : BaseRvActivity() {
             AboutActivity::class.java,
             AboutActivity::class.java,
             AboutActivity::class.java,
+            AboutActivity::class.java,
+            AboutActivity::class.java,
+            AboutActivity::class.java,
+            AboutActivity::class.java,
+            AboutActivity::class.java,
+            AboutActivity::class.java,
+            AboutActivity::class.java,
+            AboutActivity::class.java,
             AboutActivity::class.java
         )
 

@@ -25,7 +25,10 @@ open class BaseBigTextTitleActivity : BaseActivity() {
     override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
         super.setContentView(R.layout.layout_big_text_title)
 
-        findViewById<NestedScrollView>(R.id.title_scroll_view).apply { addView(view, params) }
+        findViewById<NestedScrollView>(R.id.title_scroll_view).apply {
+            addView(view, params)
+            scrollY = 0
+        }
         findViewById<View>(R.id.title_back).apply {
             if (canBack()) {
                 setOnClickListener { onBackPressed() }

@@ -6,65 +6,50 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".base.BaseBigTextTitleActivity"
     tools:ignore="UseCompoundDrawables">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:orientation="vertical"
-        app:elevation="0dp">
+    <!--因为布局简单，所以可以直接用padding、margin的值即可放置到相应位置-->
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                app:layout_collapseMode="pin">
-
-                <FrameLayout
-                    android:id="@+id/title_back"
-                    style="@style/AppTheme.Clickable"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:src="?android:attr/homeAsUpIndicator"
-                        tools:ignore="ContentDescription" />
-                </FrameLayout>
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/title_tv"
-                style="@style/AppTheme.Text.Big"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/paddingDef"
-                android:layout_marginTop="96dp"
-                android:layout_marginEnd="@dimen/paddingDef"
-                android:layout_marginBottom="16dp"
-                android:textSize="32sp"
-                tools:text="textView" />
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
+    <!-- 128 = 144-16-->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/title_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginTop="48dp"
+        android:clipToPadding="false"
         android:overScrollMode="never"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+        android:paddingTop="128dp"
+        tools:ignore="SpeakableTextPresentCheck" />
 
+    <FrameLayout
+        android:id="@+id/title_back"
+        style="@style/AppTheme.Clickable"
+        android:layout_width="48dp"
+        android:layout_height="48dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="?android:attr/homeAsUpIndicator"
+            tools:ignore="ContentDescription" />
+    </FrameLayout>
+
+    <!--144=32*3+48-->
+    <TextView
+        android:id="@+id/title_tv"
+        style="@style/AppTheme.Text.Big"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/paddingDef"
+        android:layout_marginTop="144dp"
+        android:layout_marginEnd="@dimen/paddingDef"
+        android:layout_marginBottom="16dp"
+        android:textSize="32sp"
+        app:layout_anchor="@id/title_scroll_view"
+        app:layout_behavior="com.munch.lib.fast.base.TitleTransBehavior"
+        tools:text="textView" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
