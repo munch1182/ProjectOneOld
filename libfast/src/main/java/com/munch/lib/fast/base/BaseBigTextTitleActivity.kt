@@ -4,9 +4,12 @@ import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.NestedScrollView
+import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.munch.lib.base.ViewHelper
+import com.munch.lib.base.setDoubleClickListener
 import com.munch.lib.fast.R
 import com.munch.lib.helper.BarHelper
 
@@ -20,7 +23,7 @@ import com.munch.lib.helper.BarHelper
 open class BaseBigTextTitleActivity : BaseActivity() {
 
     protected open val container: FrameLayout by lazy { findViewById(android.R.id.content) }
-    protected open val titleTv: TextView by lazy { findViewById(R.id.title_tv) }
+    protected open val ctlView: CollapsingToolbarLayout by lazy { findViewById(R.id.title_ctl_view) }
 
     override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
         super.setContentView(R.layout.layout_big_text_title)
@@ -29,16 +32,16 @@ open class BaseBigTextTitleActivity : BaseActivity() {
             addView(view, params)
             scrollY = 0
         }
-        findViewById<View>(R.id.title_back).apply {
+        findViewById<Toolbar>(R.id.title_tb_view).apply {
             if (canBack()) {
                 setOnClickListener { onBackPressed() }
             } else {
-                visibility = View.INVISIBLE
+                navigationIcon = null
             }
         }
+        ctlView.setDoubleClickListener { showNotice() }
 
         title = this::class.java.simpleName.replace("Activity", "")
-
         setBar()
     }
 
@@ -58,12 +61,18 @@ open class BaseBigTextTitleActivity : BaseActivity() {
     }
 
     override fun setTitle(titleId: Int) {
-        titleTv.setText(titleId)
+        title = getString(titleId)
     }
 
     override fun setTitle(title: CharSequence?) {
-        titleTv.text = title
+        //CollapsingToolbarLayout内设置了title，会自动添加与Toolbar的title的变化动画(是以绘制的方式)
+        //详见com.google.android.material.appbar.CollapsingToolbarLayout的toolbarId和collapsingTextHelper参数以及onDraw方法
+        ctlView.title = title
     }
 
     protected open fun canBack() = true
+
+    protected open fun showNotice() {
+        BottomSheetDialog(this, R.style.AppTheme_Dialog_Trans).show()
+    }
 }

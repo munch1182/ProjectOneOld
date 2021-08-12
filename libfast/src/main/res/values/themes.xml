@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <color name="colorPrimary">#00b0ff</color>
+    <color name="colorPrimaryVariant">#0081cb</color>
+    <color name="colorSecondary">#00b8d4</color>
+    <color name="colorSecondaryVariant">#0088a3</color>
+    <color name="white">#fff</color>
+    <color name="black">#000</color>
+
     <!--不会受到AppTheme影响，能被同名样式覆盖-->
     <style name="AppTheme.Text.Big" parent="TextAppearance.MaterialComponents.Headline5" />
 
@@ -29,5 +36,24 @@
 
     <style name="AppTheme.Clickable" parent="Theme.MaterialComponents">
         <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="AppTheme.WhitColorPrimary" parent="Theme.MaterialComponents.DayNight">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">#fff</item>
+    </style>
+
+    <!--背景透明的dialog-->
+    <style name="AppTheme.Dialog.Trans" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+        <!--是否去除边框-->
+        <item name="android:windowFrame">@null</item>
+        <!--是否去除标题 -->
+        <item name="windowNoTitle">true</item>
+        <!--背景颜色及和透明程度-->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!--是否浮现在activity之上-->
+        <item name="android:windowIsFloating">true</item>
+        <!--是否模糊-->
+        <item name="android:backgroundDimEnabled">true</item>
     </style>
 </resources>

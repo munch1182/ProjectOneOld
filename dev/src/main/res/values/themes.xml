@@ -15,6 +15,13 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <color name="colorPrimary">#00b0ff</color>
+    <color name="colorPrimaryVariant">#0081cb</color>
+    <color name="colorSecondary">#00b8d4</color>
+    <color name="colorSecondaryVariant">#0088a3</color>
+    <color name="white">#fff</color>
+    <color name="black">#000</color>
+
     <style name="Theme.P1" parent="AppTheme" />
 
 </resources>

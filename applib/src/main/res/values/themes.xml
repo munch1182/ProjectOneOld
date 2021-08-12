@@ -16,6 +16,5 @@
     </style>
 
     <attr name="btnOutlineStyle" format="reference" />
-
     <style name="ButtonOutlineStyle" parent="AppTheme.Button.Outline" />
 </resources>

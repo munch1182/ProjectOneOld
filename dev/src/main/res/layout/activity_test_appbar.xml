@@ -2,45 +2,40 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/title_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".base.BaseBigTextTitleActivity"
-    tools:ignore="UseCompoundDrawables">
+    tools:context=".test.TestAppbarActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="240dp"
-        android:theme="@style/AppTheme.WhitColorPrimary">
+        android:background="#fff"
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/title_ctl_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:theme="@style/AppTheme.WhitColorPrimary"
             app:expandedTitleMarginStart="16dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:toolbarId="@id/title_tb_view"
-            tools:title="title">
+            app:title="AppBarLayout"
+            app:toolbarId="@+id/test_appbar_toolbar_view">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/title_tb_view"
+                android:id="@+id/test_appbar_toolbar_view"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:navigationIcon="?attr/homeAsUpIndicator"
-                app:popupTheme="@style/AppTheme.WhitColorPrimary" />
+                app:navigationIcon="?attr/homeAsUpIndicator" />
+
         </com.google.android.material.appbar.CollapsingToolbarLayout>
+
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/title_scroll_view"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/test_appbar_rv_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clipToPadding="false"
         android:overScrollMode="never"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-        tools:ignore="SpeakableTextPresentCheck" />
-
+        tools:listitem="@layout/item_simple_tv" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

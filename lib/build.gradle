@@ -8,4 +8,5 @@ apply from: '../buildCom/commonbuildktx.gradle'
 dependencies {
 
     api Deps.recyclerview
+    api Deps.constraintLayout
 }

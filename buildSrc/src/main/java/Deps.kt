@@ -3,7 +3,7 @@ object Version {
     const val compileSdk = 30
 
     const val misSdk = 23
-    const val targetSdk = 23
+    const val targetSdk = 30
 
     const val defaultVersionCode = 1
     const val defaultVersionName = "1.0"

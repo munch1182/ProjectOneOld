@@ -1,8 +1,11 @@
 package com.munch.lib.base
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.View
 import android.view.ViewGroup
+import com.munch.lib.R
 
 @FunctionalInterface
 interface ViewCreator {
@@ -26,7 +29,7 @@ fun View.setMarginOrKeep(
 }
 
 /**
- * 给[View]添加四个方向的margin值，如果某个值未设置或者为-1，则不更改其原本的值
+ * 给[View]添加四个方向的margin值，如果某个值未设置，则不更改其原本的值
  *
  * 如果[View]有[View.getLayoutParams]，则优先使用其值，否则使用[lpIfNo]，否则新建一个[ViewGroup.LayoutParams.WRAP_CONTENT]的[ViewGroup.MarginLayoutParams]
  */
@@ -53,7 +56,20 @@ fun View.addMargin(
     layoutParams = lp
 }
 
+fun View.setDoubleClickListener(time: Long = 300L, listener: View.OnClickListener) {
+    setOnClickListener {
+        val lastClickTime = it.getTag(ViewHelper.viewClickTimeId) as? Long?
+        if (lastClickTime != null && System.currentTimeMillis() - lastClickTime <= time) {
+            listener.onClick(it)
+            return@setOnClickListener
+        }
+        it.setTag(ViewHelper.viewClickTimeId, System.currentTimeMillis())
+    }
+}
+
 object ViewHelper {
+
+    val viewClickTimeId = R.id.clickTime
 
     /**
      * 新建一个有margin值的[ViewGroup.MarginLayoutParams]
@@ -116,5 +132,34 @@ object ViewHelper {
         ViewGroup.LayoutParams.MATCH_PARENT,
         ViewGroup.LayoutParams.WRAP_CONTENT
     )
+
+    /**
+     * 生成一个圆角的Drawable
+     *
+     * @param color Drawable颜色
+     * @param tl TopLeftRadius
+     * @param tr BottomRightRadius
+     * @param bl BottomLeftRadius
+     * @param br BottomRightRadius
+     * @param stockWidth 边框宽度
+     * @param stockColor 边框颜色
+     */
+    fun newCornerDrawable(
+        color: Int,
+        tl: Float = 0f,
+        tr: Float = 0f,
+        bl: Float = 0f,
+        br: Float = 0f,
+        stockWidth: Int = 0,
+        stockColor: Int = Color.WHITE
+    ): GradientDrawable {
+        val gradientDrawable = GradientDrawable()
+        val f = floatArrayOf(tl, tl, tr, tr, bl, bl, br, br)
+        gradientDrawable.cornerRadii = f
+        gradientDrawable.setColor(color)
+        gradientDrawable.setStroke(stockWidth, stockColor)
+        return gradientDrawable
+
+    }
 
 }

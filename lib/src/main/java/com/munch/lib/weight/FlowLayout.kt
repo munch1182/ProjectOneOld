@@ -1,6 +1,9 @@
 package com.munch.lib.weight
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +11,7 @@ import androidx.annotation.IntDef
 import androidx.core.view.children
 import com.munch.lib.helper.array.RectArrayHelper
 import com.munch.lib.helper.array.SpecialArrayHelper
+import com.munch.lib.log.log
 
 /**
  * 用于流布局
@@ -23,6 +27,10 @@ class FlowLayout @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     styleDef: Int = 0
 ) : ViewGroup(context, attrs, styleDef) {
+
+    init {
+        setWillNotDraw(false)
+    }
 
     //行间隔
     var itemLinesSpace = 8
@@ -165,6 +173,30 @@ class FlowLayout @JvmOverloads constructor(
         return MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
     }
 
+    private val paint = Paint().apply {
+        color = Color.RED
+        strokeWidth = 2f
+    }
+
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
+        canvas ?: return
+        log(width, height)
+        canvas.drawLines(
+            floatArrayOf(
+                1f, 1f,
+                width.toFloat() - 1f, 1f,
+                width.toFloat() - 1f, 1f,
+                width.toFloat() - 1f, height.toFloat() - 1f,
+                width.toFloat() - 1f, height.toFloat() - 1f,
+                1f, height.toFloat(),
+                1f, height.toFloat(),
+                1f, 1f
+            ),
+            paint
+        )
+    }
+
     private class LayoutHelper {
         val rectArrayHelper = RectArrayHelper()
         val lineInfoArrayHelper = LineArrayHelper()
@@ -296,8 +328,15 @@ class FlowLayout @JvmOverloads constructor(
         }
     }
 
-    @IntDef(START, END, CENTER, CENTER_VERTICAL, CENTER_HORIZONTAL, END_CENTER_VERTICAL)
-    @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
+    @IntDef(
+        START,
+        END,
+        CENTER,
+        CENTER_VERTICAL,
+        CENTER_HORIZONTAL,
+        END_CENTER_VERTICAL,
+        END_CENTER_HORIZONTAL
+    )
     @Retention(AnnotationRetention.SOURCE)
     annotation class Gravity
 
@@ -307,6 +346,7 @@ class FlowLayout @JvmOverloads constructor(
         const val CENTER = 2
         const val CENTER_VERTICAL = 3
         const val CENTER_HORIZONTAL = 4
-        const val END_CENTER_VERTICAL = 5
+        const val END_CENTER_HORIZONTAL = 5
+        const val END_CENTER_VERTICAL = 6
     }
 }

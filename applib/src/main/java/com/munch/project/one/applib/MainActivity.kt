@@ -11,7 +11,7 @@ class MainActivity : BaseRvActivity() {
     override val targets: MutableList<Class<out BaseActivity>> =
         mutableListOf(WeightActivity::class.java)
 
-    /*override fun canBack() = false*/
+    override fun canBack() = false
 }
 
 class WeightActivity : BaseBtnFlowActivity() {

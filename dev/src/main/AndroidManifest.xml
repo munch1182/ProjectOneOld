@@ -22,6 +22,8 @@
         </activity>
         <activity android:name=".AboutActivity" />
         <activity android:name=".IntentActivity" />
+        <activity android:name=".test.TestAppbarActivity" />
+        <activity android:name=".test.TestActivity" />
     </application>
 
 </manifest>
