@@ -9,4 +9,5 @@ dependencies {
 
     api Deps.recyclerview
     api Deps.constraintLayout
+    api Deps.mmkv
 }

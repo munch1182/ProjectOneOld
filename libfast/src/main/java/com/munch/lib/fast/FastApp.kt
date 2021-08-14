@@ -5,6 +5,7 @@ import android.app.Application
 import android.os.StatFs
 import com.munch.lib.app.AppHelper
 import com.munch.lib.helper.PhoneHelper
+import com.munch.lib.helper.data.MMKVHelper
 import com.munch.lib.log.log
 
 /**
@@ -24,6 +25,7 @@ object FastAppHelper {
 
     fun init(app: Application) {
         AppHelper.init(app)
+        MMKVHelper.init(app)
         Thread.setDefaultUncaughtExceptionHandler { _, e -> log(e) }
     }
 

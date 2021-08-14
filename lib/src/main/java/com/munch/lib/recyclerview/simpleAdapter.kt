@@ -1,9 +1,10 @@
 package com.munch.lib.recyclerview
 
 import android.content.Context
-import android.util.ArrayMap
+import android.util.SparseArray
 import android.view.View
 import androidx.annotation.LayoutRes
+import androidx.core.util.forEach
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.AsyncListDiffer
@@ -84,25 +85,29 @@ open class SimpleDiffAdapter<D> private constructor(
 
 open class SimpleMutliAdapter<D>(
     getter: ItemViewTypeGetter? = null,
-    arrayMap: ArrayMap<Int, Any>? = null
+    map: SparseArray<Any>? = null,
+    private val initData: MutableList<D>? = null,
 ) : BaseRecyclerViewAdapter<D, BaseViewHolder>(), MultiViewModule {
 
     constructor() : this(null, null)
 
     init {
-        setMultiType(getter, arrayMap)
+        setMultiType(getter, map)
     }
 
-    private fun setMultiType(getter: ItemViewTypeGetter?, arrayMap: ArrayMap<Int, Any>?) {
+    private fun setMultiType(getter: ItemViewTypeGetter?, arrayMap: SparseArray<Any>?) {
         getter ?: return
         arrayMap ?: return
         multiViewHelper.setType(getter)
-        arrayMap.forEach {
-            when (it.value) {
-                is Int -> multiViewHelper.setTypeView(it.key, it.value as Int)
-                is ViewCreator -> multiViewHelper.setTypeView(it.key, it.value as ViewCreator)
+        arrayMap.forEach { key, value ->
+            when (value) {
+                is Int -> multiViewHelper.setTypeView(key, value)
+                is ViewCreator -> multiViewHelper.setTypeView(key, value)
                 else -> throw IllegalStateException()
             }
+        }
+        if (initData != null) {
+            data.addAll(initData)
         }
     }
 

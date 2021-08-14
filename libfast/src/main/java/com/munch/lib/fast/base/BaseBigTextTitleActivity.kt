@@ -7,7 +7,6 @@ import android.widget.FrameLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.NestedScrollView
 import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.munch.lib.base.ViewHelper
 import com.munch.lib.base.setDoubleClickListener
 import com.munch.lib.fast.R
@@ -73,6 +72,8 @@ open class BaseBigTextTitleActivity : BaseActivity() {
     protected open fun canBack() = true
 
     protected open fun showNotice() {
-        BottomSheetDialog(this, R.style.AppTheme_Dialog_Trans).show()
+        newBottomDialog().show()
     }
+
+    fun checkActivity() {}
 }

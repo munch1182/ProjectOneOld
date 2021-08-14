@@ -141,8 +141,8 @@ object ViewHelper {
      * @param tr BottomRightRadius
      * @param bl BottomLeftRadius
      * @param br BottomRightRadius
-     * @param stockWidth 边框宽度
-     * @param stockColor 边框颜色
+     * @param strokeWidth 边框宽度
+     * @param strokeColor 边框颜色
      */
     fun newCornerDrawable(
         color: Int,
@@ -150,14 +150,14 @@ object ViewHelper {
         tr: Float = 0f,
         bl: Float = 0f,
         br: Float = 0f,
-        stockWidth: Int = 0,
-        stockColor: Int = Color.WHITE
+        strokeWidth: Int = 0,
+        strokeColor: Int = Color.WHITE
     ): GradientDrawable {
         val gradientDrawable = GradientDrawable()
         val f = floatArrayOf(tl, tl, tr, tr, bl, bl, br, br)
         gradientDrawable.cornerRadii = f
         gradientDrawable.setColor(color)
-        gradientDrawable.setStroke(stockWidth, stockColor)
+        gradientDrawable.setStroke(strokeWidth, strokeColor)
         return gradientDrawable
 
     }
