@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.setPadding
-import com.munch.lib.base.OnViewIndexClickListener
+import com.munch.lib.base.OnViewIntClickListener
 import com.munch.lib.fast.R
 import com.munch.lib.weight.FlowLayout
 
@@ -23,9 +23,9 @@ open class BaseBtnFlowActivity : BaseBigTextTitleActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val onItemClick = object : OnViewIndexClickListener {
-            override fun onClick(v: View?, pos: Int) {
-                onClick(pos)
+        val onItemClick = object : OnViewIntClickListener {
+            override fun onClick(v: View?, intVal: Int) {
+                onClick(intVal)
             }
         }
         setContentView(flowLayout.apply {

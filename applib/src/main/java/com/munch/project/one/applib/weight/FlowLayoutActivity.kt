@@ -1,11 +1,13 @@
 package com.munch.project.one.applib.weight
 
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
+import com.munch.lib.base.OnViewIntClickListener
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
 import com.munch.lib.weight.Gravity
 import com.munch.lib.weight.debug.DebugFlowLayout
@@ -19,12 +21,28 @@ class FlowLayoutActivity : BaseBigTextTitleActivity() {
 
     private val flowLayout by lazy { findViewById<DebugFlowLayout>(R.id.flow_view) }
     private val gravity by lazy { findViewById<TextView>(R.id.flow_gravity_view) }
+    private val maxCount by lazy { findViewById<TextView>(R.id.flow_max_count_view) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_flow_layout)
         addContent()
         gravity.setOnClickListener { changeGravity() }
         gravity.tag = Gravity.all.indexOf(flowLayout.gravityFlags)
+        maxCount.setOnClickListener(object : OnViewIntClickListener {
+            override fun onClick(v: View?, intVal: Int) {
+                super.onClick(v, intVal)
+                var count = intVal + 1
+                if (count == 0) {
+                    count = 1
+                } else if (count > 6) {
+                    count = -1
+                }
+                flowLayout.set { maxCountInLine = count }
+                maxCount.text = String.format("%s%s", "Max Count: ", count)
+                maxCount.tag = count
+            }
+        })
+        maxCount.tag = -1
     }
 
     private fun changeGravity() {
@@ -57,8 +75,10 @@ class FlowLayoutActivity : BaseBigTextTitleActivity() {
             repeat(30) {
                 addView(MaterialButton(context, null, R.attr.btnOutlineStyle).apply {
                     layoutParams = ViewGroup.LayoutParams(
-                        Random.nextInt(60, 200), Random.nextInt(60, 130)
+                        ViewGroup.LayoutParams.WRAP_CONTENT, Random.nextInt(60, 130)
                     ).apply { setPadding(8, 0, 8, 0) }
+                    minWidth = Random.nextInt(30, 80)
+                    maxWidth = Random.nextInt(80, 280)
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         TextViewCompat.setAutoSizeTextTypeWithDefaults(
                             this, AppCompatTextView.AUTO_SIZE_TEXT_TYPE_UNIFORM
@@ -67,7 +87,7 @@ class FlowLayoutActivity : BaseBigTextTitleActivity() {
                     insetTop = 0
                     insetBottom = 0
                     maxLines = 1
-                    val length = Random.nextInt(3, 9)
+                    val length = Random.nextInt(2, 6)
                     text = PI.subSequence(index, index + length)
                     index += length
                 })

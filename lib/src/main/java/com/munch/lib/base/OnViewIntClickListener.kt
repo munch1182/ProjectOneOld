@@ -5,11 +5,11 @@ import android.view.View
 /**
  * Create by munch1182 on 2021/8/10 17:46.
  */
-interface OnViewIndexClickListener : View.OnClickListener, View.OnLongClickListener {
+interface OnViewIntClickListener : View.OnClickListener, View.OnLongClickListener {
 
     override fun onClick(v: View?) {
-        val holder = v?.tag as? Int? ?: return
-        onClick(v, holder)
+        val intVal = v?.tag as? Int? ?: return
+        onClick(v, intVal)
     }
 
     override fun onLongClick(v: View?): Boolean {
@@ -17,6 +17,6 @@ interface OnViewIndexClickListener : View.OnClickListener, View.OnLongClickListe
         return onLongClick(v, holder)
     }
 
-    fun onClick(v: View?, pos: Int) {}
-    fun onLongClick(v: View?, pos: Int): Boolean = false
+    fun onClick(v: View?, intVal: Int) {}
+    fun onLongClick(v: View?, intVal: Int): Boolean = false
 }

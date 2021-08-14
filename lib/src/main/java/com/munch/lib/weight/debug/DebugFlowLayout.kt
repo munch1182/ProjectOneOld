@@ -14,6 +14,9 @@ import com.munch.lib.weight.Gravity
 import com.munch.lib.weight.ViewUpdate
 
 /**
+ *
+ * @see com.munch.lib.weight.FlowLayout
+ *
  * Create by munch1182 on 2021/8/14 14:40.
  */
 class DebugFlowLayout @JvmOverloads constructor(
@@ -92,9 +95,9 @@ class DebugFlowLayout @JvmOverloads constructor(
             //index == 0时走上面的判断，避免第一个宽度过大显示错误
             //第一个时无需考虑间隔
             val space = if (index == 0) 0 else itemSpace
-            if (index == 0 || leftWidth >= viewWidth + space
-                || (maxCountInLine > -1 && layoutHelper.lineInfo.lineViewCount <= maxCountInLine)
-            ) {
+            val countIsMax =
+                if (maxCountInLine == -1) true else layoutHelper.lineInfo.lineViewCount < maxCountInLine
+            if (index == 0 || (leftWidth >= viewWidth + space && countIsMax)) {
                 rowsUsedWidth += viewWidth + space
                 //如果这个view更高，则更新高度
                 if (allRowsUsedHeight + viewHeight > rowsUsedHeight) {

@@ -15,6 +15,15 @@
         android:text="Gravity: \nSTART | BOTTOM"
         tools:ignore="HardcodedText" />
 
+    <TextView
+        android:id="@+id/flow_max_count_view"
+        style="@style/AppTheme.Text.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/paddingSmall"
+        android:text="Max Count: -1"
+        tools:ignore="HardcodedText" />
+
     <com.munch.lib.weight.debug.DebugFlowLayout
         android:id="@+id/flow_view"
         android:layout_width="match_parent"
