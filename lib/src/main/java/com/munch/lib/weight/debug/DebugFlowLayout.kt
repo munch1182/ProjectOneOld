@@ -1,27 +1,30 @@
-package com.munch.lib.weight
+package com.munch.lib.weight.debug
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
 import com.munch.lib.helper.array.RectArrayHelper
 import com.munch.lib.helper.array.SpecialArrayHelper
+import com.munch.lib.weight.Gravity
+import com.munch.lib.weight.ViewUpdate
 
 /**
- * 用于流布局
- * 目标：
- * 1. 可以设置对齐方式(start,end,center,center_vertical,center_horizontal,end_center_vertical)
- * 2. 可以设置每行最大个数
- * 3. 可以设置间隔
- *
- * Create by munch1182 on 2021/8/10 17:33.
+ * Create by munch1182 on 2021/8/14 14:40.
  */
-class FlowLayout @JvmOverloads constructor(
+class DebugFlowLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     styleDef: Int = 0
-) : ViewGroup(context, attrs, styleDef), ViewUpdate<FlowLayout> {
+) : ViewGroup(context, attrs, styleDef), ViewUpdate<DebugFlowLayout> {
+
+    init {
+        setWillNotDraw(false)
+    }
 
     //行间隔
     var itemLinesSpace = 8
@@ -38,7 +41,7 @@ class FlowLayout @JvmOverloads constructor(
 
     private val layoutHelper = LayoutHelper()
 
-    override fun set(set: FlowLayout.() -> Unit) {
+    override fun set(set: DebugFlowLayout.() -> Unit) {
         super.set(set)
         layoutHelper.gravityFlags = gravityFlags
         requestLayout()
@@ -178,6 +181,26 @@ class FlowLayout @JvmOverloads constructor(
 
     override fun generateDefaultLayoutParams(): LayoutParams {
         return MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+    }
+
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.RED
+        strokeWidth = 2f
+        style = Paint.Style.STROKE
+    }
+
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
+        canvas ?: return
+        val count = layoutHelper.lineInfoArrayHelper.getCount()
+        val left = paddingLeft.toFloat()
+        val right = width.toFloat() - paddingRight.toFloat()
+        repeat(count) {
+            layoutHelper.startLayout(it).apply {
+                canvas.drawRect(left, lineTop.toFloat(), right, lineBottom.toFloat(), paint)
+                canvas.drawLine(left, lineCenterY.toFloat(), right, lineCenterY.toFloat(), paint)
+            }
+        }
     }
 
     private class LayoutHelper {
@@ -327,5 +350,4 @@ class FlowLayout @JvmOverloads constructor(
             )
         }
     }
-
 }

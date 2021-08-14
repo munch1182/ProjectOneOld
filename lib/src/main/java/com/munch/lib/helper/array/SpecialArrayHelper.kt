@@ -41,6 +41,8 @@ open class SpecialArrayHelper(private val unit: Int) {
 
     open fun getArray() = array
 
+    open fun getCount() = array.size / unit
+
     override fun toString(): String {
         val sb = StringBuilder()
         sb.append("array(\n")
@@ -55,5 +57,4 @@ open class SpecialArrayHelper(private val unit: Int) {
         sb.append(")")
         return sb.toString()
     }
-
 }

@@ -7,13 +7,12 @@ import com.munch.lib.helper.data.MMKVHelper
  */
 object DataHelper {
 
-
-    var firstActivity: Class<out BaseActivity>?
+    var selectedActivity: Class<out BaseActivity>?
         set(value) {
-            SET.instance.put(SET.KEY_FIRST_ACTIVITY, value?.canonicalName)
+            SET.instance.put(SET.KEY_SELECTED_ACTIVITY, value?.canonicalName)
         }
         @Suppress("UNCHECKED_CAST")
-        get() = SET.instance.get<String>(SET.KEY_FIRST_ACTIVITY, null)?.let {
+        get() = SET.instance.get<String>(SET.KEY_SELECTED_ACTIVITY, null)?.let {
             Class.forName(it) as? Class<BaseActivity>
         }
 
@@ -21,7 +20,7 @@ object DataHelper {
 
         private const val ID_KEY_SET = "id_key_set"
 
-        const val KEY_FIRST_ACTIVITY = "key_first_activity"
+        const val KEY_SELECTED_ACTIVITY = "key_selected_activity"
 
         val instance by lazy { MMKVHelper(ID_KEY_SET) }
     }

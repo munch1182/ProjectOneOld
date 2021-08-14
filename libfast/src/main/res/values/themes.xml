@@ -33,6 +33,8 @@
     <style name="AppTheme.Overline" parent="TextAppearance.MaterialComponents.Overline" />
 
     <dimen name="paddingDef">16dp</dimen>
+    <dimen name="paddingSmall">8dp</dimen>
+    <dimen name="radiusDef">8dp</dimen>
 
     <style name="AppTheme.Clickable" parent="Theme.MaterialComponents">
         <item name="android:background">?android:attr/selectableItemBackground</item>
@@ -43,8 +45,8 @@
         <item name="colorPrimary">#fff</item>
     </style>
 
-    <!--背景透明的dialog-->
-    <style name="AppTheme.Dialog.Trans" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+    <!--背景透明的BottomSheetDialog-->
+    <style name="AppTheme.BottomSheetDialog.Trans" parent="Theme.MaterialComponents.BottomSheetDialog">
         <!--是否去除边框-->
         <item name="android:windowFrame">@null</item>
         <!--是否去除标题 -->

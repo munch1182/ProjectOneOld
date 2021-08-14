@@ -16,7 +16,7 @@ import com.munch.lib.weight.FlowLayout
  */
 open class BaseBtnFlowActivity : BaseBigTextTitleActivity() {
 
-    protected val flowLayout by lazy {
+    private val flowLayout by lazy {
         FlowLayout(this).apply { setPadding(16) }
     }
 

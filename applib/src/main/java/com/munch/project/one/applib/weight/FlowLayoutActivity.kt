@@ -1,16 +1,14 @@
 package com.munch.project.one.applib.weight
 
-import android.content.Context
 import android.os.Bundle
-import android.view.Gravity
-import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.widget.TextViewCompat
 import com.google.android.material.button.MaterialButton
-import com.munch.lib.base.OnViewIndexClickListener
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
-import com.munch.lib.weight.FlowLayout
+import com.munch.lib.weight.Gravity
+import com.munch.lib.weight.debug.DebugFlowLayout
 import com.munch.project.one.applib.R
 import kotlin.random.Random
 
@@ -19,26 +17,56 @@ import kotlin.random.Random
  */
 class FlowLayoutActivity : BaseBigTextTitleActivity() {
 
-    private val flowLayout by lazy { findViewById<FlowLayout>(R.id.flow_view) }
+    private val flowLayout by lazy { findViewById<DebugFlowLayout>(R.id.flow_view) }
+    private val gravity by lazy { findViewById<TextView>(R.id.flow_gravity_view) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_flow_layout)
         addContent()
+        gravity.setOnClickListener { changeGravity() }
+        gravity.tag = Gravity.all.indexOf(flowLayout.gravityFlags)
+    }
+
+    private fun changeGravity() {
+        var index = (gravity.tag as? Int) ?: return
+        index++
+        if (index > Gravity.all.size || index < 0) {
+            index = 0
+        }
+        val type = Gravity.all[index]
+        var typeStr = ""
+        when {
+            Gravity.hasFlag(type, Gravity.CENTER_HORIZONTAL) -> typeStr = "CENTER_HORIZONTAL"
+            Gravity.hasFlag(type, Gravity.START) -> typeStr = "START"
+            Gravity.hasFlag(type, Gravity.END) -> typeStr = "END"
+        }
+        when {
+            Gravity.hasFlag(type, Gravity.CENTER_VERTICAL) -> typeStr = "$typeStr | CENTER_VERTICAL"
+            Gravity.hasFlag(type, Gravity.TOP) -> typeStr = "$typeStr | TOP"
+            Gravity.hasFlag(type, Gravity.BOTTOM) -> typeStr = "$typeStr | BOTTOM"
+        }
+        gravity.text = String.format("%s\r\n%s", "Gravity: ", typeStr)
+        gravity.tag = type
+
+        flowLayout.set { gravityFlags = type }
     }
 
     private fun addContent() {
         flowLayout.apply {
             var index = 0
-            repeat(10) {
-                addView(newButton(this.context).apply {
+            repeat(30) {
+                addView(MaterialButton(context, null, R.attr.btnOutlineStyle).apply {
                     layoutParams = ViewGroup.LayoutParams(
-                        Random.nextInt(180, 500), Random.nextInt(180, 260)
+                        Random.nextInt(60, 200), Random.nextInt(60, 130)
                     ).apply { setPadding(8, 0, 8, 0) }
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         TextViewCompat.setAutoSizeTextTypeWithDefaults(
                             this, AppCompatTextView.AUTO_SIZE_TEXT_TYPE_UNIFORM
                         )
                     }
+                    insetTop = 0
+                    insetBottom = 0
+                    maxLines = 1
                     val length = Random.nextInt(3, 9)
                     text = PI.subSequence(index, index + length)
                     index += length
@@ -46,39 +74,6 @@ class FlowLayoutActivity : BaseBigTextTitleActivity() {
             }
         }
     }
-
-    private fun newGravityButton(context: Context, @FlowLayout.Gravity type: Int) =
-        newButton(context).apply {
-            tag = type
-            textSize = 12f
-            text = when (type) {
-                FlowLayout.START -> "START"
-                FlowLayout.END -> "END"
-                FlowLayout.CENTER -> "CENTER"
-                FlowLayout.CENTER_HORIZONTAL -> "CENTER_HORIZONTAL"
-                FlowLayout.CENTER_VERTICAL -> "CENTER_VERTICAL"
-                FlowLayout.END_CENTER_VERTICAL -> "END_CENTER_VERTICAL"
-                else -> ""
-            }
-            setOnClickListener(onGravityClickListener)
-        }
-
-    private val onGravityClickListener = object : OnViewIndexClickListener {
-        override fun onClick(v: View?, pos: Int) {
-            super.onClick(v, pos)
-            flowLayout.setGravity(pos)
-        }
-    }
-
-    private fun newButton(context: Context) =
-        MaterialButton(context, null, R.attr.btnOutlineStyle).apply {
-            insetTop = 0
-            insetBottom = 0
-            minWidth = 0
-            gravity = Gravity.CENTER
-            maxLines = 1
-        }
-
 
     companion object {
         private const val PI =

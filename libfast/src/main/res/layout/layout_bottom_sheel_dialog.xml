@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:color="@color/white"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    app:tlRadius="8dp"
-    app:trRadius="8dp"
+    android:paddingTop="@dimen/paddingSmall"
+    android:paddingBottom="@dimen/paddingSmall"
+    app:tlRadius="@dimen/radiusDef"
+    app:trRadius="@dimen/radiusDef"
     tools:color="@color/colorPrimary">
 
     <LinearLayout
@@ -22,8 +22,11 @@
             style="@style/AppTheme.Text.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="8dp"
             android:paddingStart="@dimen/paddingDef"
+            android:paddingTop="@dimen/paddingSmall"
+            android:paddingEnd="@dimen/paddingDef"
+            android:paddingBottom="@dimen/paddingSmall"
+            android:textColor="@color/black"
             tools:text="123" />
     </LinearLayout>
 </com.munch.lib.weight.CornerLayout>

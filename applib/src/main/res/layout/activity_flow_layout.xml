@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.munch.lib.weight.FlowLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/flow_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="@dimen/paddingDef"
-    tools:context=".weight.FlowLayoutActivity" />
+    tools:context=".weight.FlowLayoutActivity">
+
+    <TextView
+        android:id="@+id/flow_gravity_view"
+        style="@style/AppTheme.Text.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gravity: \nSTART | BOTTOM"
+        tools:ignore="HardcodedText" />
+
+    <com.munch.lib.weight.debug.DebugFlowLayout
+        android:id="@+id/flow_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/paddingSmall"
+        tools:background="@color/colorPrimary"
+        tools:layout_height="300dp" />
+</LinearLayout>

@@ -33,12 +33,12 @@ open class BaseBigTextTitleActivity : BaseActivity() {
         }
         findViewById<Toolbar>(R.id.title_tb_view).apply {
             if (canBack()) {
-                setOnClickListener { onBackPressed() }
+                setNavigationOnClickListener { onBackPressed() }
             } else {
                 navigationIcon = null
             }
         }
-        ctlView.setDoubleClickListener { showNotice() }
+        ctlView.setDoubleClickListener { showMenu() }
 
         title = this::class.java.simpleName.replace("Activity", "")
         setBar()
@@ -71,8 +71,8 @@ open class BaseBigTextTitleActivity : BaseActivity() {
 
     protected open fun canBack() = true
 
-    protected open fun showNotice() {
-        newBottomDialog().show()
+    protected open fun showMenu() {
+        newMenuDialog().show()
     }
 
     fun checkActivity() {}
