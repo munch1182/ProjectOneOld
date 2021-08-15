@@ -74,11 +74,12 @@ class FlowLayoutActivity : BaseBigTextTitleActivity() {
             var index = 0
             repeat(30) {
                 addView(MaterialButton(context, null, R.attr.btnOutlineStyle).apply {
+                    val length = Random.nextInt(2, 8)
+                    text = PI.subSequence(index, index + length)
+                    index += length
                     layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT, Random.nextInt(60, 130)
+                        length * 30, Random.nextInt(60, 130)
                     ).apply { setPadding(8, 0, 8, 0) }
-                    minWidth = Random.nextInt(30, 80)
-                    maxWidth = Random.nextInt(80, 280)
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         TextViewCompat.setAutoSizeTextTypeWithDefaults(
                             this, AppCompatTextView.AUTO_SIZE_TEXT_TYPE_UNIFORM
@@ -87,9 +88,6 @@ class FlowLayoutActivity : BaseBigTextTitleActivity() {
                     insetTop = 0
                     insetBottom = 0
                     maxLines = 1
-                    val length = Random.nextInt(2, 6)
-                    text = PI.subSequence(index, index + length)
-                    index += length
                 })
             }
         }
