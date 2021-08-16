@@ -12,26 +12,33 @@ class MatcherTest {
 
     @Test
     fun test() {
-        val compile = Pattern.compile("^.?\\d\\.\\d+")
-        var str = "v0.2-17-ge2f11a3"
+        val compile = Pattern.compile("^.?\\d\\.\\d+(-\\d+)?")
+        var str = "v0.2"
         var matcher = compile.matcher(str)
         println("matcher:$matcher}")
         if (matcher.find()) {
-            println("matcher:${str.subSequence(matcher.start(), matcher.end())}")
+            val replace =
+                str.subSequence(matcher.start(), matcher.end()).toString().replace("-", ".")
+            println("matcher:$replace")
         }
 
-        str = "v0.21-17-ge2f11a3"
+
+        str = "v0.2-17-ge2f11a3"
         matcher = compile.matcher(str)
         println("matcher:$matcher}")
         if (matcher.find()) {
-            println("matcher:${str.subSequence(matcher.start(), matcher.end())}")
+            val replace =
+                str.subSequence(matcher.start(), matcher.end()).toString().replace("-", ".")
+            println("matcher:$replace")
         }
 
         str = "a1.21-17-ge2f11a3"
         matcher = compile.matcher(str)
         println("matcher:$matcher}")
         if (matcher.find()) {
-            println("matcher:${str.subSequence(matcher.start(), matcher.end())}")
+            val replace =
+                str.subSequence(matcher.start(), matcher.end()).toString().replace("-", ".")
+            println("matcher:$replace")
         }
 
         println(SimpleDateFormat("yyyyMMddHHmmss").format(Date()))

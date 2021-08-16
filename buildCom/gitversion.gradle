@@ -1,3 +1,6 @@
+import java.util.function.Consumer
+import java.util.regex.Pattern
+
 /*
  需要先对git进行全局设置
  需要git命令行支持
@@ -5,17 +8,22 @@
  */
 
 /**
- * 获取当前分支的提交次数，失败则会抛出异常
+ * 获取当前分支的提交次数
+ * 失败则会抛出异常
  */
 static def getGitCommitCount() throws IOException, NumberFormatException {
     'git rev-list HEAD --count'.execute().text.toInteger()
 }
 
 /**
- * 获取当前git的tag的个数，失败则会抛出异常
+ * 获取当前git的tag的个数
+ * 失败则返回1
  */
 static def getGitTagCount() throws IOException, NumberFormatException {
-    'git tag --list'.execute().text.trim().size()
+    def tags = 'git tag --list'.execute().text.trim().toString()
+    def matcher = Pattern.compile("^.?\\d+\\.\\d+",Pattern.MULTILINE).matcher(tags)
+    return matcher.findAll().size()
+
 }
 
 /**
@@ -28,31 +36,13 @@ static def getGitTagName() throws IOException {
     'git describe --tags'.execute().text.trim()
 }
 
-/**
- * 获取git提交的tag次数，失败则返回1
- */
-static def getGitCommitCountOrOne() {
-    def versionCode = 0
-    try {
-        versionCode = getGitCommitCount()
-    } catch (IOException e) {
-        e.printStackTrace()
-    } catch (NumberFormatException e) {
-        e.printStackTrace()
-    }
-    if (versionCode == 0) {
-        versionCode = 1
-    }
-    return versionCode
-}
-
 
 /**
- * 拼凑versionCode，其值为tag数量*1000+该tag提交次数
+ * 拼凑versionCode，其值为tag数量*1000+当前分支提交次数
  * 失败则返回1
  */
 static def getGitVersionCode() {
-    def versionCode = 0
+    def versionCode = 1
     try {
         versionCode = getGitTagCount() * 1000 + getGitCommitCount()
     } catch (IOException e) {
@@ -60,26 +50,24 @@ static def getGitVersionCode() {
     } catch (NumberFormatException e) {
         e.printStackTrace()
     }
-    if (versionCode == 0) {
-        versionCode = 1
-    }
     return versionCode
 }
 
 /**
  * 拼凑versionName
  * 结果如"v0.1.33" => v0.1为tag，33为此tag的提交次数
- * 此处使用正式版的版本名
+ * 失败则为1.0.0
  */
 static def getGitVersionName() {
-    def versionName = null
+    def versionName = "1.0.0"
     try {
-        versionName = getGitTagName()
+        //用于补充第一次设置tag但未提交时获取的仅为tag的情形
+        versionName = getGitTagName() + ".0"
         //进行局部匹配，返回java.util.regex.Matcher对象
-        //匹配:(一个字符)(数字).(数字)
-        def matcher = versionName =~ "^.?\\d\\.\\d+"
+        //匹配:(一个字符)(数字).(数字)-(数字)
+        def matcher = versionName =~ "^.?\\d+\\.\\d+(-\\d+)?"
         if (matcher) { //调用的是matcher.find()方法
-            versionName = versionName.substring(matcher.start(), matcher.end()) + "." + getGitCommitCountOrOne()
+            versionName = versionName.substring(matcher.start(), matcher.end()).replace("-", ".")
         }
     } catch (IOException e) {
         e.printStackTrace()
@@ -87,9 +75,6 @@ static def getGitVersionName() {
         e.printStackTrace()
     }
 
-    if (versionName == null || versionName.length() == 0) {
-        versionName = "1.0"
-    }
     return versionName
 }
 
