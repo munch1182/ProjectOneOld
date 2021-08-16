@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 // 提取的公共build文件，用于统一版本和配置
 // 使用此文件使用 apply from: '[路径/文件名]'
 // 各个library或module可以覆盖配置
@@ -6,18 +8,23 @@
 //versions及dependencies定义在buildCom文件夹下version.gradle中
 apply from: '../buildCom/gitversion.gradle'
 
-android {
-    compileSdk Version.compileSdk
+static def getBuildTime() {
+    new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
+}
 
-    def versionCode4Release = gitVersion['versionCode']
-    def versionCode4Debug = gitVersion['versionCode4Debug']
+android {
+    def buildTime = getBuildTime()
+    def gitVersionCode = gitVersion['versionCode']
+    def gitVersionName = gitVersion['versionName']
+
+    compileSdk Version.compileSdk
 
     defaultConfig {
         minSdk Version.misSdk
         targetSdk Version.targetSdk
 
-        versionCode versionCode4Release
-        versionName gitVersion['versionName']
+        versionCode gitVersionCode
+        versionName gitVersionName
 
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -46,16 +53,18 @@ android {
             zipAlignEnabled true
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
-            buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
+            buildConfigField 'String', 'BUILD_TIME', "\"${buildTime}\""
+            buildConfigField 'int', 'VERSION_CODE', "${gitVersionCode}"
+            buildConfigField 'String', 'VERSION_NAME', "\"${gitVersionName}\""
         }
         debug {
             if (keyProperties != null) {
                 signingConfig signingConfigs.release
             }
             debuggable true
-            buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
-            buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
+            buildConfigField 'String', 'BUILD_TIME', "\"${buildTime}\""
+            buildConfigField 'int', 'VERSION_CODE', "${gitVersionCode}"
+            buildConfigField 'String', 'VERSION_NAME', "\"${gitVersionName}\""
         }
     }
 

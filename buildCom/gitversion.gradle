@@ -5,15 +5,14 @@
  */
 
 /**
- * 获取当前分支的提交次数
- * 项目未加入git会报错，但不影响编译
+ * 获取当前分支的提交次数，失败则会抛出异常
  */
 static def getGitCommitCount() throws IOException, NumberFormatException {
-    /*return */ 'git rev-list HEAD --count'.execute().text.toInteger()
+    'git rev-list HEAD --count'.execute().text.toInteger()
 }
 
 /**
- * 获取当前git的tag的个数
+ * 获取当前git的tag的个数，失败则会抛出异常
  */
 static def getGitTagCount() throws IOException, NumberFormatException {
     'git tag --list'.execute().text.trim().size()
@@ -30,33 +29,32 @@ static def getGitTagName() throws IOException {
 }
 
 /**
- * 将git提交的tag次数转换为versionCode
- * 如果出错，将默认1.0
+ * 获取git提交的tag次数，失败则返回1
  */
-static def getGitVersionCode4Debug() {
+static def getGitCommitCountOrOne() {
     def versionCode = 0
     try {
         versionCode = getGitCommitCount()
-        versionCode += 1000
     } catch (IOException e) {
         e.printStackTrace()
     } catch (NumberFormatException e) {
         e.printStackTrace()
     }
     if (versionCode == 0) {
-        versionCode = 1000
+        versionCode = 1
     }
     return versionCode
 }
 
 
 /**
- * 将tag数量当做versionCode
+ * 拼凑versionCode，其值为tag数量*1000+该tag提交次数
+ * 失败则返回1
  */
 static def getGitVersionCode() {
     def versionCode = 0
     try {
-        versionCode = getGitTagCount()
+        versionCode = getGitTagCount() * 1000 + getGitCommitCount()
     } catch (IOException e) {
         e.printStackTrace()
     } catch (NumberFormatException e) {
@@ -70,7 +68,7 @@ static def getGitVersionCode() {
 
 /**
  * 拼凑versionName
- * 结果如"v0.1.1.33" => v0.1.1为tag，33为此tag的提交次数
+ * 结果如"v0.1.33" => v0.1为tag，33为此tag的提交次数
  * 此处使用正式版的版本名
  */
 static def getGitVersionName() {
@@ -79,9 +77,9 @@ static def getGitVersionName() {
         versionName = getGitTagName()
         //进行局部匹配，返回java.util.regex.Matcher对象
         //匹配:(一个字符)(数字).(数字)
-        def matcher = versionName =~ "^.?\\d\\.\\d\$"
+        def matcher = versionName =~ "^.?\\d\\.\\d+"
         if (matcher) { //调用的是matcher.find()方法
-            versionName = versionName + "." + getGitVersionCode()
+            versionName = versionName.substring(matcher.start(), matcher.end()) + "." + getGitCommitCountOrOne()
         }
     } catch (IOException e) {
         e.printStackTrace()
@@ -97,8 +95,7 @@ static def getGitVersionName() {
 
 ext {
     gitVersion = [
-            versionCode4Debug: getGitVersionCode4Debug(),
-            versionCode      : getGitVersionCode(),
-            versionName      : getGitVersionName()
+            versionCode: getGitVersionCode(),
+            versionName: getGitVersionName()
     ]
 }
