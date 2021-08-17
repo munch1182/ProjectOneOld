@@ -6,7 +6,8 @@ import com.munch.lib.fast.base.BaseActivity
 import com.munch.lib.fast.base.BaseBtnFlowActivity
 import com.munch.lib.fast.base.BaseRvActivity
 import com.munch.lib.fast.base.toSelectActivityIfHave
-import com.munch.project.one.applib.weight.FlowLayoutActivity
+import com.munch.project.one.applib.file.TestFileActivity
+import com.munch.project.one.applib.weight.TestFlowLayoutActivity
 
 class MainActivity : BaseRvActivity() {
 
@@ -16,7 +17,7 @@ class MainActivity : BaseRvActivity() {
     }
 
     override val targets: MutableList<Class<out BaseActivity>> =
-        mutableListOf(WeightActivity::class.java)
+        mutableListOf(TestFileActivity::class.java, TestWeightActivity::class.java)
 
     override fun canBack() = false
 
@@ -26,14 +27,14 @@ class MainActivity : BaseRvActivity() {
     }
 }
 
-class WeightActivity : BaseBtnFlowActivity() {
+class TestWeightActivity : BaseBtnFlowActivity() {
 
     override fun getData() = mutableListOf("FlowLayout")
 
     override fun onClick(pos: Int) {
         super.onClick(pos)
         when (pos) {
-            0 -> startActivity(FlowLayoutActivity::class.java)
+            0 -> startActivity(TestFlowLayoutActivity::class.java)
         }
     }
 }

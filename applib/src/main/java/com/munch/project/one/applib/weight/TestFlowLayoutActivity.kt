@@ -17,7 +17,7 @@ import kotlin.random.Random
 /**
  * Create by munch1182 on 2021/8/11 14:13.
  */
-class FlowLayoutActivity : BaseBigTextTitleActivity() {
+class TestFlowLayoutActivity : BaseBigTextTitleActivity() {
 
     private val flowLayout by lazy { findViewById<DebugFlowLayout>(R.id.flow_view) }
     private val gravity by lazy { findViewById<TextView>(R.id.flow_gravity_view) }

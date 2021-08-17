@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".file.TestFileActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="80dp"
+        android:paddingStart="@dimen/paddingDef"
+        android:paddingTop="@dimen/paddingDef"
+        android:paddingEnd="@dimen/paddingDef" />
+
+    <com.munch.lib.weight.FlowLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/paddingDef"
+        app:gravity="CENTER_HORIZONTAL"
+        app:lineSpacing="0dp"
+        tools:ignore="HardcodedText">
+
+        <Button
+            style="@style/AppTheme.Button.Outline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="new cache" />
+
+        <Button
+            style="@style/AppTheme.Button.Outline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="chose file" />
+
+        <Button
+            style="@style/AppTheme.Button.Outline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="del file" />
+
+        <Button
+            style="@style/AppTheme.Button.Outline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="del file" />
+    </com.munch.lib.weight.FlowLayout>
+</LinearLayout>

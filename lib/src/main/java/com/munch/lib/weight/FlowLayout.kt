@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
+import com.munch.lib.R
 import com.munch.lib.helper.array.RectArrayHelper
 import com.munch.lib.helper.array.SpecialArrayHelper
 
@@ -24,7 +25,7 @@ class FlowLayout @JvmOverloads constructor(
 ) : ViewGroup(context, attrs, styleDef), ViewUpdate<FlowLayout> {
 
     //行间隔
-    var itemLinesSpace = 8
+    var lineSpace = 8
 
     //子view之间的间隔
     var itemSpace = 8
@@ -42,6 +43,16 @@ class FlowLayout @JvmOverloads constructor(
         super.set(set)
         layoutHelper.gravityFlags = gravityFlags
         requestLayout()
+    }
+
+    init {
+        context.obtainStyledAttributes(attrs, R.styleable.FlowLayout).apply {
+            itemSpace = getDimensionPixelSize(R.styleable.FlowLayout_itemSpacing, itemSpace)
+            lineSpace = getDimensionPixelSize(R.styleable.FlowLayout_lineSpacing, lineSpace)
+            gravityFlags = getInt(R.styleable.FlowLayout_gravity, gravityFlags)
+            layoutHelper.gravityFlags = gravityFlags
+            maxCountInLine = getInt(R.styleable.FlowLayout_maxCount, -1)
+        }.recycle()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -114,7 +125,7 @@ class FlowLayout @JvmOverloads constructor(
                 }
                 //然后换行
                 rowsUsedWidth = paddingLeft + viewWidth
-                allRowsUsedHeight = rowsUsedHeight + itemLinesSpace
+                allRowsUsedHeight = rowsUsedHeight + lineSpace
                 rowsUsedHeight = allRowsUsedHeight + viewHeight
 
                 layoutHelper.lineInfo.apply {

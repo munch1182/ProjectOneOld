@@ -7,6 +7,8 @@ import com.munch.lib.fast.R
 import com.munch.lib.fast.databinding.ItemSimpleBtnWithNoticeBinding
 import com.munch.lib.fast.recyclerview.SimpleAdapter
 import com.munch.lib.fast.recyclerview.setOnItemClickListener
+import com.munch.lib.fast.recyclerview.setOnViewClickListener
+import com.munch.lib.recyclerview.setOnViewLongClickListener
 
 /**
  * 一个按照RV排列，带有一个文字提示控件的Button的列表界面
@@ -27,8 +29,10 @@ open class BaseBtnWithNoticeActivity : BaseBigTextTitleActivity() {
             layoutManager = LinearLayoutManager(this.context)
             adapter = simpleAdapter
         }
-
-        simpleAdapter.setOnItemClickListener { _, pos, bind -> onClick(pos, bind) }
+        simpleAdapter.setOnViewClickListener(
+            { _, pos, bind -> onClick(pos, bind) },
+            R.id.item_tv_view
+        )
     }
 
     protected open fun onClick(pos: Int, bind: ItemSimpleBtnWithNoticeBinding) {

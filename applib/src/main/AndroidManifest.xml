@@ -22,8 +22,9 @@
         </activity>
         <activity android:name=".recyclerview.RvSingleActivity" />
         <activity android:name=".recyclerview.RvMultiActivity" />
-        <activity android:name=".WeightActivity" />
-        <activity android:name=".weight.FlowLayoutActivity" />
+        <activity android:name=".TestWeightActivity" />
+        <activity android:name=".weight.TestFlowLayoutActivity" />
+        <activity android:name=".file.TestFileActivity" />
     </application>
 
 </manifest>
