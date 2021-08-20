@@ -22,6 +22,8 @@ abstract class BaseDBAdapter<D, DB : ViewDataBinding, VH : BaseDBViewHolder>(pri
     }
 
     abstract fun onBindViewHolder(holder: VH, db: DB, bean: D?)
+
+    fun toBase(): BaseDBAdapter<D, DB, VH> = this
 }
 
 

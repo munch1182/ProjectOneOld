@@ -7,6 +7,7 @@ import com.munch.lib.fast.base.BaseBtnFlowActivity
 import com.munch.lib.fast.base.BaseRvActivity
 import com.munch.lib.fast.base.toSelectActivityIfHave
 import com.munch.project.one.applib.file.TestFileActivity
+import com.munch.project.one.applib.notification.TestNotificationActivity
 import com.munch.project.one.applib.weight.TestFlowLayoutActivity
 
 class MainActivity : BaseRvActivity() {
@@ -17,7 +18,15 @@ class MainActivity : BaseRvActivity() {
     }
 
     override val targets: MutableList<Class<out BaseActivity>> =
-        mutableListOf(TestFileActivity::class.java, TestWeightActivity::class.java)
+        mutableListOf(
+            TestNotificationActivity::class.java,
+            TestFileActivity::class.java,
+            TestWeightActivity::class.java
+        )
+
+    override fun getData(): MutableList<String> =
+        targets.map { it.simpleName.replace("Activity", "").replace("Test", "") }
+            .toMutableList()
 
     override fun canBack() = false
 

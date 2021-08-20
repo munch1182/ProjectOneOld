@@ -13,7 +13,11 @@ object DataHelper {
         }
         @Suppress("UNCHECKED_CAST")
         get() = SET.instance.get<String>(SET.KEY_SELECTED_ACTIVITY, null)?.let {
-            Class.forName(it) as? Class<BaseActivity>
+            try {
+                Class.forName(it) as? Class<BaseActivity>
+            } catch (e: Exception) {
+                null
+            }
         }
 
     private object SET {

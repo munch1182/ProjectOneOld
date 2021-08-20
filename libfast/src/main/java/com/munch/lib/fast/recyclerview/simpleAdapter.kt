@@ -43,17 +43,11 @@ open class SimpleAdapter<D, VB : ViewDataBinding> constructor(
 /**
  * 从其他数据源获取数据因此常使用[set]来更新数据时使用
  */
-open class SimpleDiffAdapter<D> private constructor(
-    private val layoutRes: Int = 0,
-    private val viewCreator: ((Context) -> View)? = null,
-    diffUtil: DiffUtil.ItemCallback<D>
-) : BaseRecyclerViewAdapter<D, BaseViewHolder>(), SingleViewModule {
-
-    constructor(@LayoutRes layoutRes: Int, diffUtil: DiffUtil.ItemCallback<D>)
-            : this(layoutRes, null, diffUtil)
-
-    constructor(viewCreator: ((Context) -> View), diffUtil: DiffUtil.ItemCallback<D>)
-            : this(0, viewCreator, diffUtil)
+open class SimpleDiffAdapter<D, VB : ViewDataBinding> constructor(
+    layoutRes: Int,
+    diffUtil: DiffUtil.ItemCallback<D>,
+    private val bindVH: ((BaseDBViewHolder, VB, D?) -> Unit)? = null
+) : BaseDBAdapter<D, VB, BaseDBViewHolder>(layoutRes), SingleViewModule {
 
     private val asyncDiffer by lazy {
         AsyncListDiffer(
@@ -64,14 +58,8 @@ open class SimpleDiffAdapter<D> private constructor(
     override val differ: AsyncListDiffer<D>
         get() = asyncDiffer
 
-    init {
-        setContentView()
-    }
 
-    private fun setContentView() {
-        singleViewHelper.setContentView(layoutRes)
-        if (viewCreator != null) {
-            singleViewHelper.setContentView(viewCreator)
-        }
+    override fun onBindViewHolder(holder: BaseDBViewHolder, db: VB, bean: D?) {
+        bindVH?.invoke(holder, db, bean)
     }
 }

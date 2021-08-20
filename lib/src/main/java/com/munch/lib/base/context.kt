@@ -7,10 +7,12 @@ import android.content.res.Resources
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import androidx.annotation.ArrayRes
 import androidx.annotation.ColorInt
+import androidx.annotation.RequiresPermission
 
 /**
  * Create by munch1182 on 2021/8/6 17:20.
@@ -21,6 +23,19 @@ fun Context.startActivity(target: Class<out Activity>, bundle: Bundle? = null) =
         val extras = bundle ?: return@apply
         putExtras(extras)
     })
+
+inline fun Context.startActivity(clazz: Class<out Activity>, func: Bundle.() -> Unit) {
+    startActivity(clazz, Bundle().apply { func.invoke(this) })
+}
+
+@RequiresPermission("android.permission.FOREGROUND_SERVICE")
+fun Context.startServiceInForeground(intent: Intent) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        startForegroundService(intent)
+    } else {
+        startService(intent)
+    }
+}
 
 fun Context.dp2Px(dp: Float): Float {
     return (dp * resources.displayMetrics.density + 0.5f * if (dp >= 0) 1f else -1f)

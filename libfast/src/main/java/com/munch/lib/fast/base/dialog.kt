@@ -16,7 +16,13 @@ import com.munch.lib.fast.R
  */
 
 fun <ACT : BaseBigTextTitleActivity> ACT.toSelectActivityIfHave() {
-    DataHelper.selectedActivity?.let { startActivity(it) }
+    DataHelper.selectedActivity?.let {
+        try {
+            startActivity(it)
+        } catch (e: Exception) {
+            DataHelper.selectedActivity = null
+        }
+    }
 }
 
 fun <ACT : BaseBigTextTitleActivity> ACT.newMenuDialog(

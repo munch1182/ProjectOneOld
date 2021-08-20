@@ -4,8 +4,12 @@ import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.get
 import androidx.core.widget.NestedScrollView
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.munch.lib.base.ViewHelper
 import com.munch.lib.base.setDoubleClickListener
@@ -23,11 +27,19 @@ open class BaseBigTextTitleActivity : BaseActivity() {
 
     protected open val container: FrameLayout by lazy { findViewById(android.R.id.content) }
     protected open val ctlView: CollapsingToolbarLayout by lazy { findViewById(R.id.title_ctl_view) }
+    private val srlView by lazy { findViewById<NestedScrollView>(R.id.title_scroll_view) }
+
+    protected fun <T : ViewDataBinding> bind(@LayoutRes resId: Int): Lazy<T> {
+        return lazy {
+            setContentView(resId)
+            return@lazy DataBindingUtil.bind<T>(srlView[0])!!
+        }
+    }
 
     override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
         super.setContentView(R.layout.layout_big_text_title)
 
-        findViewById<NestedScrollView>(R.id.title_scroll_view).apply {
+        srlView.apply {
             addView(view, params)
             scrollY = 0
         }

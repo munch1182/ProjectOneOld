@@ -2,7 +2,9 @@ package com.munch.lib.base
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.StateListDrawable
 import android.view.View
 import android.view.ViewGroup
 import com.munch.lib.R
@@ -160,6 +162,16 @@ object ViewHelper {
         gradientDrawable.setStroke(strokeWidth, strokeColor)
         return gradientDrawable
 
+    }
+
+    fun newSelectDrawable(
+        unselectedDrawable: Drawable?,
+        selectedDrawable: Drawable?
+    ): StateListDrawable {
+        val drawable = StateListDrawable()
+        drawable.addState(intArrayOf(-android.R.attr.state_selected), unselectedDrawable)
+        drawable.addState(intArrayOf(android.R.attr.state_selected), selectedDrawable)
+        return drawable
     }
 
 }
