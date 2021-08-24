@@ -1,9 +1,12 @@
 package com.munch.lib.result
 
+import android.content.Context
 import android.content.Intent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import com.munch.lib.base.OnCancelListener
+import com.munch.lib.base.OnNextListener
 import com.munch.lib.dialog.IDialogHandler
 
 /**
@@ -34,10 +37,40 @@ class ResultHelper(private val fm: FragmentManager) {
         private val permissions: Array<out String>
     ) {
 
+        private var onExplainRequestReasonListener:
+                ((permissions: ArrayList<String>, context: Context) -> IDialogHandler)? = null
+        private var resultListener: OnPermissionResultListener? = null
+        private var resultCallback = object : OnPermissionResultListener {
+            override fun onResult(
+                allGrant: Boolean,
+                grantedList: ArrayList<String>,
+                deniedList: ArrayList<String>
+            ) {
+                if (onExplainRequestReasonListener != null) {
+                    onExplainRequestReasonListener!!.invoke(deniedList, fragment.requireContext())
+                        .apply {
+                            setOnNext(object : OnNextListener {
+                                override fun onNext() {
+
+                                }
+                            })
+                            setOnCancel(object : OnCancelListener {
+                                override fun onCancel() {
+                                    resultListener?.onResult(allGrant, grantedList, deniedList)
+                                }
+                            })
+                        }
+                        .show()
+                } else {
+                    resultListener?.onResult(allGrant, grantedList, deniedList)
+                }
+            }
+        }
+
         fun onExplainRequestReason(
-            deniedList: ArrayList<String>,
-            dialog: IDialogHandler
+            explain: (permissions: ArrayList<String>, context: Context) -> IDialogHandler
         ): Permission {
+            onExplainRequestReasonListener = explain
             return this
         }
 
@@ -45,19 +78,20 @@ class ResultHelper(private val fm: FragmentManager) {
             return this
         }
 
-        fun request(callback: OnPermissionCallback) {
-            fragment.requestPermissions(permissions, callback)
+        fun request(listener: OnPermissionResultListener) {
+            resultListener = listener
+            fragment.requestPermissions(permissions, resultCallback)
         }
     }
 
     class ActivityResult(private val fragment: InvisibleFragment, private val intent: Intent) {
 
-        fun start(callback: OnResultCallback) {
-            fragment.startActivityForResult(intent, callback)
+        fun start(listener: OnResultListener) {
+            fragment.startActivityForResult(intent, listener)
         }
     }
 
-    interface OnPermissionCallback {
+    interface OnPermissionResultListener {
         fun onResult(
             allGrant: Boolean,
             grantedList: ArrayList<String>,
@@ -65,7 +99,7 @@ class ResultHelper(private val fm: FragmentManager) {
         )
     }
 
-    interface OnResultCallback {
+    interface OnResultListener {
         fun onResult(isOk: Boolean, resultCode: Int, data: Intent?)
     }
 }

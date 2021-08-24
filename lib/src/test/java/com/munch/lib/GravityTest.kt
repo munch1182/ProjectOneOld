@@ -1,6 +1,6 @@
 package com.munch.lib
 
-import com.munch.lib.helper.toBinaryStr
+import com.munch.lib.base.toBinaryStr
 import com.munch.lib.weight.Gravity
 import org.junit.Assert
 import org.junit.Test

@@ -17,14 +17,14 @@ class InvisibleFragment : Fragment() {
     }
 
     private val requestCode = AtomicInteger(0)
-    private val permissionMap: SparseArray<ResultHelper.OnPermissionCallback> = SparseArray(2)
-    private val resultMap: SparseArray<ResultHelper.OnResultCallback> = SparseArray(2)
+    private val permissionMap: SparseArray<ResultHelper.OnPermissionResultListener> = SparseArray(2)
+    private val resultMap: SparseArray<ResultHelper.OnResultListener> = SparseArray(2)
 
     private fun newRequestCode() = requestCode.incrementAndGet()
 
     fun startActivityForResult(
         intent: Intent?,
-        callback: ResultHelper.OnResultCallback
+        callback: ResultHelper.OnResultListener
     ) {
         val requestCode = newRequestCode()
         resultMap.put(requestCode, callback)
@@ -34,7 +34,7 @@ class InvisibleFragment : Fragment() {
 
     fun requestPermissions(
         permissions: Array<out String>,
-        callback: ResultHelper.OnPermissionCallback
+        callback: ResultHelper.OnPermissionResultListener
     ) {
         val requestCode = newRequestCode()
         permissionMap.put(requestCode, callback)

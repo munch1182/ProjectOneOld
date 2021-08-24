@@ -24,14 +24,14 @@ class IntentActivity : BaseBtnFlowActivity() {
         when (pos) {
             0 -> ResultHelper.init(this)
                 .with(Intent(Settings.ACTION_SETTINGS))
-                .start(object : ResultHelper.OnResultCallback {
+                .start(object : ResultHelper.OnResultListener {
                     override fun onResult(isOk: Boolean, resultCode: Int, data: Intent?) {
                         log(isOk, resultCode, data)
                     }
                 })
             1 -> ResultHelper.init(this)
                 .with(Manifest.permission.CAMERA, Manifest.permission.CALL_PHONE)
-                .request(object : ResultHelper.OnPermissionCallback {
+                .request(object : ResultHelper.OnPermissionResultListener {
                     override fun onResult(
                         allGrant: Boolean,
                         grantedList: ArrayList<String>,
