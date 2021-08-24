@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="config"
+            type="com.munch.project.one.applib.bluetooth.BtActivityConfig" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="@dimen/paddingDef"
+        android:paddingEnd="@dimen/paddingDef"
+        tools:context=".bluetooth.TestBluetoothActivity"
+        tools:ignore="HardcodedText">
+
+        <TextView
+            android:id="@+id/bt_type"
+            style="@style/AppTheme.Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paddingSmall"
+            android:text="扫描类型:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <RadioGroup
+            android:id="@+id/bt_type_rg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/paddingSmall"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@id/bt_type"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/bt_type"
+            app:layout_constraintTop_toTopOf="@id/bt_type">
+
+            <RadioButton
+                android:id="@+id/bt_type_classic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@={config.classic}"
+                android:text="经典蓝牙" />
+
+            <RadioButton
+                android:id="@+id/bt_type_ble"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@={!config.classic}"
+                android:text="低功耗蓝牙" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/bt_filter_title"
+            style="@style/AppTheme.Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paddingSmall"
+            android:text="过滤条件:"
+            app:layout_constraintStart_toStartOf="@id/bt_type"
+            app:layout_constraintTop_toBottomOf="@id/bt_type_rg" />
+
+        <TextView
+            android:id="@+id/bt_filter_name"
+            style="@style/AppTheme.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/paddingSmall"
+            android:text="名称："
+            app:layout_constraintBottom_toBottomOf="@id/bt_filter_title"
+            app:layout_constraintStart_toEndOf="@id/bt_filter_title"
+            app:layout_constraintTop_toTopOf="@id/bt_filter_title" />
+
+        <EditText
+            android:id="@+id/bt_filter_name_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/paddingSmall"
+            android:layout_marginEnd="@dimen/paddingSmall"
+            android:inputType="textCapCharacters"
+            android:text="@={config.name}"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="@id/bt_filter_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/bt_filter_name"
+            app:layout_constraintTop_toTopOf="@id/bt_filter_name"
+            tools:ignore="Autofill,LabelFor" />
+
+        <TextView
+            android:id="@+id/bt_filter_mac"
+            style="@style/AppTheme.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paddingDef"
+            android:text="地址："
+            app:layout_constraintStart_toStartOf="@id/bt_filter_name"
+            app:layout_constraintTop_toBottomOf="@id/bt_filter_name_et" />
+
+        <EditText
+            android:id="@+id/bt_filter_mac_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/paddingSmall"
+            android:layout_marginEnd="@dimen/paddingSmall"
+            android:inputType="textNoSuggestions"
+            android:maxLength="17"
+            android:text="@={config.mac}"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="@id/bt_filter_mac"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/bt_filter_mac"
+            app:layout_constraintTop_toTopOf="@id/bt_filter_mac"
+            tools:ignore="Autofill,LabelFor" />
+
+        <TextView
+            android:id="@+id/bt_timeout"
+            style="@style/AppTheme.Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paddingSmall"
+            android:text="超时时间:"
+            app:layout_constraintStart_toStartOf="@id/bt_filter_title"
+            app:layout_constraintTop_toBottomOf="@id/bt_filter_mac_et" />
+
+        <TextView
+            android:id="@+id/bt_timeout_reduce"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minWidth="40dp"
+            android:minHeight="40dp"
+            android:text="-"
+            app:layout_constraintBottom_toBottomOf="@id/bt_timeout"
+            app:layout_constraintStart_toEndOf="@id/bt_timeout"
+            app:layout_constraintTop_toTopOf="@id/bt_timeout" />
+
+        <View
+            android:id="@+id/bt_timeout_cv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/paddingSmall"
+            android:layout_marginEnd="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/bt_timeout"
+            app:layout_constraintStart_toEndOf="@id/bt_timeout_reduce"
+            app:layout_constraintTop_toTopOf="@id/bt_timeout" />
+
+        <TextView
+            android:id="@+id/bt_timeout_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/paddingSmall"
+            android:layout_marginEnd="0dp"
+            android:gravity="center"
+            android:minWidth="40dp"
+            android:minHeight="40dp"
+            android:text="+"
+            app:layout_constraintBottom_toBottomOf="@id/bt_timeout"
+            app:layout_constraintStart_toEndOf="@id/bt_timeout_cv"
+            app:layout_constraintTop_toTopOf="@id/bt_timeout" />
+
+        <TextView
+            android:id="@+id/bt_connected_dev"
+            style="@style/AppTheme.Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="0dp"
+            android:gravity="center"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/bt_scan"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="当前已连接设备：" />
+
+        <Button
+            android:id="@+id/bt_scan"
+            style="@style/AppTheme.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/paddingSmall"
+            android:text="扫描"
+            app:layout_constraintTop_toBottomOf="@id/bt_timeout" />
+
+        <TextView
+            android:id="@+id/bt_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/paddingSmall"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/bt_scan"
+            app:layout_constraintTop_toBottomOf="@id/bt_scan"
+            app:layout_goneMarginBottom="@dimen/paddingSmall"
+            tools:text="已开始100m" />
+
+        <CheckBox
+            android:id="@+id/bt_no_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paddingSmall"
+            android:checked="@={config.noName}"
+            android:minHeight="0dp"
+            android:text="忽略无名称"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bt_notice" />
+
+        <CheckBox
+            android:id="@+id/bt_connect_now"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/paddingSmall"
+            android:checked="@={config.connectAuto}"
+            android:minHeight="0dp"
+            android:text="有地址时直接连接"
+            app:layout_constraintBottom_toBottomOf="@id/bt_no_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/bt_no_name"
+            app:layout_constraintTop_toTopOf="@id/bt_no_name" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/bt_rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/paddingSmall"
+            android:overScrollMode="never"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintTop_toBottomOf="@id/bt_no_name" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/bt_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="bt_type,bt_type_rg,bt_filter_title,bt_filter_name,bt_filter_name_et,bt_filter_mac,bt_filter_mac_et,bt_timeout,bt_timeout_add,bt_timeout_cv,bt_timeout_reduce" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

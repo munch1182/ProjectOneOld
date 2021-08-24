@@ -2,6 +2,7 @@ package com.munch.lib.bluetooth
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import com.munch.lib.log.Logger
@@ -39,6 +40,20 @@ class BluetoothHelper private constructor() {
             tag = "bluetooth-helper"
             noStack = true
         }
+    }
 
+    private lateinit var instance: BluetoothInstance
+    private lateinit var context: Context
+
+    fun init(context: Context) {
+        this.context = context.applicationContext
+        instance = BluetoothInstance(context)
+    }
+
+    val set: BluetoothInstance
+        get() = instance
+    private var scanner: Scanner? = null
+
+    fun ready2ScanBle() {
     }
 }

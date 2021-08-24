@@ -61,3 +61,17 @@ interface OnNextListener {
 interface OnCancelListener {
     fun onCancel()
 }
+
+interface Cancelable {
+    fun cancel()
+}
+
+interface Destroyable {
+    fun destroy()
+}
+
+interface Resettable {
+    fun reset()
+}
+
+interface Manageable : Cancelable, Destroyable

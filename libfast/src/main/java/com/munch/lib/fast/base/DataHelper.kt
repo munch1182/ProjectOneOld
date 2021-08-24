@@ -28,4 +28,11 @@ object DataHelper {
 
         val instance by lazy { MMKVHelper(ID_KEY_SET) }
     }
+
+    object App {
+
+        private const val ID_KEY_APP = "id_key_app"
+
+        val instance by lazy { MMKVHelper(ID_KEY_APP) }
+    }
 }

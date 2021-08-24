@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.munch.project.one.applib">
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
     <application
         android:name="com.munch.lib.fast.FastApp"
         android:allowBackup="true"
@@ -26,6 +29,7 @@
         <activity android:name=".weight.TestFlowLayoutActivity" />
         <activity android:name=".file.TestFileActivity" />
         <activity android:name=".notification.TestNotificationActivity" />
+        <activity android:name=".bluetooth.TestBluetoothActivity" />
 
         <service
             android:name="com.munch.lib.notification.NotificationService"
