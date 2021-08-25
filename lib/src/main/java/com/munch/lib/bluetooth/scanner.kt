@@ -8,6 +8,7 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import androidx.annotation.RequiresPermission
 import com.munch.lib.base.Cancelable
+import com.munch.lib.log.log
 
 /**
  * Create by munch1182 on 2021/8/24 13:57.
@@ -86,12 +87,19 @@ class BleScanner : Scanner {
             stop()
         }
     }
+
+    @SuppressLint("MissingPermission")
+    private val delay2Stop = {
+        BluetoothHelper.logHelper.withEnable { "timeout to stop scan" }
+        stop()
+    }
     internal var builder: Builder? = null
 
     @RequiresPermission(
         allOf = [Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_FINE_LOCATION]
     )
     override fun start() {
+        BluetoothHelper.logHelper.withEnable { "start scan" }
         scannedDevs.clear()
         if (builder != null && builder!!.timeout > 0L) {
             delayStop(builder!!.timeout)
@@ -102,7 +110,7 @@ class BleScanner : Scanner {
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
     private fun delayStop(timeout: Long) {
-        BluetoothHelper.instance.workHandler.postDelayed({ stop() }, timeout)
+        BluetoothHelper.instance.workHandler.postDelayed(delay2Stop, timeout)
     }
 
     private fun sureSettings(): ScanSettings {
@@ -123,6 +131,8 @@ class BleScanner : Scanner {
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
     override fun stop() {
+        BluetoothHelper.logHelper.withEnable { "stop scan" }
+        BluetoothHelper.instance.workHandler.removeCallbacks(delay2Stop)
         //此方法不会触发回调
         scanner?.stopScan(scanCallback)
         //因此主动触发

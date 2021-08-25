@@ -80,6 +80,7 @@ class BluetoothHelper private constructor() {
      * 用于持有当前使用的扫描器对象
      */
     private var scanner: Scanner? = null
+    private var connector: Connector? = null
 
     fun init(context: Context) {
         this.context = context.applicationContext
@@ -95,11 +96,13 @@ class BluetoothHelper private constructor() {
     val set: BluetoothInstance
         get() = instance
     val connectedDev: BtDevice?
-        get() = null
+        get() = connector?.device
     val scanListeners: ARSHelper<OnScannerListener>
         get() = notifyHelper.scanListeners
     val stateListeners: ARSHelper<OnStateChangeListener>
         get() = notifyHelper.stateListeners
+    val connectListener: ARSHelper<OnConnectListener>
+        get() = notifyHelper.connectListeners
     val state: BluetoothStateHelper
         get() = stateHelper
 
@@ -126,8 +129,24 @@ class BluetoothHelper private constructor() {
 
     fun stopScan() {
         scanner?.stop()
-        scanListeners.clear()
-        bleScanner.listener = null
+    }
+
+    fun connect(device: BtDevice) {
+        if (connector != null) {
+            return
+        }
+        connector = BleConnector(device).apply {
+            connectListener = notifyHelper.connectCallback
+        }
+        connector?.connect()
+    }
+
+    fun disconnect() {
+        if (connector == null) {
+            return
+        }
+        connector!!.disconnect()
+        connector = null
     }
 
     internal fun newState(@BluetoothState state: Int) {

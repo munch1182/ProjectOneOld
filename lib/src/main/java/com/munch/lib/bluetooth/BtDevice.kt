@@ -67,6 +67,14 @@ data class BtDevice(
     val rssiStr: String
         get() = "$rssi dBm"
 
+    fun connect() {
+        BluetoothHelper.instance.connect(this)
+    }
+
+    fun disconnect() {
+        BluetoothHelper.instance.disconnect()
+    }
+
     /**
      * 使用反射判断该蓝牙设备是否已被系统连接，如果蓝牙已关闭、未获取到则返回null，否则返回boolean
      */
@@ -98,6 +106,4 @@ data class BtDevice(
     override fun hashCode(): Int {
         return mac.hashCode()
     }
-
-
 }

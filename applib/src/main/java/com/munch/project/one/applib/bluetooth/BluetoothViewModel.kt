@@ -60,21 +60,20 @@ class BluetoothViewModel : ViewModel() {
         }
 
         private var end = false
-        private var time = 1
+        private var time = 0
 
         private fun countDown() {
             viewModelScope.launch(Dispatchers.IO) {
+                end = false
+                time = 0
                 flow {
-                    while (true) {
+                    while (!end) {
+                        time += 1
+                        emit(time)
                         if (end) {
                             return@flow
                         }
                         delay(1000L)
-                        if (end) {
-                            return@flow
-                        }
-                        emit(time)
-                        time += 1
                     }
                 }.collect {
                     notice.postValue("已开始${time}s")
@@ -100,12 +99,34 @@ class BluetoothViewModel : ViewModel() {
 
         override fun onComplete(devices: MutableList<BtDevice>) {
             end = true
+            end()
             notice.postValue("已结束，共扫描到${devices.size}个设备，历时${time}s")
         }
 
         override fun onFail() {
             end = true
+            end()
             notice.postValue("出现错误，${time}s")
+        }
+
+        private fun end() {
+            instance.scanListeners.remove(this)
+        }
+    }
+    private val connectListener = object : OnConnectListener {
+        override fun onStart() {
+        }
+
+        override fun onConnectSuccess() {
+            val dev = instance.connectedDev ?: return
+            val index = devList.map { it?.dev }.indexOf(dev)
+            if (index != -1) {
+                devList[index]?.isConnectedByHelper = true
+                devs.postValue(devList)
+            }
+        }
+
+        override fun onConnectFail() {
         }
     }
 
@@ -119,8 +140,9 @@ class BluetoothViewModel : ViewModel() {
     @SuppressLint("MissingPermission")
     fun toggleScan() {
         if (instance.state.isScanning) {
-            instance.scanListeners.remove(scanListener)
             instance.stopScan()
+            //需要在回调中remove，否则可能会因为线程问题不会触发onComplete
+            /*instance.scanListeners.remove(scanListener)*/
         } else {
             instance.scanListeners.add(scanListener)
             val config = config.value
@@ -134,6 +156,17 @@ class BluetoothViewModel : ViewModel() {
         super.onCleared()
         instance.stopScan()
         instance.scanListeners.remove(scanListener)
+        instance.connectListener.remove(connectListener)
+    }
+
+    fun toggleConnect(dev: BtDevice?) {
+        dev ?: return
+        if (instance.state.isConnected) {
+            instance.connectListener.add(connectListener)
+            dev.disconnect()
+        } else {
+            dev.connect()
+        }
     }
 }
 
