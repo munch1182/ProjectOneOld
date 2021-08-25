@@ -1,6 +1,7 @@
 package com.munch.lib.bluetooth
 
 import androidx.annotation.IntDef
+import com.munch.lib.base.OnChangeListener
 
 /**
  *
@@ -44,4 +45,46 @@ annotation class BluetoothState {
          */
         const val CLOSE = 4
     }
+}
+
+interface OnStateChangeListener {
+
+    fun onChange(@BluetoothState state: Int)
+}
+
+class BluetoothStateHelper {
+
+    private val lock = Object()
+    internal var onChangeListener: OnChangeListener? = null
+
+    @BluetoothState
+    internal var currentState: Int = BluetoothState.CLOSE
+        get() = synchronized(lock) { field }
+        set(value) {
+            synchronized(lock) {
+                if (field == value) {
+                    return@synchronized
+                }
+                val old = field
+                field = value
+                BluetoothHelper.logHelper.withEnable { "state: $old -> $value" }
+                onChangeListener?.onChange()
+            }
+        }
+
+    val isScanning: Boolean
+        get() = currentState == BluetoothState.SCANNING
+
+    val isConnected: Boolean
+        get() = currentState == BluetoothState.CONNECTED
+
+    val isConnecting: Boolean
+        get() = currentState == BluetoothState.CONNECTING
+
+    val isClose: Boolean
+        get() = currentState == BluetoothState.CLOSE
+
+    val isIdle: Boolean
+        get() = currentState == BluetoothState.IDLE
+
 }

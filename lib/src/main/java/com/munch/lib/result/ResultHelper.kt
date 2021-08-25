@@ -82,6 +82,36 @@ class ResultHelper(private val fm: FragmentManager) {
             resultListener = listener
             fragment.requestPermissions(permissions, resultCallback)
         }
+
+        fun request(
+            onResult: (
+                allGrant: Boolean,
+                grantedList: ArrayList<String>,
+                deniedList: ArrayList<String>
+            ) -> Unit
+        ) {
+            request(object : OnPermissionResultListener {
+                override fun onResult(
+                    allGrant: Boolean,
+                    grantedList: ArrayList<String>,
+                    deniedList: ArrayList<String>
+                ) {
+                    onResult.invoke(allGrant, grantedList, deniedList)
+                }
+            })
+        }
+
+        fun requestSimple(onResult: (allGrant: Boolean) -> Unit) {
+            request(object : OnPermissionResultListener {
+                override fun onResult(
+                    allGrant: Boolean,
+                    grantedList: ArrayList<String>,
+                    deniedList: ArrayList<String>
+                ) {
+                    onResult.invoke(allGrant)
+                }
+            })
+        }
     }
 
     class ActivityResult(private val fragment: InvisibleFragment, private val intent: Intent) {

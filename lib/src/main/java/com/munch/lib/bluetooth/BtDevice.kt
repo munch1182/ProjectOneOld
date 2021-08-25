@@ -64,8 +64,39 @@ data class BtDevice(
         }
     }
 
+    val rssiStr: String
+        get() = "$rssi dBm"
+
+    /**
+     * 使用反射判断该蓝牙设备是否已被系统连接，如果蓝牙已关闭、未获取到则返回null，否则返回boolean
+     */
+    fun isConnected(): Boolean? {
+        return try {
+            val isConnected = BluetoothDevice::class.java.getDeclaredMethod("isConnected")
+            isConnected.isAccessible = true
+            isConnected.invoke(device) as? Boolean?
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     override fun toString(): String {
         return "BtDevice(name=$name, mac='$mac', rssi=$rssi, type=$type)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as BtDevice
+
+        if (mac != other.mac) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return mac.hashCode()
     }
 
 

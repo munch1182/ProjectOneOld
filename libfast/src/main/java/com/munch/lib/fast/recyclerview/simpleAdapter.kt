@@ -63,3 +63,14 @@ open class SimpleDiffAdapter<D, VB : ViewDataBinding> constructor(
         bindVH?.invoke(holder, db, bean)
     }
 }
+
+class SimpleItemCallback<D> : DiffUtil.ItemCallback<D>() {
+    override fun areItemsTheSame(oldItem: D, newItem: D): Boolean {
+        return oldItem == newItem
+    }
+
+    override fun areContentsTheSame(oldItem: D, newItem: D): Boolean {
+        return areItemsTheSame(oldItem, newItem)
+    }
+
+}

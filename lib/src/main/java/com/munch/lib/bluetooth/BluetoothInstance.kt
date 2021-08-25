@@ -32,6 +32,15 @@ class BluetoothInstance(private val context: Context) {
         get() = context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
 
     /**
+     * 是否支持批处理扫描
+     *
+     * 如果支持，可以在扫描中设置[android.bluetooth.le.ScanSettings.Builder.setReportDelay]大于0
+     * 则会回调[android.bluetooth.le.ScanCallback.onBatchScanResults]
+     */
+    val isScanBatchingSupported: Boolean
+        get() = adapter?.isOffloadedScanBatchingSupported ?: false
+
+    /**
      * 蓝牙是否可用，即蓝牙是否打开
      */
     val isEnable: Boolean
@@ -81,7 +90,7 @@ class BluetoothInstance(private val context: Context) {
     fun getConnectedDevice(): BtDevice? {
         try {
             val adapter = BluetoothHelper.instance.set.adapter ?: return null
-            val isConnected = adapter.javaClass.getDeclaredMethod("isConnected")
+            val isConnected = BluetoothDevice::class.java.getDeclaredMethod("isConnected")
             isConnected.isAccessible = true
             adapter.bondedDevices.forEach {
                 if (isConnected.invoke(it) as? Boolean? == true) {

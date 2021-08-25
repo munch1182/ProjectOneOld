@@ -20,7 +20,7 @@ interface ARSHelper<T> {
     /**
      * 因为没有名字，所以不要直接使用，实现类应该建立有名字的方法返回本值，然后用方法调用
      */
-    val arrays: ArrayList<T>
+    val arrays: MutableList<T>
 
     fun add(t: T): ARSHelper<T> {
         if (!arrays.contains(t)) {
@@ -50,6 +50,8 @@ interface ARSHelper<T> {
         })
         return this
     }
+
+    fun set(owner: LifecycleOwner, t: T): ARSHelper<T> = set(owner, t, null)
 
     /**
      * 未考虑线程的问题
@@ -130,4 +132,10 @@ interface ARSHelper<T> {
         arrays.clear()
         return this
     }
+}
+
+class SimpleARSHelper<T> : ARSHelper<T> {
+    private val list = mutableListOf<T>()
+    override val arrays: MutableList<T>
+        get() = list
 }
