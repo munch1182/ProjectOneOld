@@ -1,6 +1,7 @@
 package com.munch.lib.recyclerview
 
 import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 
 /**
  * Create by munch1182 on 2021/8/5 17:01.
@@ -8,6 +9,10 @@ import androidx.recyclerview.widget.AsyncListDiffer
 interface AdapterFun<D> : IsAdapter {
 
     val data: MutableList<D?>
+
+    /**
+     * 如果使用了[differ]，则有些方法是否生效还受到[DiffUtil.ItemCallback]以及引用关系的影响
+     */
     val differ: AsyncListDiffer<D>?
 
     //<editor-fold desc="set">
@@ -34,8 +39,12 @@ interface AdapterFun<D> : IsAdapter {
 
     fun add(index: Int, element: D?) {
         if (index in 0..data.size) {
-            data.add(index, element)
-            noTypeAdapter.notifyItemInserted(index)
+            if (differ == null) {
+                data.add(index, element)
+                noTypeAdapter.notifyItemInserted(index)
+            }
+        } else {
+            set(data.toMutableList().apply { add(index, element) })
         }
     }
 
@@ -46,8 +55,12 @@ interface AdapterFun<D> : IsAdapter {
      */
     fun add(index: Int, elements: Collection<D?>) {
         if (index in 0..data.size) {
-            data.addAll(index, elements)
-            noTypeAdapter.notifyItemRangeInserted(index, elements.size)
+            if (differ == null) {
+                data.addAll(index, elements)
+                noTypeAdapter.notifyItemRangeInserted(index, elements.size)
+            }
+        } else {
+            set(data.toMutableList().apply { addAll(index, elements) })
         }
     }
     //</editor-fold>
@@ -58,8 +71,12 @@ interface AdapterFun<D> : IsAdapter {
         if (pos == -1) {
             return
         }
-        data.remove(element)
-        noTypeAdapter.notifyItemRemoved(pos)
+        if (differ == null) {
+            data.remove(element)
+            noTypeAdapter.notifyItemRemoved(pos)
+        } else {
+            set(data.toMutableList().apply { remove(element) })
+        }
     }
 
     fun remove(index: Int) = remove(index, 1)
@@ -70,9 +87,16 @@ interface AdapterFun<D> : IsAdapter {
     fun remove(startIndex: Int, size: Int) {
         val endIndex = startIndex + size
         if (endIndex < data.size) {
-            val subList = data.subList(startIndex, endIndex)
-            data.removeAll(subList)
-            noTypeAdapter.notifyItemRangeRemoved(startIndex, size)
+            if (differ == null) {
+                val subList = data.subList(startIndex, endIndex)
+                data.removeAll(subList)
+                noTypeAdapter.notifyItemRangeRemoved(startIndex, size)
+            } else {
+                val newList = data.toMutableList()
+                val subList = newList.subList(startIndex, endIndex)
+                newList.removeAll(subList)
+                set(newList)
+            }
         }
     }
 
@@ -81,10 +105,14 @@ interface AdapterFun<D> : IsAdapter {
      * [element]不必连续，如果连续，优先使用[remove]的带索引的方法
      */
     fun remove(element: Collection<D?>) {
-        data.removeAll(element)
-        element.forEach {
-            val index = getIndex(it ?: return@forEach) ?: return@forEach
-            noTypeAdapter.notifyItemRemoved(index)
+        if (differ == null) {
+            data.removeAll(element)
+            element.forEach {
+                val index = getIndex(it ?: return@forEach) ?: return@forEach
+                noTypeAdapter.notifyItemRemoved(index)
+            }
+        } else {
+            set(data.toMutableList().apply { removeAll(element) })
         }
     }
     //</editor-fold>
@@ -93,13 +121,19 @@ interface AdapterFun<D> : IsAdapter {
     /**
      * 如果[index]在数据范围内，则更新[index]位置的数据为[element]
      *
+     * 如果使用了[differ]，[element]必须是一个新值，否则不会更新
+     *
      * @see updateOrThrow
      */
     fun update(index: Int, element: D?) {
         val size = data.size
         if (index in 0 until size) {
-            data[index] = element
-            noTypeAdapter.notifyItemChanged(index)
+            if (differ == null) {
+                data[index] = element
+                noTypeAdapter.notifyItemChanged(index)
+            } else {
+                set(data.toMutableList().apply { this[index] = element })
+            }
         }
     }
 
@@ -125,8 +159,14 @@ interface AdapterFun<D> : IsAdapter {
         val updateCount = elements.size
         //如果更改的数据在原有数据范围内
         if ((startIndex + updateCount) in 0 until size) {
-            elements.forEachIndexed { index, d -> data[startIndex + index] = d }
-            noTypeAdapter.notifyItemRangeChanged(startIndex, updateCount)
+            if (differ == null) {
+                elements.forEachIndexed { index, d -> data[startIndex + index] = d }
+                noTypeAdapter.notifyItemRangeChanged(startIndex, updateCount)
+            } else {
+                val newList = data.toMutableList()
+                newList.forEachIndexed { index, d -> newList[startIndex + index] = d }
+                set(newList)
+            }
         }
     }
 
@@ -151,4 +191,8 @@ interface AdapterFun<D> : IsAdapter {
     fun getIndex(element: D): Int? = data.indexOf(element).takeIf { it != -1 }
     fun contains(element: D): Boolean = data.contains(element)
     //</editor-fold>
+
+    private fun newList4Diff(): MutableList<D?> {
+        return data.toMutableList()
+    }
 }

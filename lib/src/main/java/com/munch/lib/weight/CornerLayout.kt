@@ -35,21 +35,34 @@ class CornerLayout @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         if (childCount == 1) {
             val child = getChildAt(0)
-            measureChild(child, widthMeasureSpec, heightMeasureSpec)
-            setMeasuredDimension(
-                child.measuredWidth + paddingLeft + paddingRight,
-                child.measuredHeight + paddingTop + paddingBottom
+            val width = MeasureSpec.getSize(widthMeasureSpec)
+            val height = MeasureSpec.getSize(heightMeasureSpec)
+
+            val childViewWidth = MeasureSpec.makeMeasureSpec(
+                width - paddingLeft - paddingRight, MeasureSpec.EXACTLY
             )
+            val childViewHeight = MeasureSpec.makeMeasureSpec(
+                height - paddingTop - paddingBottom, MeasureSpec.EXACTLY
+            )
+            measureChild(child, childViewWidth, childViewHeight)
+
+            val w = child.measuredWidth + paddingLeft + paddingBottom
+            val h = child.measuredHeight + paddingTop + paddingBottom
+            if (w > width) {
+                setMeasuredDimension(width, h)
+            } else {
+                setMeasuredDimension(w, h)
+            }
         }
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         if (childCount == 1) {
             getChildAt(0).layout(
-                l + paddingLeft,
-                t + paddingTop,
-                r - paddingRight,
-                b - paddingBottom
+                paddingLeft,
+                paddingTop,
+                width - paddingRight,
+                height - paddingBottom
             )
         }
     }

@@ -32,6 +32,7 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder> :
     override val differ: AsyncListDiffer<D>?
         get() = null
     override val data: MutableList<D?>
+        //注意：differ?.currentList返回的list为不可修改的list
         get() = differ?.currentList ?: list
 
     override val noTypeAdapter: BaseRecyclerViewAdapter<*, *>

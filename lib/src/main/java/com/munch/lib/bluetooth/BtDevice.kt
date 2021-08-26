@@ -45,16 +45,29 @@ data class BtDevice(
 
     companion object {
 
-        @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH])
+        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
         fun from(
             device: BluetoothDevice,
-            type: @RawValue BluetoothType = BluetoothType.Ble,
+            rssi: Int = 0
+        ): BtDevice {
+            val type = if (BluetoothDevice.DEVICE_TYPE_CLASSIC == device.type) {
+                BluetoothType.Classic
+            } else {
+                BluetoothType.Ble
+            }
+            return BtDevice(device.name, device.address, rssi, type, device)
+        }
+
+        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
+        fun from(
+            device: BluetoothDevice,
+            type: @RawValue BluetoothType,
             rssi: Int = 0
         ): BtDevice {
             return BtDevice(device.name, device.address, rssi, type, device)
         }
 
-        @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH])
+        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
         fun from(mac: String, type: BluetoothType = BluetoothType.Ble): BtDevice? {
             if (!BluetoothAdapter.checkBluetoothAddress(mac)) {
                 return null
@@ -88,6 +101,31 @@ data class BtDevice(
         }
     }
 
+    /**
+     * 如果该设备已绑定，则移除该绑定；如果正在绑定，则尝试取消绑定；
+     * 反射失败则返回null，否则返回boolean
+     */
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH)
+    fun removeBond(): Boolean? {
+        return when (device.bondState) {
+            BluetoothDevice.BOND_NONE -> true
+            BluetoothDevice.BOND_BONDING -> try {
+                val cancelBond = BluetoothDevice::class.java.getDeclaredMethod("cancelBondProcess")
+                cancelBond.isAccessible = true
+                cancelBond.invoke(device) as? Boolean?
+            } catch (e: Exception) {
+                null
+            }
+            else -> try {
+                val removeBond = BluetoothDevice::class.java.getDeclaredMethod("removeBond")
+                removeBond.isAccessible = true
+                removeBond.invoke(device) as? Boolean?
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
     override fun toString(): String {
         return "BtDevice(name=$name, mac='$mac', rssi=$rssi, type=$type)"
     }
@@ -106,4 +144,5 @@ data class BtDevice(
     override fun hashCode(): Int {
         return mac.hashCode()
     }
+
 }

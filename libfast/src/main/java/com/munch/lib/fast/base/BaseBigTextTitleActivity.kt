@@ -84,7 +84,7 @@ open class BaseBigTextTitleActivity : BaseActivity() {
     protected open fun canBack() = true
 
     protected open fun showMenu() {
-        newMenuDialog().show()
+        newMenuBottomDialog().show()
     }
 
     fun checkActivity() {}

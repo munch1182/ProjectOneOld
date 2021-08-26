@@ -46,7 +46,21 @@
     </style>
 
     <!--背景透明的BottomSheetDialog-->
-    <style name="AppTheme.BottomSheetDialog.Trans" parent="Theme.MaterialComponents.BottomSheetDialog">
+    <style name="AppTheme.BottomDialog.Trans" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <!--是否去除边框-->
+        <item name="android:windowFrame">@null</item>
+        <!--是否去除标题 -->
+        <item name="windowNoTitle">true</item>
+        <!--背景颜色及和透明程度-->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!--是否浮现在activity之上-->
+        <item name="android:windowIsFloating">true</item>
+        <!--是否模糊-->
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <!--背景透明的BottomSheetDialog-->
+    <style name="AppTheme.CenterDialog.Trans" parent="Theme.MaterialComponents.Dialog.Alert">
         <!--是否去除边框-->
         <item name="android:windowFrame">@null</item>
         <!--是否去除标题 -->

@@ -2,7 +2,6 @@ package com.munch.lib.bluetooth
 
 import com.munch.lib.base.OnChangeListener
 import com.munch.lib.helper.SimpleARSHelper
-import com.munch.lib.log.log
 
 class BluetoothNotifyHelper {
 
@@ -53,7 +52,7 @@ class BluetoothNotifyHelper {
         override fun onChange() {
             BluetoothHelper.instance.workHandler.post {
                 stateListeners.notifyListener {
-                    it.onChange(BluetoothHelper.instance.state.currentState)
+                    it.onChange(BluetoothHelper.instance.state.currentStateVal)
                 }
             }
         }

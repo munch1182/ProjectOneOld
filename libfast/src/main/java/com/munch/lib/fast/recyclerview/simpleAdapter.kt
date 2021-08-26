@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
+import com.munch.lib.log.log
 import com.munch.lib.recyclerview.BaseRecyclerViewAdapter
 import com.munch.lib.recyclerview.BaseViewHolder
 import com.munch.lib.recyclerview.SingleViewModule
@@ -56,7 +57,11 @@ open class SimpleDiffAdapter<D, VB : ViewDataBinding> constructor(
     }
 
     override val differ: AsyncListDiffer<D>
-        get() = asyncDiffer
+        get() = asyncDiffer.apply {
+            addListListener { previousList, currentList ->
+                log(previousList.hashCode(),currentList.hashCode())
+            }
+        }
 
 
     override fun onBindViewHolder(holder: BaseDBViewHolder, db: VB, bean: D?) {
@@ -66,11 +71,10 @@ open class SimpleDiffAdapter<D, VB : ViewDataBinding> constructor(
 
 class SimpleItemCallback<D> : DiffUtil.ItemCallback<D>() {
     override fun areItemsTheSame(oldItem: D, newItem: D): Boolean {
-        return oldItem == newItem
+        return oldItem.hashCode() == newItem.hashCode()
     }
 
     override fun areContentsTheSame(oldItem: D, newItem: D): Boolean {
         return areItemsTheSame(oldItem, newItem)
     }
-
 }

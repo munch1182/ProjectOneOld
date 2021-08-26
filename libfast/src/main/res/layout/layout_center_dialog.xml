@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <com.munch.lib.weight.CornerLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/paddingDef"
+        android:color="@color/white"
+        android:paddingTop="@dimen/paddingSmall"
+        android:paddingBottom="@dimen/paddingSmall"
+        app:blRadius="@dimen/radiusDef"
+        app:brRadius="@dimen/radiusDef"
+        app:tlRadius="@dimen/radiusDef"
+        app:trRadius="@dimen/radiusDef"
+        tools:color="@color/colorPrimary">
+
+        <LinearLayout
+            android:id="@+id/dialog_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/dialog_title"
+                style="@style/AppTheme.Text.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/paddingDef"
+                android:paddingTop="@dimen/paddingSmall"
+                android:paddingEnd="@dimen/paddingDef"
+                android:paddingBottom="@dimen/paddingSmall"
+                android:textColor="@color/black"
+                tools:text="123" />
+        </LinearLayout>
+    </com.munch.lib.weight.CornerLayout>
+</FrameLayout>

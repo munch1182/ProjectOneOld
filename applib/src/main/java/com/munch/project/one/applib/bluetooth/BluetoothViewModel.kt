@@ -35,28 +35,32 @@ class BluetoothViewModel : ViewModel() {
     private val notice = MutableLiveData("")
     fun notice() = notice.toLive()
     private val scanListener = object : OnScannerListener {
+        private var start = 0
         override fun onStart() {
             currentConfig = config.value!!
             devList.clear()
             countDown()
-            val type = config.value?.type ?: BluetoothType.Ble
-            val bondedDevices = instance.set.getBondedDevices(type)
-            var connectBySystem: BtItemDev? = null
-            devList.addAll(bondedDevices.map {
-                BtItemDev(it).apply {
-                    isBond = true
-                    isConnectedBySystem = it.isConnected() ?: false
-                    isConnectedByHelper = it == instance.connectedDev
-                    if (isConnectedBySystem) {
-                        connectBySystem = this
+            start = 0
+            val bondedDevices = instance.set.getBondedDevices()
+            if (bondedDevices.isNotEmpty()) {
+                var connectBySystem: BtItemDev? = null
+                devList.addAll(bondedDevices.filter { it.type == BluetoothType.Ble }.map {
+                    BtItemDev(it).apply {
+                        isBond = true
+                        isConnectedBySystem = it.isConnected() ?: false
+                        isConnectedByHelper = it == instance.connectedDev
+                        if (isConnectedBySystem) {
+                            connectBySystem = this
+                        }
                     }
+                })
+                if (connectBySystem != null) {
+                    devList.remove(connectBySystem)
+                    devList.add(0, connectBySystem)
                 }
-            })
-            if (connectBySystem != null) {
-                devList.remove(connectBySystem)
-                devList.add(0, connectBySystem)
+                devs.postValue(devList.toMutableList())
+                start = devList.size
             }
-            devs.postValue(devList)
         }
 
         private var end = false
@@ -84,16 +88,16 @@ class BluetoothViewModel : ViewModel() {
         override fun onBatchScan(devices: MutableList<BtDevice>) {
             val devs = devices.filter { isValid(it) }.map { BtItemDev(it) }
             if (devs.isNotEmpty()) {
-                devList.addAll(devs)
-                this@BluetoothViewModel.devs.postValue(devList)
+                devList.addAll(start, devs)
+                this@BluetoothViewModel.devs.postValue(devList.toMutableList())
             }
         }
 
         override fun onScan(device: BtDevice) {
             val dev = BtItemDev(device)
             if (isValid(device)) {
-                devList.add(dev)
-                devs.postValue(devList)
+                devList.add(start, dev)
+                devs.postValue(devList.toMutableList())
             }
         }
 
@@ -156,13 +160,13 @@ class BluetoothViewModel : ViewModel() {
         super.onCleared()
         instance.stopScan()
         instance.scanListeners.remove(scanListener)
-        instance.connectListener.remove(connectListener)
+        instance.connectListeners.remove(connectListener)
     }
 
     fun toggleConnect(dev: BtDevice?) {
         dev ?: return
         if (instance.state.isConnected) {
-            instance.connectListener.add(connectListener)
+            instance.connectListeners.add(connectListener)
             dev.disconnect()
         } else {
             dev.connect()
@@ -210,6 +214,12 @@ data class BtItemDev(val dev: BtDevice) {
     var isConnectedBySystem = false
     var isConnectedByHelper = false
 
+    constructor(dev: BtItemDev) : this(dev.dev) {
+        isBond = dev.isBond
+        isConnectedByHelper = dev.isConnectedByHelper
+        isConnectedBySystem = dev.isConnectedBySystem
+    }
+
     val state: String
         get() {
             if (!isBond && !isConnectedByHelper) {
@@ -252,4 +262,7 @@ data class BtItemDev(val dev: BtDevice) {
         return result
     }
 
+    override fun toString(): String {
+        return "BtItemDev(dev=${dev.mac}, isBond=$isBond, isConnectedBySystem=$isConnectedBySystem, isConnectedByHelper=$isConnectedByHelper)"
+    }
 }

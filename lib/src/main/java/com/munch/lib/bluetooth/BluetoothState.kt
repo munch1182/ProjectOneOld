@@ -58,33 +58,53 @@ class BluetoothStateHelper {
     internal var onChangeListener: OnChangeListener? = null
 
     @BluetoothState
-    internal var currentState: Int = BluetoothState.CLOSE
+    internal var currentStateVal: Int = BluetoothState.CLOSE
         get() = synchronized(lock) { field }
         set(value) {
             synchronized(lock) {
                 if (field == value) {
                     return@synchronized
                 }
-                val old = field
+                lastStateVal = field
                 field = value
-                BluetoothHelper.logHelper.withEnable { "state: $old -> $value" }
+                BluetoothHelper.logHelper.withEnable { "state: $lastStateVal -> $value" }
                 onChangeListener?.onChange()
             }
         }
 
+    @BluetoothState
+    private var lastStateVal = currentStateVal
+
+    @BluetoothState
+    val lastState: Int
+        get() = lastStateVal
+
+    @BluetoothState
+    val currentState: Int
+        get() = currentStateVal
+
     val isScanning: Boolean
-        get() = currentState == BluetoothState.SCANNING
+        get() = currentStateVal == BluetoothState.SCANNING
 
     val isConnected: Boolean
-        get() = currentState == BluetoothState.CONNECTED
+        get() = currentStateVal == BluetoothState.CONNECTED
 
     val isConnecting: Boolean
-        get() = currentState == BluetoothState.CONNECTING
+        get() = currentStateVal == BluetoothState.CONNECTING
 
     val isClose: Boolean
-        get() = currentState == BluetoothState.CLOSE
+        get() = currentStateVal == BluetoothState.CLOSE
 
     val isIdle: Boolean
-        get() = currentState == BluetoothState.IDLE
+        get() = currentStateVal == BluetoothState.IDLE
+
+    private val isStop: Boolean
+        get() = isIdle || isClose
+
+    val isScanComplete: Boolean
+        get() = lastStateVal == BluetoothState.SCANNING && isStop
+
+    val isDisconnect: Boolean
+        get() = lastStateVal == BluetoothState.CONNECTED && isStop
 
 }

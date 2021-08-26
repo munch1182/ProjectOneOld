@@ -1,6 +1,7 @@
 package com.munch.lib.bluetooth
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
@@ -88,7 +89,7 @@ class BluetoothHelper private constructor() {
         handlerThread = HandlerThread("BLUETOOTH_WORK_THREAD")
         handlerThread.start()
         workHandler = Handler(handlerThread.looper)
-        state.currentState = if (instance.isEnable) BluetoothState.IDLE else BluetoothState.CLOSE
+        state.currentStateVal = if (instance.isEnable) BluetoothState.IDLE else BluetoothState.CLOSE
     }
 
     val adapter: BluetoothAdapter?
@@ -101,7 +102,7 @@ class BluetoothHelper private constructor() {
         get() = notifyHelper.scanListeners
     val stateListeners: ARSHelper<OnStateChangeListener>
         get() = notifyHelper.stateListeners
-    val connectListener: ARSHelper<OnConnectListener>
+    val connectListeners: ARSHelper<OnConnectListener>
         get() = notifyHelper.connectListeners
     val state: BluetoothStateHelper
         get() = stateHelper
@@ -131,6 +132,9 @@ class BluetoothHelper private constructor() {
         scanner?.stop()
     }
 
+    /**
+     * 调用此方法前需要先主动断开已连接设备
+     */
     fun connect(device: BtDevice) {
         if (connector != null) {
             return
@@ -141,15 +145,19 @@ class BluetoothHelper private constructor() {
         connector?.connect()
     }
 
-    fun disconnect() {
+    @SuppressLint("MissingPermission")
+    fun disconnect(removeBond: Boolean = false) {
         if (connector == null) {
             return
         }
-        connector!!.disconnect()
+        if (removeBond) {
+            connectedDev?.removeBond()
+        }
+        connector!!.destroy()
         connector = null
     }
 
     internal fun newState(@BluetoothState state: Int) {
-        stateHelper.currentState = state
+        stateHelper.currentStateVal = state
     }
 }
