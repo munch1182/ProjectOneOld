@@ -1,4 +1,4 @@
-package com.munch.lib.service
+package com.munch.lib.helper.service
 
 import android.app.Service
 import android.content.Context

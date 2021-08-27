@@ -1,4 +1,4 @@
-package com.munch.lib.service
+package com.munch.lib.helper.service
 
 import android.app.Application
 import android.app.Service
@@ -9,7 +9,7 @@ import android.content.ServiceConnection
 import android.os.Binder
 import android.os.IBinder
 import androidx.core.app.ComponentActivity
-import com.munch.lib.service.ServiceBindHelper.SimpleBinder
+import com.munch.lib.helper.service.ServiceBindHelper.SimpleBinder
 import java.io.Closeable
 
 /**

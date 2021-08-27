@@ -1,6 +1,7 @@
 package com.munch.project.one.applib.bluetooth
 
 import android.annotation.SuppressLint
+import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +14,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 
 /**
  * Create by munch1182 on 2021/8/24 16:25.
@@ -158,10 +161,11 @@ class BluetoothViewModel : ViewModel() {
             /*instance.scanListeners.remove(scanListener)*/
         } else {
             instance.scanListeners.add(scanListener)
-            val config = config.value
-            val timeout = (config?.timeOut ?: 0L) * 1000L
-            val filter = config?.let { mutableListOf(ScanFilter(config.name, config.mac)) }
-            instance.bleScanBuilder().setFilter(filter).setTimeout(timeout).startScan()
+            val config = config.value ?: return
+            BtActivityConfig.config = config
+            val timeout = config.timeOut * 1000L
+            val filter = mutableListOf(ScanFilter(config.name, config.mac))
+            instance.scanBuilder(config.type).setFilter(filter).setTimeout(timeout).startScan()
         }
     }
 
@@ -183,6 +187,7 @@ class BluetoothViewModel : ViewModel() {
     }
 }
 
+@Parcelize
 data class BtActivityConfig(
     var type: BluetoothType = BluetoothType.Classic,
     var name: String? = null,
@@ -190,8 +195,9 @@ data class BtActivityConfig(
     var timeOut: Long = 25L,
     var noName: Boolean = true,
     var connectAuto: Boolean = true
-) {
+) : Parcelable {
 
+    @IgnoredOnParcel
     var isClassic: Boolean = type == BluetoothType.Classic
         set(value) {
             if (field == value) {

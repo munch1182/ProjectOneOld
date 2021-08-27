@@ -31,6 +31,8 @@ class BluetoothHelper private constructor() : Destroyable {
 
         fun getBluetoothIntent() = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
 
+        fun openIntent() = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+
         /**
          * 检查[mac]地址是否有效，即是否是合法的格式
          *
@@ -63,7 +65,7 @@ class BluetoothHelper private constructor() : Destroyable {
     /**
      * 用于扫描classic
      */
-    private val classicScanner by lazy { ClassicScanner() }
+    private val classicScanner by lazy { ClassicScanner(context) }
 
     /**
      * 用于统一管理回调
@@ -92,6 +94,17 @@ class BluetoothHelper private constructor() : Destroyable {
         initialized = true
         this.context = context.applicationContext
         instance = BluetoothInstance(context)
+        instance.setStateListener { _, turning, available ->
+            //打开时
+            if (!turning && available) {
+                newState(BluetoothState.IDLE)
+                //开始关闭蓝牙
+            } else if (turning && !available) {
+                stopScan()
+                closeConnect()
+                newState(BluetoothState.CLOSE)
+            }
+        }
         handlerThread = HandlerThread("BLUETOOTH_WORK_THREAD")
         handlerThread.start()
         workHandler = Handler(handlerThread.looper)
@@ -118,25 +131,44 @@ class BluetoothHelper private constructor() : Destroyable {
     @RequiresPermission(
         allOf = [Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_FINE_LOCATION]
     )
-    fun startBleScan() {
+    fun startBleScan(scanBuilder: ScannerBuilder? = null) {
+        startScan(BluetoothType.Ble, scanBuilder)
+    }
+
+    fun scanBuilder(type: BluetoothType) = ScannerBuilder(type)
+
+    /**
+     * 开始扫描，不同的类型需要不同的权限
+     *
+     * @see startBleScan
+     * @see startClassicScan
+     */
+    fun startScan(type: BluetoothType, scanBuilder: ScannerBuilder? = null) {
+        if (state.isClose || state.isScanning) {
+            return
+        }
         scanner?.cancel()
-        scanner = bleScanner
-        bleScanner.listener = notifyHelper.scanCallback
+        if (type.isBle) {
+            scanner = bleScanner
+            bleScanner.listener = notifyHelper.scanCallback
+            bleScanner.builder = scanBuilder
+        } else if (type.isClassic) {
+            scanner = classicScanner
+            classicScanner.listener = notifyHelper.scanCallback
+            classicScanner.builder = scanBuilder
+        }
         scanner?.start()
     }
 
-    fun bleScanBuilder() = BleScanner.Builder().apply {
-        bleScanner.builder = this
-    }
-
-    fun startClassicScan() {
-        scanner?.cancel()
-        scanner = classicScanner
-        bleScanner.listener = notifyHelper.scanCallback
-        scanner?.start()
+    @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
+    fun startClassicScan(scanBuilder: ScannerBuilder? = null) {
+        startScan(BluetoothType.Classic, scanBuilder)
     }
 
     fun stopScan() {
+        if (state.isClose || !state.isScanning) {
+            return
+        }
         scanner?.stop()
     }
 
@@ -156,21 +188,22 @@ class BluetoothHelper private constructor() : Destroyable {
      * @see stateListeners
      */
     fun connect(device: BluetoothDev): Boolean {
-        if (device.isConnected) {
-            return true
-            //如果device未连接但连接的不是此设备
-        } else if (state.isConnected) {
-            return false
-        }
-        if (device.isBle) {
-            if (connector == null || connector!!.device != device) {
-                connector = BleConnector(device).apply {
-                    connectListener = notifyHelper.connectCallback
+        when {
+            state.isClose -> return false
+            device.isConnected -> return true
+            //如果已有连接但连接的不是此设备
+            state.isConnected -> return false
+            device.isBle -> {
+                if (connector == null || connector!!.device != device) {
+                    connector = BleConnector(device).apply {
+                        connectListener = notifyHelper.connectCallback
+                    }
                 }
             }
-        } else {
-            //未实现
-            return false
+            else -> {
+                //未实现
+                return false
+            }
         }
         connector?.connect()
         return true
@@ -184,7 +217,7 @@ class BluetoothHelper private constructor() : Destroyable {
      *
      */
     fun disconnect() {
-        if (connector == null) {
+        if (connector == null || state.isClose || !state.isConnected) {
             return
         }
         connector?.disconnect()
@@ -197,7 +230,7 @@ class BluetoothHelper private constructor() : Destroyable {
      */
     @SuppressLint("MissingPermission")
     fun closeConnect(removeBond: Boolean = false) {
-        if (connector == null) {
+        if (connector == null || state.isClose || !state.isConnected) {
             return
         }
         if (removeBond) {
@@ -215,8 +248,9 @@ class BluetoothHelper private constructor() : Destroyable {
         initialized = false
         notifyHelper.destroy()
         handlerThread.quit()
-        scanner?.cancel()
-        connector?.destroy()
+        stopScan()
+        closeConnect()
+        instance.destroy()
         logHelper.withEnable { "destroy" }
     }
 }

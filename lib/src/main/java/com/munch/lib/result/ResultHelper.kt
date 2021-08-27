@@ -119,6 +119,14 @@ class ResultHelper(private val fm: FragmentManager) {
         fun start(listener: OnResultListener) {
             fragment.startActivityForResult(intent, listener)
         }
+
+        fun start(onResult: (isOk: Boolean) -> Unit) {
+            start(object : OnResultListener {
+                override fun onResult(isOk: Boolean, resultCode: Int, data: Intent?) {
+                    onResult.invoke(isOk)
+                }
+            })
+        }
     }
 
     interface OnPermissionResultListener {

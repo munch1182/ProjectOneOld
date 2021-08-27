@@ -9,10 +9,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.base.OnViewIntClickListener
 import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.BluetoothInstance
 import com.munch.lib.bluetooth.BluetoothState
 import com.munch.lib.bluetooth.setOnState
 import com.munch.lib.fast.base.*
 import com.munch.lib.fast.recyclerview.*
+import com.munch.lib.log.log
 import com.munch.lib.result.ResultHelper
 import com.munch.project.one.applib.R
 import com.munch.project.one.applib.databinding.ActivityBluetoothBinding
@@ -115,6 +117,12 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
     private fun onClick() {
         val instance = BluetoothHelper.instance
         when {
+            instance.state.isClose -> {
+                ResultHelper.init(this)
+                    .with(BluetoothHelper.openIntent())
+                    .start {
+                    }
+            }
             instance.state.isConnecting -> {
                 ResultHelper.init(this)
                     .with(Manifest.permission.BLUETOOTH)
@@ -160,7 +168,7 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         dialog =
             newMenuDialog(
                 dev.dev.name ?: dev.dev.mac,
-                "isConnected:${dev.dev.isConnectedInSystem()}"
+                "isBond:${dev.dev.isBond()}\nisConnected:${dev.dev.isConnectedInSystem()}"
             ) {
                 views.forEach { v ->
                     v.setOnClickListener {
@@ -177,7 +185,8 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         if (createBond) {
             updateState()
         } else {
-            toast("绑定成功")
+            log("绑定失败")
+            toast("绑定失败")
         }
     }
 
@@ -186,6 +195,7 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         if (removeBond == true) {
             updateState()
         } else {
+            log("移除绑定失败")
             toast("移除绑定失败")
         }
     }

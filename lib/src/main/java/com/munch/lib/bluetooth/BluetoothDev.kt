@@ -33,6 +33,11 @@ sealed class BluetoothType : Parcelable {
             return "ble"
         }
     }
+
+    val isBle: Boolean
+        get() = this == Ble
+    val isClassic: Boolean
+        get() = this == Classic
 }
 
 data class BluetoothDev(

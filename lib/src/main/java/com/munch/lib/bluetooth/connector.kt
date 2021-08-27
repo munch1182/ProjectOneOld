@@ -104,6 +104,7 @@ class BleConnector(override val device: BluetoothDev) : Connector {
     }
 
     override fun connect() {
+        logHelper.withEnable { "bleConnector connect:${device.mac}" }
         connectListener?.onStart()
         if (gatt != null) {
             reconnect()
@@ -120,10 +121,12 @@ class BleConnector(override val device: BluetoothDev) : Connector {
     }
 
     override fun disconnect() {
+        logHelper.withEnable { "bleConnector disconnect:${device.mac}" }
         gatt?.disconnect()
     }
 
     override fun destroy() {
+        logHelper.withEnable { "destroy bleConnector" }
         disconnect()
         //调用此方法后不会再触发任何系统回调
         gatt?.close()
@@ -137,6 +140,7 @@ class BleConnector(override val device: BluetoothDev) : Connector {
      * 当调用[connect]后且未调用[disconnect]，即[gatt]不为null时(如蓝牙超出范围断开)，可直接调用此方法来重新连接
      */
     private fun reconnect() {
+        logHelper.withEnable { "bleConnector reconnect" }
         gatt?.connect()
     }
 }
