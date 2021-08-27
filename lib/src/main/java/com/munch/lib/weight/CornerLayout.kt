@@ -20,10 +20,11 @@ class CornerLayout @JvmOverloads constructor(
     init {
         context.obtainStyledAttributes(attrs, R.styleable.CornerLayout).apply {
             val color = getColor(R.styleable.CornerLayout_android_color, Color.TRANSPARENT)
-            val tl = getDimension(R.styleable.CornerLayout_tlRadius, 0f)
-            val tr = getDimension(R.styleable.CornerLayout_trRadius, 0f)
-            val bl = getDimension(R.styleable.CornerLayout_blRadius, 0f)
-            val br = getDimension(R.styleable.CornerLayout_brRadius, 0f)
+            val radius = getDimension(R.styleable.CornerLayout_radius, 0f)
+            val tl = getDimension(R.styleable.CornerLayout_tlRadius, radius)
+            val tr = getDimension(R.styleable.CornerLayout_trRadius, radius)
+            val bl = getDimension(R.styleable.CornerLayout_blRadius, radius)
+            val br = getDimension(R.styleable.CornerLayout_brRadius, radius)
             val strokeColor = getColor(R.styleable.CornerLayout_strokeColor, Color.TRANSPARENT)
             val strokeWidth = getDimensionPixelSize(R.styleable.CornerLayout_strokeWidth, 0)
             val drawable =

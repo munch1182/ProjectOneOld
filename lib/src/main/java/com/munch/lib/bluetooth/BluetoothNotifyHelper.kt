@@ -1,9 +1,10 @@
 package com.munch.lib.bluetooth
 
+import com.munch.lib.base.Destroyable
 import com.munch.lib.base.OnChangeListener
 import com.munch.lib.helper.SimpleARSHelper
 
-class BluetoothNotifyHelper {
+class BluetoothNotifyHelper : Destroyable {
 
     val scanListeners = SimpleARSHelper<OnScannerListener>()
     val stateListeners = SimpleARSHelper<OnStateChangeListener>()
@@ -17,7 +18,7 @@ class BluetoothNotifyHelper {
             }
         }
 
-        override fun onScan(device: BtDevice) {
+        override fun onScan(device: BluetoothDev) {
             BluetoothHelper.instance.workHandler.post {
                 scanListeners.notifyListener {
                     it.onScan(device)
@@ -25,7 +26,7 @@ class BluetoothNotifyHelper {
             }
         }
 
-        override fun onBatchScan(devices: MutableList<BtDevice>) {
+        override fun onBatchScan(devices: MutableList<BluetoothDev>) {
             BluetoothHelper.instance.workHandler.post {
                 scanListeners.notifyListener {
                     it.onBatchScan(devices)
@@ -33,7 +34,7 @@ class BluetoothNotifyHelper {
             }
         }
 
-        override fun onComplete(devices: MutableList<BtDevice>) {
+        override fun onComplete(devices: MutableList<BluetoothDev>) {
             BluetoothHelper.instance.apply {
                 newState(BluetoothState.IDLE)
                 workHandler.post { scanListeners.notifyListener { it.onComplete(devices) } }
@@ -92,6 +93,12 @@ class BluetoothNotifyHelper {
      * 连接的状态不在这个回调中，这个只表示连接的动作
      */
     private fun clearConnectListener() {
+        connectListeners.clear()
+    }
+
+    override fun destroy() {
+        scanListeners.clear()
+        stateListeners.clear()
         connectListeners.clear()
     }
 }

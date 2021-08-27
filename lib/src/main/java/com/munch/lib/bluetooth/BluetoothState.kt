@@ -65,15 +65,18 @@ class BluetoothStateHelper {
                 if (field == value) {
                     return@synchronized
                 }
-                lastStateVal = field
+                val lastState = field
                 field = value
-                BluetoothHelper.logHelper.withEnable { "state: $lastStateVal -> $value" }
-                onChangeListener?.onChange()
+                //lastStateVal为-1时是初始化的时候
+                if (lastStateVal != -1) {
+                    BluetoothHelper.logHelper.withEnable { "state: $lastState -> $value" }
+                    onChangeListener?.onChange()
+                }
+                lastStateVal = lastState
             }
         }
 
-    @BluetoothState
-    private var lastStateVal = currentStateVal
+    private var lastStateVal = -1
 
     @BluetoothState
     val lastState: Int

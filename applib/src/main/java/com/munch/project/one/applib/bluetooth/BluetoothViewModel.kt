@@ -19,23 +19,30 @@ import kotlinx.coroutines.launch
  */
 class BluetoothViewModel : ViewModel() {
 
-    init {
-        BluetoothHelper.instance.init(AppHelper.app)
-    }
-
+    private var devList: MutableList<BtItemDev?> = mutableListOf()
+    private val devs = MutableLiveData<MutableList<BtItemDev?>?>()
+    fun devs() = devs.toLive()
     private val instance = BluetoothHelper.instance
+
+    init {
+        if (!instance.isInitialized) {
+            instance.init(AppHelper.app)
+        }
+        instance.connectedDev?.let {
+            devList.add(BtItemDev.from(it))
+            devs.postValue(devList)
+        }
+    }
 
     private var currentConfig: BtActivityConfig = BtActivityConfig.config!!
     private val config = MutableLiveData(currentConfig)
     fun config() = config.toLive()
 
-    private var devList: MutableList<BtItemDev?> = mutableListOf()
-    private val devs = MutableLiveData<MutableList<BtItemDev?>?>()
-    fun devs() = devs.toLive()
     private val notice = MutableLiveData("")
     fun notice() = notice.toLive()
     private val scanListener = object : OnScannerListener {
         private var start = 0
+        private var bondedDevices: MutableList<BtItemDev>? = null
         override fun onStart() {
             currentConfig = config.value!!
             devList.clear()
@@ -44,16 +51,16 @@ class BluetoothViewModel : ViewModel() {
             val bondedDevices = instance.set.getBondedDevices()
             if (bondedDevices.isNotEmpty()) {
                 var connectBySystem: BtItemDev? = null
-                devList.addAll(bondedDevices.filter { it.type == BluetoothType.Ble }.map {
-                    BtItemDev(it).apply {
-                        isBond = true
-                        isConnectedBySystem = it.isConnected() ?: false
-                        isConnectedByHelper = it == instance.connectedDev
-                        if (isConnectedBySystem) {
-                            connectBySystem = this
+                this.bondedDevices = bondedDevices.filter { it.type == BluetoothType.Ble }
+                    .map {
+                        BtItemDev.from(it).apply {
+                            if (isConnectedBySystem) {
+                                connectBySystem = this
+                            }
                         }
                     }
-                })
+                    .toMutableList()
+                devList.addAll(this.bondedDevices!!)
                 if (connectBySystem != null) {
                     devList.remove(connectBySystem)
                     devList.add(0, connectBySystem)
@@ -85,23 +92,41 @@ class BluetoothViewModel : ViewModel() {
             }
         }
 
-        override fun onBatchScan(devices: MutableList<BtDevice>) {
-            val devs = devices.filter { isValid(it) }.map { BtItemDev(it) }
+        override fun onBatchScan(devices: MutableList<BluetoothDev>) {
+            val devs = devices.filter { isValid(it) }
+                .map { BtItemDev(it) }
+                .filter {
+                    var isNew = true
+                    kotlin.run out@{
+                        bondedDevices?.forEach { dev ->
+                            if (it.dev.mac == dev.dev.mac) {
+                                isNew = false
+                                return@out
+                            }
+                        }
+                    }
+                    isNew
+                }
             if (devs.isNotEmpty()) {
                 devList.addAll(start, devs)
                 this@BluetoothViewModel.devs.postValue(devList.toMutableList())
             }
         }
 
-        override fun onScan(device: BtDevice) {
+        override fun onScan(device: BluetoothDev) {
             val dev = BtItemDev(device)
             if (isValid(device)) {
+                bondedDevices?.forEach {
+                    if (it.dev.mac == dev.dev.mac) {
+                        return
+                    }
+                }
                 devList.add(start, dev)
                 devs.postValue(devList.toMutableList())
             }
         }
 
-        override fun onComplete(devices: MutableList<BtDevice>) {
+        override fun onComplete(devices: MutableList<BluetoothDev>) {
             end = true
             end()
             notice.postValue("已结束，共扫描到${devices.size}个设备，历时${time}s")
@@ -117,24 +142,8 @@ class BluetoothViewModel : ViewModel() {
             instance.scanListeners.remove(this)
         }
     }
-    private val connectListener = object : OnConnectListener {
-        override fun onStart() {
-        }
 
-        override fun onConnectSuccess() {
-            val dev = instance.connectedDev ?: return
-            val index = devList.map { it?.dev }.indexOf(dev)
-            if (index != -1) {
-                devList[index]?.isConnectedByHelper = true
-                devs.postValue(devList)
-            }
-        }
-
-        override fun onConnectFail() {
-        }
-    }
-
-    private fun isValid(dev: BtDevice): Boolean {
+    private fun isValid(dev: BluetoothDev): Boolean {
         if (currentConfig.noName && dev.name == null) {
             return false
         }
@@ -160,14 +169,14 @@ class BluetoothViewModel : ViewModel() {
         super.onCleared()
         instance.stopScan()
         instance.scanListeners.remove(scanListener)
-        instance.connectListeners.remove(connectListener)
     }
 
-    fun toggleConnect(dev: BtDevice?) {
+    fun toggleConnect(dev: BluetoothDev?) {
         dev ?: return
         if (instance.state.isConnected) {
-            instance.connectListeners.add(connectListener)
-            dev.disconnect()
+            if (instance.connectedDev?.mac == dev.mac) {
+                dev.disconnect()
+            }
         } else {
             dev.connect()
         }
@@ -190,7 +199,6 @@ data class BtActivityConfig(
             }
             field = value
             type = if (field) BluetoothType.Classic else BluetoothType.Ble
-
         }
 
     companion object {
@@ -208,17 +216,22 @@ data class BtActivityConfig(
     }
 }
 
-data class BtItemDev(val dev: BtDevice) {
+data class BtItemDev(val dev: BluetoothDev) {
+
+    companion object {
+
+        fun from(dev: BluetoothDev): BtItemDev {
+            return BtItemDev(dev).apply {
+                isBond = dev.isBond()
+                isConnectedBySystem = dev.isConnectedInSystem() ?: false
+                isConnectedByHelper = dev == BluetoothHelper.instance.connectedDev
+            }
+        }
+    }
 
     var isBond = false
     var isConnectedBySystem = false
     var isConnectedByHelper = false
-
-    constructor(dev: BtItemDev) : this(dev.dev) {
-        isBond = dev.isBond
-        isConnectedByHelper = dev.isConnectedByHelper
-        isConnectedBySystem = dev.isConnectedBySystem
-    }
 
     val state: String
         get() {

@@ -35,12 +35,12 @@ sealed class BluetoothType : Parcelable {
     }
 }
 
-data class BtDevice(
+data class BluetoothDev(
     val name: String? = null,
     val mac: String,
-    val rssi: Int = 0,
+    var rssi: Int = 0,
     val type: @RawValue BluetoothType,
-    val device: BluetoothDevice
+    val dev: BluetoothDevice
 ) {
 
     companion object {
@@ -49,13 +49,13 @@ data class BtDevice(
         fun from(
             device: BluetoothDevice,
             rssi: Int = 0
-        ): BtDevice {
+        ): BluetoothDev {
             val type = if (BluetoothDevice.DEVICE_TYPE_CLASSIC == device.type) {
                 BluetoothType.Classic
             } else {
                 BluetoothType.Ble
             }
-            return BtDevice(device.name, device.address, rssi, type, device)
+            return BluetoothDev(device.name, device.address, rssi, type, device)
         }
 
         @RequiresPermission(android.Manifest.permission.BLUETOOTH)
@@ -63,12 +63,12 @@ data class BtDevice(
             device: BluetoothDevice,
             type: @RawValue BluetoothType,
             rssi: Int = 0
-        ): BtDevice {
-            return BtDevice(device.name, device.address, rssi, type, device)
+        ): BluetoothDev {
+            return BluetoothDev(device.name, device.address, rssi, type, device)
         }
 
         @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-        fun from(mac: String, type: BluetoothType = BluetoothType.Ble): BtDevice? {
+        fun from(mac: String, type: BluetoothType = BluetoothType.Ble): BluetoothDev? {
             if (!BluetoothAdapter.checkBluetoothAddress(mac)) {
                 return null
             }
@@ -79,52 +79,67 @@ data class BtDevice(
 
     val rssiStr: String
         get() = "$rssi dBm"
+    val isBle: Boolean
+        get() = type == BluetoothType.Ble
+    val isClassic: Boolean
+        get() = type == BluetoothType.Classic
+    val isConnected: Boolean
+        get() = mac == BluetoothHelper.instance.connectedDev?.mac
 
-    fun connect() {
-        BluetoothHelper.instance.connect(this)
-    }
+    fun connect() = BluetoothHelper.instance.connect(this)
 
-    fun disconnect() {
-        BluetoothHelper.instance.disconnect()
-    }
+    fun disconnect() = BluetoothHelper.instance.disconnect()
 
     /**
-     * 使用反射判断该蓝牙设备是否已被系统连接，如果蓝牙已关闭、未获取到则返回null，否则返回boolean
+     * 使用反射判断该蓝牙设备是否处于连接状态，如果蓝牙已关闭、未获取到则返回null，否则返回boolean
+     *
+     * 该方法获取有延迟，即断开连接后需要等待一些时间才能获取正确的状态
      */
-    fun isConnected(): Boolean? {
+    fun isConnectedInSystem(): Boolean? {
         return try {
             val isConnected = BluetoothDevice::class.java.getDeclaredMethod("isConnected")
             isConnected.isAccessible = true
-            isConnected.invoke(device) as? Boolean?
+            isConnected.invoke(dev) as? Boolean?
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
 
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH)
+    fun isBond() = dev.bondState == BluetoothDevice.BOND_BONDED
+
     /**
      * 如果该设备已绑定，则移除该绑定；如果正在绑定，则尝试取消绑定；
      * 反射失败则返回null，否则返回boolean
+     *
+     * 注意：此方法只允许由app绑定的设备，不允许移除由其它设备添加的绑定
      */
     @RequiresPermission(android.Manifest.permission.BLUETOOTH)
     fun removeBond(): Boolean? {
-        return when (device.bondState) {
+        return when (dev.bondState) {
             BluetoothDevice.BOND_NONE -> true
             BluetoothDevice.BOND_BONDING -> try {
                 val cancelBond = BluetoothDevice::class.java.getDeclaredMethod("cancelBondProcess")
                 cancelBond.isAccessible = true
-                cancelBond.invoke(device) as? Boolean?
+                cancelBond.invoke(dev) as? Boolean?
             } catch (e: Exception) {
+                e.printStackTrace()
                 null
             }
             else -> try {
                 val removeBond = BluetoothDevice::class.java.getDeclaredMethod("removeBond")
                 removeBond.isAccessible = true
-                removeBond.invoke(device) as? Boolean?
+                removeBond.invoke(dev) as? Boolean?
             } catch (e: Exception) {
+                e.printStackTrace()
                 null
             }
         }
     }
+
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_ADMIN)
+    fun createBond() = dev.createBond()
 
     override fun toString(): String {
         return "BtDevice(name=$name, mac='$mac', rssi=$rssi, type=$type)"
@@ -134,7 +149,7 @@ data class BtDevice(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as BtDevice
+        other as BluetoothDev
 
         if (mac != other.mac) return false
 

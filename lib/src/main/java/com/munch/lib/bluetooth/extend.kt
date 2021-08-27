@@ -10,7 +10,7 @@ fun ARSHelper<OnStateChangeListener>.setOnState(
     owner: LifecycleOwner,
     onChange: (state: Int) -> Unit
 ) {
-    setOnState(owner, object : OnStateChangeListener {
+    set(owner, object : OnStateChangeListener {
         override fun onChange(state: Int) {
             onChange.invoke(state)
         }

@@ -9,13 +9,14 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.provider.Settings
 import androidx.annotation.RequiresPermission
+import com.munch.lib.base.Destroyable
 import com.munch.lib.helper.ARSHelper
 import com.munch.lib.log.Logger
 
 /**
  * Create by munch1182 on 2021/8/17 9:48.
  */
-class BluetoothHelper private constructor() {
+class BluetoothHelper private constructor() : Destroyable {
 
     companion object {
 
@@ -54,7 +55,6 @@ class BluetoothHelper private constructor() {
     private lateinit var handlerThread: HandlerThread
     internal lateinit var workHandler: Handler
 
-
     /**
      * 用于扫描BLE
      */
@@ -82,8 +82,14 @@ class BluetoothHelper private constructor() {
      */
     private var scanner: Scanner? = null
     private var connector: Connector? = null
+    private var initialized = false
 
     fun init(context: Context) {
+        if (initialized) {
+            return
+        }
+        logHelper.withEnable { "init" }
+        initialized = true
         this.context = context.applicationContext
         instance = BluetoothInstance(context)
         handlerThread = HandlerThread("BLUETOOTH_WORK_THREAD")
@@ -92,12 +98,14 @@ class BluetoothHelper private constructor() {
         state.currentStateVal = if (instance.isEnable) BluetoothState.IDLE else BluetoothState.CLOSE
     }
 
+    val isInitialized: Boolean
+        get() = initialized
     val adapter: BluetoothAdapter?
         get() = set.adapter
     val set: BluetoothInstance
         get() = instance
-    val connectedDev: BtDevice?
-        get() = connector?.device
+    val connectedDev: BluetoothDev?
+        get() = state.isConnected.let { if (it) connector?.device else null }
     val scanListeners: ARSHelper<OnScannerListener>
         get() = notifyHelper.scanListeners
     val stateListeners: ARSHelper<OnStateChangeListener>
@@ -133,31 +141,82 @@ class BluetoothHelper private constructor() {
     }
 
     /**
-     * 调用此方法前需要先主动断开已连接设备
+     * 连接到该设备
+     *
+     * 如果当前已有设备连接且连接的不是此设备，则返回false
+     * 否则返回true
+     *
+     * 如果[device]当前已连接，再次调用此方法不会再触发连接回调
+     *
+     * @return 是否开始连接
+     *
+     * @see state
+     * @see BluetoothStateHelper.isConnected
+     * @see connectListeners
+     * @see stateListeners
      */
-    fun connect(device: BtDevice) {
-        if (connector != null) {
-            return
+    fun connect(device: BluetoothDev): Boolean {
+        if (device.isConnected) {
+            return true
+            //如果device未连接但连接的不是此设备
+        } else if (state.isConnected) {
+            return false
         }
-        connector = BleConnector(device).apply {
-            connectListener = notifyHelper.connectCallback
+        if (device.isBle) {
+            if (connector == null || connector!!.device != device) {
+                connector = BleConnector(device).apply {
+                    connectListener = notifyHelper.connectCallback
+                }
+            }
+        } else {
+            //未实现
+            return false
         }
         connector?.connect()
+        return true
     }
 
+    /**
+     * 断开当前连接的设备，之后仍然可以使用[connect]来重新连接
+     *
+     * @see closeConnect
+     * @see stateListeners
+     *
+     */
+    fun disconnect() {
+        if (connector == null) {
+            return
+        }
+        connector?.disconnect()
+    }
+
+    /**
+     * 关闭该设备的连接，关闭后不会
+     *
+     *  @param removeBond 关闭时是否移除系统绑定
+     */
     @SuppressLint("MissingPermission")
-    fun disconnect(removeBond: Boolean = false) {
+    fun closeConnect(removeBond: Boolean = false) {
         if (connector == null) {
             return
         }
         if (removeBond) {
             connectedDev?.removeBond()
         }
-        connector!!.destroy()
+        connector?.destroy()
         connector = null
     }
 
     internal fun newState(@BluetoothState state: Int) {
         stateHelper.currentStateVal = state
+    }
+
+    override fun destroy() {
+        initialized = false
+        notifyHelper.destroy()
+        handlerThread.quit()
+        scanner?.cancel()
+        connector?.destroy()
+        logHelper.withEnable { "destroy" }
     }
 }

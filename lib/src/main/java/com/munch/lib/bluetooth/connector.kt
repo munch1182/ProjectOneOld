@@ -1,12 +1,7 @@
 package com.munch.lib.bluetooth
 
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
-import android.bluetooth.BluetoothGattCallback
-import android.bluetooth.BluetoothProfile
+import android.bluetooth.*
 import android.os.Build
-import com.munch.lib.base.Cancelable
-import com.munch.lib.base.Destroyable
 import com.munch.lib.base.Manageable
 
 /**
@@ -14,7 +9,7 @@ import com.munch.lib.base.Manageable
  */
 interface Connector : Manageable {
 
-    val device: BtDevice
+    val device: BluetoothDev
 
     fun connect()
 
@@ -37,7 +32,7 @@ interface OnConnectListener {
     fun onConnectFail()
 }
 
-class ClassicConnector(override val device: BtDevice) : Connector {
+class ClassicConnector(override val device: BluetoothDev) : Connector {
     override fun connect() {
     }
 
@@ -49,7 +44,7 @@ class ClassicConnector(override val device: BtDevice) : Connector {
     }
 }
 
-class BleConnector(override val device: BtDevice) : Connector {
+class BleConnector(override val device: BluetoothDev) : Connector {
 
     private val logHelper = BluetoothHelper.logHelper
     private val logSystem = BluetoothHelper.logSystem
@@ -60,14 +55,13 @@ class BleConnector(override val device: BtDevice) : Connector {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
             logSystem.withEnable { "onConnectionStateChange: newState: $newState, states:$status" }
-            gatt ?: return
-            if (status != BluetoothGatt.GATT_SUCCESS) {
-                connectListener?.onConnectFail()
-                removeConnectListener()
-                return
-            }
 
             if (newState == BluetoothProfile.STATE_CONNECTED/*2*/) {
+                if (status != BluetoothGatt.GATT_SUCCESS || gatt == null) {
+                    connectListener?.onConnectFail()
+                    removeConnectListener()
+                    return
+                }
                 this@BleConnector.gatt = gatt
                 //onServicesDiscovered
                 val discoverServices = gatt.discoverServices()
@@ -77,7 +71,6 @@ class BleConnector(override val device: BtDevice) : Connector {
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED/*0*/) {
                 BluetoothHelper.instance.newState(BluetoothState.IDLE)
-                this@BleConnector.gatt = null
             }
         }
 
@@ -91,6 +84,14 @@ class BleConnector(override val device: BtDevice) : Connector {
         private fun connectSuccess() {
             connectListener?.onConnectSuccess()
             removeConnectListener()
+        }
+
+        //gatt.readRemoteRssi()
+        override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
+            super.onReadRemoteRssi(gatt, rssi, status)
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                device.rssi = rssi
+            }
         }
     }
 
@@ -108,12 +109,12 @@ class BleConnector(override val device: BtDevice) : Connector {
             reconnect()
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                device.device.connectGatt(
+                device.dev.connectGatt(
                     null, false, gattCallback, BluetoothDevice.TRANSPORT_AUTO,
                     BluetoothDevice.PHY_LE_1M_MASK, BluetoothHelper.instance.workHandler
                 )
             } else {
-                device.device.connectGatt(null, false, gattCallback)
+                device.dev.connectGatt(null, false, gattCallback)
             }
         }
     }
@@ -124,6 +125,10 @@ class BleConnector(override val device: BtDevice) : Connector {
 
     override fun destroy() {
         disconnect()
+        //调用此方法后不会再触发任何系统回调
+        gatt?.close()
+        //因此手动触发
+        BluetoothHelper.instance.newState(BluetoothState.IDLE)
         gatt = null
         connectListener = null
     }

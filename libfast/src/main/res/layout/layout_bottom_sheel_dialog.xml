@@ -15,11 +15,12 @@
         android:id="@+id/dialog_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="@dimen/paddingSmall">
 
         <TextView
             android:id="@+id/dialog_title"
-            style="@style/AppTheme.Text.Title"
+            style="@style/AppTheme.Text.Bigger"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/paddingDef"

@@ -44,7 +44,7 @@ interface AdapterFun<D> : IsAdapter {
                 noTypeAdapter.notifyItemInserted(index)
             }
         } else {
-            set(data.toMutableList().apply { add(index, element) })
+            set(newList4Diff().apply { add(index, element) })
         }
     }
 
@@ -60,7 +60,7 @@ interface AdapterFun<D> : IsAdapter {
                 noTypeAdapter.notifyItemRangeInserted(index, elements.size)
             }
         } else {
-            set(data.toMutableList().apply { addAll(index, elements) })
+            set(newList4Diff().apply { addAll(index, elements) })
         }
     }
     //</editor-fold>
@@ -75,7 +75,7 @@ interface AdapterFun<D> : IsAdapter {
             data.remove(element)
             noTypeAdapter.notifyItemRemoved(pos)
         } else {
-            set(data.toMutableList().apply { remove(element) })
+            set(newList4Diff().apply { remove(element) })
         }
     }
 
@@ -92,7 +92,7 @@ interface AdapterFun<D> : IsAdapter {
                 data.removeAll(subList)
                 noTypeAdapter.notifyItemRangeRemoved(startIndex, size)
             } else {
-                val newList = data.toMutableList()
+                val newList = newList4Diff()
                 val subList = newList.subList(startIndex, endIndex)
                 newList.removeAll(subList)
                 set(newList)
@@ -112,7 +112,7 @@ interface AdapterFun<D> : IsAdapter {
                 noTypeAdapter.notifyItemRemoved(index)
             }
         } else {
-            set(data.toMutableList().apply { removeAll(element) })
+            set(newList4Diff().apply { removeAll(element) })
         }
     }
     //</editor-fold>
@@ -132,7 +132,7 @@ interface AdapterFun<D> : IsAdapter {
                 data[index] = element
                 noTypeAdapter.notifyItemChanged(index)
             } else {
-                set(data.toMutableList().apply { this[index] = element })
+                set(newList4Diff().apply { this[index] = element })
             }
         }
     }
@@ -163,7 +163,7 @@ interface AdapterFun<D> : IsAdapter {
                 elements.forEachIndexed { index, d -> data[startIndex + index] = d }
                 noTypeAdapter.notifyItemRangeChanged(startIndex, updateCount)
             } else {
-                val newList = data.toMutableList()
+                val newList = newList4Diff()
                 newList.forEachIndexed { index, d -> newList[startIndex + index] = d }
                 set(newList)
             }

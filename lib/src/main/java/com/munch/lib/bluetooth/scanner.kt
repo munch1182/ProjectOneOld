@@ -26,9 +26,9 @@ interface Scanner : Cancelable {
 interface OnScannerListener {
 
     fun onStart()
-    fun onScan(device: BtDevice)
-    fun onBatchScan(devices: MutableList<BtDevice>)
-    fun onComplete(devices: MutableList<BtDevice>)
+    fun onScan(device: BluetoothDev)
+    fun onBatchScan(devices: MutableList<BluetoothDev>)
+    fun onComplete(devices: MutableList<BluetoothDev>)
     fun onFail()
 }
 
@@ -49,14 +49,14 @@ class BleScanner : Scanner {
     internal var listener: OnScannerListener? = null
     private val scanner: BluetoothLeScanner?
         get() = BluetoothHelper.instance.set.adapter?.bluetoothLeScanner
-    private val scannedDevs = mutableListOf<BtDevice>()
+    private val scannedDevs = mutableListOf<BluetoothDev>()
     private val scanCallback = object : ScanCallback() {
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-            BluetoothHelper.logSystem.withEnable { "onScanResult:$callbackType, ${result?.device?.name ?: "null"}(${result?.device?.address ?: "null"})" }
+            /*BluetoothHelper.logSystem.withEnable { "onScanResult:$callbackType, ${result?.device?.name ?: "null"}(${result?.device?.address ?: "null"})" }*/
             result ?: return
-            val device = BtDevice.from(result.device, BluetoothType.Ble, result.rssi)
+            val device = BluetoothDev.from(result.device, BluetoothType.Ble, result.rssi)
             if (!scannedDevs.contains(device)) {
                 scannedDevs.add(device)
                 listener?.onScan(device)
@@ -69,7 +69,7 @@ class BleScanner : Scanner {
         @SuppressLint("MissingPermission")
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
             super.onBatchScanResults(results)
-            val list = results?.map { BtDevice.from(it.device, BluetoothType.Ble, it.rssi) }
+            val list = results?.map { BluetoothDev.from(it.device, BluetoothType.Ble, it.rssi) }
                 ?.filter { !scannedDevs.contains(it) }
             BluetoothHelper.logSystem.withEnable { "onBatchScanResults:${results?.size ?: 0} -> ${list?.size ?: 0}" }
             list ?: return
@@ -98,6 +98,10 @@ class BleScanner : Scanner {
         allOf = [Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_FINE_LOCATION]
     )
     override fun start() {
+        val state = BluetoothHelper.instance.state
+        if (state.isScanning) {
+            return
+        }
         BluetoothHelper.logHelper.withEnable { "start scan" }
         scannedDevs.clear()
         if (builder != null && builder!!.timeout > 0L) {
@@ -130,14 +134,15 @@ class BleScanner : Scanner {
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
     override fun stop() {
-        BluetoothHelper.logHelper.withEnable { "stop scan" }
-        BluetoothHelper.instance.workHandler.removeCallbacks(delay2Stop)
-        //此方法不会触发回调
-        scanner?.stopScan(scanCallback)
-        //因此主动触发
-        if (BluetoothHelper.instance.state.isScanning) {
+        val instance = BluetoothHelper.instance
+        if (instance.state.isScanning) {
+            BluetoothHelper.logHelper.withEnable { "stop scan" }
+            instance.workHandler.removeCallbacks(delay2Stop)
+            //此方法不会触发回调
+            scanner?.stopScan(scanCallback)
+            //因此主动触发
             listener?.onComplete(scannedDevs)
-            BluetoothHelper.instance.state.currentStateVal = BluetoothState.IDLE
+            instance.state.currentStateVal = BluetoothState.IDLE
         }
     }
 

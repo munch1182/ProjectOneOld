@@ -48,9 +48,9 @@ class BluetoothInstance(private val context: Context) {
         get() = adapter?.isEnabled ?: false
 
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
-    fun getBondedDevices(): MutableList<BtDevice> {
+    fun getBondedDevices(): MutableList<BluetoothDev> {
         return adapter?.bondedDevices
-            ?.map { BtDevice.from(it) }?.toMutableList()
+            ?.map { BluetoothDev.from(it) }?.toMutableList()
             ?: mutableListOf()
     }
 
@@ -87,14 +87,14 @@ class BluetoothInstance(private val context: Context) {
      * @see getConnectedState
      */
     @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-    fun getConnectedDevice(): BtDevice? {
+    fun getConnectedDevice(): BluetoothDev? {
         try {
             val adapter = BluetoothHelper.instance.set.adapter ?: return null
             val isConnected = BluetoothDevice::class.java.getDeclaredMethod("isConnected")
             isConnected.isAccessible = true
             adapter.bondedDevices.forEach {
                 if (isConnected.invoke(it) as? Boolean? == true) {
-                    return BtDevice.from(it)
+                    return BluetoothDev.from(it)
                 }
             }
         } catch (e: Exception) {

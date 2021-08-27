@@ -9,6 +9,7 @@ import android.content.ServiceConnection
 import android.os.Binder
 import android.os.IBinder
 import androidx.core.app.ComponentActivity
+import com.munch.lib.service.ServiceBindHelper.SimpleBinder
 import java.io.Closeable
 
 /**

@@ -137,7 +137,7 @@ static def setupModuleApk(variant, isLib, versionCode) {
 
 dependencies {
 
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
 
     implementation Deps.appcompat
 

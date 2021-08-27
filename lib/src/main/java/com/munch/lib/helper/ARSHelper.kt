@@ -36,7 +36,7 @@ interface ARSHelper<T> {
         return this
     }
 
-    fun setOnState(
+    fun set(
         owner: LifecycleOwner, t: T, onDestroy: (() -> Unit)? = null
     ): ARSHelper<T> {
         add(t)
@@ -51,7 +51,7 @@ interface ARSHelper<T> {
         return this
     }
 
-    fun setOnState(owner: LifecycleOwner, t: T): ARSHelper<T> = setOnState(owner, t, null)
+    fun set(owner: LifecycleOwner, t: T): ARSHelper<T> = set(owner, t, null)
 
     /**
      * 未考虑线程的问题

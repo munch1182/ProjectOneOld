@@ -1,18 +1,12 @@
 package com.munch.lib.fast.recyclerview
 
-import android.content.Context
-import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
-import com.munch.lib.log.log
-import com.munch.lib.recyclerview.BaseRecyclerViewAdapter
-import com.munch.lib.recyclerview.BaseViewHolder
 import com.munch.lib.recyclerview.SingleViewModule
-import com.munch.lib.recyclerview.setContentView
 
 /**
  * 用于固定显示数据，而不是从其他数据源获取数据时，即少使用[set]来更新数据时使用
@@ -57,12 +51,7 @@ open class SimpleDiffAdapter<D, VB : ViewDataBinding> constructor(
     }
 
     override val differ: AsyncListDiffer<D>
-        get() = asyncDiffer.apply {
-            addListListener { previousList, currentList ->
-                log(previousList.hashCode(),currentList.hashCode())
-            }
-        }
-
+        get() = asyncDiffer
 
     override fun onBindViewHolder(holder: BaseDBViewHolder, db: VB, bean: D?) {
         bindVH?.invoke(holder, db, bean)
