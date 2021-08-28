@@ -8,8 +8,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.base.OnViewIntClickListener
+import com.munch.lib.base.ViewHelper
+import com.munch.lib.base.toHexStr
 import com.munch.lib.bluetooth.BluetoothHelper
-import com.munch.lib.bluetooth.BluetoothInstance
 import com.munch.lib.bluetooth.BluetoothState
 import com.munch.lib.bluetooth.setOnState
 import com.munch.lib.fast.base.*
@@ -26,10 +27,10 @@ import com.munch.project.one.applib.databinding.ItemBtDevScanBinding
 class TestBluetoothActivity : BaseBigTextTitleActivity() {
 
     companion object {
-        const val TAG_REMOVE_BOND = 0
-        const val TAG_BOND = 1
-        const val TAG_DISCONNECT = 2
-        const val TAG_CONNECT = 4
+        const val MENU_TAG_REMOVE_BOND = 0
+        const val MENU_TAG_BOND = 1
+        const val MENU_TAG_DISCONNECT = 2
+        const val MENU_TAG_CONNECT = 4
 
         private const val KEY_BT_EXIT_CONNECT = "key_bt_exit_keep_connect"
 
@@ -87,13 +88,10 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
 
         val instance = BluetoothHelper.instance
         showBtnStrByState(instance.state.currentState)
+
         instance.stateListeners.setOnState(this) {
             runOnUiThread { showBtnStrByState(it) }
             updateState()
-            //断开连接时延时更新状态
-            if (BluetoothHelper.instance.state.isDisconnect) {
-                bind.btRv.postDelayed({ updateState() }, 1500L)
-            }
         }
     }
 
@@ -143,47 +141,50 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
 
     private fun showDevMenu(dev: BtItemDev) {
         val views = ArrayList<TextView>()
-        if (dev.isBond) {
-            views.add(newItemTextView("REMOVE BOND").apply { tag = TAG_REMOVE_BOND })
+        if (dev.dev.isBond) {
+            views.add(newItemTextView("REMOVE BOND").apply { tag = MENU_TAG_REMOVE_BOND })
         } else {
-            views.add(newItemTextView("BOND").apply { tag = TAG_BOND })
+            views.add(newItemTextView("BOND").apply { tag = MENU_TAG_BOND })
         }
         if (dev.isConnectedByHelper) {
-            views.add(newItemTextView("DISCONNECT").apply { tag = TAG_DISCONNECT })
+            views.add(newItemTextView("DISCONNECT").apply { tag = MENU_TAG_DISCONNECT })
         } else {
-            views.add(newItemTextView("CONNECT").apply { tag = TAG_CONNECT })
+            views.add(newItemTextView("CONNECT").apply { tag = MENU_TAG_CONNECT })
         }
         val clickListener = object : OnViewIntClickListener {
             override fun onClick(v: View?, intVal: Int) {
                 super.onClick(v, intVal)
                 when (intVal) {
-                    TAG_BOND -> createBond(dev)
-                    TAG_REMOVE_BOND -> removeBond(dev)
-                    TAG_DISCONNECT -> vm.toggleConnect(dev.dev)
-                    TAG_CONNECT -> vm.toggleConnect(dev.dev)
+                    MENU_TAG_BOND -> createBond(dev)
+                    MENU_TAG_REMOVE_BOND -> removeBond(dev)
+                    MENU_TAG_DISCONNECT -> vm.toggleConnect(dev.dev)
+                    MENU_TAG_CONNECT -> vm.toggleConnect(dev.dev)
                 }
             }
         }
         var dialog: AlertDialog? = null
-        dialog =
-            newMenuDialog(
-                dev.dev.name ?: dev.dev.mac,
-                "isBond:${dev.dev.isBond()}\nisConnected:${dev.dev.isConnectedInSystem()}"
-            ) {
-                views.forEach { v ->
-                    v.setOnClickListener {
-                        clickListener.onClick(it)
-                        dialog?.dismiss()
-                    }
-                    it.addView(v)
+        val sb = StringBuilder()
+        sb.append("isBond:${dev.dev.isBond}\n")
+            .append("isConnected:${dev.dev.isConnectedByGatt}\n")
+        dev.dev.scanResult?.scanRecord?.let {
+            sb.append(it.bytes.toHexStr())
+        }
+        dialog = newMenuDialog(dev.dev.name ?: dev.dev.mac, sb.toString()) {
+            views.forEach { v ->
+                v.setOnClickListener {
+                    clickListener.onClick(it)
+                    dialog?.dismiss()
                 }
-            }.show()
+                it.addView(v, ViewHelper.newWWLayoutParams())
+            }
+        }.show()
     }
 
     private fun createBond(dev: BtItemDev) {
         val createBond = dev.dev.createBond()
         if (createBond) {
-            updateState()
+            bind.btRv.postDelayed({ updateState() }, 2000L)
+            log("绑定成功")
         } else {
             log("绑定失败")
             toast("绑定失败")
@@ -193,7 +194,8 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
     private fun removeBond(dev: BtItemDev) {
         val removeBond = dev.dev.removeBond()
         if (removeBond == true) {
-            updateState()
+            bind.btRv.postDelayed({ updateState() }, 2000L)
+            log("移除绑定成功")
         } else {
             log("移除绑定失败")
             toast("移除绑定失败")

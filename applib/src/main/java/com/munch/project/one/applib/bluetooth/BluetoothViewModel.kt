@@ -57,7 +57,7 @@ class BluetoothViewModel : ViewModel() {
                 this.bondedDevices = bondedDevices.filter { it.type == BluetoothType.Ble }
                     .map {
                         BtItemDev.from(it).apply {
-                            if (isConnectedBySystem) {
+                            if (hasConnectionByGatt) {
                                 connectBySystem = this
                             }
                         }
@@ -165,7 +165,11 @@ class BluetoothViewModel : ViewModel() {
             BtActivityConfig.config = config
             val timeout = config.timeOut * 1000L
             val filter = mutableListOf(ScanFilter(config.name, config.mac))
-            instance.scanBuilder(config.type).setFilter(filter).setTimeout(timeout).startScan()
+            instance.scanBuilder(config.type)
+                .setJustFirst()
+                .setFilter(filter)
+                .setTimeout(timeout)
+                .startScan()
         }
     }
 
@@ -228,15 +232,15 @@ data class BtItemDev(val dev: BluetoothDev) {
 
         fun from(dev: BluetoothDev): BtItemDev {
             return BtItemDev(dev).apply {
-                isBond = dev.isBond()
-                isConnectedBySystem = dev.isConnectedInSystem() ?: false
+                isBond = dev.isBond
+                hasConnectionByGatt = dev.isConnectedByGatt
                 isConnectedByHelper = dev == BluetoothHelper.instance.connectedDev
             }
         }
     }
 
     var isBond = false
-    var isConnectedBySystem = false
+    var hasConnectionByGatt = false
     var isConnectedByHelper = false
 
     val state: String
@@ -245,15 +249,17 @@ data class BtItemDev(val dev: BluetoothDev) {
                 return ""
             }
             val sb = StringBuilder()
-            if (isConnectedByHelper) {
-                sb.append("当前已连接")
+
+            if (hasConnectionByGatt) {
+                sb.append("已连接")
+                if (!isConnectedByHelper) {
+                    sb.clear().append("已有其它连接")
+                }
             }
-            if (sb.isNotEmpty()) {
-                sb.append(", ")
-            }
-            if (isConnectedBySystem) {
-                sb.append("已被系统连接")
-            } else if (isBond) {
+            if (isBond) {
+                if (sb.isNotEmpty()) {
+                    sb.append(", ")
+                }
                 sb.append("已配对")
             }
             return sb.toString()
@@ -267,7 +273,7 @@ data class BtItemDev(val dev: BluetoothDev) {
 
         if (dev != other.dev) return false
         if (isBond != other.isBond) return false
-        if (isConnectedBySystem != other.isConnectedBySystem) return false
+        if (hasConnectionByGatt != other.hasConnectionByGatt) return false
         if (isConnectedByHelper != other.isConnectedByHelper) return false
 
         return true
@@ -276,12 +282,12 @@ data class BtItemDev(val dev: BluetoothDev) {
     override fun hashCode(): Int {
         var result = dev.hashCode()
         result = 31 * result + isBond.hashCode()
-        result = 31 * result + isConnectedBySystem.hashCode()
+        result = 31 * result + hasConnectionByGatt.hashCode()
         result = 31 * result + isConnectedByHelper.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "BtItemDev(dev=${dev.mac}, isBond=$isBond, isConnectedBySystem=$isConnectedBySystem, isConnectedByHelper=$isConnectedByHelper)"
+        return "BtItemDev(dev=${dev.mac}, isBond=$isBond, isConnectedBySystem=$hasConnectionByGatt, isConnectedByHelper=$isConnectedByHelper)"
     }
 }

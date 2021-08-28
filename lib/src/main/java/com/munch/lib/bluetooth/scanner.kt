@@ -44,6 +44,7 @@ class ScannerBuilder internal constructor(private val type: BluetoothType) {
     internal var settings: ScanSettings? = null
     internal var timeout = 35 * 1000L
     internal var reportDelay = 0L
+    internal var justFirst = true
 
     fun setFilter(filter: MutableList<ScanFilter>?): ScannerBuilder {
         this.filter = filter?.map {
@@ -76,9 +77,19 @@ class ScannerBuilder internal constructor(private val type: BluetoothType) {
         return this
     }
 
-    @RequiresPermission(
-        allOf = [Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_FINE_LOCATION]
-    )
+    /**
+     * 设备是否只返回第一次出现设备，即是否重复回调相同的设备
+     *
+     * 相同的设备的多次回调信息(比如信号强度)会更新
+     */
+    fun setJustFirst(justFirst: Boolean = true): ScannerBuilder {
+        this.justFirst = justFirst
+        return this
+    }
+
+    /**
+     * 不同的类型需要不同的权限
+     */
     fun startScan() {
         BluetoothHelper.instance.startScan(type, this)
     }
@@ -158,12 +169,19 @@ internal class BleScanner : Scanner {
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-            /*BluetoothHelper.logSystem.withEnable { "onScanResult:$callbackType, ${result?.device?.name ?: "null"}(${result?.device?.address ?: "null"})" }*/
+            /*BluetoothHelper.logSystem.withEnable {
+                "onScanResult:$callbackType, ${result?.device?.name ?: "null"}(${result?.device?.address ?: "null"})"
+            }*/
             result ?: return
-            val device = BluetoothDev.from(result.device, BluetoothType.Ble, result.rssi)
-            if (!scannedDevs.contains(device)) {
-                scannedDevs.add(device)
+            val device = BluetoothDev.from(result)
+            if (builder?.justFirst == true) {
+                if (!scannedDevs.contains(device)) {
+                    listener?.onScan(device)
+                    scannedDevs.add(device)
+                }
+            } else {
                 listener?.onScan(device)
+                scannedDevs.add(device)
             }
         }
 
@@ -173,8 +191,8 @@ internal class BleScanner : Scanner {
         @SuppressLint("MissingPermission")
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
             super.onBatchScanResults(results)
-            val list = results?.map { BluetoothDev.from(it.device, BluetoothType.Ble, it.rssi) }
-                ?.filter { !scannedDevs.contains(it) }
+            val list = results?.map { BluetoothDev.from(it) }
+                ?.filter { builder?.justFirst == false || !scannedDevs.contains(it) }
             BluetoothHelper.logSystem.withEnable { "onBatchScanResults:${results?.size ?: 0} -> ${list?.size ?: 0}" }
             list ?: return
             if (list.isNotEmpty()) {
@@ -282,7 +300,7 @@ class BluetoothDiscoveryReceiver(context: Context) : ReceiverHelper<OnScannerLis
                 val rssi =
                     intent.extras?.getShort(BluetoothDevice.EXTRA_RSSI, 0.toShort())?.toInt() ?: 0
                 val dev = BluetoothDev.from(device, rssi)
-                if (devs.contains(dev)) {
+                if (scanBuilder?.justFirst == true && devs.contains(dev)) {
                     return
                 }
                 devs.add(dev)

@@ -194,10 +194,12 @@ class BluetoothHelper private constructor() : Destroyable {
             //如果已有连接但连接的不是此设备
             state.isConnected -> return false
             device.isBle -> {
-                if (connector == null || connector!!.device != device) {
+                if (connector == null || connector !is BleConnector || connector!!.device != device) {
                     connector = BleConnector(device).apply {
                         connectListener = notifyHelper.connectCallback
                     }
+                } else {
+                    (connector as BleConnector).connectListener = notifyHelper.connectCallback
                 }
             }
             else -> {

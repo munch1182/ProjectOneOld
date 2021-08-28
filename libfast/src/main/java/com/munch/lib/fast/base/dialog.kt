@@ -87,8 +87,9 @@ fun Context.newMenuDialog(
 
 fun Context.newItemTextView(str: CharSequence? = null): TextView {
     val dp16 = resources.getDimension(R.dimen.paddingDef).toInt()
-    return TextView(this, null, 0, R.style.AppTheme_Text).apply {
+    return TextView(this, null, 0, R.style.AppTheme_Text_Subtitle).apply {
         text = str
+        setTextColor(getColorPrimary())
         background = getSelectableItemBackground()
         setPadding(dp16, dp16 / 2, dp16, dp16 / 2)
     }

@@ -2,6 +2,7 @@ package com.munch.lib.bluetooth
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.le.ScanResult
 import android.os.Parcelable
 import androidx.annotation.RequiresPermission
 import kotlinx.parcelize.Parcelize
@@ -45,10 +46,16 @@ data class BluetoothDev(
     val mac: String,
     var rssi: Int = 0,
     val type: @RawValue BluetoothType,
-    val dev: BluetoothDevice
+    val dev: BluetoothDevice,
+    //只有通过扫描获取的设备才有该值
+    var scanResult: ScanResult? = null
 ) {
 
     companion object {
+
+        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
+        fun from(result: ScanResult) =
+            from(result.device, result.rssi).apply { scanResult = result }
 
         @RequiresPermission(android.Manifest.permission.BLUETOOTH)
         fun from(
@@ -64,21 +71,12 @@ data class BluetoothDev(
         }
 
         @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-        fun from(
-            device: BluetoothDevice,
-            type: @RawValue BluetoothType,
-            rssi: Int = 0
-        ): BluetoothDev {
-            return BluetoothDev(device.name, device.address, rssi, type, device)
-        }
-
-        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
         fun from(mac: String, type: BluetoothType = BluetoothType.Ble): BluetoothDev? {
             if (!BluetoothAdapter.checkBluetoothAddress(mac)) {
                 return null
             }
-            val adapter = BluetoothHelper.instance.set.adapter ?: return null
-            return from(adapter.getRemoteDevice(mac), type)
+            val device = BluetoothHelper.instance.set.adapter?.getRemoteDevice(mac) ?: return null
+            return BluetoothDev(device.name, device.address, 0, type, device)
         }
     }
 
@@ -90,29 +88,17 @@ data class BluetoothDev(
         get() = type == BluetoothType.Classic
     val isConnected: Boolean
         get() = mac == BluetoothHelper.instance.connectedDev?.mac
+    val isConnectedByGatt: Boolean
+        //用于获取该蓝牙设备是否处于gatt连接状态
+        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
+        get() = BluetoothHelper.instance.set.isConnectedByGatt(this)
+    val isBond: Boolean
+        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
+        get() = dev.bondState == BluetoothDevice.BOND_BONDED
 
     fun connect() = BluetoothHelper.instance.connect(this)
 
     fun disconnect() = BluetoothHelper.instance.disconnect()
-
-    /**
-     * 使用反射判断该蓝牙设备是否处于连接状态，如果蓝牙已关闭、未获取到则返回null，否则返回boolean
-     *
-     * 该方法获取有延迟，即断开连接后需要等待一些时间才能获取正确的状态
-     */
-    fun isConnectedInSystem(): Boolean? {
-        return try {
-            val isConnected = BluetoothDevice::class.java.getDeclaredMethod("isConnected")
-            isConnected.isAccessible = true
-            isConnected.invoke(dev) as? Boolean?
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-    fun isBond() = dev.bondState == BluetoothDevice.BOND_BONDED
 
     /**
      * 如果该设备已绑定，则移除该绑定；如果正在绑定，则尝试取消绑定；

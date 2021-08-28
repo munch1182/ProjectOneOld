@@ -54,7 +54,7 @@ class BleConnector(override val device: BluetoothDev) : Connector {
     private val gattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
-            logSystem.withEnable { "onConnectionStateChange: newState: $newState, states:$status" }
+            logSystem.withEnable { "onConnectionStateChange(${gatt?.device?.address}): newState: $newState, states:$status" }
 
             if (newState == BluetoothProfile.STATE_CONNECTED/*2*/) {
                 if (status != BluetoothGatt.GATT_SUCCESS || gatt == null) {
@@ -66,7 +66,7 @@ class BleConnector(override val device: BluetoothDev) : Connector {
                 //onServicesDiscovered
                 val discoverServices = gatt.discoverServices()
                 if (!discoverServices) {
-                    logSystem.withEnable { "discoverServices: fail" }
+                    logSystem.withEnable { "discoverServices(${gatt.device?.address}): fail" }
                     return
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED/*0*/) {
@@ -104,11 +104,11 @@ class BleConnector(override val device: BluetoothDev) : Connector {
     }
 
     override fun connect() {
-        logHelper.withEnable { "bleConnector connect:${device.mac}" }
         connectListener?.onStart()
         if (gatt != null) {
             reconnect()
         } else {
+            logHelper.withEnable { "bleConnector connect:${device.mac}" }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 device.dev.connectGatt(
                     null, false, gattCallback, BluetoothDevice.TRANSPORT_AUTO,
@@ -121,7 +121,7 @@ class BleConnector(override val device: BluetoothDev) : Connector {
     }
 
     override fun disconnect() {
-        logHelper.withEnable { "bleConnector disconnect:${device.mac}" }
+        logHelper.withEnable { "bleConnector disconnect:${gatt?.device?.address}" }
         gatt?.disconnect()
     }
 
@@ -140,7 +140,7 @@ class BleConnector(override val device: BluetoothDev) : Connector {
      * 当调用[connect]后且未调用[disconnect]，即[gatt]不为null时(如蓝牙超出范围断开)，可直接调用此方法来重新连接
      */
     private fun reconnect() {
-        logHelper.withEnable { "bleConnector reconnect" }
+        logHelper.withEnable { "bleConnector reconnect:${gatt?.device?.address}" }
         gatt?.connect()
     }
 }
