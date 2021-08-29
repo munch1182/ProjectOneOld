@@ -1,10 +1,10 @@
 package com.munch.lib.base
 
 import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.graphics.Paint
+import android.graphics.Rect
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.munch.lib.log.log
@@ -22,4 +22,9 @@ fun Context.isRegistered(action: String) {
     ).forEach {
         log(it)
     }
+}
+
+fun Paint.measureTextBounds(text: String, bound: Rect = Rect()): Rect {
+    getTextBounds(text, 0, text.length, bound)
+    return bound
 }
