@@ -10,7 +10,9 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
+import android.util.SparseArray
 import androidx.annotation.RequiresPermission
+import androidx.core.util.containsKey
 import com.munch.lib.base.Cancelable
 import com.munch.lib.helper.receiver.ReceiverHelper
 
@@ -95,9 +97,8 @@ class ScannerBuilder internal constructor(private val type: BluetoothType) {
     }
 
     override fun toString(): String {
-        return "ScannerBuilder(type=$type, filter=$filter, settings=$settings, timeout=$timeout, reportDelay=$reportDelay)"
+        return "ScannerBuilder(type=$type, filter=${filter?.joinToString { "${it.deviceName}(${it.deviceAddress})" }}, settings=$settings, timeout=$timeout, reportDelay=$reportDelay, justFirst=$justFirst)"
     }
-
 }
 
 internal class ClassicScanner(context: Context) : Scanner {
@@ -164,7 +165,9 @@ internal class BleScanner : Scanner {
     internal var listener: OnScannerListener? = null
     private val scanner: BluetoothLeScanner?
         get() = BluetoothHelper.instance.set.adapter?.bluetoothLeScanner
-    private val scannedDevs = mutableListOf<BluetoothDev>()
+
+    //需要更改类型
+    private val scannedDevs = SparseArray<BluetoothDev>()
     private val scanCallback = object : ScanCallback() {
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
@@ -173,15 +176,17 @@ internal class BleScanner : Scanner {
                 "onScanResult:$callbackType, ${result?.device?.name ?: "null"}(${result?.device?.address ?: "null"})"
             }*/
             result ?: return
-            val device = BluetoothDev.from(result)
+            val key = result.device.address.hashCode()
             if (builder?.justFirst == true) {
-                if (!scannedDevs.contains(device)) {
+                if (!scannedDevs.containsKey(key)) {
+                    val device = BluetoothDev.from(result)
                     listener?.onScan(device)
-                    scannedDevs.add(device)
+                    scannedDevs.put(key, device)
                 }
             } else {
+                val device = BluetoothDev.from(result)
                 listener?.onScan(device)
-                scannedDevs.add(device)
+                scannedDevs.put(key, device)
             }
         }
 
@@ -192,11 +197,11 @@ internal class BleScanner : Scanner {
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
             super.onBatchScanResults(results)
             val list = results?.map { BluetoothDev.from(it) }
-                ?.filter { builder?.justFirst == false || !scannedDevs.contains(it) }
-            BluetoothHelper.logSystem.withEnable { "onBatchScanResults:${results?.size ?: 0} -> ${list?.size ?: 0}" }
+                ?.filter { !(builder?.justFirst == true && scannedDevs.containsKey(it.mac.hashCode())) }
+            /*BluetoothHelper.logSystem.withEnable { "onBatchScanResults:${results?.size ?: 0}" }*/
             list ?: return
             if (list.isNotEmpty()) {
-                scannedDevs.addAll(list)
+                list.forEach { scannedDevs.put(it.mac.hashCode(), it) }
                 listener?.onBatchScan(list.toMutableList())
             }
         }
@@ -220,7 +225,7 @@ internal class BleScanner : Scanner {
         allOf = [Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_FINE_LOCATION]
     )
     override fun start() {
-        BluetoothHelper.logHelper.withEnable { "start ble scan" }
+        BluetoothHelper.logHelper.withEnable { "start ble scan : $builder" }
         scannedDevs.clear()
         if (builder != null && builder!!.timeout > 0L) {
             delayStop(builder!!.timeout)
@@ -258,7 +263,7 @@ internal class BleScanner : Scanner {
         //此方法不会触发回调
         scanner?.stopScan(scanCallback)
         //因此主动触发
-        listener?.onComplete(scannedDevs)
+        listener?.onComplete(MutableList(scannedDevs.size()) { scannedDevs.valueAt(it) })
         listener = null
         instance.state.currentStateVal = BluetoothState.IDLE
     }
@@ -298,7 +303,8 @@ class BluetoothDiscoveryReceiver(context: Context) : ReceiverHelper<OnScannerLis
                         ?: return
                 if (!isValid(device)) return
                 val rssi =
-                    intent.extras?.getShort(BluetoothDevice.EXTRA_RSSI, 0.toShort())?.toInt() ?: 0
+                    intent.extras?.getShort(BluetoothDevice.EXTRA_RSSI, 0.toShort())
+                        ?.toInt() ?: 0
                 val dev = BluetoothDev.from(device, rssi)
                 if (scanBuilder?.justFirst == true && devs.contains(dev)) {
                     return

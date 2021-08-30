@@ -41,6 +41,7 @@ sealed class BluetoothType : Parcelable {
         get() = this == Classic
 }
 
+@Parcelize
 data class BluetoothDev(
     val name: String? = null,
     val mac: String,
@@ -49,7 +50,7 @@ data class BluetoothDev(
     val dev: BluetoothDevice,
     //只有通过扫描获取的设备才有该值
     var scanResult: ScanResult? = null
-) {
+) : Parcelable {
 
     companion object {
 
@@ -88,10 +89,6 @@ data class BluetoothDev(
         get() = type == BluetoothType.Classic
     val isConnected: Boolean
         get() = mac == BluetoothHelper.instance.connectedDev?.mac
-    val isConnectedByGatt: Boolean
-        //用于获取该蓝牙设备是否处于gatt连接状态
-        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-        get() = BluetoothHelper.instance.set.isConnectedByGatt(this)
     val isBond: Boolean
         @RequiresPermission(android.Manifest.permission.BLUETOOTH)
         get() = dev.bondState == BluetoothDevice.BOND_BONDED
@@ -99,6 +96,15 @@ data class BluetoothDev(
     fun connect() = BluetoothHelper.instance.connect(this)
 
     fun disconnect() = BluetoothHelper.instance.disconnect()
+
+    /**
+     * 用于获取该蓝牙设备是否处于gatt连接状态
+     * 因其实现，不建议批量使用
+     *
+     * @see com.munch.lib.bluetooth.BluetoothInstance.getConnectedDevice
+     */
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH)
+    fun isConnectedByGatt() = BluetoothHelper.instance.set.isConnectedByGatt(this)
 
     /**
      * 如果该设备已绑定，则移除该绑定；如果正在绑定，则尝试取消绑定；

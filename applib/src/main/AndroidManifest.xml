@@ -31,6 +31,7 @@
         <activity android:name=".file.TestFileActivity" />
         <activity android:name=".notification.TestNotificationActivity" />
         <activity android:name=".bluetooth.TestBluetoothActivity" />
+        <activity android:name=".bluetooth.TestBluetoothScanInfoActivity" />
 
         <service
             android:name="com.munch.lib.notification.NotificationService"

@@ -73,47 +73,21 @@ class BluetoothInstance(private val context: Context) : Destroyable {
         get() = adapter?.isEnabled ?: false
 
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
-    fun getBondedDevices(): MutableList<BluetoothDev> {
-        return adapter?.bondedDevices
-            ?.map { BluetoothDev.from(it) }?.toMutableList()
-            ?: mutableListOf()
+    fun getBondedDevices(): MutableList<BluetoothDev>? {
+        return adapter?.bondedDevices?.map { BluetoothDev.from(it) }?.toMutableList()
+
     }
 
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_ADMIN)
     fun enable() = adapter?.enable()
 
     /**
-     * 获取当前手机的连接状态
-     *
-     * @return 获取当前的连接状态，如果蓝牙已关闭，或获取失败，则返回null，否则返回状态值
-     *
-     * @see BluetoothAdapter.STATE_CONNECTED
-     * @see BluetoothAdapter.STATE_DISCONNECTED
-     * @see BluetoothAdapter.STATE_CONNECTING
-     * @see BluetoothAdapter.STATE_DISCONNECTING
-     */
-    @Deprecated("useless", ReplaceWith("null"))
-    @SuppressLint("DiscouragedPrivateApi")
-    fun getConnectedState(): Int? {
-        /*try {
-            val adapter = BluetoothHelper.instance.set.adapter ?: return null
-            val connectionState = adapter.javaClass.getDeclaredMethod("getConnectionState")
-            connectionState.isAccessible = true
-            return connectionState.invoke(adapter) as? Int? ?: return null
-        } catch (e: Exception) {
-            return null
-        }*/
-        return null
-    }
-
-    /**
      * 用于获取该蓝牙设备是否处于gatt连接状态，如果蓝牙已关闭、未获取到也会返回false
      */
     @RequiresPermission(android.Manifest.permission.BLUETOOTH)
     fun isConnectedByGatt(dev: BluetoothDev): Boolean {
-        return manager?.getConnectionState(
-            dev.dev, BluetoothProfile.GATT
-        ) == BluetoothProfile.STATE_CONNECTED
+        return manager?.getConnectionState(dev.dev, BluetoothProfile.GATT) ==
+                BluetoothProfile.STATE_CONNECTED
     }
 
     /**
@@ -122,21 +96,9 @@ class BluetoothInstance(private val context: Context) : Destroyable {
      *  @return 获取当前已经连接的蓝牙设备，如果蓝牙已关闭，或获取失败，或者没有连接的设备，则返回null
      */
     @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-    fun getConnectedDevice(): List<BluetoothDev>? {
-        /*try {
-            val adapter = BluetoothHelper.instance.set.adapter ?: return null
-            val isConnected = BluetoothDevice::class.java.getDeclaredMethod("isConnected")
-            isConnected.isAccessible = true
-            adapter.bondedDevices.forEach {
-                if (isConnected.invoke(it) as? Boolean? == true) {
-                    return BluetoothDev.from(it)
-                }
-            }
-        } catch (e: Exception) {
-            //ignore
-        }
-        return null*/
+    fun getConnectedDevice(): MutableList<BluetoothDev>? {
         return manager?.getConnectedDevices(BluetoothProfile.GATT)?.map { BluetoothDev.from(it) }
+            ?.toMutableList()
     }
 
     override fun destroy() {

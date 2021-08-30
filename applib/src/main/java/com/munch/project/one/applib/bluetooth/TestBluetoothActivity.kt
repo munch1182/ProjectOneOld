@@ -3,6 +3,7 @@ package com.munch.project.one.applib.bluetooth
 import android.Manifest
 import android.os.Bundle
 import android.view.View
+import android.view.animation.RotateAnimation
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DiffUtil
@@ -30,7 +31,9 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         const val MENU_TAG_REMOVE_BOND = 0
         const val MENU_TAG_BOND = 1
         const val MENU_TAG_DISCONNECT = 2
-        const val MENU_TAG_CONNECT = 4
+        const val MENU_TAG_CONNECT = 3
+        const val MENU_TAG_LOCK_DEV = 4
+        const val MENU_TAG_MORE_INFO = 5
 
         private const val KEY_BT_EXIT_CONNECT = "key_bt_exit_keep_connect"
 
@@ -76,15 +79,21 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         //此种方式的双向绑定只会改变值，不会改变对象，因此不会引起vm.config()的更新，需要主动获取最新值
         bind.apply {
             config = vm.config().value
+            currentFocus?.clearFocus()
 
             btRv.layoutManager = LinearLayoutManager(this@TestBluetoothActivity)
             btRv.adapter = simpleAdapter
 
             btScan.setOnClickListener { onClick() }
+            btMoreCb.setOnClickListener { toggleMoreCb() }
         }
 
         vm.devs().observe(this) { simpleAdapter.set(it) }
         vm.notice().observe(this) { bind.btNotice.text = it }
+        vm.config().observe(this) {
+            bind.config = it
+            currentFocus?.clearFocus()
+        }
 
         val instance = BluetoothHelper.instance
         showBtnStrByState(instance.state.currentState)
@@ -92,6 +101,24 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         instance.stateListeners.setOnState(this) {
             runOnUiThread { showBtnStrByState(it) }
             updateState()
+        }
+    }
+
+    private fun toggleMoreCb() {
+        val isExpand = !(bind.btMoreCb.tag as? Boolean ?: false)
+        bind.apply {
+            btMoreCb.tag = isExpand
+            btScanExpend.visibility = if (isExpand) View.VISIBLE else View.GONE
+            btMoreCb.animRotate(isExpand)
+        }
+    }
+
+    private fun View.animRotate(isExpand: Boolean) {
+        val from = if (isExpand) 0f else 180f
+        RotateAnimation(from, from + 180, width / 2f, height / 2f).apply {
+            fillAfter = true
+            duration = 100L
+            animation = this
         }
     }
 
@@ -113,6 +140,7 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
     }
 
     private fun onClick() {
+        currentFocus?.clearFocus()
         val instance = BluetoothHelper.instance
         when {
             instance.state.isClose -> {
@@ -142,15 +170,17 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
     private fun showDevMenu(dev: BtItemDev) {
         val views = ArrayList<TextView>()
         if (dev.dev.isBond) {
-            views.add(newItemTextView("REMOVE BOND").apply { tag = MENU_TAG_REMOVE_BOND })
+            views.add(newItemTextView("REMOVE BOND", MENU_TAG_REMOVE_BOND))
         } else {
-            views.add(newItemTextView("BOND").apply { tag = MENU_TAG_BOND })
+            views.add(newItemTextView("BOND", MENU_TAG_BOND))
         }
         if (dev.isConnectedByHelper) {
-            views.add(newItemTextView("DISCONNECT").apply { tag = MENU_TAG_DISCONNECT })
+            views.add(newItemTextView("DISCONNECT", MENU_TAG_DISCONNECT))
         } else {
-            views.add(newItemTextView("CONNECT").apply { tag = MENU_TAG_CONNECT })
+            views.add(newItemTextView("CONNECT", MENU_TAG_CONNECT))
         }
+        views.add(newItemTextView("LOCK DEV", MENU_TAG_LOCK_DEV))
+        views.add(newItemTextView("MORE INFO", MENU_TAG_MORE_INFO))
         val clickListener = object : OnViewIntClickListener {
             override fun onClick(v: View?, intVal: Int) {
                 super.onClick(v, intVal)
@@ -159,16 +189,18 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
                     MENU_TAG_REMOVE_BOND -> removeBond(dev)
                     MENU_TAG_DISCONNECT -> vm.toggleConnect(dev.dev)
                     MENU_TAG_CONNECT -> vm.toggleConnect(dev.dev)
+                    MENU_TAG_LOCK_DEV -> vm.lockDev(dev.dev)
+                    MENU_TAG_MORE_INFO -> TestBluetoothScanInfoActivity.start(
+                        this@TestBluetoothActivity, dev.dev
+                    )
                 }
             }
         }
         var dialog: AlertDialog? = null
         val sb = StringBuilder()
         sb.append("isBond:${dev.dev.isBond}\n")
-            .append("isConnected:${dev.dev.isConnectedByGatt}\n")
-        dev.dev.scanResult?.scanRecord?.let {
-            sb.append(it.bytes.toHexStr())
-        }
+            .append("isConnected:${dev.dev.isConnectedByGatt()}\n")
+        dev.dev.scanResult?.scanRecord?.let { sb.append(it.bytes.toHexStr()) }
         dialog = newMenuDialog(dev.dev.name ?: dev.dev.mac, sb.toString()) {
             views.forEach { v ->
                 v.setOnClickListener {
@@ -179,6 +211,9 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
             }
         }.show()
     }
+
+    private fun newItemTextView(name: String, tag: Int) =
+        newItemTextView(name).apply { this.tag = tag }
 
     private fun createBond(dev: BtItemDev) {
         val createBond = dev.dev.createBond()
