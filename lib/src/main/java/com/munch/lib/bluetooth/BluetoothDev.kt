@@ -87,24 +87,55 @@ data class BluetoothDev(
         get() = type == BluetoothType.Ble
     val isClassic: Boolean
         get() = type == BluetoothType.Classic
-    val isConnected: Boolean
+
+    /**
+     * 是否已被本应用连接
+     * @see isConnectedByGatt
+     */
+    val isConnectedByHelper: Boolean
         get() = mac == BluetoothHelper.instance.connectedDev?.mac
+    val bondState: Int
+        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
+        get() = dev.bondState
     val isBond: Boolean
         @RequiresPermission(android.Manifest.permission.BLUETOOTH)
         get() = dev.bondState == BluetoothDevice.BOND_BONDED
 
+    /**
+     * 通过[BluetoothHelper]进行连接
+     */
     fun connect() = BluetoothHelper.instance.connect(this)
 
+    /**
+     * 通过[BluetoothHelper]断开连接
+     */
     fun disconnect() = BluetoothHelper.instance.disconnect()
 
     /**
      * 用于获取该蓝牙设备是否处于gatt连接状态
      * 因其实现，不建议批量使用
      *
+     * @see isConnectedBySystem
      * @see com.munch.lib.bluetooth.BluetoothInstance.getConnectedDevice
      */
     @RequiresPermission(android.Manifest.permission.BLUETOOTH)
     fun isConnectedByGatt() = BluetoothHelper.instance.set.isConnectedByGatt(this)
+
+    /**
+     * 通过反射获取当前蓝牙设备的连接状态，包括gatt连接
+     *
+     * @see isConnectedByGatt
+     */
+    fun isConnectedBySystem(): Boolean? {
+        return try {
+            val isConnect = BluetoothDevice::class.java.getDeclaredMethod("isConnected")
+            isConnect.isAccessible = true
+            isConnect.invoke(dev) as? Boolean
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 
     /**
      * 如果该设备已绑定，则移除该绑定；如果正在绑定，则尝试取消绑定；

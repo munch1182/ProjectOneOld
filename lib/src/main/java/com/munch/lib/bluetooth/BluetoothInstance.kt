@@ -5,14 +5,13 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import androidx.annotation.RequiresPermission
 import com.munch.lib.base.Destroyable
-import com.munch.lib.helper.receiver.BluetoothStateReceiver
-import com.munch.lib.helper.receiver.ReceiverHelper
-import com.munch.lib.log.log
 
 /**
  * 用以检查手机的蓝牙相关
@@ -21,21 +20,27 @@ import com.munch.lib.log.log
  */
 class BluetoothInstance(private val context: Context) : Destroyable {
 
-    private val btStateReceiver = BluetoothStateReceiver(context)
-    private val btReceiver = BluetoothInstanceReceiver(context)
+    private val btReceiver = BluetoothInstanceReceiver()
     private val manager: BluetoothManager? =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
 
     init {
-        btStateReceiver.register()
-        btReceiver.register()
+        btReceiver.register(context)
     }
 
     /**
      * 用于监听蓝牙本身的开关
      */
-    fun setStateListener(state: (state: Int, turning: Boolean, available: Boolean) -> Unit) {
-        btStateReceiver.add(state)
+    fun setStateListener(state: ((state: Int) -> Unit)?) {
+        btReceiver.setStateListener(state)
+    }
+
+    fun setBondStateListener(bondState: ((state: Int, dev: BluetoothDevice?) -> Unit)?) {
+        btReceiver.setBondStateListener(bondState)
+    }
+
+    fun setConnectStateListener(connectState: ((state: Int, dev: BluetoothDevice?) -> Unit)?) {
+        btReceiver.setConnectStateListener(connectState)
     }
 
     /**
@@ -91,6 +96,26 @@ class BluetoothInstance(private val context: Context) : Destroyable {
     }
 
     /**
+     * 获取当前连接状态
+     *
+     * BluetoothAdapter.STATE_DISCONNECTED,0
+     * BluetoothAdapter.STATE_CONNECTING,1
+     * BluetoothAdapter.STATE_CONNECTED,2
+     * BluetoothAdapter.STATE_DISCONNECTING,3
+     */
+    @SuppressLint("DiscouragedPrivateApi")
+    fun getConnectedState(): Int? {
+        return try {
+            val connectState = BluetoothAdapter::class.java.getDeclaredMethod("getConnectionState")
+            connectState.isAccessible = true
+            connectState.invoke(adapter) as? Int
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    /**
      * 获取已经连接的蓝牙设备
      *
      *  @return 获取当前已经连接的蓝牙设备，如果蓝牙已关闭，或获取失败，或者没有连接的设备，则返回null
@@ -102,32 +127,96 @@ class BluetoothInstance(private val context: Context) : Destroyable {
     }
 
     override fun destroy() {
-        btStateReceiver.clear()
-        btStateReceiver.unregister()
+        btReceiver.unregister(context)
     }
 }
 
-class BluetoothInstanceReceiver(context: Context) : ReceiverHelper<(type: Int) -> Unit>(
-    context,
-    arrayOf(
-        BluetoothDevice.ACTION_PAIRING_REQUEST,
-        BluetoothDevice.ACTION_BOND_STATE_CHANGED,
-        BluetoothDevice.ACTION_ACL_CONNECTED,
-        BluetoothDevice.ACTION_ACL_DISCONNECTED,
-        BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED
-    )
-) {
-    companion object {
-        const val TYPE_BOND_STATE_CHANGE = 0
-        const val TYPE_CONNECT_STATE_CHANGE = 0
+class BluetoothInstanceReceiver : BroadcastReceiver() {
+
+    private val logSystem = BluetoothHelper.logSystem
+    private var stateListener: ((state: Int) -> Unit)? = null
+    private var bondStateListener: ((state: Int, dev: BluetoothDevice?) -> Unit)? = null
+    private var connectStateListener: ((state: Int, dev: BluetoothDevice?) -> Unit)? = null
+
+    fun register(context: Context) {
+        context.registerReceiver(this, IntentFilter().apply {
+            addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
+            /*addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
+            addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)*/
+            addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)
+            addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+        })
     }
 
-    override fun handleAction(
-        action: String,
-        context: Context?,
-        intent: Intent,
-        t: (type: Int) -> Unit
-    ) {
-        log(action)
+    fun unregister(context: Context) {
+        context.unregisterReceiver(this)
+    }
+
+    fun setStateListener(state: ((state: Int) -> Unit)?) {
+        this.stateListener = state
+    }
+
+    fun setBondStateListener(bondState: ((state: Int, dev: BluetoothDevice?) -> Unit)?) {
+        this.bondStateListener = bondState
+    }
+
+    fun setConnectStateListener(connectState: ((state: Int, dev: BluetoothDevice?) -> Unit)?) {
+        connectStateListener = connectState
+    }
+
+    /**
+     * 绑定设备广播顺序:
+     * 1. [BluetoothDevice.ACTION_BOND_STATE_CHANGED]
+     * 2. [BluetoothDevice.ACTION_ACL_CONNECTED]
+     * 3. [BluetoothDevice.ACTION_BOND_STATE_CHANGED]
+     * 4. [BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED]
+     * 5. [BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED]
+     * 移除绑定广播顺序：
+     * 1. [BluetoothDevice.ACTION_ACL_DISCONNECTED]
+     * 2. [BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED]
+     * 3. [BluetoothDevice.ACTION_BOND_STATE_CHANGED]]
+     */
+    override fun onReceive(context: Context?, intent: Intent?) {
+        intent ?: return
+        when (intent.action) {
+            //BluetoothDevice.BOND_NONE, 10
+            //BluetoothDevice.BOND_BONDING, 11
+            //BluetoothDevice.BOND_BONDED, 12
+            BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
+                val bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1)
+                val dev = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                logSystem.withEnable { "BOND_STATE_CHANGED(${dev?.address}): $bondState" }
+                if (bondState != -1) {
+                    bondStateListener?.invoke(bondState, dev)
+                }
+            }
+            // BluetoothAdapter.STATE_DISCONNECTED,0
+            // BluetoothAdapter.STATE_CONNECTING,1
+            // BluetoothAdapter.STATE_CONNECTED,2
+            // BluetoothAdapter.STATE_DISCONNECTING,3
+            BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED -> {
+                val connectState = intent.getIntExtra(BluetoothAdapter.EXTRA_CONNECTION_STATE, -1)
+                val dev = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                logSystem.withEnable { "CONNECTION_STATE_CHANGED(${dev?.address}): $connectState" }
+                if (connectState != -1) {
+                    connectStateListener?.invoke(connectState, dev)
+                }
+            }
+            BluetoothDevice.ACTION_ACL_CONNECTED -> {
+            }
+            BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
+            }
+            //BluetoothAdapter.STATE_OFF, 10
+            //BluetoothAdapter.STATE_TURNING_ON, 11
+            //BluetoothAdapter.STATE_ON, 12
+            //BluetoothAdapter.STATE_TURNING_OFF, 13
+            BluetoothAdapter.ACTION_STATE_CHANGED -> {
+                val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                logSystem.withEnable { "STATE_CHANGED: $state" }
+                if (state != -1) {
+                    this.stateListener?.invoke(state)
+                }
+            }
+        }
     }
 }

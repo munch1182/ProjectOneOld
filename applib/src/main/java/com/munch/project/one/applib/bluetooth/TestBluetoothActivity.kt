@@ -1,6 +1,7 @@
 package com.munch.project.one.applib.bluetooth
 
 import android.Manifest
+import android.bluetooth.BluetoothAdapter
 import android.os.Bundle
 import android.view.View
 import android.view.animation.RotateAnimation
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.base.OnViewIntClickListener
 import com.munch.lib.base.ViewHelper
 import com.munch.lib.base.toHexStr
+import com.munch.lib.bluetooth.BluetoothDev
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.BluetoothState
 import com.munch.lib.bluetooth.setOnState
@@ -55,7 +57,7 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         SimpleDiffAdapter<BtItemDev, ItemBtDevScanBinding>(
             R.layout.item_bt_dev_scan, object : DiffUtil.ItemCallback<BtItemDev>() {
                 override fun areItemsTheSame(oldItem: BtItemDev, newItem: BtItemDev): Boolean {
-                    return oldItem.dev == newItem.dev
+                    return oldItem.hashCode() == newItem.hashCode()
                 }
 
                 override fun areContentsTheSame(oldItem: BtItemDev, newItem: BtItemDev): Boolean {
@@ -102,6 +104,14 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
             runOnUiThread { showBtnStrByState(it) }
             updateState()
         }
+        instance.bluetoothStateListeners.set(this) { state, dev ->
+            val bd = dev?.let { BtItemDev.from(BluetoothDev.from(it)) }
+            //因为STATE_CONNECTING无法通过方法判断
+            if (state == BluetoothAdapter.STATE_CONNECTING) {
+                bd?.updateConnecting()
+            }
+            updateState(bd)
+        }
     }
 
     private fun toggleMoreCb() {
@@ -122,8 +132,14 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         }
     }
 
-    private fun updateState() {
-        val data = simpleAdapter.data.filterNotNull().map { dev -> BtItemDev.from(dev.dev) }
+    private fun updateState(dev: BtItemDev? = null) {
+        val data = simpleAdapter.data.filterNotNull().map { d ->
+            if (dev != null) {
+                if (d.dev.mac == dev.dev.mac) dev else d
+            } else {
+                d.updateState()
+            }
+        }
         simpleAdapter.set(data.toMutableList())
     }
 
@@ -174,12 +190,14 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         } else {
             views.add(newItemTextView("BOND", MENU_TAG_BOND))
         }
-        if (dev.isConnectedByHelper) {
+        if (dev.dev.isConnectedByHelper) {
             views.add(newItemTextView("DISCONNECT", MENU_TAG_DISCONNECT))
         } else {
             views.add(newItemTextView("CONNECT", MENU_TAG_CONNECT))
         }
-        views.add(newItemTextView("LOCK DEV", MENU_TAG_LOCK_DEV))
+        if (bind.config?.name != dev.dev.name && bind.config?.mac != dev.dev.mac) {
+            views.add(newItemTextView("LOCK DEV", MENU_TAG_LOCK_DEV))
+        }
         if (dev.dev.scanResult != null) {
             views.add(newItemTextView("MORE INFO", MENU_TAG_MORE_INFO))
         }
@@ -201,7 +219,9 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         var dialog: AlertDialog? = null
         val sb = StringBuilder()
         sb.append("isBond:${dev.dev.isBond}\n")
-            .append("isConnected:${dev.dev.isConnectedByGatt()}\n")
+            .append("isConnected:${dev.dev.isConnectedBySystem()}\n")
+            .append("isConnectedGatt:${dev.dev.isConnectedByGatt()}\n")
+            .append("connectState:${BluetoothHelper.instance.set.getConnectedState()}\n")
         dev.dev.scanResult?.scanRecord?.let { sb.append(it.bytes.toHexStr()) }
         dialog = newMenuDialog(dev.dev.name ?: dev.dev.mac, sb.toString()) {
             views.forEach { v ->
@@ -220,22 +240,20 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
     private fun createBond(dev: BtItemDev) {
         val createBond = dev.dev.createBond()
         if (createBond) {
-            bind.btRv.postDelayed({ updateState() }, 2000L)
-            log("绑定成功")
+            log("开始绑定")
         } else {
-            log("绑定失败")
-            toast("绑定失败")
+            log("开始绑定失败")
+            toast("开始绑定失败")
         }
     }
 
     private fun removeBond(dev: BtItemDev) {
         val removeBond = dev.dev.removeBond()
         if (removeBond == true) {
-            bind.btRv.postDelayed({ updateState() }, 2000L)
-            log("移除绑定成功")
+            log("开始移除绑定")
         } else {
-            log("移除绑定失败")
-            toast("移除绑定失败")
+            log("开始移除绑定失败")
+            toast("开始移除绑定失败")
         }
     }
 

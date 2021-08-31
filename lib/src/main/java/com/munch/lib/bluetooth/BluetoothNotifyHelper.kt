@@ -1,5 +1,6 @@
 package com.munch.lib.bluetooth
 
+import android.bluetooth.BluetoothDevice
 import com.munch.lib.base.Destroyable
 import com.munch.lib.base.OnChangeListener
 import com.munch.lib.helper.SimpleARSHelper
@@ -9,6 +10,7 @@ class BluetoothNotifyHelper : Destroyable {
     val scanListeners = SimpleARSHelper<OnScannerListener>()
     val stateListeners = SimpleARSHelper<OnStateChangeListener>()
     val connectListeners = SimpleARSHelper<OnConnectListener>()
+    val bluetoothStateListeners = SimpleARSHelper<(bondState: Int, dev: BluetoothDevice?) -> Unit>()
 
     internal val scanCallback = object : OnScannerListener {
         override fun onStart() {
@@ -85,6 +87,12 @@ class BluetoothNotifyHelper : Destroyable {
                     clearConnectListener()
                 }
             }
+        }
+    }
+
+    internal val bluetoothStateCallback = { state: Int, dev: BluetoothDevice? ->
+        BluetoothHelper.instance.workHandler.post {
+            bluetoothStateListeners.notifyListener { it.invoke(state, dev) }
         }
     }
 

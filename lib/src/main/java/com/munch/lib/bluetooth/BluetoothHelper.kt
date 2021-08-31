@@ -3,6 +3,7 @@ package com.munch.lib.bluetooth
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
@@ -94,21 +95,27 @@ class BluetoothHelper private constructor() : Destroyable {
         initialized = true
         this.context = context.applicationContext
         instance = BluetoothInstance(context)
-        instance.setStateListener { _, turning, available ->
+        handlerThread = HandlerThread("BLUETOOTH_WORK_THREAD")
+        handlerThread.start()
+        workHandler = Handler(handlerThread.looper)
+        state.currentStateVal = if (instance.isEnable) BluetoothState.IDLE else BluetoothState.CLOSE
+        instance.setStateListener {
             //打开时
-            if (!turning && available) {
+            if (it == BluetoothAdapter.STATE_ON) {
                 newState(BluetoothState.IDLE)
                 //开始关闭蓝牙
-            } else if (turning && !available) {
+            } else if (it == BluetoothAdapter.STATE_TURNING_OFF) {
                 stopScan()
                 closeConnect()
                 newState(BluetoothState.CLOSE)
             }
         }
-        handlerThread = HandlerThread("BLUETOOTH_WORK_THREAD")
-        handlerThread.start()
-        workHandler = Handler(handlerThread.looper)
-        state.currentStateVal = if (instance.isEnable) BluetoothState.IDLE else BluetoothState.CLOSE
+        instance.setBondStateListener { state, dev ->
+            notifyHelper.bluetoothStateCallback.invoke(state, dev)
+        }
+        instance.setConnectStateListener { state, dev ->
+            notifyHelper.bluetoothStateCallback.invoke(state, dev)
+        }
     }
 
     val isInitialized: Boolean
@@ -125,6 +132,14 @@ class BluetoothHelper private constructor() : Destroyable {
         get() = notifyHelper.stateListeners
     val connectListeners: ARSHelper<OnConnectListener>
         get() = notifyHelper.connectListeners
+
+    /**
+     * 蓝牙状态回调，用于监听绑定、连接状态
+     *
+     * @see BluetoothInstanceReceiver
+     */
+    val bluetoothStateListeners: ARSHelper<(state: Int, dev: BluetoothDevice?) -> Unit>
+        get() = notifyHelper.bluetoothStateListeners
     val state: BluetoothStateHelper
         get() = stateHelper
 
@@ -190,7 +205,7 @@ class BluetoothHelper private constructor() : Destroyable {
     fun connect(device: BluetoothDev): Boolean {
         when {
             state.isClose -> return false
-            device.isConnected -> return true
+            device.isConnectedByHelper -> return true
             //如果已有连接但连接的不是此设备
             state.isConnected -> return false
             device.isBle -> {
@@ -219,7 +234,7 @@ class BluetoothHelper private constructor() : Destroyable {
      *
      */
     fun disconnect() {
-        if (connector == null || state.isClose || !state.isConnected) {
+        if (connector == null || state.isClose || (!state.isConnected && !state.isConnecting)) {
             return
         }
         connector?.disconnect()

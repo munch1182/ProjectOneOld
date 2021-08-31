@@ -1,6 +1,7 @@
 package com.munch.project.one.applib.bluetooth
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
 import android.os.Parcelable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,6 +10,7 @@ import com.munch.lib.app.AppHelper
 import com.munch.lib.base.toLive
 import com.munch.lib.bluetooth.*
 import com.munch.lib.fast.base.DataHelper
+import com.munch.lib.log.log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
@@ -117,15 +119,8 @@ class BluetoothViewModel : ViewModel() {
             countDown()
             start = 0
             connectedDevices = instance.set.getConnectedDevice() ?: mutableListOf()
-            instance.set.getBondedDevices()?.map { BtItemDev.from(it, connectedDevices) }
-                ?.sortedBy {
-                    when {
-                        it.isConnectedByHelper -> 3
-                        it.hasConnectionByGatt -> 2
-                        it.isBond -> 1
-                        else -> 0
-                    }
-                }
+            instance.set.getBondedDevices()?.map { BtItemDev.from(it) }
+                ?.sortedBy { it.stateVal }
                 ?.let {
                     it.forEach { dev ->
                         val key = dev.dev.mac
@@ -148,9 +143,10 @@ class BluetoothViewModel : ViewModel() {
             }
             viewModelScope.launch(Dispatchers.IO) {
                 while (!end) {
+                    log(123)
                     val size = sortList.size - (devs.value?.size ?: 0)
                     devs.postValue(sortList.map { devMap[it] }.toMutableList())
-                    delay(max(min(200L * size, 100L), 500L))
+                    delay(max(min(200L * size, 200L), 500L))
                 }
             }
         }
@@ -178,14 +174,14 @@ class BluetoothViewModel : ViewModel() {
         }
 
         override fun onBatchScan(devices: MutableList<BluetoothDev>) {
-            val devs = devices.filter { isValid(it) }.map { BtItemDev.from(it, connectedDevices) }
+            val devs = devices.filter { isValid(it) }.map { BtItemDev.from(it) }
             if (devs.isNotEmpty()) {
                 viewModelScope.launch { devs.forEach { dev -> channel?.send(dev) } }
             }
         }
 
         override fun onScan(device: BluetoothDev) {
-            val dev = BtItemDev.from(device, connectedDevices)
+            val dev = BtItemDev.from(device)
             if (isValid(device)) {
                 viewModelScope.launch { channel?.send(dev) }
             }
@@ -261,46 +257,38 @@ data class BtItemDev(val dev: BluetoothDev) {
 
     companion object {
 
-        fun from(dev: BluetoothDev, isConnectByGatt: Boolean): BtItemDev {
-            return BtItemDev(dev).apply {
-                isBond = dev.isBond
-                hasConnectionByGatt = isConnectByGatt
-                isConnectedByHelper = dev == BluetoothHelper.instance.connectedDev
-            }
-        }
+        const val STATE_NONE = 0
+        const val STATE_BONDING = 1
+        const val STATE_BONDED = 2
+        const val STATE_CONNECTING = 3
+        const val STATE_CONNECTED = 4
+        const val STATE_CONNECTED_BY_HELPER = 5
 
-        fun from(dev: BluetoothDev, connectDevs: MutableList<BluetoothDev>? = null): BtItemDev {
-            return from(dev, connectDevs?.contains(dev) ?: dev.isConnectedByGatt())
-        }
+        fun from(dev: BluetoothDev) = BtItemDev(dev).apply { updateState() }
     }
 
-    var isBond = false
-    var hasConnectionByGatt = false
-    var isConnectedByHelper = false
+    var stateVal: Int = STATE_NONE
     val rssi: Int
         get() = dev.rssi
 
-    val state: String
-        get() {
-            if (!isBond && !isConnectedByHelper) {
-                return ""
-            }
-            val sb = StringBuilder()
+    fun updateBinding() {
+        stateVal = STATE_BONDING
+    }
 
-            if (hasConnectionByGatt) {
-                sb.append("已连接")
-                if (!isConnectedByHelper) {
-                    sb.clear().append("已有其它连接")
-                }
-            }
-            if (isBond) {
-                if (sb.isNotEmpty()) {
-                    sb.append(", ")
-                }
-                sb.append("已配对")
-            }
-            return sb.toString()
+    fun updateConnecting() {
+        stateVal = STATE_CONNECTING
+    }
+
+    fun updateState(): BtItemDev {
+        stateVal = when {
+            dev.isConnectedByHelper -> STATE_CONNECTED_BY_HELPER
+            dev.isConnectedBySystem() == true -> STATE_CONNECTED
+            dev.bondState == BluetoothDevice.BOND_BONDING -> STATE_BONDING
+            dev.isBond -> STATE_BONDED
+            else -> STATE_NONE
         }
+        return this
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -309,23 +297,33 @@ data class BtItemDev(val dev: BluetoothDev) {
         other as BtItemDev
 
         if (dev != other.dev) return false
-        if (isBond != other.isBond) return false
-        if (hasConnectionByGatt != other.hasConnectionByGatt) return false
-        if (isConnectedByHelper != other.isConnectedByHelper) return false
-        if (rssi != other.rssi) return false
+        if (stateVal != other.stateVal) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = dev.hashCode()
-        result = 31 * result + isBond.hashCode()
-        result = 31 * result + hasConnectionByGatt.hashCode()
-        result = 31 * result + isConnectedByHelper.hashCode()
+        result = 31 * result + stateVal
         return result
     }
 
     override fun toString(): String {
-        return "BtItemDev(dev=$dev, isBond=$isBond, hasConnectionByGatt=$hasConnectionByGatt, isConnectedByHelper=$isConnectedByHelper, rssi=$rssi)"
+        return "BtItemDev(dev=$dev, stateVal=$stateVal)"
     }
+
+    val state: String
+        get() {
+            val sb = StringBuilder()
+            when (stateVal) {
+                STATE_CONNECTED_BY_HELPER -> sb.append("已连接")
+                STATE_CONNECTING -> sb.append("连接中")
+                STATE_CONNECTED -> sb.append("有连接")
+                STATE_BONDING -> sb.append("绑定中")
+                STATE_BONDED -> sb.append("已绑定")
+                else -> sb.append("")
+            }
+            log(stateVal,sb.toString())
+            return sb.toString()
+        }
 }

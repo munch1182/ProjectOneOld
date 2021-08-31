@@ -123,6 +123,10 @@ class BleConnector(override val device: BluetoothDev) : Connector {
     override fun disconnect() {
         logHelper.withEnable { "bleConnector disconnect:${gatt?.device?.address}" }
         gatt?.disconnect()
+        //连接中断开主动触发
+        if (BluetoothHelper.instance.state.isConnecting) {
+            BluetoothHelper.instance.newState(BluetoothState.IDLE)
+        }
     }
 
     override fun destroy() {
