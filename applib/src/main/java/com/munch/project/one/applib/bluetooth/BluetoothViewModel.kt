@@ -2,7 +2,6 @@ package com.munch.project.one.applib.bluetooth
 
 import android.annotation.SuppressLint
 import android.os.Parcelable
-import android.util.SparseArray
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,13 +18,16 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
+import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Create by munch1182 on 2021/8/24 16:25.
  */
 class BluetoothViewModel : ViewModel() {
 
-    private var devList = SparseArray<BtItemDev>()
+    private val devMap = LinkedHashMap<String, BtItemDev?>()
     private val devs = MutableLiveData<MutableList<BtItemDev?>?>()
     fun devs() = devs.toLive()
     private val instance = BluetoothHelper.instance
@@ -35,8 +37,8 @@ class BluetoothViewModel : ViewModel() {
             instance.init(AppHelper.app)
         }
         instance.connectedDev?.let {
-            devList.put(it.mac.hashCode(), BtItemDev.from(it))
-            devs.postValue(MutableList(devList.size()) { dev -> devList.valueAt(dev) })
+            devMap[it.mac] = BtItemDev.from(it)
+            devs.postValue(devMap.values.toMutableList())
         }
     }
 
@@ -105,16 +107,17 @@ class BluetoothViewModel : ViewModel() {
     private inner class OnScanCallback : OnScannerListener {
         //使用Channel来处理同一时间扫描到过多设备导致rv的添加动画卡顿的情形
         private var channel: Channel<BtItemDev>? = null
+        private val sortList = mutableListOf<String>()
         private var start = 0
         private var connectedDevices: MutableList<BluetoothDev>? = null
         override fun onStart() {
             currentConfig = config.value!!
-            devList.clear()
+            devMap.clear()
+            sortList.clear()
             countDown()
             start = 0
             connectedDevices = instance.set.getConnectedDevice() ?: mutableListOf()
-            instance.set.getBondedDevices()
-                ?.map { BtItemDev.from(it, connectedDevices) }
+            instance.set.getBondedDevices()?.map { BtItemDev.from(it, connectedDevices) }
                 ?.sortedBy {
                     when {
                         it.isConnectedByHelper -> 3
@@ -124,24 +127,30 @@ class BluetoothViewModel : ViewModel() {
                     }
                 }
                 ?.let {
-                    start = it.size
                     it.forEach { dev ->
-                        devList.put(dev.dev.mac.hashCode(), dev)
+                        val key = dev.dev.mac
+                        sortList.add(key)
+                        devMap[key] = dev
                     }
-                    devs.postValue(MutableList(devList.size()) { dev -> devList.valueAt(dev) })
+                    start = it.size
+                    devs.postValue(it.toMutableList())
                 }
             channel?.close()
             channel = Channel()
             viewModelScope.launch(Dispatchers.IO) {
                 channel?.consumeEach { dev ->
-                    val key = dev.dev.mac.hashCode()
-                    devList.put(key, dev)
+                    val key = dev.dev.mac
+                    if (!devMap.containsKey(key)) {
+                        sortList.add(start, key)
+                    }
+                    devMap[key] = dev
                 }
             }
             viewModelScope.launch(Dispatchers.IO) {
                 while (!end) {
-                    devs.postValue(MutableList(devList.size()) { dev -> devList.valueAt(dev) })
-                    delay(550L)
+                    val size = sortList.size - (devs.value?.size ?: 0)
+                    devs.postValue(sortList.map { devMap[it] }.toMutableList())
+                    delay(max(min(200L * size, 100L), 500L))
                 }
             }
         }
@@ -179,13 +188,12 @@ class BluetoothViewModel : ViewModel() {
             val dev = BtItemDev.from(device, connectedDevices)
             if (isValid(device)) {
                 viewModelScope.launch { channel?.send(dev) }
-
             }
         }
 
-        override fun onComplete(devices: MutableList<BluetoothDev>) {
+        override fun onComplete() {
             end()
-            notice.postValue("已结束，共扫描到${devices.size}个设备，历时${time}s")
+            notice.postValue("已结束，用时${time}s")
         }
 
         override fun onFail() {
@@ -194,6 +202,7 @@ class BluetoothViewModel : ViewModel() {
         }
 
         private fun end() {
+            //因为结束扫描时可能还没消费完成
             /*channel?.close()*/
             end = true
             instance.scanListeners.remove(this)
@@ -313,7 +322,6 @@ data class BtItemDev(val dev: BluetoothDev) {
         result = 31 * result + isBond.hashCode()
         result = 31 * result + hasConnectionByGatt.hashCode()
         result = 31 * result + isConnectedByHelper.hashCode()
-        result = 31 * result + rssi
         return result
     }
 

@@ -32,11 +32,11 @@ interface Scanner : Cancelable {
 
 interface OnScannerListener {
 
-    fun onStart()
+    fun onStart() {}
     fun onScan(device: BluetoothDev)
-    fun onBatchScan(devices: MutableList<BluetoothDev>)
-    fun onComplete(devices: MutableList<BluetoothDev>)
-    fun onFail()
+    fun onBatchScan(devices: MutableList<BluetoothDev>) {}
+    fun onComplete() {}
+    fun onFail() {}
 }
 
 data class ScanFilter(val name: String?, val mac: String?)
@@ -74,6 +74,9 @@ class ScannerBuilder internal constructor(private val type: BluetoothType) {
         return this
     }
 
+    /**
+     * 设置回复时间大于0将启用批量模式(如果设备支持)，只支持ble模式
+     */
     fun setReportDelay(reportDelay: Long = 0L): ScannerBuilder {
         this.reportDelay = reportDelay
         return this
@@ -97,7 +100,7 @@ class ScannerBuilder internal constructor(private val type: BluetoothType) {
     }
 
     override fun toString(): String {
-        return "ScannerBuilder(type=$type, filter=${filter?.joinToString { "${it.deviceName}(${it.deviceAddress})" }}, settings=$settings, timeout=$timeout, reportDelay=$reportDelay, justFirst=$justFirst)"
+        return "ScannerBuilder(type=$type, filter=${if (filter == null) "null" else filter?.joinToString { "${it.deviceName}(${it.deviceAddress})" }}, settings=$settings, timeout=$timeout, reportDelay=$reportDelay, justFirst=$justFirst)"
     }
 }
 
@@ -119,9 +122,9 @@ internal class ClassicScanner(context: Context) : Scanner {
             listener?.onBatchScan(devices)
         }
 
-        override fun onComplete(devices: MutableList<BluetoothDev>) {
+        override fun onComplete() {
             BluetoothHelper.instance.workHandler.removeCallbacks(delay2Stop)
-            listener?.onComplete(devices)
+            listener?.onComplete()
             listener = null
             receiver.remove(this)
             receiver.unregister()
@@ -166,7 +169,7 @@ internal class BleScanner : Scanner {
     private val scanner: BluetoothLeScanner?
         get() = BluetoothHelper.instance.set.adapter?.bluetoothLeScanner
 
-    //需要更改类型
+    //因为顺序不重要
     private val scannedDevs = SparseArray<BluetoothDev>()
     private val scanCallback = object : ScanCallback() {
         @SuppressLint("MissingPermission")
@@ -177,17 +180,12 @@ internal class BleScanner : Scanner {
             }*/
             result ?: return
             val key = result.device.address.hashCode()
-            if (builder?.justFirst == true) {
-                if (!scannedDevs.containsKey(key)) {
-                    val device = BluetoothDev.from(result)
-                    listener?.onScan(device)
-                    scannedDevs.put(key, device)
-                }
-            } else {
-                val device = BluetoothDev.from(result)
-                listener?.onScan(device)
-                scannedDevs.put(key, device)
+            if (builder?.justFirst == true && scannedDevs.containsKey(key)) {
+                return
             }
+            val device = BluetoothDev.from(result)
+            listener?.onScan(device)
+            scannedDevs.put(key, device)
         }
 
         /**
@@ -263,7 +261,7 @@ internal class BleScanner : Scanner {
         //此方法不会触发回调
         scanner?.stopScan(scanCallback)
         //因此主动触发
-        listener?.onComplete(MutableList(scannedDevs.size()) { scannedDevs.valueAt(it) })
+        listener?.onComplete()
         listener = null
         instance.state.currentStateVal = BluetoothState.IDLE
     }
@@ -277,7 +275,7 @@ class BluetoothDiscoveryReceiver(context: Context) : ReceiverHelper<OnScannerLis
     )
 ) {
 
-    private val devs = mutableListOf<BluetoothDev>()
+    private val devs = SparseArray<BluetoothDev>()
 
     var scanBuilder: ScannerBuilder? = null
 
@@ -294,7 +292,7 @@ class BluetoothDiscoveryReceiver(context: Context) : ReceiverHelper<OnScannerLis
                 t.onStart()
             }
             BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
-                t.onComplete(devs)
+                t.onComplete()
                 remove(t)
             }
             BluetoothDevice.ACTION_FOUND -> {
@@ -302,14 +300,14 @@ class BluetoothDiscoveryReceiver(context: Context) : ReceiverHelper<OnScannerLis
                     intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
                         ?: return
                 if (!isValid(device)) return
-                val rssi =
-                    intent.extras?.getShort(BluetoothDevice.EXTRA_RSSI, 0.toShort())
-                        ?.toInt() ?: 0
+                val rssi = intent.extras?.getShort(BluetoothDevice.EXTRA_RSSI, 0.toShort())
+                    ?.toInt() ?: 0
                 val dev = BluetoothDev.from(device, rssi)
-                if (scanBuilder?.justFirst == true && devs.contains(dev)) {
+                val key = dev.mac.hashCode()
+                if (scanBuilder?.justFirst == true && devs.containsKey(key)) {
                     return
                 }
-                devs.add(dev)
+                devs.put(key, dev)
                 t.onScan(dev)
             }
         }

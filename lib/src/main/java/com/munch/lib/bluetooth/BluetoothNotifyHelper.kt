@@ -34,10 +34,10 @@ class BluetoothNotifyHelper : Destroyable {
             }
         }
 
-        override fun onComplete(devices: MutableList<BluetoothDev>) {
+        override fun onComplete() {
             BluetoothHelper.instance.apply {
                 newState(BluetoothState.IDLE)
-                workHandler.post { scanListeners.notifyListener { it.onComplete(devices) } }
+                workHandler.post { scanListeners.notifyListener { it.onComplete() } }
             }
         }
 

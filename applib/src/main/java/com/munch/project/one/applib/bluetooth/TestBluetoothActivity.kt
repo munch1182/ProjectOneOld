@@ -59,7 +59,7 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
                 }
 
                 override fun areContentsTheSame(oldItem: BtItemDev, newItem: BtItemDev): Boolean {
-                    return oldItem.hashCode() == newItem.hashCode()
+                    return oldItem.hashCode() == newItem.hashCode() && oldItem.rssi == newItem.rssi
                 }
             }
         ) { _, bind, dev -> bind.dev = dev }.apply {
@@ -180,7 +180,9 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
             views.add(newItemTextView("CONNECT", MENU_TAG_CONNECT))
         }
         views.add(newItemTextView("LOCK DEV", MENU_TAG_LOCK_DEV))
-        views.add(newItemTextView("MORE INFO", MENU_TAG_MORE_INFO))
+        if (dev.dev.scanResult != null) {
+            views.add(newItemTextView("MORE INFO", MENU_TAG_MORE_INFO))
+        }
         val clickListener = object : OnViewIntClickListener {
             override fun onClick(v: View?, intVal: Int) {
                 super.onClick(v, intVal)
