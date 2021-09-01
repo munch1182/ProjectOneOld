@@ -94,6 +94,8 @@ data class BluetoothDev(
      */
     val isConnectedByHelper: Boolean
         get() = mac == BluetoothHelper.instance.connectedDev?.mac
+    val isConnecting: Boolean
+        get() = BluetoothHelper.instance.state.isConnecting && mac == BluetoothHelper.instance.operationDev?.mac
     val bondState: Int
         @RequiresPermission(android.Manifest.permission.BLUETOOTH)
         get() = dev.bondState

@@ -57,7 +57,7 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         SimpleDiffAdapter<BtItemDev, ItemBtDevScanBinding>(
             R.layout.item_bt_dev_scan, object : DiffUtil.ItemCallback<BtItemDev>() {
                 override fun areItemsTheSame(oldItem: BtItemDev, newItem: BtItemDev): Boolean {
-                    return oldItem.hashCode() == newItem.hashCode()
+                    return oldItem.dev == newItem.dev
                 }
 
                 override fun areContentsTheSame(oldItem: BtItemDev, newItem: BtItemDev): Boolean {
@@ -106,7 +106,7 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         }
         instance.bluetoothStateListeners.set(this) { state, dev ->
             val bd = dev?.let { BtItemDev.from(BluetoothDev.from(it)) }
-            //因为STATE_CONNECTING无法通过方法判断
+            //因为系统层的STATE_CONNECTING无法通过方法判断
             if (state == BluetoothAdapter.STATE_CONNECTING) {
                 bd?.updateConnecting()
             }
@@ -118,7 +118,7 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         val isExpand = !(bind.btMoreCb.tag as? Boolean ?: false)
         bind.apply {
             btMoreCb.tag = isExpand
-            btScanExpend.visibility = if (isExpand) View.VISIBLE else View.GONE
+            btMoreOption.visibility = if (isExpand) View.VISIBLE else View.GONE
             btMoreCb.animRotate(isExpand)
         }
     }
@@ -135,9 +135,14 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
     private fun updateState(dev: BtItemDev? = null) {
         val data = simpleAdapter.data.filterNotNull().map { d ->
             if (dev != null) {
-                if (d.dev.mac == dev.dev.mac) dev else d
+                //通过广播获取的设备没有信号值
+                if (d.dev.mac == dev.dev.mac) dev.apply {
+                    this.dev.rssi = d.dev.rssi
+                    this.dev.scanResult = d.dev.scanResult
+                } else d
             } else {
-                d.updateState()
+                //新建对象用于diff更新
+                BtItemDev.from(d.dev)
             }
         }
         simpleAdapter.set(data.toMutableList())
@@ -218,10 +223,11 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         }
         var dialog: AlertDialog? = null
         val sb = StringBuilder()
-        sb.append("isBond:${dev.dev.isBond}\n")
+        sb.append("connectState:${BluetoothHelper.instance.set.getConnectedState()}\n")
+            .append("isBond:${dev.dev.isBond}\n")
             .append("isConnected:${dev.dev.isConnectedBySystem()}\n")
             .append("isConnectedGatt:${dev.dev.isConnectedByGatt()}\n")
-            .append("connectState:${BluetoothHelper.instance.set.getConnectedState()}\n")
+
         dev.dev.scanResult?.scanRecord?.let { sb.append(it.bytes.toHexStr()) }
         dialog = newMenuDialog(dev.dev.name ?: dev.dev.mac, sb.toString()) {
             views.forEach { v ->

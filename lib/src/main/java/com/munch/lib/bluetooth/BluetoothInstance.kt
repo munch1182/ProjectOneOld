@@ -10,6 +10,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import com.munch.lib.base.Destroyable
 
@@ -76,6 +78,10 @@ class BluetoothInstance(private val context: Context) : Destroyable {
     val isEnable: Boolean
         @RequiresPermission(android.Manifest.permission.BLUETOOTH)
         get() = adapter?.isEnabled ?: false
+
+    val isLe2MPhySupported: Boolean
+        @RequiresApi(Build.VERSION_CODES.O)
+        get() = adapter?.isLe2MPhySupported ?: false
 
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_ADMIN])
     fun getBondedDevices(): MutableList<BluetoothDev>? {

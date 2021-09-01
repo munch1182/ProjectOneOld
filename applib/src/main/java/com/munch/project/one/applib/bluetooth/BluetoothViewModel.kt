@@ -92,7 +92,11 @@ class BluetoothViewModel : ViewModel() {
                 dev.disconnect()
             }
         } else {
-            dev.connect()
+            if (dev.isBle) {
+                BluetoothHelper.instance.connectBle(dev, config.value?.connectM2Phy ?: false)
+            } else {
+                dev.connect()
+            }
         }
     }
 
@@ -132,6 +136,7 @@ class BluetoothViewModel : ViewModel() {
                 }
             channel?.close()
             channel = Channel()
+            var pulling = false
             viewModelScope.launch(Dispatchers.IO) {
                 channel?.consumeEach { dev ->
                     val key = dev.dev.mac
@@ -139,14 +144,19 @@ class BluetoothViewModel : ViewModel() {
                         sortList.add(start, key)
                     }
                     devMap[key] = dev
-                }
-            }
-            viewModelScope.launch(Dispatchers.IO) {
-                while (!end) {
-                    log(123)
-                    val size = sortList.size - (devs.value?.size ?: 0)
-                    devs.postValue(sortList.map { devMap[it] }.toMutableList())
-                    delay(max(min(200L * size, 200L), 500L))
+                    if (!pulling) {
+                        pulling = true
+                        viewModelScope.launch(Dispatchers.IO) {
+                            var size = sortList.size - (devs.value?.size ?: 0)
+                            while (size != 0) {
+                                log(size)
+                                devs.postValue(sortList.map { devMap[it] }.toMutableList())
+                                delay(max(min(200L * size, 200L), 500L))
+                                size = sortList.size - (devs.value?.size ?: 0)
+                            }
+                            pulling = false
+                        }
+                    }
                 }
             }
         }
@@ -222,11 +232,14 @@ data class BtActivityConfig(
     var noName: Boolean = true,
     var connectAuto: Boolean = true,
     var modeBatch: Boolean = false,
-    var notUpdateScan: Boolean = true
+    var notUpdateScan: Boolean = true,
+    var connectM2Phy: Boolean = false
 ) : Parcelable {
 
     val canBatchMode: Boolean
         get() = BluetoothHelper.instance.set.isScanBatchingSupported
+    val canM2Connect: Boolean
+        get() = BluetoothHelper.instance.set.isLe2MPhySupported
 
     @IgnoredOnParcel
     var isClassic: Boolean = type == BluetoothType.Classic
@@ -281,6 +294,7 @@ data class BtItemDev(val dev: BluetoothDev) {
 
     fun updateState(): BtItemDev {
         stateVal = when {
+            dev.isConnecting -> STATE_CONNECTING
             dev.isConnectedByHelper -> STATE_CONNECTED_BY_HELPER
             dev.isConnectedBySystem() == true -> STATE_CONNECTED
             dev.bondState == BluetoothDevice.BOND_BONDING -> STATE_BONDING
@@ -323,7 +337,6 @@ data class BtItemDev(val dev: BluetoothDev) {
                 STATE_BONDED -> sb.append("已绑定")
                 else -> sb.append("")
             }
-            log(stateVal,sb.toString())
             return sb.toString()
         }
 }

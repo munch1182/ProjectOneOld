@@ -210,7 +210,6 @@
             android:id="@+id/bt_connect_now"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/paddingSmall"
             android:checked="@={config.connectAuto}"
             android:minHeight="0dp"
             android:text="有地址时直接连接"
@@ -236,37 +235,48 @@
             app:layout_constraintTop_toTopOf="@id/bt_connect_now"
             tools:ignore="ContentDescription,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
-        <CheckBox
-            android:id="@+id/bt_mode_batch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="@={config.modeBatch}"
-            android:enabled="@{config.canBatchMode}"
-            android:minHeight="0dp"
-            android:text="批量模式"
-            app:layout_constraintStart_toStartOf="@id/bt_no_name"
-            app:layout_constraintTop_toBottomOf="@id/bt_no_name"
-            tools:ignore="TouchTargetSizeCheck" />
-
-        <CheckBox
-            android:id="@+id/bt_scan_update"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/paddingSmall"
-            android:checked="@={config.notUpdateScan}"
-            android:minHeight="0dp"
-            android:text="禁用更新"
-            app:layout_constraintStart_toEndOf="@id/bt_mode_batch"
-            app:layout_constraintTop_toTopOf="@id/bt_mode_batch"
-            tools:ignore="TouchTargetSizeCheck" />
-
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/bt_scan_expend"
-            android:layout_width="wrap_content"
+        <com.munch.lib.weight.FlowLayout
+            android:id="@+id/bt_more_option"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="bt_mode_batch,bt_scan_update"
-            tools:visibility="visible" />
+            app:gravity="START|TOP"
+            app:itemSpacing="0dp"
+            app:layout_constraintEnd_toStartOf="@id/bt_more_cb"
+            app:layout_constraintStart_toStartOf="@id/bt_no_name"
+            app:layout_constraintTop_toBottomOf="@id/bt_no_name"
+            app:lineSpacing="0dp"
+            tools:visibility="visible">
+
+            <CheckBox
+                android:id="@+id/bt_mode_batch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@={config.modeBatch}"
+                android:enabled="@{config.canBatchMode}"
+                android:minHeight="0dp"
+                android:text="批量模式"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <CheckBox
+                android:id="@+id/bt_scan_update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@={config.notUpdateScan}"
+                android:minHeight="0dp"
+                android:text="禁用更新"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <CheckBox
+                android:id="@+id/bt_scan_le_m2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@={config.connectM2Phy}"
+                android:enabled="@{config.canM2Connect}"
+                android:minHeight="0dp"
+                android:text="使用M2连接"
+                tools:ignore="TouchTargetSizeCheck" />
+        </com.munch.lib.weight.FlowLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/bt_rv"
@@ -276,7 +286,7 @@
             android:overScrollMode="never"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constrainedHeight="true"
-            app:layout_constraintTop_toBottomOf="@id/bt_mode_batch"
+            app:layout_constraintTop_toBottomOf="@id/bt_more_option"
             tools:listitem="@layout/item_bt_dev_scan" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

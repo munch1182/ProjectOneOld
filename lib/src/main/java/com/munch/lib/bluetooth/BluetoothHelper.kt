@@ -53,7 +53,7 @@ class BluetoothHelper private constructor() : Destroyable {
         }
     }
 
-    private lateinit var context: Context
+    internal lateinit var context: Context
     private lateinit var instance: BluetoothInstance
     private lateinit var handlerThread: HandlerThread
     internal lateinit var workHandler: Handler
@@ -124,8 +124,18 @@ class BluetoothHelper private constructor() : Destroyable {
         get() = set.adapter
     val set: BluetoothInstance
         get() = instance
+
+    /**
+     * 已连接的设备，仅已连接状态下有值
+     */
     val connectedDev: BluetoothDev?
         get() = state.isConnected.let { if (it) connector?.device else null }
+
+    /**
+     * 当前操作的设备，包括连接中和已连接两种状态，包括连接+断开连接两个动作
+     */
+    val operationDev: BluetoothDev?
+        get() = (state.isConnecting || state.isConnected).let { if (it) connector?.device else null }
     val scanListeners: ARSHelper<OnScannerListener>
         get() = notifyHelper.scanListeners
     val stateListeners: ARSHelper<OnStateChangeListener>
@@ -203,23 +213,37 @@ class BluetoothHelper private constructor() : Destroyable {
      * @see stateListeners
      */
     fun connect(device: BluetoothDev): Boolean {
-        when {
-            state.isClose -> return false
-            device.isConnectedByHelper -> return true
+        return when {
+            state.isClose -> false
+            device.isConnectedByHelper -> true
             //如果已有连接但连接的不是此设备
-            state.isConnected -> return false
-            device.isBle -> {
-                if (connector == null || connector !is BleConnector || connector!!.device != device) {
-                    connector = BleConnector(device).apply {
-                        connectListener = notifyHelper.connectCallback
-                    }
-                } else {
-                    (connector as BleConnector).connectListener = notifyHelper.connectCallback
-                }
-            }
+            state.isConnected -> false
+            device.isBle -> connectBle(device)
             else -> {
                 //未实现
-                return false
+                false
+            }
+        }
+    }
+
+    /**
+     * 连接到ble设备
+     *
+     * @param ifCan 是否使用更高的连接参数
+     */
+    fun connectBle(device: BluetoothDev, ifCan: Boolean = false): Boolean {
+        if (!device.isBle) {
+            return false
+        }
+        if (connector == null || connector !is BleConnector || connector!!.device != device) {
+            connector = BleConnector(device).apply {
+                connectListener = notifyHelper.connectCallback
+                connectByAllIfCan = ifCan
+            }
+        } else {
+            (connector as BleConnector).apply {
+                connectListener = notifyHelper.connectCallback
+                connectByAllIfCan = ifCan
             }
         }
         connector?.connect()
