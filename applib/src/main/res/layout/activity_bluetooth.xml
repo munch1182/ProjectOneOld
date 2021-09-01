@@ -262,9 +262,9 @@
                 android:id="@+id/bt_scan_update"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="@={config.notUpdateScan}"
+                android:checked="@={config.updateScan}"
                 android:minHeight="0dp"
-                android:text="禁用更新"
+                android:text="更新扫描"
                 tools:ignore="TouchTargetSizeCheck" />
 
             <CheckBox

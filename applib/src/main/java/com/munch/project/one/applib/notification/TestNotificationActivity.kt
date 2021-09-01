@@ -25,7 +25,6 @@ class TestNotificationActivity : BaseBtnWithNoticeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        log(123)
         ResultHelper.init(this)
             .with({ NotificationService.isEnable() }, NotificationService.requestIntent())
             .start {

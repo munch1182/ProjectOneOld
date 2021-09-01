@@ -8,6 +8,7 @@ import com.munch.lib.fast.base.BaseRvActivity
 import com.munch.lib.fast.base.toSelectActivityIfHave
 import com.munch.project.one.applib.bluetooth.TestBluetoothActivity
 import com.munch.project.one.applib.file.TestFileActivity
+import com.munch.project.one.applib.net.TestNetActivity
 import com.munch.project.one.applib.notification.TestNotificationActivity
 import com.munch.project.one.applib.weight.TestFlowLayoutActivity
 
@@ -22,6 +23,7 @@ class MainActivity : BaseRvActivity() {
         mutableListOf(
             TestBluetoothActivity::class.java,
             TestNotificationActivity::class.java,
+            TestNetActivity::class.java,
             TestFileActivity::class.java,
             TestWeightActivity::class.java
         )

@@ -67,7 +67,7 @@ class BluetoothViewModel : ViewModel() {
             val timeout = config.timeOut * 1000L
             val filter = mutableListOf(ScanFilter(config.name, config.mac))
             instance.scanBuilder(config.type)
-                .setJustFirst(config.notUpdateScan)
+                .setJustFirst(!config.updateScan)
                 .setReportDelay(if (config.modeBatch) 500L else 0)
                 .setFilter(filter)
                 .setTimeout(timeout)
@@ -230,7 +230,7 @@ data class BtActivityConfig(
     var noName: Boolean = true,
     var connectAuto: Boolean = true,
     var modeBatch: Boolean = false,
-    var notUpdateScan: Boolean = true,
+    var updateScan: Boolean = true,
     var connectM2Phy: Boolean = false
 ) : Parcelable {
 
