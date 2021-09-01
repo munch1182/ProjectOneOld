@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.munch.project.one.dev">
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission
         android:name="android.permission.MEDIA_CONTENT_CONTROL"
         tools:ignore="ProtectedPermissions" />
@@ -33,6 +35,7 @@
         <activity android:name=".test.TestActivity" />
         <activity android:name=".PlayControlActivity" />
         <activity android:name=".NotificationActivity" />
+        <activity android:name=".TestFunActivity" />
 
         <service
             android:name=".PlayControlActivity$NotificationMonitor"

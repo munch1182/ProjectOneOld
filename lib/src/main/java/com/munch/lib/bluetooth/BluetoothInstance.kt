@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
+import android.bluetooth.le.BluetoothLeAdvertiser
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -23,7 +24,8 @@ import com.munch.lib.base.Destroyable
 class BluetoothInstance(private val context: Context) : Destroyable {
 
     private val btReceiver = BluetoothInstanceReceiver()
-    private val manager: BluetoothManager? =
+
+    val manager: BluetoothManager? =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
 
     init {
@@ -52,10 +54,22 @@ class BluetoothInstance(private val context: Context) : Destroyable {
         get() = manager?.adapter
 
     /**
+     * 获取手机广播对象，如果手机不支持，则返回null
+     */
+    val advertiser: BluetoothLeAdvertiser?
+        get() = adapter?.bluetoothLeAdvertiser
+
+    /**
      * 该设备是否支持蓝牙，即使用的设备是否有蓝牙模块
      */
     val isBtSupport: Boolean
         get() = adapter != null
+
+    /**
+     * 该设备是否支持进行蓝牙广播
+     */
+    val isBtAdvertiserSupport: Boolean
+        get() = advertiser != null
 
     /**
      * 该设备是否支持ble

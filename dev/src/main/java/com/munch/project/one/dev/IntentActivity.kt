@@ -24,7 +24,7 @@ class IntentActivity : BaseBtnFlowActivity() {
         when (pos) {
             0 -> ResultHelper.init(this)
                 .with(Intent(Settings.ACTION_SETTINGS))
-                .start(object : ResultHelper.OnResultListener {
+                .start(object : ResultHelper.OnActivityResultListener {
                     override fun onResult(isOk: Boolean, resultCode: Int, data: Intent?) {
                         log(isOk, resultCode, data)
                     }

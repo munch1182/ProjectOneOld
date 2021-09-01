@@ -59,14 +59,18 @@ open class BaseBtnWithNoticeActivity : BaseBigTextTitleActivity() {
             { _, pos, bind -> onClick(pos, bind) },
             R.id.item_tv_view
         )
+        getData()?.let {
+            set(null, it)
+        }
     }
 
-    protected fun set(header: String, items: MutableList<String?>? = null) {
+    protected fun set(header: String?, items: MutableList<String?>? = null) {
         showNotice(header)
         setItem(items)
     }
 
-    protected open fun showNotice(notice: String) {
+    protected open fun showNotice(notice: String?) {
+        notice ?: return
         if (header.data.isEmpty()) {
             header.set(mutableListOf(notice))
         } else {
@@ -81,5 +85,5 @@ open class BaseBtnWithNoticeActivity : BaseBigTextTitleActivity() {
     protected open fun onClick(pos: Int, bind: ItemSimpleBtnWithNoticeBinding) {
     }
 
-    protected open fun getData(): MutableList<String>? = null
+    protected open fun getData(): MutableList<String?>? = null
 }

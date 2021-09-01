@@ -22,6 +22,7 @@ class ResultHelper(private val fm: FragmentManager) {
 
     fun with(vararg permission: String) = Permission(ensureFragment(), permission)
     fun with(intent: Intent) = ActivityResult(ensureFragment(), intent)
+    fun with(judge: () -> Boolean, intent: Intent) = CheckOrIntent(ensureFragment(), judge, intent)
 
     private fun ensureFragment(): InvisibleFragment {
         var fragment = fm.findFragmentByTag(InvisibleFragment.TAG) as? InvisibleFragment?
@@ -116,17 +117,41 @@ class ResultHelper(private val fm: FragmentManager) {
 
     class ActivityResult(private val fragment: InvisibleFragment, private val intent: Intent) {
 
-        fun start(listener: OnResultListener) {
+        fun start(listener: OnActivityResultListener) {
             fragment.startActivityForResult(intent, listener)
         }
 
         fun start(onResult: (isOk: Boolean) -> Unit) {
-            start(object : OnResultListener {
+            start(object : OnActivityResultListener {
                 override fun onResult(isOk: Boolean, resultCode: Int, data: Intent?) {
                     onResult.invoke(isOk)
                 }
             })
         }
+    }
+
+    class CheckOrIntent(
+        private val fragment: InvisibleFragment,
+        private val judge: () -> Boolean,
+        private val intent: Intent
+    ) {
+
+        private var checkAllTime = true
+
+        fun justCheckFirst(justFirst: Boolean = true): CheckOrIntent {
+            checkAllTime = !justFirst
+            return this
+        }
+
+        fun start(onResult: (result: Boolean) -> Unit) {
+            fragment.setOnTriggeredListener(checkAllTime) { onResult.invoke(judge.invoke()) }
+            if (judge.invoke()) {
+                onResult.invoke(true)
+            } else {
+                fragment.startActivity(intent)
+            }
+        }
+
     }
 
     interface OnPermissionResultListener {
@@ -137,7 +162,7 @@ class ResultHelper(private val fm: FragmentManager) {
         )
     }
 
-    interface OnResultListener {
+    interface OnActivityResultListener {
         fun onResult(isOk: Boolean, resultCode: Int, data: Intent?)
     }
 }

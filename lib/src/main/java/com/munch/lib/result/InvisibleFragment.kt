@@ -18,13 +18,32 @@ class InvisibleFragment : Fragment() {
 
     private val requestCode = AtomicInteger(0)
     private val permissionMap: SparseArray<ResultHelper.OnPermissionResultListener> = SparseArray(2)
-    private val resultMap: SparseArray<ResultHelper.OnResultListener> = SparseArray(2)
+    private val resultMap: SparseArray<ResultHelper.OnActivityResultListener> = SparseArray(2)
+
+    /**
+     * 用于跳转其它页面后回到此页的回调
+     */
+    private var onTriggeredListener: (() -> Unit)? = null
+    private var checkTriggeredAllTime = true
+    private var checkCount = 0
 
     private fun newRequestCode() = requestCode.incrementAndGet()
 
+    fun setOnTriggeredListener(checkAllTime: Boolean, listener: () -> Unit) {
+        checkTriggeredAllTime = checkAllTime
+        this.onTriggeredListener = listener
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (checkCount < 1 || checkTriggeredAllTime) {
+            onTriggeredListener?.invoke()
+        }
+    }
+
     fun startActivityForResult(
         intent: Intent?,
-        callback: ResultHelper.OnResultListener
+        callback: ResultHelper.OnActivityResultListener
     ) {
         val requestCode = newRequestCode()
         resultMap.put(requestCode, callback)

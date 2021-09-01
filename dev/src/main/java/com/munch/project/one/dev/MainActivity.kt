@@ -18,6 +18,7 @@ class MainActivity : BaseRvActivity() {
             IntentActivity::class.java,
             NotificationActivity::class.java,
             PlayControlActivity::class.java,
+            TestFunActivity::class.java,
             AboutActivity::class.java,
             TestActivity::class.java
         )

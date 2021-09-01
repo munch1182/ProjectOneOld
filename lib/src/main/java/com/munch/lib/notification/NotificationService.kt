@@ -38,7 +38,7 @@ open class NotificationService : NotificationListenerService() {
             })
         }
 
-        private var changeListener: OnNotificationChangeListener? = null
+        private var changeListener: (() -> Unit)? = null
 
         /**
          * 判断是否有读取通知权限
@@ -52,19 +52,8 @@ open class NotificationService : NotificationListenerService() {
         /**
          * @see unregisterOnNotificationChangeListener
          */
-        fun registerOnNotificationChangeListener(listener: OnNotificationChangeListener) {
-            this.changeListener = listener
-        }
-
-        /**
-         * @see unregisterOnNotificationChangeListener
-         */
         fun registerOnNotificationChangeListener(onChange: () -> Unit) {
-            this.changeListener = object : OnNotificationChangeListener {
-                override fun onChange() {
-                    onChange.invoke()
-                }
-            }
+            this.changeListener = onChange
         }
 
         /**
@@ -135,13 +124,13 @@ open class NotificationService : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
-        getNotificationChangeListener()?.onChange()
+        getNotificationChangeListener()?.invoke()
         logNotification.log("onNotificationPosted")
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         super.onNotificationRemoved(sbn)
-        getNotificationChangeListener()?.onChange()
+        getNotificationChangeListener()?.invoke()
         logNotification.log("onNotificationRemoved")
     }
 

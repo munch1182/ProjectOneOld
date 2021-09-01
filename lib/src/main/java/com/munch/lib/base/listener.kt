@@ -40,8 +40,20 @@ interface OnViewIndexClickListener : View.OnClickListener, View.OnLongClickListe
     fun onLongClick(v: View?, index: Int): Boolean = false
 }
 
+interface OnTriggeredListener {
+    fun onTriggered()
+}
+
 interface OnChangeListener {
     fun onChange()
+}
+
+interface OnResultListener<T> {
+    fun onResult(result: T)
+}
+
+interface OnResultNullableListener<T> {
+    fun onResult(result: T?)
 }
 
 interface OnConnectListener {

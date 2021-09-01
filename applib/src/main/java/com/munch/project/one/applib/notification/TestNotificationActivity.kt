@@ -10,6 +10,7 @@ import com.munch.lib.fast.base.BaseBtnWithNoticeActivity
 import com.munch.lib.fast.databinding.ItemSimpleBtnWithNoticeBinding
 import com.munch.lib.log.log
 import com.munch.lib.notification.NotificationService
+import com.munch.lib.result.ResultHelper
 import com.munch.project.one.applib.R
 
 /**
@@ -24,16 +25,20 @@ class TestNotificationActivity : BaseBtnWithNoticeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (!NotificationService.isEnable()) {
-            set("无通知权限", mutableListOf("获取权限"))
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                NotificationService.disable()
-                showItem()
-            } else {
-                set("有通知权限，但sdk小于24，因此无法关闭")
+        log(123)
+        ResultHelper.init(this)
+            .with({ NotificationService.isEnable() }, NotificationService.requestIntent())
+            .start {
+                if (!it) {
+                    set("无通知权限", mutableListOf("获取权限"))
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        showItem()
+                    } else {
+                        set("有通知权限，但sdk小于24，因此无法关闭")
+                    }
+                }
             }
-        }
         NotificationService.registerOnNotificationChangeListener { log("onChange") }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             nm.createNotificationChannel(
@@ -50,7 +55,8 @@ class TestNotificationActivity : BaseBtnWithNoticeActivity() {
                 "不再接收通知",
                 if (!keep) "退出时仍然接收通知" else "退出时关闭接收通知",
                 "发出一个通知",
-                "取消通知"
+                "取消通知",
+                "管理通知权限"
             )
         )
     }
@@ -94,6 +100,9 @@ class TestNotificationActivity : BaseBtnWithNoticeActivity() {
                 }
                 4 -> {
                     nm.cancelAll()
+                }
+                5 -> {
+                    startActivity(NotificationService.requestIntent())
                 }
             }
         }

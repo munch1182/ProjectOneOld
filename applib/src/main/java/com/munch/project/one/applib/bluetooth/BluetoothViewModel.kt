@@ -10,7 +10,6 @@ import com.munch.lib.app.AppHelper
 import com.munch.lib.base.toLive
 import com.munch.lib.bluetooth.*
 import com.munch.lib.fast.base.DataHelper
-import com.munch.lib.log.log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
@@ -149,7 +148,6 @@ class BluetoothViewModel : ViewModel() {
                         viewModelScope.launch(Dispatchers.IO) {
                             var size = sortList.size - (devs.value?.size ?: 0)
                             while (size != 0) {
-                                log(size)
                                 devs.postValue(sortList.map { devMap[it] }.toMutableList())
                                 delay(max(min(200L * size, 200L), 500L))
                                 size = sortList.size - (devs.value?.size ?: 0)
