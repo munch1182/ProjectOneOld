@@ -2,7 +2,11 @@ package com.munch.project.one.applib.bluetooth
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.content.Context
+import android.content.Intent
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.view.animation.RotateAnimation
 import android.widget.TextView
@@ -75,6 +79,7 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
             }
         }
     }
+    private val lm by lazy { getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -183,10 +188,18 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
             else -> {
                 ResultHelper.init(this)
                     .with(*BluetoothHelper.permissionsScan())
-                    .requestSimple { vm.toggleScan() }
+                    .requestSimple {
+                        ResultHelper.init(this)
+                            .with({ isGpsOpen() }, Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                            .start {
+                                vm.toggleScan()
+                            }
+                    }
             }
         }
     }
+
+    private fun isGpsOpen() = lm?.isProviderEnabled(LocationManager.GPS_PROVIDER) ?: true
 
     private fun showDevMenu(dev: BtItemDev) {
         val views = ArrayList<TextView>()

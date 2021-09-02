@@ -76,9 +76,7 @@ class BluetoothHelper private constructor() : Destroyable {
     /**
      * 用于统一管理状态
      */
-    private val stateHelper = BluetoothStateHelper().apply {
-        onChangeListener = notifyHelper.stateChangeCallback
-    }
+    private val stateHelper = BluetoothStateHelper()
 
     /**
      * 用于持有当前使用的扫描器对象
@@ -95,10 +93,13 @@ class BluetoothHelper private constructor() : Destroyable {
         initialized = true
         this.context = context.applicationContext
         instance = BluetoothInstance(context)
+        //thread
         handlerThread = HandlerThread("BLUETOOTH_WORK_THREAD")
         handlerThread.start()
         workHandler = Handler(handlerThread.looper)
-        state.currentStateVal = if (instance.isEnable) BluetoothState.IDLE else BluetoothState.CLOSE
+        //state
+        stateHelper.onChangeListener = notifyHelper.stateChangeCallback
+        newState(if (instance.isEnable) BluetoothState.IDLE else BluetoothState.CLOSE)
         instance.setStateListener {
             //打开时
             if (it == BluetoothAdapter.STATE_ON) {

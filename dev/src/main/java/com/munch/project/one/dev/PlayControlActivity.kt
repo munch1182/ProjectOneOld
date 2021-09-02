@@ -190,7 +190,11 @@ class PlayControlActivity : BaseBigTextTitleActivity() {
     override fun onDestroy() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver)
-        unregisterReceiver(receiver)
+        try {
+            unregisterReceiver(receiver)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun refreshMusicInfo() {

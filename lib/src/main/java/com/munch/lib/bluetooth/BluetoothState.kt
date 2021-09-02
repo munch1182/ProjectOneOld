@@ -62,7 +62,7 @@ class BluetoothStateHelper {
         get() = synchronized(lock) { field }
         set(value) {
             synchronized(lock) {
-                if (field == value) {
+                if (field == value && lastStateVal != -1) {
                     return@synchronized
                 }
                 val lastState = field

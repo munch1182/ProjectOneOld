@@ -17,7 +17,7 @@ import com.munch.lib.weight.FlowLayout
 open class BaseBtnFlowActivity : BaseBigTextTitleActivity() {
 
     private val flowLayout by lazy {
-        FlowLayout(this).apply { setPadding(16) }
+        FlowLayout(this).apply { setPadding(resources.getDimensionPixelSize(R.dimen.paddingDef)) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
