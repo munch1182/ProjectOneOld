@@ -1,4 +1,4 @@
-package com.munch.project.one.applib.net
+package com.munch.lib.helper.net
 
 import android.net.NetworkCapabilities
 

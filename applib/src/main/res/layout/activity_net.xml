@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="vm"
-            type="com.munch.project.one.applib.net.TestNetViewModel" />
+            name="notice"
+            type="java.lang.String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,10 +21,33 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/paddingDef"
-            android:text="@{vm.notice}"
+            android:text="@{notice}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="网络状态：\nIP地址:" />
+
+        <Button
+            android:id="@+id/net_btn_wifi"
+            style="@style/AppTheme.Button.Outline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paddingSmall"
+            android:text="set wifi"
+            app:layout_constraintStart_toStartOf="@id/net_status"
+            app:layout_constraintTop_toBottomOf="@id/net_status"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/net_btn_cellular"
+            style="@style/AppTheme.Button.Outline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/paddingSmall"
+            android:text="set cellular"
+            app:layout_constraintBottom_toBottomOf="@id/net_btn_wifi"
+            app:layout_constraintStart_toEndOf="@id/net_btn_wifi"
+            app:layout_constraintTop_toTopOf="@+id/net_btn_wifi"
+            tools:ignore="HardcodedText" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

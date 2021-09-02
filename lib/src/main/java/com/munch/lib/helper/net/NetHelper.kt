@@ -1,15 +1,17 @@
 @file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
-package com.munch.lib.helper
+package com.munch.lib.helper.net
 
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.net.wifi.WifiManager
 import androidx.annotation.RequiresPermission
 import com.munch.lib.app.AppHelper
 import com.munch.lib.base.SingletonHolder
+import com.munch.lib.helper.ARSHelper
 import com.munch.lib.log.Logger
 import java.net.Inet4Address
 import java.net.NetworkInterface
@@ -19,11 +21,14 @@ import java.util.*
 /**
  * Create by munch1182 on 2020/12/28 13:51.
  */
-class NetStatusHelper private constructor(context: Context) :
+class NetHelper private constructor(context: Context) :
     ARSHelper<(available: Boolean, capabilities: NetworkCapabilities?) -> Unit> {
 
-    private val manager: ConnectivityManager =
-        context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private val manager =
+        context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
+    private val wifiManager by lazy {
+        context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager?
+    }
     private val list =
         mutableListOf<(available: Boolean, capabilities: NetworkCapabilities?) -> Unit>()
     override val arrays: MutableList<(available: Boolean, capabilities: NetworkCapabilities?) -> Unit>
@@ -36,7 +41,7 @@ class NetStatusHelper private constructor(context: Context) :
     @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
     private constructor() : this((AppHelper.app.applicationContext))
 
-    companion object : SingletonHolder<NetStatusHelper, Context>({ NetStatusHelper(it) }) {
+    companion object : SingletonHolder<NetHelper, Context>({ NetHelper(it) }) {
 
         fun getInstance() = getInstance(AppHelper.app)
     }
@@ -65,11 +70,38 @@ class NetStatusHelper private constructor(context: Context) :
 
     private var transportType = intArrayOf()
 
-    private fun getNetListenerArray() = arrays
-
     val currentNet: NetworkCapabilities?
         @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
-        get() = manager.getNetworkCapabilities(manager.activeNetwork)
+        get() = manager?.getNetworkCapabilities(manager.activeNetwork)
+
+    val allNet: Array<Network>
+        @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
+        get() = manager?.allNetworks ?: arrayOf()
+
+    /**
+     * wifi是否可用；当wifi正在关闭、已关闭、正在打开但未完全打开时不可用
+     */
+    val wifiAvailable: Boolean
+        @RequiresPermission("android.permission.ACCESS_WIFI_STATE")
+        get() {
+            val state = wifiManager?.wifiState ?: return false
+            return when (state) {
+                WifiManager.WIFI_STATE_DISABLED, WifiManager.WIFI_STATE_DISABLING, WifiManager.WIFI_STATE_ENABLING -> false
+                WifiManager.WIFI_STATE_ENABLED -> true
+                else -> false
+            }
+        }
+
+    @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
+    fun getCapabilities(network: Network) = manager?.getNetworkCapabilities(network)
+
+    /**
+     * 检查wifi状态是否和[enable]一致
+     */
+    @RequiresPermission("android.permission.ACCESS_WIFI_STATE")
+    fun checkWifi(enable: Boolean) =
+        (enable && (wifiManager?.wifiState == WifiManager.WIFI_STATE_DISABLED || wifiManager?.wifiState == WifiManager.WIFI_STATE_DISABLING)) ||
+                (!enable && (wifiManager?.wifiState == WifiManager.WIFI_STATE_ENABLED || wifiManager?.wifiState == WifiManager.WIFI_STATE_ENABLING))
 
     /**
      * 当一条网络启用到断开会走[ConnectivityManager.NetworkCallback.onAvailable]-[ConnectivityManager.NetworkCallback.onLost]
@@ -87,10 +119,8 @@ class NetStatusHelper private constructor(context: Context) :
             super.onAvailable(network)
             logHelper.withEnable { "$network onAvailable" }
             networkId = network.toString()
-            val networkCapabilities = manager.getNetworkCapabilities(network)
-            getNetListenerArray().forEach {
-                it.invoke(true, networkCapabilities)
-            }
+            val networkCapabilities = manager?.getNetworkCapabilities(network)
+            arrays.forEach { it.invoke(true, networkCapabilities) }
         }
 
         /**
@@ -110,10 +140,8 @@ class NetStatusHelper private constructor(context: Context) :
             logHelper.withEnable { "$network onLost" }
             //避免可用网络已经回调onAvailable之后上一条网络才回调onLost的状态错误
             if (networkId == network.toString()) {
-                val networkCapabilities = manager.getNetworkCapabilities(network)
-                getNetListenerArray().forEach {
-                    it.invoke(false, networkCapabilities)
-                }
+                val networkCapabilities = manager?.getNetworkCapabilities(network)
+                arrays.forEach { it.invoke(false, networkCapabilities) }
             }
         }
     }
@@ -124,10 +152,10 @@ class NetStatusHelper private constructor(context: Context) :
      * @see [ConnectivityManager.registerNetworkCallback]
      */
     @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
-    fun register(): NetStatusHelper {
-        manager.registerNetworkCallback(NetworkRequest.Builder().apply {
-            if (this@NetStatusHelper.transportType.isNotEmpty()) {
-                this@NetStatusHelper.transportType.forEach {
+    fun register(): NetHelper {
+        manager?.registerNetworkCallback(NetworkRequest.Builder().apply {
+            if (this@NetHelper.transportType.isNotEmpty()) {
+                this@NetHelper.transportType.forEach {
                     addTransportType(it)
                 }
             }
@@ -141,12 +169,12 @@ class NetStatusHelper private constructor(context: Context) :
      *
      * @param transportType [NetworkCapabilities.TRANSPORT_WIFI],[NetworkCapabilities.TRANSPORT_CELLULAR]
      */
-    fun limitTransportType(vararg transportType: Int): NetStatusHelper {
+    fun limitTransportType(vararg transportType: Int): NetHelper {
         this.transportType = transportType
         return this
     }
 
     fun unregister() {
-        manager.unregisterNetworkCallback(networkCallback)
+        manager?.unregisterNetworkCallback(networkCallback)
     }
 }

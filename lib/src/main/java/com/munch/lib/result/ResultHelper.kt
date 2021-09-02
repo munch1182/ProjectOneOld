@@ -136,7 +136,7 @@ class ResultHelper(private val fm: FragmentManager) {
         private val intent: Intent
     ) {
 
-        private var checkAllTime = true
+        private var checkAllTime = false
 
         fun justCheckFirst(justFirst: Boolean = true): CheckOrIntent {
             checkAllTime = !justFirst
