@@ -187,13 +187,12 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
             }
             else -> {
                 ResultHelper.init(this)
-                    .with(*BluetoothHelper.permissionsScan())
-                    .requestSimple {
-                        ResultHelper.init(this)
-                            .with({ isGpsOpen() }, Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                            .start {
-                                vm.toggleScan()
-                            }
+                    .contactWith(*BluetoothHelper.permissionsScan())
+                    .contactWith({ isGpsOpen() }, Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                    .start {
+                        if (it) {
+                            vm.toggleScan()
+                        }
                     }
             }
         }

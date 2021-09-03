@@ -8,9 +8,17 @@ import androidx.fragment.app.FragmentManager
 import com.munch.lib.base.OnCancelListener
 import com.munch.lib.base.OnNextListener
 import com.munch.lib.dialog.IDialogHandler
+import java.util.*
 
 /**
  * Create by munch1182 on 2021/8/20 16:37.
+ */
+
+interface IResult
+
+/**
+ * 调用[with]去执行一个操作
+ * 调用[contactWith]来执行连续的操作，比如权限拒绝后要手动开启权限的情形；或者检查定位权限但需要打开gps开关的情形
  */
 class ResultHelper(private val fm: FragmentManager) {
 
@@ -20,9 +28,40 @@ class ResultHelper(private val fm: FragmentManager) {
         fun init(fragment: Fragment) = ResultHelper(fragment.childFragmentManager)
     }
 
-    fun with(vararg permission: String) = Permission(ensureFragment(), permission)
-    fun with(intent: Intent) = ActivityResult(ensureFragment(), intent)
-    fun with(judge: () -> Boolean, intent: Intent) = CheckOrIntent(ensureFragment(), judge, intent)
+    /**
+     * 用于发起一个权限请求并回调结果
+     */
+    fun with(vararg permission: String) = PermissionResult(ensureFragment(), permission)
+
+    /**
+     * 用于发起一个[intent]请求并回调结果，包括resultCode
+     */
+    fun with(intent: Intent) = IntentResult(ensureFragment(), intent)
+
+    /**
+     * 首先会调用[judge]来判断，如果为false则会调用[intent]来发起请求，为true则回调true
+     * 再次回到此页后会重新进行[judge]判断并回调结果
+     */
+    fun with(judge: () -> Boolean, intent: Intent) =
+        CheckOrIntentResult(ensureFragment(), judge, intent)
+
+    /**
+     * 用于发起一个权限请求作为请求结果的第一步，后续可以添加其它方法来组合并获得最后结果的回调
+     */
+    fun contactWith(vararg permission: String) =
+        ContactResult(ensureFragment(), PermissionResult(ensureFragment(), permission))
+
+    /**
+     * 用于发起一个Intent请求作为请求结果的第一步，后续可以添加其它方法来组合并获得最后结果的回调
+     */
+    fun contactWith(intent: Intent) =
+        ContactResult(ensureFragment(), IntentResult(ensureFragment(), intent))
+
+    /**
+     * 用于发起一个带[judge]的Intent请求作为请求结果的第一步，后续可以添加其它方法来组合并获得最后结果的回调
+     */
+    fun contactWith(judge: () -> Boolean, intent: Intent) =
+        ContactResult(ensureFragment(), CheckOrIntentResult(ensureFragment(), judge, intent))
 
     private fun ensureFragment(): InvisibleFragment {
         var fragment = fm.findFragmentByTag(InvisibleFragment.TAG) as? InvisibleFragment?
@@ -33,10 +72,10 @@ class ResultHelper(private val fm: FragmentManager) {
         return fragment
     }
 
-    class Permission(
+    class PermissionResult(
         private val fragment: InvisibleFragment,
         private val permissions: Array<out String>
-    ) {
+    ) : IResult {
 
         private var onExplainRequestReasonListener:
                 ((permissions: ArrayList<String>, context: Context) -> IDialogHandler)? = null
@@ -70,12 +109,12 @@ class ResultHelper(private val fm: FragmentManager) {
 
         fun onExplainRequestReason(
             explain: (permissions: ArrayList<String>, context: Context) -> IDialogHandler
-        ): Permission {
+        ): PermissionResult {
             onExplainRequestReasonListener = explain
             return this
         }
 
-        fun explainBeforeRequest(): Permission {
+        fun explainBeforeRequest(): PermissionResult {
             return this
         }
 
@@ -115,7 +154,8 @@ class ResultHelper(private val fm: FragmentManager) {
         }
     }
 
-    class ActivityResult(private val fragment: InvisibleFragment, private val intent: Intent) {
+    class IntentResult(private val fragment: InvisibleFragment, private val intent: Intent) :
+        IResult {
 
         fun start(listener: OnActivityResultListener) {
             fragment.startActivityForResult(intent, listener)
@@ -130,28 +170,99 @@ class ResultHelper(private val fm: FragmentManager) {
         }
     }
 
-    class CheckOrIntent(
+    class CheckOrIntentResult(
         private val fragment: InvisibleFragment,
         private val judge: () -> Boolean,
         private val intent: Intent
-    ) {
+    ) : IResult {
 
         private var checkAllTime = false
 
-        fun justCheckFirst(justFirst: Boolean = true): CheckOrIntent {
+        fun justCheckFirst(justFirst: Boolean = true): CheckOrIntentResult {
             checkAllTime = !justFirst
             return this
         }
 
         fun start(onResult: (result: Boolean) -> Unit) {
-            fragment.setOnTriggeredListener(checkAllTime) { onResult.invoke(judge.invoke()) }
             if (judge.invoke()) {
+                if (checkAllTime) {
+                    fragment.setOnTriggeredListener(checkAllTime) { onResult.invoke(judge.invoke()) }
+                }
                 onResult.invoke(true)
             } else {
-                fragment.startActivity(intent)
+                fragment.setOnTriggeredListener(checkAllTime) {
+                    if (!checkAllTime) {
+                        fragment.setOnTriggeredListener(checkAllTime, null)
+                    }
+                    onResult.invoke(judge.invoke())
+                }.startActivity(intent)
             }
         }
+    }
 
+    class ContactResult(private val fragment: InvisibleFragment, op: IResult) : IResult {
+
+        private val resultList = LinkedList<IResult>()
+        private var judge: ((allGrant: Boolean, grantedList: ArrayList<String>, deniedList: ArrayList<String>) -> Boolean)? =
+            null
+
+        init {
+            resultList.offer(op)
+        }
+
+        fun contactWith(vararg permission: String): ContactResult {
+            resultList.offer(PermissionResult(fragment, permission))
+            return this
+        }
+
+        fun contactWith(intent: Intent): ContactResult {
+            resultList.offer(IntentResult(fragment, intent))
+            return this
+        }
+
+        fun contactWith(judge: () -> Boolean, intent: Intent): ContactResult {
+            resultList.offer(CheckOrIntentResult(fragment, judge, intent))
+            return this
+        }
+
+        fun judgePermission(
+            judge: (
+                allGrant: Boolean, grantedList: ArrayList<String>, deniedList: ArrayList<String>
+            ) -> Boolean
+        ): ContactResult {
+            this.judge = judge
+            return this
+        }
+
+        fun start(onResult: (isOk: Boolean) -> Unit) {
+            when (val first = resultList.pollFirst()) {
+                is PermissionResult -> first.request { allGrant, grantedList, deniedList ->
+                    if (judge == null && allGrant) {
+                        start(onResult)
+                    } else if (judge?.invoke(allGrant, grantedList, deniedList) == false) {
+                        onResult.invoke(false)
+                    } else {
+                        start(onResult)
+                    }
+                }
+                is IntentResult -> first.start {
+                    if (!it) {
+                        onResult.invoke(false)
+                    } else {
+                        start(onResult)
+                    }
+                }
+                is CheckOrIntentResult -> first.start {
+                    if (!it) {
+                        onResult.invoke(false)
+                    } else {
+                        start(onResult)
+                    }
+                }
+                null -> onResult.invoke(true)
+                else -> throw IllegalStateException()
+            }
+        }
     }
 
     interface OnPermissionResultListener {
