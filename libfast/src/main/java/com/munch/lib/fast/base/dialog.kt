@@ -3,6 +3,7 @@ package com.munch.lib.fast.base
 import android.content.Context
 import android.graphics.Color
 import android.view.View
+import android.view.WindowManager
 import android.widget.CheckBox
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -37,6 +38,7 @@ fun <ACT : BaseBigTextTitleActivity> ACT.newMenuBottomDialog(
             initView?.invoke(this)
             //添加通用设置
             addView(newCheckActivity(this@newMenuBottomDialog))
+            addView(newKeepLightOn(this@newMenuBottomDialog))
         }
         findViewById<TextView>(R.id.dialog_title)?.text = title
     }
@@ -66,6 +68,26 @@ private fun <ACT : BaseBigTextTitleActivity> newCheckActivity(context: ACT): Vie
         container.setOnClickListener {
             cb.toggle()
             DataHelper.selectedActivity = if (cb.isChecked) context::class.java else null
+        }
+    }
+}
+
+private fun <ACT : BaseBigTextTitleActivity> newKeepLightOn(context: ACT): View {
+    return context.newCheck { container, name, cb ->
+        name.text = "保持屏幕常亮"
+        if (DataHelper.keepLightOn) {
+            cb.isChecked = true
+            context.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+        container.setOnClickListener {
+            cb.toggle()
+            val checked = cb.isChecked
+            if (checked) {
+                context.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            } else {
+                context.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+            DataHelper.keepLightOn = cb.isChecked
         }
     }
 }
@@ -114,5 +136,4 @@ fun Context.newMenuDialog(
     initView?.invoke(view.findViewById(R.id.dialog_container))
     return AlertDialog.Builder(this, R.style.AppTheme_CenterDialog_Trans)
         .setView(view)
-
 }
