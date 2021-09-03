@@ -13,6 +13,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.munch.lib.fast.base.BaseBtnWithNoticeActivity
 import com.munch.lib.fast.databinding.ItemSimpleBtnWithNoticeBinding
 import com.munch.lib.log.log
+import com.munch.lib.result.ResultHelper
 
 /**
  * Create by munch1182 on 2021/8/19 9:33.
@@ -25,26 +26,30 @@ class NotificationActivity : BaseBtnWithNoticeActivity() {
             showNotice("无获取通知权限")
             setItem(mutableListOf("获取权限"))
         } else {
-            showNotice("有获取通知权限")
-            setItem(mutableListOf("开启通知权限", "关闭通知权限"))
-            enableNotify()
+            showNotify()
+            /*enableNotify()*/
         }
+    }
+
+    private fun showNotify() {
+        showNotice("有获取通知权限")
+        setItem(mutableListOf("开启通知权限", "关闭通知权限"))
     }
 
     private fun enableNotify() {
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             NotificationMonitor.enable(this)
         }*/
-         val pm = this.packageManager
-         pm.setComponentEnabledSetting(
-             ComponentName(this, NotificationMonitor::class.java),
-             PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-         )
+        val pm = this.packageManager
+        pm.setComponentEnabledSetting(
+            ComponentName(this, NotificationMonitor::class.java),
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+        )
 
-         pm.setComponentEnabledSetting(
-             ComponentName(this, NotificationMonitor::class.java),
-             PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
-         )
+        pm.setComponentEnabledSetting(
+            ComponentName(this, NotificationMonitor::class.java),
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+        )
         log("enableNotify")
     }
 
@@ -52,11 +57,11 @@ class NotificationActivity : BaseBtnWithNoticeActivity() {
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             NotificationMonitor.disable(this)
         }*/
-         val pm = this.packageManager
-         pm.setComponentEnabledSetting(
-             ComponentName(this, NotificationMonitor::class.java),
-             PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-         )
+        val pm = this.packageManager
+        pm.setComponentEnabledSetting(
+            ComponentName(this, NotificationMonitor::class.java),
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+        )
         log("disableNotification")
     }
 
@@ -65,7 +70,16 @@ class NotificationActivity : BaseBtnWithNoticeActivity() {
         if (!isEnable()) {
             when (pos) {
                 0 -> {
-                    startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+                    ResultHelper.init(this)
+                        .with(
+                            { isEnable() },
+                            Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+                        )
+                        .start {
+                            if (it) {
+                                showNotify()
+                            }
+                        }
                 }
                 else -> {
                 }

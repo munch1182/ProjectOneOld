@@ -40,13 +40,11 @@ interface OnViewIndexClickListener : View.OnClickListener, View.OnLongClickListe
     fun onLongClick(v: View?, index: Int): Boolean = false
 }
 
-interface OnTriggeredListener {
-    fun onTriggered()
-}
-
 interface OnChangeListener {
     fun onChange()
 }
+
+typealias OnChange = () -> Unit
 
 interface OnResultListener<T> {
     fun onResult(result: T)
