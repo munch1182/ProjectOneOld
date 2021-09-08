@@ -11,8 +11,6 @@ import com.munch.lib.base.toLive
 import com.munch.lib.bluetooth.*
 import com.munch.lib.fast.base.DataHelper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
@@ -32,6 +30,7 @@ class BluetoothViewModel : ViewModel() {
     private val devs = MutableLiveData<MutableList<BtItemDev?>?>()
     fun devs() = devs.toLive()
     private val instance = BluetoothHelper.instance
+    private var dataPosting = false
 
     init {
         if (!instance.isInitialized) {
@@ -65,7 +64,9 @@ class BluetoothViewModel : ViewModel() {
             val config = config.value ?: return
             BtActivityConfig.config = config
             val timeout = config.timeOut * 1000L
-            val filter = mutableListOf(ScanFilter(config.name, config.mac))
+            val filter = if (config.filterDynamic) null else mutableListOf(
+                ScanFilter(config.name, config.mac)
+            )
             instance.scanBuilder(config.type)
                 .setJustFirst(!config.updateScan)
                 .setReportDelay(if (config.modeBatch) 500L else 0)
@@ -99,6 +100,38 @@ class BluetoothViewModel : ViewModel() {
         }
     }
 
+    fun filterIfNeed() {
+        if (dataPosting) {
+            return
+        }
+        dataPosting = true
+        viewModelScope.launch(Dispatchers.IO) {
+            val all = devMap.values.reversed().toMutableList()
+            if (isNeedFilter()) {
+                val c = config.value!!
+                val list: MutableList<BtItemDev?> = all
+                    .filterNotNull()
+                    .filter { dev ->
+                        val hasMac = c.mac?.takeIf { it.isNotEmpty() }
+                            ?.let { dev.dev.mac.contains(it) } ?: true
+                        val hasName = c.name?.takeIf { it.isNotEmpty() }
+                            ?.let { dev.dev.name?.contains(it) == true } ?: true
+                        hasMac && hasName
+                    }.toMutableList()
+                val size = all.size - (devs.value?.size ?: 0)
+                devs.postValue(list)
+                delay(min(size * 150L, 350L))
+            }
+            dataPosting = false
+        }
+    }
+
+    private fun isNeedFilter() =
+        config.value?.let { c ->
+            c.filterDynamic &&
+                    (c.name?.takeIf { it.isNotEmpty() } != null || c.mac?.takeIf { it.isNotEmpty() } != null)
+        } ?: false
+
     fun lockDev(dev: BluetoothDev?) {
         dev ?: return
         val c = currentConfig.apply {
@@ -110,59 +143,33 @@ class BluetoothViewModel : ViewModel() {
     }
 
     private inner class OnScanCallback : OnScannerListener {
-        //使用Channel来处理同一时间扫描到过多设备导致rv的添加动画卡顿的情形
-        private var channel: Channel<BtItemDev>? = null
-        private val sortList = mutableListOf<String>()
-        private var start = 0
-        private var connectedDevices: MutableList<BluetoothDev>? = null
+        private var fixedDevices: MutableList<BtItemDev>? = null
         override fun onStart() {
             currentConfig = config.value!!
             devMap.clear()
-            sortList.clear()
-            countDown()
-            start = 0
-            connectedDevices = instance.set.getConnectedDevice() ?: mutableListOf()
-            instance.set.getBondedDevices()?.map { BtItemDev.from(it) }
-                ?.sortedBy { it.stateVal }
-                ?.let {
-                    it.forEach { dev ->
-                        val key = dev.dev.mac
-                        sortList.add(key)
-                        devMap[key] = dev
-                    }
-                    start = it.size
-                    devs.postValue(it.toMutableList())
-                }
-            channel?.close()
-            channel = Channel()
-            var pulling = false
-            viewModelScope.launch(Dispatchers.IO) {
-                channel?.consumeEach { dev ->
-                    val key = dev.dev.mac
-                    if (!devMap.containsKey(key)) {
-                        sortList.add(start, key)
-                    }
-                    devMap[key] = dev
-                    if (!pulling) {
-                        pulling = true
-                        viewModelScope.launch(Dispatchers.IO) {
-                            var size = sortList.size - (devs.value?.size ?: 0)
-                            while (size != 0) {
-                                devs.postValue(sortList.map { devMap[it] }.toMutableList())
-                                delay(max(min(200L * size, 200L), 500L))
-                                size = sortList.size - (devs.value?.size ?: 0)
-                            }
-                            pulling = false
-                        }
-                    }
-                }
+            dataPosting = false
+            timer()
+            fixedDevices = instance.set.getConnectedDevice()
+                ?.map { BtItemDev.from(it) }
+                ?.toMutableList()
+                ?: mutableListOf()
+            val bondedDevices = instance.set.getBondedDevices()?.map { BtItemDev.from(it) }
+            if (bondedDevices != null) {
+                fixedDevices!!.addAll(bondedDevices)
+            }
+            if (fixedDevices!!.isEmpty()) {
+                fixedDevices = null
+            }
+            fixedDevices?.sortedBy { it.stateVal }?.let {
+                it.forEach { dev -> devMap[dev.dev.mac] = dev }
+                devs.postValue(it.toMutableList())
             }
         }
 
         private var end = false
         private var time = 0
 
-        private fun countDown() {
+        private fun timer() {
             viewModelScope.launch(Dispatchers.IO) {
                 end = false
                 time = 0
@@ -182,16 +189,41 @@ class BluetoothViewModel : ViewModel() {
         }
 
         override fun onBatchScan(devices: MutableList<BluetoothDev>) {
-            val devs = devices.filter { isValid(it) }.map { BtItemDev.from(it) }
-            if (devs.isNotEmpty()) {
-                viewModelScope.launch { devs.forEach { dev -> channel?.send(dev) } }
-            }
+            devices.filter { isValid(it) }.map { BtItemDev.from(it) }
+                .forEach {
+                    devMap[it.dev.mac] = it
+                    onAdded()
+                }
         }
 
         override fun onScan(device: BluetoothDev) {
             val dev = BtItemDev.from(device)
             if (isValid(device)) {
-                viewModelScope.launch { channel?.send(dev) }
+                devMap[dev.dev.mac] = dev
+                onAdded()
+            }
+        }
+
+        private fun onAdded() {
+            if (dataPosting) {
+                return
+            }
+            dataPosting = true
+            viewModelScope.launch(Dispatchers.IO) {
+                val all = devMap.values.reversed().toMutableList()
+                if (isNeedFilter()) {
+                    dataPosting = false
+                    filterIfNeed()
+                } else {
+                    fixedDevices?.map { devMap[it.dev.mac] }?.let {
+                        all.removeAll(it)
+                        all.addAll(0, it)
+                    }
+                    val size = all.size - (devs.value?.size ?: 0)
+                    devs.postValue(all)
+                    delay(max(50, min(size * 150L, 450L)))
+                    dataPosting = false
+                }
             }
         }
 
@@ -226,12 +258,13 @@ data class BtActivityConfig(
     var type: BluetoothType = BluetoothType.Classic,
     var name: String? = null,
     var mac: String? = null,
-    var timeOut: Long = 25L,
+    var timeOut: Int = 25,
     var noName: Boolean = true,
     var connectAuto: Boolean = true,
     var modeBatch: Boolean = false,
     var updateScan: Boolean = true,
-    var connectM2Phy: Boolean = false
+    var connectM2Phy: Boolean = false,
+    var filterDynamic: Boolean = false
 ) : Parcelable {
 
     val canBatchMode: Boolean

@@ -78,9 +78,7 @@ android {
     }
 
     /*module*/
-    /*applicationVariants.all { variant ->
-        setupModuleApk(variant, false, versionCode4Release)
-    }*/
+    /*applicationVariants.all { variant -> setupModuleApk(variant, false) }*/
     /*alternatively*/
     /*lib*/
     /*libraryVariants.all { variant ->
@@ -102,19 +100,13 @@ private def findAndLoadKey(path) {
     keyProperties
 }
 
-static def setupModuleApk(variant, isLib, versionCode) {
+static def setupModuleApk(variant, isLib) {
     if (variant == null) {
         return
     }
     variant.outputs.each { output ->
-        // 正式版下设置versionCode，参见gitVersion.gradle
-        // 正式版更改输出app文件名，debug下不更改打包文件名，避免build生成的app文件越来越多
+        // 正式版更改输出app文件名，debug下不更改打包文件名
         if (!variant.getBuildType().isDebuggable()) {
-            // 修改打包时versionCode的值
-            // 此修改只对打包出来的apk有效，对直接运行的app无效
-            // 且不会更改BuildConfig里的VERSION_CODE
-            // 修改后的versionCode需要从PackageManager中获取
-            output.versionCodeOverride = versionCode
             def date = new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("GMT+08"))
             // 文件名前缀 + 渠道名
             def startName = "app_release"
@@ -123,21 +115,20 @@ static def setupModuleApk(variant, isLib, versionCode) {
                 startName += "_$flavorName"
             }
             // 文件名后缀
-            def endName
+            def endName = "_${variant.versionName}(${date})"
             if (isLib) {
-                endName = "_${variant.versionName}(${date}).aar"
+                endName += ".aar"
             } else {
-                endName = "_${variant.versionName}(${date}).apk"
+                endName += ".apk"
             }
             output.outputFileName = startName + endName
         }
     }
-
 }
 
 dependencies {
 
-    implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
     implementation Deps.appcompat
 

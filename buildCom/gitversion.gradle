@@ -54,7 +54,7 @@ static def getGitVersionCode() {
 
 /**
  * 拼凑versionName
- * 结果如"v0.1.33" => v0.1为tag，33为此tag的提交次数
+ * 结果如"0.1.33" => 0.1为tag，33为此tag的提交次数
  * 失败则为1.0.0
  */
 static def getGitVersionName() {
@@ -63,8 +63,8 @@ static def getGitVersionName() {
         //用于补充第一次设置tag但未提交时获取的仅为tag的情形
         versionName = getGitTagName() + ".0"
         //进行局部匹配，返回java.util.regex.Matcher对象
-        //匹配:(一个字符)(数字).(数字)-(数字)
-        def matcher = versionName =~ "^.?\\d+\\.\\d+(-\\d+)?"
+        //匹配:(数字).(数字)-(数字)
+        def matcher = versionName =~ "\\d+\\.\\d+(-\\d+)?"
         if (matcher) { //调用的是matcher.find()方法
             versionName = versionName.substring(matcher.start(), matcher.end()).replace("-", ".")
         }

@@ -45,7 +45,7 @@ object FastAppHelper {
             map["sdk version"] = getSDKVersion().toString()
             map["sdk release"] = getSDKRelease().toString()
             map["support abis"] = getAbis().joinToString()
-            map["real_size"] = realSize
+            map["real size"] = realSize
             map["size"] = size
             map["density"] = getDensity(context).toString()
             map["status bar height"] = "${getStatusBarHeight(context)}"

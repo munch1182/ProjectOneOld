@@ -11,6 +11,10 @@ import android.view.View
 import android.view.animation.RotateAnimation
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.widget.addTextChangedListener
+import androidx.databinding.BindingAdapter
+import androidx.databinding.InverseBindingAdapter
+import androidx.databinding.InverseBindingListener
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.base.OnViewIntClickListener
@@ -24,6 +28,7 @@ import com.munch.lib.fast.base.*
 import com.munch.lib.fast.recyclerview.*
 import com.munch.lib.log.log
 import com.munch.lib.result.ResultHelper
+import com.munch.lib.weight.CountView
 import com.munch.project.one.applib.R
 import com.munch.project.one.applib.databinding.ActivityBluetoothBinding
 import com.munch.project.one.applib.databinding.ItemBtDevScanBinding
@@ -53,6 +58,31 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
                     field = value
                 }
             }
+
+        @JvmStatic
+        @BindingAdapter("bind_view_count")
+        fun bindViewCount(countView: CountView, count: Int) {
+            if (countView.getCount() == count) {
+                return
+            }
+            countView.setCount(count)
+        }
+
+        @JvmStatic
+        @InverseBindingAdapter(attribute = "bind_view_count", event = "update_count")
+        fun changeViewCount(countView: CountView): Int {
+            return countView.getCount()
+        }
+
+        @JvmStatic
+        @BindingAdapter("update_count")
+        fun updateCount(countView: CountView, listener: InverseBindingListener?) {
+            if (listener != null) {
+                countView.setCountChangeListener {
+                    listener.onChange()
+                }
+            }
+        }
     }
 
     private val bind by bind<ActivityBluetoothBinding>(R.layout.activity_bluetooth)
@@ -93,6 +123,11 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
 
             btScan.setOnClickListener { onClick() }
             btMoreCb.setOnClickListener { toggleMoreCb() }
+            btFilterNameEt.addTextChangedListener { vm.filterIfNeed() }
+            btFilterMacEt.addTextChangedListener { vm.filterIfNeed() }
+
+            btTimeoutAdd.setOnClickListener { btTimeoutCv.countAdd() }
+            btTimeoutReduce.setOnClickListener { btTimeoutCv.countSub() }
         }
 
         vm.devs().observe(this) { simpleAdapter.set(it) }
@@ -260,8 +295,8 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         if (createBond) {
             log("开始绑定")
         } else {
-            log("开始绑定失败")
-            toast("开始绑定失败")
+            log("绑定失败")
+            toast("绑定失败")
         }
     }
 
@@ -270,8 +305,8 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
         if (removeBond == true) {
             log("开始移除绑定")
         } else {
-            log("开始移除绑定失败")
-            toast("开始移除绑定失败")
+            log("移除绑定失败")
+            toast("移除绑定失败")
         }
     }
 

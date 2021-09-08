@@ -39,12 +39,8 @@ interface AdapterFun<D> : IsAdapter {
 
     fun add(index: Int, element: D?) {
         if (index in 0..data.size) {
-            if (differ == null) {
-                data.add(index, element)
-                noTypeAdapter.notifyItemInserted(index)
-            }
-        } else {
-            set(newList4Diff().apply { add(index, element) })
+            data.add(index, element)
+            noTypeAdapter.notifyItemInserted(index)
         }
     }
 
@@ -55,12 +51,8 @@ interface AdapterFun<D> : IsAdapter {
      */
     fun add(index: Int, elements: Collection<D?>) {
         if (index in 0..data.size) {
-            if (differ == null) {
-                data.addAll(index, elements)
-                noTypeAdapter.notifyItemRangeInserted(index, elements.size)
-            }
-        } else {
-            set(newList4Diff().apply { addAll(index, elements) })
+            data.addAll(index, elements)
+            noTypeAdapter.notifyItemRangeInserted(index, elements.size)
         }
     }
     //</editor-fold>
@@ -71,12 +63,8 @@ interface AdapterFun<D> : IsAdapter {
         if (pos == -1) {
             return
         }
-        if (differ == null) {
-            data.remove(element)
-            noTypeAdapter.notifyItemRemoved(pos)
-        } else {
-            set(newList4Diff().apply { remove(element) })
-        }
+        data.remove(element)
+        noTypeAdapter.notifyItemRemoved(pos)
     }
 
     fun remove(index: Int) = remove(index, 1)
@@ -87,16 +75,9 @@ interface AdapterFun<D> : IsAdapter {
     fun remove(startIndex: Int, size: Int) {
         val endIndex = startIndex + size
         if (endIndex < data.size) {
-            if (differ == null) {
-                val subList = data.subList(startIndex, endIndex)
-                data.removeAll(subList)
-                noTypeAdapter.notifyItemRangeRemoved(startIndex, size)
-            } else {
-                val newList = newList4Diff()
-                val subList = newList.subList(startIndex, endIndex)
-                newList.removeAll(subList)
-                set(newList)
-            }
+            val subList = data.subList(startIndex, endIndex)
+            data.removeAll(subList)
+            noTypeAdapter.notifyItemRangeRemoved(startIndex, size)
         }
     }
 
@@ -105,14 +86,10 @@ interface AdapterFun<D> : IsAdapter {
      * [element]不必连续，如果连续，优先使用[remove]的带索引的方法
      */
     fun remove(element: Collection<D?>) {
-        if (differ == null) {
-            data.removeAll(element)
-            element.forEach {
-                val index = getIndex(it ?: return@forEach) ?: return@forEach
-                noTypeAdapter.notifyItemRemoved(index)
-            }
-        } else {
-            set(newList4Diff().apply { removeAll(element) })
+        data.removeAll(element)
+        element.forEach {
+            val index = getIndex(it ?: return@forEach) ?: return@forEach
+            noTypeAdapter.notifyItemRemoved(index)
         }
     }
     //</editor-fold>
@@ -128,12 +105,8 @@ interface AdapterFun<D> : IsAdapter {
     fun update(index: Int, element: D?) {
         val size = data.size
         if (index in 0 until size) {
-            if (differ == null) {
-                data[index] = element
-                noTypeAdapter.notifyItemChanged(index)
-            } else {
-                set(newList4Diff().apply { this[index] = element })
-            }
+            data[index] = element
+            noTypeAdapter.notifyItemChanged(index)
         }
     }
 
@@ -159,14 +132,8 @@ interface AdapterFun<D> : IsAdapter {
         val updateCount = elements.size
         //如果更改的数据在原有数据范围内
         if ((startIndex + updateCount) in 0 until size) {
-            if (differ == null) {
-                elements.forEachIndexed { index, d -> data[startIndex + index] = d }
-                noTypeAdapter.notifyItemRangeChanged(startIndex, updateCount)
-            } else {
-                val newList = newList4Diff()
-                newList.forEachIndexed { index, d -> newList[startIndex + index] = d }
-                set(newList)
-            }
+            elements.forEachIndexed { index, d -> data[startIndex + index] = d }
+            noTypeAdapter.notifyItemRangeChanged(startIndex, updateCount)
         }
     }
 
@@ -191,8 +158,4 @@ interface AdapterFun<D> : IsAdapter {
     fun getIndex(element: D): Int? = data.indexOf(element).takeIf { it != -1 }
     fun contains(element: D): Boolean = data.contains(element)
     //</editor-fold>
-
-    private fun newList4Diff(): MutableList<D?> {
-        return data.toMutableList()
-    }
 }

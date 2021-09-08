@@ -18,6 +18,11 @@ class AboutActivity : BaseBigTextTitleActivity() {
         FastAppHelper.collectPhoneInfo().forEach {
             sb.append("${it.key}:${it.value}\r\n")
         }
+        sb.append("debuggable:${BuildConfig.DEBUG}\r\n")
+            .append("version name:${BuildConfig.VERSION_NAME}\r\n")
+            .append("version code:${BuildConfig.VERSION_CODE}\r\n")
+            .append("build time:${BuildConfig.BUILD_TIME}")
+
         findViewById<TextView>(R.id.about_tv).text = sb.toString()
     }
 }
