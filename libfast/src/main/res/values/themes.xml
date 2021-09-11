@@ -40,7 +40,7 @@
         <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
-    <style name="AppTheme.WhitColorPrimary" parent="Theme.MaterialComponents.DayNight">
+    <style name="AppTheme.WhitColorPrimary" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">#fff</item>
     </style>

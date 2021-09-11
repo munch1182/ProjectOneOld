@@ -11,5 +11,5 @@ include ':app'
 rootProject.name = "P1"
 include ':lib'
 include ':libfast'
-include ':applib'
+include ':p1'
 include ':dev'
