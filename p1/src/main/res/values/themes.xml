@@ -16,5 +16,13 @@
     </style>
 
     <attr name="btnOutlineStyle" format="reference" />
+
     <style name="ButtonOutlineStyle" parent="AppTheme.Button.Outline" />
+
+    <style name="SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_bg</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryVariant">@color/white</item>
+<!--        <item name="android:windowFullscreen">true</item>-->
+    </style>
 </resources>
