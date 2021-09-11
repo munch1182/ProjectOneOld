@@ -1,8 +1,12 @@
 package com.munch.lib.base
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.content.res.TypedArray
 import android.graphics.Color
@@ -13,6 +17,7 @@ import android.util.TypedValue
 import androidx.annotation.ArrayRes
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresPermission
+import com.munch.lib.log.log
 
 /**
  * Create by munch1182 on 2021/8/6 17:20.
@@ -51,6 +56,7 @@ fun Context.getAttrFromTheme(attrId: Int): TypedValue {
     return typedValue
 }
 
+
 @ColorInt
 fun Context.getColorPrimary(): Int {
     return getAttrArrayFromTheme(android.R.attr.colorPrimary) {
@@ -71,6 +77,9 @@ fun <T> Context.getAttrArrayFromTheme(attrId: Int, get: TypedArray.() -> T): T {
     return value
 }
 
+/**
+ * 使用string-array数组时，使用此方法获取数组
+ */
 fun Context.getStrArray(@ArrayRes arrayId: Int): Array<out String>? {
     return try {
         resources.getStringArray(arrayId)
@@ -79,10 +88,42 @@ fun Context.getStrArray(@ArrayRes arrayId: Int): Array<out String>? {
     }
 }
 
+/**
+ * 使用integer-array数组时，使用此方法获取数组
+ */
 fun Context.getIntArray(@ArrayRes arrayId: Int): IntArray? {
     return try {
         resources.getIntArray(arrayId)
     } catch (e: Resources.NotFoundException) {
         null
+    }
+}
+
+/**
+ * 使用array数组且item为资源id时，使用此方法获取id数组
+ */
+fun Context.getIdsArray(@ArrayRes arrayId: Int): IntArray {
+    val ota = resources.obtainTypedArray(arrayId)
+    val size = ota.length()
+    val array = IntArray(size) {
+        ota.getResourceId(it, 0)
+    }
+    ota.recycle()
+    return array
+}
+
+fun Context.putStr2Clip(content: String): Boolean {
+    val cm = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return false
+    val mClipData = ClipData.newPlainText(content, content)
+    cm.setPrimaryClip(mClipData)
+    return true
+}
+
+@SuppressLint("QueryPermissionsNeeded")
+fun Context.isBroadcastRegistered(action: String) {
+    packageManager.queryBroadcastReceivers(
+        Intent().apply { setAction(action) }, PackageManager.GET_META_DATA
+    ).forEach {
+        log(it)
     }
 }

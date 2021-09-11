@@ -14,6 +14,9 @@ import java.util.*
  * Create by munch1182 on 2021/8/20 16:37.
  */
 
+/**
+ * 用于标识[ResultHelper]可执行的操作
+ */
 interface IResult
 
 /**
@@ -28,54 +31,52 @@ class ResultHelper(private val fm: FragmentManager) {
         fun init(fragment: Fragment) = ResultHelper(fragment.childFragmentManager)
     }
 
+    private val fragment: InvisibleFragment
+        get() {
+            var fragment = fm.findFragmentByTag(InvisibleFragment.TAG) as? InvisibleFragment?
+            if (fragment == null) {
+                fragment = InvisibleFragment()
+                fm.beginTransaction()
+                    .add(fragment, InvisibleFragment.TAG)
+                    .commitNowAllowingStateLoss()
+            }
+            return fragment
+        }
+
     /**
      * 用于发起一个权限请求并回调结果
      */
-    fun with(vararg permission: String) = PermissionResult(ensureFragment(), permission)
+    fun with(vararg permission: String) = PermissionResult(permission)
 
     /**
      * 用于发起一个[intent]请求并回调结果，包括resultCode
      */
-    fun with(intent: Intent) = IntentResult(ensureFragment(), intent)
+    fun with(intent: Intent) = IntentResult(intent)
 
     /**
      * 首先会调用[judge]来判断，如果为false则会调用[intent]来发起请求，为true则回调true
      * 再次回到此页后会重新进行[judge]判断并回调结果
      */
     fun with(judge: () -> Boolean, intent: Intent) =
-        CheckOrIntentResult(ensureFragment(), judge, intent)
+        CheckOrIntentResult(judge, intent)
 
     /**
      * 用于发起一个权限请求作为请求结果的第一步，后续可以添加其它方法来组合并获得最后结果的回调
      */
-    fun contactWith(vararg permission: String) =
-        ContactResult(ensureFragment(), PermissionResult(ensureFragment(), permission))
+    fun contactWith(vararg permission: String) = ContactResult(PermissionResult(permission))
 
     /**
      * 用于发起一个Intent请求作为请求结果的第一步，后续可以添加其它方法来组合并获得最后结果的回调
      */
-    fun contactWith(intent: Intent) =
-        ContactResult(ensureFragment(), IntentResult(ensureFragment(), intent))
+    fun contactWith(intent: Intent) = ContactResult(IntentResult(intent))
 
     /**
      * 用于发起一个带[judge]的Intent请求作为请求结果的第一步，后续可以添加其它方法来组合并获得最后结果的回调
      */
     fun contactWith(judge: () -> Boolean, intent: Intent) =
-        ContactResult(ensureFragment(), CheckOrIntentResult(ensureFragment(), judge, intent))
+        ContactResult(CheckOrIntentResult(judge, intent))
 
-    private fun ensureFragment(): InvisibleFragment {
-        var fragment = fm.findFragmentByTag(InvisibleFragment.TAG) as? InvisibleFragment?
-        if (fragment == null) {
-            fragment = InvisibleFragment()
-            fm.beginTransaction().add(fragment, InvisibleFragment.TAG).commitNowAllowingStateLoss()
-        }
-        return fragment
-    }
-
-    class PermissionResult(
-        private val fragment: InvisibleFragment,
-        private val permissions: Array<out String>
-    ) : IResult {
+    inner class PermissionResult(private val permissions: Array<out String>) : IResult {
 
         private var onExplainRequestReasonListener:
                 ((permissions: ArrayList<String>, context: Context) -> IDialogHandler)? = null
@@ -154,8 +155,7 @@ class ResultHelper(private val fm: FragmentManager) {
         }
     }
 
-    class IntentResult(private val fragment: InvisibleFragment, private val intent: Intent) :
-        IResult {
+    inner class IntentResult(private val intent: Intent) : IResult {
 
         fun start(listener: OnActivityResultListener) {
             fragment.startActivityForResult(intent, listener)
@@ -170,11 +170,8 @@ class ResultHelper(private val fm: FragmentManager) {
         }
     }
 
-    class CheckOrIntentResult(
-        private val fragment: InvisibleFragment,
-        private val judge: () -> Boolean,
-        private val intent: Intent
-    ) : IResult {
+    inner class CheckOrIntentResult(private val judge: () -> Boolean, private val intent: Intent) :
+        IResult {
 
         private var checkAllTime = false
 
@@ -200,7 +197,7 @@ class ResultHelper(private val fm: FragmentManager) {
         }
     }
 
-    class ContactResult(private val fragment: InvisibleFragment, op: IResult) : IResult {
+    inner class ContactResult(op: IResult) : IResult {
 
         private val resultList = LinkedList<IResult>()
         private var judge: ((allGrant: Boolean, grantedList: ArrayList<String>, deniedList: ArrayList<String>) -> Boolean)? =
@@ -211,17 +208,17 @@ class ResultHelper(private val fm: FragmentManager) {
         }
 
         fun contactWith(vararg permission: String): ContactResult {
-            resultList.offer(PermissionResult(fragment, permission))
+            resultList.offer(PermissionResult(permission))
             return this
         }
 
         fun contactWith(intent: Intent): ContactResult {
-            resultList.offer(IntentResult(fragment, intent))
+            resultList.offer(IntentResult(intent))
             return this
         }
 
         fun contactWith(judge: () -> Boolean, intent: Intent): ContactResult {
-            resultList.offer(CheckOrIntentResult(fragment, judge, intent))
+            resultList.offer(CheckOrIntentResult(judge, intent))
             return this
         }
 

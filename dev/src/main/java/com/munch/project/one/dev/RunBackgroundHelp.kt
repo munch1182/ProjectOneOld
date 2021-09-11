@@ -13,7 +13,13 @@ import java.util.*
  */
 object RunBackgroundHelp {
     /**
-     * 根据品牌跳转自启动页面
+     * 根据品牌跳转后台运行设置页面
+     *
+     * adb shell dumpsys activity top 查看顶部activity
+     * adb shell "dumpsys activity top | grep ACTIVITY | tail -n 1"
+     * adb shell "dumpsys activity top | grep '#0: ' | tail -n 1"
+     *
+     * adb shell dumpsys usagestats >log.txt 用于查看app最后活跃时间
      */
     fun request(context: Context) {
         var brand = Build.BRAND
@@ -21,12 +27,22 @@ object RunBackgroundHelp {
         try {
             when (brand) {
                 "huawei", "honnor" -> startHuawei(context, 0)
-                "xiaomi" -> startActivity(
-                    context, ComponentName(
-                        "com.miui.securitycenter",
-                        "com.miui.permcenter.autostart.AutoStartManagementActivity"
+                "xiaomi" -> {
+                    startActivity(
+                        context, ComponentName(
+                            "com.miui.securitycenter",
+                            "com.miui.permcenter.autostart.AutoStartManagementActivity"
+                        )
                     )
-                )
+                    //应该跳转小米后台配置
+                    /*context.startActivity(Intent().apply {
+                        component =
+                            ComponentName.unflattenFromString("com.miui.powerkeeper/.ui.HiddenAppsConfigActivity")
+                        putExtra("packagename", context.packageName)
+                        data = Uri.fromParts("packagename", context.packageName, null)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    })*/
+                }
                 "vivo" -> {
                     val intent = Intent()
                     intent.component = ComponentName(

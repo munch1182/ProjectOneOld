@@ -1,9 +1,12 @@
 package com.munch.project.one.dev
 
 import android.annotation.SuppressLint
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import com.munch.lib.fast.base.BaseBtnFlowActivity
 import com.munch.lib.result.ResultHelper
@@ -26,6 +29,7 @@ class IntentActivity : BaseBtnFlowActivity() {
         "Contact",
         "Notify",
         "Development",
+        "Advance",
         "Usage",
         "File(30)",
         "Battery Optimize",
@@ -95,12 +99,16 @@ class IntentActivity : BaseBtnFlowActivity() {
             11 -> ResultHelper.init(this)
                 .with(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
                 .start { }
-            //Usage,android.permission.PACKAGE_USAGE_STATS
+            //advance
             12 -> ResultHelper.init(this)
+                .with(Intent().setComponent(ComponentName.unflattenFromString("com.android.settings/.Settings\$AdvancedAppsActivity")))
+                .start { }
+            //Usage,android.permission.PACKAGE_USAGE_STATS
+            13 -> ResultHelper.init(this)
                 .with(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
                 .start { }
             //File(30),android.permission.MANAGE_EXTERNAL_STORAGE
-            13 -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            14 -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 ResultHelper.init(this)
                     .with(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
                     .start { }
@@ -108,11 +116,24 @@ class IntentActivity : BaseBtnFlowActivity() {
                 toast("版本低于30")
             }
             //Battery Optimize
-            14 -> ResultHelper.init(this)
-                .with(Intent(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)))
+            // https://developer.android.google.cn/training/monitoring-device-state/doze-standby?hl=zh_cn
+            15 -> ResultHelper.init(this)
+                .with(
+                    {
+                        isOptimization().let {
+                            if (it == null) {
+                                toast("无法获取电量管理")
+                                true
+                            } else {
+                                it
+                            }
+                        }
+                    },
+                    Intent(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+                )
                 .start { }
             // WRITE SETTING
-            15 -> ResultHelper.init(this)
+            16 -> ResultHelper.init(this)
                 .with(
                     Intent(
                         Settings.ACTION_MANAGE_WRITE_SETTINGS,
@@ -121,7 +142,11 @@ class IntentActivity : BaseBtnFlowActivity() {
                 )
                 .start { }
             //Background
-            16 -> RunBackgroundHelp.request(this)
+            17 -> RunBackgroundHelp.request(this)
         }
     }
+
+    private fun isOptimization() =
+        (getSystemService(Context.POWER_SERVICE) as? PowerManager)
+            ?.isIgnoringBatteryOptimizations(packageName)
 }
