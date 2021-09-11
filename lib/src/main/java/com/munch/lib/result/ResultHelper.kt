@@ -175,6 +175,9 @@ class ResultHelper(private val fm: FragmentManager) {
 
         private var checkAllTime = false
 
+        private val key: Int
+            get() = judge.hashCode()
+
         fun justCheckFirst(justFirst: Boolean = true): CheckOrIntentResult {
             checkAllTime = !justFirst
             return this
@@ -183,13 +186,13 @@ class ResultHelper(private val fm: FragmentManager) {
         fun start(onResult: (result: Boolean) -> Unit) {
             if (judge.invoke()) {
                 if (checkAllTime) {
-                    fragment.setOnTriggeredListener(checkAllTime) { onResult.invoke(judge.invoke()) }
+                    fragment.setOnTriggeredListener(key) { onResult.invoke(judge.invoke()) }
                 }
                 onResult.invoke(true)
             } else {
-                fragment.setOnTriggeredListener(checkAllTime) {
+                fragment.setOnTriggeredListener(key) {
                     if (!checkAllTime) {
-                        fragment.setOnTriggeredListener(checkAllTime, null)
+                        fragment.removeOnTriggeredListener(key)
                     }
                     onResult.invoke(judge.invoke())
                 }.startActivity(intent)

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.SparseArray
+import androidx.core.util.forEach
 import androidx.fragment.app.Fragment
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -19,28 +20,30 @@ class InvisibleFragment : Fragment() {
     private val requestCode = AtomicInteger(0)
     private val permissionMap: SparseArray<ResultHelper.OnPermissionResultListener> = SparseArray(2)
     private val resultMap: SparseArray<ResultHelper.OnActivityResultListener> = SparseArray(2)
+    private val triggeredMap: SparseArray<(() -> Unit)> = SparseArray(2)
 
     /**
      * 用于跳转其它页面后回到此页的回调
      */
     private var onTriggeredListener: (() -> Unit)? = null
-    private var checkTriggeredAllTime = false
-    private var checkCount = 0
 
     private fun newRequestCode() = requestCode.incrementAndGet()
 
-    fun setOnTriggeredListener(checkAllTime: Boolean, listener: (() -> Unit)? = null): InvisibleFragment {
-        checkTriggeredAllTime = checkAllTime
-        this.onTriggeredListener = listener
+    fun setOnTriggeredListener(
+        requestCode: Int,
+        listener: (() -> Unit)
+    ): InvisibleFragment {
+        triggeredMap.put(requestCode, listener)
         return this
+    }
+
+    fun removeOnTriggeredListener(requestCode: Int) {
+        triggeredMap.remove(requestCode)
     }
 
     override fun onResume() {
         super.onResume()
-        if (checkCount < 1 || checkTriggeredAllTime) {
-            checkCount++
-            onTriggeredListener?.invoke()
-        }
+        triggeredMap.forEach { _, value -> value.invoke() }
     }
 
     fun startActivityForResult(
