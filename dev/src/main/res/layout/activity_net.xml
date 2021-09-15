@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fefefe"
+        tools:context=".NetActivity">
+
+        <!--SwipeRefreshLayout与NestedScrollView-->
+        <!--<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/net_srl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:visibility="visible">-->
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/net_rv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_net" />
+        <!-- </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
+
+        <TextView
+            android:id="@+id/net_init_srl"
+            style="@style/AppTheme.Text.Subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:gravity="center_horizontal"
+            android:minHeight="300dp"
+            android:paddingTop="30dp"
+            android:text="加载中..."
+            tools:ignore="HardcodedText"
+            tools:visibility="gone" />
+
+    </FrameLayout>
+</layout>

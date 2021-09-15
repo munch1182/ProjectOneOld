@@ -16,6 +16,7 @@ class MainActivity : BaseRvActivity() {
     override val targets: MutableList<Class<out BaseActivity>> =
         mutableListOf(
             IntentActivity::class.java,
+            NetActivity::class.java,
             NotificationActivity::class.java,
             PlayControlActivity::class.java,
             TestFunActivity::class.java,

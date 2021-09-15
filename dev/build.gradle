@@ -15,6 +15,11 @@ dependencies {
 
     implementation Deps.material
     implementation Deps.constraintLayout
+    implementation Deps.activityKtx
+    implementation Deps.fragmentKtx
+
+    implementation Deps.retrofit
+    implementation Deps.retrofitGson
 
     implementation project(':libfast')
 }

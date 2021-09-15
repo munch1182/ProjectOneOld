@@ -22,8 +22,10 @@ interface AdapterFun<D> : IsAdapter {
     fun set(newData: MutableList<D?>?, runnable: Runnable? = null) {
         if (differ == null) {
             val size = data.size
-            data.clear()
-            noTypeAdapter.notifyItemRangeRemoved(0, size)
+            if (size > 0) {
+                data.clear()
+                noTypeAdapter.notifyItemRangeRemoved(0, size)
+            }
             if (newData != null) {
                 data.addAll(newData)
                 noTypeAdapter.notifyItemRangeInserted(0, newData.size)

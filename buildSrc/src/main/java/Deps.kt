@@ -8,13 +8,13 @@ object Version {
     const val defaultVersionCode = 1
     const val defaultVersionName = "1.0"
 }
-
+//使用gradle插件的help-dependencies查看依赖树
 @Suppress("unused")
 object Deps {
 
     // https://developer.android.google.cn/jetpack/androidx/versions?hl=zh_cn
     /*https://developer.android.google.cn/jetpack/androidx/releases/activity?hl=zh_cn*/
-    const val appcompat = "androidx.appcompat:appcompat:1.3.0"
+    const val appcompat = "androidx.appcompat:appcompat:1.3.1"
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/core*/
     const val core_ktx = "androidx.core:core-ktx:1.6.0"
@@ -48,7 +48,7 @@ object Deps {
     const val recyclerview = "androidx.recyclerview:recyclerview:1.2.1"
 
     /*https://developer.android.google.cn/kotlin/ktx/extensions-list?hl=zh_cn*/
-    const val activityKtx = "androidx.activity:activity-ktx:1.2.4"
+    const val activityKtx = "androidx.activity:activity-ktx:1.3.1"
     const val fragmentKtx = "androidx.fragment:fragment-ktx:1.3.6"
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/lifecycle*/
@@ -97,7 +97,7 @@ object Deps {
 
     /*https://github.com/square/retrofit*/
     /*https://github.com/square/retrofit/tree/master/retrofit-converters/gson*/
-    private const val RETROFIT_VERSION = "2.7"
+    private const val RETROFIT_VERSION = "2.9.0"
     const val retrofit = "com.squareup.retrofit2:retrofit:$RETROFIT_VERSION"
     const val retrofitGson = "com.squareup.retrofit2:converter-gson:$RETROFIT_VERSION"
 
