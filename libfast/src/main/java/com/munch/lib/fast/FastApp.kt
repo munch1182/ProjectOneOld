@@ -4,9 +4,11 @@ import android.app.ActivityManager
 import android.app.Application
 import android.os.StatFs
 import com.munch.lib.app.AppHelper
+import com.munch.lib.fast.watcher.Watcher
 import com.munch.lib.helper.PhoneHelper
 import com.munch.lib.helper.data.MMKVHelper
 import com.munch.lib.log.log
+import kotlin.concurrent.thread
 
 /**
  * 快速接入lib，可以直接使用或者继承[FastApp]，也可以使用[FastAppHelper.init]
@@ -26,7 +28,10 @@ object FastAppHelper {
     fun init(app: Application) {
         AppHelper.init(app)
         MMKVHelper.init(app)
-        Thread.setDefaultUncaughtExceptionHandler { _, e -> log(e) }
+        thread {
+            Thread.setDefaultUncaughtExceptionHandler { _, e -> log(e) }
+            Watcher.watchMainLoop()
+        }
     }
 
     fun collectPhoneInfo(): LinkedHashMap<String, String?> {

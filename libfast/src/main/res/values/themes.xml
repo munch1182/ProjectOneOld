@@ -72,4 +72,21 @@
         <!--是否模糊-->
         <item name="android:backgroundDimEnabled">true</item>
     </style>
+
+    <!--页面切换translate动画-->
+    <style name="ActivityTranslateAnim">
+        <!--startActivity-->
+        <item name="android:activityOpenEnterAnimation">@anim/anim_open_in</item>
+        <item name="android:activityOpenExitAnimation">@anim/anim_open_out</item>
+        <!--finishActivity-->
+        <item name="android:activityCloseEnterAnimation">@anim/anim_close_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/anim_close_out</item>
+    </style>
+
+    <style name="ActivityAlphaAnim">
+        <item name="android:activityOpenEnterAnimation">@anim/anim_mask_in</item>
+        <item name="android:activityOpenExitAnimation">@anim/anim_mask_out</item>
+        <item name="android:activityCloseEnterAnimation">@anim/anim_mask_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/anim_mask_out</item>
+    </style>
 </resources>

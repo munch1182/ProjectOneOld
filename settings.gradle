@@ -7,7 +7,6 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io' }
     }
 }
-include ':app'
 rootProject.name = "P1"
 include ':lib'
 include ':libfast'

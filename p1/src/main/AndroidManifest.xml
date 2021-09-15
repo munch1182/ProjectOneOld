@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name="com.munch.lib.fast.FastApp"
+        android:name=".App"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_scheme"
         android:icon="@mipmap/ic_launcher"
@@ -30,8 +30,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
-        <activity android:name=".recyclerview.RvSingleActivity" />
-        <activity android:name=".recyclerview.RvMultiActivity" />
         <activity android:name=".TestWeightActivity" />
         <activity android:name=".weight.TestFlowLayoutActivity" />
         <activity android:name=".file.TestFileActivity" />

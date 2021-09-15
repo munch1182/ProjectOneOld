@@ -6,8 +6,37 @@ plugins {
 apply from: '../buildCom/commonbuildktx.gradle'
 
 dependencies {
-
-    api Deps.recyclerview
     api Deps.constraintLayout
     api Deps.mmkv
+
+    api Deps.recyclerview
+}
+
+apply plugin: 'maven-publish'
+
+task generateSourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier 'sources'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                //release根据buildType
+                //aar
+                from components.release
+                groupId "com.munch.lib"
+                artifactId "lib"
+                version "0.1.0"
+
+                artifact generateSourcesJar
+            }
+        }
+        repositories {
+            maven {
+                url uri('../repository')
+            }
+        }
+    }
 }

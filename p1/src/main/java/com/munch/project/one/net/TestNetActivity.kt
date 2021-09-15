@@ -13,7 +13,6 @@ import com.munch.project.one.databinding.ActivityNetBinding
  */
 class TestNetActivity : BaseBigTextTitleActivity() {
 
-
     private val bind by bind<ActivityNetBinding>(R.layout.activity_net)
     private val vm by get(NetViewModel::class.java)
 
