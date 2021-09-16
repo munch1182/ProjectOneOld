@@ -8,6 +8,7 @@ import com.munch.lib.fast.base.BaseRvActivity
 import com.munch.lib.fast.base.toSelectActivityIfHave
 import com.munch.project.one.bluetooth.TestBluetoothActivity
 import com.munch.project.one.file.TestFileActivity
+import com.munch.project.one.intent.IntentActivity
 import com.munch.project.one.net.TestNetActivity
 import com.munch.project.one.weight.TestFlowLayoutActivity
 
@@ -20,6 +21,7 @@ class MainActivity : BaseRvActivity() {
 
     override val targets: MutableList<Class<out BaseActivity>> =
         mutableListOf(
+            IntentActivity::class.java,
             TestBluetoothActivity::class.java,
             TestNetActivity::class.java,
             TestFileActivity::class.java,

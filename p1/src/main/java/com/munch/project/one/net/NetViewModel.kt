@@ -3,7 +3,7 @@ package com.munch.project.one.net
 import android.net.NetworkCapabilities
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.munch.lib.base.toLive
+import com.munch.lib.base.toImmutable
 import com.munch.lib.helper.net.*
 
 /**
@@ -13,7 +13,7 @@ class NetViewModel : ViewModel() {
 
     private val instance = NetHelper.getInstance()
     private val notice = MutableLiveData(getStr())
-    fun notice() = notice.toLive()
+    fun notice() = notice.toImmutable()
 
     init {
         instance.limitTransportType(

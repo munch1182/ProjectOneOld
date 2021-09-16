@@ -1,4 +1,4 @@
-package com.munch.project.one.dev
+package com.munch.project.one
 
 import android.content.ComponentName
 import android.content.Context

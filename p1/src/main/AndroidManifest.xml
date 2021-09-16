@@ -36,6 +36,7 @@
         <activity android:name=".bluetooth.TestBluetoothActivity" />
         <activity android:name=".bluetooth.TestBluetoothScanInfoActivity" />
         <activity android:name=".net.TestNetActivity" />
+        <activity android:name=".intent.IntentActivity" />
     </application>
 
 </manifest>

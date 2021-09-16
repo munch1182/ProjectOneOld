@@ -10,6 +10,7 @@ dependencies {
     api Deps.mmkv
 
     api Deps.recyclerview
+    api Deps.coroutines
 }
 
 apply plugin: 'maven-publish'

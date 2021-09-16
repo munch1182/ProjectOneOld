@@ -20,5 +20,10 @@ dependencies {
     implementation Deps.activityKtx
     implementation Deps.fragmentKtx
 
+    implementation Deps.retrofit
+    implementation Deps.retrofitGson
+    implementation Deps.okhttp
+    implementation Deps.okhttpInterceptor
+
     implementation project(':libfast')
 }

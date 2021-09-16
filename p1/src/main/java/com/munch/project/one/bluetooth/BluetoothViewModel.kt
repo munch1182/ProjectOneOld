@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.munch.lib.app.AppHelper
-import com.munch.lib.base.toLive
+import com.munch.lib.base.toImmutable
 import com.munch.lib.bluetooth.*
 import com.munch.lib.fast.base.DataHelper
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +28,7 @@ class BluetoothViewModel : ViewModel() {
 
     private val devMap = LinkedHashMap<String, BtItemDev?>()
     private val devs = MutableLiveData<MutableList<BtItemDev?>?>()
-    fun devs() = devs.toLive()
+    fun devs() = devs.toImmutable()
     private val instance = BluetoothHelper.instance
     private var dataPosting = false
 
@@ -44,10 +44,10 @@ class BluetoothViewModel : ViewModel() {
 
     private var currentConfig: BtActivityConfig = BtActivityConfig.config!!
     private val config = MutableLiveData(currentConfig)
-    fun config() = config.toLive()
+    fun config() = config.toImmutable()
 
     private val notice = MutableLiveData("")
-    fun notice() = notice.toLive()
+    fun notice() = notice.toImmutable()
     private val scanListener = OnScanCallback()
 
     @SuppressLint("MissingPermission")

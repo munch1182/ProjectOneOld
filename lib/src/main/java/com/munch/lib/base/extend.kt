@@ -5,12 +5,16 @@ import android.graphics.Rect
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.munch.lib.app.AppHelper
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Create by munch1182 on 2021/8/19 15:05.
  */
 
-fun <T> MutableLiveData<T>.toLive(): LiveData<T> = this
+fun <T> MutableLiveData<T>.toImmutable(): LiveData<T> = this
+
+fun <T> MutableStateFlow<T>.toImmutable(): StateFlow<T> = this
 
 fun putStr2Clip(content: String) = AppHelper.app.putStr2Clip(content)
 

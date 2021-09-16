@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.munch.project.one.dev
+package com.munch.project.one
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
