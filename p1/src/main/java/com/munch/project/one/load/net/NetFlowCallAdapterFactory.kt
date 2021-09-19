@@ -32,11 +32,10 @@ class NetFlowCallAdapterFactory : CallAdapter.Factory() {
         }
 
         if (returnType !is ParameterizedType) {
-            throw IllegalStateException("Flow return type must be parameterized as Flow<Foo> or Flow<out Foo>")
+            return null
         }
         //获取Flow泛型的Type
         val responseType = getParameterUpperBound(0, returnType)
-
         return BodyCallAdapter<Any>(responseType)
     }
 

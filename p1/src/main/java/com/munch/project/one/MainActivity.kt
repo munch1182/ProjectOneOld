@@ -9,6 +9,7 @@ import com.munch.lib.fast.base.toSelectActivityIfHave
 import com.munch.project.one.bluetooth.TestBluetoothActivity
 import com.munch.project.one.file.TestFileActivity
 import com.munch.project.one.intent.IntentActivity
+import com.munch.project.one.load.TestDataLoadActivity
 import com.munch.project.one.net.TestNetActivity
 import com.munch.project.one.weight.TestFlowLayoutActivity
 
@@ -24,6 +25,7 @@ class MainActivity : BaseRvActivity() {
             IntentActivity::class.java,
             TestBluetoothActivity::class.java,
             TestNetActivity::class.java,
+            TestDataLoadActivity::class.java,
             TestFileActivity::class.java,
             TestWeightActivity::class.java
         )

@@ -1,13 +1,12 @@
 package com.munch.project.one.load.net
 
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.Flow
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Path
@@ -23,6 +22,8 @@ class Net {
     companion object {
 
         const val HEADER_OTHER = "${NetChangeBaseUrlInterceptor.NAME_HEADER}:OTHER"
+
+        const val PAGE_SIZE = 15
     }
 
     private val gson = Gson()
@@ -30,26 +31,43 @@ class Net {
     private val netErrorJson = gson.toJson(NetResult.netError())
 
     private val okHttpClient = OkHttpClient.Builder()
-        .callTimeout(10L, TimeUnit.MILLISECONDS)
-        .readTimeout(10L, TimeUnit.MILLISECONDS)
+        .callTimeout(10L, TimeUnit.SECONDS)
+        .readTimeout(10L, TimeUnit.SECONDS)
         .addInterceptor(NetChangeBaseUrlInterceptor {
             if (it == HEADER_OTHER) "https://www.biewanandroid.com" else null
         })
         .addInterceptor(NetErrorConvertResInterceptor(netErrorJson))
-        .addNetworkInterceptor(HttpLoggingInterceptor {
+        /*.addNetworkInterceptor(HttpLoggingInterceptor {
             Log.d("net-loglog", it)
         }.apply {
             level = HttpLoggingInterceptor.Level.BODY
-        })
+        })*/
         .build()
 
     private val retrofit = Retrofit.Builder().client(okHttpClient)
         .baseUrl("https://www.wanandroid.com")
-        .addConverterFactory(GsonConverterFactory.create(gson))
+        .addCallAdapterFactory(
+            NetTransformCallAdapterFactory.create()
+        )
         .addCallAdapterFactory(NetFlowCallAdapterFactory.create())
+        .addConverterFactory(ScalarsConverterFactory.create())
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
     val server: Server = retrofit.create(Server::class.java)
+}
+
+class NetResultTransformer : NetTransformer<NetResult<Any?>, Any?> {
+    override fun transform(from: NetResult<Any?>): Any? {
+        return from.data
+    }
+}
+
+//todo
+class NetArticleNoPageTransformer : NetTransformer<NetResult<ArticlesWrapper?>, List<Articles>?> {
+    override fun transform(from: NetResult<ArticlesWrapper?>): List<Articles>? {
+        return from.data?.data
+    }
 }
 
 interface Server {
@@ -58,41 +76,46 @@ interface Server {
     @GET("/article/list/{page}/json")
     suspend fun queryArticle(
         @Path("page") page: Int,
-        @Query("page_size ") size: Int = 15
+        @Query("page_size") size: Int = Net.PAGE_SIZE
     ): NetResult<ArticlesWrapper>
 
     /** 去掉了固定的NetResult直接返回data */
     @GET("/article/list/{page}/json")
-    suspend fun queryArticleNoCode(
+    //使用全局转换
+    @NetDataTransformer(NetResult::class, NetResultTransformer::class)
+    suspend fun queryArticleOnlyData(
         @Path("page") page: Int,
-        @Query("page_size ") size: Int = 15
+        @Query("page_size") size: Int = Net.PAGE_SIZE
     ): ArticlesWrapper?
 
     /** 返回flow格式的数据 */
     @GET("/article/list/{page}/json")
     fun queryArticle2Flow(
         @Path("page") page: Int,
-        @Query("page_size ") size: Int = 15
+        @Query("page_size") size: Int = Net.PAGE_SIZE
     ): Flow<NetResult<ArticlesWrapper>>
 
     /** 返回不带code的flow格式的数据 */
     @GET("/article/list/{page}/json")
     fun queryArticle2FlowNoCode(
         @Path("page") page: Int,
-        @Query("page_size ") size: Int = 15
+        @Query("page_size") size: Int = Net.PAGE_SIZE
     ): Flow<ArticlesWrapper>
 
     /** 测试请求网址错误 */
     @GET("/no_the_query_url")
-    fun testUrlError(): NetResult<String>
+    suspend fun testUrlError(): NetResult<String>
 
     /** 测试解析错误 */
     @GET("/article/list/0/json")
-    fun testParseError(): NetResult<String>
+    suspend fun testParseError(): NetResult<String>
 
     @GET("/article/list/0/json")
     @Headers(Net.HEADER_OTHER)
-    fun testOtherBaseUrl(): NetResult<String>
+    suspend fun testOtherBaseUrl(): NetResult<String>
+
+    @GET("/article/list/0/json")
+    suspend fun testResultStr(@Query("page_size") size: Int = 1): String
 }
 
 data class NetResult<T>(val errorCode: Int, val errorMsg: String, val data: T?) {

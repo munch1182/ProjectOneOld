@@ -8,6 +8,7 @@ object Version {
     const val defaultVersionCode = 1
     const val defaultVersionName = "1.0"
 }
+
 //使用gradle插件的help-dependencies查看依赖树
 @Suppress("unused")
 object Deps {
@@ -97,9 +98,11 @@ object Deps {
 
     /*https://github.com/square/retrofit*/
     /*https://github.com/square/retrofit/tree/master/retrofit-converters/gson*/
+    /*https://github.com/square/retrofit/tree/master/retrofit-converters/scalars*/
     private const val RETROFIT_VERSION = "2.9.0"
     const val retrofit = "com.squareup.retrofit2:retrofit:$RETROFIT_VERSION"
     const val retrofitGson = "com.squareup.retrofit2:converter-gson:$RETROFIT_VERSION"
+    const val retrofitScalars = "com.squareup.retrofit2:converter-scalars:$RETROFIT_VERSION"
 
     /*https://github.com/google/gson*/
     const val gson = "com.google.code.gson:gson:2.8.6"

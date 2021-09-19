@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.munch.lib.app.AppHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.reflect.KClass
 
 /**
  * Create by munch1182 on 2021/8/19 15:05.
@@ -18,11 +19,26 @@ fun <T> MutableStateFlow<T>.toImmutable(): StateFlow<T> = this
 
 fun putStr2Clip(content: String) = AppHelper.app.putStr2Clip(content)
 
+@Suppress("UNCHECKED_CAST")
+fun <T : Any> KClass<T>.toClass(): Class<T>? = try {
+    Class.forName(qualifiedName!!) as Class<T>
+} catch (e: Exception) {
+    e.printStackTrace()
+    null
+}
+
+@Suppress("UNCHECKED_CAST")
+fun <T : Any> KClass<T>.newInstance(): T? = try {
+    Class.forName(qualifiedName!!).newInstance() as T
+} catch (e: Exception) {
+    e.printStackTrace()
+    null
+}
+
 fun Paint.measureTextBounds(text: String, bound: Rect = Rect()): Rect {
     getTextBounds(text, 0, text.length, bound)
     return bound
 }
-
 
 /**
  * 默认一个参数的单例

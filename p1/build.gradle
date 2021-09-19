@@ -22,6 +22,7 @@ dependencies {
 
     implementation Deps.retrofit
     implementation Deps.retrofitGson
+    implementation Deps.retrofitScalars
     implementation Deps.okhttp
     implementation Deps.okhttpInterceptor
 
