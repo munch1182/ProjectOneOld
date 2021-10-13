@@ -1,7 +1,7 @@
 package com.munch.lib.dialog
 
-import com.munch.lib.base.OnCancelListener
-import com.munch.lib.base.OnNextListener
+import com.munch.lib.base.OnCancel
+import com.munch.lib.base.OnNext
 
 /**
  * Create by munch1182 on 2021/8/20 17:47.
@@ -18,7 +18,7 @@ interface IDialog {
  */
 interface IDialogHandler : IDialog {
 
-    fun setOnCancel(onCancel: OnCancelListener? = null)
+    fun setOnCancel(onCancel: OnCancel): IDialogHandler
 
-    fun setOnNext(onNext: OnNextListener? = null)
+    fun setOnNext(onNext: OnNext): IDialogHandler
 }

@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.munch.project.one">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
 
     <application
         android:name=".App"
@@ -30,14 +39,18 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
-        <activity android:name=".TestWeightActivity" />
-        <activity android:name=".weight.TestFlowLayoutActivity" />
-        <activity android:name=".file.TestFileActivity" />
-        <activity android:name=".bluetooth.TestBluetoothActivity" />
-        <activity android:name=".bluetooth.TestBluetoothScanInfoActivity" />
-        <activity android:name=".net.TestNetActivity" />
+        <activity android:name=".WeightActivity" />
+        <activity android:name=".weight.FlowLayoutActivity" />
+        <activity android:name=".file.FileActivity" />
+        <activity android:name=".bluetooth.BluetoothActivity" />
+        <activity android:name=".bluetooth.BluetoothScanInfoActivity" />
+        <activity android:name=".net.NetActivity" />
         <activity android:name=".intent.IntentActivity" />
-        <activity android:name=".load.TestDataLoadActivity" />
+        <activity android:name=".about.AboutActivity" />
+        <activity android:name=".handler.HandlerActivity" />
+        <activity android:name=".weight.RulerActivity" />
+        <activity android:name="com.munch.lib.fast.log.LogActivity" />
+        <activity android:name=".permissions.PermissionActivity" />
     </application>
 
 </manifest>

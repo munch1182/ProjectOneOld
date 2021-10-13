@@ -11,7 +11,7 @@ import com.munch.project.one.databinding.ActivityNetBinding
 /**
  * Create by munch1182 on 2021/9/1 16:50.
  */
-class TestNetActivity : BaseBigTextTitleActivity() {
+class NetActivity : BaseBigTextTitleActivity() {
 
     private val bind by bind<ActivityNetBinding>(R.layout.activity_net)
     private val vm by get(NetViewModel::class.java)

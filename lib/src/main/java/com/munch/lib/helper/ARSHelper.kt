@@ -36,9 +36,7 @@ interface ARSHelper<T> {
         return this
     }
 
-    fun set(
-        owner: LifecycleOwner, t: T, onDestroy: (() -> Unit)? = null
-    ): ARSHelper<T> {
+    fun set(owner: LifecycleOwner, t: T, onDestroy: (() -> Unit)? = null): ARSHelper<T> {
         add(t)
         owner.lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

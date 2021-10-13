@@ -3,6 +3,7 @@
 package com.munch.lib.log
 
 import android.util.Log
+import com.munch.lib.base.toHexStr
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -171,7 +172,7 @@ open class Logger {
     protected open fun any2Str(any: Any?): String {
         return when (any) {
             null -> Str.NULL
-            is Byte -> String.format("0x%02x", any)
+            is Byte -> any.toHexStr()
             is Double -> "${any}D"
             is Float -> "${any}F"
             is Char -> "\'$any\'"
@@ -183,7 +184,7 @@ open class Logger {
             is Array<*> -> any2Str(any.asList())
             is IntArray -> any2Str(any.asIterable())
             is CharArray -> any2Str(any.asIterable())
-            is ByteArray -> any2Str(any.asIterable())
+            is ByteArray -> any.toHexStr()
             is BooleanArray -> any2Str(any.asIterable())
             is FloatArray -> any2Str(any.asIterable())
             is DoubleArray -> any2Str(any.asIterable())
@@ -268,16 +269,11 @@ open class Logger {
         val sb = StringBuilder()
         sb.append("[")
         var index = 0
-        var sep = false
         while (iterator.hasNext()) {
             if (index > 0) {
                 sb.append(", ")
-                if (sep) {
-                    sb.append(LINE_SEPARATOR).append(" ")
-                }
             }
             val str = any2Str(iterator.next())
-            sep = str.length >= 20
             sb.append(str)
             index++
         }

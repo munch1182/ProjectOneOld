@@ -1,6 +1,7 @@
 package com.munch.lib.fast.base
 
 import android.graphics.Color
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -10,6 +11,7 @@ import androidx.core.view.get
 import androidx.core.widget.NestedScrollView
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.munch.lib.base.ViewHelper
 import com.munch.lib.base.setDoubleClickListener
@@ -33,6 +35,19 @@ open class BaseBigTextTitleActivity : BaseActivity() {
         return lazy {
             setContentView(resId)
             return@lazy DataBindingUtil.bind<T>(srlView[0])!!
+        }
+    }
+
+    protected inline fun <reified T : ViewBinding> bind(): Lazy<T> {
+        return lazy {
+            try {
+                val method = T::class.java.getDeclaredMethod("inflate", LayoutInflater::class.java)
+                val vb: T = method.invoke(null, layoutInflater) as T
+                setContentView(vb.root)
+                return@lazy vb
+            } catch (e: Exception) {
+                throw e
+            }
         }
     }
 

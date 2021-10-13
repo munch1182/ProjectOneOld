@@ -39,9 +39,8 @@ class BluetoothHelper private constructor() : Destroyable {
          *
          * 注意：并不能检查地址是否存在
          */
-        fun checkMac(mac: String?): Boolean {
-            return if (mac == null) false else BluetoothAdapter.checkBluetoothAddress(mac)
-        }
+        fun checkMac(mac: String?) =
+            mac?.let { BluetoothAdapter.checkBluetoothAddress(it) } ?: false
 
         internal val logSystem = Logger().apply {
             tag = "bluetooth-system"
@@ -266,7 +265,7 @@ class BluetoothHelper private constructor() : Destroyable {
     }
 
     /**
-     * 关闭该设备的连接，关闭后不会
+     * 关闭该设备的连接，关闭后不会再收到系统回调
      *
      *  @param removeBond 关闭时是否移除系统绑定
      */

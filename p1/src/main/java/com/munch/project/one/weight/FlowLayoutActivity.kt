@@ -17,7 +17,7 @@ import kotlin.random.Random
 /**
  * Create by munch1182 on 2021/8/11 14:13.
  */
-class TestFlowLayoutActivity : BaseBigTextTitleActivity() {
+class FlowLayoutActivity : BaseBigTextTitleActivity() {
 
     private val flowLayout by lazy { findViewById<DebugFlowLayout>(R.id.flow_view) }
     private val gravity by lazy { findViewById<TextView>(R.id.flow_gravity_view) }
@@ -48,7 +48,7 @@ class TestFlowLayoutActivity : BaseBigTextTitleActivity() {
     private fun changeGravity() {
         var index = (gravity.tag as? Int) ?: return
         index++
-        if (index > Gravity.all.size || index < 0) {
+        if (index >= Gravity.all.size || index < 0) {
             index = 0
         }
         val type = Gravity.all[index]
@@ -64,7 +64,7 @@ class TestFlowLayoutActivity : BaseBigTextTitleActivity() {
             Gravity.hasFlag(type, Gravity.BOTTOM) -> typeStr = "$typeStr | BOTTOM"
         }
         gravity.text = String.format("%s\r\n%s", "Gravity: ", typeStr)
-        gravity.tag = type
+        gravity.tag = index
 
         flowLayout.set { gravityFlags = type }
     }

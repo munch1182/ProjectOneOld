@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        tools:context=".bluetooth.TestBluetoothActivity"
+        tools:context=".bluetooth.BluetoothActivity"
         tools:ignore="HardcodedText">
 
         <TextView

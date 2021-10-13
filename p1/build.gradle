@@ -8,6 +8,7 @@ apply from: '../buildCom/commonbuildktx.gradle'
 android {
 
     buildFeatures {
+        viewBinding true
         dataBinding true
     }
 }
@@ -25,6 +26,8 @@ dependencies {
     implementation Deps.retrofitScalars
     implementation Deps.okhttp
     implementation Deps.okhttpInterceptor
+
+    implementation Deps.permissionX
 
     implementation project(':libfast')
 }

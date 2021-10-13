@@ -116,7 +116,7 @@ object Deps {
     const val hiltGradle = "com.google.dagger:hilt-android-gradle-plugin:$HILT_CORE_VERSION"
 
     /*https://github.com/guolindev/PermissionX*/
-    const val permissionX = "com.permissionx.guolindev:permissionx:1.5.0"
+    const val permissionX = "com.guolindev.permissionx:permissionx:1.6.0"
 
     /*https://mvnrepository.com/artifact/com.google.zxing/core*/
     const val zxingCore = "com.google.zxing:core:3.4.1"

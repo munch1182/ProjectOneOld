@@ -17,13 +17,15 @@ import com.munch.lib.fast.recyclerview.setOnItemClickListener
  */
 abstract class BaseRvActivity : BaseBigTextTitleActivity() {
 
+    protected open val simpleAdapter by lazy {
+        SimpleAdapter<String, ItemSimpleTvBinding>(R.layout.item_simple_tv, getData())
+        { _, bind, str -> bind.text = str }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_rv_only)
 
-        val simpleAdapter =
-            SimpleAdapter<String, ItemSimpleTvBinding>(R.layout.item_simple_tv, getData())
-            { _, bind, str -> bind.text = str }
         findViewById<RecyclerView>(R.id.rv_view).apply {
             layoutManager = LinearLayoutManager(this.context)
             adapter = simpleAdapter

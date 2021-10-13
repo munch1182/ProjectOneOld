@@ -5,8 +5,6 @@ import android.content.Intent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import com.munch.lib.base.OnCancelListener
-import com.munch.lib.base.OnNextListener
 import com.munch.lib.dialog.IDialogHandler
 import java.util.*
 
@@ -18,6 +16,9 @@ import java.util.*
  * 用于标识[ResultHelper]可执行的操作
  */
 interface IResult
+
+internal typealias PermissionsDialog = (context: Context, permissions: Array<out String>) -> IDialogHandler?
+internal typealias PermissionDialog = (context: Context, permissions: String) -> IDialogHandler?
 
 /**
  * 调用[with]去执行一个操作
@@ -78,81 +79,82 @@ class ResultHelper(private val fm: FragmentManager) {
 
     inner class PermissionResult(private val permissions: Array<out String>) : IResult {
 
-        private var onExplainRequestReasonListener:
-                ((permissions: ArrayList<String>, context: Context) -> IDialogHandler)? = null
-        private var resultListener: OnPermissionResultListener? = null
-        private var resultCallback = object : OnPermissionResultListener {
-            override fun onResult(
-                allGrant: Boolean,
-                grantedList: ArrayList<String>,
-                deniedList: ArrayList<String>
-            ) {
-                if (onExplainRequestReasonListener != null) {
-                    onExplainRequestReasonListener!!.invoke(deniedList, fragment.requireContext())
-                        .apply {
-                            setOnNext(object : OnNextListener {
-                                override fun onNext() {
-
-                                }
-                            })
-                            setOnCancel(object : OnCancelListener {
-                                override fun onCancel() {
-                                    resultListener?.onResult(allGrant, grantedList, deniedList)
-                                }
-                            })
-                        }
-                        .show()
-                } else {
-                    resultListener?.onResult(allGrant, grantedList, deniedList)
-                }
-            }
-        }
-
-        fun onExplainRequestReason(
-            explain: (permissions: ArrayList<String>, context: Context) -> IDialogHandler
-        ): PermissionResult {
-            onExplainRequestReasonListener = explain
-            return this
-        }
-
-        fun explainBeforeRequest(): PermissionResult {
-            return this
-        }
+        private val pb: PermissionRequestBuilder = PermissionRequestBuilder(permissions)
 
         fun request(listener: OnPermissionResultListener) {
-            resultListener = listener
-            fragment.requestPermissions(permissions, resultCallback)
+            pb.listener = listener
+            fragment.requestPermissions(pb)
         }
 
-        fun request(
-            onResult: (
-                allGrant: Boolean,
-                grantedList: ArrayList<String>,
-                deniedList: ArrayList<String>
-            ) -> Unit
-        ) {
+        fun request(grant: (allGrant: Boolean) -> Unit) {
             request(object : OnPermissionResultListener {
                 override fun onResult(
                     allGrant: Boolean,
-                    grantedList: ArrayList<String>,
-                    deniedList: ArrayList<String>
+                    grantedList: MutableList<String>,
+                    deniedList: MutableList<String>
                 ) {
-                    onResult.invoke(allGrant, grantedList, deniedList)
+                    grant.invoke(allGrant)
                 }
             })
         }
 
-        fun requestSimple(onResult: (allGrant: Boolean) -> Unit) {
+        fun requestGrant(grant: () -> Unit) {
             request(object : OnPermissionResultListener {
                 override fun onResult(
                     allGrant: Boolean,
-                    grantedList: ArrayList<String>,
-                    deniedList: ArrayList<String>
+                    grantedList: MutableList<String>,
+                    deniedList: MutableList<String>
                 ) {
-                    onResult.invoke(allGrant)
+                    if (allGrant) {
+                        grant.invoke()
+                    }
                 }
             })
         }
+
+        /**
+         * 设置是否当申请权限之前，显示Dialog解释权限请求的原因，此显示的Dialog即[explainPermission]的dialog
+         */
+        fun explainFirst(first: Boolean): PermissionResult {
+            pb.explainFirst = first
+            return this
+        }
+
+        /**
+         * 解释权限显示的Dialog
+         *
+         * 如果[dialog]返回为null，则不显示dialog
+         * 如果设置，则：
+         * 1. 如果设置[explainFirst]为true，则会在申请权限之前显示此Dialog，参数[permissions]为需要申请的权限列表
+         * 2. 当申请被拒绝之后，则显示此Dialog，参数[permissions]为需要被拒绝后需要再次申请的权限列表
+         */
+        fun explainPermission(dialog: PermissionsDialog): PermissionResult {
+            pb.explainDialog = dialog
+            return this
+        }
+
+        /**
+         * 当申请被拒绝且不再询问之后，显示此Dialog解释需要跳转去手动开启权限
+         */
+        fun explainWhenDeniedPermanent(dialog: PermissionsDialog): PermissionResult {
+            pb.explainDialogNeed2Setting = dialog
+            return this
+        }
+    }
+
+    inner class PermissionRequestBuilder(val permissions: Array<out String>) {
+
+        //权限解释Dialog
+        var explainDialog: PermissionsDialog? = null
+
+        //当权限被永久拒绝后，解释前往设置的Dialog
+        var explainDialogNeed2Setting: PermissionsDialog? = null
+
+        //是否需要在第一次申请权限前显示权限解释Dialog
+        var explainFirst: Boolean = false
+
+        //最终结果回调
+        var listener: OnPermissionResultListener? = null
     }
 
     inner class IntentResult(private val intent: Intent) : IResult {
@@ -173,29 +175,23 @@ class ResultHelper(private val fm: FragmentManager) {
     inner class CheckOrIntentResult(private val judge: () -> Boolean, private val intent: Intent) :
         IResult {
 
-        private var checkAllTime = false
-
-        private val key: Int
-            get() = judge.hashCode()
-
-        fun justCheckFirst(justFirst: Boolean = true): CheckOrIntentResult {
-            checkAllTime = !justFirst
-            return this
-        }
-
         fun start(onResult: (result: Boolean) -> Unit) {
             if (judge.invoke()) {
-                if (checkAllTime) {
-                    fragment.setOnTriggeredListener(key) { onResult.invoke(judge.invoke()) }
-                }
                 onResult.invoke(true)
             } else {
-                fragment.setOnTriggeredListener(key) {
-                    if (!checkAllTime) {
-                        fragment.removeOnTriggeredListener(key)
+                fragment.startActivityForResult(intent, object : OnActivityResultListener {
+                    override fun onResult(isOk: Boolean, resultCode: Int, data: Intent?) {
+                        onResult.invoke(judge.invoke())
                     }
-                    onResult.invoke(judge.invoke())
-                }.startActivity(intent)
+                })
+            }
+        }
+
+        fun startOk(isOk: () -> Unit) {
+            start {
+                if (it) {
+                    isOk.invoke()
+                }
             }
         }
     }
@@ -236,10 +232,8 @@ class ResultHelper(private val fm: FragmentManager) {
 
         fun start(onResult: (isOk: Boolean) -> Unit) {
             when (val first = resultList.pollFirst()) {
-                is PermissionResult -> first.request { allGrant, grantedList, deniedList ->
-                    if (judge == null && allGrant) {
-                        start(onResult)
-                    } else if (judge?.invoke(allGrant, grantedList, deniedList) == false) {
+                is PermissionResult -> first.request {
+                    if (!it) {
                         onResult.invoke(false)
                     } else {
                         start(onResult)
@@ -268,8 +262,8 @@ class ResultHelper(private val fm: FragmentManager) {
     interface OnPermissionResultListener {
         fun onResult(
             allGrant: Boolean,
-            grantedList: ArrayList<String>,
-            deniedList: ArrayList<String>
+            grantedList: MutableList<String>,
+            deniedList: MutableList<String>
         )
     }
 

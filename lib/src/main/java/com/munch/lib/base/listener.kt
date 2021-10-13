@@ -68,9 +68,13 @@ interface OnNextListener {
     fun onNext()
 }
 
+typealias OnNext = () -> Unit
+
 interface OnCancelListener {
     fun onCancel()
 }
+
+typealias OnCancel = () -> Unit
 
 interface Cancelable {
     fun cancel()

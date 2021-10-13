@@ -36,7 +36,7 @@ import com.munch.project.one.databinding.ItemBtDevScanBinding
 /**
  * Create by munch1182 on 2021/8/24 16:01.
  */
-class TestBluetoothActivity : BaseBigTextTitleActivity() {
+class BluetoothActivity : BaseBigTextTitleActivity() {
 
     companion object {
         const val MENU_TAG_REMOVE_BOND = 0
@@ -118,7 +118,7 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
             config = vm.config().value
             currentFocus?.clearFocus()
 
-            btRv.layoutManager = LinearLayoutManager(this@TestBluetoothActivity)
+            btRv.layoutManager = LinearLayoutManager(this@BluetoothActivity)
             btRv.adapter = simpleAdapter
 
             btScan.setOnClickListener { onClick() }
@@ -213,12 +213,12 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
             instance.state.isConnecting -> {
                 ResultHelper.init(this)
                     .with(Manifest.permission.BLUETOOTH)
-                    .requestSimple { instance.disconnect() }
+                    .requestGrant { instance.disconnect() }
             }
             instance.state.isConnected -> {
                 ResultHelper.init(this)
                     .with(Manifest.permission.BLUETOOTH)
-                    .requestSimple { instance.disconnect() }
+                    .requestGrant { instance.disconnect() }
             }
             else -> {
                 ResultHelper.init(this)
@@ -262,8 +262,8 @@ class TestBluetoothActivity : BaseBigTextTitleActivity() {
                     MENU_TAG_DISCONNECT -> vm.toggleConnect(dev.dev)
                     MENU_TAG_CONNECT -> vm.toggleConnect(dev.dev)
                     MENU_TAG_LOCK_DEV -> vm.lockDev(dev.dev)
-                    MENU_TAG_MORE_INFO -> TestBluetoothScanInfoActivity.start(
-                        this@TestBluetoothActivity, dev.dev
+                    MENU_TAG_MORE_INFO -> BluetoothScanInfoActivity.start(
+                        this@BluetoothActivity, dev.dev
                     )
                 }
             }

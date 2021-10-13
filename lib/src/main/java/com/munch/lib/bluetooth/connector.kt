@@ -64,8 +64,11 @@ class BleConnector(override val device: BluetoothDev) : Connector {
 
     override fun connect() {
         connectListener?.onStart()
-        logHelper.withEnable { "bleConnector connect:${device.mac}" }
-        if (connectByAllIfCan) connectIfCan() else connectJust()
+        //实际上gatt关闭时已被设置为null
+        if (!reconnect()) {
+            logHelper.withEnable { "bleConnector connect:${device.mac} by device" }
+            if (connectByAllIfCan) connectIfCan() else connectJust()
+        }
     }
 
     private fun connectIfCan() {
@@ -106,6 +109,7 @@ class BleConnector(override val device: BluetoothDev) : Connector {
     }
 
     private fun closeGatt() {
+        logHelper.withEnable { "bleConnector closeGatt" }
         //调用此方法后不会再触发任何系统回调
         gatt?.close()
         gatt = null
@@ -116,10 +120,9 @@ class BleConnector(override val device: BluetoothDev) : Connector {
     /**
      * 当调用[connect]后且未调用[disconnect]，即[gatt]不为null时(如蓝牙超出范围断开)，可直接调用此方法来重新连接
      */
-    @Deprecated("此方法太慢了，且不稳定")
-    private fun reconnect() {
+    private fun reconnect(): Boolean {
         logHelper.withEnable { "bleConnector reconnect:${gatt?.device?.address}" }
-        gatt?.connect()
+        return gatt?.connect() ?: false
     }
 
     private inner class GattCallback : BluetoothGattCallback() {
@@ -148,6 +151,7 @@ class BleConnector(override val device: BluetoothDev) : Connector {
                         connectFail()
                     }
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED/*0*/) {
+                    //遵循ble规则，不用时即关闭
                     closeGatt()
                 }
             }

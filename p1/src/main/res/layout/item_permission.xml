@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="permission"
+            type="com.munch.project.one.permissions.PermissionBean" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/paddingDef"
+        android:paddingTop="@dimen/paddingSmall"
+        android:paddingEnd="@dimen/paddingDef"
+        android:paddingBottom="@dimen/paddingSmall">
+
+        <TextView
+            android:id="@+id/permission_name"
+            style="@style/AppTheme.Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{permission.name}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+        <TextView
+            android:id="@+id/permission_version_range"
+            style="@style/AppTheme.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paddingSmall"
+            android:text="@{permission.versionStr}"
+            app:layout_constraintBottom_toTopOf="@id/permission_is_grant"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/permission_name"
+            app:layout_constraintTop_toBottomOf="@id/permission_name"
+            tools:text="Version:12-31" />
+
+        <TextView
+            android:id="@+id/permission_is_grant"
+            style="@style/AppTheme.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paddingSmall"
+            android:text="@{permission.needJumpStr}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/permission_name"
+            app:layout_constraintTop_toBottomOf="@id/permission_version_range"
+            tools:text="needJump:false" />
+
+        <Button
+            android:id="@+id/permission_request"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:bind_permission="@{permission}"
+            app:layout_constraintBottom_toBottomOf="@id/permission_is_grant"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/permission_name"
+            tools:ignore="HardcodedText" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -13,6 +13,8 @@ import java.nio.charset.StandardCharsets
  *
  * float和double实现依据IEEE754
  *
+ * 例： 6 -> 0110
+ *
  * @param format 是否进行格式化，即4位补齐和分位
  * @param fillZero 是否对所有位数进行补0，为false则只在有值的4位上补0
  *
@@ -40,7 +42,7 @@ fun Number.toBinaryStr(format: Boolean = true, fillZero: Boolean = false): Strin
         is Double -> {
             return java.lang.Double.doubleToLongBits(this).toBinaryStr(format, fillZero)
         }
-        else -> throw IllegalStateException()
+        else -> throw UnsupportedTypeException()
     }
     if (format) {
         return format(str, maxWeight, fillZero)
