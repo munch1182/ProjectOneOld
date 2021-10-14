@@ -44,7 +44,7 @@ class InvisibleFragment : Fragment() {
 
     fun requestPermissions(pb: ResultHelper.PermissionRequestBuilder) {
         ph = PermissionHandler(this, pb)
-        ph?.handlePermissionRequest()
+        ph?.handlePermissionRequestFirst()
     }
 
     fun start2Settings() {
@@ -52,6 +52,7 @@ class InvisibleFragment : Fragment() {
         val uri = Uri.fromParts("package", requireActivity().packageName, null)
         intent.data = uri
         settingsResultLauncher.launch(intent)
+        ResultHelper.log.log("forward to set")
     }
 }
 
@@ -63,47 +64,54 @@ class PermissionHandler(
     /**
      * 当前需要处理的权限列表
      */
-    private val requestList = mutableListOf<String>()
+    private val requestList = linkedSetOf<String>()
 
     /**
      * 当前已被允许的权限列表
      */
-    private val grantedList = mutableListOf<String>()
+    private val grantedList = linkedSetOf<String>()
 
     /**
      * 当前申请被拒绝的权限列表
      */
-    private val deniedNowList = mutableListOf<String>()
+    private val deniedNowList = linkedSetOf<String>()
 
     /**
      * 申请被拒绝且不再询问的权限列表
      */
-    private val deniedPermanentList = mutableListOf<String>()
+    private val deniedPermanentList = linkedSetOf<String>()
 
     /**
      * 权限申请前的处理
      */
-    fun handlePermissionRequest() {
-        pb.permissions.forEach {
-            if (isGrant(it)) {
-                grantedList.add(it)
+    fun handlePermissionRequestFirst() {
+        pb.permissions.forEach { permission ->
+            ResultHelper.log.log("handlePermissionRequestFirst :$permission -> ${isGrant(permission)}")
+            if (isGrant(permission)) {
+                grantedList.add(permission)
             } else {
-                requestList.add(it)
+                if (showRationale(permission)) {
+                    deniedNowList.add(permission)
+                } else if (!requestList.contains(permission)) {
+                    requestList.add(permission)
+                }
             }
         }
 
         val request = requestList.toTypedArray()
         //全部权限已获取，则结束流程
         if (request.isEmpty()) {
+            ResultHelper.log.log("no need request")
             onFinish()
             return
         }
         //需要申请权限，且判断需要先解释权限
-        if (pb.explainFirst && showPermissionDialogIfCan(request)) {
+        if (pb.explainFirst && showPermissionDialogIfCan(request, true)) {
             return
         }
         //否则直接申请权限
         //@see [handlePermissionRequestResult]
+        ResultHelper.log.log("request permission: [${requestList.joinToString()}]")
         fragment.normalPermissionLauncher.launch(request)
     }
 
@@ -112,14 +120,21 @@ class PermissionHandler(
      */
     private fun onFinish() {
         val allGrant = pb.permissions.size == grantedList.size
-        val deniedList = ArrayList<String>(deniedNowList.size + deniedPermanentList.size)
+        val denied =
+            ArrayList<String>(deniedNowList.size + deniedPermanentList.size + requestList.size)
         if (deniedNowList.size > 0) {
-            deniedList.addAll(deniedNowList)
+            denied.addAll(deniedNowList)
         }
         if (deniedPermanentList.size > 0) {
-            deniedList.addAll(deniedPermanentList)
+            denied.addAll(deniedPermanentList)
         }
-        pb.listener?.onResult(allGrant, grantedList, deniedList)
+        //当FirstDialog被取消时
+        if (requestList.size > 0) {
+            denied.addAll(requestList)
+        }
+        val granted = grantedList.toMutableList()
+        ResultHelper.log.log("finish: allGrant:$allGrant, granted:[${granted.joinToString()}], denied:[${denied.joinToString()}]")
+        pb.listener?.onResult(allGrant, granted, denied)
     }
 
     /**
@@ -129,14 +144,17 @@ class PermissionHandler(
         for ((permission, granted) in permissionResult) {
             requestList.remove(permission)
             if (granted) {
+                ResultHelper.log.log("handlePermissionRequestResult:$permission -> isGrant: true")
                 grantedList.add(permission)
             } else {
-                val shouldShowRationale = fragment.shouldShowRequestPermissionRationale(permission)
                 //拒绝但可以再次申请和提示
-                if (shouldShowRationale) {
+                if (showRationale(permission)) {
+                    ResultHelper.log.log("handlePermissionRequestResult:$permission -> isGrant: false, showRationale: true")
                     deniedNowList.add(permission)
                     //权限被永久拒绝
                 } else {
+                    ResultHelper.log.log("handlePermissionRequestResult:$permission -> isGrant: false, showRationale: false")
+                    deniedNowList.remove(permission)
                     deniedPermanentList.add(permission)
                 }
             }
@@ -164,6 +182,7 @@ class PermissionHandler(
         if (permissions.isEmpty()) {
             return false
         }
+        ResultHelper.log.log("show explain set dialog: [${permissions.joinToString()}]")
         val dialog = pb.explainDialogNeed2Setting?.invoke(fragment.requireContext(), permissions)
         if (dialog != null) {
             dialog.setOnNext { fragment.start2Settings() }
@@ -177,10 +196,14 @@ class PermissionHandler(
     /**
      * 是否显示权限解释Dialog
      */
-    private fun showPermissionDialogIfCan(permissions: Array<String>): Boolean {
+    private fun showPermissionDialogIfCan(
+        permissions: Array<String>,
+        isFirst: Boolean = false
+    ): Boolean {
         if (permissions.isEmpty()) {
             return false
         }
+        ResultHelper.log.log("show explain${if (isFirst) " first " else " "}dialog: [${permissions.joinToString()}]")
         val dialog = pb.explainDialog?.invoke(fragment.requireContext(), permissions)
         if (dialog != null) {
             dialog.setOnNext { fragment.normalPermissionLauncher.launch(permissions) }
@@ -195,11 +218,14 @@ class PermissionHandler(
      * 从设置界面返回后的权限判断处理
      */
     fun handlePermissionRequestResultBackFromSettings() {
-        val deniedPermanent = MutableList(deniedPermanentList.size) { deniedPermanentList[it] }
+        val deniedPermanent = deniedPermanentList.toMutableList()
         deniedPermanent.forEach {
             if (isGrant(it)) {
+                ResultHelper.log.log("handlePermissionRequestResultBackFromSettings: $it -> isGrant: true")
                 deniedPermanentList.remove(it)
                 grantedList.add(it)
+            } else {
+                ResultHelper.log.log("handlePermissionRequestResultBackFromSettings: $it -> isGrant: false")
             }
         }
         onFinish()
@@ -209,4 +235,11 @@ class PermissionHandler(
         (ActivityCompat.checkSelfPermission(
             fragment.requireContext(), permission
         ) == PackageManager.PERMISSION_GRANTED)
+
+    //当未申请过权限时，此方法返回false
+    //当第一次拒绝时，此方法返回true
+    //当被永久拒绝时，此方法返回false
+    //所以无法在申请权限前就判断是否被永久拒绝
+    private fun showRationale(permission: String) =
+        fragment.shouldShowRequestPermissionRationale(permission)
 }

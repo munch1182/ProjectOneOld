@@ -18,7 +18,7 @@ open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view), AdapterLi
         itemView.setOnLongClickListener(listener)
     }
 
-    override fun setOnViewClickListener(listener: OnItemClickListener?, ids: MutableList<Int>) {
+    override fun setOnViewClickListener(listener: OnItemClickListener?, vararg ids: Int) {
         ids.forEach { id ->
             itemView.findViewById<View>(id)?.let {
                 it.tag = this
@@ -27,7 +27,7 @@ open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view), AdapterLi
         }
     }
 
-    override fun setOnViewLongClickListener(listener: OnItemClickListener?, ids: MutableList<Int>) {
+    override fun setOnViewLongClickListener(listener: OnItemClickListener?, vararg ids: Int) {
         ids.forEach { id ->
             itemView.findViewById<View>(id)?.let {
                 it.tag = this

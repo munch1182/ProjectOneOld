@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.munch.lib.dialog.IDialogHandler
+import com.munch.lib.log.Logger
 import java.util.*
 
 /**
@@ -18,7 +19,7 @@ import java.util.*
 interface IResult
 
 internal typealias PermissionsDialog = (context: Context, permissions: Array<out String>) -> IDialogHandler?
-internal typealias PermissionDialog = (context: Context, permissions: String) -> IDialogHandler?
+internal typealias DialogHandler = (context: Context) -> IDialogHandler?
 
 /**
  * 调用[with]去执行一个操作
@@ -30,6 +31,8 @@ class ResultHelper(private val fm: FragmentManager) {
 
         fun init(activity: FragmentActivity) = ResultHelper(activity.supportFragmentManager)
         fun init(fragment: Fragment) = ResultHelper(fragment.childFragmentManager)
+
+        internal val log: Logger by lazy { Logger("result", noStack = true, noInfo = true) }
     }
 
     private val fragment: InvisibleFragment
@@ -58,8 +61,7 @@ class ResultHelper(private val fm: FragmentManager) {
      * 首先会调用[judge]来判断，如果为false则会调用[intent]来发起请求，为true则回调true
      * 再次回到此页后会重新进行[judge]判断并回调结果
      */
-    fun with(judge: () -> Boolean, intent: Intent) =
-        CheckOrIntentResult(judge, intent)
+    fun with(judge: () -> Boolean, intent: Intent) = CheckOrIntentResult(judge, intent)
 
     /**
      * 用于发起一个权限请求作为请求结果的第一步，后续可以添加其它方法来组合并获得最后结果的回调
@@ -115,7 +117,7 @@ class ResultHelper(private val fm: FragmentManager) {
         /**
          * 设置是否当申请权限之前，显示Dialog解释权限请求的原因，此显示的Dialog即[explainPermission]的dialog
          */
-        fun explainFirst(first: Boolean): PermissionResult {
+        fun explainFirst(first: Boolean = true): PermissionResult {
             pb.explainFirst = first
             return this
         }
@@ -157,6 +159,18 @@ class ResultHelper(private val fm: FragmentManager) {
         var listener: OnPermissionResultListener? = null
     }
 
+    inner class IntentResultBuilder(val intent: Intent) {
+
+        //跳转解释Dialog
+        var explainDialog: DialogHandler? = null
+
+        //当返回后仍然判断失败，弹出的提示Dialog
+        var explainDialogAfterFail: DialogHandler? = null
+
+        //最终结果回调
+        var listener: OnActivityResultListener? = null
+    }
+
     inner class IntentResult(private val intent: Intent) : IResult {
 
         fun start(listener: OnActivityResultListener) {
@@ -172,19 +186,54 @@ class ResultHelper(private val fm: FragmentManager) {
         }
     }
 
-    inner class CheckOrIntentResult(private val judge: () -> Boolean, private val intent: Intent) :
+    inner class CheckOrIntentResult(private val judge: () -> Boolean, intent: Intent) :
         IResult {
+
+        private val ib = IntentResultBuilder(intent)
 
         fun start(onResult: (result: Boolean) -> Unit) {
             if (judge.invoke()) {
                 onResult.invoke(true)
             } else {
-                fragment.startActivityForResult(intent, object : OnActivityResultListener {
+                val listener = object : OnActivityResultListener {
                     override fun onResult(isOk: Boolean, resultCode: Int, data: Intent?) {
-                        onResult.invoke(judge.invoke())
+                        val result = judge.invoke()
+                        if (!result) {
+                            val resultDialog =
+                                ib.explainDialogAfterFail?.invoke(fragment.requireContext())
+                            if (resultDialog != null) {
+                                showDialog(resultDialog, onResult, this)
+                                return
+                            }
+                        }
+                        onResult.invoke(result)
                     }
-                })
+                }
+                val explainDialog = ib.explainDialog?.invoke(fragment.requireContext())
+                if (explainDialog != null) {
+                    showDialog(explainDialog, onResult, listener)
+                    return
+                }
+
+                fragment.startActivityForResult(ib.intent, listener)
             }
+        }
+
+        private fun showDialog(
+            explainDialog: IDialogHandler,
+            onResult: (result: Boolean) -> Unit,
+            listener: OnActivityResultListener
+        ) {
+            explainDialog.setOnCancel { onFinish(onResult) }
+                .setOnNext {
+                    explainDialog.dismiss()
+                    fragment.startActivityForResult(ib.intent, listener)
+                }
+                .show()
+        }
+
+        private fun onFinish(onResult: (result: Boolean) -> Unit) {
+            onResult.invoke(false)
         }
 
         fun startOk(isOk: () -> Unit) {
@@ -193,6 +242,23 @@ class ResultHelper(private val fm: FragmentManager) {
                     isOk.invoke()
                 }
             }
+        }
+
+        /**
+         * 跳转前显示的Dialog，可用于解释或者指导，如果[dialog]为null则不显示
+         */
+        fun explainIntent(dialog: DialogHandler?): CheckOrIntentResult {
+            ib.explainDialog = dialog
+            return this
+        }
+
+        /**
+         * 当页面跳转返回后检查仍然失败则显示的Dialog，如果[dialog]为null则不显示
+         * 如果[IDialogHandler.setOnNext]可以被触发则会循环流程，隐藏该视图或者阻止其实现即可立刻中断流程
+         */
+        fun explainAfterBackFromIntent(dialog: DialogHandler?): CheckOrIntentResult {
+            ib.explainDialogAfterFail = dialog
+            return this
         }
     }
 

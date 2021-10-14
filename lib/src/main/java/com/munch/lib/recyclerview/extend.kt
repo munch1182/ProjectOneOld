@@ -46,7 +46,7 @@ fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnItemClickListen
 }
 
 fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnItemLongClickListener(
-    onLongClick: ((v: View?, pos: Int, holder: VH) -> Boolean)?
+    onLongClick: ((v: View?, pos: Int, holder: VH) -> Boolean)
 ) {
     if (onLongClick == null) {
         setOnItemLongClickListener(null)
@@ -61,31 +61,23 @@ fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnItemLongClickLi
 }
 
 fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnViewClickListener(
-    onClick: ((v: View?, pos: Int, holder: VH) -> Unit)?, vararg ids: Int
+    onClick: ((v: View?, pos: Int, holder: VH) -> Unit), vararg ids: Int
 ) {
-    if (onClick == null) {
-        setOnViewClickListener(null, ids.toMutableList())
-    } else {
-        setOnViewClickListener(object : OnItemClickListener {
-            @Suppress("UNCHECKED_CAST")
-            override fun onClick(v: View?, pos: Int, holder: BaseViewHolder) {
-                onClick.invoke(v, pos, holder as VH)
-            }
-        }, ids.toMutableList())
-    }
+    setOnViewClickListener(object : OnItemClickListener {
+        @Suppress("UNCHECKED_CAST")
+        override fun onClick(v: View?, pos: Int, holder: BaseViewHolder) {
+            onClick.invoke(v, pos, holder as VH)
+        }
+    }, *ids)
 }
 
 fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnViewLongClickListener(
-    onLongClick: ((v: View?, pos: Int, holder: VH) -> Boolean)?, vararg ids: Int
+    onLongClick: ((v: View?, pos: Int, holder: VH) -> Boolean), vararg ids: Int
 ) {
-    if (onLongClick == null) {
-        setOnViewLongClickListener(null, ids.toMutableList())
-    } else {
-        setOnViewLongClickListener(object : OnItemClickListener {
-            @Suppress("UNCHECKED_CAST")
-            override fun onLongClick(v: View?, pos: Int, holder: BaseViewHolder): Boolean {
-                return onLongClick.invoke(v, pos, holder as VH)
-            }
-        }, ids.toMutableList())
-    }
+    setOnViewLongClickListener(object : OnItemClickListener {
+        @Suppress("UNCHECKED_CAST")
+        override fun onLongClick(v: View?, pos: Int, holder: BaseViewHolder): Boolean {
+            return onLongClick.invoke(v, pos, holder as VH)
+        }
+    }, *ids)
 }

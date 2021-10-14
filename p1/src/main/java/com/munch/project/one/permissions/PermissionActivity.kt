@@ -1,25 +1,18 @@
 package com.munch.project.one.permissions
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
-import android.widget.Button
+import android.view.View
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
-import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.munch.lib.app.AppHelper
+import com.munch.lib.dialog.withHandler
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
 import com.munch.lib.fast.recyclerview.SimpleDiffAdapter
 import com.munch.lib.fast.recyclerview.setOnItemClickListener
-import com.munch.lib.fast.recyclerview.setOnViewClickListener
 import com.munch.lib.helper.PhoneHelper
+import com.munch.lib.recyclerview.BaseViewHolder
+import com.munch.lib.recyclerview.OnItemClickListener
 import com.munch.lib.result.ResultHelper
 import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityPermissionsBinding
@@ -29,26 +22,6 @@ import com.munch.project.one.databinding.ItemPermissionBinding
  * Create by munch1182 on 2021/10/13 14:29.
  */
 class PermissionActivity : BaseBigTextTitleActivity() {
-
-    companion object {
-
-        @SuppressLint("InlinedApi")
-        val PERMISSIONS = arrayListOf(
-            PB(Manifest.permission.CALL_PHONE, 1, "普通权限"),
-            PB(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE, 1, Build.VERSION_CODES.Q,
-                "Android10及以上此权限无效"
-            ),
-            PB(Manifest.permission.ACCESS_FINE_LOCATION, 1, "此权限有本次运行允许选项"),
-            PB(
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION, Build.VERSION_CODES.Q,
-                "此权限需要先申请定位权限；在Android10中，可以和定位权限一起申请；在Android11中，只能获得定位权限之后，才能申请此权限"
-            ),
-            PB(Manifest.permission.MANAGE_EXTERNAL_STORAGE, Build.VERSION_CODES.R),
-            PB(Manifest.permission.CAMERA, 1, "此权限有本次运行允许选项"),
-            PB(Manifest.permission.RECORD_AUDIO, 1, "此权限有本次运行允许选项"),
-        )
-    }
 
     private val bind by bind<ActivityPermissionsBinding>()
 
@@ -71,37 +44,13 @@ class PermissionActivity : BaseBigTextTitleActivity() {
             val pb = pa.data[pos] ?: return@setOnItemClickListener
             AlertDialog.Builder(this)
                 .setTitle(pb.name.replace("android.permission.", ""))
-                .setMessage(pb.other)
+                .setMessage(pb.note)
                 .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
                 .show()
         }
-        pa.setOnViewClickListener({ _, pos, _ ->
-            val pb = pa.data[pos] ?: return@setOnViewClickListener
-            val name = pb.name
-            val start = pb.isGranted
-            if (start) {
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                val uri = Uri.fromParts("package", packageName, null)
-                intent.data = uri
-                ResultHelper.init(this)
-                    .with(intent)
-                    .start {
-                        if (it && pb.isGranted != start) {
-                            pa.notifyItemChanged(pos)
-                        }
-                    }
-            } else {
-                ResultHelper.init(this)
-                    .with(name)
-                    .request {
-                        if (it && pb.isGranted != start) {
-                            pa.notifyItemChanged(pos)
-                        }
-                    }
-            }
-        }, R.id.permission_request)
+        pa.setOnViewClickListener(OnPermissionClickListener(pa), R.id.permission_request)
 
-        pa.set(PERMISSIONS.toMutableList())
+        pa.set(Permissions.PERMISSIONS.toMutableList())
     }
 
     class PermissionBeanDiffUtil : DiffUtil.ItemCallback<PermissionBean>() {
@@ -119,56 +68,61 @@ class PermissionActivity : BaseBigTextTitleActivity() {
             return oldItem.isGranted == newItem.isGranted
         }
     }
-}
 
-typealias PB = PermissionBean
+    inner class OnPermissionClickListener(private val pa: SimpleDiffAdapter<PermissionBean, ItemPermissionBinding>) :
+        OnItemClickListener {
 
-data class PermissionBean(
-    val name: String,
-    val version: Int,
-    val needJump: Boolean,
-    val maxVersion: Int = Int.MAX_VALUE,
-    var other: String = ""
-) {
-
-    companion object {
-
-        @JvmStatic
-        @BindingAdapter("bind_permission")
-        fun bind(btn: Button, bean: PermissionBean) {
-            if (!bean.isSupport) {
-                btn.text = "不可用"
-                btn.isEnabled = false
-                return
+        private fun ResultHelper.CheckOrIntentResult.dialog(name: String): ResultHelper.CheckOrIntentResult {
+            return this.explainIntent {
+                AlertDialog.Builder(it)
+                    .setMessage("请点击确定前往权限界面授予${name}权限")
+                    .withHandler()
             }
-            btn.text = if (bean.isGranted) "已获取" else "申请"
+                .explainAfterBackFromIntent {
+                    AlertDialog.Builder(it)
+                        .setMessage("$name 未成功获得，请点击确定前往权限界面重新授予该权限")
+                        .withHandler()
+                }
         }
+
+        private fun ResultHelper.PermissionResult.dialog(): ResultHelper.PermissionResult {
+            return explainPermission { context, permissions ->
+                AlertDialog.Builder(context)
+                    .setMessage(permissions.joinToString())
+                    .withHandler()
+            }.explainWhenDeniedPermanent { context, permissions ->
+                AlertDialog.Builder(context)
+                    .setMessage("前往设置界面授予${permissions.joinToString()}权限")
+                    .withHandler()
+            }
+        }
+
+        override fun onClick(v: View?, pos: Int, holder: BaseViewHolder) {
+            super.onClick(v, pos, holder)
+            val pb = pa.data[pos] ?: return
+            val name = pb.name
+            val start = pb.isGranted
+            val intent = pb.intent
+            val resultHandle: (Boolean) -> Unit = {
+                if (!it) {
+                    toast("${name}获取失败")
+                }
+                if (it && pb.isGranted != start) {
+                    pa.notifyItemChanged(pos)
+                }
+            }
+            if (intent != null) {
+                ResultHelper.init(this@PermissionActivity)
+                    .with(pb.isGrantedJudge, intent)
+                    .dialog(name)
+                    .start(resultHandle)
+            } else {
+                ResultHelper.init(this@PermissionActivity)
+                    .with(name)
+                    .dialog()
+                    .request(resultHandle)
+            }
+        }
+
     }
-
-    val isGranted: Boolean
-        get() = ActivityCompat.checkSelfPermission(
-            AppHelper.app, name
-        ) == PackageManager.PERMISSION_GRANTED
-    val isSupport: Boolean
-        get() = Build.VERSION.SDK_INT in version..maxVersion
-
-    val versionStr: String
-        get() = "Version: $version${if (maxVersion != Int.MAX_VALUE) "-$maxVersion" else "+"} "
-    val needJumpStr: String
-        get() = "Jump: $needJump"
-
-    constructor(
-        name: String,
-        version: Int,
-        other: String = ""
-    ) : this(name, version, false, Int.MAX_VALUE, other)
-
-    constructor(
-        name: String,
-        version: Int,
-        maxVersion: Int,
-        other: String = ""
-    ) : this(
-        name, version, false, maxVersion - 1, other
-    )
 }

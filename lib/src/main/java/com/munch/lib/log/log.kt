@@ -29,7 +29,11 @@ object LogLog : Logger() {
     }
 }
 
-open class Logger {
+open class Logger(
+    var tag: String? = null,
+    var noStack: Boolean = false,
+    var noInfo: Boolean = false
+) {
 
     open fun withEnable(func: () -> Any?) {
         if (enable) {
@@ -85,13 +89,10 @@ open class Logger {
         private val LINE_SEPARATOR = System.getProperty("line.separator") ?: ""
     }
 
-    var tag: String? = null
     protected var logListener: ((msg: String, thread: Thread) -> Unit)? = null
     var type = Log.DEBUG
     var methodOffset = 0
     var isJson = false
-    var noStack = false
-    var noInfo = false
     var enable = true
 
     protected open fun logOne(any: Any?) {

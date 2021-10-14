@@ -81,11 +81,11 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder> :
         holder.setOnItemClickListener(clickHelper.itemClickListener)
         holder.setOnItemLongClickListener(clickHelper.itemLongClickListener)
         if (clickHelper.clickIds.isNotEmpty()) {
-            holder.setOnViewClickListener(clickHelper.viewClickListener, clickHelper.clickIds)
+            holder.setOnViewClickListener(clickHelper.viewClickListener, *clickHelper.clickIds)
         }
         if (clickHelper.longClickIds.isNotEmpty()) {
             holder.setOnViewClickListener(
-                clickHelper.viewLongClickListener, clickHelper.longClickIds
+                clickHelper.viewLongClickListener, *clickHelper.longClickIds
             )
         }
     }
@@ -98,12 +98,12 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder> :
         clickHelper.setOnItemLongClickListener(listener)
     }
 
-    override fun setOnViewClickListener(listener: OnItemClickListener?, ids: MutableList<Int>) {
-        clickHelper.setOnViewClickListener(listener, ids)
+    override fun setOnViewClickListener(listener: OnItemClickListener?, vararg ids: Int) {
+        clickHelper.setOnViewClickListener(listener, *ids)
     }
 
-    override fun setOnViewLongClickListener(listener: OnItemClickListener?, ids: MutableList<Int>) {
-        clickHelper.setOnViewLongClickListener(listener, ids)
+    override fun setOnViewLongClickListener(listener: OnItemClickListener?, vararg ids: Int) {
+        clickHelper.setOnViewLongClickListener(listener, *ids)
     }
     //</editor-fold>
 }

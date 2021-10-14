@@ -26,8 +26,8 @@ interface AdapterListener {
 
     fun setOnItemClickListener(listener: OnItemClickListener?)
     fun setOnItemLongClickListener(listener: OnItemClickListener?)
-    fun setOnViewClickListener(listener: OnItemClickListener?, ids: MutableList<Int>)
-    fun setOnViewLongClickListener(listener: OnItemClickListener?, ids: MutableList<Int>)
+    fun setOnViewClickListener(listener: OnItemClickListener?, vararg ids: Int)
+    fun setOnViewLongClickListener(listener: OnItemClickListener?, vararg ids: Int)
 }
 
 class AdapterListenerHelper : AdapterListener {
@@ -35,8 +35,8 @@ class AdapterListenerHelper : AdapterListener {
     var itemClickListener: OnItemClickListener? = null
     var itemLongClickListener: OnItemClickListener? = null
 
-    var clickIds: MutableList<Int> = mutableListOf()
-    var longClickIds: MutableList<Int> = mutableListOf()
+    var clickIds: IntArray = intArrayOf()
+    var longClickIds: IntArray = intArrayOf()
     var viewClickListener: OnItemClickListener? = null
     var viewLongClickListener: OnItemClickListener? = null
 
@@ -48,21 +48,13 @@ class AdapterListenerHelper : AdapterListener {
         itemLongClickListener = listener
     }
 
-    override fun setOnViewClickListener(listener: OnItemClickListener?, ids: MutableList<Int>) {
+    override fun setOnViewClickListener(listener: OnItemClickListener?, vararg ids: Int) {
         viewClickListener = listener
-        ids.forEach {
-            if (!clickIds.contains(it)) {
-                clickIds.add(it)
-            }
-        }
+        clickIds = ids
     }
 
-    override fun setOnViewLongClickListener(listener: OnItemClickListener?, ids: MutableList<Int>) {
+    override fun setOnViewLongClickListener(listener: OnItemClickListener?, vararg ids: Int) {
         viewLongClickListener = listener
-        ids.forEach {
-            if (!longClickIds.contains(it)) {
-                longClickIds.add(it)
-            }
-        }
+        longClickIds = ids
     }
 }
