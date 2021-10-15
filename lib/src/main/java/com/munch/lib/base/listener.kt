@@ -45,6 +45,7 @@ interface OnChangeListener {
 }
 
 typealias OnChange = () -> Unit
+typealias OnReceive<T> = (received: T) -> Unit
 
 interface OnResultListener<T> {
     fun onResult(result: T)
