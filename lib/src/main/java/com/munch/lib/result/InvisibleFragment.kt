@@ -86,15 +86,12 @@ class PermissionHandler(
      */
     fun handlePermissionRequestFirst() {
         pb.permissions.forEach { permission ->
-            ResultHelper.log.log("handlePermissionRequestFirst :$permission -> ${isGrant(permission)}")
-            if (isGrant(permission)) {
+            val isGrant = isGrant(permission)
+            ResultHelper.log.log("handlePermissionRequestFirst :$permission -> isGrant: $isGrant")
+            if (isGrant) {
                 grantedList.add(permission)
             } else {
-                if (showRationale(permission)) {
-                    deniedNowList.add(permission)
-                } else if (!requestList.contains(permission)) {
-                    requestList.add(permission)
-                }
+                requestList.add(permission)
             }
         }
 
@@ -146,7 +143,10 @@ class PermissionHandler(
             if (granted) {
                 ResultHelper.log.log("handlePermissionRequestResult:$permission -> isGrant: true")
                 grantedList.add(permission)
+                deniedNowList.remove(permission)
+                deniedPermanentList.remove(permission)
             } else {
+                grantedList.remove(permission)
                 //拒绝但可以再次申请和提示
                 if (showRationale(permission)) {
                     ResultHelper.log.log("handlePermissionRequestResult:$permission -> isGrant: false, showRationale: true")

@@ -19,7 +19,7 @@ interface AdapterFun<D> : IsAdapter {
     /**
      * 如果[differ]不为null，则优先使用[differ]实现数据集合的更新
      */
-    fun set(newData: MutableList<D?>?, runnable: Runnable? = null) {
+    fun set(newData: List<D?>?, runnable: Runnable? = null) {
         if (differ == null) {
             val size = data.size
             if (size > 0) {

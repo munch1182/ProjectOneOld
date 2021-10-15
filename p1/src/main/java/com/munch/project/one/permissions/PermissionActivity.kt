@@ -1,9 +1,13 @@
 package com.munch.project.one.permissions
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.dialog.withHandler
@@ -17,6 +21,9 @@ import com.munch.lib.result.ResultHelper
 import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityPermissionsBinding
 import com.munch.project.one.databinding.ItemPermissionBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Create by munch1182 on 2021/10/13 14:29.
@@ -50,7 +57,18 @@ class PermissionActivity : BaseBigTextTitleActivity() {
         }
         pa.setOnViewClickListener(OnPermissionClickListener(pa), R.id.permission_request)
 
-        pa.set(Permissions.PERMISSIONS.toMutableList())
+        //839ms(已初始化) / 860(未初始化)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val newData = Permissions.PERMISSIONS.map { it.update() }.sortedBy { !it.isSupport }
+            withContext(Dispatchers.Main) { pa.set(newData) }
+        }
+        //809ms
+        /*thread {
+            val newData = Permissions.PERMISSIONS.map { it.update() }.sortedBy { !it.isSupport }
+            runOnUiThread { pa.set(newData) }
+        }*/
+        //972ms
+        /*pa.set(Permissions.PERMISSIONS.map { it.update() }.sortedBy { !it.isSupport })*/
     }
 
     class PermissionBeanDiffUtil : DiffUtil.ItemCallback<PermissionBean>() {
@@ -88,7 +106,7 @@ class PermissionActivity : BaseBigTextTitleActivity() {
         private fun ResultHelper.PermissionResult.dialog(): ResultHelper.PermissionResult {
             return explainPermission { context, permissions ->
                 AlertDialog.Builder(context)
-                    .setMessage(permissions.joinToString())
+                    .setMessage("需要允许${permissions.joinToString()}权限")
                     .withHandler()
             }.explainWhenDeniedPermanent { context, permissions ->
                 AlertDialog.Builder(context)
@@ -106,21 +124,35 @@ class PermissionActivity : BaseBigTextTitleActivity() {
             val resultHandle: (Boolean) -> Unit = {
                 if (!it) {
                     toast("${name}获取失败")
-                }
-                if (it && pb.isGranted != start) {
-                    pa.notifyItemChanged(pos)
+                } else {
+                    if (pb.update().isGrantedBuf != start) {
+                        pa.notifyItemChanged(pos)
+                    }
                 }
             }
-            if (intent != null) {
-                ResultHelper.init(this@PermissionActivity)
-                    .with(pb.isGrantedJudge, intent)
-                    .dialog(name)
-                    .start(resultHandle)
-            } else {
-                ResultHelper.init(this@PermissionActivity)
-                    .with(name)
-                    .dialog()
-                    .request(resultHandle)
+            when {
+                start -> {
+                    ResultHelper.init(this@PermissionActivity)
+                        .with(
+                            Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:$packageName")
+                            )
+                        )
+                        .start {}
+                }
+                intent != null -> {
+                    ResultHelper.init(this@PermissionActivity)
+                        .with(pb.isGrantedJudge, intent)
+                        .dialog(name)
+                        .start(resultHandle)
+                }
+                else -> {
+                    ResultHelper.init(this@PermissionActivity)
+                        .with(name)
+                        .dialog()
+                        .request(resultHandle)
+                }
             }
         }
 

@@ -17,11 +17,12 @@ data class PermissionBean(
     val name: String,
     val minVersion: Int = 1,
     val maxVersion: Int = Int.MAX_VALUE,
-    var note: String = "普通权限",
+    var note: String = "普通运行时权限",
     var isGrantedJudge: (() -> Boolean) = {
         ActivityCompat.checkSelfPermission(AppHelper.app, name) == PackageManager.PERMISSION_GRANTED
     },
-    var intent: Intent? = null
+    var intent: Intent? = null,
+    var jump: Boolean = true
 ) {
 
     companion object {
@@ -33,9 +34,20 @@ data class PermissionBean(
                 btn.text = "不可用"
                 btn.isEnabled = false
             } else {
-                btn.text = if (bean.isGranted) "已获取" else "申请"
+                btn.text = if (bean.isGrantedBuf) "已获取" else "申请"
             }
         }
+    }
+
+    /**
+     * 用于缓存数据，来避免初次加载时的卡断
+     * 此方法可以使用[update]来进行异步加载
+     */
+    var isGrantedBuf: Boolean = false
+
+    fun update(): PermissionBean {
+        isGrantedBuf = isGranted
+        return this
     }
 
     val isGranted: Boolean
@@ -46,5 +58,5 @@ data class PermissionBean(
     val versionStr: String
         get() = "Version: $minVersion${if (maxVersion != Int.MAX_VALUE) "-$maxVersion" else "+"} "
     val needJumpStr: String
-        get() = "Jump: ${intent != null}"
+        get() = "Jump: ${intent != null && jump}"
 }
