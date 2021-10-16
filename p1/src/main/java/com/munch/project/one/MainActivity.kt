@@ -9,6 +9,7 @@ import com.munch.lib.fast.base.toSelectActivityIfHave
 import com.munch.lib.fast.log.LogActivity
 import com.munch.project.one.about.AboutActivity
 import com.munch.project.one.bluetooth.BluetoothActivity
+import com.munch.project.one.broadcast.LogReceiveActivity
 import com.munch.project.one.file.FileActivity
 import com.munch.project.one.handler.HandlerActivity
 import com.munch.project.one.intent.IntentActivity
@@ -27,6 +28,7 @@ class MainActivity : BaseRvActivity() {
         mutableListOf(
             IntentActivity::class.java,
             PermissionActivity::class.java,
+            LogReceiveActivity::class.java,
             HandlerActivity::class.java,
             BluetoothActivity::class.java,
             NetActivity::class.java,

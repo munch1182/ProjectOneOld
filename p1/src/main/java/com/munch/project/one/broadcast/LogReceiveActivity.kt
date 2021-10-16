@@ -4,10 +4,16 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.app.AppHelper
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
+import com.munch.lib.fast.base.DataHelper
+import com.munch.lib.fast.dialog.SimpleEditDialog
+import com.munch.lib.fast.recyclerview.SimpleAdapter
 import com.munch.lib.result.ResultHelper
+import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityLogReceiveBinding
+import com.munch.project.one.databinding.ItemLogReceiveBinding
 
 /**
  * Create by munch1182 on 2021/10/14 17:55.
@@ -24,12 +30,31 @@ class LogReceiveActivity : BaseBigTextTitleActivity() {
                 showByState()
             }
         }
+    private val logAdapter =
+        SimpleAdapter<LogActionVB, ItemLogReceiveBinding>(R.layout.item_log_receive) { _, b, bean ->
+            b.action = bean
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        bind.receiveLogRv.apply {
+            layoutManager = LinearLayoutManager(this@LogReceiveActivity)
+            adapter = logAdapter
+        }
+        bind.receiveLogAdd.setOnClickListener {
+            SimpleEditDialog(this)
+                .setOnTextListener { dialog, text ->
+                    dialog.cancel()
+                    if (text.isNotEmpty()) {
+                        logAdapter.add(LogActionVB(text))
+                    }
+                }
+                .show()
+        }
         updateState()
         showByState()
-        bind.receiveBtn.setOnClickListener {
+        bind.receiveLogBtn.setOnClickListener {
             when (state) {
                 State.NO_PERMISSION ->
                     ResultHelper.init(this)
@@ -44,16 +69,16 @@ class LogReceiveActivity : BaseBigTextTitleActivity() {
     private fun showByState() {
         when (state) {
             State.NO_PERMISSION -> {
-                bind.receiveBtn.text = "申请悬浮权限"
+                bind.receiveLogBtn.text = "申请悬浮权限"
             }
             State.NOT_OPEN -> {
-                bind.receiveBtn.text = "收集日志"
+                bind.receiveLogBtn.text = "开始收集日志"
             }
             State.RUNNING_BACKGROUND -> {
-                bind.receiveBtn.text = "关闭收集"
+                bind.receiveLogBtn.text = "关闭日志收集"
             }
             State.SHOWING -> {
-                bind.receiveBtn.text = "关闭收集"
+                bind.receiveLogBtn.text = "关闭日志收集"
             }
         }
 
@@ -65,8 +90,28 @@ class LogReceiveActivity : BaseBigTextTitleActivity() {
     }
 
     private fun start() {
-        LogReceiveHelper.INSTANCE.start()
+        val a = logAdapter.data
+        if (a.isEmpty()) {
+            toast("请先添加Actions")
+            return
+        }
+        LogReceiveHelper.INSTANCE.start(*actions)
         LogReceiveViewHelper.INSTANCE.start()
+    }
+
+    private val actions: Array<String>
+        get() {
+            val str = DataHelper.App.instance.get("log_receive_actions", "") ?: ""
+            if (str.isEmpty()) {
+                return arrayOf()
+            }
+            return str.split(";").toTypedArray()
+        }
+
+    private fun putActions(actions: Array<String>) {
+        val sb = StringBuilder()
+        actions.forEach { sb.append(it).append(";") }
+        DataHelper.App.instance.put("log_receive_actions", sb.toString())
     }
 
     private fun updateState() {
@@ -106,5 +151,9 @@ class LogReceiveActivity : BaseBigTextTitleActivity() {
             const val SHOWING = 3
         }
     }
+
+}
+
+data class LogActionVB(val action: String, var isCheck: Boolean = true) {
 
 }

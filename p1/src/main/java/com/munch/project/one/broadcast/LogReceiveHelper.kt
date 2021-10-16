@@ -10,6 +10,8 @@ import android.os.Parcelable
 import com.munch.lib.app.AppHelper
 import com.munch.lib.base.OnReceive
 import kotlinx.parcelize.Parcelize
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * 只负责接收的数据部分
@@ -62,12 +64,7 @@ class LogReceiveHelper private constructor() {
         val intentFilter = IntentFilter()
         actions.forEach { intentFilter.addAction(it) }
         receiver.onReceive = onReceivedVal
-        AppHelper.app.registerReceiver(
-            receiver,
-            intentFilter,
-            BROADCAST_PERMISSION,
-            handler!!
-        )
+        AppHelper.app.registerReceiver(receiver, intentFilter, BROADCAST_PERMISSION, handler!!)
     }
 
     fun stop() {
@@ -98,4 +95,15 @@ internal class LogBroadcastReceiver(var onReceive: OnReceive<LogBean>? = null) :
 }
 
 @Parcelize
-data class LogBean(val content: String, val from: String, val receiveTime: Long) : Parcelable
+data class LogBean(val content: String, val from: String, val receiveTime: Long) : Parcelable {
+
+    fun toStr(formatTime: Boolean = false): String {
+        return if (formatTime) {
+            val time =
+                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(receiveTime)
+            "$time: $content"
+        } else {
+            content
+        }
+    }
+}

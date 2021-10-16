@@ -60,6 +60,8 @@
         <activity android:name="com.munch.lib.fast.log.LogActivity" />
         <activity android:name=".permissions.PermissionActivity" />
         <activity android:name=".broadcast.LogReceiveActivity" />
+
+        <service android:name=".broadcast.LogReceiveServer" />
     </application>
 
 </manifest>

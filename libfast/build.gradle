@@ -9,6 +9,7 @@ apply from: '../buildCom/commonbuildktx.gradle'
 android {
 
     buildFeatures {
+        viewBinding true
         dataBinding true
     }
 }

@@ -7,6 +7,8 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import com.munch.lib.R
 
 @FunctionalInterface
@@ -67,6 +69,22 @@ fun View.setDoubleClickListener(time: Long = 300L, listener: View.OnClickListene
         }
         it.setTag(ViewHelper.viewClickTimeId, System.currentTimeMillis())
     }
+}
+
+fun EditText.showSoftInput() {
+    isFocusable = true
+    isFocusableInTouchMode = true
+    postDelayed({
+        requestFocus()
+        requestFocusFromTouch()
+        val im = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        im?.showSoftInput(this, 0)
+    }, 300L)
+}
+
+fun EditText.hideSoftInput() {
+    val im = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+    im?.hideSoftInputFromWindow(windowToken, 0)
 }
 
 object ViewHelper {
