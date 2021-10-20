@@ -9,6 +9,7 @@ import android.os.HandlerThread
 import android.os.Parcelable
 import com.munch.lib.app.AppHelper
 import com.munch.lib.base.OnReceive
+import com.munch.lib.log.Logger
 import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
@@ -28,6 +29,8 @@ class LogReceiveHelper private constructor() {
 
         const val BROADCAST_PERMISSION = "com.munch.BROADCAST_PERMISSION"
         const val KEY_LOG_BEAN = "log"
+
+        internal val log = Logger("log-receive")
     }
 
     //<editor-fold desc="state">
@@ -38,7 +41,7 @@ class LogReceiveHelper private constructor() {
     //</editor-fold>
 
     //<editor-fold desc="data">
-    val logs: MutableList<LogBean> = mutableListOf()
+    private val logs: MutableList<LogBean> = mutableListOf()
     var onReceived: OnReceive<LogBean>? = null
     private val onReceivedVal: OnReceive<LogBean> = {
         logs.add(it)

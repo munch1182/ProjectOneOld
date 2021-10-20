@@ -15,6 +15,7 @@ import com.munch.project.one.handler.HandlerActivity
 import com.munch.project.one.intent.IntentActivity
 import com.munch.project.one.net.NetActivity
 import com.munch.project.one.permissions.PermissionActivity
+import com.munch.project.one.web.WebActivity
 import com.munch.project.one.weight.FlowLayoutActivity
 
 class MainActivity : BaseRvActivity() {
@@ -32,6 +33,7 @@ class MainActivity : BaseRvActivity() {
             HandlerActivity::class.java,
             BluetoothActivity::class.java,
             NetActivity::class.java,
+            WebActivity::class.java,
             FileActivity::class.java,
             WeightActivity::class.java,
             LogActivity::class.java,

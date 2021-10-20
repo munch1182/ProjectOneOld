@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="text"
+            type="String" />
+    </data>
+
+
+    <TextView
+        android:id="@+id/item_tv_view"
+        style="@style/AppTheme.Text.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="@dimen/paddingDef"
+        android:paddingTop="@dimen/paddingSmall"
+        android:paddingEnd="@dimen/paddingDef"
+        android:paddingBottom="@dimen/paddingSmall"
+        android:text="@{text}"
+        tools:text="textview" />
+</layout>
