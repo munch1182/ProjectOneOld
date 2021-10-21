@@ -79,11 +79,11 @@ class BluetoothNotifyHelper : Destroyable {
             }
         }
 
-        override fun onConnectFail() {
+        override fun onConnectFail(status: Int) {
             BluetoothHelper.instance.apply {
                 newState(BluetoothState.IDLE)
                 workHandler.post {
-                    connectListeners.notifyListener { it.onConnectFail() }
+                    connectListeners.notifyListener { it.onConnectFail(status) }
                     clearConnectListener()
                 }
             }

@@ -88,7 +88,7 @@ class BluetoothHelper private constructor() : Destroyable {
         if (initialized) {
             return
         }
-        logHelper.withEnable { "init" }
+        logHelper.withEnable { "BluetoothHelper init" }
         initialized = true
         this.context = context.applicationContext
         instance = BluetoothInstance(context)
@@ -292,6 +292,6 @@ class BluetoothHelper private constructor() : Destroyable {
         stopScan()
         closeConnect()
         instance.destroy()
-        logHelper.withEnable { "destroy" }
+        logHelper.withEnable { "BluetoothHelper destroy" }
     }
 }

@@ -327,7 +327,7 @@ data class BtItemDev(val dev: BluetoothDev) {
         stateVal = when {
             dev.isConnecting -> STATE_CONNECTING
             dev.isConnectedByHelper -> STATE_CONNECTED_BY_HELPER
-            dev.isConnectedBySystem() == true -> STATE_CONNECTED
+            /*dev.isConnectedBySystem() == true -> STATE_CONNECTED*/
             dev.bondState == BluetoothDevice.BOND_BONDING -> STATE_BONDING
             dev.isBond -> STATE_BONDED
             else -> STATE_NONE
@@ -361,11 +361,11 @@ data class BtItemDev(val dev: BluetoothDev) {
         get() {
             val sb = StringBuilder()
             when (stateVal) {
-                STATE_CONNECTED_BY_HELPER -> sb.append("已连接")
-                STATE_CONNECTING -> sb.append("连接中")
+                STATE_CONNECTED_BY_HELPER -> sb.append("connected")
+                STATE_CONNECTING -> sb.append("connecting")
                 STATE_CONNECTED -> sb.append("有连接")
-                STATE_BONDING -> sb.append("绑定中")
-                STATE_BONDED -> sb.append("已绑定")
+                STATE_BONDING -> sb.append("bonding")
+                STATE_BONDED -> sb.append("bonded")
                 else -> sb.append("")
             }
             return sb.toString()

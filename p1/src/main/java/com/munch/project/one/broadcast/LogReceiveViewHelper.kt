@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import android.widget.CheckBox
+import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.app.AppHelper
 import com.munch.lib.fast.databinding.ItemLogContentBinding
@@ -59,13 +60,7 @@ class LogFloatViewHelper(context: Context) {
         }
 
     init {
-        binding.receiveLogReduce.setOnClickListener {
-            if (binding.receiveLogItemTv.isShown) {
-                showRvOrItem(false)
-            } else {
-                showReduceView()
-            }
-        }
+        showExpandView()
         binding.receiveLogRv.layoutManager = LinearLayoutManager(context)
         binding.receiveLogRv.adapter = simpleAdapter
         simpleAdapter.setOnItemClickListener { _, pos, _ ->
@@ -80,8 +75,28 @@ class LogFloatViewHelper(context: Context) {
         }
     }
 
-    private fun showReduceView() {
+    private fun showExpandView() {
+        binding.receiveLogReduce.setOnClickListener {
+            if (binding.receiveLogItemTv.isShown) {
+                showRvOrItem(false)
+            } else {
+                showReduceView()
+            }
+        }
+        binding.receiveLogReduce.text = "-"
+        binding.receiveLogContainer.children.forEach {
+            it.visibility = View.VISIBLE
+        }
+    }
 
+    private fun showReduceView() {
+        binding.receiveLogReduce.text = "+"
+        binding.receiveLogReduce.setOnClickListener { showExpandView() }
+        binding.receiveLogContainer.children.forEach {
+            if (it != binding.receiveLogReduce) {
+                it.visibility = View.GONE
+            }
+        }
     }
 
     private fun showRvOrItem(showItem: Boolean) {

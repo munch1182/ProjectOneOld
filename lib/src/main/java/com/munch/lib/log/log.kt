@@ -85,7 +85,7 @@ open class Logger(
 
     companion object {
         private const val TAG_DEF = "loglog"
-        private const val MAX_COUNT_IN_LINE = 150
+        private const val MAX_COUNT_IN_LINE = 450
         private val LINE_SEPARATOR = System.getProperty("line.separator") ?: ""
     }
 

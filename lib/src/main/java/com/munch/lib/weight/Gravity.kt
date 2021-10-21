@@ -1,6 +1,7 @@
 package com.munch.lib.weight
 
 import androidx.annotation.IntDef
+import java.lang.annotation.Inherited
 
 /**
  * Create by munch1182 on 2021/8/14 15:15.
@@ -15,6 +16,7 @@ import androidx.annotation.IntDef
     Gravity.CENTER
 )
 @Retention(AnnotationRetention.SOURCE)
+@Inherited
 annotation class Gravity {
     companion object {
         const val START = 1 shl 0

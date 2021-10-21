@@ -87,7 +87,7 @@ class PermissionHandler(
     fun handlePermissionRequestFirst() {
         pb.permissions.forEach { permission ->
             val isGrant = isGrant(permission)
-            ResultHelper.log.log("handlePermissionRequestFirst :$permission -> isGrant: $isGrant")
+            ResultHelper.log.log("handlePermissionRequestFirst:$permission -> isGrant: $isGrant")
             if (isGrant) {
                 grantedList.add(permission)
             } else {

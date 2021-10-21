@@ -2,6 +2,7 @@ package com.munch.lib.bluetooth
 
 import androidx.annotation.IntDef
 import com.munch.lib.base.OnChangeListener
+import java.lang.annotation.Inherited
 
 /**
  *
@@ -17,6 +18,7 @@ import com.munch.lib.base.OnChangeListener
     BluetoothState.CLOSE,
 )
 @Retention(AnnotationRetention.SOURCE)
+@Inherited
 annotation class BluetoothState {
 
     companion object {

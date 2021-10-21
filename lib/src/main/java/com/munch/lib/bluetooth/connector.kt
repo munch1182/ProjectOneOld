@@ -1,6 +1,9 @@
 package com.munch.lib.bluetooth
 
-import android.bluetooth.*
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothProfile
 import android.os.Build
 import com.munch.lib.base.Manageable
 
@@ -29,7 +32,7 @@ interface OnConnectListener {
 
     fun onStart()
     fun onConnectSuccess()
-    fun onConnectFail()
+    fun onConnectFail(status: Int)
 }
 
 class ClassicConnector(override val device: BluetoothDev) : Connector {
@@ -79,9 +82,9 @@ class BleConnector(override val device: BluetoothDev) : Connector {
             if (le2M) {
                 logHelper.withEnable { "bleConnector connect: 2M_MASK" }
             }
-            device.dev.connectGatt(
+            gatt = device.dev.connectGatt(
                 instance.context, false, gattCallback,
-                BluetoothDevice.TRANSPORT_AUTO, mask
+                BluetoothDevice.TRANSPORT_LE, mask
             )
         } else {
             connectJust()
@@ -89,7 +92,7 @@ class BleConnector(override val device: BluetoothDev) : Connector {
     }
 
     private fun connectJust() {
-        device.dev.connectGatt(null, false, gattCallback)
+        gatt = device.dev.connectGatt(null, false, gattCallback)
     }
 
     override fun disconnect() {
@@ -110,6 +113,7 @@ class BleConnector(override val device: BluetoothDev) : Connector {
 
     private fun closeGatt() {
         logHelper.withEnable { "bleConnector closeGatt" }
+        gatt?.disconnect()
         //调用此方法后不会再触发任何系统回调
         gatt?.close()
         gatt = null
@@ -128,39 +132,52 @@ class BleConnector(override val device: BluetoothDev) : Connector {
     private inner class GattCallback : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
-            logSystem.withEnable { "onConnectionStateChange(${gatt?.device?.address}): newState: $newState, status:$status" }
+            logSystem.withEnable {
+                val statusStr = statusStr(status)
+                "onConnectionStateChange(${gatt?.device?.address}): newState: $newState, status:$statusStr"
+            }
 
             val instance = BluetoothHelper.instance
-            if (status != BluetoothGatt.GATT_SUCCESS) {
-                if (instance.state.isConnecting) {
-                    connectFail()
-                    //因为某种原因，在连接状态下蓝牙动作失败并断开了连接，比如连接后未在时限内配对则会被系统断开
-                } else if (instance.state.isConnected && newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    closeGatt()
-                }
-            } else {
-                if (newState == BluetoothProfile.STATE_CONNECTED/*2*/) {
-                    if (gatt != null) {
-                        this@BleConnector.gatt = gatt
-                        //onServicesDiscovered
-                        val discoverServices = gatt.discoverServices()
-                        if (!discoverServices) {
-                            logSystem.withEnable { "discoverServices(${gatt.device?.address}): fail" }
-                        }
-                    } else {
-                        connectFail()
+            //连接成功
+            if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
+                if (gatt != null) {
+                    //onServicesDiscovered
+                    if (gatt.discoverServices()) {
+                        //发现服务成功
+                        return
                     }
-                } else if (newState == BluetoothProfile.STATE_DISCONNECTED/*0*/) {
-                    //遵循ble规则，不用时即关闭
-                    closeGatt()
+                    logSystem.withEnable { "discoverServices(${gatt.device?.address}): fail" }
                 }
+            }
+            //除了成功，其它情形都应该关闭连接并更新状态
+            //包括意外断开连接，以及连接时发现服务失败
+            closeGatt()
+            if (instance.state.isConnecting) {
+                connectFail(status)
+            }
+        }
+
+        private fun statusStr(status: Int): String {
+            return when (status) {
+                BluetoothGatt.GATT_READ_NOT_PERMITTED -> "GATT_READ_NOT_PERMITTED"
+                BluetoothGatt.GATT_WRITE_NOT_PERMITTED -> "GATT_WRITE_NOT_PERMITTED"
+                BluetoothGatt.GATT_INSUFFICIENT_AUTHENTICATION -> "GATT_INSUFFICIENT_AUTHENTICATION"
+                BluetoothGatt.GATT_REQUEST_NOT_SUPPORTED -> "GATT_REQUEST_NOT_SUPPORTED"
+                BluetoothGatt.GATT_INSUFFICIENT_ENCRYPTION -> "GATT_INSUFFICIENT_ENCRYPTION"
+                BluetoothGatt.GATT_INVALID_OFFSET -> "GATT_INVALID_OFFSET"
+                BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH -> "GATT_INVALID_ATTRIBUTE_LENGTH"
+                BluetoothGatt.GATT_CONNECTION_CONGESTED -> "GATT_CONNECTION_CONGESTED"
+                else -> status.toString()
             }
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
             super.onServicesDiscovered(gatt, status)
             val gattService = gatt?.services
-            logSystem.withEnable { "onServicesDiscovered: service: ${gattService?.size ?: "null"}, states:$status" }
+            logSystem.withEnable {
+                val statusStr = statusStr(status)
+                "onServicesDiscovered: service: ${gattService?.size ?: "null"}, states:$statusStr"
+            }
             connectSuccess()
         }
 
@@ -169,8 +186,8 @@ class BleConnector(override val device: BluetoothDev) : Connector {
             removeConnectListener()
         }
 
-        private fun connectFail() {
-            connectListener?.onConnectFail()
+        private fun connectFail(status: Int) {
+            connectListener?.onConnectFail(status)
             removeConnectListener()
         }
 
