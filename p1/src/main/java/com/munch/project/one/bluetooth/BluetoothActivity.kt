@@ -27,7 +27,8 @@ import com.munch.lib.bluetooth.setOnState
 import com.munch.lib.fast.base.*
 import com.munch.lib.fast.recyclerview.*
 import com.munch.lib.log.log
-import com.munch.lib.result.ResultHelper
+import com.munch.lib.result.contactWith
+import com.munch.lib.result.with
 import com.munch.lib.weight.CountView
 import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityBluetoothBinding
@@ -205,24 +206,20 @@ class BluetoothActivity : BaseBigTextTitleActivity() {
         val instance = BluetoothHelper.instance
         when {
             instance.state.isClose -> {
-                ResultHelper.init(this)
-                    .with(BluetoothHelper.openIntent())
+                with(BluetoothHelper.openIntent())
                     .start {
                     }
             }
             instance.state.isConnecting -> {
-                ResultHelper.init(this)
-                    .with(Manifest.permission.BLUETOOTH)
+                with(Manifest.permission.BLUETOOTH)
                     .requestGrant { instance.disconnect() }
             }
             instance.state.isConnected -> {
-                ResultHelper.init(this)
-                    .with(Manifest.permission.BLUETOOTH)
+                with(Manifest.permission.BLUETOOTH)
                     .requestGrant { instance.disconnect() }
             }
             else -> {
-                ResultHelper.init(this)
-                    .contactWith(*BluetoothHelper.permissionsScan())
+                contactWith(*BluetoothHelper.permissionsScan())
                     .contactWith({ isGpsOpen() }, Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                     .start {
                         if (it) {

@@ -10,6 +10,7 @@ import com.munch.lib.fast.log.LogActivity
 import com.munch.project.one.about.AboutActivity
 import com.munch.project.one.bluetooth.BluetoothActivity
 import com.munch.project.one.broadcast.LogReceiveActivity
+import com.munch.project.one.contentobserver.ObserverActivity
 import com.munch.project.one.file.FileActivity
 import com.munch.project.one.handler.HandlerActivity
 import com.munch.project.one.intent.IntentActivity
@@ -36,6 +37,7 @@ class MainActivity : BaseRvActivity() {
             WebActivity::class.java,
             FileActivity::class.java,
             WeightActivity::class.java,
+            ObserverActivity::class.java,
             LogActivity::class.java,
             AboutActivity::class.java
         )

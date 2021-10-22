@@ -18,6 +18,7 @@ import com.munch.lib.helper.PhoneHelper
 import com.munch.lib.recyclerview.BaseViewHolder
 import com.munch.lib.recyclerview.OnItemClickListener
 import com.munch.lib.result.ResultHelper
+import com.munch.lib.result.with
 import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityPermissionsBinding
 import com.munch.project.one.databinding.ItemPermissionBinding
@@ -95,12 +96,11 @@ class PermissionActivity : BaseBigTextTitleActivity() {
                 AlertDialog.Builder(it)
                     .setMessage("请点击确定前往权限界面授予${name}权限")
                     .withHandler()
+            }.explainAfterBackFromIntent {
+                AlertDialog.Builder(it)
+                    .setMessage("$name 未成功获得，请点击确定前往权限界面重新授予该权限")
+                    .withHandler()
             }
-                .explainAfterBackFromIntent {
-                    AlertDialog.Builder(it)
-                        .setMessage("$name 未成功获得，请点击确定前往权限界面重新授予该权限")
-                        .withHandler()
-                }
         }
 
         private fun ResultHelper.PermissionResult.dialog(): ResultHelper.PermissionResult {
@@ -132,26 +132,20 @@ class PermissionActivity : BaseBigTextTitleActivity() {
             }
             when {
                 start -> {
-                    ResultHelper.init(this@PermissionActivity)
-                        .with(
-                            Intent(
-                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.parse("package:$packageName")
-                            )
+                    with(
+                        Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.parse("package:$packageName")
                         )
-                        .start {}
+                    ).start {}
                 }
                 intent != null -> {
-                    ResultHelper.init(this@PermissionActivity)
-                        .with(pb.isGrantedJudge, intent)
+                    with(pb.isGrantedJudge, intent)
                         .dialog(name)
                         .start(resultHandle)
                 }
                 else -> {
-                    ResultHelper.init(this@PermissionActivity)
-                        .with(name)
-                        .dialog()
-                        .request(resultHandle)
+                    with(name).dialog().request(resultHandle)
                 }
             }
         }
