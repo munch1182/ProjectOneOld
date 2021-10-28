@@ -40,7 +40,8 @@ object Permissions {
         PB(
             Manifest.permission.MANAGE_EXTERNAL_STORAGE,
             minVersion = Build.VERSION_CODES.R,
-            note = "文件管理权限"
+            note = "文件管理权限",
+            intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
         ),
         PB(
             Manifest.permission.REQUEST_INSTALL_PACKAGES,

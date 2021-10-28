@@ -52,7 +52,7 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".WeightActivity" />
         <activity android:name=".weight.FlowLayoutActivity" />
-        <activity android:name=".file.FileActivity" />
+        <activity android:name=".file.FileFunActivity" />
         <activity android:name=".bluetooth.BluetoothActivity" />
         <activity android:name=".bluetooth.BluetoothScanInfoActivity" />
         <activity android:name=".net.NetActivity" />
@@ -65,6 +65,8 @@
         <activity android:name=".broadcast.LogReceiveActivity" />
         <activity android:name=".web.WebActivity" />
         <activity android:name=".contentobserver.ObserverActivity" />
+        <activity android:name=".file.MappedByteBufferActivity" />
+        <activity android:name=".FileActivity" />
 
         <service android:name=".broadcast.LogReceiveServer" />
 

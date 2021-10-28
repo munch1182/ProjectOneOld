@@ -11,7 +11,8 @@ import com.munch.project.one.about.AboutActivity
 import com.munch.project.one.bluetooth.BluetoothActivity
 import com.munch.project.one.broadcast.LogReceiveActivity
 import com.munch.project.one.contentobserver.ObserverActivity
-import com.munch.project.one.file.FileActivity
+import com.munch.project.one.file.FileFunActivity
+import com.munch.project.one.file.MappedByteBufferActivity
 import com.munch.project.one.handler.HandlerActivity
 import com.munch.project.one.intent.IntentActivity
 import com.munch.project.one.net.NetActivity
@@ -49,7 +50,6 @@ class MainActivity : BaseRvActivity() {
     override fun showMenu() {
         //禁止循环跳转
         /*super.showNotice()*/
-
     }
 }
 
@@ -61,6 +61,18 @@ class WeightActivity : BaseBtnFlowActivity() {
         super.onClick(pos)
         when (pos) {
             0 -> startActivity(FlowLayoutActivity::class.java)
+        }
+    }
+}
+
+class FileActivity : BaseBtnFlowActivity() {
+    override fun getData() = mutableListOf("File Fun", "MappedByteBuffer")
+
+    override fun onClick(pos: Int) {
+        super.onClick(pos)
+        when (pos) {
+            0 -> startActivity(FileFunActivity::class.java)
+            1 -> startActivity(MappedByteBufferActivity::class.java)
         }
     }
 }

@@ -12,11 +12,9 @@ import com.munch.lib.log.log
 /**
  * Create by munch1182 on 2021/10/22 09:32.
  */
-//电话记录的更改只在电话操作后（通话结束、拒绝接听或者未接听）
+//电话记录的更改只在电话操作后（通话结束、拒绝接听或者未接听）生成
 //@RequiresPermission("Manifest.permission.READ_CALL_LOG")
 class CallContentObserver(handler: Handler) : ContentObserver(handler) {
-
-    private var lastRecordId = -1
 
     override fun onChange(selfChange: Boolean, uri: Uri?) {
         super.onChange(selfChange, uri)
@@ -24,6 +22,8 @@ class CallContentObserver(handler: Handler) : ContentObserver(handler) {
         when {
             uri == CallLog.Calls.CONTENT_URI -> queryLastCall()
             //sms的uri是变化的，包括短信通知和已读短信通知
+            //但是不同的手机品牌对sms的处理不同导致触发的uri也是不同的
+            //最好是使用数据缓存进行过滤
             uri?.toString()?.contains("sms") == true -> querySms()
         }
     }

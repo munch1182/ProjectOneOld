@@ -40,46 +40,36 @@ class IntentActivity : BaseBtnFlowActivity() {
         val onResult: (result: Boolean) -> Unit = { /*toast(if (it) "true" else "false")*/ }
         when (pos) {
             //set
-            0 -> with(Intent(Settings.ACTION_SETTINGS))
-                .start(onResult)
+            0 -> with(Intent(Settings.ACTION_SETTINGS)).start(onResult)
             //app
             1 -> with(
                 Intent(
                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.parse("package:$packageName")
                 )
-            )
-                .start(onResult)
+            ).start(onResult)
             //all app
-            2 -> with(Intent(Settings.ACTION_MANAGE_ALL_APPLICATIONS_SETTINGS))
-                .start(onResult)
+            2 -> with(Intent(Settings.ACTION_MANAGE_ALL_APPLICATIONS_SETTINGS)).start(onResult)
             //Bluetooth
-            3 -> with(Intent(Settings.ACTION_BLUETOOTH_SETTINGS))
-                .start(onResult)
+            3 -> with(Intent(Settings.ACTION_BLUETOOTH_SETTINGS)).start(onResult)
             //Wifi
-            4 -> with(Intent(Settings.ACTION_WIFI_SETTINGS))
-                .start(onResult)
+            4 -> with(Intent(Settings.ACTION_WIFI_SETTINGS)).start(onResult)
             //Data Roaming
-            5 -> with(Intent(Settings.ACTION_DATA_ROAMING_SETTINGS))
-                .start(onResult)
+            5 -> with(Intent(Settings.ACTION_DATA_ROAMING_SETTINGS)).start(onResult)
             //GPS
-            6 -> with(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                .start(onResult)
+            6 -> with(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)).start(onResult)
             //Call
-            7 -> with(Intent(Intent.ACTION_CALL_BUTTON))
-                .start(onResult)
+            7 -> with(Intent(Intent.ACTION_CALL_BUTTON)).start(onResult)
             //SMS
             8 -> with(
-                Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:10086"))
-                    .putExtra("sms_body", "")
-            )
-                .start(onResult)
+                Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:10086")).putExtra("sms_body", "")
+            ).start(onResult)
             //Contact
-            9 -> with(Intent(Intent.ACTION_PICK).setType("vnd.android.cursor.dir/phone_v2"))
-                .start(onResult)
+            9 -> with(Intent(Intent.ACTION_PICK).setType("vnd.android.cursor.dir/phone_v2")).start(
+                onResult
+            )
             //Notify
-            10 -> with(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
-                .start(onResult)
+            10 -> with(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)).start(onResult)
             11 -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 with(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                     putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
@@ -89,17 +79,14 @@ class IntentActivity : BaseBtnFlowActivity() {
                 toast("版本低于${Build.VERSION_CODES.O},无法使用此权限")
             }
             //Development
-            12 -> with(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
-                .start(onResult)
+            12 -> with(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)).start(onResult)
             //Advance
             13 -> with(Intent().setComponent(ComponentName.unflattenFromString("com.android.settings/.Settings\$AdvancedAppsActivity")))
                 .start(onResult)
             //Usage
-            14 -> with(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
-                .start(onResult)
+            14 -> with(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)).start(onResult)
             //Write Settings
-            15 -> with(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS))
-                .start(onResult)
+            15 -> with(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)).start(onResult)
             16 -> RunBackgroundHelp.request(this)
         }
     }

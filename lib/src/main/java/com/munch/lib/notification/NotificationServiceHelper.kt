@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.annotation.RequiresApi
@@ -31,19 +32,28 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
 
     companion object {
 
-        private const val KEY_ENABLE = "KEY_ENABLE"
+        const val KEY_ENABLE = "KEY_ENABLE"
+        const val KEY_SERVICE_CLS = "KEY_SERVICE_CLS"
 
         @RequiresApi(Build.VERSION_CODES.N)
-        fun enable(context: Context = AppHelper.app) {
-            context.startService(Intent(context, NotificationServiceHelper::class.java).apply {
+        fun enable(
+            context: Context = AppHelper.app,
+            cls: Class<out NotificationServiceHelper> = NotificationServiceHelper::class.java
+        ) {
+            context.startService(Intent(context, cls).apply {
                 putExtra(KEY_ENABLE, true)
+                putExtra(KEY_SERVICE_CLS, cls)
             })
         }
 
         @RequiresApi(Build.VERSION_CODES.N)
-        fun disable(context: Context = AppHelper.app) {
-            context.startService(Intent(context, NotificationServiceHelper::class.java).apply {
+        fun disable(
+            context: Context = AppHelper.app,
+            cls: Class<out NotificationServiceHelper> = NotificationServiceHelper::class.java
+        ) {
+            context.startService(Intent(context, cls).apply {
                 putExtra(KEY_ENABLE, false)
+                putExtra(KEY_SERVICE_CLS, cls)
             })
         }
 
@@ -54,26 +64,29 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
             NotificationManagerCompat.getEnabledListenerPackages(context)
                 .contains(context.packageName)
 
-        fun requestIntent() = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+        fun requestIntent() = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
     }
 
-    protected open val logNotification = Logger().apply {
-        tag = "notification"
-        noStack = true
-    }
+    protected open val logNotification = Logger("notification", true)
     private var isConnected = false
         set(value) {
             if (field != value) {
                 field = value
+                NotificationHelper.onConnectedStateChange(field)
             }
         }
+    private var cls: Class<out NotificationServiceHelper>? = null
 
+    @Suppress("unchecked_cast")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent ?: return super.onStartCommand(intent, flags, startId)
+        cls = intent.getSerializableExtra(KEY_SERVICE_CLS) as Class<out NotificationServiceHelper>?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (intent.getBooleanExtra(KEY_ENABLE, true)) {
-                requestRebind(ComponentName(this, getNotificationServerClass()))
-                logNotification.log("requestRebind")
+                if (!isConnected) {
+                    requestRebind(ComponentName(this, getNotificationServerClass()))
+                    logNotification.log("requestRebind")
+                }
             } else {
                 try {
                     requestUnbind()
@@ -88,15 +101,15 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
     }
 
     protected open fun getNotificationServerClass(): Class<out NotificationListenerService> =
-        this::class.java
+        cls ?: this::class.java
 
     /**
      * 当拥有读取通知权限且未调用[requestUnbind]后启动应用会自动回调此方法，但初始化的回调可能会有延迟
      */
     override fun onListenerConnected() {
         super.onListenerConnected()
-        isConnected = true
         logNotification.log("onListenerConnected")
+        isConnected = true
     }
 
     /**
@@ -104,18 +117,21 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
      */
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
-        isConnected = false
         logNotification.log("onListenerDisconnected")
+        isConnected = false
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
+        sbn ?: return
         logNotification.log("onNotificationPosted")
+        NotificationHelper.onPosted(sbn)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         super.onNotificationRemoved(sbn)
+        sbn ?: return
         logNotification.log("onNotificationRemoved")
+        NotificationHelper.onRemoved(sbn)
     }
-
 }

@@ -45,17 +45,18 @@ fun Closeable?.closeQuietly() {
  * 如果发生IO异常，或者长度不够，则返回null
  */
 fun File.read(length: Int, start: Int = 0): ByteArray? {
-    val byteArray: ByteArray?
+    var byteArray: ByteArray?
     var fis: FileInputStream? = null
     try {
         fis = FileInputStream(this)
         byteArray = ByteArray(length)
         if (fis.read(byteArray, start, length) != length) {
-            return null
+            byteArray = null
         }
     } catch (e: IOException) {
+        byteArray = null
+    } finally {
         fis?.closeQuietly()
-        return null
     }
     return byteArray
 }
@@ -65,27 +66,34 @@ fun File.read(length: Int, start: Int = 0): ByteArray? {
  *
  * 即，如果该文件不存在，则新建；如果该文件已存在，则删除并新建
  *
+ * @param isFile 是否是一个文件，否则是一个文件夹
+ *
  * @return 如果成功，返回该文件或者文件夹，否则返回null
  */
-fun File.sureNew(): File? {
+fun File.sureNew(isFile: Boolean = true): File? {
     val isSuccess = if (isFile) {
         //file
-        (if (exists()) delete() else true)
-                //因为mkdirs会在已存在是返回false
+        (if (exists() && this.isFile) delete() else true)
+                //因为mkdirs会在已存在时返回false
                 && (if (parentFile?.exists() == false) (parentFile?.mkdirs() ?: true) else true)
                 && createNewFile()
         //dir
     } else {
-        (if (exists()) del() else true) && mkdirs()
+        (if (exists() && this.isDirectory) del() else true) && mkdirs()
     }
     return if (isSuccess) this else null
 }
 
+fun File.sureFile() = sureNew(true)
+fun File.sureDir() = sureNew(false)
+
 /**
  * 检查文件是否存在，不存在则新建，新建失败则返回null
+ *
+ *  @param isFile 是否是一个文件，否则是一个文件夹
  */
-fun File.checkOrNew(): File? {
-    return this.takeIf { it.exists() } ?: sureNew()
+fun File.checkOrNew(isFile: Boolean = true): File? {
+    return this.takeIf { it.exists() } ?: sureNew(isFile)
 }
 
 /**
@@ -107,15 +115,13 @@ fun File.del(): Boolean {
  */
 fun File.getSize(): Long {
     if (!exists()) {
-        return -1L
+        return 0L
     }
     var size = 0L
     if (isFile) {
         size = length()
     } else {
-        listFiles()?.forEach {
-            size += it.getSize()
-        }
+        listFiles()?.forEach { size += it.getSize() }
     }
     return size
 }
@@ -165,8 +171,9 @@ fun File.md5Str(radix: Int = 16): String? {
             len = fis.read(buffer)
         }
     } catch (e: IOException) {
-        fis?.closeQuietly()
         return null
+    } finally {
+        fis?.closeQuietly()
     }
     return BigInteger(1, instance.digest()).toString(radix)
 }
@@ -240,7 +247,7 @@ fun File.copy2Dir(
     copyDir: Boolean = true
 ): Boolean {
     //不存在则创建
-    dest.checkOrNew() ?: return false
+    dest.checkOrNew(true) ?: return false
     //复制文件夹dest必须是文件夹
     if (!dest.isDirectory) {
         return false
@@ -309,7 +316,7 @@ fun getNameFromPath(path: String): String {
  * @return 是否解压成功
  */
 fun File.unzip(dir: File, unzipDir: Boolean = true): Boolean {
-    val dirNew = dir.sureNew() ?: return false
+    val dirNew = dir.sureNew(false) ?: return false
     if (!dirNew.isDirectory) {
         return false
     }
