@@ -5,6 +5,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.content.res.TypedArray
 import android.graphics.Color
@@ -108,4 +109,15 @@ fun Context.putStr2Clip(content: String): Boolean {
     val mClipData = ClipData.newPlainText(content, content)
     cm.setPrimaryClip(mClipData)
     return true
+}
+
+fun Context.getNameVersion(): Pair<String, Long> {
+    return packageManager.getPackageInfo(packageName, PackageManager.GET_CONFIGURATIONS).let {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            it.versionName to it.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            it.versionName to it.versionCode.toLong()
+        }
+    }
 }

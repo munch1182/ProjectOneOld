@@ -39,7 +39,8 @@ interface IForegroundService {
                 NotificationChannel(
                     parameter.channelId,
                     parameter.channelName,
-                    NotificationManager.IMPORTANCE_DEFAULT
+                    //有些手机，低重要度的消息会直接被删除
+                    NotificationManager.IMPORTANCE_HIGH
                 )
             )
         }

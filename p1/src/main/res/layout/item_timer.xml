@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="HardcodedText">
+
+    <TextView
+        android:id="@+id/timer_title"
+        style="@style/AppTheme.Text.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/paddingDef"
+        android:layout_marginTop="@dimen/paddingSmall"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="2021-10-28 11:02" />
+
+    <TextView
+        android:id="@+id/timer_content"
+        style="@style/AppTheme.Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/paddingSmall"
+        android:layout_marginBottom="@dimen/paddingSmall"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/timer_title"
+        app:layout_constraintTop_toBottomOf="@id/timer_title"
+        tools:text="是否已执行：false\n是否重复：yes 重复时间：2000ms 已重复次数：20" />
+
+    <Button
+        android:id="@+id/timer_log"
+        style="@style/AppTheme.Button.Outline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/paddingDef"
+        android:layout_marginTop="@dimen/paddingSmall"
+        android:layout_marginEnd="@dimen/paddingDef"
+        android:text="查看日志"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@id/timer_title"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

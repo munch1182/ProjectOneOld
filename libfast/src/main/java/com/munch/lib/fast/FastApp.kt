@@ -3,6 +3,7 @@ package com.munch.lib.fast
 import android.app.ActivityManager
 import android.app.Application
 import android.os.StatFs
+import com.munch.lib.app.AppForegroundHelper
 import com.munch.lib.app.AppHelper
 import com.munch.lib.fast.watcher.Watcher
 import com.munch.lib.helper.PhoneHelper
@@ -27,6 +28,7 @@ object FastAppHelper {
 
     fun init(app: Application) {
         AppHelper.init(app)
+        AppForegroundHelper.register(app)
         MMKVHelper.init(app)
         thread {
             Thread.setDefaultUncaughtExceptionHandler { _, e -> log(e) }

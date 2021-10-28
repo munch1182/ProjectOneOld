@@ -17,6 +17,8 @@ import com.munch.project.one.handler.HandlerActivity
 import com.munch.project.one.intent.IntentActivity
 import com.munch.project.one.net.NetActivity
 import com.munch.project.one.permissions.PermissionActivity
+import com.munch.project.one.timer.AlarmActivity
+import com.munch.project.one.timer.WorkManagerActivity
 import com.munch.project.one.web.WebActivity
 import com.munch.project.one.weight.FlowLayoutActivity
 
@@ -34,6 +36,7 @@ class MainActivity : BaseRvActivity() {
             LogReceiveActivity::class.java,
             HandlerActivity::class.java,
             BluetoothActivity::class.java,
+            TimerActivity::class.java,
             NetActivity::class.java,
             WebActivity::class.java,
             FileActivity::class.java,
@@ -67,12 +70,22 @@ class WeightActivity : BaseBtnFlowActivity() {
 
 class FileActivity : BaseBtnFlowActivity() {
     override fun getData() = mutableListOf("File Fun", "MappedByteBuffer")
-
     override fun onClick(pos: Int) {
         super.onClick(pos)
         when (pos) {
             0 -> startActivity(FileFunActivity::class.java)
             1 -> startActivity(MappedByteBufferActivity::class.java)
+        }
+    }
+}
+
+class TimerActivity : BaseBtnFlowActivity() {
+    override fun getData() = mutableListOf("Alarm", "Work Manager")
+    override fun onClick(pos: Int) {
+        super.onClick(pos)
+        when (pos) {
+            0 -> startActivity(AlarmActivity::class.java)
+            1 -> startActivity(WorkManagerActivity::class.java)
         }
     }
 }
