@@ -20,6 +20,10 @@ dependencies {
     implementation Deps.swipeRefreshLayout
     implementation Deps.activityKtx
     implementation Deps.fragmentKtx
+    implementation Deps.work
+    implementation Deps.workKtx
+
+    implementation Deps.gson
 
     implementation Deps.retrofit
     implementation Deps.retrofitGson

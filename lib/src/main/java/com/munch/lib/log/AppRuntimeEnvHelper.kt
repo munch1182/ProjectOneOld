@@ -1,4 +1,4 @@
-package com.munch.lib.helper
+package com.munch.lib.log
 
 import android.content.Context
 import android.os.PowerManager

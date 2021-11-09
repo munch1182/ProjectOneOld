@@ -4,6 +4,7 @@
     package="com.munch.project.one">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
@@ -59,9 +60,8 @@
         <activity android:name=".net.NetActivity" />
         <activity android:name=".intent.IntentActivity" />
         <activity android:name=".about.AboutActivity" />
-        <activity android:name=".handler.HandlerActivity" />
+        <activity android:name="com.munch.project.one.test.HandlerActivity" />
         <activity android:name=".weight.RulerActivity" />
-        <activity android:name="com.munch.lib.fast.log.LogActivity" />
         <activity android:name=".permissions.PermissionActivity" />
         <activity android:name=".broadcast.LogReceiveActivity" />
         <activity android:name=".web.WebActivity" />
@@ -71,6 +71,8 @@
         <activity android:name=".TimerActivity" />
         <activity android:name=".timer.WorkManagerActivity" />
         <activity android:name=".timer.AlarmActivity" />
+        <activity android:name=".TestActivity" />
+        <activity android:name=".test.LogActivity" />
 
         <service android:name=".broadcast.LogReceiveServer" />
         <service android:name=".timer.TestService" />

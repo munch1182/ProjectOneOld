@@ -1,9 +1,9 @@
 @Suppress("unused")
 object Version {
-    const val compileSdk = 30
+    const val compileSdk = 31
 
     const val misSdk = 23
-    const val targetSdk = 30
+    const val targetSdk = 31
 
     const val defaultVersionCode = 1
     const val defaultVersionName = "1.0"
@@ -60,7 +60,7 @@ object Deps {
 
     /*https://developer.android.google.cn/topic/libraries/architecture/workmanager/basics*/
     /*https://developer.android.google.cn/kotlin/ktx?hl=zh_cn#workmanager*/
-    private const val WORK_VERSION = "2.5.0"
+    private const val WORK_VERSION = "2.7.0"
     const val work = "androidx.work:work-runtime:$WORK_VERSION"
     const val workKtx = "androidx.work:work-runtime-ktx:$WORK_VERSION"
     const val workTest = "androidx.work:work-testing:$WORK_VERSION"

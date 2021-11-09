@@ -6,6 +6,7 @@ import java.lang.annotation.Inherited
 /**
  * Create by munch1182 on 2021/10/21 15:43.
  */
+@Deprecated("ViewChange方法过多")
 class ViewDataStateHelper(
     private val viewChange: ViewChange,
     private val request: Request,

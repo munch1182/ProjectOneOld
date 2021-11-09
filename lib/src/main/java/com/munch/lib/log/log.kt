@@ -50,14 +50,6 @@ open class Logger(
     }
 
     /**
-     * 声明即将输出的字符串为json格式
-     */
-    fun isJson(isJson: Boolean = true): Logger {
-        this.isJson = isJson
-        return this
-    }
-
-    /**
      * 设置调用堆栈的偏移值
      */
     fun methodOffset(offset: Int): Logger {
@@ -92,7 +84,6 @@ open class Logger(
     protected var logListener: ((msg: String, thread: Thread) -> Unit)? = null
     var type = Log.DEBUG
     var methodOffset = 0
-    var isJson = false
     var enable = true
 
     protected open fun logOne(any: Any?) {
@@ -126,7 +117,6 @@ open class Logger(
         tag = null
         type = Log.DEBUG
         methodOffset = 0
-        isJson = false
     }
 
     protected open fun print(msg: String) {
@@ -223,7 +213,16 @@ open class Logger(
     }
 
     protected open fun formatStr(any: String): String {
-        return if (isJson) formatJson(any) else formatMultiStr(any)
+        return if (isJson(any)) formatJson(any) else formatMultiStr(any)
+    }
+
+    protected open fun isJson(any: String): Boolean {
+        return try {
+            JSONObject(any)
+            true
+        } catch (_: Exception) {
+            false
+        }
     }
 
     protected open fun formatMultiStr(any: String): String {
@@ -300,8 +299,4 @@ fun log(vararg any: Any?) {
         else -> any
     }
     LogLog.methodOffset(1).log(a)
-}
-
-fun logJson(json: String) {
-    LogLog.methodOffset(1).isJson().log(json)
 }

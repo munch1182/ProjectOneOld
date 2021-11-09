@@ -63,6 +63,9 @@ class Log2FileHelper(private val dir: File, private val newFile: (dir: File) -> 
         }
     }
 
+    val currentFile: File?
+        get() = fileNow
+
     private fun getCurrentMbb(): MappedByteBuffer {
         return mbbNow ?: newMBB()
     }

@@ -98,11 +98,17 @@ class ObserverActivity : BaseBigTextTitleActivity() {
     }
 
     private fun enableNotification() {
-        with(
-            { NotificationServiceHelper.isEnable() }, NotificationServiceHelper.requestIntent()
-        ).startOk {
+        if (NotificationServiceHelper.isConnected) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                NotificationServiceHelper.enable(cls = NotificationService::class.java)
+                NotificationServiceHelper.disable(cls = NotificationService::class.java)
+            }
+        } else {
+            with(
+                { NotificationServiceHelper.isEnable() }, NotificationServiceHelper.requestIntent()
+            ).startOk {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    NotificationServiceHelper.enable(cls = NotificationService::class.java)
+                }
             }
         }
     }

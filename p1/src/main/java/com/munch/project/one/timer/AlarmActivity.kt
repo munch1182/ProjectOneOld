@@ -11,7 +11,7 @@ import androidx.core.app.NotificationCompat
 import com.munch.lib.app.AppHelper
 import com.munch.lib.base.startServiceInForeground
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
-import com.munch.lib.helper.AppRuntimeEnvHelper
+import com.munch.lib.log.AppRuntimeEnvHelper
 import com.munch.lib.helper.TimeHelper
 import com.munch.lib.helper.service.BaseForegroundService
 import com.munch.lib.helper.service.IForegroundService

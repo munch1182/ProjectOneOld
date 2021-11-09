@@ -29,6 +29,7 @@ interface IViewState {
     fun onFailMore() {}
 }
 
+@Deprecated("添加了过多的方法")
 open class BaseBigTextTitleWithStateActivity : BaseBigTextTitleActivity(), IViewState {
 
     private var stateVm: ViewStateViewModel? = null
@@ -62,6 +63,5 @@ open class ViewStateViewModel : ViewModel() {
     private val loadResult = MutableLiveData<Boolean>()
     fun loadResult() = loadResult.toImmutable()
     fun request(page: Int) {}
-
 
 }

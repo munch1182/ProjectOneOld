@@ -64,17 +64,22 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
             NotificationManagerCompat.getEnabledListenerPackages(context)
                 .contains(context.packageName)
 
+        private var isConnectedValue = false
+            set(value) {
+                if (field != value) {
+                    field = value
+                    NotificationHelper.onConnectedStateChange(field)
+                }
+            }
+
+        val isConnected: Boolean
+            get() = isConnectedValue
+
         fun requestIntent() = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
     }
 
     protected open val logNotification = Logger("notification", true)
-    private var isConnected = false
-        set(value) {
-            if (field != value) {
-                field = value
-                NotificationHelper.onConnectedStateChange(field)
-            }
-        }
+
     private var cls: Class<out NotificationServiceHelper>? = null
 
     @Suppress("unchecked_cast")
@@ -83,7 +88,7 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
         cls = intent.getSerializableExtra(KEY_SERVICE_CLS) as Class<out NotificationServiceHelper>?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (intent.getBooleanExtra(KEY_ENABLE, true)) {
-                if (!isConnected) {
+                if (!isConnectedValue) {
                     requestRebind(ComponentName(this, getNotificationServerClass()))
                     logNotification.log("requestRebind")
                 }
@@ -91,7 +96,7 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
                 try {
                     requestUnbind()
                     logNotification.log("requestUnbind")
-                    isConnected = false
+                    isConnectedValue = false
                 } catch (e: Exception) {
                     //ignore
                 }
@@ -109,7 +114,7 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         logNotification.log("onListenerConnected")
-        isConnected = true
+        isConnectedValue = true
     }
 
     /**
@@ -118,7 +123,7 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         logNotification.log("onListenerDisconnected")
-        isConnected = false
+        isConnectedValue = false
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
