@@ -42,7 +42,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.P1">
         <activity
-            android:name=".SplashActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -51,7 +51,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
         <activity android:name=".WeightActivity" />
         <activity android:name=".weight.FlowLayoutActivity" />
         <activity android:name=".file.FileFunActivity" />

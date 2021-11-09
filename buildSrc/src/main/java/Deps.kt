@@ -19,6 +19,7 @@ object Deps {
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/core*/
     const val core_ktx = "androidx.core:core-ktx:1.6.0"
+    const val splash = "androidx.core:core-splashscreen:1.0.0-alpha02"
 
     /*https://github.com/material-components/material-components-android*/
     /*https://maven.google.com/web/index.html*/

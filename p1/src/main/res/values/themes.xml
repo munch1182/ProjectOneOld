@@ -20,10 +20,9 @@
 
     <style name="ButtonOutlineStyle" parent="AppTheme.Button.Outline" />
 
-    <style name="SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:windowBackground">@drawable/splash_bg</item>
-        <!--设置无效，需要在代码中设置-->
-        <item name="android:windowAnimationStyle">@style/ActivityAlphaAnim</item>
-        <item name="android:statusBarColor">@color/white</item>
+    <style name="SplashTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground_color</item>
+        <item name="postSplashScreenTheme">@style/Theme.P1</item>
     </style>
 </resources>

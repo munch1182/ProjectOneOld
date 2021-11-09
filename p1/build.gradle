@@ -22,6 +22,7 @@ dependencies {
     implementation Deps.fragmentKtx
     implementation Deps.work
     implementation Deps.workKtx
+    implementation Deps.splash
 
     implementation Deps.gson
 

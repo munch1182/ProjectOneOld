@@ -1,11 +1,14 @@
 package com.munch.project.one
 
 import android.os.Bundle
+import android.view.ViewTreeObserver
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.munch.lib.base.startActivity
 import com.munch.lib.fast.base.BaseActivity
 import com.munch.lib.fast.base.BaseBtnFlowActivity
 import com.munch.lib.fast.base.BaseRvActivity
 import com.munch.lib.fast.base.toSelectActivityIfHave
+import com.munch.lib.log.log
 import com.munch.project.one.about.AboutActivity
 import com.munch.project.one.bluetooth.BluetoothActivity
 import com.munch.project.one.broadcast.LogReceiveActivity
@@ -21,12 +24,45 @@ import com.munch.project.one.timer.AlarmActivity
 import com.munch.project.one.timer.WorkManagerActivity
 import com.munch.project.one.web.WebActivity
 import com.munch.project.one.weight.FlowLayoutActivity
+import kotlin.concurrent.thread
+import kotlin.math.max
 
 class MainActivity : BaseRvActivity() {
 
+    private var isReady = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        container.viewTreeObserver.addOnPreDrawListener(object :
+            ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                if (isReady) {
+                    container.viewTreeObserver.removeOnPreDrawListener(this)
+                }
+                return isReady
+            }
+        })
         toSelectActivityIfHave()
+    }
+
+    override fun setContentView(layoutResID: Int) {
+        installSplashScreen()
+        super.setContentView(layoutResID)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus) {
+            return
+        }
+        val cost = App.getLaunchCost()
+        if (cost > 500L) {
+            log("启动用时:$cost ms")
+        }
+        thread {
+            Thread.sleep(max(0L, 800L - cost))
+            isReady = true
+        }
     }
 
     override val targets: MutableList<Class<out BaseActivity>> =
