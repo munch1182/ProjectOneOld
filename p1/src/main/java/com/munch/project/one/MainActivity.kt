@@ -1,7 +1,6 @@
 package com.munch.project.one
 
 import android.os.Bundle
-import android.view.ViewTreeObserver
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.munch.lib.base.startActivity
 import com.munch.lib.fast.base.BaseActivity
@@ -24,45 +23,28 @@ import com.munch.project.one.timer.AlarmActivity
 import com.munch.project.one.timer.WorkManagerActivity
 import com.munch.project.one.web.WebActivity
 import com.munch.project.one.weight.FlowLayoutActivity
-import kotlin.concurrent.thread
-import kotlin.math.max
 
 class MainActivity : BaseRvActivity() {
 
-    private var isReady = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        container.viewTreeObserver.addOnPreDrawListener(object :
-            ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                if (isReady) {
-                    container.viewTreeObserver.removeOnPreDrawListener(this)
-                }
-                return isReady
-            }
-        })
-        toSelectActivityIfHave()
+        val cost = App.getLaunchCost()
+        if (cost > 500L) {
+            log("冷启动用时:$cost ms")
+        }
+        //冷启动
+        if (cost > -1) {
+            container.post { toSelectActivityIfHave() }
+        } else {
+            toSelectActivityIfHave()
+        }
     }
 
     override fun setContentView(layoutResID: Int) {
         installSplashScreen()
+        //因为无法判断绘制之后的时间点，因此如果要延长splash时间，直接暂停主线程即可
+        /*Thread.sleep(max(0L, 800L - cost))*/
         super.setContentView(layoutResID)
-    }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (!hasFocus) {
-            return
-        }
-        val cost = App.getLaunchCost()
-        if (cost > 500L) {
-            log("启动用时:$cost ms")
-        }
-        thread {
-            Thread.sleep(max(0L, 800L - cost))
-            isReady = true
-        }
     }
 
     override val targets: MutableList<Class<out BaseActivity>> =

@@ -30,6 +30,9 @@ class App : Application() {
         fun getLaunchCost() = MeasureHelper.cost(KEY_MEASURE_LAUNCH)
     }
 
+    /**
+     * 此方法只在冷启动时调用
+     */
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         MeasureHelper.start(KEY_MEASURE_LAUNCH)
