@@ -47,13 +47,12 @@ class CornerLayout @JvmOverloads constructor(
             )
             measureChild(child, childViewWidth, childViewHeight)
 
-            val w = child.measuredWidth + paddingLeft + paddingBottom
+            val w = child.measuredWidth + paddingLeft + paddingRight
             val h = child.measuredHeight + paddingTop + paddingBottom
-            if (w > width) {
-                setMeasuredDimension(width, h)
-            } else {
-                setMeasuredDimension(w, h)
-            }
+
+            setMeasuredDimension(w, h)
+        } else {
+            throw IllegalStateException()
         }
     }
 

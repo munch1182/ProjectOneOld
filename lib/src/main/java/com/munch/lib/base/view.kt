@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.core.view.children
 import com.munch.lib.R
 
 @FunctionalInterface
@@ -38,27 +39,33 @@ fun View.setMarginOrKeep(
  * 如果[View]有[View.getLayoutParams]，则优先使用其值，否则使用[lpIfNo]，否则新建一个[ViewGroup.LayoutParams.WRAP_CONTENT]的[ViewGroup.MarginLayoutParams]
  */
 fun View.addMargin(
-    t: Int? = null,
-    l: Int? = null,
-    r: Int? = null,
-    b: Int? = null,
+    t: Int = 0,
+    l: Int = 0,
+    r: Int = 0,
+    b: Int = 0,
     lpIfNo: ViewGroup.LayoutParams? = null
 ) {
     val lp = ViewHelper.newMarginLP(view = this, lpIfNo = lpIfNo)
-    if (t != null) {
-        lp.topMargin += t
-    }
-    if (l != null) {
-        lp.leftMargin += l
-    }
-    if (r != null) {
-        lp.rightMargin += r
-    }
-    if (b != null) {
-        lp.bottomMargin += b
-    }
+    lp.topMargin += t
+    lp.leftMargin += l
+    lp.rightMargin += r
+    lp.bottomMargin += b
     layoutParams = lp
 }
+
+fun View.setPaddingCompat(
+    l: Int = paddingLeft,
+    t: Int = paddingTop,
+    r: Int = paddingRight,
+    b: Int = paddingBottom
+) = setPadding(l, t, r, b)
+
+fun View.addPadding(l: Int = 0, t: Int = 0, r: Int = 0, b: Int = 0) = setPadding(
+    paddingLeft + l,
+    paddingTop + t,
+    paddingRight + r,
+    paddingBottom + b
+)
 
 fun View.setDoubleClickListener(time: Long = 300L, listener: View.OnClickListener) {
     setOnClickListener {
@@ -69,6 +76,28 @@ fun View.setDoubleClickListener(time: Long = 300L, listener: View.OnClickListene
         }
         it.setTag(ViewHelper.viewClickTimeId, System.currentTimeMillis())
     }
+}
+
+fun ViewGroup.clickItem(vararg clazz: Class<out View>, onClick: OnViewIndexClick) {
+    val listener = onClick.toClickListener()
+    var index = 0
+    children.forEach { view ->
+        if (clazz.isNotEmpty() && !isAssignable(clazz, view)) {
+            return@forEach
+        }
+        view.tag = index
+        index++
+        view.setOnClickListener(listener)
+    }
+}
+
+fun isAssignable(clazz: Array<out Class<out Any>>, any: Any): Boolean {
+    clazz.forEach { t ->
+        if (t.isAssignableFrom(any::class.java)) {
+            return true
+        }
+    }
+    return false
 }
 
 fun EditText.showSoftInput() {
@@ -96,9 +125,10 @@ object ViewHelper {
      *
      * @param view 如果传入[view]且不为null，则优先使用[view]的[View.getLayoutParams]来构建[ViewGroup.MarginLayoutParams]
      * @param lpIfNo 如果[view]为null，则尝试使用此值作为默认值来构建，
-     *  如果此值也为null，则新建一个宽高为[ViewGroup.LayoutParams.WRAP_CONTENT]的[ViewGroup.MarginLayoutParams]
+     * 如果此值也为null，则新建一个宽高为[ViewGroup.LayoutParams.WRAP_CONTENT]的[ViewGroup.MarginLayoutParams]
+     * @param t 当margin是从view获取的且传入参数为null时，不会更改原值，否则为0
      *
-     *  @return 最后构建的[ViewGroup.MarginLayoutParams]
+     * @return 最后构建的[ViewGroup.MarginLayoutParams]
      *
      * @see getMarginLP
      */

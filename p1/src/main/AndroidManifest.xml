@@ -60,7 +60,6 @@
         <activity android:name=".intent.IntentActivity" />
         <activity android:name=".about.AboutActivity" />
         <activity android:name="com.munch.project.one.test.HandlerActivity" />
-        <activity android:name=".weight.RulerActivity" />
         <activity android:name=".permissions.PermissionActivity" />
         <activity android:name=".broadcast.LogReceiveActivity" />
         <activity android:name=".web.WebActivity" />
@@ -72,6 +71,7 @@
         <activity android:name=".timer.AlarmActivity" />
         <activity android:name=".TestActivity" />
         <activity android:name=".test.LogActivity" />
+        <activity android:name=".weight.LoadingActivity" />
 
         <service android:name=".broadcast.LogReceiveServer" />
         <service android:name=".timer.TestService" />

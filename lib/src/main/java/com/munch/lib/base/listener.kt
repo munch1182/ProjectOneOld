@@ -21,8 +21,28 @@ interface OnViewIntClickListener : View.OnClickListener, View.OnLongClickListene
     fun onLongClick(v: View?, intVal: Int): Boolean = false
 }
 
+typealias OnViewIndexClick = (v: View?, index: Int) -> Unit
+typealias OnViewIndexLongClick = (v: View?, index: Int) -> Boolean
+
+fun OnViewIndexClick.toClickListener(): OnViewIndexClickListener {
+    return object : OnViewIndexClickListener {
+        override fun onClick(v: View?, index: Int) {
+            super.onClick(v, index)
+            invoke(v, index)
+        }
+    }
+}
+
+fun OnViewIndexLongClick.toLongClickListener(): OnViewIndexClickListener {
+    return object : OnViewIndexClickListener {
+        override fun onLongClick(v: View?, index: Int): Boolean {
+            return invoke(v, index)
+        }
+    }
+}
+
 /**
- * 更正命名
+ * 更正onClick的参数命名
  */
 interface OnViewIndexClickListener : View.OnClickListener, View.OnLongClickListener {
 

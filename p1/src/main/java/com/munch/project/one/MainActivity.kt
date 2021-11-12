@@ -23,6 +23,7 @@ import com.munch.project.one.timer.AlarmActivity
 import com.munch.project.one.timer.WorkManagerActivity
 import com.munch.project.one.web.WebActivity
 import com.munch.project.one.weight.FlowLayoutActivity
+import com.munch.project.one.weight.LoadingActivity
 
 class MainActivity : BaseRvActivity() {
 
@@ -85,12 +86,13 @@ class TestActivity : BaseRvActivity() {
 
 class WeightActivity : BaseBtnFlowActivity() {
 
-    override fun getData() = mutableListOf("FlowLayout")
+    override fun getData() = mutableListOf("FlowLayout", "Loading")
 
     override fun onClick(pos: Int) {
         super.onClick(pos)
         when (pos) {
             0 -> startActivity(FlowLayoutActivity::class.java)
+            1 -> startActivity(LoadingActivity::class.java)
         }
     }
 }

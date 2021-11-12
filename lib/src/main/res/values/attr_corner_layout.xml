@@ -2,12 +2,12 @@
 <resources>
     <declare-styleable name="CornerLayout">
         <attr name="android:color" format="color" />
-        <attr name="tlRadius" format="dimension" />
-        <attr name="trRadius" format="dimension" />
-        <attr name="blRadius" format="dimension" />
-        <attr name="radius" format="dimension" />
-        <attr name="brRadius" format="dimension" />
-        <attr name="strokeColor" format="color" />
-        <attr name="strokeWidth" format="dimension" />
+        <attr name="tlRadius" />
+        <attr name="trRadius" />
+        <attr name="blRadius" />
+        <attr name="radius" />
+        <attr name="brRadius" />
+        <attr name="strokeColor" />
+        <attr name="strokeWidth" />
     </declare-styleable>
 </resources>

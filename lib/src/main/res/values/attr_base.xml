@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="gravity" format="flags">
+        <flag name="START" value="1" />
+        <flag name="END" value="2" />
+        <flag name="TOP" value="4" />
+        <flag name="BOTTOM" value="8" />
+        <flag name="CENTER_HORIZONTAL" value="3" />
+        <flag name="CENTER_VERTICAL" value="12" />
+        <flag name="CENTER" value="15" />
+    </attr>
+    <attr name="itemSpacing" format="dimension" />
+    <attr name="lineSpacing" format="dimension" />
+    <attr name="maxCount" format="integer" />
+    <attr name="tlRadius" format="dimension" />
+    <attr name="trRadius" format="dimension" />
+    <attr name="blRadius" format="dimension" />
+    <attr name="radius" format="dimension" />
+    <attr name="brRadius" format="dimension" />
+    <attr name="strokeColor" format="color" />
+    <attr name="strokeWidth" format="dimension" />
+</resources>
