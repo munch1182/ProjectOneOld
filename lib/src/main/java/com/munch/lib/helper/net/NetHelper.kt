@@ -61,7 +61,7 @@ class NetHelper private constructor(context: Context) :
         for (network in networkInterfaces) {
             for (address in network.inetAddresses) {
                 if ((!address.isLoopbackAddress) && (address is Inet4Address)) {
-                    return address.hostAddress.toString()
+                    return address.hostAddress?.toString()
                 }
             }
         }

@@ -2,6 +2,7 @@ package com.munch.lib.fast
 
 import android.app.ActivityManager
 import android.app.Application
+import android.content.Context
 import android.os.StatFs
 import com.munch.lib.app.AppForegroundHelper
 import com.munch.lib.app.AppHelper
@@ -36,12 +37,11 @@ object FastAppHelper {
         }
     }
 
-    fun collectPhoneInfo(): LinkedHashMap<String, String?> {
+    fun collectPhoneInfo(context: Context = AppHelper.app): LinkedHashMap<String, String?> {
         val map = LinkedHashMap<String, String?>()
         PhoneHelper.apply {
             val memory = getMemoryInfo()
             val rom = getRom()
-            val context = AppHelper.app
             val screenSize = getScreenSize(context)
             val realSize = "${screenSize?.width}/${screenSize?.height}"
             val screenWidthHeight = getScreenWidthHeight(context)

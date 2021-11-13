@@ -1,4 +1,4 @@
-package com.munch.project.one.file
+package com.munch.project.one.test
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -7,7 +7,6 @@ import com.munch.lib.helper.TimeHelper
 import com.munch.lib.helper.checkOrNew
 import com.munch.lib.helper.closeQuietly
 import com.munch.lib.log.Log2FileHelper
-import com.munch.lib.log.log
 import com.munch.project.one.databinding.ActivityMappedByteBufferBinding
 import java.io.Closeable
 import java.io.File
@@ -19,31 +18,36 @@ import kotlin.system.measureTimeMillis
 /**
  * Create by munch1182 on 2021/10/26 14:23.
  */
+@SuppressLint("SetTextI18n")
 class MappedByteBufferActivity : BaseBigTextTitleActivity() {
 
     private val bind by bind<ActivityMappedByteBufferBinding>()
     private val mmbHelper by lazy { Log2FileHelper(File(cacheDir, "log")) }
     private val ioHelper by lazy { Log2FileByIOHelper(File(cacheDir, "log2")) }
 
+    private val count = 1000
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        bind.mbbTestTitle.text = "写入${count}次数据耗时"
         bind.mbbTestMmb.setOnClickListener { testMMBWrite() }
         bind.mbbTestIo.setOnClickListener { testIOWrite() }
     }
 
-    @SuppressLint("SetTextI18n")
     private fun testIOWrite() {
         thread {
-            val cost = measureTimeMillis { repeat(1000) { ioHelper.write("log:$it\n") } }
+            val cost = measureTimeMillis { repeat(count) { ioHelper.write("log:$it\n") } }
             bind.mbbTvIo.post { bind.mbbTvIo.text = "${bind.mbbTvIo.text}\ncost:$cost" }
+            ioHelper.closeQuietly()
         }
     }
 
     @SuppressLint("SetTextI18n")
     private fun testMMBWrite() {
         thread {
-            val cost = measureTimeMillis { repeat(1000) { mmbHelper.write("log:$it\n") } }
+            val cost = measureTimeMillis { repeat(count) { mmbHelper.write("log:$it\n") } }
             bind.mbbTvMmb.post { bind.mbbTvMmb.text = "${bind.mbbTvMmb.text}\ncost:$cost" }
+            mmbHelper.closeQuietly()
         }
     }
 }

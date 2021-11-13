@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
@@ -22,6 +24,7 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
@@ -30,6 +33,9 @@
         tools:ignore="ProtectedPermissions" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
     <application
@@ -53,7 +59,7 @@
         </activity>
         <activity android:name=".WeightActivity" />
         <activity android:name=".weight.FlowLayoutActivity" />
-        <activity android:name=".file.FileFunActivity" />
+        <activity android:name=".test.FileFunActivity" />
         <activity android:name=".bluetooth.BluetoothActivity" />
         <activity android:name=".bluetooth.BluetoothScanInfoActivity" />
         <activity android:name=".net.NetActivity" />
@@ -64,8 +70,7 @@
         <activity android:name=".broadcast.LogReceiveActivity" />
         <activity android:name=".web.WebActivity" />
         <activity android:name=".contentobserver.ObserverActivity" />
-        <activity android:name=".file.MappedByteBufferActivity" />
-        <activity android:name=".FileActivity" />
+        <activity android:name=".test.MappedByteBufferActivity" />
         <activity android:name=".TimerActivity" />
         <activity android:name=".timer.WorkManagerActivity" />
         <activity android:name=".timer.AlarmActivity" />

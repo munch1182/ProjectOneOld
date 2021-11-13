@@ -16,7 +16,7 @@ class DebugLoadingView @JvmOverloads constructor(
     styleDef: Int = 0
 ) : View(context, attrs, styleDef), CircleViewHelper {
 
-    override val defWidth = context.dp2Px(32f).toInt()
+    override val defWidth = context.dp2Px(64f).toInt()
     override val cw: Int
         get() = circleWidth.toInt()
     override val rect = RectF()
@@ -65,7 +65,22 @@ class DebugLoadingView @JvmOverloads constructor(
 
         //<editor-fold desc="debug">
         canvas.drawColor(Color.BLACK)
+
+        paint.shader = null
+        paint.strokeWidth = 3f
+        paint.color = Color.RED
+        canvas.drawRect(rect, paint)
+
+        gradient?.let {
+            val half = rect.width() / 2f
+            gradientMatrix.setTranslate(half, half)
+            it.setLocalMatrix(gradientMatrix)
+            paint.shader = it
+        }
+        paint.strokeWidth = circleWidth
+        paint.color = circleColor
         //</editor-fold>
+
 
         canvas.rotate(rotate, rect.centerX(), rect.centerY())
 

@@ -89,7 +89,7 @@ private fun format(str: String, maxWeight: Int, fillZero: Boolean): String {
 /**
  * byte转为16进制字符串
  */
-fun Byte.toHexStr() = String.format("%02X", this)
+fun Byte.toHexStr() = String.format("0x%02X", this)
 fun ByteArray.toHexStr() = this.joinToString { it.toHexStr() }
 //</editor-fold>
 

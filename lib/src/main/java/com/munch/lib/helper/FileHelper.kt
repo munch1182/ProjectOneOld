@@ -34,8 +34,7 @@ import java.util.zip.ZipOutputStream
 fun Closeable?.closeQuietly() {
     try {
         this?.close()
-    } catch (e: IOException) {
-        //ignore
+    } catch (_: IOException) {
     }
 }
 
@@ -53,7 +52,7 @@ fun File.read(length: Int, start: Int = 0): ByteArray? {
         if (fis.read(byteArray, start, length) != length) {
             byteArray = null
         }
-    } catch (e: IOException) {
+    } catch (_: IOException) {
         byteArray = null
     } finally {
         fis?.closeQuietly()

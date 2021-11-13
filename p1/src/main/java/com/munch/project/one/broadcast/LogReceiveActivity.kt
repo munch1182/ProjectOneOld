@@ -71,7 +71,7 @@ class LogReceiveActivity : BaseBigTextTitleActivity() {
             }
         }
 
-        logAdapter.set(DataHelper.LogReceive.getActions()?.toMutableList())
+        logAdapter.set(DataHelper.LogReceive.getActions().toMutableList())
     }
 
     private fun showByState() {

@@ -46,7 +46,7 @@ fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnItemClickListen
 }
 
 fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnItemLongClickListener(
-    onLongClick: ((v: View?, pos: Int, holder: VH) -> Boolean)
+    onLongClick: ((v: View?, pos: Int, holder: VH) -> Boolean)?
 ) {
     if (onLongClick == null) {
         setOnItemLongClickListener(null)

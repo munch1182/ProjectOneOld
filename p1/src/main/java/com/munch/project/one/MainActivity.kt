@@ -12,8 +12,8 @@ import com.munch.project.one.about.AboutActivity
 import com.munch.project.one.bluetooth.BluetoothActivity
 import com.munch.project.one.broadcast.LogReceiveActivity
 import com.munch.project.one.contentobserver.ObserverActivity
-import com.munch.project.one.file.FileFunActivity
-import com.munch.project.one.file.MappedByteBufferActivity
+import com.munch.project.one.test.FileFunActivity
+import com.munch.project.one.test.MappedByteBufferActivity
 import com.munch.project.one.intent.IntentActivity
 import com.munch.project.one.net.NetActivity
 import com.munch.project.one.permissions.PermissionActivity
@@ -76,7 +76,8 @@ class TestActivity : BaseRvActivity() {
         mutableListOf(
             HandlerActivity::class.java,
             LogActivity::class.java,
-            FileActivity::class.java,
+            FileFunActivity::class.java,
+            MappedByteBufferActivity::class.java,
             WebActivity::class.java,
             TimerActivity::class.java,
         )
@@ -93,17 +94,6 @@ class WeightActivity : BaseBtnFlowActivity() {
         when (pos) {
             0 -> startActivity(FlowLayoutActivity::class.java)
             1 -> startActivity(LoadingActivity::class.java)
-        }
-    }
-}
-
-class FileActivity : BaseBtnFlowActivity() {
-    override fun getData() = mutableListOf("File Fun", "MappedByteBuffer")
-    override fun onClick(pos: Int) {
-        super.onClick(pos)
-        when (pos) {
-            0 -> startActivity(FileFunActivity::class.java)
-            1 -> startActivity(MappedByteBufferActivity::class.java)
         }
     }
 }

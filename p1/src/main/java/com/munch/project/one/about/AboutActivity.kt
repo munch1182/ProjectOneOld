@@ -18,7 +18,7 @@ class AboutActivity : BaseBigTextTitleActivity() {
         setContentView(TextView(this).apply {
             setPadding(dp2Px(16f).toInt())
             val sb = StringBuilder()
-            FastAppHelper.collectPhoneInfo().forEach {
+            FastAppHelper.collectPhoneInfo(this@AboutActivity).forEach {
                 sb.append(it.key)
                     .append(":")
                     .append(it.value)

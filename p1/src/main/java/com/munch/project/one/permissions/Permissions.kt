@@ -25,6 +25,16 @@ object Permissions {
     @SuppressLint("InlinedApi", "BatteryLife")
     val PERMISSIONS = arrayListOf(
         PB(Manifest.permission.BLUETOOTH, note = "非运行时权限"),
+        PB(
+            Manifest.permission.BLUETOOTH_SCAN,
+            minVersion = Build.VERSION_CODES.S,
+            note = "运行时权限，在获取BLUETOOTH_CONNECT权限后，此权限会在请求后会自动获取(仍然要调用请求方法)"
+        ),
+        PB(
+            Manifest.permission.BLUETOOTH_CONNECT,
+            minVersion = Build.VERSION_CODES.S,
+            note = "运行时权限，在获取BLUETOOTH_SCAN权限后，此权限会在请求后会自动获取(仍然要调用请求方法)"
+        ),
         PB(Manifest.permission.CAMERA),
         PB(
             Manifest.permission.WRITE_EXTERNAL_STORAGE, maxVersion = Build.VERSION_CODES.Q,

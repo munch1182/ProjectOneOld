@@ -4,8 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".file.MappedByteBufferActivity"
+    tools:context=".test.MappedByteBufferActivity"
     tools:ignore="HardcodedText">
+
+    <TextView
+        android:id="@+id/mbb_test_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/paddingDef"
+        android:layout_marginTop="@dimen/paddingDef"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/mbb_test_mmb"
@@ -15,7 +24,7 @@
         android:layout_marginTop="@dimen/paddingDef"
         android:text="test mmb"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/mbb_test_title" />
 
     <Button
         android:id="@+id/mbb_test_io"

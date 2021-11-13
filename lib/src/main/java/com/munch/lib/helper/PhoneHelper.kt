@@ -74,7 +74,7 @@ object PhoneHelper {
     }
 
     /**
-     * 获取分辨率
+     * 获取分辨率，有的手机需要实际有页面的context才能获取值，否则会报错，比如模拟器
      */
     @Suppress("DEPRECATION")
     fun getScreenSize(context: Context = AppHelper.app): Size? {

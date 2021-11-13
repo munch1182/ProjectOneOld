@@ -17,7 +17,6 @@ object DataHelper {
         fun saveActions(actions: List<LogActionVB>) {
             val byteArray = ByteArray(actions.size)
             val sb = StringBuilder()
-            var index = 0
             actions.forEachIndexed { i, b ->
                 if (i > 0) {
                     sb.append(",")
