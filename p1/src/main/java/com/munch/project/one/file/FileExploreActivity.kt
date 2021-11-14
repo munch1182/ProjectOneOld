@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.munch.lib.base.setDoubleClickListener
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
 import com.munch.lib.fast.base.BaseFragment
 import com.munch.lib.fast.recyclerview.SimpleAdapter
@@ -49,6 +50,7 @@ class FileExploreActivity : BaseBigTextTitleActivity() {
         }
     }
 
+    private var hp = false
     private fun showFileExplore(hasPermission: Boolean) {
         val root = if (hasPermission) {
             /*Environment.getExternalStorageDirectory()*/
@@ -56,9 +58,11 @@ class FileExploreActivity : BaseBigTextTitleActivity() {
         } else {
             filesDir.parentFile
         } ?: cacheDir
+        hp = hasPermission
         showFileExplore(root)
     }
 
+    //todo 回退时没有保留状态
     fun showFileExplore(f: File?) {
         fg.show(FileExploreFragment.newFileExploreFragment(f))
     }
@@ -67,6 +71,11 @@ class FileExploreActivity : BaseBigTextTitleActivity() {
         if (!fg.pop()) {
             super.onBackPressed()
         }
+    }
+
+    fun changeDir() {
+        fg.reset()
+        showFileExplore(!hp)
     }
 }
 
@@ -106,6 +115,8 @@ class FileExploreFragment : BaseFragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = fileAdapter
         }
+        //todo 没有设置分段点击，没有滑动悬停
+        bind.feLoc.setDoubleClickListener { activity?.changeDir() }
         fileAdapter.setOnItemClickListener { _, pos, _ ->
             val f = fileAdapter.get(pos)?.file ?: return@setOnItemClickListener
             if (f.isDirectory) {

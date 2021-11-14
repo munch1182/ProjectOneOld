@@ -77,4 +77,11 @@ class FragmentHelper(
         return willHandle
     }
 
+    fun reset() {
+        fm.beginTransaction().apply {
+            fragments.forEach { remove(it) }
+            fragments.clear()
+        }.commit()
+    }
+
 }
