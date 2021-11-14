@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.app.NotificationManagerCompat
@@ -51,6 +52,7 @@ object Permissions {
             Manifest.permission.MANAGE_EXTERNAL_STORAGE,
             minVersion = Build.VERSION_CODES.R,
             note = "文件管理权限",
+            isGrantedJudge = { Environment.isExternalStorageManager() },
             intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
         ),
         PB(

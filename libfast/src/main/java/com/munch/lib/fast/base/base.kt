@@ -48,4 +48,4 @@ open class BaseActivity : AppCompatActivity() {
 
 }
 
-open class BaseFragment : BaseDBFragment() {}
+open class BaseFragment : BaseDBFragment()

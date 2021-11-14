@@ -7,6 +7,7 @@ import android.widget.Button
 import androidx.core.app.ActivityCompat
 import androidx.databinding.BindingAdapter
 import com.munch.lib.app.AppHelper
+import com.munch.lib.base.hadPermission
 
 /**
  * Create by munch1182 on 2021/10/14 16:35.
@@ -18,9 +19,7 @@ data class PermissionBean(
     val minVersion: Int = 1,
     val maxVersion: Int = Int.MAX_VALUE,
     var note: String = "普通运行时权限",
-    var isGrantedJudge: (() -> Boolean) = {
-        ActivityCompat.checkSelfPermission(AppHelper.app, name) == PackageManager.PERMISSION_GRANTED
-    },
+    var isGrantedJudge: (() -> Boolean) = { AppHelper.app.hadPermission(name) },
     var intent: Intent? = null,
     var jump: Boolean = true
 ) {

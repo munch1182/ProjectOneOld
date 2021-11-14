@@ -3,6 +3,7 @@ package com.munch.lib.helper
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -147,8 +148,12 @@ fun File.toUriCompat(
 /**
  * 获取文件后缀
  */
-fun File.getExtension(): String? = MimeTypeMap.getSingleton()
-    .getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(this.toUri().toString()))
+fun File.getExtension(uri: Uri = toUri()): String? = try {
+    MimeTypeMap.getSingleton()
+        .getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(uri.toString()))
+} catch (_: Exception) {
+    null
+}
 
 /**
  * 返回该文件的md5值，默认为16位
@@ -178,6 +183,18 @@ fun File.md5Str(radix: Int = 16): String? {
 }
 
 fun File.md5Check(md5: String, radix: Int = 16) = md5 == this.md5Str(radix)
+
+fun File.openIntent(): Intent? {
+    if (isFile) {
+        val type = getExtension() ?: return null
+        return Intent().apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            action = Intent.ACTION_VIEW
+            setDataAndType(toUriCompat(), type)
+        }
+    }
+    return null
+}
 
 /**
  * 复制当前文件到dest，参考org.apache.commons.io.FileUtils#doCopyFile

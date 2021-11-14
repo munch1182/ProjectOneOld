@@ -1,5 +1,6 @@
 package com.munch.lib.base
 
+import android.Manifest
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -16,6 +17,7 @@ import android.util.TypedValue
 import androidx.annotation.ArrayRes
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresPermission
+import androidx.core.content.PermissionChecker
 
 /**
  * Create by munch1182 on 2021/8/6 17:20.
@@ -70,6 +72,10 @@ fun <T> Context.getAttrArrayFromTheme(attrId: Int, get: TypedArray.() -> T): T {
     typedArray.recycle()
     return value
 }
+
+fun Context.hadPermission(permission: String) = PermissionChecker.checkSelfPermission(
+    this, permission
+) == PermissionChecker.PERMISSION_GRANTED
 
 /**
  * 使用string-array数组时，使用此方法获取数组

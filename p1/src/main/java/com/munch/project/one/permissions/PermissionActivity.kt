@@ -132,12 +132,16 @@ class PermissionActivity : BaseBigTextTitleActivity() {
             }
             when {
                 start -> {
-                    with(
-                        Intent(
-                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.parse("package:$packageName")
-                        )
-                    ).start {}
+                    if (intent != null) {
+                        with(intent).start(resultHandle)
+                    } else {
+                        with(
+                            Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:$packageName")
+                            )
+                        ).start {}
+                    }
                 }
                 intent != null -> {
                     with(pb.isGrantedJudge, intent)

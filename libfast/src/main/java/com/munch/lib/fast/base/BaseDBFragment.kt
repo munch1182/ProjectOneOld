@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
+import com.munch.lib.log.log
 
 /**
  * 为[Fragment]添加[ViewDataBinding]的实现
@@ -21,11 +22,27 @@ open class BaseDBFragment : Fragment() {
 
     private var resId = 0
     private var vdb: ViewDataBinding? = null
+    var vb: ViewBinding? = null
 
-    protected open fun <VB : ViewBinding> bind(@LayoutRes layoutId: Int): Lazy<VB> {
+    protected open fun <VB : ViewDataBinding> bind(@LayoutRes layoutId: Int): Lazy<VB> {
         this.resId = layoutId
         @Suppress("UNCHECKED_CAST")
         return lazy { vdb as VB }
+    }
+
+    protected inline fun <reified VB : ViewBinding> bind(): Lazy<VB> {
+        @Suppress("UNCHECKED_CAST")
+        return lazy {
+            try {
+                val method = VB::class.java.getDeclaredMethod("inflate", LayoutInflater::class.java)
+                method.isAccessible = true
+                val vb: VB = method.invoke(null, layoutInflater) as VB
+                this.vb = vb
+                return@lazy vb
+            } catch (e: Exception) {
+                throw e
+            }
+        }
     }
 
     override fun onCreateView(
@@ -33,6 +50,9 @@ open class BaseDBFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        if (vb != null) {
+            return vb?.root
+        }
         if (vdb != null) {
             return vdb?.root
         }
@@ -48,5 +68,6 @@ open class BaseDBFragment : Fragment() {
         super.onDestroyView()
         vdb?.unbind()
         vdb = null
+        vb = null
     }
 }
