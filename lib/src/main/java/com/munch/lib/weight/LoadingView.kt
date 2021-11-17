@@ -25,7 +25,6 @@ class LoadingView @JvmOverloads constructor(
             strokeCap = Paint.Cap.ROUND
             style = Paint.Style.STROKE
             strokeWidth = circleWidth
-            color = circleColor
             gradient?.let {
                 val half = rect.width() / 2f
                 gradientMatrix.setTranslate(half, half)
@@ -41,7 +40,6 @@ class LoadingView @JvmOverloads constructor(
         }
 
     var circleWidth = context.dp2Px(4f)
-    var circleColor = Color.GRAY
     var startColor = Color.WHITE
     var endColor = Color.parseColor("#28FFFFFF")
     var speed = 16L
