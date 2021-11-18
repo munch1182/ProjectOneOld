@@ -116,6 +116,13 @@ fun EditText.hideSoftInput() {
     im?.hideSoftInputFromWindow(windowToken, 0)
 }
 
+/**
+ * 要求父类不拦截触摸事件
+ */
+fun View.requestTouchEvent(request: Boolean) {
+    (parent as? ViewGroup)?.requestDisallowInterceptTouchEvent(request)
+}
+
 object ViewHelper {
 
     val viewClickTimeId = R.id.clickTime

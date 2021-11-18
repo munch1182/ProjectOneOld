@@ -79,6 +79,7 @@
         <activity android:name=".weight.LoadingActivity" />
         <activity android:name=".file.FileExploreActivity" />
         <activity android:name=".test.NotificationServiceActivity" />
+        <activity android:name=".weight.WheelViewActivity" />
 
         <service android:name=".broadcast.LogReceiveServer" />
         <service android:name=".timer.TestService" />
