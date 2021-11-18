@@ -59,9 +59,7 @@ open class BaseBtnWithNoticeActivity : BaseBigTextTitleActivity() {
             { _, pos, bind -> onClick(pos, bind) },
             R.id.item_tv_view
         )
-        getData()?.let {
-            set(null, it)
-        }
+        getData()?.let { set(null, it) }
     }
 
     protected fun set(header: String?, items: MutableList<String?>? = null) {

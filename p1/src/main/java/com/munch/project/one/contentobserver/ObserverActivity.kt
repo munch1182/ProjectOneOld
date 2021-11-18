@@ -18,7 +18,7 @@ import com.munch.lib.fast.databinding.ItemLogContentBinding
 import com.munch.lib.fast.recyclerview.SimpleAdapter
 import com.munch.lib.log.log
 import com.munch.lib.notification.NotificationHelper
-import com.munch.lib.notification.NotificationServiceHelper
+import com.munch.lib.notification.NotificationListenerServiceHelper
 import com.munch.lib.result.with
 import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityObserverBinding
@@ -98,16 +98,16 @@ class ObserverActivity : BaseBigTextTitleActivity() {
     }
 
     private fun enableNotification() {
-        if (NotificationServiceHelper.isConnected) {
+        if (NotificationListenerServiceHelper.isConnected) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                NotificationServiceHelper.disable(cls = NotificationService::class.java)
+                NotificationListenerServiceHelper.disable(cls = NotificationService::class.java)
             }
         } else {
             with(
-                { NotificationServiceHelper.isEnable() }, NotificationServiceHelper.requestIntent()
+                { NotificationListenerServiceHelper.isEnable() }, NotificationListenerServiceHelper.requestIntent()
             ).startOk {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    NotificationServiceHelper.enable(cls = NotificationService::class.java)
+                    NotificationListenerServiceHelper.enable(cls = NotificationService::class.java)
                 }
             }
         }
@@ -124,7 +124,7 @@ class ObserverActivity : BaseBigTextTitleActivity() {
         super.onDestroy()
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                NotificationServiceHelper.disable(cls = NotificationService::class.java)
+                NotificationListenerServiceHelper.disable(cls = NotificationService::class.java)
             }
             tm?.listen(psListener, PhoneStateListener.LISTEN_NONE)
             contentResolver.unregisterContentObserver(co)

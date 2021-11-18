@@ -28,7 +28,7 @@ import com.munch.lib.log.Logger
  *
  * Create by munch1182 on 2021/8/19 10:46.
  */
-abstract class NotificationServiceHelper : NotificationListenerService() {
+abstract class NotificationListenerServiceHelper : NotificationListenerService() {
 
     companion object {
 
@@ -38,7 +38,7 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
         @RequiresApi(Build.VERSION_CODES.N)
         fun enable(
             context: Context = AppHelper.app,
-            cls: Class<out NotificationServiceHelper> = NotificationServiceHelper::class.java
+            cls: Class<out NotificationListenerServiceHelper> = NotificationListenerServiceHelper::class.java
         ) {
             context.startService(Intent(context, cls).apply {
                 putExtra(KEY_ENABLE, true)
@@ -49,7 +49,7 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
         @RequiresApi(Build.VERSION_CODES.N)
         fun disable(
             context: Context = AppHelper.app,
-            cls: Class<out NotificationServiceHelper> = NotificationServiceHelper::class.java
+            cls: Class<out NotificationListenerServiceHelper> = NotificationListenerServiceHelper::class.java
         ) {
             context.startService(Intent(context, cls).apply {
                 putExtra(KEY_ENABLE, false)
@@ -80,12 +80,13 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
 
     protected open val logNotification = Logger("notification", true)
 
-    private var cls: Class<out NotificationServiceHelper>? = null
+    private var cls: Class<out NotificationListenerServiceHelper>? = null
 
     @Suppress("unchecked_cast")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent ?: return super.onStartCommand(intent, flags, startId)
-        cls = intent.getSerializableExtra(KEY_SERVICE_CLS) as Class<out NotificationServiceHelper>?
+        cls =
+            intent.getSerializableExtra(KEY_SERVICE_CLS) as Class<out NotificationListenerServiceHelper>?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (intent.getBooleanExtra(KEY_ENABLE, true)) {
                 if (!isConnectedValue) {
@@ -94,9 +95,11 @@ abstract class NotificationServiceHelper : NotificationListenerService() {
                 }
             } else {
                 try {
-                    requestUnbind()
-                    logNotification.log("requestUnbind")
-                    isConnectedValue = false
+                    if (isConnectedValue) {
+                        requestUnbind()
+                        logNotification.log("requestUnbind")
+                        isConnectedValue = false
+                    }
                 } catch (e: Exception) {
                     //ignore
                 }

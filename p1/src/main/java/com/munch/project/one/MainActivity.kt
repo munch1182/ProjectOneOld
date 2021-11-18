@@ -13,13 +13,10 @@ import com.munch.project.one.bluetooth.BluetoothActivity
 import com.munch.project.one.broadcast.LogReceiveActivity
 import com.munch.project.one.contentobserver.ObserverActivity
 import com.munch.project.one.file.FileExploreActivity
-import com.munch.project.one.test.FileFunActivity
-import com.munch.project.one.test.MappedByteBufferActivity
 import com.munch.project.one.intent.IntentActivity
 import com.munch.project.one.net.NetActivity
 import com.munch.project.one.permissions.PermissionActivity
-import com.munch.project.one.test.HandlerActivity
-import com.munch.project.one.test.LogActivity
+import com.munch.project.one.test.*
 import com.munch.project.one.timer.AlarmActivity
 import com.munch.project.one.timer.WorkManagerActivity
 import com.munch.project.one.web.WebActivity
@@ -82,6 +79,7 @@ class TestActivity : BaseRvActivity() {
             MappedByteBufferActivity::class.java,
             WebActivity::class.java,
             TimerActivity::class.java,
+            NotificationServiceActivity::class.java
         )
 
     override fun getData() = targets.map { it.simpleName.replace("Activity", "") }.toMutableList()
