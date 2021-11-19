@@ -15,6 +15,7 @@
         tools:ignore="UselessParent">
 
         <com.munch.lib.weight.debug.DebugWheelView
+            android:id="@+id/wheel_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/white"

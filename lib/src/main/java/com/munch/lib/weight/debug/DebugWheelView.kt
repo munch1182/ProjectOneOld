@@ -10,7 +10,6 @@ import android.view.ViewConfiguration
 import android.widget.OverScroller
 import androidx.core.view.ViewCompat
 import com.munch.lib.base.*
-import com.munch.lib.log.log
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
@@ -26,7 +25,8 @@ class DebugWheelView @JvmOverloads constructor(
 
     //<editor-fold desc="绘制部分">
     private var showCount = 3
-    private val data = arrayOf("第一", "第2", "第三", "四", "第五个", "第六")
+    private val data =
+        arrayOf("第一", "第2", "第三", "四", "第五个", "第六", "7", "8", "九", "10", "一十一", "第一十二")
 
     private val paintSelect by lazy {
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -100,9 +100,18 @@ class DebugWheelView @JvmOverloads constructor(
     }
 
     //</editor-fold>
-    private var index = 2
+
+    private var index = 0
+        set(value) {
+            if (field != value) {
+                field = value
+                onIndexChange?.invoke(value)
+            }
+        }
 
     private var moveOffset = 0f
+    private var onIndexChange: OnIndexChange? = null
+    private var afterIndexChange: OnIndexChange? = null
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -149,33 +158,43 @@ class DebugWheelView @JvmOverloads constructor(
             y = cy
             canvas.drawTextInCenter(it, pointCenter.x, y, paintSelect)
         }
-        repeat(showCount) { i ->
-            val number = i + 1
-            getStr(index + number)?.let {
-                y = cy + itemSpace * number + (textCenterHeight / 2 + textOtherHeight / 2) * number
-                if (y >= height + textOtherHeight / 2) {
-                    return@repeat
-                }
-                canvas.drawTextInCenter(it, pointCenter.x, y, paintOther)
-            } ?: return@repeat
+        val textOtherHeightHalf = textOtherHeight / 2
+        kotlin.run stop@{
+            repeat(showCount) { i ->
+                val number = i + 1
+                getStr(index + number)?.let {
+                    y = cy + itemSpace * number +
+                            (textCenterHeight / 2 + textOtherHeightHalf) * number
+                    if (y >= height + textOtherHeightHalf) {
+                        return@stop
+                    }
+                    canvas.drawTextInCenter(it, pointCenter.x, y, paintOther)
+                } ?: return@stop
+            }
         }
-        repeat(showCount) { i ->
-            val number = i + 1
-            getStr(index - number)?.let {
-                y = cy - itemSpace * number - (textCenterHeight / 2 + textOtherHeight / 2) * number
-                if (y <= -textOtherHeight / 2) {
-                    return@repeat
-                }
-                canvas.drawTextInCenter(it, pointCenter.x, y, paintOther)
-            } ?: return@repeat
+        kotlin.run stop@{
+            repeat(showCount) { i ->
+                val number = i + 1
+                getStr(index - number)?.let {
+                    y =
+                        cy - itemSpace * number - (textCenterHeight / 2 + textOtherHeightHalf) * number
+                    if (y <= -textOtherHeightHalf) {
+                        return@stop
+                    }
+                    canvas.drawTextInCenter(it, pointCenter.x, y, paintOther)
+                } ?: return@stop
+            }
         }
     }
 
     private fun moveView(y: Float) {
         //边界
-        /*if ((index == 0 && y > 0) || (index == data.size - 1 && y < 0)) {
+        if ((index == 0 && y > 0) || (index == data.size - 1 && y < 0)) {
+            moveOffset = 0f
+            invalidate()
+            afterIndexChange?.invoke(index)
             return
-        }*/
+        }
         moveOffset += y
         if (moveOffset.absoluteValue > itemMoveHeight) {
             moveOffset = if (moveOffset > 0) {
@@ -189,6 +208,14 @@ class DebugWheelView @JvmOverloads constructor(
         invalidate()
     }
 
+    fun setOnIndexChange(onIndexChange: OnIndexChange) {
+        this.onIndexChange = onIndexChange
+    }
+
+    fun setAfterIndexChange(afterIndexChange: OnIndexChange) {
+        this.afterIndexChange = afterIndexChange
+    }
+
     //<editor-fold desc="move部分">
     private val downPoint = PointF()
     private val lastPoint = PointF()
@@ -198,7 +225,7 @@ class DebugWheelView @JvmOverloads constructor(
     //区分滑动的最小距离，低于这个距离不认为是滑动
     private val touchSlop = vc.scaledTouchSlop
 
-    private val maxFlingVelocity = 4500
+    private val maxFlingVelocity = 3000
     private val minFlingVelocity = vc.scaledMinimumFlingVelocity
 
     //惯性滑动
@@ -226,9 +253,6 @@ class DebugWheelView @JvmOverloads constructor(
                 move(event.y - lastPoint.y)
                 lastPoint.set(event.x, event.y)
             }
-            MotionEvent.ACTION_CANCEL -> {
-                log("ACTION_CANCEL")
-            }
         }
         handTracker(event)
         return true
@@ -252,6 +276,14 @@ class DebugWheelView @JvmOverloads constructor(
                 }
             }
         }
+        if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
+            recycleTracker()
+        }
+    }
+
+    private fun recycleTracker() {
+        vt?.recycle()
+        vt = null
     }
 
     private fun move(y: Float) {
@@ -263,7 +295,11 @@ class DebugWheelView @JvmOverloads constructor(
     }
 
     private fun fixEnd() {
-        log("fixEnd:$moveOffset")
+        if (moveOffset == 0f) {
+            return
+        }
+        move(-moveOffset)
+        afterIndexChange?.invoke(index)
     }
 
     private fun onFling(dY: Int) {

@@ -75,6 +75,8 @@ interface OnResultNullableListener<T> {
     fun onResult(result: T?)
 }
 
+typealias OnIndexChange = (index: Int) -> Unit
+
 interface OnConnectListener {
     fun onConnected()
     fun onDisconnected()

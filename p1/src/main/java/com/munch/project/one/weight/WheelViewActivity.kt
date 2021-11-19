@@ -2,6 +2,7 @@ package com.munch.project.one.weight
 
 import android.os.Bundle
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
+import com.munch.lib.log.log
 import com.munch.project.one.databinding.ActivityWheelViewBinding
 
 /**
@@ -14,7 +15,8 @@ class WheelViewActivity : BaseBigTextTitleActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind.apply {
-
+            wheelView.setOnIndexChange { log("onIndexChange: $it") }
+            wheelView.setAfterIndexChange { log("afterIndexChange: $it") }
         }
     }
 }
