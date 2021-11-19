@@ -58,9 +58,9 @@ android {
             buildConfigField 'String', 'VERSION_NAME', "\"${gitVersionName}\""
         }
         debug {
-            if (keyProperties != null) {
+            /*if (keyProperties != null) {
                 signingConfig signingConfigs.release
-            }
+            }*/
             debuggable true
             buildConfigField 'String', 'BUILD_TIME', "\"${buildTime}\""
             buildConfigField 'int', 'VERSION_CODE', "${gitVersionCode}"
@@ -99,6 +99,9 @@ private def findAndLoadKey(path) {
         if (keystorePropertiesFile.exists()) {
             keyProperties = new Properties()
             keyProperties.load(new FileInputStream(keystorePropertiesFile))
+        }
+        if (keyProperties != null && keyProperties["keyFile"] == "") {
+            keyProperties = null
         }
     } catch (Exception e) {
         e.printStackTrace()

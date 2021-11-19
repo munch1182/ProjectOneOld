@@ -10,9 +10,9 @@
         style="@style/AppTheme.Text.Big"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/padding_def"
-        android:paddingTop="@dimen/padding_def"
-        android:paddingEnd="@dimen/padding_def"
+        android:paddingStart="@dimen/paddingDef"
+        android:paddingTop="@dimen/paddingDef"
+        android:paddingEnd="@dimen/paddingDef"
         tools:text="/system" />
 
     <androidx.recyclerview.widget.RecyclerView

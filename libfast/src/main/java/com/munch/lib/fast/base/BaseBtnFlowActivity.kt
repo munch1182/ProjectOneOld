@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.view.setPadding
 import com.munch.lib.base.OnViewIndexClickListener
+import com.munch.lib.base.dp2Px
 import com.munch.lib.fast.R
 import com.munch.lib.weight.FlowLayout
 
@@ -17,7 +18,11 @@ import com.munch.lib.weight.FlowLayout
 open class BaseBtnFlowActivity : BaseBigTextTitleActivity() {
 
     private val flowLayout by lazy {
-        FlowLayout(this).apply { setPadding(resources.getDimensionPixelSize(R.dimen.paddingDef)) }
+        FlowLayout(this).apply {
+            setPadding(resources.getDimensionPixelSize(R.dimen.paddingDef))
+            lineSpace = dp2Px(8f).toInt()
+            itemSpace = lineSpace
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

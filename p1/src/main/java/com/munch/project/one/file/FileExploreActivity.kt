@@ -127,6 +127,8 @@ class FileExploreFragment : BaseFragment() {
         }
         val dir = arguments?.getSerializable(KEY_FILE) as? File
         bind.feLoc.text = dir?.absolutePath ?: "..."
+        //当文件名有无效utf-8字符时，会有系统的jni错误，无法拦截
+        //但是正式版的app没有此报错
         fileAdapter.set(dir?.listFiles()?.map { FEBean(it) }?.sorted()?.toMutableList())
     }
 }
@@ -172,6 +174,11 @@ data class FEBean(private val f: File) : Comparable<FEBean> {
         get() = f
 
     override fun compareTo(other: FEBean): Int {
+        if (f.isDirectory && !other.f.isDirectory) {
+            return 1
+        } else if (!f.isDirectory && other.f.isDirectory) {
+            return -1
+        }
         return name.compareTo(other.name)
     }
 

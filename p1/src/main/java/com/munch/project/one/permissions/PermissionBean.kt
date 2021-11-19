@@ -1,10 +1,8 @@
 package com.munch.project.one.permissions
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Button
-import androidx.core.app.ActivityCompat
 import androidx.databinding.BindingAdapter
 import com.munch.lib.app.AppHelper
 import com.munch.lib.base.hadPermission
@@ -45,7 +43,9 @@ data class PermissionBean(
     var isGrantedBuf: Boolean = false
 
     fun update(): PermissionBean {
-        isGrantedBuf = isGranted
+        if (Build.VERSION.SDK_INT >= minVersion) {
+            isGrantedBuf = isGranted
+        }
         return this
     }
 
