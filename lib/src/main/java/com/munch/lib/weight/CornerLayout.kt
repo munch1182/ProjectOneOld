@@ -51,8 +51,6 @@ class CornerLayout @JvmOverloads constructor(
             val h = child.measuredHeight + paddingTop + paddingBottom
 
             setMeasuredDimension(w, h)
-        } else {
-            throw IllegalStateException()
         }
     }
 

@@ -1,10 +1,16 @@
 package com.munch.lib.state
 
+import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.contains
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.munch.lib.base.ViewHelper
+import com.munch.lib.base.gone
+import com.munch.lib.base.removeParent
+import com.munch.lib.base.visible
 import com.munch.lib.dialog.IDialog
 
 /**
@@ -53,11 +59,6 @@ class ViewNoticeHelper(
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
                 continueAnyViewIfNeed()
-                loadingTarget?.layoutParams?.let { p ->
-                    loadingView?.let { v ->
-                        container.addView(v, p)
-                    }
-                }
             }
 
             override fun onPause(owner: LifecycleOwner) {
@@ -73,4 +74,33 @@ class ViewNoticeHelper(
     private fun pauseAnyViewIfNeed() {
     }
 
+    fun loadingComplete() {
+        loadingView?.gone()
+    }
+
+    fun loading() {
+        loadingView?.let {
+            if (container.contains(it)) {
+                it.visible()
+                return@let null
+            } else {
+                return@let it
+            }
+        } ?: return
+        loadingTarget?.post {
+            loadingTarget?.let { t ->
+                loadingView?.let { v ->
+                    v.removeParent()
+
+                    val loc = IntArray(2)
+                    t.getLocationOnScreen(loc)
+                    val lp = FrameLayout.LayoutParams(ViewHelper.newWWLayoutParams())
+                    lp.leftMargin = loc[0]
+                    lp.topMargin = loc[1] + t.height / 3
+                    lp.gravity = Gravity.CENTER_HORIZONTAL
+                    container.addView(v, lp)
+                }
+            }
+        }
+    }
 }

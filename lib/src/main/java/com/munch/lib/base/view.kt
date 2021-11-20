@@ -106,6 +106,11 @@ inline fun View.invisible() {
     visibility = View.INVISIBLE
 }
 
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.removeParent() {
+    (parent as? ViewGroup?)?.removeView(this)
+}
+
 fun isAssignable(clazz: Array<out Class<out Any>>, any: Any): Boolean {
     clazz.forEach { t ->
         if (t.isAssignableFrom(any::class.java)) {
@@ -203,6 +208,11 @@ object ViewHelper {
     fun newMWLayoutParams() = ViewGroup.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT,
         ViewGroup.LayoutParams.WRAP_CONTENT
+    )
+
+    fun newMMLayoutParams() = ViewGroup.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.MATCH_PARENT
     )
 
     /**
