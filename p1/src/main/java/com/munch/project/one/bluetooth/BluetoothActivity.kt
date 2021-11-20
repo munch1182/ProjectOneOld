@@ -59,31 +59,6 @@ class BluetoothActivity : BaseBigTextTitleActivity() {
                     field = value
                 }
             }
-
-        @JvmStatic
-        @BindingAdapter("bind_view_count")
-        fun bindViewCount(countView: CountView, count: Int) {
-            if (countView.getCount() == count) {
-                return
-            }
-            countView.setCount(count)
-        }
-
-        @JvmStatic
-        @InverseBindingAdapter(attribute = "bind_view_count", event = "update_count")
-        fun changeViewCount(countView: CountView): Int {
-            return countView.getCount()
-        }
-
-        @JvmStatic
-        @BindingAdapter("update_count")
-        fun updateCount(countView: CountView, listener: InverseBindingListener?) {
-            if (listener != null) {
-                countView.setCountChangeListener {
-                    listener.onChange()
-                }
-            }
-        }
     }
 
     private val bind by bind<ActivityBluetoothBinding>(R.layout.activity_bluetooth)
@@ -324,6 +299,28 @@ class BluetoothActivity : BaseBigTextTitleActivity() {
         super.onDestroy()
         if (!keepConnectWhenExit || !BluetoothHelper.instance.state.isConnected) {
             BluetoothHelper.instance.destroy()
+        }
+    }
+}
+
+@BindingAdapter("bind_view_count")
+fun bindViewCount(countView: CountView, count: Int) {
+    if (countView.getCount() == count) {
+        return
+    }
+    countView.setCount(count)
+}
+
+@InverseBindingAdapter(attribute = "bind_view_count", event = "update_count")
+fun changeViewCount(countView: CountView): Int {
+    return countView.getCount()
+}
+
+@BindingAdapter("update_count")
+fun updateCount(countView: CountView, listener: InverseBindingListener?) {
+    if (listener != null) {
+        countView.setCountChangeListener {
+            listener.onChange()
         }
     }
 }

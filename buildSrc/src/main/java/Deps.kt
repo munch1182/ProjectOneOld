@@ -15,10 +15,10 @@ object Deps {
 
     // https://developer.android.google.cn/jetpack/androidx/versions?hl=zh_cn
     /*https://developer.android.google.cn/jetpack/androidx/releases/activity?hl=zh_cn*/
-    const val appcompat = "androidx.appcompat:appcompat:1.3.1"
+    const val appcompat = "androidx.appcompat:appcompat:1.4.0"
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/core*/
-    const val core_ktx = "androidx.core:core-ktx:1.6.0"
+    const val core_ktx = "androidx.core:core-ktx:1.7.0"
     const val splash = "androidx.core:core-splashscreen:1.0.0-alpha02"
 
     /*https://github.com/material-components/material-components-android*/
@@ -26,7 +26,7 @@ object Deps {
     const val material = "com.google.android.material:material:1.4.0"
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/constraintlayout*/
-    const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.0.4"
+    const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.1.1"
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/cardview*/
     const val cardView = "androidx.cardview:cardview:1.0.0"
@@ -38,10 +38,10 @@ object Deps {
     const val viewPager2 = "androidx.viewpager2:viewpager2:1.0.0"
 
     /*https://developer.android.google.cn/topic/libraries/app-startup*/
-    const val startup = "androidx.startup:startup-runtime:1.0.0"
+    const val startup = "androidx.startup:startup-runtime:1.1.0"
 
     /*https://developer.android.google.cn/topic/libraries/architecture/datastore*/
-    const val dataStore = "androidx.datastore:datastore-preferences:1.0.0-rc01"
+    const val dataStore = "androidx.datastore:datastore-preferences:1.0.0"
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/swiperefreshlayout?hl=en*/
     const val swipeRefreshLayout = "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
@@ -50,7 +50,7 @@ object Deps {
     const val recyclerview = "androidx.recyclerview:recyclerview:1.2.1"
 
     /*https://developer.android.google.cn/kotlin/ktx/extensions-list?hl=zh_cn*/
-    const val activityKtx = "androidx.activity:activity-ktx:1.3.1"
+    const val activityKtx = "androidx.activity:activity-ktx:1.4.0"
     const val fragmentKtx = "androidx.fragment:fragment-ktx:1.3.6"
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/lifecycle*/
@@ -75,12 +75,12 @@ object Deps {
     const val roomTest = "androidx.room:room-testing:$ROOM_VERSION"
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/paging*/
-    private const val PAGING_VERSION = "3.0.0"
+    private const val PAGING_VERSION = "3.0.1"
     const val paging = "androidx.paging:paging-runtime:$PAGING_VERSION"
     const val pagingTest = "androidx.paging:paging-common:$PAGING_VERSION"
 
     /*https://github.com/Kotlin/kotlinx.coroutines*/
-    const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
+    const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
 
     /*https://github.com/bumptech/glide*/
     private const val GLIDE_VERSION = "4.12.0"
@@ -90,7 +90,7 @@ object Deps {
 
     /*https://github.com/square/okhttp*/
     /*https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor*/
-    private const val OKHTTP_VERSION = "4.9.1"
+    private const val OKHTTP_VERSION = "4.9.2"
     const val okhttp = "com.squareup.okhttp3:okhttp:$OKHTTP_VERSION"
     const val okhttpInterceptor = "com.squareup.okhttp3:logging-interceptor:$OKHTTP_VERSION"
 
@@ -106,12 +106,12 @@ object Deps {
     const val retrofitScalars = "com.squareup.retrofit2:converter-scalars:$RETROFIT_VERSION"
 
     /*https://github.com/google/gson*/
-    const val gson = "com.google.code.gson:gson:2.8.6"
+    const val gson = "com.google.code.gson:gson:2.8.9"
 
     /*https://dagger.dev/hilt/gradle-setup*/
     /*https://developer.android.google.cn/training/dependency-injection/hilt-android?hl=zh_cn*/
     /*https://developer.android.google.cn/jetpack/androidx/releases/hilt*/
-    private const val HILT_CORE_VERSION = "2.38.1"
+    private const val HILT_CORE_VERSION = "2.40.1"
     const val hilt = "com.google.dagger:hilt-android:$HILT_CORE_VERSION"
     const val hiltCompiler = "com.google.dagger:hilt-android-compiler:$HILT_CORE_VERSION"
     const val hiltGradle = "com.google.dagger:hilt-android-gradle-plugin:$HILT_CORE_VERSION"
@@ -132,5 +132,5 @@ object Deps {
     const val aRouterRegister = "com.alibaba:arouter-register:1.0.2"
 
     /*https://github.com/Tencent/MMKV/blob/master/README_CN.md*/
-    const val mmkv = "com.tencent:mmkv-static:1.2.10"
+    const val mmkv = "com.tencent:mmkv-static:1.2.11"
 }

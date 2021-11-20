@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package com.munch.lib.helper
 
 import java.text.SimpleDateFormat
@@ -108,6 +110,10 @@ fun Long.toDate(pattern: String = TimeHelper.Pattern.YMDHMS): String? {
     }
 }
 
+fun Long.getHourMinNumber(): Pair<Long, Long> {
+    return this / TimeHelper.MILLIS.HOUR to (this % TimeHelper.MILLIS.HOUR) / TimeHelper.MILLIS.MINUTE
+}
+
 fun String.toDate(
     pattern: String = TimeHelper.Pattern.YMDHMS,
     locale: Locale = Locale.getDefault()
@@ -126,11 +132,11 @@ fun String.toCalender(
     return toDate(pattern, locale)?.let { Calendar.getInstance(locale).apply { time = it } }
 }
 
-fun Calendar.getYear() = get(Calendar.YEAR)
-fun Calendar.getMonth() = get(Calendar.MONTH)
-fun Calendar.getDay() = get(Calendar.DAY_OF_MONTH)
-fun Calendar.getDate() = get(Calendar.DAY_OF_YEAR)
-fun Calendar.getHour() = get(Calendar.HOUR_OF_DAY)
-fun Calendar.getMinute() = get(Calendar.MINUTE)
-fun Calendar.getSecond() = get(Calendar.SECOND)
-fun Calendar.getWeek() = get(Calendar.WEEK_OF_MONTH)
+inline fun Calendar.getYear() = get(Calendar.YEAR)
+inline fun Calendar.getMonth() = get(Calendar.MONTH)
+inline fun Calendar.getDay() = get(Calendar.DAY_OF_MONTH)
+inline fun Calendar.getDate() = get(Calendar.DAY_OF_YEAR)
+inline fun Calendar.getHour() = get(Calendar.HOUR_OF_DAY)
+inline fun Calendar.getMinute() = get(Calendar.MINUTE)
+inline fun Calendar.getSecond() = get(Calendar.SECOND)
+inline fun Calendar.getWeek() = get(Calendar.WEEK_OF_MONTH)

@@ -9,6 +9,7 @@ import com.munch.lib.app.AppHelper
 import com.munch.lib.fast.watcher.Watcher
 import com.munch.lib.helper.PhoneHelper
 import com.munch.lib.helper.data.MMKVHelper
+import com.munch.lib.helper.getHourMinNumber
 import com.munch.lib.log.log
 import kotlin.concurrent.thread
 
@@ -27,7 +28,10 @@ open class FastApp : Application() {
 
 object FastAppHelper {
 
+    private var appTime = 0L
+
     fun init(app: Application) {
+        startRunTime()
         AppHelper.init(app)
         AppForegroundHelper.register(app)
         MMKVHelper.init(app)
@@ -35,6 +39,10 @@ object FastAppHelper {
             Thread.setDefaultUncaughtExceptionHandler { _, e -> log(e) }
             Watcher.watchMainLoop()
         }
+    }
+
+    fun startRunTime() {
+        appTime = System.currentTimeMillis()
     }
 
     fun collectPhoneInfo(context: Context = AppHelper.app): LinkedHashMap<String, String?> {
@@ -60,6 +68,8 @@ object FastAppHelper {
             map["navigation bar height"] = "${getNavigationBarHeight(context)}"
             map["ram"] = memory?.formatString()
             map["rom"] = rom.formatString()
+            map["run time"] = (System.currentTimeMillis() - appTime).getHourMinNumber()
+                .let { "${it.first}h${it.second}min" }
         }
         return map
     }

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import com.munch.lib.app.AppForegroundHelper
 import com.munch.lib.app.AppHelper
+import com.munch.lib.fast.FastAppHelper
 import com.munch.lib.fast.watcher.MeasureHelper
 import com.munch.lib.fast.watcher.Watcher
 import com.munch.lib.helper.data.MMKVHelper
@@ -43,6 +44,7 @@ class App : Application() {
         app = this
         /*FastAppHelper.init(this)*/
         AppHelper.init(app)
+        FastAppHelper.startRunTime()
         AppForegroundHelper.register(this)
         MMKVHelper.init(app)
         thread {

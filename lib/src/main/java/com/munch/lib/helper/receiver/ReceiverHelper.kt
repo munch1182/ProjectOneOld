@@ -6,10 +6,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.OnLifecycleEvent
 import com.munch.lib.helper.ARSHelper
 
 /**
@@ -53,14 +51,14 @@ abstract class ReceiverHelper<T> constructor(
     }
 
     open fun registerWhenCreate(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-            fun onCreate() {
+        owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onCreate(owner: LifecycleOwner) {
+                super.onCreate(owner)
                 register()
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
                 unregister()
                 owner.lifecycle.removeObserver(this)
             }
@@ -68,9 +66,9 @@ abstract class ReceiverHelper<T> constructor(
     }
 
     private fun unregisterWhenDestroy(owner: LifecycleOwner) {
-        owner.lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
+        owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
                 unregister()
                 owner.lifecycle.removeObserver(this)
             }

@@ -22,20 +22,6 @@ data class PermissionBean(
     var jump: Boolean = true
 ) {
 
-    companion object {
-
-        @JvmStatic
-        @BindingAdapter("bind_permission")
-        fun bind(btn: Button, bean: PermissionBean) {
-            if (!bean.isSupport) {
-                btn.text = "不可用"
-                btn.isEnabled = false
-            } else {
-                btn.text = if (bean.isGrantedBuf) "已获取" else "申请"
-            }
-        }
-    }
-
     /**
      * 用于缓存数据，来避免初次加载时的卡断
      * 此方法可以使用[update]来进行异步加载
@@ -58,4 +44,14 @@ data class PermissionBean(
         get() = "Version: $minVersion${if (maxVersion != Int.MAX_VALUE) "-$maxVersion" else "+"} "
     val needJumpStr: String
         get() = "Jump: ${intent != null && jump}"
+}
+
+@BindingAdapter("bind_permission")
+fun bind(btn: Button, bean: PermissionBean) {
+    if (!bean.isSupport) {
+        btn.text = "不可用"
+        btn.isEnabled = false
+    } else {
+        btn.text = if (bean.isGrantedBuf) "已获取" else "申请"
+    }
 }

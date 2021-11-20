@@ -4,7 +4,9 @@ import android.net.NetworkCapabilities
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.munch.lib.base.toImmutable
-import com.munch.lib.helper.net.*
+import com.munch.lib.helper.net.NetHelper
+import com.munch.lib.helper.net.cellularAvailable
+import com.munch.lib.helper.net.wifiAvailable
 
 /**
  * Create by munch1182 on 2021/9/1 16:55.
@@ -36,27 +38,6 @@ class NetViewModel : ViewModel() {
                 }
             }
         }
-        instance.allNet
-            .mapNotNull { instance.getCapabilities(it) }
-            .forEach {
-                if (sb.isNotEmpty()) {
-                    sb.append("\n\t")
-                }
-                if (it.hasWifi()) {
-                    if (it.wifiAvailable()) {
-                        sb.append("WIFI: 可用")
-                    } else {
-                        sb.append("WIFI: 不可用")
-                    }
-                }
-                if (it.hasCellular()) {
-                    if (it.cellularAvailable()) {
-                        sb.append("蜂窝网络： 可用")
-                    } else {
-                        sb.append("蜂窝网络： 不可用")
-                    }
-                }
-            }
         return "网络状态：\t$sb \nIP地址:${instance.getIpAddress()}"
     }
 

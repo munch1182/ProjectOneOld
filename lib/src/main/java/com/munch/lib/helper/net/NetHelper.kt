@@ -74,6 +74,8 @@ class NetHelper private constructor(context: Context) :
         @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
         get() = manager?.getNetworkCapabilities(manager.activeNetwork)
 
+    @Suppress("DEPRECATION")
+    @Deprecated("allNetworks不可用")
     val allNet: Array<Network>
         @RequiresPermission("android.permission.ACCESS_NETWORK_STATE")
         get() = manager?.allNetworks ?: arrayOf()

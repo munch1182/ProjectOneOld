@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package com.munch.lib.base
 
 import android.graphics.Paint
@@ -13,9 +15,9 @@ import kotlin.reflect.KClass
  * Create by munch1182 on 2021/8/19 15:05.
  */
 
-fun <T> MutableLiveData<T>.toImmutable(): LiveData<T> = this
+inline fun <T> MutableLiveData<T>.toImmutable(): LiveData<T> = this
 
-fun <T> MutableStateFlow<T>.toImmutable(): StateFlow<T> = this
+inline fun <T> MutableStateFlow<T>.toImmutable(): StateFlow<T> = this
 
 fun putStr2Clip(content: String) = AppHelper.app.putStr2Clip(content)
 

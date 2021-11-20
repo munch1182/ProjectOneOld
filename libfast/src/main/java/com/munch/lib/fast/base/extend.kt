@@ -76,10 +76,9 @@ class VMStore : ViewModelStoreOwner {
     }
 
     private fun clearWhenNoNeed(host: LifecycleOwner) {
-        host.lifecycle.addObserver(object : LifecycleObserver {
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
+        host.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
                 bindTargets.remove(host)
                 if (bindTargets.isEmpty()) {
                     vmStores.entries.find { it.value == this@VMStore }

@@ -91,6 +91,21 @@ fun ViewGroup.clickItem(vararg clazz: Class<out View>, onClick: OnViewIndexClick
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.visible() {
+    visibility = View.VISIBLE
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.gone() {
+    visibility = View.GONE
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.invisible() {
+    visibility = View.INVISIBLE
+}
+
 fun isAssignable(clazz: Array<out Class<out Any>>, any: Any): Boolean {
     clazz.forEach { t ->
         if (t.isAssignableFrom(any::class.java)) {

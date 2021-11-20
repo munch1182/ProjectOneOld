@@ -9,7 +9,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
-import com.munch.lib.log.log
 
 /**
  * 为[Fragment]添加[ViewDataBinding]的实现

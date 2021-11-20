@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package com.munch.lib.base
 
 import java.nio.charset.Charset
@@ -89,8 +91,8 @@ private fun format(str: String, maxWeight: Int, fillZero: Boolean): String {
 /**
  * byte转为16进制字符串
  */
-fun Byte.toHexStr() = String.format("0x%02X", this)
-fun ByteArray.toHexStr() = this.joinToString { it.toHexStr() }
+inline fun Byte.toHexStr() = String.format("0x%02X", this)
+inline fun ByteArray.toHexStr() = this.joinToString { it.toHexStr() }
 //</editor-fold>
 
 //<editor-fold desc="toBytes">
@@ -115,8 +117,8 @@ fun Number.toBytes(bigEndian: Boolean = true): ByteArray {
     }
 }
 
-fun Number.toBytesBig() = toBytes(true)
-fun Number.toBytesLittle() = toBytes(false)
+inline fun Number.toBytesBig() = toBytes(true)
+inline fun Number.toBytesLittle() = toBytes(false)
 
 private fun toBytes(value: Int, size: Int, bigEndian: Boolean = true): ByteArray {
     return ByteArray(size) {
@@ -127,12 +129,12 @@ private fun toBytes(value: Int, size: Int, bigEndian: Boolean = true): ByteArray
 
 fun Char.toBytes(bigEndian: Boolean = true) = toBytes(this.code, 2, bigEndian)
 
-fun Char.toBytesLittle() = toBytes(false)
-fun Char.toBytesBig() = toBytes(true)
+inline fun Char.toBytesLittle() = toBytes(false)
+inline fun Char.toBytesBig() = toBytes(true)
 
-fun String.toBytes(charset: Charset = StandardCharsets.UTF_16BE) = this.toByteArray(charset)
-fun String.toBytesBig() = toBytes(StandardCharsets.UTF_16BE)
-fun String.toBytesLittle() = toBytes(StandardCharsets.UTF_16LE)
+inline fun String.toBytes(charset: Charset = StandardCharsets.UTF_16BE) = this.toByteArray(charset)
+inline fun String.toBytesBig() = toBytes(StandardCharsets.UTF_16BE)
+inline fun String.toBytesLittle() = toBytes(StandardCharsets.UTF_16LE)
 //</editor-fold>
 
 //<editor-fold desc="get">
@@ -169,10 +171,10 @@ fun ByteArray.getLong(start: Int = 0, bigEndian: Boolean = true): Long {
     return res
 }
 
-fun ByteArray.getFloat(start: Int = 0, bigEndian: Boolean = true) =
+inline fun ByteArray.getFloat(start: Int = 0, bigEndian: Boolean = true) =
     java.lang.Float.intBitsToFloat(getInt(start, bigEndian))
 
-fun ByteArray.getDouble(start: Int = 0, bigEndian: Boolean = true) =
+inline fun ByteArray.getDouble(start: Int = 0, bigEndian: Boolean = true) =
     java.lang.Double.longBitsToDouble(getLong(start, bigEndian))
 
 fun ByteArray.getString(

@@ -136,28 +136,6 @@ class FileExploreFragment : BaseFragment() {
 data class FEBean(private val f: File) : Comparable<FEBean> {
 
     companion object {
-
-        @JvmStatic
-        @BindingAdapter("file_icon")
-        fun bind(imageView: ImageView, bean: FEBean) {
-            val f = bean.f
-            if (f.isFile) {
-                if (f.isOpenable()) {
-                    imageView.setImageResource(R.drawable.ic_file_openable)
-                } else {
-                    imageView.setImageResource(R.drawable.ic_file_unknow)
-                }
-            } else if (f.isDirectory) {
-                val list = f.list()
-                if (list.isNullOrEmpty()) {
-                    imageView.setImageResource(R.drawable.ic_folder_empty)
-                } else {
-                    imageView.setImageResource(R.drawable.ic_folder)
-                }
-
-            }
-        }
-
         private fun File.isOpenable(): Boolean {
             val extension = getExtension() ?: return false
             //todo
@@ -165,6 +143,25 @@ data class FEBean(private val f: File) : Comparable<FEBean> {
                 return true
             }
             return false
+        }
+    }
+
+    @BindingAdapter("file_icon")
+    fun bind(imageView: ImageView, bean: FEBean) {
+        val f = bean.f
+        if (f.isFile) {
+            if (f.isOpenable()) {
+                imageView.setImageResource(R.drawable.ic_file_openable)
+            } else {
+                imageView.setImageResource(R.drawable.ic_file_unknow)
+            }
+        } else if (f.isDirectory) {
+            val list = f.list()
+            if (list.isNullOrEmpty()) {
+                imageView.setImageResource(R.drawable.ic_folder_empty)
+            } else {
+                imageView.setImageResource(R.drawable.ic_folder)
+            }
         }
     }
 

@@ -1,6 +1,5 @@
 package com.munch.lib.base
 
-import android.Manifest
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager

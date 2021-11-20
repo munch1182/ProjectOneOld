@@ -2,10 +2,8 @@
 
 package com.munch.lib.helper
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.OnLifecycleEvent
 
 /**
  * 专门用于设置add、remove、set三个方法的工具类
@@ -38,9 +36,9 @@ interface ARSHelper<T> {
 
     fun set(owner: LifecycleOwner, t: T, onDestroy: (() -> Unit)? = null): ARSHelper<T> {
         add(t)
-        owner.lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
+        owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
                 onDestroy?.invoke()
                 remove(t)
                 owner.lifecycle.removeObserver(this)
@@ -61,15 +59,15 @@ interface ARSHelper<T> {
     fun setWhenCreate(
         owner: LifecycleOwner, t: T, onCreate: (() -> Unit)? = null, onDestroy: (() -> Unit)? = null
     ): ARSHelper<T> {
-        owner.lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-            fun onCreate() {
+        owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onCreate(owner: LifecycleOwner) {
+                super.onCreate(owner)
                 add(t)
                 onCreate?.invoke()
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
                 remove(t)
                 onDestroy?.invoke()
                 owner.lifecycle.removeObserver(this)
@@ -81,21 +79,21 @@ interface ARSHelper<T> {
     fun setWhenStart(
         owner: LifecycleOwner, t: T, onStart: (() -> Unit)? = null, onStop: (() -> Unit)? = null
     ): ARSHelper<T> {
-        owner.lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            fun onStart() {
+        owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                super.onStart(owner)
                 add(t)
                 onStart?.invoke()
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-            fun onStop() {
+            override fun onStop(owner: LifecycleOwner) {
+                super.onStop(owner)
                 remove(t)
                 onStop?.invoke()
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
                 owner.lifecycle.removeObserver(this)
             }
         })
@@ -105,21 +103,21 @@ interface ARSHelper<T> {
     fun setWhenResume(
         owner: LifecycleOwner, t: T, onResume: (() -> Unit)? = null, onPause: (() -> Unit)? = null
     ): ARSHelper<T> {
-        owner.lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-            fun onResume() {
+        owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                super.onResume(owner)
                 add(t)
                 onResume?.invoke()
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-            fun onPause() {
+            override fun onPause(owner: LifecycleOwner) {
+                super.onPause(owner)
                 remove(t)
                 onPause?.invoke()
             }
 
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
                 owner.lifecycle.removeObserver(this)
             }
         })
