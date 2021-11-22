@@ -3,11 +3,11 @@ package com.munch.project.one.weight
 import android.os.Bundle
 import android.view.View
 import com.munch.lib.base.ViewHelper
-import com.munch.lib.base.invisible
-import com.munch.lib.base.visible
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
 import com.munch.lib.state.ViewNoticeHelper
+import com.munch.lib.weight.LoadingView
 import com.munch.project.one.databinding.ActivityLoadingBinding
+import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 /**
@@ -17,7 +17,10 @@ class LoadingActivity : BaseBigTextTitleActivity() {
 
     private val bind by bind<ActivityLoadingBinding>()
     private val noticeHelper by lazy {
-        ViewNoticeHelper(this, loading = bind.loadContainer to NameLoadingView(this))
+        ViewNoticeHelper(
+            this,
+            loading = bind.loadContainer to LoadingView(this, LoadingView.STYLE_TEXT)
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,12 +32,7 @@ class LoadingActivity : BaseBigTextTitleActivity() {
     }
 
     private fun showLoad() {
-        noticeHelper.loading()
-        bind.loadViewData.invisible()
-        bind.loadViewData.postDelayed({
-            noticeHelper.loadingComplete()
-            bind.loadViewData.visible()
-        }, Random.nextLong(800, 5000L))
+        noticeHelper.loading { delay(Random.nextLong(800, 5000L)) }
     }
 
     override fun setContentView(view: View?) {

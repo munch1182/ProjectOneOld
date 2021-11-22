@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.dialog.withHandler
@@ -19,11 +18,11 @@ import com.munch.lib.recyclerview.BaseViewHolder
 import com.munch.lib.recyclerview.OnItemClickListener
 import com.munch.lib.result.ResultHelper
 import com.munch.lib.result.with
+import com.munch.lib.state.ViewNoticeHelper
 import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityPermissionsBinding
 import com.munch.project.one.databinding.ItemPermissionBinding
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -32,6 +31,9 @@ import kotlinx.coroutines.withContext
 class PermissionActivity : BaseBigTextTitleActivity() {
 
     private val bind by bind<ActivityPermissionsBinding>()
+    private val viewNoticeHelper by lazy {
+        ViewNoticeHelper(this, R.id.permission_rv to R.id.permission_loading)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,11 +60,17 @@ class PermissionActivity : BaseBigTextTitleActivity() {
         }
         pa.setOnViewClickListener(OnPermissionClickListener(pa), R.id.permission_request)
 
-        //839ms(已初始化) / 860(未初始化)
-        lifecycleScope.launch(Dispatchers.IO) {
+        viewNoticeHelper.loading {
             val newData = Permissions.PERMISSIONS.map { it.update() }.sortedBy { !it.isSupport }
             withContext(Dispatchers.Main) { pa.set(newData) }
         }
+
+        //<editor-fold desc="计时">
+        //839ms(已初始化) / 860(未初始化)
+        /*lifecycleScope.launch(Dispatchers.IO) {
+            val newData = Permissions.PERMISSIONS.map { it.update() }.sortedBy { !it.isSupport }
+            withContext(Dispatchers.Main) { pa.set(newData) }
+        }*/
         //809ms
         /*thread {
             val newData = Permissions.PERMISSIONS.map { it.update() }.sortedBy { !it.isSupport }
@@ -70,6 +78,7 @@ class PermissionActivity : BaseBigTextTitleActivity() {
         }*/
         //972ms
         /*pa.set(Permissions.PERMISSIONS.map { it.update() }.sortedBy { !it.isSupport })*/
+        //</editor-fold>
     }
 
     class PermissionBeanDiffUtil : DiffUtil.ItemCallback<PermissionBean>() {

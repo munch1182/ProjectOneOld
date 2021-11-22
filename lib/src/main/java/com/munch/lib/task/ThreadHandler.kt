@@ -35,3 +35,10 @@ class ThreadHandler(looper: Looper, callback: Callback? = null) : Handler(looper
 }
 
 typealias HandlerCallBack = (msg: Message) -> Unit
+
+val mainHandler by lazy { Handler(Looper.getMainLooper()) }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun handler(delay: Long = 0L, r: Runnable) {
+    mainHandler.postDelayed(r, delay)
+}

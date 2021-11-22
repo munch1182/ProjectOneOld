@@ -27,6 +27,11 @@ fun Canvas.drawTextInYCenter(text: String, cx: Float, cy: Float, paint: Paint) {
     drawText(text, cx, baseLineY, paint)
 }
 
+fun Paint.measureTextBounds(text: String, bound: Rect = Rect()): Rect {
+    getTextBounds(text, 0, text.length, bound)
+    return bound
+}
+
 /**
  * 获取该列表文字的最大宽度和高度
  */

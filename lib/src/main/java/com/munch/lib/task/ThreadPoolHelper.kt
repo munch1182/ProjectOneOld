@@ -52,7 +52,7 @@ object ThreadPoolHelper {
     /**
      * @return 一个新建的固定线程池，根据业务需求自行保存对象
      */
-    fun newCorePool(coreNum: Int = 1): ThreadPoolExecutor {
+    fun newFixPool(coreNum: Int = 1): ThreadPoolExecutor {
         if (coreNum < MAX_CORE_NUM) {
             throw IllegalStateException()
         }
@@ -82,4 +82,8 @@ object ThreadPoolHelper {
 
     fun execute(task: Runnable) = cachedPool.execute(task)
     fun remove(task: Runnable) = cachedPool.remove(task)
+}
+
+inline fun pool(crossinline block: () -> Unit) {
+    ThreadPoolHelper.cachedPool.execute { block.invoke() }
 }

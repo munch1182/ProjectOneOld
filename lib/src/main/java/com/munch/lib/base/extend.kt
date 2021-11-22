@@ -2,8 +2,6 @@
 
 package com.munch.lib.base
 
-import android.graphics.Paint
-import android.graphics.Rect
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.munch.lib.app.AppHelper
@@ -35,11 +33,6 @@ fun <T : Any> KClass<T>.newInstance(): T? = try {
 } catch (e: Exception) {
     e.printStackTrace()
     null
-}
-
-fun Paint.measureTextBounds(text: String, bound: Rect = Rect()): Rect {
-    getTextBounds(text, 0, text.length, bound)
-    return bound
 }
 
 /**

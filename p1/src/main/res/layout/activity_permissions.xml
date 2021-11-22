@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,8 +13,18 @@
         style="@style/AppTheme.Text.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/paddingDef"
+        android:layout_marginStart="@dimen/paddingDef"
+        android:layout_marginTop="@dimen/paddingDef"
+        android:layout_marginEnd="@dimen/paddingDef"
         tools:text="android10，版本30，TargetSDK：30" />
+
+    <com.munch.lib.weight.LoadingView
+        android:id="@+id/permission_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/paddingDef"
+        app:lv_style="TEXT_ONLY" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/permission_rv"

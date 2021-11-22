@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="LoadingView">
+        <attr name="lv_style" format="enum">
+            <enum name="ARC" value="10" />
+            <enum name="TEXT" value="20" />
+            <enum name="TEXT_ONLY" value="21" />
+        </attr>
+        <attr name="lv_speed" format="integer" />
+        <!--<editor-fold desc="ARC">-->
         <attr name="strokeWidth" />
-        <attr name="lvStartColor" format="color" />
-        <attr name="lvEndColor" format="color" />
-        <attr name="lvSpeed" format="integer" />
+        <attr name="lv_startColor" format="color" />
+        <attr name="lv_endColor" format="color" />
+        <!--</editor-fold>-->
+        <!--<editor-fold desc="TEXT">-->
+        <attr name="android:textSize" />
+        <attr name="android:textColor" />
+        <!--不变的文字部分-->
+        <attr name="android:text" />
+        <!--用于循环显示的文字部分-->
+        <attr name="lv_loading_text" format="string" />
+        <!--</editor-fold>-->
     </declare-styleable>
 </resources>

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/load_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
+    android:orientation="vertical"
     android:padding="@dimen/paddingDef"
     tools:context=".weight.LoadingActivity"
     tools:ignore="HardcodedText">
@@ -13,9 +15,18 @@
         android:id="@+id/load_view_data"
         style="@style/AppTheme.Text.Subtitle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="这代表数据加载并显示"
-        android:visibility="invisible"
-        tools:visibility="visible" />
+        android:layout_height="wrap_content"
+        android:text="这代表数据已加载并显示" />
+
+    <com.munch.project.one.weight.NameLoadingView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/paddingDef" />
+
+    <com.munch.lib.weight.LoadingView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/paddingDef"
+        app:lv_style="TEXT" />
 
 </LinearLayout>

@@ -9,6 +9,7 @@ import com.munch.lib.fast.watcher.MeasureHelper
 import com.munch.lib.fast.watcher.Watcher
 import com.munch.lib.helper.data.MMKVHelper
 import com.munch.lib.log.log
+import com.munch.lib.task.pool
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,6 +53,7 @@ class App : Application() {
             Watcher.watchMainLoop()
             //去触发初始化，大概会快个20-40ms
             CoroutineScope(Dispatchers.Unconfined).launch {}
+            pool {  }
         }
     }
 }
