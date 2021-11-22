@@ -21,6 +21,7 @@ class HandlerActivity : BaseBigTextTitleActivity() {
         ThreadHandler("TEST_HT") {
             log("receive:${it.what}")
             SystemClock.sleep(3000L)
+            true
         }
     }
 

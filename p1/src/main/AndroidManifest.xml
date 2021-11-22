@@ -38,6 +38,9 @@
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
+    <permission android:name="com.munch.BROADCAST_PERMISSION" />
+    <uses-permission android:name="com.munch.BROADCAST_PERMISSION" />
+
     <application
         android:name=".App"
         android:allowBackup="true"

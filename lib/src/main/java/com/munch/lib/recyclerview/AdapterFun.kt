@@ -76,7 +76,7 @@ interface AdapterFun<D> : IsAdapter {
      */
     fun remove(startIndex: Int, size: Int) {
         val endIndex = startIndex + size
-        if (endIndex < data.size) {
+        if (endIndex <= data.size) {
             val subList = data.subList(startIndex, endIndex)
             data.removeAll(subList)
             noTypeAdapter.notifyItemRangeRemoved(startIndex, size)

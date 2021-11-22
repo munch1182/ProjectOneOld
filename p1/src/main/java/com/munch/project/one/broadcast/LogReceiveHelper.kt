@@ -4,12 +4,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Handler
-import android.os.HandlerThread
 import android.os.Parcelable
 import com.munch.lib.app.AppHelper
 import com.munch.lib.base.OnReceive
 import com.munch.lib.log.Logger
+import com.munch.lib.task.ThreadHandler
 import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
@@ -27,6 +26,17 @@ class LogReceiveHelper private constructor() {
 
         private const val HT_NAME = "log_receive_handler"
 
+        /**
+         * 广播的权限控制
+         *
+         * 需要在AndroidManifest.xml中注册权限，而且发送广播时也需要发送权限
+         *
+         * //申明权限 权限申明只能在接收广播的app中申明
+         * <permission android:name="com.munch.BROADCAST_PERMISSION" />
+         * //注册权限 权限注册在需要发送广播的app中注册
+         * <uses-permission android:name="com.munch.BROADCAST_PERMISSION" />
+         * //是否能否正常发送，还受到protectionLevel设置的权限检查影响
+         */
         const val BROADCAST_PERMISSION = "com.munch.BROADCAST_PERMISSION"
         const val KEY_LOG_BEAN = "log"
 
@@ -53,17 +63,14 @@ class LogReceiveHelper private constructor() {
     //<editor-fold desc="system">
 
     private val receiver = LogBroadcastReceiver()
-    private var logHandlerThread: HandlerThread? = null
-    private var handler: Handler? = null
+    private var handler: ThreadHandler? = null
 
     fun start(vararg actions: String) {
         if (isRunningVal) {
             stop()
         }
         isRunningVal = true
-        logHandlerThread = HandlerThread(HT_NAME)
-        logHandlerThread!!.start()
-        handler = Handler(logHandlerThread!!.looper)
+        handler = ThreadHandler(HT_NAME)
         val intentFilter = IntentFilter()
         actions.forEach { intentFilter.addAction(it) }
         receiver.onReceive = onReceivedVal
@@ -75,8 +82,7 @@ class LogReceiveHelper private constructor() {
         try {
             receiver.onReceive = null
             AppHelper.app.unregisterReceiver(receiver)
-            logHandlerThread?.quit()
-            logHandlerThread = null
+            handler?.quit()
             handler = null
         } catch (e: Exception) {
             e.printStackTrace()
@@ -89,6 +95,7 @@ class LogReceiveHelper private constructor() {
 internal class LogBroadcastReceiver(var onReceive: OnReceive<LogBean>? = null) :
     BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
+        LogReceiveHelper.log.log("onReceive: ${intent?.action}")
         intent?.let {
             val content = it.getStringExtra(LogReceiveHelper.KEY_LOG_BEAN) ?: ""
             val from = it.action ?: "unKnow"
@@ -104,7 +111,7 @@ data class LogBean(val content: String, val from: String, val receiveTime: Long)
         return if (formatTime) {
             val time =
                 SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(receiveTime)
-            "$time: $content"
+            "$time:\n\t$content"
         } else {
             content
         }

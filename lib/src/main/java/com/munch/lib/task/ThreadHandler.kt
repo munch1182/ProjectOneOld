@@ -1,7 +1,6 @@
 package com.munch.lib.task
 
 import android.os.Handler
-import android.os.Handler.Callback
 import android.os.HandlerThread
 import android.os.Looper
 import android.os.Message
@@ -14,15 +13,8 @@ class ThreadHandler(looper: Looper, callback: Callback? = null) : Handler(looper
     Closeable {
 
     constructor(
-        name: String,
-        callback: Callback? = null
+        name: String, callback: Callback? = null
     ) : this(HandlerThread(name).apply { start() }.looper, callback)
-
-    constructor(name: String, callback: HandlerCallBack? = null) : this(name,
-        Callback { msg ->
-            callback?.invoke(msg)
-            true
-        })
 
     private val th by lazy { looper.thread as HandlerThread }
 

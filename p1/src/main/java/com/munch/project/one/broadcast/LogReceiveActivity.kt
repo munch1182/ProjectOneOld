@@ -7,8 +7,13 @@ import android.provider.Settings
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.app.AppHelper
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
+import com.munch.lib.fast.dialog.SimpleDialog
 import com.munch.lib.fast.dialog.SimpleEditDialog
 import com.munch.lib.fast.recyclerview.SimpleAdapter
+import com.munch.lib.fast.recyclerview.setOnItemClickListener
+import com.munch.lib.fast.recyclerview.setOnItemLongClickListener
+import com.munch.lib.helper.toDate
+import com.munch.lib.log.log
 import com.munch.lib.result.ResultHelper
 import com.munch.project.one.R
 import com.munch.project.one.data.DataHelper
@@ -42,9 +47,23 @@ class LogReceiveActivity : BaseBigTextTitleActivity() {
             layoutManager = LinearLayoutManager(this@LogReceiveActivity)
             adapter = logAdapter
         }
+        logAdapter.setOnItemLongClickListener { _, pos, _ ->
+            SimpleDialog(this)
+                .setContent("确定删除吗?")
+                .setOnSureListener {
+                    it.cancel()
+                    logAdapter.remove(pos)
+                }.show()
+            true
+        }
+        logAdapter.setOnItemClickListener { _, pos, _ ->
+            logAdapter.update(pos, logAdapter.get(pos)?.apply {
+                isCheck = !isCheck
+            })
+        }
         bind.receiveLogAdd.setOnClickListener {
             SimpleEditDialog(this)
-                .setOnTextListener { dialog, text ->
+                .setOnTextSureListener { dialog, text ->
                     dialog.cancel()
                     if (text.isNotEmpty()) {
                         logAdapter.add(LogActionVB(text))
@@ -70,6 +89,14 @@ class LogReceiveActivity : BaseBigTextTitleActivity() {
                 }
             }
         }
+        bind.receiveTest.setOnClickListener {
+            logAdapter.get(0)?.let {
+                log("send test broadcast: ${it.action}")
+                sendBroadcast(Intent(it.action).apply {
+                    putExtra("log", "${System.currentTimeMillis().toDate()} send")
+                }, LogReceiveHelper.BROADCAST_PERMISSION)
+            }
+        }
 
         logAdapter.set(DataHelper.LogReceive.getActions().toMutableList())
     }
@@ -89,7 +116,6 @@ class LogReceiveActivity : BaseBigTextTitleActivity() {
                 bind.receiveLogBtn.text = "关闭日志收集"
             }
         }
-
     }
 
     private fun stop() {

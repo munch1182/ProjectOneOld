@@ -25,6 +25,7 @@ import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityFileExploreBinding
 import com.munch.project.one.databinding.FragmentFileExploreBinding
 import com.munch.project.one.databinding.ItemFileExploreBinding
+import com.munch.project.one.file.FEBean.Companion.isOpenable
 import java.io.File
 import java.util.*
 
@@ -136,7 +137,7 @@ class FileExploreFragment : BaseFragment() {
 data class FEBean(private val f: File) : Comparable<FEBean> {
 
     companion object {
-        private fun File.isOpenable(): Boolean {
+        fun File.isOpenable(): Boolean {
             val extension = getExtension() ?: return false
             //todo
             if (extension in arrayOf("txt", "apk", "png", "jpg", "jpeg", "mp3", "mp4", "avi")) {
@@ -146,24 +147,6 @@ data class FEBean(private val f: File) : Comparable<FEBean> {
         }
     }
 
-    @BindingAdapter("file_icon")
-    fun bind(imageView: ImageView, bean: FEBean) {
-        val f = bean.f
-        if (f.isFile) {
-            if (f.isOpenable()) {
-                imageView.setImageResource(R.drawable.ic_file_openable)
-            } else {
-                imageView.setImageResource(R.drawable.ic_file_unknow)
-            }
-        } else if (f.isDirectory) {
-            val list = f.list()
-            if (list.isNullOrEmpty()) {
-                imageView.setImageResource(R.drawable.ic_folder_empty)
-            } else {
-                imageView.setImageResource(R.drawable.ic_folder)
-            }
-        }
-    }
 
     val name: String
         get() = f.name
@@ -179,4 +162,23 @@ data class FEBean(private val f: File) : Comparable<FEBean> {
         return name.compareTo(other.name)
     }
 
+}
+
+@BindingAdapter("file_icon")
+fun bind(imageView: ImageView, bean: FEBean) {
+    val f = bean.file
+    if (f.isFile) {
+        if (f.isOpenable()) {
+            imageView.setImageResource(R.drawable.ic_file_openable)
+        } else {
+            imageView.setImageResource(R.drawable.ic_file_unknow)
+        }
+    } else if (f.isDirectory) {
+        val list = f.list()
+        if (list.isNullOrEmpty()) {
+            imageView.setImageResource(R.drawable.ic_folder_empty)
+        } else {
+            imageView.setImageResource(R.drawable.ic_folder)
+        }
+    }
 }

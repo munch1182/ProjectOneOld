@@ -17,11 +17,11 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:ellipsize="end"
-        android:maxLines="1"
+        android:maxLines="2"
         android:paddingStart="@dimen/paddingDef"
-        android:paddingTop="@dimen/paddingSmall"
+        android:paddingTop="4dp"
         android:paddingEnd="@dimen/paddingDef"
-        android:paddingBottom="@dimen/paddingSmall"
+        android:paddingBottom="4dp"
         android:text="@{text}"
-        tools:text="textview" />
+        tools:text="textview:\n12312343545" />
 </layout>

@@ -27,9 +27,7 @@ class SimpleEditDialog(context: Context, @StyleRes themeResId: Int = 0) :
         window?.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
         window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         binding.simpleEditCancel.setOnClickListener { cancel() }
-        binding.simpleEditSure.setOnClickListener {
-            onText?.invoke(this, content)
-        }
+        binding.simpleEditSure.setOnClickListener { onText?.invoke(this, content) }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -41,7 +39,7 @@ class SimpleEditDialog(context: Context, @StyleRes themeResId: Int = 0) :
         }
     }
 
-    fun setOnTextListener(onText: OnText): SimpleEditDialog {
+    fun setOnTextSureListener(onText: OnText): SimpleEditDialog {
         this.onText = onText
         return this
     }
