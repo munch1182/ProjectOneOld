@@ -221,7 +221,12 @@ open class Logger(
             JSONObject(any)
             true
         } catch (_: Exception) {
-            false
+            try {
+                JSONArray(any)
+                true
+            } catch (_: Exception) {
+                false
+            }
         }
     }
 

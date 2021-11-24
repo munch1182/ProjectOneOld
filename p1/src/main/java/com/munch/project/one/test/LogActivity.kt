@@ -26,6 +26,9 @@ class LogActivity : BaseBtnFlowActivity() {
                 log("log(byteArrayOf(1,2,3)")
                 log("====>")
                 log(byteArrayOf(1, 2, 3))
+                log("log(arrayOf(\"1\", \"2\", \"3\", \"4\", \"5\")")
+                log("====>")
+                log(arrayOf("1", "2", "3", "4", "5"))
             }
             1 -> {
                 val time = System.currentTimeMillis()
@@ -33,6 +36,11 @@ class LogActivity : BaseBtnFlowActivity() {
                 log("log($testJsonBean)")
                 log("====>")
                 log(testJsonBean)
+                val testJsonArray = arrayOf("1", "2", "3", "4", "5").toJson()
+                log("log($testJsonArray")
+                log("====>")
+                log(testJsonArray)
+
             }
             2 -> {
                 val sb = StringBuilder()
