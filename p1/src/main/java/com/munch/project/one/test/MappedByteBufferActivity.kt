@@ -45,7 +45,7 @@ class MappedByteBufferActivity : BaseBigTextTitleActivity() {
     @SuppressLint("SetTextI18n")
     private fun testMMBWrite() {
         thread {
-            val cost = measureTimeMillis { repeat(count) { mmbHelper.write("log:$it\n") } }
+            val cost = measureTimeMillis { repeat(count) { mmbHelper.writeStr("log:$it\n") } }
             bind.mbbTvMmb.post { bind.mbbTvMmb.text = "${bind.mbbTvMmb.text}\ncost:$cost" }
             mmbHelper.closeQuietly()
         }
