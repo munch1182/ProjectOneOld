@@ -1,6 +1,6 @@
 package com.munch.lib.task
 
-import com.munch.lib.log.log
+import android.os.Looper
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.max
@@ -22,6 +22,7 @@ object ThreadPoolHelper {
     private val poolNum = AtomicInteger()
     private val threadNum = AtomicInteger()
     private val nameThreadGroup by lazy { NameThreadGroup() }
+    private var handler: Thread.UncaughtExceptionHandler? = null
 
     class NameThread(private val name: String) : ThreadFactory {
 
@@ -32,10 +33,12 @@ object ThreadPoolHelper {
 
     class NameThreadGroup : ThreadGroup("pool-${poolNum.getAndIncrement()}") {
 
+        /**
+         * 注意：submit的任务不会触发uncaughtException，因为其实现内部调用了try..catch拦截了异常
+         */
         override fun uncaughtException(t: Thread, e: Throwable) {
-            log(e)
             e.printStackTrace()
-            super.uncaughtException(t, e)
+            handler?.uncaughtException(t, e) ?: super.uncaughtException(t, e)
         }
     }
 
@@ -82,8 +85,52 @@ object ThreadPoolHelper {
 
     fun execute(task: Runnable) = cachedPool.execute(task)
     fun remove(task: Runnable) = cachedPool.remove(task)
+
+    fun setExceptionHandler(h: Thread.UncaughtExceptionHandler?) {
+        handler = h
+    }
 }
 
-inline fun pool(crossinline block: () -> Unit) {
-    ThreadPoolHelper.cachedPool.execute { block.invoke() }
+inline fun pool(submit: Boolean = false, crossinline block: () -> Unit) {
+    if (submit) {
+        ThreadPoolHelper.cachedPool.submit { block.invoke() }
+    } else {
+        ThreadPoolHelper.cachedPool.execute { block.invoke() }
+    }
 }
+
+fun thread(
+    start: Boolean = true,
+    isDaemon: Boolean = false,
+    contextClassLoader: ClassLoader? = null,
+    name: String? = null,
+    priority: Int = -1,
+    loop: Boolean = false,
+    block: () -> Unit
+): Thread {
+    val thread = object : Thread() {
+        override fun run() {
+            if (loop) {
+                Looper.prepare()
+            }
+            block()
+            if (loop) {
+                Looper.loop()
+            }
+        }
+    }
+    if (isDaemon)
+        thread.isDaemon = true
+    if (priority > 0)
+        thread.priority = priority
+    if (name != null)
+        thread.name = name
+    if (contextClassLoader != null)
+        thread.contextClassLoader = contextClassLoader
+    if (start)
+        thread.start()
+    return thread
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun Thread.isMain() = Looper.getMainLooper().thread.id == this.id

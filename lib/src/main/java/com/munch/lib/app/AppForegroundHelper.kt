@@ -4,12 +4,14 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import com.munch.lib.helper.ARSHelper
+import java.lang.ref.WeakReference
 
 /**
  * Create by munch1182 on 2021/10/28 15:14.
  */
 object AppForegroundHelper : ARSHelper<OnAppForegroundChangeListener> {
 
+    private var resumeActivity: WeakReference<Activity>? = null
     private var activityIndex = 0
         set(value) {
             field = value
@@ -18,6 +20,8 @@ object AppForegroundHelper : ARSHelper<OnAppForegroundChangeListener> {
     val isInForeground: Boolean
         //有activity回调了Resumed但是没有回调Paused即处于前台
         get() = activityIndex == 1
+    val currentActivity: Activity?
+        get() = resumeActivity?.get()
 
     private val cb by lazy {
         object : Application.ActivityLifecycleCallbacks {
@@ -29,10 +33,13 @@ object AppForegroundHelper : ARSHelper<OnAppForegroundChangeListener> {
 
             override fun onActivityResumed(activity: Activity) {
                 activityIndex++
+                resumeActivity = WeakReference(activity)
             }
 
             override fun onActivityPaused(activity: Activity) {
                 activityIndex--
+                resumeActivity?.clear()
+                resumeActivity = null
             }
 
             override fun onActivityStopped(activity: Activity) {

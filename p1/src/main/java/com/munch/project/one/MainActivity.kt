@@ -80,7 +80,8 @@ class TestActivity : BaseRvActivity() {
             MappedByteBufferActivity::class.java,
             WebActivity::class.java,
             TimerActivity::class.java,
-            NotificationServiceActivity::class.java
+            NotificationServiceActivity::class.java,
+            ExceptionActivity::class.java
         )
 
     override fun getData() = targets.map { it.simpleName.replace("Activity", "") }.toMutableList()

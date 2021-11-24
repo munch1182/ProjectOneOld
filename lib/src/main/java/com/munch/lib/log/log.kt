@@ -77,8 +77,6 @@ open class Logger(
 
     companion object {
         private const val TAG_DEF = "loglog"
-        private const val MAX_COUNT_IN_LINE = 450
-        private val LINE_SEPARATOR = System.getProperty("line.separator") ?: ""
     }
 
     protected var logListener: ((msg: String, thread: Thread) -> Unit)? = null
@@ -90,12 +88,12 @@ open class Logger(
         if (!enable) {
             return
         }
-        val msg = any2Str(any)
+        val msg = FMT.any2Str(any)
         val thread: Thread = Thread.currentThread()
         val traceInfo: String? = if (noInfo) null else dumpTraceInfo()
         type = if (any is Throwable) Log.ERROR else type
 
-        val split = msg.split(LINE_SEPARATOR)
+        val split = msg.split(FMT.LINE_SEPARATOR)
         if (split.size == 1) {
             when {
                 noInfo -> print(msg)
@@ -154,15 +152,23 @@ open class Logger(
             return Str.EMPTY
         }
         val e = trace[index]
-        return formatStackTrace(e)
+        return FMT.formatStackTrace(e)
     }
 
-    protected open fun formatStackTrace(e: StackTraceElement) =
-        "${e.className.split(".").last()}#${e.methodName}(${e.fileName}:${e.lineNumber})"
+    protected class Str {
+        companion object {
+            internal const val EMPTY = ""
+        }
+    }
+}
 
-    protected open fun any2Str(any: Any?): String {
+object FMT {
+    val LINE_SEPARATOR = System.getProperty("line.separator") ?: ""
+    const val MAX_COUNT_IN_LINE = 450
+
+    fun any2Str(any: Any?): String {
         return when (any) {
-            null -> Str.NULL
+            null -> "null"
             is Byte -> any.toHexStr()
             is Double -> "${any}D"
             is Float -> "${any}F"
@@ -185,7 +191,7 @@ open class Logger(
         }
     }
 
-    protected open fun formatThrowable(any: Throwable): String {
+    fun formatThrowable(any: Throwable): String {
         val sb = StringBuilder()
         val cause = any.cause
         sb.append("EXCEPTION: [")
@@ -194,9 +200,14 @@ open class Logger(
             .append(any.message)
             .append("]")
             .append(LINE_SEPARATOR)
+        var index = 0
         if (cause == null) {
             any.stackTrace.forEach {
-                sb.append("\t").append(formatStackTrace(it)).append(LINE_SEPARATOR)
+                if (index > 0) {
+                    sb.append(LINE_SEPARATOR)
+                }
+                index++
+                sb.append("\t").append(formatStackTrace(it))
             }
         } else {
             sb.append("CAUSED: [")
@@ -206,17 +217,24 @@ open class Logger(
                 .append("]")
                 .append(LINE_SEPARATOR)
             cause.stackTrace.forEach {
-                sb.append("\t").append(formatStackTrace(it)).append(LINE_SEPARATOR)
+                if (index > 0) {
+                    sb.append(LINE_SEPARATOR)
+                }
+                index++
+                sb.append("\t").append(formatStackTrace(it))
             }
         }
         return sb.toString()
     }
 
-    protected open fun formatStr(any: String): String {
-        return if (isJson(any)) formatJson(any) else formatMultiStr(any)
+    fun formatStackTrace(e: StackTraceElement) =
+        "${e.className.split(".").last()}#${e.methodName}(${e.fileName}:${e.lineNumber})"
+
+    fun formatStr(any: String): String {
+        return if (canFmtJson(any)) formatJson(any) else formatMultiStr(any)
     }
 
-    protected open fun isJson(any: String): Boolean {
+    fun canFmtJson(any: String): Boolean {
         return try {
             JSONObject(any)
             true
@@ -230,7 +248,7 @@ open class Logger(
         }
     }
 
-    protected open fun formatMultiStr(any: String): String {
+    fun formatMultiStr(any: String): String {
         if (any.length <= MAX_COUNT_IN_LINE) {
             return "\"$any\""
         } else {
@@ -252,7 +270,7 @@ open class Logger(
         }
     }
 
-    protected open fun formatJson(any: String): String {
+    fun formatJson(any: String): String {
         return try {
             when {
                 any.startsWith("{") -> JSONObject(any).toString(4)
@@ -266,11 +284,11 @@ open class Logger(
         }
     }
 
-    protected open fun iterable2Str(iterable: Iterable<*>): String {
+    fun iterable2Str(iterable: Iterable<*>): String {
         return iterator2Str(iterable.iterator())
     }
 
-    protected open fun iterator2Str(iterator: Iterator<*>): String {
+    fun iterator2Str(iterator: Iterator<*>): String {
         val sb = StringBuilder()
         sb.append("[")
         var index = 0
@@ -284,13 +302,6 @@ open class Logger(
         }
         sb.append("]")
         return sb.toString()
-    }
-
-    protected class Str {
-        companion object {
-            internal const val NULL = "null"
-            internal const val EMPTY = ""
-        }
     }
 }
 

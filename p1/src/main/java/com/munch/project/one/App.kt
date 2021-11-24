@@ -5,10 +5,11 @@ import android.content.Context
 import com.munch.lib.app.AppForegroundHelper
 import com.munch.lib.app.AppHelper
 import com.munch.lib.fast.FastAppHelper
+import com.munch.lib.fast.base.ExceptionCatchHandler
 import com.munch.lib.fast.watcher.MeasureHelper
 import com.munch.lib.fast.watcher.Watcher
 import com.munch.lib.helper.data.MMKVHelper
-import com.munch.lib.log.log
+import com.munch.lib.task.ThreadPoolHelper
 import com.munch.lib.task.pool
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,11 +50,12 @@ class App : Application() {
         AppForegroundHelper.register(this)
         MMKVHelper.init(app)
         thread {
-            Thread.setDefaultUncaughtExceptionHandler { _, e -> log(e) }
+            ExceptionCatchHandler.handle()
+            ThreadPoolHelper.setExceptionHandler(ExceptionCatchHandler)
             Watcher.watchMainLoop()
             //去触发初始化，大概会快个20-40ms
             CoroutineScope(Dispatchers.Unconfined).launch {}
-            pool {  }
+            pool { }
         }
     }
 }

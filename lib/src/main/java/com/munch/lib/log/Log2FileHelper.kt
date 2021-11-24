@@ -52,14 +52,18 @@ class Log2FileHelper(private val dir: File, private val newFile: (dir: File) -> 
     private val mbb: MappedByteBuffer
         get() = getCurrentMbb()
 
-    fun write(any: String) {
+    fun write(any: Any?, end: Boolean = true) {
+        val str = FMT.any2Str(any)
         val position = mbb.position()
-        if (position + any.length > SIZE_ONE_FILE) {
+        if (position + str.length > SIZE_ONE_FILE) {
             mbbNow = null
         }
         mbb.apply {
-            put(any.toByteArray())
+            put(str.toByteArray())
             putInt(0, position())
+            if (end) {
+                put("\n".toByteArray())
+            }
         }
     }
 
@@ -74,9 +78,11 @@ class Log2FileHelper(private val dir: File, private val newFile: (dir: File) -> 
         //预留100字节
         val f = fileNow?.takeIf { isLengthEnough(it) }
             ?: newLogFile().apply { fileNow = this }
+        val size = f.length()
+        val end = if (size == 0L) SIZE_ONE_FILE.toLong() else f.length()
         return RandomAccessFile(f, "rw")
             .channel
-            .map(FileChannel.MapMode.READ_WRITE, 0, SIZE_ONE_FILE.toLong()).apply {
+            .map(FileChannel.MapMode.READ_WRITE, 0, end).apply {
                 val i = getInt(0)
                 if (i != 0) {
                     position(i)

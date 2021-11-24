@@ -11,10 +11,13 @@ import androidx.appcompat.app.AlertDialog
 class SimpleDialog(context: Context, @StyleRes themeResId: Int = 0) :
     AlertDialog(context, themeResId) {
 
-    fun setOnSureListener(sure: (dialog: DialogInterface) -> Unit): SimpleDialog {
+    fun setOnSureListener(
+        sureStr: String = context.getString(android.R.string.ok),
+        sure: (dialog: DialogInterface) -> Unit
+    ): SimpleDialog {
         setButton(
             DialogInterface.BUTTON_POSITIVE,
-            context.getString(android.R.string.ok)
+            sureStr
         ) { dialog, _ ->
             sure.invoke(dialog)
         }
@@ -37,6 +40,11 @@ class SimpleDialog(context: Context, @StyleRes themeResId: Int = 0) :
 
     fun setContent(message: CharSequence?): SimpleDialog {
         super.setMessage(message)
+        return this
+    }
+
+    fun setName(title: CharSequence?): SimpleDialog {
+        super.setTitle(title)
         return this
     }
 }

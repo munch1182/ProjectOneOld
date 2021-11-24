@@ -84,6 +84,7 @@
         <activity android:name=".file.FileExploreActivity" />
         <activity android:name=".test.NotificationServiceActivity" />
         <activity android:name=".weight.WheelViewActivity" />
+        <activity android:name=".test.ExceptionActivity" />
 
         <service android:name=".broadcast.LogReceiveServer" />
         <service android:name=".timer.TestService" />

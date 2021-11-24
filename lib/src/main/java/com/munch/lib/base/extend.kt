@@ -2,12 +2,14 @@
 
 package com.munch.lib.base
 
+import android.os.Process
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.munch.lib.app.AppHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.reflect.KClass
+import kotlin.system.exitProcess
 
 /**
  * Create by munch1182 on 2021/8/19 15:05.
@@ -18,6 +20,11 @@ inline fun <T> MutableLiveData<T>.toImmutable(): LiveData<T> = this
 inline fun <T> MutableStateFlow<T>.toImmutable(): StateFlow<T> = this
 
 fun putStr2Clip(content: String) = AppHelper.app.putStr2Clip(content)
+
+fun destroy() {
+    Process.killProcess(Process.myPid())
+    exitProcess(1)
+}
 
 @Suppress("UNCHECKED_CAST")
 fun <T : Any> KClass<T>.toClass(): Class<T>? = try {
