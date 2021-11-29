@@ -113,7 +113,7 @@ fun File.del(): Boolean {
 /**
  * 获取文件或者文件夹的大小
  */
-fun File.getSize(): Long {
+fun File.lengthAll(): Long {
     if (!exists()) {
         return 0L
     }
@@ -121,7 +121,7 @@ fun File.getSize(): Long {
     if (isFile) {
         size = length()
     } else {
-        listFiles()?.forEach { size += it.getSize() }
+        listFiles()?.forEach { size += it.lengthAll() }
     }
     return size
 }
@@ -446,6 +446,7 @@ object FileHelper {
      *
      * 注意：如果是content形式的uri，是采用复制的形式，以保持统一性，避开对各种后缀的查询，对于只是获取的操作来说足够了
      * 因此此方法无法对源文件进行操作，返回的file也不一定是源文件
+     * 注意：此方法有文件大小限制
      *
      * @param file 用于复制的文件位置，如果目标文件是content的uri，该uri会被复制到该文件，如果确定是文件类型的uri，可以不传
      * @return 复制成功则返回文件，否则为null

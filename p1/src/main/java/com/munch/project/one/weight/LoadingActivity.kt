@@ -19,7 +19,8 @@ class LoadingActivity : BaseBigTextTitleActivity() {
     private val noticeHelper by lazy {
         ViewNoticeHelper(
             this,
-            loading = bind.loadContainer to LoadingView(this, LoadingView.STYLE_TEXT)
+            init = bind.loadContainer to LoadingView(this, LoadingView.STYLE_TEXT),
+            loading = bind.loadContainer to NameLoadingView(this)
         )
     }
 
@@ -27,13 +28,18 @@ class LoadingActivity : BaseBigTextTitleActivity() {
         super.onCreate(savedInstanceState)
         bind.apply {
             showLoad()
-            loadContainer.setOnClickListener { showLoad() }
+            loadViewData.setOnClickListener {
+                noticeHelper.loading {
+                    delay(Random.nextLong(800, 5000L))
+                }
+            }
         }
     }
 
     private fun showLoad() {
-        noticeHelper.loading { delay(Random.nextLong(800, 5000L)) }
+        noticeHelper.init { delay(Random.nextLong(800, 5000L)) }
     }
+
 
     override fun setContentView(view: View?) {
         setContentView(view, ViewHelper.newMMLayoutParams())

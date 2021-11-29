@@ -46,12 +46,13 @@ open class BaseBtnWithNoticeActivity : BaseBigTextTitleActivity() {
             diffUtil
         ) { _, bind, str -> bind.text = str }
     }
+    protected open val rv: RecyclerView by lazy { findViewById(R.id.rv_view) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_rv_only)
 
-        findViewById<RecyclerView>(R.id.rv_view).apply {
+        rv.apply {
             layoutManager = LinearLayoutManager(this.context)
             adapter = ConcatAdapter(header, itemAdapter)
         }

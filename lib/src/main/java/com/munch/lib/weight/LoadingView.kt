@@ -51,6 +51,7 @@ class LoadingView @JvmOverloads constructor(
                 imp?.obtainStyledAttributes(this)
             }.recycle()
         }
+        imp ?: setImpByStyle(context)
     }
 
     private fun setImpByStyle(context: Context) {

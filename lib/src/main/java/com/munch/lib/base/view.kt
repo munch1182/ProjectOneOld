@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.FrameLayout
 import androidx.core.view.children
 import com.munch.lib.R
 
@@ -142,6 +143,9 @@ fun EditText.hideSoftInput() {
 fun View.requestTouchEvent(request: Boolean) {
     (parent as? ViewGroup)?.requestDisallowInterceptTouchEvent(request)
 }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun ViewGroup.LayoutParams.toFrame() = FrameLayout.LayoutParams(this)
 
 object ViewHelper {
 

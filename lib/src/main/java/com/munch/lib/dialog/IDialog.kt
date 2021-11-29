@@ -1,5 +1,6 @@
 package com.munch.lib.dialog
 
+import android.view.View
 import com.munch.lib.base.OnCancel
 import com.munch.lib.base.OnNext
 
@@ -21,4 +22,12 @@ interface IDialogHandler : IDialog {
     fun setOnCancel(onCancel: OnCancel): IDialogHandler
 
     fun setOnNext(onNext: OnNext): IDialogHandler
+}
+
+/**
+ * 用以统一dialog的样式，但内部的view则由各自具体实现
+ */
+interface IViewDialog : IDialogHandler {
+
+    fun setContentView(view: View)
 }

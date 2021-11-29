@@ -60,7 +60,7 @@ class PermissionActivity : BaseBigTextTitleActivity() {
         }
         pa.setOnViewClickListener(OnPermissionClickListener(pa), R.id.permission_request)
 
-        viewNoticeHelper.loading {
+        viewNoticeHelper.init {
             val newData = Permissions.PERMISSIONS.map { it.update() }.sortedBy { !it.isSupport }
             withContext(Dispatchers.Main) { pa.set(newData) }
         }
