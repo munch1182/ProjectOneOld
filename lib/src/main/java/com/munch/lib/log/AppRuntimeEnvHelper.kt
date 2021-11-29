@@ -17,14 +17,14 @@ object AppRuntimeEnvHelper {
     val env by lazy {
         ArrayMap<String, () -> String>().apply {
             val pw = (AppHelper.app.getSystemService(Context.POWER_SERVICE) as? PowerManager)
-            put("包名") { AppHelper.app.packageName }
-            put("版本") { AppHelper.app.getNameVersion().let { "${it.first}(${it.second})" } }
-            put("是否是正式版") { (!BuildConfig.DEBUG).toString() }
-            put("是否在前台") { AppForegroundHelper.isInForeground.toString() }
-            put("当前网络") { NetHelper.getInstance().currentNet?.toString() ?: "unknown" }
-            put("是否亮屏") { pw?.isInteractive.toString() }
-            put("IDLE模式") { pw?.isDeviceIdleMode.toString() }
-            put("省电模式") { pw?.isPowerSaveMode.toString() }
+            put("packageName") { AppHelper.app.packageName }
+            put("version") { AppHelper.app.getNameVersion().let { "${it.first}(${it.second})" } }
+            put("release") { (!BuildConfig.DEBUG).toString() }
+            put("in foreground") { AppForegroundHelper.isInForeground.toString() }
+            put("net") { NetHelper.getInstance().currentNet?.toString() ?: "unknown" }
+            put("screen light") { pw?.isInteractive.toString() }
+            put("IDLE mode") { pw?.isDeviceIdleMode.toString() }
+            put("power save mode") { pw?.isPowerSaveMode.toString() }
         }
     }
 

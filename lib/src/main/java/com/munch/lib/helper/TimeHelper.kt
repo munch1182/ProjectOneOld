@@ -32,7 +32,15 @@ object TimeHelper {
     }
 
     /**
+     * @param c Calendar会有时区
+     * @param t 而Date没有时区
+     */
+    fun isOneDay(c: Calendar, t: Date) = isOneDay(c.timeInMillis, t.time - c.timeZone.rawOffset)
+
+
+    /**
      * 单位：ms
+     * 注意，[t1]和[t2]需要在同一时区
      */
     fun isOneDay(t1: Long, t2: Long, timeZone: TimeZone = TimeZone.getDefault()): Boolean {
         val interval = (t1 - t2).absoluteValue
@@ -41,9 +49,10 @@ object TimeHelper {
 
     /**
      * 时间戳转为当天开始的时间戳，即该天00:00的时间戳
+     * 注意：返回的时间不带时区
      */
     fun millis2Days(millis: Long, timeZone: TimeZone = TimeZone.getDefault()): Long {
-        return millis / MILLIS.DAY * MILLIS.DAY - timeZone.rawOffset
+        return (timeZone.getOffset(millis) + millis) / MILLIS.DAY * MILLIS.DAY - timeZone.rawOffset
     }
 
     /**
@@ -133,10 +142,16 @@ fun String.toCalender(
 }
 
 inline fun Calendar.getYear() = get(Calendar.YEAR)
-inline fun Calendar.getMonth() = get(Calendar.MONTH)
+inline fun Calendar.getMonth() = get(Calendar.MONTH) + 1
 inline fun Calendar.getDay() = get(Calendar.DAY_OF_MONTH)
 inline fun Calendar.getDate() = get(Calendar.DAY_OF_YEAR)
 inline fun Calendar.getHour() = get(Calendar.HOUR_OF_DAY)
 inline fun Calendar.getMinute() = get(Calendar.MINUTE)
 inline fun Calendar.getSecond() = get(Calendar.SECOND)
 inline fun Calendar.getWeek() = get(Calendar.WEEK_OF_MONTH)
+inline fun Calendar.setHMS(h: Int, m: Int, s: Int, ms: Int = 0) {
+    set(Calendar.HOUR_OF_DAY, h)
+    set(Calendar.MINUTE, m)
+    set(Calendar.SECOND, s)
+    set(Calendar.MILLISECOND, ms)
+}

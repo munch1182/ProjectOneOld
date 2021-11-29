@@ -1,7 +1,5 @@
 package com.munch.project.one.test
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.os.Build
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
@@ -74,19 +72,12 @@ class NotificationServiceActivity : BaseBtnWithNoticeActivity() {
                 }
             }
             5 -> {
-                val manager = NotificationManagerCompat.from(this)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    manager.createNotificationChannel(
-                        NotificationChannel(
-                            "test_notification",
-                            "test_notification",
-                            NotificationManager.IMPORTANCE_HIGH
-                        )
-                    )
-                }
-                manager.notify(
-                    1118, NotificationCompat.Builder(this, "test_notification")
+                val channelId = "test_notification"
+                NotificationHelper.notification(
+                    1118, channelId,
+                    NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle(getString(R.string.app_name))
                         .setContentText(System.currentTimeMillis().toDate())
                         .build()
                 )

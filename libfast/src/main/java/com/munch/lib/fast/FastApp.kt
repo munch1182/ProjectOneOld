@@ -4,13 +4,14 @@ import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.os.StatFs
+import android.text.format.Formatter
 import com.munch.lib.app.AppForegroundHelper
 import com.munch.lib.app.AppHelper
+import com.munch.lib.fast.base.ExceptionCatchHandler
 import com.munch.lib.fast.watcher.Watcher
 import com.munch.lib.helper.PhoneHelper
 import com.munch.lib.helper.data.MMKVHelper
 import com.munch.lib.helper.getHourMinNumber
-import com.munch.lib.log.log
 import kotlin.concurrent.thread
 
 /**
@@ -36,7 +37,7 @@ object FastAppHelper {
         AppForegroundHelper.register(app)
         MMKVHelper.init(app)
         thread {
-            Thread.setDefaultUncaughtExceptionHandler { _, e -> log(e) }
+            ExceptionCatchHandler.handle()
             Watcher.watchMainLoop()
         }
     }
@@ -75,10 +76,14 @@ object FastAppHelper {
     }
 
     private fun StatFs.formatString(): String {
-        return "Rom:${availableBytes.toDouble()}/${totalBytes.toDouble()}"
+        val total = Formatter.formatFileSize(AppHelper.app, totalBytes)
+        val avail = Formatter.formatFileSize(AppHelper.app, availableBytes)
+        return "Rom:$avail/$total"
     }
 
     private fun ActivityManager.MemoryInfo.formatString(): String {
-        return "Ram:${availMem.toDouble()}/${totalMem.toDouble()},isLow:${this.lowMemory}"
+        val total = Formatter.formatFileSize(AppHelper.app, totalMem)
+        val avail = Formatter.formatFileSize(AppHelper.app, availMem)
+        return "Ram:$avail/$total,isLow:${this.lowMemory}"
     }
 }
