@@ -80,7 +80,7 @@ class TestActivity : BaseRvActivity() {
             MappedByteBufferActivity::class.java,
             WebActivity::class.java,
             TimerActivity::class.java,
-            NotificationServiceActivity::class.java,
+            NotificationActivity::class.java,
             ExceptionActivity::class.java
         )
 

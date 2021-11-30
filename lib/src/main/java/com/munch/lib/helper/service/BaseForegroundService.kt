@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationManagerCompat
+import com.munch.lib.app.AppHelper
 import com.munch.lib.base.startServiceInForeground
 
 /**
@@ -24,7 +25,30 @@ open class BaseForegroundService(override val parameter: IForegroundService.Para
         fun stop(context: Context, intent: Intent) {
             context.stopService(intent)
         }
+
+        @RequiresPermission("android.permission.FOREGROUND_SERVICE")
+        fun start() {
+            startForegroundService(
+                AppHelper.app,
+                Intent(AppHelper.app, BaseForegroundService::class.java)
+            )
+        }
+
+        fun stop() {
+            stop(AppHelper.app, Intent(AppHelper.app, BaseForegroundService::class.java))
+        }
+
+        const val DEF_SERVICE_ID = 1130
+        const val DEF_CHANNEL_ID = "ForegroundService"
     }
+
+    constructor() : this(
+        IForegroundService.Parameter(
+            DEF_CHANNEL_ID,
+            DEF_CHANNEL_ID,
+            DEF_SERVICE_ID
+        )
+    )
 
     override val service: Service by lazy { this }
     override val manager by lazy { NotificationManagerCompat.from(this) }

@@ -6,6 +6,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.munch.lib.fast.base.BaseBtnWithNoticeActivity
 import com.munch.lib.fast.databinding.ItemSimpleBtnWithNoticeBinding
+import com.munch.lib.helper.service.BaseForegroundService
 import com.munch.lib.helper.toDate
 import com.munch.lib.notification.NotificationHelper
 import com.munch.lib.notification.NotificationListenerServiceHelper
@@ -19,7 +20,7 @@ import com.munch.project.one.notification.NotificationService
  *
  * Create by munch1182 on 2021/11/17 15:41.
  */
-class NotificationServiceActivity : BaseBtnWithNoticeActivity() {
+class NotificationActivity : BaseBtnWithNoticeActivity() {
     private val judge = {
         NotificationManagerCompat.getEnabledListenerPackages(this)
             .contains(packageName)
@@ -30,11 +31,13 @@ class NotificationServiceActivity : BaseBtnWithNoticeActivity() {
         setItem(
             mutableListOf(
                 "request permission",
-                "start service",
-                "stop service",
+                "start notification service",
+                "stop notification service",
                 "enable",
                 "disable",
                 "new notification",
+                "start foreground server",
+                "stop foreground server",
                 "throw error"
             )
         )
@@ -72,9 +75,9 @@ class NotificationServiceActivity : BaseBtnWithNoticeActivity() {
                 }
             }
             5 -> {
-                val channelId = "test_notification"
+                val channelId = BaseForegroundService.DEF_CHANNEL_ID
                 NotificationHelper.notification(
-                    1118, channelId,
+                    BaseForegroundService.DEF_SERVICE_ID, channelId,
                     NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(getString(R.string.app_name))
@@ -83,6 +86,12 @@ class NotificationServiceActivity : BaseBtnWithNoticeActivity() {
                 )
             }
             6 -> {
+                BaseForegroundService.start()
+            }
+            7 -> {
+                BaseForegroundService.stop()
+            }
+            8 -> {
                 throw RuntimeException("测试NotificationService异常")
             }
         }
