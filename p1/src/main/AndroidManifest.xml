@@ -64,8 +64,6 @@
         <activity android:name=".WeightActivity" />
         <activity android:name=".weight.FlowLayoutActivity" />
         <activity android:name=".test.FileFunActivity" />
-        <activity android:name=".bluetooth.BluetoothActivity" />
-        <activity android:name=".bluetooth.BluetoothScanInfoActivity" />
         <activity android:name=".net.NetActivity" />
         <activity android:name=".intent.IntentActivity" />
         <activity android:name=".about.AboutActivity" />

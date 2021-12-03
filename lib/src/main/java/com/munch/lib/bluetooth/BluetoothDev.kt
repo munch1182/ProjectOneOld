@@ -1,5 +1,6 @@
 package com.munch.lib.bluetooth
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
@@ -9,135 +10,69 @@ import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 
 /**
- * Create by munch1182 on 2021/8/24 13:41.
+ * Create by munch1182 on 2021/12/3 16:23.
  */
-sealed class BluetoothType : Parcelable {
-
-    /**
-     * 经典蓝牙
-     */
-    @Parcelize
-    object Classic : BluetoothType() {
-
-        override fun toString(): String {
-            return "classic"
-        }
-    }
-
-    /**
-     * 低功耗蓝牙
-     */
-    @Parcelize
-    object Ble : BluetoothType() {
-
-        override fun toString(): String {
-            return "ble"
-        }
-    }
-
-    val isBle: Boolean
-        get() = this == Ble
-    val isClassic: Boolean
-        get() = this == Classic
-}
-
 @Parcelize
 data class BluetoothDev(
     val name: String? = null,
-    val mac: String,
+    val mac: String? = null,
     var rssi: Int = 0,
     val type: @RawValue BluetoothType,
-    val dev: BluetoothDevice,
-    //只有通过扫描获取的设备才有该值
-    var scanResult: ScanResult? = null
+    val dev: BluetoothDevice? = null
 ) : Parcelable {
 
     companion object {
 
-        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-        fun from(result: ScanResult) =
-            from(result.device, result.rssi).apply { scanResult = result }
-
-        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-        fun from(
-            device: BluetoothDevice,
-            rssi: Int = 0
-        ): BluetoothDev {
-            val type = if (BluetoothDevice.DEVICE_TYPE_CLASSIC == device.type) {
-                BluetoothType.Classic
-            } else {
-                BluetoothType.Ble
+        /**
+         * 从[BluetoothDevice]中构建[BluetoothDev]
+         *
+         * 如果[BluetoothDevice]中[BluetoothDevice.getType]为双模式，则默认使用[BluetoothType.BLE]，否则应自行构建
+         * 如果[BluetoothDevice]中[BluetoothDevice.getType]未知，则会抛出异常
+         */
+        @SuppressLint("InlinedApi")
+        @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
+        fun from(dev: BluetoothDevice, rssi: Int = 0): BluetoothDev {
+            val type = when (dev.type) {
+                BluetoothDevice.DEVICE_TYPE_DUAL,
+                BluetoothDevice.DEVICE_TYPE_LE -> BluetoothType.BLE
+                BluetoothDevice.DEVICE_TYPE_CLASSIC -> BluetoothType.CLASSIC
+                else -> throw IllegalStateException("must set bluetoothType")
             }
-            return BluetoothDev(device.name, device.address, rssi, type, device)
+
+            return BluetoothDev(dev.name, dev.address, rssi, type, dev)
         }
 
-        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-        fun from(mac: String, type: BluetoothType = BluetoothType.Ble): BluetoothDev? {
+        @SuppressLint("InlinedApi")
+        @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
+        fun from(result: ScanResult) = from(result.device, result.rssi)
+
+        @SuppressLint("InlinedApi")
+        @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
+        fun from(mac: String): BluetoothDev? {
             if (!BluetoothAdapter.checkBluetoothAddress(mac)) {
                 return null
             }
-            val device = BluetoothHelper.instance.set.adapter?.getRemoteDevice(mac) ?: return null
-            return BluetoothDev(device.name, device.address, 0, type, device)
+            val adapter = BluetoothHelper.instance.bluetoothEnv.adapter
+            return from(adapter?.getRemoteDevice(mac) ?: return null)
         }
     }
 
     val rssiStr: String
         get() = "$rssi dBm"
     val isBle: Boolean
-        get() = type == BluetoothType.Ble
+        get() = type.isBle
     val isClassic: Boolean
-        get() = type == BluetoothType.Classic
-
-    /**
-     * 是否已被本应用连接
-     * @see isConnectedByGatt
-     */
-    val isConnectedByHelper: Boolean
-        get() = mac == BluetoothHelper.instance.connectedDev?.mac
-    val isConnecting: Boolean
-        get() = BluetoothHelper.instance.state.isConnecting && mac == BluetoothHelper.instance.operationDev?.mac
+        get() = type.isClassic
     val bondState: Int
-        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-        get() = dev.bondState
+        @SuppressLint("InlinedApi") @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
+        get() = dev?.bondState ?: BluetoothDevice.BOND_NONE
     val isBond: Boolean
-        @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-        get() = dev.bondState == BluetoothDevice.BOND_BONDED
+        @SuppressLint("InlinedApi") @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
+        get() = dev?.bondState == BluetoothDevice.BOND_BONDED
 
-    /**
-     * 通过[BluetoothHelper]进行连接
-     */
-    fun connect() = BluetoothHelper.instance.connect(this)
-
-    /**
-     * 通过[BluetoothHelper]断开连接
-     */
-    fun disconnect() = BluetoothHelper.instance.disconnect()
-
-    /**
-     * 用于获取该蓝牙设备是否处于gatt连接状态
-     * 因其实现，不建议批量使用
-     *
-     * @see isConnectedBySystem
-     * @see com.munch.lib.bluetooth.BluetoothInstance.getConnectedDevice
-     */
-    @RequiresPermission(android.Manifest.permission.BLUETOOTH)
-    fun isConnectedByGatt() = BluetoothHelper.instance.set.isConnectedByGatt(this)
-
-    /**
-     * 通过反射获取当前蓝牙设备的连接状态，包括gatt连接
-     *
-     * @see isConnectedByGatt
-     */
-    fun isConnectedBySystem(): Boolean? {
-        return try {
-            val isConnect = BluetoothDevice::class.java.getDeclaredMethod("isConnected")
-            isConnect.isAccessible = true
-            isConnect.invoke(dev) as? Boolean
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
+    fun createBond() = dev?.createBond() ?: false
 
     /**
      * 如果该设备已绑定，则移除该绑定；如果正在绑定，则尝试取消绑定；
@@ -145,14 +80,16 @@ data class BluetoothDev(
      *
      * 注意：此方法只允许由app绑定的设备，不允许移除由其它设备添加的绑定
      */
-    @RequiresPermission(android.Manifest.permission.BLUETOOTH)
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
     fun removeBond(): Boolean? {
-        return when (dev.bondState) {
+        val d = dev ?: return null
+        return when (d.bondState) {
             BluetoothDevice.BOND_NONE -> true
             BluetoothDevice.BOND_BONDING -> try {
                 val cancelBond = BluetoothDevice::class.java.getDeclaredMethod("cancelBondProcess")
                 cancelBond.isAccessible = true
-                cancelBond.invoke(dev) as? Boolean?
+                cancelBond.invoke(d) as? Boolean?
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
@@ -160,7 +97,7 @@ data class BluetoothDev(
             else -> try {
                 val removeBond = BluetoothDevice::class.java.getDeclaredMethod("removeBond")
                 removeBond.isAccessible = true
-                removeBond.invoke(dev) as? Boolean?
+                removeBond.invoke(d) as? Boolean?
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
@@ -168,26 +105,38 @@ data class BluetoothDev(
         }
     }
 
-    @RequiresPermission(android.Manifest.permission.BLUETOOTH_ADMIN)
-    fun createBond() = dev.createBond()
-
     override fun toString(): String {
-        return "BtDevice(name=$name, mac='$mac', rssi=$rssi, type=$type)"
+        return "BluetoothDev(name=$name, mac=$mac, type=$type, rssiStr='$rssiStr')"
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-
         other as BluetoothDev
-
-        if (mac != other.mac) return false
-
-        return true
+        return mac == other.mac
     }
 
     override fun hashCode(): Int {
-        return mac.hashCode()
+        return mac?.hashCode() ?: 0
+    }
+}
+
+sealed class BluetoothType : Parcelable {
+
+    val isBle: Boolean
+        get() = this is BLE
+    val isClassic: Boolean
+        get() = this is CLASSIC
+
+    @Parcelize
+    object CLASSIC : BluetoothType() {
+
+        override fun toString() = "CLASSIC"
     }
 
+    @Parcelize
+    object BLE : BluetoothType() {
+
+        override fun toString() = "BLE"
+    }
 }

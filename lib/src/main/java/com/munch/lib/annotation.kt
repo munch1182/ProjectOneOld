@@ -11,3 +11,9 @@ package com.munch.lib
  */
 @Retention(AnnotationRetention.SOURCE)
 annotation class UnComplete
+
+/**
+ * 标记该方法或者对象为关键的实现
+ */
+@Retention(AnnotationRetention.SOURCE)
+annotation class Imp

@@ -1,328 +1,131 @@
 package com.munch.lib.bluetooth
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.le.BluetoothLeScanner
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
-import android.content.Context
-import android.content.Intent
-import android.util.SparseArray
-import androidx.annotation.RequiresPermission
-import androidx.core.util.containsKey
-import com.munch.lib.base.Cancelable
-import com.munch.lib.helper.receiver.ReceiverHelper
+
 
 /**
- * Create by munch1182 on 2021/8/24 13:57.
+ * Create by munch1182 on 2021/12/3 16:57.
  */
-interface Scanner : Cancelable {
+interface IScanner {
 
-    fun start()
+    fun start() {}
 
-    fun stop()
-
-    override fun cancel() {
-        stop()
-    }
+    fun stop() {}
 }
 
-interface OnScannerListener {
-
-    fun onStart() {}
-    fun onScan(device: BluetoothDev)
-    fun onBatchScan(devices: MutableList<BluetoothDev>) {}
-    fun onComplete() {}
-    fun onFail() {}
-}
-
-data class ScanFilter(val name: String?, val mac: String?)
-
-class ScannerBuilder internal constructor(private val type: BluetoothType) {
-    internal var filter: List<android.bluetooth.le.ScanFilter>? = null
-    internal var settings: ScanSettings? = null
-    internal var timeout = 35 * 1000L
-    internal var reportDelay = 0L
-    internal var justFirst = true
-
-    fun setFilter(filter: MutableList<ScanFilter>?): ScannerBuilder {
-        this.filter = filter?.map {
-            android.bluetooth.le.ScanFilter.Builder()
-                .apply {
-                    if (BluetoothHelper.checkMac(it.mac)) {
-                        setDeviceAddress(it.mac)
-                    }
-                    if (it.name != null && it.name.isNotEmpty()) {
-                        setDeviceName(it.name)
-                    }
-                }
-                .build()
-        }
-        return this
-    }
-
-    fun setSettings(settings: ScanSettings): ScannerBuilder {
-        this.settings = settings
-        return this
-    }
-
-    fun setTimeout(timeout: Long): ScannerBuilder {
-        this.timeout = timeout
-        return this
-    }
+sealed class ScanParameter {
 
     /**
-     * 设置回复时间大于0将启用批量模式(如果设备支持)，只支持ble模式
+     * 超时时间
      */
-    fun setReportDelay(reportDelay: Long = 0L): ScannerBuilder {
-        this.reportDelay = reportDelay
-        return this
-    }
+    var timeout = 25 * 1000L
 
     /**
-     * 设备是否只返回第一次出现设备，即是否重复回调相同的设备
+     * 设备是否只返回一次，即是否重复回调相同的设备
      *
      * 相同的设备的多次回调信息(比如信号强度)会更新
      */
-    fun setJustFirst(justFirst: Boolean = true): ScannerBuilder {
-        this.justFirst = justFirst
+    var justFirst: Boolean = true
+
+    /**
+     * 要寻找的目标设备地址
+     */
+    var target: List<String>? = null
+
+
+    abstract fun default(): ScanParameter
+
+    override fun toString(): String {
+        return "ScanParameter(timeout=$timeout, justFirst=$justFirst), target=${target?.joinToString()}"
+    }
+
+    object BleScanParameter : ScanParameter() {
+
+        /**
+         * 设置回复时间, 大于0将启用批量模式(如果设备支持)
+         */
+        var reportDelay = 0L
+        var set: ScanSettings? = null
+
+        override fun default() = this
+
+        override fun toString(): String {
+            return "BleScanParameter(timeout=$timeout, justFirst=$justFirst), target=${target?.joinToString()}, " +
+                    "reportDelay=$reportDelay, set=$set"
+        }
+    }
+
+    object ClassicScanParameter : ScanParameter() {
+
+        override fun default() = this
+    }
+
+
+}
+
+class Scanner(private val type: BluetoothType) : IScanner {
+
+    private var parameter: ScanParameter? = null
+    private var currentScanner: IScanner? = null
+    private val log = BluetoothHelper.logHelper
+
+    fun build(parameter: ScanParameter? = null): Scanner {
+        this.parameter = parameter
         return this
     }
 
-    /**
-     * 不同的类型需要不同的权限
-     */
-    fun startScan() {
-        BluetoothHelper.instance.startScan(type, this)
-    }
-
-    override fun toString(): String {
-        return "ScannerBuilder(type=$type, filter=${if (filter == null) "null" else filter?.joinToString { "${it.deviceName}(${it.deviceAddress})" }}, settings=$settings, timeout=$timeout, reportDelay=$reportDelay, justFirst=$justFirst)"
-    }
-}
-
-internal class ClassicScanner(context: Context) : Scanner {
-
-    private val receiver = BluetoothDiscoveryReceiver(context)
-    internal var builder: ScannerBuilder? = null
-    internal var listener: OnScannerListener? = null
-    private val scanCallback = object : OnScannerListener {
-        override fun onStart() {
-            listener?.onStart()
-        }
-
-        override fun onScan(device: BluetoothDev) {
-            listener?.onScan(device)
-        }
-
-        override fun onBatchScan(devices: MutableList<BluetoothDev>) {
-            listener?.onBatchScan(devices)
-        }
-
-        override fun onComplete() {
-            BluetoothHelper.instance.workHandler.removeCallbacks(delay2Stop)
-            listener?.onComplete()
-            listener = null
-            receiver.remove(this)
-            receiver.unregister()
-        }
-
-        override fun onFail() {
-            listener?.onFail()
-        }
-    }
-    private val delay2Stop = Runnable {
-        BluetoothHelper.logHelper.withEnable { "timeout to stop scan" }
-        stop()
-    }
-
-    private fun delayStop(timeout: Long) {
-        BluetoothHelper.instance.workHandler.postDelayed(delay2Stop, timeout)
-    }
-
-    @SuppressLint("MissingPermission")
     override fun start() {
-        BluetoothHelper.logHelper.withEnable { "start classic scan" }
-        receiver.add(scanCallback)
-        receiver.apply { scanBuilder = builder }.register()
-        if (builder != null && builder!!.timeout > 0L) {
-            delayStop(builder!!.timeout)
+        super.start()
+        if (currentScanner != null) {
+            log.withEnable { "must stop scan first" }
+            return
         }
-        BluetoothHelper.instance.adapter?.startDiscovery()
-    }
-
-    @SuppressLint("MissingPermission")
-    override fun stop() {
-        val instance = BluetoothHelper.instance
-        BluetoothHelper.logHelper.withEnable { "stop classic scan" }
-        instance.adapter?.cancelDiscovery()
-        //通知搜索后，应在回调中更改状态
-    }
-}
-
-internal class BleScanner : Scanner {
-
-    internal var listener: OnScannerListener? = null
-    private val scanner: BluetoothLeScanner?
-        get() = BluetoothHelper.instance.set.adapter?.bluetoothLeScanner
-
-    //因为顺序不重要
-    private val scannedDevs = SparseArray<BluetoothDev>()
-    private val scanCallback = object : ScanCallback() {
-        @SuppressLint("MissingPermission")
-        override fun onScanResult(callbackType: Int, result: ScanResult?) {
-            super.onScanResult(callbackType, result)
-            /*BluetoothHelper.logSystem.withEnable {
-                "onScanResult:$callbackType, ${result?.device?.name ?: "null"}(${result?.device?.address ?: "null"})"
-            }*/
-            result ?: return
-            val key = result.device.address.hashCode()
-            if (builder?.justFirst == true && scannedDevs.containsKey(key)) {
-                return
-            }
-            val device = BluetoothDev.from(result)
-            listener?.onScan(device)
-            scannedDevs.put(key, device)
+        val p = parameter ?: getDefault()
+        currentScanner = when (type) {
+            BluetoothType.BLE -> BleScanner(p)
+            BluetoothType.CLASSIC -> ClassicScanner(p)
         }
-
-        /**
-         * 批量返回
-         */
-        @SuppressLint("MissingPermission")
-        override fun onBatchScanResults(results: MutableList<ScanResult>?) {
-            super.onBatchScanResults(results)
-            val list = results?.map { BluetoothDev.from(it) }
-                ?.filter { !(builder?.justFirst == true && scannedDevs.containsKey(it.mac.hashCode())) }
-            /*BluetoothHelper.logSystem.withEnable { "onBatchScanResults:${results?.size ?: 0}" }*/
-            list ?: return
-            if (list.isNotEmpty()) {
-                list.forEach { scannedDevs.put(it.mac.hashCode(), it) }
-                listener?.onBatchScan(list.toMutableList())
-            }
-        }
-
-        @SuppressLint("MissingPermission")
-        override fun onScanFailed(errorCode: Int) {
-            super.onScanFailed(errorCode)
-            BluetoothHelper.logSystem.withEnable { "onScanFailed:$errorCode" }
+        currentScanner?.start()
+        log.withEnable { "start scan, parameter = $p" }
+        BluetoothHelper.instance.handler.postDelayed({
             stop()
-        }
+            log.withEnable { "call scan stop() because of timeout(${p.timeout} ms)." }
+        }, p.timeout)
     }
 
-    @SuppressLint("MissingPermission")
-    private val delay2Stop = Runnable {
-        BluetoothHelper.logHelper.withEnable { "timeout to stop scan" }
-        stop()
-    }
-    internal var builder: ScannerBuilder? = null
-
-    @RequiresPermission(
-        allOf = [Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.ACCESS_FINE_LOCATION]
-    )
-    override fun start() {
-        BluetoothHelper.logHelper.withEnable { "start ble scan : $builder" }
-        scannedDevs.clear()
-        if (builder != null && builder!!.timeout > 0L) {
-            delayStop(builder!!.timeout)
-        }
-        listener?.onStart()
-        scanner?.startScan(builder?.filter, sureSettings(), scanCallback)
-    }
-
-    @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
-    private fun delayStop(timeout: Long) {
-        BluetoothHelper.instance.workHandler.postDelayed(delay2Stop, timeout)
-    }
-
-    private fun sureSettings(): ScanSettings {
-        return builder?.settings ?: ScanSettings.Builder()
-            .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-            .setMatchMode(ScanSettings.MATCH_MODE_STICKY)
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-            //批量扫描
-            .apply {
-                if (builder != null) {
-                    if (BluetoothHelper.instance.adapter?.isOffloadedScanBatchingSupported == true) {
-                        setReportDelay(builder!!.reportDelay)
-                    }
-                }
-            }
-            .build()
-    }
-
-    @RequiresPermission(Manifest.permission.BLUETOOTH_ADMIN)
     override fun stop() {
-        BluetoothHelper.logHelper.withEnable { "stop ble scan" }
-        val instance = BluetoothHelper.instance
-        instance.workHandler.removeCallbacks(delay2Stop)
-        //此方法不会触发回调
-        scanner?.stopScan(scanCallback)
-        //因此主动触发
-        listener?.onComplete()
-        listener = null
-        instance.state.currentStateVal = BluetoothState.IDLE
+        super.stop()
+        log.withEnable { "stop scan" }
+        currentScanner?.stop()
+        currentScanner = null
+    }
+
+    private fun getDefault(): ScanParameter {
+        return when (type) {
+            BluetoothType.BLE -> ScanParameter.BleScanParameter.default()
+            BluetoothType.CLASSIC -> ScanParameter.ClassicScanParameter.default()
+        }
     }
 }
 
-class BluetoothDiscoveryReceiver(context: Context) : ReceiverHelper<OnScannerListener>(
-    context, arrayOf(
-        BluetoothAdapter.ACTION_DISCOVERY_STARTED,
-        BluetoothAdapter.ACTION_DISCOVERY_FINISHED,
-        BluetoothDevice.ACTION_FOUND
-    )
-) {
+class BleScanner(p: ScanParameter) : IScanner {
 
-    private val devs = SparseArray<BluetoothDev>()
-
-    var scanBuilder: ScannerBuilder? = null
-
-    @SuppressLint("MissingPermission")
-    override fun handleAction(
-        action: String,
-        context: Context?,
-        intent: Intent,
-        t: OnScannerListener
-    ) {
-        when (action) {
-            BluetoothAdapter.ACTION_DISCOVERY_STARTED -> {
-                devs.clear()
-                t.onStart()
-            }
-            BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
-                t.onComplete()
-                remove(t)
-            }
-            BluetoothDevice.ACTION_FOUND -> {
-                val device =
-                    intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                        ?: return
-                if (!isValid(device)) return
-                val rssi = intent.extras?.getShort(BluetoothDevice.EXTRA_RSSI, 0.toShort())
-                    ?.toInt() ?: 0
-                val dev = BluetoothDev.from(device, rssi)
-                val key = dev.mac.hashCode()
-                if (scanBuilder?.justFirst == true && devs.containsKey(key)) {
-                    return
-                }
-                devs.put(key, dev)
-                t.onScan(dev)
-            }
-        }
+    override fun start() {
+        super.start()
     }
 
-    @SuppressLint("MissingPermission")
-    private fun isValid(device: BluetoothDevice): Boolean {
-        val filters = scanBuilder?.filter?.takeIf { it.isNotEmpty() } ?: return true
-        filters.forEach {
-            if (((it.deviceName == null || it.deviceName == device.name)
-                        && (it.deviceAddress == null || it.deviceAddress == device.address))
-            ) {
-                return true
-            }
-        }
-        return false
+    override fun stop() {
+        super.stop()
+    }
+}
+
+class ClassicScanner(p: ScanParameter) : IScanner {
+
+    override fun start() {
+        super.start()
+    }
+
+    override fun stop() {
+        super.stop()
     }
 }
