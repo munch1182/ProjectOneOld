@@ -1,5 +1,6 @@
 package com.munch.project.one.weight
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,9 @@ class FlowLayoutActivity : BaseBigTextTitleActivity() {
     private val flowLayout by lazy { findViewById<DebugFlowLayout>(R.id.flow_view) }
     private val gravity by lazy { findViewById<TextView>(R.id.flow_gravity_view) }
     private val maxCount by lazy { findViewById<TextView>(R.id.flow_max_count_view) }
+    private val group by lazy { findViewById<TextView>(R.id.flow_group) }
+
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_flow_layout)
@@ -43,6 +47,22 @@ class FlowLayoutActivity : BaseBigTextTitleActivity() {
             }
         })
         maxCount.tag = -1
+        group.setOnClickListener {
+            val group = mutableListOf<Int>()
+            val all = flowLayout.childCount
+            var groupedCount = 0
+            while (groupedCount < all) {
+                var g = Random.nextInt(1, all / 2)
+                if (groupedCount + g > all) {
+                    g = all - groupedCount
+                }
+                group.add(g)
+                groupedCount += g
+            }
+            val groupArray = group.toTypedArray()
+            this.group.text = "Group: ${groupArray.joinToString()}"
+            flowLayout.set { this.group = groupArray }
+        }
     }
 
     private fun changeGravity() {

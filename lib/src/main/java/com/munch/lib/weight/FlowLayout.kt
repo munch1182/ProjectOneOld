@@ -37,6 +37,11 @@ class FlowLayout @JvmOverloads constructor(
      */
     var maxCountInLine = -1
 
+    /**
+     * 对子view进行分组，同一组的view按照样式分布
+     */
+    var group: Array<Int>? = null
+
     private val layoutHelper = LayoutHelper()
 
     override fun set(set: FlowLayout.() -> Unit) {
@@ -72,7 +77,21 @@ class FlowLayout @JvmOverloads constructor(
         var allRowsUsedHeight = paddingTop
         //上一行的行高度+本行已计算的高度
         var rowsUsedHeight = allRowsUsedHeight
+
+        //当前组的序号
+        var currentGroupIndex = 0
+        //当前组的剩余数量
+        var currentGroupCount = group?.getOrNull(currentGroupIndex) ?: childCount
+        currentGroupCount++
+
         children.forEachIndexed { index, child ->
+            //当前组的数量已经分配完
+            if (currentGroupCount <= 0) {
+                currentGroupIndex++
+                currentGroupCount = group?.getOrNull(currentGroupIndex) ?: childCount
+            }
+            currentGroupCount--
+
             if (child.visibility == View.GONE) {
                 return@forEachIndexed
             }
@@ -85,7 +104,7 @@ class FlowLayout @JvmOverloads constructor(
             var marginT = 0
             var marginR = 0
             var marginB = 0
-            //需要重写generateLayoutParams
+            //需要重写generateLayoutParamsrequestRebind
             if (lp is MarginLayoutParams) {
                 marginL = lp.leftMargin
                 marginT = lp.topMargin
@@ -100,9 +119,9 @@ class FlowLayout @JvmOverloads constructor(
             //index == 0时走上面的判断，避免第一个宽度过大显示错误
             //第一个时无需考虑间隔
             val space = if (index == 0) 0 else itemSpace
-            if (index == 0 || leftWidth >= viewWidth + space
-                || (maxCountInLine > -1 && layoutHelper.lineInfo.lineViewCount <= maxCountInLine)
-            ) {
+            val countIsMax =
+                if (maxCountInLine == -1) true else layoutHelper.lineInfo.lineViewCount < maxCountInLine
+            if (index == 0 || (leftWidth >= viewWidth + space && countIsMax && currentGroupCount > 0)) {
                 rowsUsedWidth += viewWidth + space
                 //如果这个view更高，则更新高度
                 if (allRowsUsedHeight + viewHeight > rowsUsedHeight) {
@@ -111,6 +130,7 @@ class FlowLayout @JvmOverloads constructor(
 
                 layoutHelper.lineInfo.lineViewCount++
                 //本行剩余宽度不够，需要换行
+                //不是同一组，需要换行
             } else {
                 //先更新此行数据
                 layoutHelper.lineInfo.apply {

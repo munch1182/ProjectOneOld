@@ -35,14 +35,15 @@ interface IForegroundService {
 
     fun startForeground() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            manager.createNotificationChannel(
-                NotificationChannel(
-                    parameter.channelId,
-                    parameter.channelName,
-                    //有些手机，低重要度的消息会直接被删除
-                    NotificationManager.IMPORTANCE_HIGH
+            manager.getNotificationChannel(parameter.channelId)
+                ?: manager.createNotificationChannel(
+                    NotificationChannel(
+                        parameter.channelId,
+                        parameter.channelName,
+                        //有些手机，低重要度的消息会直接被删除
+                        NotificationManager.IMPORTANCE_HIGH
+                    )
                 )
-            )
         }
         service.startForeground(parameter.serviceId, buildNotification().build())
     }

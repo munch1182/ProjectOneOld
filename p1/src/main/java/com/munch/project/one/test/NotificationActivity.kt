@@ -1,11 +1,12 @@
 package com.munch.project.one.test
 
+import android.content.ComponentName
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.munch.lib.fast.base.BaseBtnWithNoticeActivity
-import com.munch.lib.fast.databinding.ItemSimpleBtnWithNoticeBinding
+import com.munch.lib.fast.base.BaseBtnFlowActivity
 import com.munch.lib.helper.service.BaseForegroundService
 import com.munch.lib.helper.toDate
 import com.munch.lib.notification.NotificationHelper
@@ -20,34 +21,37 @@ import com.munch.project.one.notification.NotificationService
  *
  * Create by munch1182 on 2021/11/17 15:41.
  */
-class NotificationActivity : BaseBtnWithNoticeActivity() {
+class NotificationActivity : BaseBtnFlowActivity() {
     private val judge = {
         NotificationManagerCompat.getEnabledListenerPackages(this)
             .contains(packageName)
     }
 
+    override fun getData() = mutableListOf(
+        "request permission",
+        "start notification service",
+        "stop notification service",
+        "enable",
+        "disable",
+        "enable2",
+        "disable2",
+        "new notification",
+        "start foreground service",
+        "stop foreground service",
+        "throw error"
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setItem(
-            mutableListOf(
-                "request permission",
-                "start notification service",
-                "stop notification service",
-                "enable",
-                "disable",
-                "new notification",
-                "start foreground server",
-                "stop foreground server",
-                "throw error"
-            )
-        )
         NotificationHelper.connectedStateChanges.set(this) { showInfo() }
+        flowLayout.set { group = mutableListOf(1,2,2,2,1,2,1).toTypedArray() }
         showInfo()
     }
 
-    override fun onClick(pos: Int, bind: ItemSimpleBtnWithNoticeBinding) {
-        super.onClick(pos, bind)
+    override fun onClick(pos: Int) {
+        super.onClick(pos)
         when (pos) {
+            //request permission
             0 -> {
                 if (judge.invoke()) {
                     with(NotificationListenerServiceHelper.requestIntent())
@@ -58,23 +62,48 @@ class NotificationActivity : BaseBtnWithNoticeActivity() {
                         .start { showInfo() }
                 }
             }
+            //start notification service
             1 -> {
                 NotificationService.start()
             }
+            //stop notification service
             2 -> {
                 NotificationService.stop()
             }
+            //enable
             3 -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     NotificationService.enable()
                 }
             }
+            //disable
             4 -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     NotificationService.disable()
                 }
             }
+            //enable2
             5 -> {
+                val pm = packageManager
+                pm.setComponentEnabledSetting(
+                    ComponentName(this, NotificationService::class.java),
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+                )
+                pm.setComponentEnabledSetting(
+                    ComponentName(this, NotificationService::class.java),
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+                )
+            }
+            //disable2
+            6 -> {
+                val pm = packageManager
+                pm.setComponentEnabledSetting(
+                    ComponentName(this, NotificationService::class.java),
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+                )
+            }
+            //new notification
+            7 -> {
                 val channelId = BaseForegroundService.DEF_CHANNEL_ID
                 NotificationHelper.notification(
                     BaseForegroundService.DEF_SERVICE_ID, channelId,
@@ -85,13 +114,16 @@ class NotificationActivity : BaseBtnWithNoticeActivity() {
                         .build()
                 )
             }
-            6 -> {
+            //start foreground service
+            8 -> {
                 BaseForegroundService.start()
             }
-            7 -> {
+            //stop foreground service
+            9 -> {
                 BaseForegroundService.stop()
             }
-            8 -> {
+            //throw error
+            10 -> {
                 throw RuntimeException("测试NotificationService异常")
             }
         }

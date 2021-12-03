@@ -3,6 +3,7 @@ package com.munch.lib.fast.base
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.setPadding
 import com.munch.lib.base.OnViewIndexClickListener
@@ -17,11 +18,17 @@ import com.munch.lib.weight.FlowLayout
  */
 open class BaseBtnFlowActivity : BaseBigTextTitleActivity() {
 
-    private val flowLayout by lazy {
+    protected open val flowLayout by lazy {
         FlowLayout(this).apply {
             setPadding(resources.getDimensionPixelSize(R.dimen.paddingDef))
             lineSpace = dp2Px(8f).toInt()
             itemSpace = lineSpace
+        }
+    }
+    protected open val notice by lazy {
+        TextView(this).apply {
+            val dp16 = dp2Px(16f).toInt()
+            setPadding(dp16, 0, dp16, 0)
         }
     }
 
@@ -33,7 +40,9 @@ open class BaseBtnFlowActivity : BaseBigTextTitleActivity() {
                 onClick(index)
             }
         }
-        setContentView(flowLayout.apply {
+        val ll = LinearLayout(this)
+        ll.orientation = LinearLayout.VERTICAL
+        flowLayout.apply {
             val li = LayoutInflater.from(this.context)
             getData()?.forEachIndexed { index, s ->
                 this.addView(li.inflate(R.layout.item_simple_btn, this, false).apply {
@@ -42,9 +51,15 @@ open class BaseBtnFlowActivity : BaseBigTextTitleActivity() {
                     setOnClickListener(onItemClick)
                 })
             }
-        })
+        }
+        ll.addView(notice)
+        ll.addView(flowLayout)
+        setContentView(ll)
     }
 
     protected open fun getData(): MutableList<String>? = null
     protected open fun onClick(pos: Int) {}
+    protected open fun showNotice(str: String) {
+        runOnUiThread { notice.text = str }
+    }
 }

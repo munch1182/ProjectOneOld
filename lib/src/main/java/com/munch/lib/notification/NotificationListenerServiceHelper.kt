@@ -97,6 +97,7 @@ abstract class NotificationListenerServiceHelper : NotificationListenerService()
                 try {
                     if (isConnectedValue) {
                         requestUnbind()
+                        onRequestUnbind()
                         logNotification.log("requestUnbind")
                         isConnectedValue = false
                     }
@@ -119,6 +120,8 @@ abstract class NotificationListenerServiceHelper : NotificationListenerService()
         logNotification.log("onListenerConnected")
         isConnectedValue = true
     }
+
+    protected open fun onRequestUnbind() {}
 
     /**
      * 有的手机调用[requestUnbind]也不会回调此方法

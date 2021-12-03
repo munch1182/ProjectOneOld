@@ -17,6 +17,8 @@ import com.munch.lib.weight.ViewUpdate
  *
  * @see com.munch.lib.weight.FlowLayout
  *
+ *  # 2021 12 03 增加group
+ *
  * Create by munch1182 on 2021/8/14 14:40.
  */
 class DebugFlowLayout @JvmOverloads constructor(
@@ -44,6 +46,11 @@ class DebugFlowLayout @JvmOverloads constructor(
 
     private val layoutHelper = LayoutHelper()
 
+    /**
+     * 对子view进行分组，同一组的view按照样式分布
+     */
+    var group: Array<Int>? = null
+
     override fun set(set: DebugFlowLayout.() -> Unit) {
         super.set(set)
         layoutHelper.gravityFlags = gravityFlags
@@ -67,7 +74,21 @@ class DebugFlowLayout @JvmOverloads constructor(
         var allRowsUsedHeight = paddingTop
         //上一行的行高度+本行已计算的高度
         var rowsUsedHeight = allRowsUsedHeight
+
+        //当前组的序号
+        var currentGroupIndex = 0
+        //当前组的剩余数量
+        var currentGroupCount = group?.getOrNull(currentGroupIndex) ?: childCount
+        currentGroupCount++
+
         children.forEachIndexed { index, child ->
+            //当前组的数量已经分配完
+            if (currentGroupCount <= 0) {
+                currentGroupIndex++
+                currentGroupCount = group?.getOrNull(currentGroupIndex) ?: childCount
+            }
+            currentGroupCount--
+
             if (child.visibility == View.GONE) {
                 return@forEachIndexed
             }
@@ -97,7 +118,7 @@ class DebugFlowLayout @JvmOverloads constructor(
             val space = if (index == 0) 0 else itemSpace
             val countIsMax =
                 if (maxCountInLine == -1) true else layoutHelper.lineInfo.lineViewCount < maxCountInLine
-            if (index == 0 || (leftWidth >= viewWidth + space && countIsMax)) {
+            if (index == 0 || (leftWidth >= viewWidth + space && countIsMax && currentGroupCount > 0)) {
                 rowsUsedWidth += viewWidth + space
                 //如果这个view更高，则更新高度
                 if (allRowsUsedHeight + viewHeight > rowsUsedHeight) {
