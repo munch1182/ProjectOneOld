@@ -91,7 +91,6 @@ open class Logger(
         val msg = FMT.any2Str(any)
         val thread: Thread = Thread.currentThread()
         val traceInfo: String? = if (noInfo) null else dumpTraceInfo()
-        type = if (any is Throwable) Log.ERROR else type
 
         val split = msg.split(FMT.LINE_SEPARATOR)
         if (split.size == 1) {

@@ -159,12 +159,10 @@ class ViewNoticeHelper(
         }
 
         private val content: ViewGroup? = activity?.findViewById(android.R.id.content)
-        private val parent: ViewGroup?
-            get() = target?.parent as? ViewGroup?
 
         private fun sureAdd() {
             val c = content ?: return
-            val p = parent ?: return
+            val p = target ?: return
             val v = v ?: return
             if (c.contains(v)) {
                 return
