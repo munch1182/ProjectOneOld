@@ -43,12 +43,12 @@ class BluetoothStateHelper {
     val isDISCONNECTING: Boolean
         get() = state == State.DISCONNECTING
 
-    fun updateUNKNOWNState() = updateState(State.UNKNOWN)
-    fun updateIDLEState() = updateState(State.IDLE)
-    fun updateCLOSEState() = updateState(State.CLOSED)
-    fun updateSCANNINGState() = updateState(State.SCANNING)
-    fun updateCONNECTINGState() = updateState(State.CONNECTING)
-    fun updateDISCONNECTINGState() = updateState(State.DISCONNECTING)
+    internal fun updateUNKNOWNState() = updateState(State.UNKNOWN)
+    internal fun updateIDLEState() = updateState(State.IDLE)
+    internal fun updateCLOSEState() = updateState(State.CLOSED)
+    internal fun updateSCANNINGState() = updateState(State.SCANNING)
+    internal fun updateCONNECTINGState() = updateState(State.CONNECTING)
+    internal fun updateDISCONNECTINGState() = updateState(State.DISCONNECTING)
 
     private fun updateState(state: State) {
         this.state = state
@@ -60,31 +60,43 @@ sealed class State {
     /**
      * 刚初始化，不支持蓝牙，或者没有权限，对蓝牙状态未知
      */
-    object UNKNOWN : State()
+    object UNKNOWN : State() {
+        override fun toString() = "UNKNOWN"
+    }
 
     /**
      * 蓝牙已关闭
      */
-    object CLOSED : State()
+    object CLOSED : State() {
+        override fun toString() = "CLOSED"
+    }
 
     /**
      * 蓝牙已打开，且未进行任何其它操作
      */
-    object IDLE : State()
+    object IDLE : State() {
+        override fun toString() = "IDLE"
+    }
 
     /**
      * 蓝牙正在进行扫描
      */
-    object SCANNING : State()
+    object SCANNING : State() {
+        override fun toString() = "SCANNING"
+    }
 
     /**
      * 蓝牙正在连接某个设备
      */
-    object CONNECTING : State()
+    object CONNECTING : State() {
+        override fun toString() = "CONNECTING"
+    }
 
     /**
      * 蓝牙正在断开某个设备
      */
-    object DISCONNECTING : State()
+    object DISCONNECTING : State() {
+        override fun toString() = "DISCONNECTING"
+    }
 
 }

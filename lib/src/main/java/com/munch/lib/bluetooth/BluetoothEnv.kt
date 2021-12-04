@@ -135,7 +135,6 @@ class BluetoothEnv(private val context: Context) : Destroyable {
 
         private val logSystem = BluetoothHelper.logSystem
 
-
         fun register(context: Context) {
             context.registerReceiver(this, IntentFilter().apply {
                 addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED)

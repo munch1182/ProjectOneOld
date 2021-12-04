@@ -42,9 +42,13 @@ data class BluetoothDev(
             return BluetoothDev(dev.name, dev.address, rssi, type, dev)
         }
 
-        @SuppressLint("InlinedApi")
-        @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
-        fun from(result: ScanResult) = from(result.device, result.rssi)
+        fun from(result: ScanResult) = BluetoothDev(
+            result.scanRecord?.deviceName,
+            result.device.address,
+            result.rssi,
+            BluetoothType.BLE,
+            result.device
+        )
 
         @SuppressLint("InlinedApi")
         @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])

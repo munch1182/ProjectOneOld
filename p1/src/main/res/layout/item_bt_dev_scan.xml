@@ -7,7 +7,7 @@
 
         <variable
             name="dev"
-            type="com.munch.project.one.bluetooth.BtItemDev" />
+            type="com.munch.lib.bluetooth.BluetoothDev" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,7 +25,7 @@
             style="@style/AppTheme.Text.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{dev.dev.name ?? &quot;N/A&quot;}"
+            android:text="@{dev.name}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="BLUETOOTH" />
@@ -35,7 +35,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/paddingSmall"
-            android:text="@{dev.state}"
             app:layout_constraintBottom_toBottomOf="@id/bt_name"
             app:layout_constraintStart_toEndOf="@id/bt_name"
             app:layout_constraintTop_toTopOf="@id/bt_name"
@@ -46,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/paddingSmall"
-            android:text="@{dev.dev.mac}"
+            android:text="@{dev.mac}"
             app:layout_constraintStart_toStartOf="@id/bt_name"
             app:layout_constraintTop_toBottomOf="@id/bt_name"
             tools:text="12:34:56:78:90:11" />
@@ -55,7 +54,7 @@
             android:id="@+id/bt_dbm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{dev.dev.rssiStr}"
+            android:text="@{dev.rssiStr}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/bt_mac"
             tools:text="-10 dBm" />
