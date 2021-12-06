@@ -2,6 +2,7 @@ package com.munch.lib.result
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -54,7 +55,14 @@ class ResultHelper(private val fm: FragmentManager) {
     /**
      * 用于发起一个权限请求并回调结果
      */
-    fun with(vararg permission: String) = PermissionResult(permission)
+    fun with(vararg permission: String) = PermissionResult(permission, 0)
+
+    /**
+     * @param minVersion 需要判断权限的最小版本
+     *
+     * 如果有多个不同版本的权限，@see [contactWith]
+     */
+    fun with(minVersion: Int, vararg permission: String) = PermissionResult(permission, minVersion)
 
     /**
      * 用于发起一个[intent]请求并回调结果，包括resultCode
@@ -72,6 +80,9 @@ class ResultHelper(private val fm: FragmentManager) {
      */
     fun contactWith(vararg permission: String) = ContactResult(PermissionResult(permission))
 
+    fun contactWith(minVersion: Int, vararg permission: String) =
+        ContactResult(PermissionResult(permission, minVersion))
+
     /**
      * 用于发起一个Intent请求作为请求结果的第一步，后续可以添加其它方法来组合并获得最后结果的回调
      */
@@ -83,13 +94,20 @@ class ResultHelper(private val fm: FragmentManager) {
     fun contactWith(judge: () -> Boolean, intent: Intent) =
         ContactResult(CheckOrIntentResult(judge, intent))
 
-    inner class PermissionResult(private val permissions: Array<out String>) : IResult {
+    inner class PermissionResult(
+        private val permissions: Array<out String>,
+        private val minVersion: Int = 0
+    ) : IResult {
 
         private val pb: PermissionRequestBuilder = PermissionRequestBuilder(permissions)
 
         fun request(listener: OnPermissionResultListener) {
-            pb.listener = listener
-            fragment.requestPermissions(pb)
+            if (Build.VERSION.SDK_INT < minVersion) {
+                listener.onResult(true, permissions.toMutableList(), mutableListOf())
+            } else {
+                pb.listener = listener
+                fragment.requestPermissions(pb)
+            }
         }
 
         fun request(grant: (allGrant: Boolean) -> Unit) {

@@ -5,7 +5,6 @@ import android.util.SparseArray
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.core.util.forEach
-import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -31,6 +30,9 @@ open class SimpleAdapter<D> private constructor(
 
     constructor(viewCreator: ((Context) -> View), initData: MutableList<D>? = null)
             : this(0, viewCreator, initData)
+
+    private val singleViewHelper: SingleViewHelper
+        get() = adapterViewHelper as SingleViewHelper
 
     init {
         setContentView()
@@ -64,9 +66,12 @@ open class SimpleDiffAdapter<D> private constructor(
 
     private val asyncDiffer by lazy {
         AsyncListDiffer(
-            AdapterListUpdateCallback(this), AsyncDifferConfig.Builder(diffUtil).build()
+            AdapterListUpdateInHandlerCallback(this), AsyncDifferConfig.Builder(diffUtil).build()
         )
     }
+
+    private val singleViewHelper: SingleViewHelper
+        get() = adapterViewHelper as SingleViewHelper
 
     override val differ: AsyncListDiffer<D>
         get() = asyncDiffer
@@ -90,6 +95,9 @@ open class SimpleMutliAdapter<D>(
 ) : BaseRecyclerViewAdapter<D, BaseViewHolder>(), MultiViewModule {
 
     constructor() : this(null, null)
+
+    private val multiViewHelper: MultiViewHelper
+        get() = adapterViewHelper as MultiViewHelper
 
     init {
         setMultiType(getter, map)

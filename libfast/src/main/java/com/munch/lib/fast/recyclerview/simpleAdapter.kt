@@ -2,10 +2,10 @@ package com.munch.lib.fast.recyclerview
 
 import androidx.annotation.LayoutRes
 import androidx.databinding.ViewDataBinding
-import androidx.recyclerview.widget.AdapterListUpdateCallback
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
+import com.munch.lib.recyclerview.AdapterListUpdateInHandlerCallback
 import com.munch.lib.recyclerview.SingleViewModule
 
 /**
@@ -46,7 +46,8 @@ open class SimpleDiffAdapter<D, VB : ViewDataBinding> constructor(
 
     private val asyncDiffer by lazy {
         AsyncListDiffer(
-            AdapterListUpdateCallback(this), AsyncDifferConfig.Builder(diffUtil).build()
+            AdapterListUpdateInHandlerCallback(this, mainHandler),
+            AsyncDifferConfig.Builder(diffUtil).build()
         )
     }
 

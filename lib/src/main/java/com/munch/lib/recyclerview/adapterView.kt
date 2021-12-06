@@ -34,15 +34,7 @@ interface AdapterViewImp {
  * @see SingleViewHelper
  * @see BaseRecyclerViewAdapter.checkAdapterView
  */
-interface SingleViewModule : IsAdapter {
-
-    val singleViewHelper: SingleViewHelper
-        get() {
-            val viewHelper = this.noTypeAdapter.adapterViewHelper
-            check(viewHelper is SingleViewHelper) { "在SingleTypeViewModule下的实现必须是SingleTypeViewHelper" }
-            return viewHelper
-        }
-}
+interface SingleViewModule : IsAdapter
 
 class SingleViewHelper(
     private var viewCreator: ViewCreator? = null,
@@ -81,16 +73,7 @@ interface ItemViewTypeGetter {
  * @see MultiViewHelper
  * @see BaseRecyclerViewAdapter.checkAdapterView
  */
-interface MultiViewModule : IsAdapter {
-
-    val multiViewHelper: MultiViewHelper
-        get() {
-            val viewHelper = this.noTypeAdapter.adapterViewHelper
-            check(viewHelper is MultiViewHelper) { "在MultiTypeViewModule下的实现必须是MultiTypeViewHelper" }
-            return viewHelper
-        }
-
-}
+interface MultiViewModule : IsAdapter
 
 /**
  * 多布局的实现，先调用[setType]设置多布局的类型，再调用[setTypeView]来设置多布局的视图即可

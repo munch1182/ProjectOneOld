@@ -1,36 +1,70 @@
 package com.munch.lib.recyclerview
 
+import android.os.Handler
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
+import com.munch.lib.task.isMain
 
 /**
+ * 本类中的方法要注意调用线程
+ *
+ * 如果[differ]不为null，则需要自行切换到主线程， @see [AdapterListUpdateInHandlerCallback]
+ * 否则则需要实现[handler]来完成线程切换
+ *
+ * 因此这些方法推荐在子线程调用
+ *
  * Create by munch1182 on 2021/8/5 17:01.
  */
+@Deprecated("将两种实现分开", replaceWith = ReplaceWith("com.munch.lib.recyclerview.AdapterFunImp"))
 interface AdapterFun<D> : IsAdapter {
 
     val data: MutableList<D?>
 
     /**
      * 如果使用了[differ]，则有些方法是否生效还受到[DiffUtil.ItemCallback]以及引用关系的影响
+     *
+     * 注意调用的线程， @see [AdapterListUpdateInHandlerCallback]
      */
     val differ: AsyncListDiffer<D>?
 
+    /**
+     * 差异计算完成的回调
+     */
+    val runnable: Runnable?
+        get() = null
+
+    /**
+     * 主线程Handler，用以切换到主线程
+     */
+    val handler: Handler?
+        get() = null
+
     //<editor-fold desc="set">
+
+    private fun impInMain(imp: () -> Unit) {
+        when {
+            handler == null -> imp.invoke()
+            Thread.currentThread().isMain() -> imp.invoke()
+            else -> handler?.post(imp)
+        }
+    }
+
     /**
      * 如果[differ]不为null，则优先使用[differ]实现数据集合的更新
      */
-    fun set(newData: List<D?>?, runnable: Runnable? = null) {
+    fun set(newData: List<D?>?) {
         if (differ == null) {
             val size = data.size
             if (size > 0) {
                 data.clear()
-                noTypeAdapter.notifyItemRangeRemoved(0, size)
+                impInMain { noTypeAdapter.notifyItemRangeRemoved(0, size) }
             }
             if (newData != null) {
                 data.addAll(newData)
-                noTypeAdapter.notifyItemRangeInserted(0, newData.size)
+                impInMain { noTypeAdapter.notifyItemRangeInserted(0, newData.size) }
             }
         } else {
+            //此方法在newData和源数据为null时会直接在当前线程回调，否则会在子线程中计算，在主线程中回调
             differ!!.submitList(newData, runnable)
         }
     }
@@ -38,23 +72,34 @@ interface AdapterFun<D> : IsAdapter {
 
     //<editor-fold desc="add">
     fun add(element: D?) = add(data.size, element)
+    fun add(elements: Collection<D?>) = add(data.size, elements)
+    fun remove(index: Int) = remove(index, 1)
+
 
     fun add(index: Int, element: D?) {
         if (index in 0..data.size) {
-            data.add(index, element)
-            noTypeAdapter.notifyItemInserted(index)
+            if (differ == null) {
+                data.add(index, element)
+                impInMain { noTypeAdapter.notifyItemInserted(index) }
+            } else {
+                set(ArrayList(data).apply { add(index, element) })
+            }
         }
     }
 
-    fun add(elements: Collection<D?>) = add(data.size, elements)
 
     /**
      * 从[index]位置起，插入数据列表[elements]
      */
     fun add(index: Int, elements: Collection<D?>) {
         if (index in 0..data.size) {
-            data.addAll(index, elements)
-            noTypeAdapter.notifyItemRangeInserted(index, elements.size)
+            val size = elements.size
+            if (differ == null) {
+                data.addAll(index, elements)
+                impInMain { noTypeAdapter.notifyItemRangeInserted(index, size) }
+            } else {
+                set(ArrayList(data).apply { addAll(index, elements) })
+            }
         }
     }
     //</editor-fold>
@@ -65,11 +110,14 @@ interface AdapterFun<D> : IsAdapter {
         if (pos == -1) {
             return
         }
-        data.remove(element)
-        noTypeAdapter.notifyItemRemoved(pos)
+        if (differ == null) {
+            data.remove(element)
+            impInMain { noTypeAdapter.notifyItemRemoved(pos) }
+        } else {
+            set(ArrayList(data).apply { remove(element) })
+        }
     }
 
-    fun remove(index: Int) = remove(index, 1)
 
     /**
      * 从[startIndex]开始删除[size]个元素
@@ -77,9 +125,12 @@ interface AdapterFun<D> : IsAdapter {
     fun remove(startIndex: Int, size: Int) {
         val endIndex = startIndex + size
         if (endIndex <= data.size) {
-            val subList = data.subList(startIndex, endIndex)
-            data.removeAll(subList)
-            noTypeAdapter.notifyItemRangeRemoved(startIndex, size)
+            if (differ == null) {
+                data.removeAll(data.subList(startIndex, endIndex))
+                impInMain { noTypeAdapter.notifyItemRangeRemoved(startIndex, size) }
+            } else {
+                set(ArrayList(data).apply { data.removeAll(data.subList(startIndex, endIndex)) })
+            }
         }
     }
 
@@ -88,10 +139,19 @@ interface AdapterFun<D> : IsAdapter {
      * [element]不必连续，如果连续，优先使用[remove]的带索引的方法
      */
     fun remove(element: Collection<D?>) {
-        data.removeAll(element)
-        element.forEach {
-            val index = getIndex(it ?: return@forEach) ?: return@forEach
-            noTypeAdapter.notifyItemRemoved(index)
+        if (differ == null) {
+            data.removeAll(element)
+            element.forEach {
+                val index = getIndex(it ?: return@forEach) ?: return@forEach
+                impInMain { noTypeAdapter.notifyItemRemoved(index) }
+            }
+        } else {
+            val newData = ArrayList(data)
+            element.forEach {
+                getIndex(it ?: return@forEach) ?: return@forEach
+                newData.remove(it)
+            }
+            set(newData)
         }
     }
     //</editor-fold>
@@ -107,8 +167,12 @@ interface AdapterFun<D> : IsAdapter {
     fun update(index: Int, element: D?) {
         val size = data.size
         if (index in 0 until size) {
-            data[index] = element
-            noTypeAdapter.notifyItemChanged(index)
+            if (differ == null) {
+                data[index] = element
+                impInMain { noTypeAdapter.notifyItemChanged(index) }
+            } else {
+                set(ArrayList(data).apply { set(index, element) })
+            }
         }
     }
 
@@ -134,8 +198,14 @@ interface AdapterFun<D> : IsAdapter {
         val updateCount = elements.size
         //如果更改的数据在原有数据范围内
         if ((startIndex + updateCount) in 0 until size) {
-            elements.forEachIndexed { index, d -> data[startIndex + index] = d }
-            noTypeAdapter.notifyItemRangeChanged(startIndex, updateCount)
+            if (differ == null) {
+                elements.forEachIndexed { index, d -> data[startIndex + index] = d }
+                impInMain { noTypeAdapter.notifyItemRangeChanged(startIndex, updateCount) }
+            } else {
+                val newData = ArrayList(data)
+                elements.forEachIndexed { index, d -> data[startIndex + index] = d }
+                set(newData)
+            }
         }
     }
 

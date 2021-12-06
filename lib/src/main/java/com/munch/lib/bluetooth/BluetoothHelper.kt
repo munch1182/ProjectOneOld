@@ -72,9 +72,15 @@ class BluetoothHelper private constructor() : Destroyable {
 
     @SuppressLint("InlinedApi")
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
+    fun scan(type: BluetoothType, listener: OnScannerListener? = null) {
+        scan(type, null, listener)
+    }
+
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
     fun scan(
         type: BluetoothType,
-        parameter: ScanParameter? = null,
+        parameter: ScanParameter?,
         listener: OnScannerListener? = null
     ) {
         if (!stateHelper.canOp) {
@@ -117,6 +123,12 @@ class BluetoothHelper private constructor() : Destroyable {
                 setScanListener(null)
             }
         })
+    }
+
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
+    fun stopScan() {
+        Scanner.stop()
     }
 
     @SuppressLint("MissingPermission")

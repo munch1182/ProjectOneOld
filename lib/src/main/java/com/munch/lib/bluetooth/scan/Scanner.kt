@@ -129,12 +129,11 @@ internal object Scanner : IScanner {
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
     override fun stop() {
         super.stop()
-
-        log.withEnable { "stop scan." }
-
-        currentScanner?.stop()
+        currentScanner?.let {
+            log.withEnable { "stop scan." }
+            it.stop()
+        }
         currentScanner = null
-
     }
 
     private fun getDefault(): ScanParameter {
