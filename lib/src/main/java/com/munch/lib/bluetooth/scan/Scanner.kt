@@ -1,26 +1,34 @@
 package com.munch.lib.bluetooth.scan
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.os.Handler
 import androidx.annotation.RequiresPermission
-import com.munch.lib.bluetooth.*
+import com.munch.lib.bluetooth.BluetoothDev
+import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.BluetoothType
 
 /**
  * Create by munch1182 on 2021/12/4 17:20.
  */
-internal object Scanner : IScanner {
+class Scanner(private val context: Context, private val handler: Handler) : IScanner {
 
     private val log = BluetoothHelper.logHelper
-    private val instance = BluetoothHelper.instance
 
     private var type: BluetoothType? = null
     private var parameter: ScanParameter? = null
     private var currentScanner: IScanner? = null
     private var listener: OnScannerListener? = null
     private var filterHelper: DeviceFilterHelper? = null
+    private val scanLock = Object()
+    private var isScanning = false
+        get() = synchronized(scanLock) { field }
+        set(value) = synchronized(scanLock) { field = value }
+
 
     @SuppressLint("MissingPermission")
     private val timeout2Stop = {
-        if (instance.state.isSCANNING) {
+        if (isScanning) {
             log.withEnable { "call scan stop() because of timeout(${getParameter().timeout} ms)." }
             stop()
         }
@@ -30,27 +38,24 @@ internal object Scanner : IScanner {
 
         override fun onScanStart() {
             super.onScanStart()
+            isScanning = true
             log.withEnable { "scan: onScanStart." }
-            instance.handler.post {
-                instance.state.updateSCANNINGState()
-                listener?.onScanStart()
-            }
+            handler.post { listener?.onScanStart() }
         }
 
         override fun onDeviceScanned(dev: BluetoothDev) {
-            instance.handler.post {
+            handler.post {
                 val l = listener ?: return@post
                 if (filterHelper == null) {
                     l.onDeviceScanned(dev)
                 } else {
                     filterHelper?.filterScannedDev(dev)?.let { l.onDeviceScanned(it) }
                 }
-
             }
         }
 
         override fun onBatchDeviceScanned(devs: Array<BluetoothDev>) {
-            instance.handler.post {
+            handler.post {
                 val l = listener ?: return@post
                 if (filterHelper == null) {
                     l.onBatchDeviceScanned(devs)
@@ -62,10 +67,10 @@ internal object Scanner : IScanner {
 
         override fun onScanComplete() {
             super.onScanComplete()
+            isScanning = false
             log.withEnable { "scan: onScanComplete." }
-            instance.handler.post {
-                instance.state.updateIDLEState()
-                instance.handler.removeCallbacks(timeout2Stop)
+            handler.post {
+                handler.removeCallbacks(timeout2Stop)
                 listener?.onScanComplete()
             }
         }
@@ -73,11 +78,12 @@ internal object Scanner : IScanner {
         @SuppressLint("MissingPermission")
         override fun onScanFail() {
             super.onScanFail()
-
-            listener?.onScanFail()
-            instance.handler.removeCallbacks(timeout2Stop)
-
+            isScanning = true
             log.withEnable { "scan fail, call scan stop()." }
+
+            handler.removeCallbacks(timeout2Stop)
+            handler.post { listener?.onScanFail() }
+
             stop()
         }
     }
@@ -111,13 +117,13 @@ internal object Scanner : IScanner {
 
         val p = getParameter()
         currentScanner = when (type) {
-            BluetoothType.BLE -> BleScanner(p.toType(), callback)
-            BluetoothType.CLASSIC -> ClassicScanner(instance.context, callback)
+            BluetoothType.BLE -> BleScanner(context, p.toType(), callback)
+            BluetoothType.CLASSIC -> ClassicScanner(context, callback)
         }
 
         filterHelper = DeviceFilterHelper(p)
 
-        instance.handler.postDelayed(timeout2Stop, p.timeout)
+        handler.postDelayed(timeout2Stop, p.timeout)
 
         log.withEnable { "start scan, parameter = $p." }
         currentScanner?.start()

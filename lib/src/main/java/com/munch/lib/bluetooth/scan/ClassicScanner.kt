@@ -3,6 +3,7 @@ package com.munch.lib.bluetooth.scan
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -21,7 +22,8 @@ class ClassicScanner(
     private val listener: OnScannerListener
 ) : IScanner {
 
-    private val adapter = BluetoothHelper.instance.bluetoothEnv.adapter
+    private val adapter =
+        (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager?)?.adapter
     private val receiver = BluetoothFoundReceiver()
 
     @SuppressLint("InlinedApi")

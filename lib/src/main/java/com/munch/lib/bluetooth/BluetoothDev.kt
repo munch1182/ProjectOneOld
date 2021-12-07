@@ -3,9 +3,17 @@ package com.munch.lib.bluetooth
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanResult
+import android.content.Context
 import android.os.Parcelable
 import androidx.annotation.RequiresPermission
+import com.munch.lib.bluetooth.connect.BleConnectSet
+import com.munch.lib.bluetooth.connect.ConnectFail
+import com.munch.lib.bluetooth.connect.Connector
+import com.munch.lib.bluetooth.connect.OnConnectListener
+import com.munch.lib.task.ThreadHandler
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 
@@ -52,11 +60,12 @@ data class BluetoothDev(
 
         @SuppressLint("InlinedApi")
         @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
-        fun from(mac: String): BluetoothDev? {
+        fun from(context: Context, mac: String): BluetoothDev? {
             if (!BluetoothAdapter.checkBluetoothAddress(mac)) {
                 return null
             }
-            val adapter = BluetoothHelper.instance.bluetoothEnv.adapter
+            val adapter =
+                (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager?)?.adapter
             return from(adapter?.getRemoteDevice(mac) ?: return null)
         }
     }
@@ -123,6 +132,45 @@ data class BluetoothDev(
     override fun hashCode(): Int {
         return mac?.hashCode() ?: 0
     }
+
+    //<editor-fold desc="CONNECT">
+    @IgnoredOnParcel
+    private var connector: Connector? = null
+
+    fun setConnector(set: BleConnectSet? = null, handler: ThreadHandler? = null): BluetoothDev {
+        if (connector != null && connector?.state?.isDisconnected != true) {
+            throw ConnectFail.DisallowConnected("cannot set Connector")
+        }
+        connector = Connector(this, set, handler)
+        return this
+    }
+
+    fun setConnectorIfNeed(
+        set: BleConnectSet? = null,
+        handler: ThreadHandler? = null
+    ): BluetoothDev {
+        connector ?: setConnector(set, handler)
+        return this
+    }
+
+    /**
+     * @see setConnector
+     */
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
+    fun connect(listener: OnConnectListener) {
+        connector?.setConnectListener(listener)?.connect()
+    }
+
+    /**
+     * @see setConnector
+     */
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
+    fun disconnect() {
+        connector?.disconnect()
+    }
+    //</editor-fold>
 }
 
 sealed class BluetoothType : Parcelable {

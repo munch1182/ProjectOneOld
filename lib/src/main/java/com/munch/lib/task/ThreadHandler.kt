@@ -24,6 +24,9 @@ class ThreadHandler(looper: Looper, callback: Callback? = null) : Handler(looper
 
     fun quit() = th.quit()
     fun quitSafely() = th.quitSafely()
+
+    val thread:Thread
+        get() = th
 }
 
 typealias HandlerCallBack = (msg: Message) -> Unit

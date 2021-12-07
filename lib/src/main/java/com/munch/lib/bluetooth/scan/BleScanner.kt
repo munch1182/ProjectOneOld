@@ -1,10 +1,12 @@
 package com.munch.lib.bluetooth.scan
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
+import android.content.Context
 import androidx.annotation.RequiresPermission
 import com.munch.lib.bluetooth.BluetoothDev
 import com.munch.lib.bluetooth.BluetoothHelper
@@ -13,13 +15,18 @@ import com.munch.lib.bluetooth.BluetoothHelper
  * Create by munch1182 on 2021/12/4 17:22.
  */
 class BleScanner(
+    context: Context,
     private val p: ScanParameter.BleScanParameter,
     private val listener: OnScannerListener
 ) : ScanCallback(), IScanner {
 
-    private val leScanner: BluetoothLeScanner
-        get() = BluetoothHelper.instance.bluetoothEnv.adapter?.bluetoothLeScanner
-            ?: throw IllegalStateException("can not get ble scanner")
+    private val logSystem = BluetoothHelper.logSystem
+
+    private val adapter =
+        (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager?)?.adapter
+
+    private val leScanner: BluetoothLeScanner?
+        get() = adapter?.bluetoothLeScanner
 
     @SuppressLint("InlinedApi")
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
@@ -27,7 +34,7 @@ class BleScanner(
         super.start()
         val scanner = leScanner
         val list = p.target?.mapNotNull { it.convert2ScanFilter() } ?: arrayListOf()
-        scanner.startScan(list, p.bleScanSet, this)
+        scanner?.startScan(list, p.bleScanSet, this)
     }
 
     private fun ScanParameter.Target.convert2ScanFilter(): ScanFilter? {
@@ -54,7 +61,6 @@ class BleScanner(
 
     override fun onScanFailed(errorCode: Int) {
         super.onScanFailed(errorCode)
-        val logSystem = BluetoothHelper.logSystem
         when (errorCode) {
             SCAN_FAILED_ALREADY_STARTED -> logSystem.log("scan fail: SCAN_FAILED_ALREADY_STARTED.")
             SCAN_FAILED_APPLICATION_REGISTRATION_FAILED -> logSystem.log("scan fail: SCAN_FAILED_APPLICATION_REGISTRATION_FAILED.")
@@ -71,7 +77,7 @@ class BleScanner(
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
     override fun stop() {
         super.stop()
-        leScanner.stopScan(this)
+        leScanner?.stopScan(this)
         listener.onScanComplete()
     }
 }

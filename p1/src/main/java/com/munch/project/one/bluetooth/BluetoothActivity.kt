@@ -1,6 +1,8 @@
 package com.munch.project.one.bluetooth
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattDescriptor
 import android.os.Build
 import android.os.Bundle
 import androidx.recyclerview.widget.DiffUtil
@@ -8,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.bluetooth.BluetoothDev
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.BluetoothType
+import com.munch.lib.bluetooth.connect.BleConnectSet
+import com.munch.lib.bluetooth.connect.OnServicesHandler
 import com.munch.lib.bluetooth.scan.scan
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
 import com.munch.lib.fast.recyclerview.SimpleDiffAdapter
@@ -16,6 +20,7 @@ import com.munch.lib.result.with
 import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityBluetoothBinding
 import com.munch.project.one.databinding.ItemBtDevScanBinding
+import java.util.*
 
 /**
  * Create by munch1182 on 2021/12/4 16:36.
@@ -58,6 +63,25 @@ class BluetoothActivity : BaseBigTextTitleActivity() {
                         }
                 }
         }
+
+        val dev = BluetoothDev.from(this, "83:86:20:A1:05:20")!!
+        /*dev.connect(object : OnConnectListener {
+            override fun onConnected(dev: BluetoothDev) {
+
+            }
+        })*/
+        with(Build.VERSION_CODES.S, android.Manifest.permission.BLUETOOTH_CONNECT)
+            .requestGrant {
+                BluetoothHelper.getInstance(this).setConnectSet(BleConnectSet().apply {
+                    maxMTU = 247
+                    onServicesHandler = object : OnServicesHandler {
+                        override fun onServicesDiscovered(gatt: BluetoothGatt): Boolean {
+                            
+                            return true
+                        }
+                    }
+                }).connect(dev)
+            }
     }
 
     override fun onDestroy() {
