@@ -38,91 +38,76 @@ class BleConnectSet {
 
     var timeout = 60 * 1000L
 
-    var maxMTU = 0
-
     var transport: Int = BluetoothDevice.TRANSPORT_LE
 
     @RequiresApi(Build.VERSION_CODES.O)
     var phy: Int = BluetoothDevice.PHY_LE_2M_MASK
 
     /**
-     * 实现需要将发现服务作为连接成功的条件
-     *
-     * @see onServicesHandler
+     * 系统回调后，将此处理的返回值作为连接成功的判断条件
      */
-    var needDiscoverServices = true
+    var onConnectSet: OnConnectSet? = null
 
-    /**
-     * 当发现服务时，将此处理的返回值作为连接成功的判断条件, 仅[needDiscoverServices]为true时有效
-     *
-     * @see needDiscoverServices
-     */
-    var onServicesHandler: OnServicesHandler? = null
-
-    /**
-     * 当常用设置处理完成时，将此处理的返回值作为连接成功的判断条件
-     */
-    var onDisconnectHandler: OnConnectCompleteHandler? = null
+    var onConnectComplete: OnConnectComplete? = null
 }
 
-interface OnServicesHandler {
+interface OnConnectSet {
     /**
-     * 对服务的处理回调
-     * @return true 则服务处理成功，进行下一步连接后的检查或设置，否则回调连接失败并自动断开连接
+     * 当系统回调连接成功后，会回调此方法，可以在此方法中进行自定义的处理，比如发现服务或其相关的设置
+     * 注意：此方法的处理需要是同步阻塞的
      *
-     * 因此此方法的处理需要是同步阻塞的
+     * @return 当此方法返回null时则进行下一阶段的回调判断，否则会以该失败原因回调连接失败并自动断开连接
      *
-     * 此方法回调时还不能进行协议发送与接收
+     * 此方法不能进行蓝牙数据的发送，因此此时还未设置蓝牙数据的相关处理
      *
-     * //todo 如果这这个方法中调用了需要回调的方法如何处理
+     * @see GattWrapper 此类中的方法的返回是同步的
      */
-    fun onServicesDiscovered(gatt: BluetoothGatt): Boolean = false
+    fun onConnectSet(gatt: GattWrapper): ConnectFail? = null
 }
 
-interface OnConnectCompleteHandler {
+interface OnConnectComplete {
+
     /**
-     * 当[Connector]检查完设置的参数后，会回调此方法进行自定义的处理或者判断
+     * 当连接设置完成并且成功后，会回调此方法来进行最后的连接判断，此方法是最后一次判断
+     * 注意：此方法的处理需要是同步阻塞的
      *
-     * 比如：可以发送协议检查设备是否符合要求，或者进行配对处理
+     * @return 返回true则会直接回调连接成功，否则会回调连接失败
      *
-     * @return 当此方法返回true时则连接回调会回调成功，否则会回调连接失败并自动断开连接
-     *
-     * 因此此方法的处理需要是同步阻塞的
-     *
-     * 此方法回调时，可以进行协议的发送与接收
+     * 此方法可以进行蓝牙数据的发送
      */
-    fun onHandleConnectComplete(gatt: BluetoothGatt): Boolean = true
+    fun onConnectComplete(dev: BluetoothDev): Boolean = true
 }
 
 sealed class ConnectFail(message: String) : Exception(message) {
     /**
      * 指直接被系统回调[android.bluetooth.BluetoothGattCallback.onConnectionStateChange]时status不为[BluetoothGatt.GATT_SUCCESS]的情形
      */
-    open class SystemError(private val status: Int) : ConnectFail("SystemError status: $status") {
-        override fun toString() = "SystemError: $status"
-    }
+    open class SystemError(status: Int) : ConnectFail("SystemError status: $status")
 
     /**
      * 指发现[android.bluetooth.BluetoothGatt.discoverServices]方法返回false或者
      * [android.bluetooth.BluetoothGattCallback.onServicesDiscovered]没有回调的情形
      */
-    object ServiceDiscoveredFail : ConnectFail("ServiceDiscoveredFail") {
-        override fun toString() = "ServiceDiscoveredFail"
-    }
+    class ServiceDiscoveredFail(desc: String? = null) : ConnectFail("ServiceDiscoveredFail: $desc")
 
-    object MtuSetFail : ConnectFail("MtuSetFail") {
-        override fun toString() = "MtuSetFail"
-    }
+    object MtuSetFail : ConnectFail("MtuSetFail")
 
     /**
      * 指不允许连接的情形，比如上个连接对象未断开或者不为null
      */
-    class DisallowConnected(private val desc: String = "null") :
-        ConnectFail("DisallowConnected: $desc") {
-        override fun toString() = "DisallowConnected: $desc"
-    }
+    class DisallowConnected(desc: String = "null") : ConnectFail("DisallowConnected: $desc")
+
+    object WriteDescriptorFail : ConnectFail("WriteDescriptorFail")
+
+    object NotificationSetFail : ConnectFail("SetNotificationFail")
 
     class Code133Error : SystemError(133)
+
+    class Timeout(timeout: Long) : ConnectFail("Timeout($timeout ms)")
+
+    class Error(message: String) : ConnectFail(message)
+
+    override fun toString() = message ?: "ConnectFail"
 }
 
 sealed class DisconnectCause {

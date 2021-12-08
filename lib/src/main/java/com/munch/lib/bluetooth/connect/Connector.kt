@@ -1,7 +1,8 @@
 package com.munch.lib.bluetooth.connect
 
 import android.annotation.SuppressLint
-import android.bluetooth.*
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothGatt
 import android.os.Build
 import androidx.annotation.RequiresPermission
 import com.munch.lib.bluetooth.BluetoothDev
@@ -11,11 +12,12 @@ import com.munch.lib.task.ThreadHandler
 /**
  * Create by munch1182 on 2021/12/7 09:41.
  */
+@SuppressLint("MissingPermission")
 class Connector(
     private val dev: BluetoothDev,
     private var connectSet: BleConnectSet? = null,
     //gatt连接回调到handler所在线程
-    private val handler: ThreadHandler? = null
+    private val handler: ThreadHandler
 ) : IConnect {
 
     private val logSystem = BluetoothHelper.logSystem
@@ -34,9 +36,16 @@ class Connector(
     val state: ConnectState
         get() = currentState
 
-    private val gattCallback = object : BleGattCallback(logSystem) {
+    private val timeout by lazy {
+        Runnable {
+            if (currentState != ConnectState.CONNECTING) {
+                return@Runnable
+            }
+            connectFail(ConnectFail.Timeout(set.timeout))
+        }
+    }
+    private val gattWrapper = object : GattWrapper(dev.mac, logSystem) {
 
-        @SuppressLint("MissingPermission")
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
             imp {
@@ -45,6 +54,13 @@ class Connector(
                         currentState = ConnectState.DISCONNECTING
                     }
                     BluetoothAdapter.STATE_DISCONNECTED -> {
+                        if (currentState == ConnectState.CONNECTING) {
+                            if (status == 133) {
+                                connectFail(ConnectFail.Code133Error())
+                            } else {
+                                connectFail(ConnectFail.SystemError(status))
+                            }
+                        }
                         currentState = ConnectState.DISCONNECTED
                         closeGatt()
                     }
@@ -52,68 +68,23 @@ class Connector(
                         if (gatt == null || status != BluetoothGatt.GATT_SUCCESS) {
                             connectFail(ConnectFail.SystemError(status))
                         } else {
-                            if (!set.needDiscoverServices) {
-                                connectSuccess()
-                            } else {
-                                val discoverServices = gatt.discoverServices()
-                                logHelper.withEnable { "discoverServices: $discoverServices" }
-                                if (!discoverServices) {
-                                    connectFail(ConnectFail.ServiceDiscoveredFail)
+                            postDelay({
+                                val fail = set.onConnectSet?.onConnectSet(this)
+                                if (fail != null) {
+                                    connectFail(fail)
+                                    return@postDelay
                                 }
-                                //等待onServicesDiscovered
-                            }
+                                val complete = set.onConnectComplete?.onConnectComplete(dev) ?: true
+                                if (!complete) {
+                                    connectFail(ConnectFail.DisallowConnected("onConnectComplete"))
+                                    return@postDelay
+                                }
+                                connectSuccess()
+                            }, 2000L)
                         }
                     }
                 }
             }
-        }
-
-        override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
-            super.onServicesDiscovered(gatt, status)
-            imp {
-                if (gatt == null || status != BluetoothGatt.GATT_SUCCESS) {
-                    connectFail(ConnectFail.ServiceDiscoveredFail)
-                    return@imp
-                }
-                if (set.onServicesHandler?.let { !it.onServicesDiscovered(gatt) } == true) {
-                    connectFail(ConnectFail.ServiceDiscoveredFail)
-                    return@imp
-                }
-                requestMtu()
-            }
-        }
-
-        //todo 同一时间只能等待一个回调，即onServicesDiscovered如果调用了其余等待回调的操作，需要等待回调完成才能requestMtu，如onDescriptorWrite
-        @SuppressLint("MissingPermission")
-        private fun requestMtu() {
-            if (set.maxMTU != 0) {
-                val requestMtu = gatt!!.requestMtu(set.maxMTU)
-                logHelper.withEnable { "request mtu: ${set.maxMTU}, $requestMtu" }
-                if (!requestMtu) {
-                    connectFail(ConnectFail.MtuSetFail)
-                }
-                //等待mtu回调
-                return
-            }
-            connectSuccess()
-        }
-
-        override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
-            super.onMtuChanged(gatt, mtu, status)
-            if (gatt == null || status != BluetoothGatt.GATT_SUCCESS) {
-                connectFail(ConnectFail.MtuSetFail)
-                return
-            }
-            connectSuccess()
-        }
-
-        override fun onDescriptorWrite(
-            gatt: BluetoothGatt?,
-            descriptor: BluetoothGattDescriptor?,
-            status: Int
-        ) {
-            super.onDescriptorWrite(gatt, descriptor, status)
-            requestMtu()
         }
     }
 
@@ -148,29 +119,26 @@ class Connector(
     override fun connect() {
         if (!currentState.canConnect) {
             connectCallback.onConnectFail(
-                dev,
-                ConnectFail.DisallowConnected("currentConnectState: $currentState")
+                dev, ConnectFail.DisallowConnected("currentConnectState: $currentState")
             )
             return
         }
         connectCallback.onConnectStart(dev)
         closeGatt()
+        handler.postDelayed(timeout, set.timeout)
         gatt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             dev.dev?.connectGatt(
-                null, false, gattCallback, set.transport, set.phy, handler
+                null, false, gattWrapper.callback, set.transport, set.phy, handler
             )
         } else {
-            dev.dev?.connectGatt(null, false, gattCallback, set.transport)
+            dev.dev?.connectGatt(null, false, gattWrapper.callback, set.transport)
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun closeGatt() {
-        try {
-            gatt?.close()
-            gatt = null
-        } catch (_: Exception) {
-        }
+        gatt?.close()
+        gatt = null
     }
 
     @SuppressLint("InlinedApi")
@@ -179,6 +147,7 @@ class Connector(
         //蓝牙未关闭情形下，调用此方法去触发断开回调
         disconnectOnly()
         //todo 蓝牙已断开的情形
+        closeGatt()
     }
 
     @SuppressLint("InlinedApi")
@@ -188,17 +157,21 @@ class Connector(
     }
 
     internal fun connectSuccess() {
+        handler.removeCallbacks(timeout)
         logHelper.withEnable { "connectSuccess." }
+        connectCallback.onConnected(dev)
     }
 
     internal fun connectFail(cause: ConnectFail) {
+        handler.removeCallbacks(timeout)
         logHelper.withEnable { "connectFail: $cause." }
         closeGatt()
+        connectCallback.onConnectFail(dev, cause)
     }
 
     private fun imp(imp: () -> Unit) {
-        if (Thread.currentThread().id != handler?.thread?.id) {
-            handler?.post(imp)
+        if (Thread.currentThread().id != handler.thread.id) {
+            handler.post(imp)
         } else {
             imp.invoke()
         }

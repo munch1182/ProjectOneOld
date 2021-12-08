@@ -137,7 +137,7 @@ data class BluetoothDev(
     @IgnoredOnParcel
     private var connector: Connector? = null
 
-    fun setConnector(set: BleConnectSet? = null, handler: ThreadHandler? = null): BluetoothDev {
+    fun setConnector(set: BleConnectSet? = null, handler: ThreadHandler): BluetoothDev {
         if (connector != null && connector?.state?.isDisconnected != true) {
             throw ConnectFail.DisallowConnected("cannot set Connector")
         }
@@ -147,7 +147,7 @@ data class BluetoothDev(
 
     fun setConnectorIfNeed(
         set: BleConnectSet? = null,
-        handler: ThreadHandler? = null
+        handler: ThreadHandler
     ): BluetoothDev {
         connector ?: setConnector(set, handler)
         return this

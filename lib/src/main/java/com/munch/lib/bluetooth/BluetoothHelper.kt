@@ -8,6 +8,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.base.Destroyable
 import com.munch.lib.bluetooth.connect.BleConnectSet
+import com.munch.lib.bluetooth.connect.BluetoothDevManager
 import com.munch.lib.bluetooth.connect.ConnectFail
 import com.munch.lib.bluetooth.connect.OnConnectListener
 import com.munch.lib.bluetooth.scan.OnScannerListener
@@ -174,19 +175,24 @@ class BluetoothHelper private constructor() : Destroyable {
     //</editor-fold>
 
     //<editor-fold desc="CONNECT">
+    private val devManager by lazy { BluetoothDevManager() }
     private val connectCallBack = object : OnConnectListener {
         override fun onConnectStart(dev: BluetoothDev) {
             super.onConnectStart(dev)
             stateHelper.updateCONNECTINGState()
+            connectListener?.onConnectStart(dev)
         }
 
         override fun onConnected(dev: BluetoothDev) {
             stateHelper.updateIDLEState()
+            devManager.manage(dev)
+            connectListener?.onConnected(dev)
         }
 
         override fun onConnectFail(dev: BluetoothDev, fail: ConnectFail) {
             super.onConnectFail(dev, fail)
             stateHelper.updateIDLEState()
+            connectListener?.onConnectFail(dev, fail)
         }
     }
     private var connectListener: OnConnectListener? = null
@@ -210,6 +216,7 @@ class BluetoothHelper private constructor() : Destroyable {
             )
             return
         }
+        connectListener = listener
         dev.setConnectorIfNeed(bleConnectSet, handler).connect(connectCallBack)
     }
 
@@ -217,6 +224,19 @@ class BluetoothHelper private constructor() : Destroyable {
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
     fun disconnect(dev: BluetoothDev) {
         dev.disconnect()
+        devManager.discard(dev)
+    }
+
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
+    fun connect(mac: String, listener: OnConnectListener? = null) {
+        connect(BluetoothDev.from(context, mac) ?: throw IllegalStateException("error."), listener)
+    }
+
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
+    fun disconnect(mac: String) {
+        devManager.get(mac)?.let { disconnect(it) }
     }
     //</editor-fold>
 
