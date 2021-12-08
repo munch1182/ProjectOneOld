@@ -12,7 +12,6 @@ import com.munch.lib.task.ThreadHandler
 /**
  * Create by munch1182 on 2021/12/7 09:41.
  */
-@SuppressLint("MissingPermission")
 class Connector(
     private val dev: BluetoothDev,
     private var connectSet: BleConnectSet? = null,
@@ -28,7 +27,13 @@ class Connector(
     private val lock = Object()
     private var currentState: ConnectState = ConnectState.DISCONNECTED
         get() = synchronized(lock) { field }
-        set(value) = synchronized(lock) { field = value }
+        set(value) = synchronized(lock) {
+            if (value != field) {
+                val old = field
+                field = value
+                logHelper.withEnable { "${dev.mac}: connect state: $old -> $value." }
+            }
+        }
     private val defaultConnectSet by lazy { BleConnectSet() }
     private val set: BleConnectSet
         get() = connectSet ?: defaultConnectSet
@@ -50,9 +55,6 @@ class Connector(
             super.onConnectionStateChange(gatt, status, newState)
             imp {
                 when (newState) {
-                    BluetoothAdapter.STATE_DISCONNECTING -> {
-                        currentState = ConnectState.DISCONNECTING
-                    }
                     BluetoothAdapter.STATE_DISCONNECTED -> {
                         if (currentState == ConnectState.CONNECTING) {
                             if (status == 133) {
@@ -60,29 +62,33 @@ class Connector(
                             } else {
                                 connectFail(ConnectFail.SystemError(status))
                             }
+                        } else {
+                            disconnect(DisconnectCause.BySystem(status))
                         }
-                        currentState = ConnectState.DISCONNECTED
-                        closeGatt()
                     }
                     BluetoothAdapter.STATE_CONNECTED -> {
                         if (gatt == null || status != BluetoothGatt.GATT_SUCCESS) {
                             connectFail(ConnectFail.SystemError(status))
                         } else {
-                            postDelay({
+                            post {
                                 val fail = set.onConnectSet?.onConnectSet(this)
                                 if (fail != null) {
                                     connectFail(fail)
-                                    return@postDelay
+                                    return@post
                                 }
                                 val complete = set.onConnectComplete?.onConnectComplete(dev) ?: true
                                 if (!complete) {
-                                    connectFail(ConnectFail.DisallowConnected("onConnectComplete"))
-                                    return@postDelay
+                                    connectFail(ConnectFail.DisallowConnect("onConnectComplete"))
+                                    return@post
                                 }
                                 connectSuccess()
-                            }, 2000L)
+                            }
                         }
                     }
+                    BluetoothAdapter.STATE_DISCONNECTING -> {
+                        currentState = ConnectState.DISCONNECTING
+                    }
+                    BluetoothAdapter.STATE_CONNECTING -> currentState = ConnectState.CONNECTING
                 }
             }
         }
@@ -93,17 +99,25 @@ class Connector(
         override fun onConnectStart(dev: BluetoothDev) {
             super.onConnectStart(dev)
             currentState = ConnectState.CONNECTING
+            logHelper.withEnable { "${dev.mac}: start connect." }
             connectListener?.onConnectStart(dev)
         }
 
         override fun onConnected(dev: BluetoothDev) {
             currentState = ConnectState.CONNECTED
+            logHelper.withEnable { "${dev.mac}: connected." }
             connectListener?.onConnected(dev)
         }
 
         override fun onConnectFail(dev: BluetoothDev, fail: ConnectFail) {
             super.onConnectFail(dev, fail)
-            currentState = ConnectState.DISCONNECTED
+            //不在此处更改currentState的状态，而是在disconnect()中更改
+            logHelper.withEnable { "${dev.mac}: connect fail: $fail." }
+            if (fail is ConnectFail.SystemError) {
+                disconnect(DisconnectCause.BySystem(fail.status))
+            } else {
+                disconnect(DisconnectCause.ByHelper)
+            }
             connectListener?.onConnectFail(dev, fail)
         }
     }
@@ -119,7 +133,7 @@ class Connector(
     override fun connect() {
         if (!currentState.canConnect) {
             connectCallback.onConnectFail(
-                dev, ConnectFail.DisallowConnected("currentConnectState: $currentState")
+                dev, ConnectFail.DisallowConnect("currentConnectState: $currentState")
             )
             return
         }
@@ -144,28 +158,34 @@ class Connector(
     @SuppressLint("InlinedApi")
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
     override fun disconnect() {
-        //蓝牙未关闭情形下，调用此方法去触发断开回调
-        disconnectOnly()
-        //todo 蓝牙已断开的情形
-        closeGatt()
+        disconnect(DisconnectCause.ByUser)
     }
 
-    @SuppressLint("InlinedApi")
-    @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
+    private fun disconnect(cause: DisconnectCause) {
+        if (currentState != ConnectState.CONNECTED && currentState != ConnectState.CONNECTING) {
+            return
+        }
+        logHelper.withEnable { "disconnect: $cause." }
+        //因为不会触发回调
+        currentState = ConnectState.DISCONNECTING
+        disconnectOnly()
+        closeGatt()
+        currentState = ConnectState.DISCONNECTED
+    }
+
+
+    @SuppressLint("MissingPermission")
     private fun disconnectOnly() {
         gatt?.disconnect()
     }
 
     internal fun connectSuccess() {
         handler.removeCallbacks(timeout)
-        logHelper.withEnable { "connectSuccess." }
         connectCallback.onConnected(dev)
     }
 
     internal fun connectFail(cause: ConnectFail) {
         handler.removeCallbacks(timeout)
-        logHelper.withEnable { "connectFail: $cause." }
-        closeGatt()
         connectCallback.onConnectFail(dev, cause)
     }
 

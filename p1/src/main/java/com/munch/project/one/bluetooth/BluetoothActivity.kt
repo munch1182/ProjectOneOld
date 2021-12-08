@@ -15,7 +15,6 @@ import com.munch.lib.bluetooth.connect.OnConnectSet
 import com.munch.lib.bluetooth.scan.scan
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
 import com.munch.lib.fast.recyclerview.SimpleDiffAdapter
-import com.munch.lib.log.log
 import com.munch.lib.result.with
 import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityBluetoothBinding
@@ -52,39 +51,22 @@ class BluetoothActivity : BaseBigTextTitleActivity() {
             layoutManager = LinearLayoutManager(this@BluetoothActivity)
             adapter = scanAdapter
         }
+        BluetoothHelper.getInstance(this)
+            .setConnectSet(BleConnectSet().apply { onConnectSet = YFWatchSet() })
         bind.btScan.setOnClickListener {
             with(Build.VERSION_CODES.S, android.Manifest.permission.BLUETOOTH_SCAN)
                 .requestGrant {
                     scanAdapter.set(null)
-                    BluetoothHelper.getInstance(this)
-                        .scan(BluetoothType.BLE) {
-                            log(it)
-                            scanAdapter.add(0, it)
-                        }
+                    BluetoothHelper.instance.scan(BluetoothType.BLE) {
+                        scanAdapter.add(0, it)
+                    }
                 }
         }
 
-        val dev = BluetoothDev.from(this, "83:86:20:A1:05:20")!!
-        /*dev.connect(object : OnConnectListener {
-            override fun onConnected(dev: BluetoothDev) {
-
-            }
-        })*/
+        val dev = BluetoothDev.from(this, "83:86:20:A1:05:20", BluetoothType.BLE)!!
         with(Build.VERSION_CODES.S, android.Manifest.permission.BLUETOOTH_CONNECT)
             .requestGrant {
-                BluetoothHelper.getInstance(this).setConnectSet(BleConnectSet().apply {
-                    onConnectSet = object : OnConnectSet {
-                        override fun onConnectSet(gatt: GattWrapper): ConnectFail? {
-                            if (!gatt.discoverServices().isSuccess) {
-                                return ConnectFail.ServiceDiscoveredFail()
-                            }
-                            if (!gatt.requestMtu(247).isSuccess) {
-                                return ConnectFail.MtuSetFail
-                            }
-                            return null
-                        }
-                    }
-                }).connect(dev)
+                BluetoothHelper.instance.connect(dev)
             }
     }
 
@@ -93,5 +75,17 @@ class BluetoothActivity : BaseBigTextTitleActivity() {
         super.onDestroy()
         BluetoothHelper.getInstance(this).stopScan()
         BluetoothHelper.getInstance(this).disconnect("83:86:20:A1:05:20")
+    }
+}
+
+class YFWatchSet : OnConnectSet {
+    override fun onConnectSet(gatt: GattWrapper): ConnectFail? {
+        if (!gatt.discoverServices().isSuccess) {
+            return ConnectFail.ServiceDiscoveredFail()
+        }
+        if (!gatt.requestMtu(247).isSuccess) {
+            return ConnectFail.MtuSetFail
+        }
+        return null
     }
 }

@@ -212,7 +212,7 @@ class BluetoothHelper private constructor() : Destroyable {
         if (!stateHelper.canOp) {
             connectCallBack.onConnectFail(
                 dev,
-                ConnectFail.DisallowConnected("current ble state:${stateHelper.currentState}")
+                ConnectFail.DisallowConnect("current ble state:${stateHelper.currentState}")
             )
             return
         }
@@ -229,8 +229,11 @@ class BluetoothHelper private constructor() : Destroyable {
 
     @SuppressLint("InlinedApi")
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
-    fun connect(mac: String, listener: OnConnectListener? = null) {
-        connect(BluetoothDev.from(context, mac) ?: throw IllegalStateException("error."), listener)
+    fun connect(mac: String, type: BluetoothType, listener: OnConnectListener? = null) {
+        connect(
+            BluetoothDev.from(context, mac, type) ?: throw IllegalStateException("error."),
+            listener
+        )
     }
 
     @SuppressLint("InlinedApi")

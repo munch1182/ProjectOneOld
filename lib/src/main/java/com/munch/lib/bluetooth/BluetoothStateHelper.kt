@@ -17,7 +17,7 @@ class BluetoothStateHelper {
                 if (field != value) {
                     val old = field
                     field = value
-                    log.withEnable { "bluetooth state: $old -> $field" }
+                    log.withEnable { "bluetooth state: $old -> $field." }
                 }
             }
         }

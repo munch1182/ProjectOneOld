@@ -193,7 +193,7 @@ class BluetoothEnv(private val context: Context) : Destroyable {
                 //BluetoothAdapter.STATE_TURNING_OFF, 13
                 BluetoothAdapter.ACTION_STATE_CHANGED -> {
                     val state = i.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
-                    logSystem.withEnable { "STATE_CHANGED(${dev?.address}): $state" }
+                    logSystem.withEnable { "STATE_CHANGED: $state" }
                     stateListener?.invoke(dev, state)
                 }
             }

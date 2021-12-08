@@ -20,7 +20,7 @@ open class GattWrapper(private val mac: String?, private val logger: Logger) : D
     private var c: CountDownLatch? = null
     private var tag: String = ""
     private var resultCode = 0
-    private var mtu = -1
+    private var mtu = 0
     private var rssi = -1
     private var descriptor: BluetoothGattDescriptor? = null
     private var phy: Pair<Int, Int>? = null
@@ -59,7 +59,7 @@ open class GattWrapper(private val mac: String?, private val logger: Logger) : D
             return Result.fail()
         }
         waitResult("onMtuChanged")
-        return Result(resultCode, mtu.takeIf { it != -1 })
+        return Result(resultCode, mtu)
     }
 
     @SuppressLint("InlinedApi")

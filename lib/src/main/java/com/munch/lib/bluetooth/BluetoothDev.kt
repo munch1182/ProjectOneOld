@@ -8,10 +8,7 @@ import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.os.Parcelable
 import androidx.annotation.RequiresPermission
-import com.munch.lib.bluetooth.connect.BleConnectSet
-import com.munch.lib.bluetooth.connect.ConnectFail
-import com.munch.lib.bluetooth.connect.Connector
-import com.munch.lib.bluetooth.connect.OnConnectListener
+import com.munch.lib.bluetooth.connect.*
 import com.munch.lib.task.ThreadHandler
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
@@ -34,20 +31,25 @@ data class BluetoothDev(
         /**
          * 从[BluetoothDevice]中构建[BluetoothDev]
          *
+         * @param type 只有从系统已配对的设备才能为null，因为系统无缓存的设备dev.type为DEVICE_TYPE_UNKNOWN
+         *
          * 如果[BluetoothDevice]中[BluetoothDevice.getType]为双模式，则默认使用[BluetoothType.BLE]，否则应自行构建
          * 如果[BluetoothDevice]中[BluetoothDevice.getType]未知，则会抛出异常
          */
         @SuppressLint("InlinedApi")
         @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
-        fun from(dev: BluetoothDevice, rssi: Int = 0): BluetoothDev {
-            val type = when (dev.type) {
+        fun from(
+            dev: BluetoothDevice,
+            rssi: Int = 0,
+            type: @RawValue BluetoothType? = null
+        ): BluetoothDev {
+            val t = type ?: when (dev.type) {
                 BluetoothDevice.DEVICE_TYPE_DUAL,
                 BluetoothDevice.DEVICE_TYPE_LE -> BluetoothType.BLE
                 BluetoothDevice.DEVICE_TYPE_CLASSIC -> BluetoothType.CLASSIC
                 else -> throw IllegalStateException("must set bluetoothType")
             }
-
-            return BluetoothDev(dev.name, dev.address, rssi, type, dev)
+            return BluetoothDev(dev.name, dev.address, rssi, t, dev)
         }
 
         fun from(result: ScanResult) = BluetoothDev(
@@ -60,13 +62,17 @@ data class BluetoothDev(
 
         @SuppressLint("InlinedApi")
         @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
-        fun from(context: Context, mac: String): BluetoothDev? {
+        fun from(
+            context: Context,
+            mac: String,
+            type: @RawValue BluetoothType
+        ): BluetoothDev? {
             if (!BluetoothAdapter.checkBluetoothAddress(mac)) {
                 return null
             }
             val adapter =
                 (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager?)?.adapter
-            return from(adapter?.getRemoteDevice(mac) ?: return null)
+            return from(adapter?.getRemoteDevice(mac) ?: return null, 0, type)
         }
     }
 
@@ -82,6 +88,8 @@ data class BluetoothDev(
     val isBond: Boolean
         @SuppressLint("InlinedApi") @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
         get() = dev?.bondState == BluetoothDevice.BOND_BONDED
+    val connectState: ConnectState
+        get() = connector?.state ?: ConnectState.DISCONNECTED
 
     @SuppressLint("InlinedApi")
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
@@ -139,7 +147,7 @@ data class BluetoothDev(
 
     fun setConnector(set: BleConnectSet? = null, handler: ThreadHandler): BluetoothDev {
         if (connector != null && connector?.state?.isDisconnected != true) {
-            throw ConnectFail.DisallowConnected("cannot set Connector")
+            throw ConnectFail.DisallowConnect("cannot set Connector")
         }
         connector = Connector(this, set, handler)
         return this

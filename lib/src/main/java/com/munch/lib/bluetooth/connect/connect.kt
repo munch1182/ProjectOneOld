@@ -36,7 +36,7 @@ interface OnConnectListener {
 
 class BleConnectSet {
 
-    var timeout = 60 * 1000L
+    var timeout = 30 * 1000L
 
     var transport: Int = BluetoothDevice.TRANSPORT_LE
 
@@ -82,7 +82,7 @@ sealed class ConnectFail(message: String) : Exception(message) {
     /**
      * 指直接被系统回调[android.bluetooth.BluetoothGattCallback.onConnectionStateChange]时status不为[BluetoothGatt.GATT_SUCCESS]的情形
      */
-    open class SystemError(status: Int) : ConnectFail("SystemError status: $status")
+    open class SystemError(val status: Int) : ConnectFail("SystemError status: $status")
 
     /**
      * 指发现[android.bluetooth.BluetoothGatt.discoverServices]方法返回false或者
@@ -95,7 +95,7 @@ sealed class ConnectFail(message: String) : Exception(message) {
     /**
      * 指不允许连接的情形，比如上个连接对象未断开或者不为null
      */
-    class DisallowConnected(desc: String = "null") : ConnectFail("DisallowConnected: $desc")
+    class DisallowConnect(desc: String = "null") : ConnectFail("DisallowConnected: $desc")
 
     object WriteDescriptorFail : ConnectFail("WriteDescriptorFail")
 
@@ -112,9 +112,17 @@ sealed class ConnectFail(message: String) : Exception(message) {
 
 sealed class DisconnectCause {
 
-    class BySystem(private val status: Int) : DisconnectCause()
-    object ByUser : DisconnectCause()
-    object ByHelper : DisconnectCause()
+    class BySystem(private val status: Int) : DisconnectCause() {
+        override fun toString() = "Disconnect by System: $status"
+    }
+
+    object ByUser : DisconnectCause() {
+        override fun toString() = "Disconnect by User"
+    }
+
+    object ByHelper : DisconnectCause() {
+        override fun toString() = "Disconnect by Helper"
+    }
 }
 
 sealed class ConnectState {
