@@ -189,3 +189,43 @@ fun ByteArray.getStringBig(start: Int, length: Int) =
 fun ByteArray.getStringLittle(start: Int, length: Int) =
     getString(start, length, StandardCharsets.UTF_16LE)
 //</editor-fold>
+
+//<editor-fold desc="Split">
+fun ByteArray.split(splitSize: Int): Array<ByteArray> =
+    this.split(splitSize, this.size) { ByteArray(it) }
+
+fun IntArray.split(splitSize: Int): Array<IntArray> =
+    this.split(splitSize, this.size) { IntArray(it) }
+
+fun LongArray.split(splitSize: Int): Array<LongArray> =
+    this.split(splitSize, this.size) { LongArray(it) }
+
+fun CharArray.split(splitSize: Int): Array<CharArray> =
+    this.split(splitSize, this.size) { CharArray(it) }
+
+fun DoubleArray.split(splitSize: Int): Array<DoubleArray> =
+    this.split(splitSize, this.size) { DoubleArray(it) }
+
+fun FloatArray.split(splitSize: Int): Array<FloatArray> =
+    this.split(splitSize, this.size) { FloatArray(it) }
+
+private inline fun <reified T> T.split(
+    splitSize: Int,
+    tSize: Int,
+    new: (size: Int) -> T
+): Array<T> {
+    var leftSize = tSize
+    val len = when {
+        splitSize > leftSize -> 1
+        leftSize % splitSize == 0 -> leftSize / splitSize
+        else -> leftSize / splitSize + 1
+    }
+    return Array(len) {
+        val s = if (leftSize > splitSize) splitSize else leftSize
+        val b = new.invoke(s)
+        System.arraycopy(this as Any, it * splitSize, b as Any, 0, s)
+        leftSize -= s
+        b
+    }
+}
+//</editor-fold>

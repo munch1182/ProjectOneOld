@@ -9,6 +9,8 @@ import android.content.Context
 import android.os.Parcelable
 import androidx.annotation.RequiresPermission
 import com.munch.lib.bluetooth.connect.*
+import com.munch.lib.bluetooth.data.IData
+import com.munch.lib.bluetooth.data.OnByteArrayReceived
 import com.munch.lib.task.ThreadHandler
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
@@ -24,7 +26,7 @@ data class BluetoothDev(
     var rssi: Int = 0,
     val type: @RawValue BluetoothType,
     val dev: BluetoothDevice? = null
-) : Parcelable {
+) : Parcelable, IData {
 
     companion object {
 
@@ -183,6 +185,15 @@ data class BluetoothDev(
         connector?.setOnConnectStateChangeListener(listener)
     }
     //</editor-fold>
+
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
+    override fun send(byteArray: ByteArray) {
+        connector?.send(byteArray)
+    }
+
+    override fun onReceived(received: OnByteArrayReceived) {
+    }
 }
 
 sealed class BluetoothType : Parcelable {

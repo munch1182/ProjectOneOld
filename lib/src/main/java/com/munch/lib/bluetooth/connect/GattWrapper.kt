@@ -2,9 +2,16 @@ package com.munch.lib.bluetooth.connect
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import androidx.annotation.RequiresPermission
+import androidx.annotation.WorkerThread
 import com.munch.lib.base.Destroyable
+import com.munch.lib.base.split
+import com.munch.lib.base.toHexStr
+import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.data.IData
+import com.munch.lib.bluetooth.data.OnByteArrayReceived
 import com.munch.lib.log.Logger
 import com.munch.lib.task.ThreadHandler
 import java.util.concurrent.CountDownLatch
@@ -14,32 +21,83 @@ import java.util.concurrent.CountDownLatch
  *
  * Create by munch1182 on 2021/12/8 09:38.
  */
-open class GattWrapper(private val mac: String?, private val logger: Logger) : Destroyable {
+open class GattWrapper(private val mac: String?, private val logger: Logger? = null) : IData,
+    Destroyable {
+
+    private val logHelper = BluetoothHelper.logHelper
 
     private var bleGatt: BluetoothGatt? = null
     private var c: CountDownLatch? = null
     private var tag: String = ""
     private var resultCode = 0
-    private var mtu = 0
+    private var mtu = 23
     private var rssi = -1
     private var descriptor: BluetoothGattDescriptor? = null
     private var phy: Pair<Int, Int>? = null
     val gatt: BluetoothGatt?
         get() = bleGatt
+
+    private var writer: BluetoothGattCharacteristic? = null
+    private var writeComplete = false
+    private var received: OnByteArrayReceived? = null
+
     private val gattHandler by lazy { ThreadHandler("GATT_CALLBACK") }
 
     fun post(r: Runnable) {
-        gattHandler.post(r)
+        if (Thread.currentThread().id != gattHandler.thread.id) {
+            gattHandler.post(r)
+        } else {
+            r.run()
+        }
     }
 
     fun postDelay(r: Runnable, delayMillis: Long) {
         gattHandler.postDelayed(r, delayMillis)
     }
 
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
+    @WorkerThread
+    override fun send(byteArray: ByteArray) {
+        post {
+            val w = writer ?: return@post
+            val mtu = if (mtu <= 0) 23 else mtu
+            val allBytes = byteArray.split(mtu - 3)
+            allBytes.forEach {
+                w.value = it
+                logHelper.withEnable { "${mac}: send: ${byteArray.toHexStr()}" }
+                gatt?.writeCharacteristic(w)
+                writeComplete = false
+                //因为执行线程和回调线程都在同一线程，因此不需要加锁
+                while (!writeComplete) {
+                    Thread.sleep(1)
+                }
+            }
+        }
+    }
+
+    override fun onReceived(received: OnByteArrayReceived) {
+        this.received = received
+    }
+
     override fun destroy() {
         gattHandler.quit()
         c?.countDown()
         c = null
+    }
+
+    /**
+     * 设置写入特征
+     *
+     * 将使用此特征值来发送数据
+     */
+    fun setWriteCharacteristic(writer: BluetoothGattCharacteristic) {
+        this.writer = writer
+        logHelper.withEnable {
+            "${mac}: setWriteCharacteristic: ${
+                writer.toString().replace("android.bluetooth.BluetoothGattCharacteristic", "")
+            }"
+        }
     }
 
     @SuppressLint("InlinedApi")
@@ -145,6 +203,24 @@ open class GattWrapper(private val mac: String?, private val logger: Logger) : D
             super.onPhyRead(gatt, txPhy, rxPhy, status)
             this@GattWrapper.phy = txPhy to rxPhy
             updateAndNotify(status, "onPhyRead")
+        }
+
+        override fun onCharacteristicWrite(
+            gatt: BluetoothGatt?,
+            characteristic: BluetoothGattCharacteristic?,
+            status: Int
+        ) {
+            /*super.onCharacteristicWrite(gatt, characteristic, status)*/
+            writeComplete = true
+        }
+
+        override fun onCharacteristicChanged(
+            gatt: BluetoothGatt?,
+            characteristic: BluetoothGattCharacteristic?
+        ) {
+            /*super.onCharacteristicChanged(gatt, characteristic)*/
+            val data = characteristic?.value ?: return
+            received?.invoke(data)
         }
     }
 

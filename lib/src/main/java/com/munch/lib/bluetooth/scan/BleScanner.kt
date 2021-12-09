@@ -49,6 +49,7 @@ class BleScanner(
 
     override fun onScanResult(callbackType: Int, result: ScanResult?) {
         super.onScanResult(callbackType, result)
+        logSystem.withEnable { result?.toString() }
         val dev = result?.let { BluetoothDev.from(it) } ?: return
         listener.onDeviceScanned(dev)
     }

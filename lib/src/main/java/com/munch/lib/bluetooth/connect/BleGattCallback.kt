@@ -9,7 +9,7 @@ import com.munch.lib.log.Logger
 /**
  * Create by munch1182 on 2021/12/7 17:30.
  */
-abstract class BleGattCallback(private val mac: String?, private val log: Logger) :
+abstract class BleGattCallback(private val mac: String?, private val log: Logger?) :
     BluetoothGattCallback() {
 
     private fun BluetoothGatt?.toStr() =
@@ -27,17 +27,17 @@ abstract class BleGattCallback(private val mac: String?, private val log: Logger
 
     override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
         super.onConnectionStateChange(gatt, status, newState)
-        log.withEnable { "$mac: onConnectionStateChange: status: ${status(status)}, newState: $newState, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onConnectionStateChange: status: ${status(status)}, newState: $newState, gatt: ${gatt.toStr()}." }
     }
 
     override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
         super.onServicesDiscovered(gatt, status)
-        log.withEnable { "$mac: onServicesDiscovered: status: ${status(status)}, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onServicesDiscovered: status: ${status(status)}, gatt: ${gatt.toStr()}." }
     }
 
     override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
         super.onMtuChanged(gatt, mtu, status)
-        log.withEnable { "$mac: onMtuChanged: mtu: $mtu, status: ${status(status)}, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onMtuChanged: mtu: $mtu, status: ${status(status)}, gatt: ${gatt.toStr()}." }
     }
 
     override fun onDescriptorRead(
@@ -46,7 +46,7 @@ abstract class BleGattCallback(private val mac: String?, private val log: Logger
         status: Int
     ) {
         super.onDescriptorRead(gatt, descriptor, status)
-        log.withEnable { "$mac: onDescriptorRead: status: ${status(status)}, descriptor: ${descriptor.toStr()}, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onDescriptorRead: status: ${status(status)}, descriptor: ${descriptor.toStr()}, gatt: ${gatt.toStr()}." }
     }
 
     override fun onDescriptorWrite(
@@ -55,7 +55,7 @@ abstract class BleGattCallback(private val mac: String?, private val log: Logger
         status: Int
     ) {
         super.onDescriptorWrite(gatt, descriptor, status)
-        log.withEnable { "$mac: onDescriptorWrite: status: ${status(status)}, descriptor: ${descriptor.toStr()}, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onDescriptorWrite: status: ${status(status)}, descriptor: ${descriptor.toStr()}, gatt: ${gatt.toStr()}." }
     }
 
     override fun onCharacteristicWrite(
@@ -64,7 +64,7 @@ abstract class BleGattCallback(private val mac: String?, private val log: Logger
         status: Int
     ) {
         super.onCharacteristicWrite(gatt, characteristic, status)
-        log.withEnable { "$mac: onCharacteristicWrite: status: ${status(status)}, characteristic: ${characteristic.toStr()}, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onCharacteristicWrite: status: ${status(status)}, characteristic: ${characteristic.toStr()}, gatt: ${gatt.toStr()}." }
     }
 
     override fun onCharacteristicChanged(
@@ -72,32 +72,32 @@ abstract class BleGattCallback(private val mac: String?, private val log: Logger
         characteristic: BluetoothGattCharacteristic?
     ) {
         super.onCharacteristicChanged(gatt, characteristic)
-        log.withEnable { "$mac: onCharacteristicChanged: characteristic: ${characteristic.toStr()}, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onCharacteristicChanged: characteristic: ${characteristic.toStr()}, gatt: ${gatt.toStr()}." }
     }
 
     override fun onPhyRead(gatt: BluetoothGatt?, txPhy: Int, rxPhy: Int, status: Int) {
         super.onPhyRead(gatt, txPhy, rxPhy, status)
-        log.withEnable { "$mac: onPhyRead: status: ${status(status)}, txPhy: $txPhy, rxPhy: $rxPhy, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onPhyRead: status: ${status(status)}, txPhy: $txPhy, rxPhy: $rxPhy, gatt: ${gatt.toStr()}." }
     }
 
     override fun onPhyUpdate(gatt: BluetoothGatt?, txPhy: Int, rxPhy: Int, status: Int) {
         super.onPhyUpdate(gatt, txPhy, rxPhy, status)
-        log.withEnable { "$mac: onPhyUpdate: status: ${status(status)}, txPhy: $txPhy, rxPhy: $rxPhy, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onPhyUpdate: status: ${status(status)}, txPhy: $txPhy, rxPhy: $rxPhy, gatt: ${gatt.toStr()}." }
     }
 
     override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
         super.onReadRemoteRssi(gatt, rssi, status)
-        log.withEnable { "$mac: onReadRemoteRssi: status: ${status(status)}, rssi: $rssi, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onReadRemoteRssi: status: ${status(status)}, rssi: $rssi, gatt: ${gatt.toStr()}." }
     }
 
     override fun onReliableWriteCompleted(gatt: BluetoothGatt?, status: Int) {
         super.onReliableWriteCompleted(gatt, status)
-        log.withEnable { "$mac: onReliableWriteCompleted: status: ${status(status)}, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onReliableWriteCompleted: status: ${status(status)}, gatt: ${gatt.toStr()}." }
     }
 
     override fun onServiceChanged(gatt: BluetoothGatt) {
         super.onServiceChanged(gatt)
-        log.withEnable { "$mac: onServiceChanged: gatt: ${gatt.toStr().hashCode()}." }
+        log?.withEnable { "$mac: onServiceChanged: gatt: ${gatt.toStr().hashCode()}." }
     }
 
     override fun onCharacteristicRead(
@@ -106,7 +106,7 @@ abstract class BleGattCallback(private val mac: String?, private val log: Logger
         status: Int
     ) {
         super.onCharacteristicRead(gatt, characteristic, status)
-        log.withEnable { "$mac: onCharacteristicRead: status: ${status(status)}, characteristic: ${characteristic.toStr()}, gatt: ${gatt.toStr()}." }
+        log?.withEnable { "$mac: onCharacteristicRead: status: ${status(status)}, characteristic: ${characteristic.toStr()}, gatt: ${gatt.toStr()}." }
     }
 
     private fun status(status: Int): String {

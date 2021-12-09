@@ -7,17 +7,20 @@ import android.os.Build
 import androidx.annotation.RequiresPermission
 import com.munch.lib.bluetooth.BluetoothDev
 import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.data.BluetoothDataHelper
+import com.munch.lib.bluetooth.data.IData
+import com.munch.lib.bluetooth.data.OnByteArrayReceived
 import com.munch.lib.task.ThreadHandler
 
 /**
  * Create by munch1182 on 2021/12/7 09:41.
  */
 class Connector(
-    private val dev: BluetoothDev,
+    val dev: BluetoothDev,
     private var connectSet: BleConnectSet? = null,
     //gatt连接回调到handler所在线程
     private val handler: ThreadHandler
-) : IConnect {
+) : IConnect, IData {
 
     private val logSystem = BluetoothHelper.logSystem
     private val logHelper = BluetoothHelper.logHelper
@@ -42,6 +45,7 @@ class Connector(
     val state: ConnectState
         get() = currentState
     private var connectStateChange: OnConnectStateChange? = null
+    private var dataHelper: BluetoothDataHelper? = null
 
     private val timeout by lazy {
         Runnable {
@@ -51,7 +55,7 @@ class Connector(
             connectFail(ConnectFail.Timeout(set.timeout))
         }
     }
-    private val gattWrapper = object : GattWrapper(dev.mac, logSystem) {
+    internal val gattWrapper = object : GattWrapper(dev.mac, logSystem) {
 
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
@@ -78,6 +82,7 @@ class Connector(
                                     connectFail(fail)
                                     return@post
                                 }
+                                dataHelper = BluetoothDataHelper(this@Connector)
                                 val complete = set.onConnectComplete?.onConnectComplete(dev) ?: true
                                 if (!complete) {
                                     connectFail(ConnectFail.DisallowConnect("onConnectComplete"))
@@ -100,8 +105,8 @@ class Connector(
 
         override fun onConnectStart(dev: BluetoothDev) {
             super.onConnectStart(dev)
-            currentState = ConnectState.CONNECTING
             logHelper.withEnable { "${dev.mac}: start connect." }
+            currentState = ConnectState.CONNECTING
             connectListener?.onConnectStart(dev)
         }
 
@@ -150,6 +155,9 @@ class Connector(
         connectCallback.onConnectStart(dev)
         closeGatt()
         handler.postDelayed(timeout, set.timeout)
+
+        //todo 是否要为每一个gatt连接分配一个handler，因为数据的发送回调和接收回调会回调到该线程，
+        //todo 或者进行接收后的分发
         gatt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             dev.dev?.connectGatt(
                 null, false, gattWrapper.callback, set.transport, set.phy, handler
@@ -207,6 +215,15 @@ class Connector(
         }
     }
 
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
+    override fun send(byteArray: ByteArray) {
+        dataHelper?.send(byteArray)
+    }
+
+    override fun onReceived(received: OnByteArrayReceived) {
+        dataHelper?.onReceived(received)
+    }
 }
 
 typealias OnConnectStateChange = (dev: BluetoothDev, old: ConnectState, now: ConnectState) -> Unit
