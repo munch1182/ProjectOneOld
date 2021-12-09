@@ -105,6 +105,8 @@ sealed class ConnectFail(message: String) : Exception(message) {
 
     class Timeout(timeout: Long) : ConnectFail("Timeout($timeout ms)")
 
+    internal object CancelByUser : ConnectFail("CancelByUser")
+
     class Error(message: String) : ConnectFail(message)
 
     override fun toString() = message ?: "ConnectFail"

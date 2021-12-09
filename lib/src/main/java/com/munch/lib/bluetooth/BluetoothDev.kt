@@ -178,6 +178,10 @@ data class BluetoothDev(
     fun disconnect() {
         connector?.disconnect()
     }
+
+    fun setOnStateChangeListener(listener: OnConnectStateChange?) {
+        connector?.setOnConnectStateChangeListener(listener)
+    }
     //</editor-fold>
 }
 

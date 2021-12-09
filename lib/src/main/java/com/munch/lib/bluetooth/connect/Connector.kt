@@ -32,6 +32,7 @@ class Connector(
                 val old = field
                 field = value
                 logHelper.withEnable { "${dev.mac}: connect state: $old -> $value." }
+                connectStateChange?.invoke(dev, old, value)
             }
         }
     private val defaultConnectSet by lazy { BleConnectSet() }
@@ -40,6 +41,7 @@ class Connector(
 
     val state: ConnectState
         get() = currentState
+    private var connectStateChange: OnConnectStateChange? = null
 
     private val timeout by lazy {
         Runnable {
@@ -111,12 +113,15 @@ class Connector(
 
         override fun onConnectFail(dev: BluetoothDev, fail: ConnectFail) {
             super.onConnectFail(dev, fail)
-            //不在此处更改currentState的状态，而是在disconnect()中更改
-            logHelper.withEnable { "${dev.mac}: connect fail: $fail." }
-            if (fail is ConnectFail.SystemError) {
-                disconnect(DisconnectCause.BySystem(fail.status))
-            } else {
-                disconnect(DisconnectCause.ByHelper)
+            //不能循环调用
+            if (fail !is ConnectFail.CancelByUser) {
+                //不在此处更改currentState的状态，而是在disconnect()中更改
+                logHelper.withEnable { "${dev.mac}: connect fail: $fail." }
+                if (fail is ConnectFail.SystemError) {
+                    disconnect(DisconnectCause.BySystem(fail.status))
+                } else {
+                    disconnect(DisconnectCause.ByHelper)
+                }
             }
             connectListener?.onConnectFail(dev, fail)
         }
@@ -125,6 +130,11 @@ class Connector(
 
     fun setConnectListener(listener: OnConnectListener): Connector {
         connectListener = listener
+        return this
+    }
+
+    fun setOnConnectStateChangeListener(listener: OnConnectStateChange?): Connector {
+        connectStateChange = listener
         return this
     }
 
@@ -162,17 +172,18 @@ class Connector(
     }
 
     private fun disconnect(cause: DisconnectCause) {
+        handler.removeCallbacks(timeout)
         if (currentState != ConnectState.CONNECTED && currentState != ConnectState.CONNECTING) {
             return
         }
-        logHelper.withEnable { "disconnect: $cause." }
+        logHelper.withEnable { "${dev.mac}: disconnect: $cause." }
         //因为不会触发回调
         currentState = ConnectState.DISCONNECTING
         disconnectOnly()
         closeGatt()
         currentState = ConnectState.DISCONNECTED
+        connectFail(ConnectFail.CancelByUser)
     }
-
 
     @SuppressLint("MissingPermission")
     private fun disconnectOnly() {
@@ -185,7 +196,6 @@ class Connector(
     }
 
     internal fun connectFail(cause: ConnectFail) {
-        handler.removeCallbacks(timeout)
         connectCallback.onConnectFail(dev, cause)
     }
 
@@ -198,3 +208,5 @@ class Connector(
     }
 
 }
+
+typealias OnConnectStateChange = (dev: BluetoothDev, old: ConnectState, now: ConnectState) -> Unit

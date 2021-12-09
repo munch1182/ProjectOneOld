@@ -8,8 +8,8 @@ import android.os.Environment
 import android.provider.Settings
 import androidx.core.net.toFile
 import androidx.core.net.toUri
-import com.munch.lib.fast.base.BaseBtnWithNoticeActivity
-import com.munch.lib.fast.databinding.ItemSimpleBtnWithNoticeBinding
+import com.munch.lib.base.toBytes
+import com.munch.lib.fast.base.BaseBtnFlowActivity
 import com.munch.lib.helper.FileHelper
 import com.munch.lib.helper.del
 import com.munch.lib.helper.lengthAll
@@ -29,14 +29,14 @@ import kotlin.random.Random
 /**
  * Create by munch1182 on 2021/8/17 10:36.
  */
-class FileFunActivity : BaseBtnWithNoticeActivity() {
+class FileFunActivity : BaseBtnFlowActivity() {
 
     private var choseFile: Uri? = null
-    private val notice by lazy {
-        ViewNoticeHelper(this, loading = rv to NameLoadingView(this))
+    private val noticeHelper by lazy {
+        ViewNoticeHelper(this, loading = flowLayout to NameLoadingView(this))
     }
 
-    override fun getData(): MutableList<String?> =
+    override fun getData() =
         mutableListOf(
             "request permission",
             "chose file",
@@ -44,6 +44,7 @@ class FileFunActivity : BaseBtnWithNoticeActivity() {
             "del file",
             "clear cache",
             "new file",
+            "new char file",
             "compress",
             "decompress"
         )
@@ -58,11 +59,12 @@ class FileFunActivity : BaseBtnWithNoticeActivity() {
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
         }
+        flowLayout.set { group = mutableListOf(1, 1, 2, 1, 2, 2).toTypedArray() }
         showNotice("是否有读写权限：$havePermission")
     }
 
-    override fun onClick(pos: Int, bind: ItemSimpleBtnWithNoticeBinding) {
-        super.onClick(pos, bind)
+    override fun onClick(pos: Int) {
+        super.onClick(pos)
         when (pos) {
             //request permission
             0 -> {
@@ -103,7 +105,7 @@ class FileFunActivity : BaseBtnWithNoticeActivity() {
             }
             //clear cache
             4 -> {
-                notice.loading {
+                noticeHelper.loading {
                     val size = FileHelper.formatSize(cacheDir.lengthAll().toDouble())
                     cacheDir.del()
                     withContext(Dispatchers.Main) { showNotice("缓存文件(${size.first}${size.second})已清除") }
@@ -111,16 +113,42 @@ class FileFunActivity : BaseBtnWithNoticeActivity() {
             }
             //new file
             5 -> newFile()
+            6 -> newCharFile()
             //compress
-            6 -> compress()
+            7 -> compress()
             //decompress
-            7 -> decompress()
+            8 -> decompress()
+        }
+    }
+
+    private fun newCharFile() {
+        @Suppress("BlockingMethodInNonBlockingContext")
+        noticeHelper.loading {
+            val f = FileHelper.newCache("test_compress_char")
+            f?.let {
+                val size = FileHelper.MB * 10
+                val m = RandomAccessFile(it, "rw")
+                    .channel
+                    .map(FileChannel.MapMode.READ_WRITE, 0, size)
+                var writeSize = 0
+                val r = Random
+                val charA = 'a'
+                while (writeSize < size) {
+                    val bytes = (charA + r.nextInt(26)).toBytes()
+                    m.put(bytes)
+                    writeSize += bytes.size
+                }
+                choseFile = f.toUri()
+                runOnUiThread {
+                    showNotice("文件已生成")
+                }
+            }
         }
     }
 
     private fun newFile() {
         @Suppress("BlockingMethodInNonBlockingContext")
-        notice.loading {
+        noticeHelper.loading {
             val f = FileHelper.newCache("test_compress")
             f?.let {
                 val size = FileHelper.MB * 10
@@ -159,7 +187,7 @@ class FileFunActivity : BaseBtnWithNoticeActivity() {
             showNotice("未获取到文件")
             return
         }
-        notice.loading {
+        noticeHelper.loading {
             val start = System.currentTimeMillis()
             val decompress = QuickLZ.decompress(f.readBytes())
             val end = System.currentTimeMillis()
@@ -187,7 +215,7 @@ class FileFunActivity : BaseBtnWithNoticeActivity() {
             showNotice("未获取到文件")
             return
         }
-        notice.loading {
+        noticeHelper.loading {
             val start = System.currentTimeMillis()
             val compress = QuickLZ.compress(f.readBytes(), 3)
             val end = System.currentTimeMillis()

@@ -185,14 +185,16 @@ class BluetoothHelper private constructor() : Destroyable {
 
         override fun onConnected(dev: BluetoothDev) {
             stateHelper.updateIDLEState()
-            devManager.manage(dev)
             connectListener?.onConnected(dev)
         }
 
         override fun onConnectFail(dev: BluetoothDev, fail: ConnectFail) {
             super.onConnectFail(dev, fail)
             stateHelper.updateIDLEState()
-            connectListener?.onConnectFail(dev, fail)
+            if (fail !is ConnectFail.CancelByUser) {
+                //此处当取消时不回调连接失败
+                connectListener?.onConnectFail(dev, fail)
+            }
         }
     }
     private var connectListener: OnConnectListener? = null
@@ -217,23 +219,24 @@ class BluetoothHelper private constructor() : Destroyable {
             return
         }
         connectListener = listener
-        dev.setConnectorIfNeed(bleConnectSet, handler).connect(connectCallBack)
+        devManager.manage(dev)
+        if (dev.isBle) {
+            dev.setConnectorIfNeed(bleConnectSet, handler).connect(connectCallBack)
+        }
     }
 
     @SuppressLint("InlinedApi")
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
     fun disconnect(dev: BluetoothDev) {
+        //断开连接会触发状态更改然后触发devManager
         dev.disconnect()
-        devManager.discard(dev)
     }
 
     @SuppressLint("InlinedApi")
     @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH, android.Manifest.permission.BLUETOOTH_CONNECT])
     fun connect(mac: String, type: BluetoothType, listener: OnConnectListener? = null) {
-        connect(
-            BluetoothDev.from(context, mac, type) ?: throw IllegalStateException("error."),
-            listener
-        )
+        val dev = BluetoothDev.from(context, mac, type) ?: throw IllegalStateException("error.")
+        connect(dev, listener)
     }
 
     @SuppressLint("InlinedApi")

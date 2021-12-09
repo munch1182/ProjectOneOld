@@ -182,9 +182,9 @@ class PermissionHandler(
         if (permissions.isEmpty()) {
             return false
         }
-        ResultHelper.log.log("show explain set dialog: [${permissions.joinToString()}]")
         val dialog = pb.explainDialogNeed2Setting?.invoke(fragment.requireContext(), permissions)
         if (dialog != null) {
+            ResultHelper.log.log("show explain set dialog: [${permissions.joinToString()}]")
             dialog.setOnNext { fragment.start2Settings() }
                 .setOnCancel { onFinish() }
                 .show()

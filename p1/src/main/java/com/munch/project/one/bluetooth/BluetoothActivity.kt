@@ -8,10 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.bluetooth.BluetoothDev
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.BluetoothType
-import com.munch.lib.bluetooth.connect.BleConnectSet
-import com.munch.lib.bluetooth.connect.ConnectFail
-import com.munch.lib.bluetooth.connect.GattWrapper
-import com.munch.lib.bluetooth.connect.OnConnectSet
+import com.munch.lib.bluetooth.connect.*
 import com.munch.lib.bluetooth.scan.scan
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
 import com.munch.lib.fast.recyclerview.SimpleDiffAdapter
@@ -64,9 +61,14 @@ class BluetoothActivity : BaseBigTextTitleActivity() {
         }
 
         val dev = BluetoothDev.from(this, "83:86:20:A1:05:20", BluetoothType.BLE)!!
+        val dev2 = BluetoothDev.from(this, "83:BF:DF:26:7C:60", BluetoothType.BLE)!!
         with(Build.VERSION_CODES.S, android.Manifest.permission.BLUETOOTH_CONNECT)
             .requestGrant {
-                BluetoothHelper.instance.connect(dev)
+                BluetoothHelper.instance.connect(dev, object : OnConnectListener {
+                    override fun onConnected(dev: BluetoothDev) {
+                        BluetoothHelper.instance.connect(dev2)
+                    }
+                })
             }
     }
 
@@ -75,6 +77,7 @@ class BluetoothActivity : BaseBigTextTitleActivity() {
         super.onDestroy()
         BluetoothHelper.getInstance(this).stopScan()
         BluetoothHelper.getInstance(this).disconnect("83:86:20:A1:05:20")
+        BluetoothHelper.getInstance(this).disconnect("83:BF:DF:26:7C:60")
     }
 }
 
