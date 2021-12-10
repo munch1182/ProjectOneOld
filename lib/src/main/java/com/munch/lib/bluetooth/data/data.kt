@@ -6,7 +6,7 @@ package com.munch.lib.bluetooth.data
 
 interface IData {
 
-    fun send(byteArray: ByteArray)
+    fun send(byteArray: ByteArray, timeout: Long): Boolean
 
     fun onReceived(received: OnByteArrayReceived)
 }

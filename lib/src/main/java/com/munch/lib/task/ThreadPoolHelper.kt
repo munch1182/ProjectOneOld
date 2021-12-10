@@ -99,6 +99,18 @@ inline fun pool(submit: Boolean = false, crossinline block: () -> Unit) {
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
+inline fun pool(submit: Boolean = false, task: Runnable) {
+    if (submit) {
+        ThreadPoolHelper.cachedPool.submit(task)
+    } else {
+        ThreadPoolHelper.cachedPool.execute(task)
+    }
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T> pool(task: Callable<T>): Future<T>? = ThreadPoolHelper.cachedPool.submit(task)
+
 fun thread(
     start: Boolean = true,
     isDaemon: Boolean = false,

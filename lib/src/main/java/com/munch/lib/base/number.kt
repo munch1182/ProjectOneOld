@@ -93,6 +93,13 @@ private fun format(str: String, maxWeight: Int, fillZero: Boolean): String {
  */
 inline fun Byte.toHexStr() = String.format("0x%02X", this)
 inline fun ByteArray.toHexStr() = this.joinToString { it.toHexStr() }
+inline fun ByteArray.toHexStrSimple(firstEnd: Int = 8, endStart: Int = size - 4): String {
+    return if (this.size > 14) {
+        "${sub(0, firstEnd).toHexStr()}...${sub(endStart).toHexStr()}($size bytes)"
+    } else {
+        this.joinToString { it.toHexStr() }
+    }
+}
 //</editor-fold>
 
 //<editor-fold desc="toBytes">
@@ -191,23 +198,12 @@ fun ByteArray.getStringLittle(start: Int, length: Int) =
 //</editor-fold>
 
 //<editor-fold desc="Split">
-fun ByteArray.split(splitSize: Int): Array<ByteArray> =
-    this.split(splitSize, this.size) { ByteArray(it) }
-
-fun IntArray.split(splitSize: Int): Array<IntArray> =
-    this.split(splitSize, this.size) { IntArray(it) }
-
-fun LongArray.split(splitSize: Int): Array<LongArray> =
-    this.split(splitSize, this.size) { LongArray(it) }
-
-fun CharArray.split(splitSize: Int): Array<CharArray> =
-    this.split(splitSize, this.size) { CharArray(it) }
-
-fun DoubleArray.split(splitSize: Int): Array<DoubleArray> =
-    this.split(splitSize, this.size) { DoubleArray(it) }
-
-fun FloatArray.split(splitSize: Int): Array<FloatArray> =
-    this.split(splitSize, this.size) { FloatArray(it) }
+fun ByteArray.split(splitSize: Int) = split(splitSize, this.size) { ByteArray(it) }
+fun IntArray.split(splitSize: Int) = split(splitSize, this.size) { IntArray(it) }
+fun LongArray.split(splitSize: Int) = split(splitSize, this.size) { LongArray(it) }
+fun CharArray.split(splitSize: Int) = split(splitSize, this.size) { CharArray(it) }
+fun DoubleArray.split(splitSize: Int) = split(splitSize, this.size) { DoubleArray(it) }
+fun FloatArray.split(splitSize: Int) = split(splitSize, this.size) { FloatArray(it) }
 
 private inline fun <reified T> T.split(
     splitSize: Int,
@@ -227,5 +223,18 @@ private inline fun <reified T> T.split(
         leftSize -= s
         b
     }
+}
+
+fun ByteArray.sub(start: Int, end: Int = size) = sub(start, end) { ByteArray(it) }
+fun IntArray.sub(start: Int, end: Int = size) = sub(start, end) { IntArray(it) }
+fun LongArray.sub(start: Int, end: Int = size) = sub(start, end) { LongArray(it) }
+fun CharArray.sub(start: Int, end: Int = size) = sub(start, end) { CharArray(it) }
+fun DoubleArray.sub(start: Int, end: Int = size) = sub(start, end) { DoubleArray(it) }
+fun FloatArray.sub(start: Int, end: Int = size) = sub(start, end) { FloatArray(it) }
+
+private inline fun <reified T> T.sub(start: Int, end: Int, new: (size: Int) -> T): T {
+    val array = new.invoke(end - start)
+    System.arraycopy(this as Any, start, array as Any, 0, end - start)
+    return array
 }
 //</editor-fold>

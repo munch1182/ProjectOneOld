@@ -113,8 +113,6 @@ class Scanner(private val context: Context, private val handler: Handler) : ISca
         }
         val type = requireNotNull(type) { "must set type first." }
 
-        callback.onScanStart()
-
         val p = getParameter()
         currentScanner = when (type) {
             BluetoothType.BLE -> BleScanner(context, p.toType(), callback)
@@ -126,6 +124,8 @@ class Scanner(private val context: Context, private val handler: Handler) : ISca
         handler.postDelayed(timeout2Stop, p.timeout)
 
         log.withEnable { "start scan, parameter = $p." }
+
+        callback.onScanStart()
         currentScanner?.start()
     }
 

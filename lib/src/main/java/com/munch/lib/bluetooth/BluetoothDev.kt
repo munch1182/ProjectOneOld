@@ -188,9 +188,14 @@ data class BluetoothDev(
 
     @SuppressLint("InlinedApi")
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
-    override fun send(byteArray: ByteArray) {
-        connector?.send(byteArray)
+    override fun send(byteArray: ByteArray, timeout: Long): Boolean {
+        return connector?.send(byteArray, timeout) ?: false
     }
+
+    @SuppressLint("InlinedApi")
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun send(byteArray: ByteArray) = send(byteArray, 1000L)
 
     override fun onReceived(received: OnByteArrayReceived) {
     }

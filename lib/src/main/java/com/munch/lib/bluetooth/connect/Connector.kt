@@ -217,8 +217,8 @@ class Connector(
 
     @SuppressLint("InlinedApi")
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
-    override fun send(byteArray: ByteArray) {
-        dataHelper?.send(byteArray)
+    override fun send(byteArray: ByteArray, timeout: Long): Boolean {
+        return dataHelper?.send(byteArray, timeout) ?: false
     }
 
     override fun onReceived(received: OnByteArrayReceived) {

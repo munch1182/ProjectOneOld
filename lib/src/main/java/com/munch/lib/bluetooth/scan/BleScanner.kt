@@ -29,12 +29,12 @@ class BleScanner(
         get() = adapter?.bluetoothLeScanner
 
     @SuppressLint("InlinedApi")
-    @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
+    @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.ACCESS_FINE_LOCATION])
     override fun start() {
         super.start()
-        val scanner = leScanner
+        val scanner = leScanner ?: return
         val list = p.target?.mapNotNull { it.convert2ScanFilter() } ?: arrayListOf()
-        scanner?.startScan(list, p.bleScanSet, this)
+        scanner.startScan(list, p.bleScanSet, this)
     }
 
     private fun ScanParameter.Target.convert2ScanFilter(): ScanFilter? {
@@ -49,7 +49,6 @@ class BleScanner(
 
     override fun onScanResult(callbackType: Int, result: ScanResult?) {
         super.onScanResult(callbackType, result)
-        logSystem.withEnable { result?.toString() }
         val dev = result?.let { BluetoothDev.from(it) } ?: return
         listener.onDeviceScanned(dev)
     }

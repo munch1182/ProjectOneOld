@@ -111,12 +111,20 @@ class BluetoothHelper private constructor() : Destroyable {
         }
     }
 
+
+    /**
+     * ble需要android.Manifest.permission.ACCESS_FINE_LOCATION权限，否则结果不会回调
+     */
     @SuppressLint("InlinedApi")
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
     fun scan(type: BluetoothType, listener: OnScannerListener? = null) {
         scan(type, null, listener)
     }
 
+
+    /**
+     * ble需要android.Manifest.permission.ACCESS_FINE_LOCATION权限，否则结果不会回调
+     */
     @SuppressLint("InlinedApi")
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
     fun scan(
@@ -141,7 +149,7 @@ class BluetoothHelper private constructor() : Destroyable {
     }
 
     @SuppressLint("InlinedApi")
-    @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
+    @RequiresPermission(allOf = [android.Manifest.permission.BLUETOOTH_SCAN, android.Manifest.permission.ACCESS_FINE_LOCATION])
     fun scanBle(
         parameter: ScanParameter? = null,
         listener: OnScannerListener? = null

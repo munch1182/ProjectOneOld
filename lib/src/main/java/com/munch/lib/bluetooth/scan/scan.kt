@@ -180,7 +180,8 @@ class DeviceFilterHelper(private val p: ScanParameter) : Resettable {
     }
 
     fun filterScannedDevs(devs: Array<BluetoothDev>): Array<BluetoothDev>? {
-        return devs.filter { filterScannedDev(it) != null }.takeIf { it.isNotEmpty() }?.toTypedArray()
+        return devs.filter { filterScannedDev(it) != null }.takeIf { it.isNotEmpty() }
+            ?.toTypedArray()
     }
 
     override fun reset() {

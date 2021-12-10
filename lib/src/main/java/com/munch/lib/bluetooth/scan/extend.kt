@@ -12,11 +12,17 @@ import com.munch.lib.bluetooth.BluetoothType
 typealias OnDeviceScanned = (dev: BluetoothDev) -> Unit
 typealias OnBatchDeviceScanned = (devs: Array<BluetoothDev>) -> Unit
 
+/**
+ * ble需要android.Manifest.permission.ACCESS_FINE_LOCATION权限，否则结果不会回调
+ */
 @SuppressLint("InlinedApi")
 @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
 inline fun BluetoothHelper.scan(type: BluetoothType, crossinline scanned: OnDeviceScanned) =
     scan(type, null, scanned)
 
+/**
+ * ble需要android.Manifest.permission.ACCESS_FINE_LOCATION权限，否则结果不会回调
+ */
 @SuppressLint("InlinedApi")
 @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
 inline fun BluetoothHelper.scan(
@@ -32,6 +38,9 @@ inline fun BluetoothHelper.scan(
     })
 }
 
+/**
+ * ble需要android.Manifest.permission.ACCESS_FINE_LOCATION权限，否则结果不会回调
+ */
 @SuppressLint("InlinedApi")
 @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
 inline fun BluetoothHelper.batchScan(
@@ -39,6 +48,9 @@ inline fun BluetoothHelper.batchScan(
     crossinline scanned: OnBatchDeviceScanned
 ) = batchScan(type, null, scanned)
 
+/**
+ * ble需要android.Manifest.permission.ACCESS_FINE_LOCATION权限，否则结果不会回调
+ */
 @SuppressLint("InlinedApi")
 @RequiresPermission(android.Manifest.permission.BLUETOOTH_SCAN)
 inline fun BluetoothHelper.batchScan(

@@ -25,6 +25,9 @@ inline fun FragmentActivity.with(noinline judge: () -> Boolean, intent: Intent) 
 inline fun FragmentActivity.contactWith(vararg permission: String) =
     ResultHelper.init(this).contactWith(*permission)
 
+inline fun FragmentActivity.contactWith(minVersion: Int, vararg permission: String) =
+    ResultHelper.init(this).contactWith(minVersion, *permission)
+
 inline fun FragmentActivity.contactWith(intent: Intent) =
     ResultHelper.init(this).contactWith(intent)
 

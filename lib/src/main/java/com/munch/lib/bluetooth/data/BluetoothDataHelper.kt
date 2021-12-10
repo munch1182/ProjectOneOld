@@ -2,6 +2,7 @@ package com.munch.lib.bluetooth.data
 
 import android.annotation.SuppressLint
 import androidx.annotation.RequiresPermission
+import androidx.annotation.WorkerThread
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.connect.Connector
 
@@ -15,17 +16,33 @@ class BluetoothDataHelper(
 
     private val logHelper = BluetoothHelper.logHelper
 
-    private var retryCount = 1000L
+    private var retryCount = 5
+        set(value) {
+            field = if (value < 1) 1 else value
+        }
+    private var timeout: Long = 1000L
 
     @SuppressLint("InlinedApi")
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
-    fun <T> send(data: T) =
-        convert?.send(data)?.let { send(it) } ?: throw UnsupportedOperationException("need convert")
+    @WorkerThread
+    fun <T> send(data: T) = convert?.send(data)?.let { send(it, timeout) } ?: false
 
     @SuppressLint("InlinedApi")
     @RequiresPermission(android.Manifest.permission.BLUETOOTH_CONNECT)
-    override fun send(byteArray: ByteArray) {
-        connector.gattWrapper.send(byteArray)
+    @WorkerThread
+    override fun send(byteArray: ByteArray, timeout: Long): Boolean {
+        if (!connector.gattWrapper.canWrite) {
+            logHelper.withEnable { "${connector.dev.mac}: cannot send without BluetoothGattCharacteristic." }
+            return false
+        }
+        //重试策略
+        repeat(retryCount) {
+            val send = connector.gattWrapper.send(byteArray, timeout)
+            if (send) {
+                return send
+            }
+        }
+        return false
     }
 
     override fun onReceived(received: OnByteArrayReceived) {

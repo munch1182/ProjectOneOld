@@ -35,8 +35,8 @@ open class Logger(
     var noInfo: Boolean = false
 ) {
 
-    open fun withEnable(func: () -> Any?) {
-        if (enable) {
+    open fun withEnable(enable: Boolean = true, func: () -> Any?) {
+        if (enable && this.enable) {
             logOne(func.invoke())
         }
     }
