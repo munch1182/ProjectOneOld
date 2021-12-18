@@ -3,6 +3,8 @@ package com.munch.lib
 import com.munch.lib.base.*
 import org.junit.Test
 import java.nio.ByteBuffer
+import kotlin.math.pow
+import kotlin.math.roundToLong
 
 /**
  * Create by munch1182 on 2021/8/23 14:12.
@@ -57,5 +59,11 @@ class NumberTest : BaseTest {
         )
         val toBytes = "123???->".toBytes()
         log(toBytes.getString(0, toBytes.size))
+    }
+
+    @Test
+    fun testFloat(){
+        log(3.1415926f.keep(5).toString())
+        log(3.1415926f.keep(4).toString())
     }
 }

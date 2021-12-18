@@ -8,9 +8,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.bluetooth.BluetoothDev
 import com.munch.lib.bluetooth.BluetoothHelper
-import com.munch.lib.bluetooth.BluetoothType
 import com.munch.lib.bluetooth.connect.*
-import com.munch.lib.bluetooth.scan.scan
+import com.munch.lib.bluetooth.scan.OnScannerListener
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
 import com.munch.lib.fast.recyclerview.SimpleDiffAdapter
 import com.munch.lib.result.contactWith
@@ -56,10 +55,17 @@ class BluetoothActivity : BaseBigTextTitleActivity() {
                 .contactWith(android.Manifest.permission.ACCESS_FINE_LOCATION)
                 .start {
                     if (it) {
-                        scanAdapter.set(null)
-                        BluetoothHelper.instance.scan(BluetoothType.BLE) { dev ->
-                            scanAdapter.add(0, dev)
-                        }
+                        BluetoothHelper.instance.scanBle(null, object : OnScannerListener {
+                            override fun onScanStart() {
+                                super.onScanStart()
+                                scanAdapter.set(null)
+                            }
+
+                            override fun onDeviceScanned(dev: BluetoothDev) {
+                                super.onDeviceScanned(dev)
+                                scanAdapter.add(0, dev)
+                            }
+                        })
                     }
                 }
 

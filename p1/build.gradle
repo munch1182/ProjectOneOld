@@ -23,6 +23,7 @@ dependencies {
     implementation Deps.work
     implementation Deps.workKtx
     implementation Deps.splash
+    implementation Deps.work
 
     implementation Deps.gson
 

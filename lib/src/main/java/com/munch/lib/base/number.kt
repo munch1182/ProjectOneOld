@@ -4,6 +4,8 @@ package com.munch.lib.base
 
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import kotlin.math.pow
+import kotlin.math.roundToLong
 
 /**
  * Create by munch1182 on 2021/8/14 16:06.
@@ -89,12 +91,25 @@ private fun format(str: String, maxWeight: Int, fillZero: Boolean): String {
 }
 
 /**
+ * 只显示小数点后[bit]位，不四舍五入
+ */
+fun Float.toString(bit: Int = 2) = String.format(".${bit}f", this)
+
+/**
+ * 四舍五入
+ */
+fun Float.keep(bit: Int): Float {
+    val pow = 10.0.pow(bit)
+    return ((this * pow).roundToLong() / pow).toFloat()
+}
+
+/**
  * byte转为16进制字符串
  */
 inline fun Byte.toHexStr() = String.format("0x%02X", this)
 inline fun ByteArray.toHexStr() = this.joinToString { it.toHexStr() }
 inline fun ByteArray.toHexStrSimple(firstEnd: Int = 8, endStart: Int = size - 4): String {
-    return if (this.size > 14) {
+    return if (this.size > firstEnd + endStart + 2) {
         "${sub(0, firstEnd).toHexStr()}...${sub(endStart).toHexStr()}($size bytes)"
     } else {
         this.joinToString { it.toHexStr() }

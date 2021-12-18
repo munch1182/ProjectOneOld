@@ -1,17 +1,14 @@
 package com.munch.project.one.timer
 
-import android.app.AlarmManager
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.Worker
-import androidx.work.WorkerParameters
+import androidx.core.app.NotificationCompat
+import androidx.work.*
 import com.munch.lib.app.AppHelper
-import com.munch.lib.base.startServiceInForeground
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
-import com.munch.lib.helper.TimeHelper
+import com.munch.lib.helper.toDate
+import com.munch.lib.notification.NotificationHelper
+import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityTimerBinding
 import java.util.concurrent.TimeUnit
 
@@ -21,39 +18,40 @@ import java.util.concurrent.TimeUnit
 class WorkManagerActivity : BaseBigTextTitleActivity() {
 
     private val bind by bind<ActivityTimerBinding>()
-    private val ah by lazy { WMHelper() }
+
+    companion object {
+
+        const val WORK_NAME = "NOTICE"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind.timerAdd.setOnClickListener {
-            val time = System.currentTimeMillis() + 3 * TimeHelper.MILLIS.MINUTE
-            ah.add(Timer(0, time, true, AlarmManager.INTERVAL_FIFTEEN_MINUTES))
-            toast("set success")
-            startServiceInForeground(Intent(this, TestService::class.java))
+            WorkManager.getInstance(AppHelper.app)
+                .enqueueUniquePeriodicWork(
+                    WORK_NAME, ExistingPeriodicWorkPolicy.KEEP,
+                    PeriodicWorkRequestBuilder<NotificationWork>(
+                        PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
+                        TimeUnit.MILLISECONDS
+                    ).build()
+                )
         }
     }
 }
 
-class WMHelper : ITimer {
+class NotificationWork(private val context: Context, workerParameters: WorkerParameters) :
+    Worker(context, workerParameters) {
 
-    override fun add(timer: Timer): Boolean {
-        WorkManager.getInstance(AppHelper.app)
-            .enqueue(PeriodicWorkRequestBuilder<TestWork>(15,TimeUnit.MINUTES).build())
-        return true
-    }
-
-    override fun del(id: Int): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun query(): MutableList<Timer> {
-        TODO("Not yet implemented")
-    }
-}
-
-class TestWork(context: Context, parameters: WorkerParameters) : Worker(context, parameters) {
     override fun doWork(): Result {
+        NotificationHelper.notification(
+            1210, "WORK_MANAGER",
+            NotificationCompat.Builder(context, "WORK_MANAGER")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(context.getString(R.string.app_name))
+                .setContentText(
+                    "${System.currentTimeMillis().toDate()}_${Thread.currentThread().name}"
+                ).build()
+        )
         return Result.success()
     }
-
 }
