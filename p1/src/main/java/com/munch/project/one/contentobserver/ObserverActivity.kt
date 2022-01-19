@@ -1,28 +1,18 @@
 package com.munch.project.one.contentobserver
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Notification
-import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.provider.CallLog
-import android.provider.Telephony
-import android.telephony.PhoneStateListener
-import android.telephony.TelephonyManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
-import com.munch.lib.fast.databinding.ItemLogContentBinding
-import com.munch.lib.fast.recyclerview.SimpleAdapter
+import com.munch.lib.log.LogLog
 import com.munch.lib.log.log
-import com.munch.lib.notification.NotificationHelper
-import com.munch.lib.notification.NotificationListenerServiceHelper
+import com.munch.lib.result.contactWith
 import com.munch.lib.result.with
-import com.munch.project.one.R
+import com.munch.project.one.contentobserver.handler.CallHandler
+import com.munch.project.one.contentobserver.handler.CallStateHandler
+import com.munch.project.one.contentobserver.handler.SmsStateHandler
 import com.munch.project.one.databinding.ActivityObserverBinding
-import com.munch.project.one.notification.NotificationService
 
 /**
  * Create by munch1182 on 2021/10/22 09:47.
@@ -31,104 +21,125 @@ class ObserverActivity : BaseBigTextTitleActivity() {
 
     private lateinit var th: HandlerThread
     private lateinit var handler: Handler
-    private val co by lazy { CallContentObserver(handler) }
 
     private val bind by bind<ActivityObserverBinding>()
+    private val call by lazy { CallHandlerImp() }
+    private val sms by lazy { SmsHandlerImp() }
 
-    private val tm: TelephonyManager?
-        get() = (getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager)
-    private val strAdapter by lazy {
-        SimpleAdapter<String, ItemLogContentBinding>(R.layout.item_log_content) { _, bd, str ->
-            bd.text = str
-        }
-    }
-
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        bind.observerBtnNotification.setOnClickListener { enableNotification() }
         bind.observerBtnCall.setOnClickListener { enableCall() }
         bind.observerBtnSms.setOnClickListener { enableSms() }
 
-        bind.observerRv.apply {
-            layoutManager = LinearLayoutManager(this@ObserverActivity)
-            adapter = strAdapter
-        }
-
-        NotificationHelper.connectedStateChanges.set(this) {
-            showNotificationState(it)
-            strAdapter.add("state change: $it")
-        }
-        NotificationHelper.notificationChanges.set(this) { sbn, isPosted ->
-            if (isPosted) {
-                val extras = sbn.notification.extras
-                strAdapter.add(
-                    "${sbn.packageName} ${sbn.id}: title: ${extras.getString(Notification.EXTRA_TITLE)}," +
-                            " content: ${extras.getString(Notification.EXTRA_TEXT)}, tag:${sbn.tag} posted"
-                )
-            } else {
-                strAdapter.add("${sbn.id} removed")
-            }
-        }
+        bind.observerBtnAnswer.setOnClickListener { catch { call.answer() } }
+        bind.observerBtnRefuse.setOnClickListener { catch { call.refuse() } }
+        bind.observerBtnMute.setOnClickListener { catch { call.mute() } }
 
         th = HandlerThread("ContentObserver")
         th.start()
         handler = Handler(th.looper)
-
-        showNotificationState(NotificationHelper.isConnected)
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun showNotificationState(it: Boolean) {
-        bind.observerBtnNotificationState.text = "state:${if (it) "enable" else "disable"}"
+    private fun catch(func: () -> Unit) {
+        try {
+            func.invoke()
+        } catch (e: Exception) {
+            log(e)
+        }
     }
 
     private fun enableSms() {
-        with(Manifest.permission.READ_SMS)
-            .requestGrant {
-                contentResolver.registerContentObserver(Telephony.Sms.CONTENT_URI, true, co)
-            }
+        sms.start()
     }
 
     private fun enableCall() {
-        with(Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CALL_LOG)
-            .requestGrant {
-                contentResolver.registerContentObserver(CallLog.Calls.CONTENT_URI, true, co)
-                tm?.listen(psListener, PhoneStateListener.LISTEN_CALL_STATE)
-            }
-    }
-
-    private fun enableNotification() {
-        if (NotificationListenerServiceHelper.isConnected) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                NotificationListenerServiceHelper.disable(cls = NotificationService::class.java)
-            }
-        } else {
-            with(
-                { NotificationListenerServiceHelper.isEnable() }, NotificationListenerServiceHelper.requestIntent()
-            ).startOk {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    NotificationListenerServiceHelper.enable(cls = NotificationService::class.java)
-                }
-            }
-        }
-    }
-
-    private val psListener = object : PhoneStateListener() {
-        override fun onCallStateChanged(state: Int, phoneNumber: String?) {
-            super.onCallStateChanged(state, phoneNumber)
-            log("state:$state, number:$phoneNumber")
-        }
+        call.start()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                NotificationListenerServiceHelper.disable(cls = NotificationService::class.java)
-            }
-            tm?.listen(psListener, PhoneStateListener.LISTEN_NONE)
-            contentResolver.unregisterContentObserver(co)
+            call.stopObserve()
+            sms.stopObserve()
         } catch (e: Exception) {
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private inner class CallHandlerImp :
+        CallHandler(this, handler, object : CallStateHandler.OnCallListener {
+            override fun onCall(number: String?) {
+                runOnUiThread { bind.observerTvCall.text = "call: $number" }
+            }
+
+            override fun onAnswer() {
+                runOnUiThread { bind.observerTvCall.text = "call: answer" }
+            }
+
+            override fun onRefuse() {
+                runOnUiThread { bind.observerTvCall.text = "call: refuse" }
+            }
+
+            override fun onMissPhone(number: String?, read: Boolean) {
+                runOnUiThread { bind.observerTvCall.text = "call: miss $number, read:$read" }
+            }
+        }, LogLog) {
+
+        override fun requestPermission() {
+            super.requestPermission()
+            log("requestPermission")
+            contactWith(*permissions)
+                .contactWith(
+                    { hadNotificationPolicy(this@ObserverActivity) }, notificationPolicyIntent
+                )
+                .start {
+                    if (it) {
+                        onPermissionGranted()
+                    } else {
+                        toast("没有权限")
+                    }
+                }
+        }
+
+        @SuppressLint("SetTextI18n")
+        override fun onPermissionGranted() {
+            super.onPermissionGranted()
+            runOnUiThread { bind.observerTvSms.text = "call state handle" }
+        }
+    }
+
+    private inner class SmsHandlerImp :
+        SmsStateHandler(this, handler, object : OnSmsReceiveListener {
+            @SuppressLint("SetTextI18n")
+            override fun onSmsReceived(id: Int, number: String, content: String) {
+                runOnUiThread {
+                    bind.observerTvSms.text = "sms received: $number, id:$id, $content"
+                }
+            }
+
+            @SuppressLint("SetTextI18n")
+            override fun onSmsRead(id: Int) {
+                runOnUiThread { bind.observerTvSms.text = "sms read: id:$id" }
+            }
+        },LogLog) {
+
+        override fun requestPermission() {
+            super.requestPermission()
+            with(*permissions)
+                .request {
+                    if (it) {
+                        onPermissionGranted()
+                    } else {
+                        toast("没有权限")
+                    }
+                }
+        }
+
+        @SuppressLint("SetTextI18n")
+        override fun onPermissionGranted() {
+            super.onPermissionGranted()
+            runOnUiThread { bind.observerTvSms.text = "sms state handle" }
         }
     }
 }

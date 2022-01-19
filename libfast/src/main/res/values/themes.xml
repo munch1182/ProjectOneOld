@@ -7,6 +7,9 @@
     <color name="colorSecondaryVariant">#0088a3</color>
     <color name="white">#fff</color>
     <color name="black">#000</color>
+    <color name="gray">#dfdfdf</color>
+
+    <style name="AppTheme" />
 
     <!--不会受到AppTheme影响，能被同名样式覆盖-->
     <style name="AppTheme.Text.Big" parent="TextAppearance.MaterialComponents.Headline5" />
@@ -31,6 +34,17 @@
     <style name="AppTheme.Caption" parent="TextAppearance.MaterialComponents.Caption" />
 
     <style name="AppTheme.Overline" parent="TextAppearance.MaterialComponents.Overline" />
+
+    <style name="AppTheme.Split">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/gray</item>
+    </style>
+
+    <style name="AppTheme.Split.Margin">
+        <item name="android:layout_marginStart">@dimen/paddingDef</item>
+        <item name="android:layout_marginEnd">@dimen/paddingDef</item>
+    </style>
 
     <dimen name="paddingDef">16dp</dimen>
     <dimen name="paddingSmall">8dp</dimen>
