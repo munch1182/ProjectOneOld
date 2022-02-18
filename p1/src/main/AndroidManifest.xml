@@ -88,6 +88,7 @@
         <activity android:name=".weight.WheelViewActivity" />
         <activity android:name=".test.ExceptionActivity" />
         <activity android:name=".bluetooth.BluetoothActivity" />
+        <activity android:name=".file.StringActivity" />
 
         <service android:name=".broadcast.LogReceiveServer" />
         <service android:name=".timer.TestService" />

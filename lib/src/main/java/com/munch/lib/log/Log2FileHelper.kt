@@ -65,7 +65,7 @@ class Log2FileHelper(private val dir: File, private val newFile: (dir: File) -> 
             put(str.toByteArray())
             putInt(0, position())
             if (end) {
-                put("\n".toByteArray())
+                put("\r\n".toByteArray())
             }
         }
     }

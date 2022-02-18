@@ -30,7 +30,7 @@ class MainActivity : BaseRvActivity() {
         super.onCreate(savedInstanceState)
         val cost = App.getLaunchCost()
         if (cost > 500L) {
-            log("冷启动用时:$cost ms")
+            log("cold launch:$cost ms")
         }
         //冷启动
         if (cost > -1) {
@@ -102,12 +102,13 @@ class WeightActivity : BaseBtnFlowActivity() {
 }
 
 class TimerActivity : BaseBtnFlowActivity() {
-    override fun getData() = mutableListOf("Alarm", "Work Manager")
+    override fun getData() = mutableListOf("Alarm", "Work Manager", "Handler")
     override fun onClick(pos: Int) {
         super.onClick(pos)
         when (pos) {
             0 -> startActivity(AlarmActivity::class.java)
             1 -> startActivity(WorkManagerActivity::class.java)
+            2 -> startActivity(HandlerActivity::class.java)
         }
     }
 }

@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.SystemClock
 import android.widget.Button
+import android.widget.LinearLayout
 import com.munch.lib.base.ViewHelper
 import com.munch.lib.base.setMarginOrKeep
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
 import com.munch.lib.log.log
 import com.munch.lib.task.ThreadHandler
 import com.munch.project.one.R
+import com.munch.project.one.timer.HandlerLoopHelper
 import kotlin.random.Random
 
 /**
@@ -29,15 +31,26 @@ class HandlerActivity : BaseBigTextTitleActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val view = Button(this)
-        setContentView(view, ViewHelper.newWWLayoutParams())
+        val container = LinearLayout(this)
+        val viewSend = Button(this)
 
-        view.setMarginOrKeep(l = resources.getDimensionPixelSize(R.dimen.paddingDef))
-        view.text = "send"
-        view.setOnClickListener {
+        viewSend.setMarginOrKeep(l = resources.getDimensionPixelSize(R.dimen.paddingDef))
+        viewSend.text = "send"
+        viewSend.setOnClickListener {
             val nextInt = Random.nextInt(1000, 10000)
             notify(nextInt)
         }
+
+        val viewLoop = Button(this)
+
+        viewLoop.setMarginOrKeep(l = resources.getDimensionPixelSize(R.dimen.paddingDef))
+        viewLoop.text = "loop"
+        viewLoop.setOnClickListener { HandlerLoopHelper.start() }
+
+        container.addView(viewSend)
+        container.addView(viewLoop)
+        container.orientation = LinearLayout.VERTICAL
+        setContentView(container, ViewHelper.newWWLayoutParams())
     }
 
     private fun notify(nextInt: Int) {

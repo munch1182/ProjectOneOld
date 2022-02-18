@@ -17,12 +17,16 @@ import com.munch.lib.app.AppHelper.init
 object AppHelper {
 
     private lateinit var application: Application
+    private var applicationNullable: Application? = null
 
     val app: Application
         get() = application
+    val appNull: Application?
+        get() = applicationNullable
 
     fun init(app: Application) {
         application = app
+        applicationNullable = app
     }
 
 }

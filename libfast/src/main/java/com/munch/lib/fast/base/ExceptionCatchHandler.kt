@@ -1,5 +1,6 @@
 package com.munch.lib.fast.base
 
+import android.os.Looper
 import com.munch.lib.app.AppForegroundHelper
 import com.munch.lib.app.AppHelper
 import com.munch.lib.base.destroy
@@ -9,7 +10,6 @@ import com.munch.lib.log.Log2FileHelper
 import com.munch.lib.log.log
 import com.munch.lib.task.handler
 import com.munch.lib.task.isMain
-import com.munch.lib.task.thread
 import java.io.File
 
 /**
@@ -30,7 +30,9 @@ object ExceptionCatchHandler : Thread.UncaughtExceptionHandler {
     override fun uncaughtException(t: Thread, e: Throwable) {
         log(e)
         if (t.isMain()) {
-            thread(loop = true) { showDialog(t, e) }
+            /*thread(loop = true) { showDialog(t, e) }*/
+            showDialog(t,e)
+            Looper.loop()
         } else {
             handler { showDialog(t, e) }
         }

@@ -184,13 +184,14 @@ fun File.md5Str(radix: Int = 16): String? {
 
 fun File.md5Check(md5: String, radix: Int = 16) = md5 == this.md5Str(radix)
 
-fun File.openIntent(): Intent? {
+fun File.openIntent(uri: Uri? = null): Intent? {
     if (isFile) {
         val type = getExtension() ?: return null
         return Intent().apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             action = Intent.ACTION_VIEW
-            setDataAndType(toUriCompat(), type)
+            setDataAndType(uri ?: toUriCompat(), type)
         }
     }
     return null

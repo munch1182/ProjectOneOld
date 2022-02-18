@@ -19,7 +19,6 @@ import com.munch.lib.fast.recyclerview.SimpleAdapter
 import com.munch.lib.fast.recyclerview.setOnItemClickListener
 import com.munch.lib.helper.FragmentHelper
 import com.munch.lib.helper.getExtension
-import com.munch.lib.helper.openIntent
 import com.munch.lib.result.with
 import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityFileExploreBinding
@@ -27,7 +26,6 @@ import com.munch.project.one.databinding.FragmentFileExploreBinding
 import com.munch.project.one.databinding.ItemFileExploreBinding
 import com.munch.project.one.file.FEBean.Companion.isOpenable
 import java.io.File
-import java.util.*
 
 /**
  * Create by munch1182 on 2021/11/13 22:37.
@@ -123,7 +121,7 @@ class FileExploreFragment : BaseFragment() {
             if (f.isDirectory) {
                 activity?.showFileExplore(f)
             } else if (f.isFile) {
-                f.openIntent()?.let { startActivity(it) }
+                StringActivity.show(requireContext(), f.absolutePath)
             }
         }
         val dir = arguments?.getSerializable(KEY_FILE) as? File

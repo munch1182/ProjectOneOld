@@ -2,7 +2,9 @@ package com.munch.lib.app
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
+import android.os.PowerManager
 import com.munch.lib.helper.ARSHelper
 import java.lang.ref.WeakReference
 
@@ -10,6 +12,12 @@ import java.lang.ref.WeakReference
  * Create by munch1182 on 2021/10/28 15:14.
  */
 object AppForegroundHelper : ARSHelper<OnAppForegroundChangeListener> {
+
+    fun isScreenOn(context: Context = AppHelper.app): Boolean? {
+        val pw = context.getSystemService(Context.POWER_SERVICE) as? PowerManager?
+            ?: return null
+        return pw.isInteractive
+    }
 
     private var resumeActivity: WeakReference<Activity>? = null
     private var activityIndex = 0
