@@ -17,8 +17,7 @@ import com.munch.project.one.intent.IntentActivity
 import com.munch.project.one.net.NetActivity
 import com.munch.project.one.permissions.PermissionActivity
 import com.munch.project.one.test.*
-import com.munch.project.one.timer.AlarmActivity
-import com.munch.project.one.timer.WorkManagerActivity
+import com.munch.project.one.timer.TimerActivity
 import com.munch.project.one.web.WebActivity
 import com.munch.project.one.weight.FlowLayoutActivity
 import com.munch.project.one.weight.LoadingActivity
@@ -74,7 +73,6 @@ class MainActivity : BaseRvActivity() {
 class TestActivity : BaseRvActivity() {
     override val targets: MutableList<Class<out BaseActivity>> =
         mutableListOf(
-            HandlerActivity::class.java,
             LogActivity::class.java,
             FileFunActivity::class.java,
             MappedByteBufferActivity::class.java,
@@ -97,18 +95,6 @@ class WeightActivity : BaseBtnFlowActivity() {
             0 -> startActivity(FlowLayoutActivity::class.java)
             1 -> startActivity(LoadingActivity::class.java)
             2 -> startActivity(WheelViewActivity::class.java)
-        }
-    }
-}
-
-class TimerActivity : BaseBtnFlowActivity() {
-    override fun getData() = mutableListOf("Alarm", "Work Manager", "Handler")
-    override fun onClick(pos: Int) {
-        super.onClick(pos)
-        when (pos) {
-            0 -> startActivity(AlarmActivity::class.java)
-            1 -> startActivity(WorkManagerActivity::class.java)
-            2 -> startActivity(HandlerActivity::class.java)
         }
     }
 }

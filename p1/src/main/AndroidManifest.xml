@@ -48,13 +48,15 @@
     <application
         android:name=".App"
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_scheme"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.P1">
+        android:theme="@style/Theme.P1"
+        tools:targetApi="s">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -71,15 +73,11 @@
         <activity android:name=".net.NetActivity" />
         <activity android:name=".intent.IntentActivity" />
         <activity android:name=".about.AboutActivity" />
-        <activity android:name="com.munch.project.one.test.HandlerActivity" />
         <activity android:name=".permissions.PermissionActivity" />
         <activity android:name=".broadcast.LogReceiveActivity" />
         <activity android:name=".web.WebActivity" />
         <activity android:name=".contentobserver.ObserverActivity" />
         <activity android:name=".test.MappedByteBufferActivity" />
-        <activity android:name=".TimerActivity" />
-        <activity android:name=".timer.WorkManagerActivity" />
-        <activity android:name=".timer.AlarmActivity" />
         <activity android:name=".TestActivity" />
         <activity android:name=".test.LogActivity" />
         <activity android:name=".weight.LoadingActivity" />
@@ -89,17 +87,9 @@
         <activity android:name=".test.ExceptionActivity" />
         <activity android:name=".bluetooth.BluetoothActivity" />
         <activity android:name=".file.StringActivity" />
+        <activity android:name=".timer.TimerActivity" />
 
         <service android:name=".broadcast.LogReceiveServer" />
-        <service android:name=".timer.TestService" />
-        <service
-            android:name=".timer.AlarmService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.munch.project.one.Alarm" />
-            </intent-filter>
-        </service>
-
         <service
             android:name=".notification.NotificationService"
             android:exported="true"

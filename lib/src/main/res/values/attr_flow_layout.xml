@@ -5,5 +5,6 @@
         <attr name="lineSpacing" />
         <attr name="maxCount" />
         <attr name="gravity" />
+        <attr name="group" format="string" />
     </declare-styleable>
 </resources>

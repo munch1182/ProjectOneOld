@@ -57,6 +57,13 @@ class FlowLayout @JvmOverloads constructor(
             gravityFlags = getInt(R.styleable.FlowLayout_gravity, gravityFlags)
             layoutHelper.gravityFlags = gravityFlags
             maxCountInLine = getInt(R.styleable.FlowLayout_maxCount, -1)
+            getString(R.styleable.FlowLayout_group)?.let {
+                try {
+                    val split = it.split(",")
+                    group = Array(split.size) { i -> split[i].toInt() }
+                } catch (_: Exception) {
+                }
+            }
         }.recycle()
     }
 
