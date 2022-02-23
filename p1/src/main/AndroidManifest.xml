@@ -99,6 +99,7 @@
             </intent-filter>
         </service>
         <service android:name="com.munch.lib.helper.service.BaseForegroundService" />
+        <service android:name=".timer.AlarmService" />
     </application>
 
 </manifest>

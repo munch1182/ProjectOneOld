@@ -5,7 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:group="1,2,2,1"
+    app:group="1,2,2,1,1"
     tools:context=".timer.TimerActivity">
 
     <TextView
@@ -46,6 +46,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/paddingDef"
         android:text="clear"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/timer_file"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/paddingDef"
+        android:text="read log"
         tools:ignore="HardcodedText" />
 
     <androidx.core.widget.NestedScrollView

@@ -1,7 +1,9 @@
 package com.munch.project.one.timer
 
 import android.os.Parcelable
+import com.munch.lib.helper.toDate
 import kotlinx.parcelize.Parcelize
+import java.io.File
 
 /**
  * Create by munch1182 on 2021/10/28 10:49.
@@ -15,6 +17,8 @@ interface ITimer {
     suspend fun query(): MutableList<Timer>
 
     suspend fun clear(): Boolean
+
+    fun getFile(): File? = null
 }
 
 @Parcelize
@@ -30,4 +34,14 @@ data class Timer(
     //已重复次数
     var repeatedCount: Int = 0,
     var id: Int = 0,
-) : Parcelable
+) : Parcelable {
+
+    override fun toString(): String {
+        return "Timer(isRepeat=$isRepeat, interval=$interval, executed=$executed, time=${time.toDate()}, repeatedCount=$repeatedCount, id=$id)"
+    }
+
+    companion object {
+
+        fun id(id: Int) = Timer(id = id)
+    }
+}

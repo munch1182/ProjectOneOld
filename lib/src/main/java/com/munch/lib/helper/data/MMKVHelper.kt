@@ -78,11 +78,11 @@ class MMKVHelper constructor(private val id: String = ID_DEF, multiProcess: Bool
         }
     }
 
-    fun <T : Parcelable> get(key: String, defValue: T? = null): T? {
+    fun <T : Parcelable> get(key: String, clazz: Class<T>): T? {
         return if (!hasKey(key)) {
-            defValue
+            null
         } else {
-            instance.decodeParcelable(key, defValue?.javaClass)
+            instance.decodeParcelable(key, clazz)
         }
     }
 

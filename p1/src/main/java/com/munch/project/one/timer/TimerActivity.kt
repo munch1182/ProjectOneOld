@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.munch.lib.fast.base.BaseBigTextTitleActivity
 import com.munch.project.one.databinding.ActivityTimerBinding
+import com.munch.project.one.file.StringActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -16,32 +17,58 @@ class TimerActivity : BaseBigTextTitleActivity() {
     private val bind by bind<ActivityTimerBinding>()
 
     private val handler by lazy { HandlerTimer() }
+    private val alarm by lazy { AlarmTimer() }
+    private val workManager by lazy { WorkManagerTimer() }
+
+    private val timers by lazy { mutableListOf(handler, alarm, workManager) }
+    private val names by lazy { mutableListOf("HANDLER", "ALARM", "WORK MANAGER") }
+    private var index = 0
+        set(value) {
+            field = if (value == timers.size) 0 else value
+        }
 
     private var timer: ITimer? = null
+        set(value) {
+            field = value
+            bind.timerType.text = if (value == null) "" else
+                names[timers.indexOf(value).takeIf { it in 0 until timers.size } ?: 0]
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        bind.timerType.setOnClickListener { changeType() }
-        bind.timerAdd.setOnClickListener { addTimer(false) }
-        bind.timerAddRepeat.setOnClickListener { addTimer(true) }
-        bind.timerStop.setOnClickListener { stopTimer() }
-        bind.timerClear.setOnClickListener { clear() }
-        bind.timerContent.setOnClickListener { showAll() }
-        timer = handler
+        bind.apply {
+            timerType.setOnClickListener { changeType() }
+            timerAdd.setOnClickListener { addTimer(false) }
+            timerAddRepeat.setOnClickListener { addTimer(true) }
+            timerStop.setOnClickListener { stopTimer() }
+            timerClear.setOnClickListener { clear() }
+            timerContent.setOnClickListener { showAll() }
+            timerFile.setOnClickListener { showLog() }
+        }
+        timer = timers[index]
 
         showAll()
     }
 
+    private fun showLog() {
+        StringActivity.show(this, timer?.getFile()?.absolutePath ?: return)
+    }
+
     private fun clear() {
-        lifecycleScope.launch(Dispatchers.IO) { timer?.clear() }
+        lifecycleScope.launch(Dispatchers.IO) {
+            timer?.clear()
+
+            showAll()
+        }
     }
 
     private fun stopTimer() {
-
+        clear()
     }
 
     private fun addTimer(isRepeat: Boolean) {
         lifecycleScope.launch(Dispatchers.IO) {
-            timer?.add(Timer(isRepeat, 1 * 60 * 1000L))
+            timer?.add(Timer(isRepeat, 15 * 60 * 1000L))
 
             showAll()
         }
@@ -56,5 +83,7 @@ class TimerActivity : BaseBigTextTitleActivity() {
     }
 
     private fun changeType() {
+        index++
+        timer = timers[index]
     }
 }
