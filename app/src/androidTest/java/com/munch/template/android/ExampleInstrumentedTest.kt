@@ -1,4 +1,4 @@
-package com.munch.project.one
+package com.munch.template.android
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.munch.project.one", appContext.packageName)
+        assertEquals("cn.munch.template.android", appContext.packageName)
     }
 }

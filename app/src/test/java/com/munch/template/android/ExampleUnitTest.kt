@@ -1,4 +1,4 @@
-package com.munch.project.one
+package com.munch.template.android
 
 import org.junit.Test
 

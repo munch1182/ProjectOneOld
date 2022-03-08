@@ -1,3 +1,33 @@
+# 使用git作为版本号
+
+## git命令
+1. 返回当前项目的提交次数，与分支无关
+```
+git rev-list --all --count HEAD
+```
+2. 返回当前分支的提交次数
+```
+git rev-list --count HEAD
+```
+3. 返回离当前提交最近的tag
+```
+git describe --tags --dirty="-test"
+```
+此指令只能在至少有一个tag的前提下使用，会返回       
+`<距离当前最近的tag>-<该tag后的提交次数>-g<最新提交的前7位HASH值>-<如果该版本未提交，则会添加后缀-test>`
+的固定格式      
+例如`0.1-3-gxxxxxxx-test`表示tag0.1之后的第3次提交，且该版本未提交到git     
+如果直接返回`0.1`则表示tag0.1之后无提交
+
+## 使用git作为版本号
+
+- 将**git提交次数**作为`versionCode`
+- 将**tag+提交次数**作为`versionName`
+- 同时将**git describe**的返回放入`buildConfigField`中，作为诸如崩溃日志查询的依据
+
+## 代码
+
+```groovy
 /*
  需要git命令行支持
  需要先对git进行全局设置
@@ -76,3 +106,4 @@ ext {
             versionDesc: getVersionDesc(),
     ]
 }
+```

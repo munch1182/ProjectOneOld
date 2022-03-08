@@ -3,20 +3,18 @@
 // 各个library或module可以覆盖配置
 // 注意文件路径
 
-//versions及dependencies定义在buildCom文件夹下version.gradle中
 apply from: '../buildCom/gitversion.gradle'
 
 android {
     compileSdk Version.compileSdk
 
-    def versionCode4Release = gitVersion['versionCode']
-    def versionCode4Debug = gitVersion['versionCode4Debug']
+    def versionDesc = gitVersion['versionDesc']
 
     defaultConfig {
-        minSdk Version.misSdk
+        minSdk Version.minSdk
         targetSdk Version.targetSdk
 
-        versionCode versionCode4Release
+        versionCode gitVersion['versionCode']
         versionName gitVersion['versionName']
 
 
@@ -46,16 +44,16 @@ android {
             zipAlignEnabled true
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
-            buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
+            buildConfigField 'String', 'VERSION_DESC', "\"${versionDesc}\""
+            buildConfigField 'String', 'BUILD_TIME', "\"${getTime()}\""
         }
         debug {
             if (keyProperties != null) {
                 signingConfig signingConfigs.release
             }
             debuggable true
-            buildConfigField 'int', 'VERSION_CODE_4_RELEASE', "${versionCode4Release}"
-            buildConfigField 'int', 'VERSION_CODE_4_DEBUG', "${versionCode4Debug}"
+            buildConfigField 'String', 'VERSION_DESC', "\"${versionDesc}\""
+            buildConfigField 'String', 'BUILD_TIME', "\"${getTime()}\""
         }
     }
 
@@ -64,19 +62,27 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    buildFeatures {
+        viewBinding true
+    }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
 
     /*module*/
     /*applicationVariants.all { variant ->
-        setupModuleApk(variant, false, versionCode4Release)
+        setupModuleApk(variant, false, gitVersion['versionCode'])
     }*/
     /*alternatively*/
     /*lib*/
     /*libraryVariants.all { variant ->
         setupModuleApk(variant, true)
     }*/
+}
+
+private static def getTime(){
+    return new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("GMT+08"))
 }
 
 private def findAndLoadKey(path) {
@@ -97,18 +103,14 @@ static def setupModuleApk(variant, isLib, versionCode) {
     if (variant == null) {
         return
     }
+    def applicationId = [variant.mergedFlavor.applicationId, variant.buildType.applicationIdSuffix].findAll().join()
+    def date = getTime()
     variant.outputs.each { output ->
         // 正式版下设置versionCode，参见gitVersion.gradle
         // 正式版更改输出app文件名，debug下不更改打包文件名，避免build生成的app文件越来越多
         if (!variant.getBuildType().isDebuggable()) {
-            // 修改打包时versionCode的值
-            // 此修改只对打包出来的apk有效，对直接运行的app无效
-            // 且不会更改BuildConfig里的VERSION_CODE
-            // 修改后的versionCode需要从PackageManager中获取
-            output.versionCodeOverride = versionCode
-            def date = new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("GMT+08"))
             // 文件名前缀 + 渠道名
-            def startName = "app_release"
+            def startName = applicationId
             def flavorName = variant.flavorName
             if (flavorName != null && flavorName != "") {
                 startName += "_$flavorName"
@@ -116,9 +118,9 @@ static def setupModuleApk(variant, isLib, versionCode) {
             // 文件名后缀
             def endName
             if (isLib) {
-                endName = "_${variant.versionName}(${date}).aar"
+                endName = "_${variant.versionName}_${date}.aar"
             } else {
-                endName = "_${variant.versionName}(${date}).apk"
+                endName = "_${variant.versionName}_${date}.apk"
             }
             output.outputFileName = startName + endName
         }
@@ -133,8 +135,8 @@ dependencies {
     implementation Deps.appcompat
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test:runner:1.3.0'
-    androidTestImplementation 'androidx.test:core:1.3.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test:core:1.4.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
