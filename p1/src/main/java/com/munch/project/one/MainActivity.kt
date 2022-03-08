@@ -1,9 +1,9 @@
-package com.munch.template.android
+package com.munch.project.one
 
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.munch.template.android.databinding.ActivityMainBinding
+import com.munch.project.one.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")

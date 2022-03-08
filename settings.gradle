@@ -13,4 +13,6 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "ProjectOne"
-include ':app'
+include ':p1'
+include ':lib'
+include ':libfast'

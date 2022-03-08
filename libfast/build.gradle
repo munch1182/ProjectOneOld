@@ -1,0 +1,12 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+apply from: '../buildCom/commonbuildktx.gradle'
+
+dependencies {
+
+    api 'com.google.android.material:material:1.4.0'
+    api 'androidx.constraintlayout:constraintlayout:2.0.4'
+    api project(path: ':lib')
+}
