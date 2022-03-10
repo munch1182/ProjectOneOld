@@ -74,11 +74,23 @@ class FlowLayout @JvmOverloads constructor(
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         var viewIndex = 0
+        var lineIndex = 0
+        var lineInfo = layoutHelper.startLayout(lineIndex)
+        var lineViewCount = 0
         children.forEach { view ->
             if (view is Space || view.visibility == GONE) {
                 return@forEach
             }
-            layoutHelper.layout(view, viewIndex)
+            layoutHelper.layout(view, viewIndex, lineInfo, lineViewCount)
+            lineViewCount++
+            lineInfo?.let {
+                //获取下一行的信息
+                if (it.lineViewCount <= lineViewCount) {
+                    lineIndex++
+                    lineInfo = layoutHelper.startLayout(lineIndex)
+                    lineViewCount = 0
+                }
+            }
             viewIndex++
         }
     }
@@ -155,7 +167,11 @@ class FlowLayout @JvmOverloads constructor(
 
         fun startMeasure(widthSize: Int) {
             lineMaxWidth = widthSize - currentConfig.paddingLeft - currentConfig.paddingRight
-            currentLineInfo.lineSpaceLeft = lineMaxWidth - currentConfig.paddingLeft
+            //增加首行的left+top的space
+            currentLineInfo.newLine(
+                lineMaxWidth - currentConfig.paddingLeft - currentConfig.itemSpace,
+                currentLineInfo.lineBottom + currentConfig.lineSpace
+            )
         }
 
         fun measure(index: Int, child: View) {
@@ -171,8 +187,8 @@ class FlowLayout @JvmOverloads constructor(
                 lineInfoArrayHelper.add(currentLineInfo)
                 //转到新行
                 currentLineInfo.newLine(
-                    lineMaxWidth - currentConfig.paddingLeft,
-                    currentLineInfo.lineBottom
+                    lineMaxWidth - currentConfig.paddingLeft - currentConfig.itemSpace,
+                    currentLineInfo.lineBottom + currentConfig.lineSpace
                 )
                 //并在新行添加view
             }
@@ -189,6 +205,9 @@ class FlowLayout @JvmOverloads constructor(
             viewUsedHeight = viewUsedHeight.coerceAtLeast(b)
         }
 
+        /**
+         * 判断该child是否需要换行
+         */
         private fun needWrapLine(index: Int, child: View): Boolean {
             //2. 判断是否能够放入此行
             //2.1 第一个view单独处理，避免第一个宽度过大显示错误
@@ -248,18 +267,47 @@ class FlowLayout @JvmOverloads constructor(
         fun stopMeasure() {
             currentLineInfo.endLine()
             lineInfoArrayHelper.add(currentLineInfo)
+            //增加right+bottom的space
+            viewUsedWidth += currentConfig.itemSpace
+            viewUsedHeight += currentConfig.lineSpace
         }
 
         /**
          * 根据[gravity]来布局
-         */
-        fun layout(view: View?, index: Int) {
+         *
+         * @param lineIndex 该view位于此行的位置，如果line为null，则此值w无效
+         **/
+        fun layout(view: View?, index: Int, line: LineInfo?, lineIndex: Int) {
             view ?: return
-            var l = viewRect.getLeft(index)
+            var l = viewRect.getLeft(index) + currentConfig.itemSpace
             var t = viewRect.getTop(index)
             var r = viewRect.getRight(index)
             var b = viewRect.getBottom(index)
-            view.layout(l, t, r, b)
+            var xOffset = 0
+            var yOffset = 0
+            line?.let {
+                val gravity = currentConfig.gravity
+                when {
+                    Gravity.hasFlag(gravity, Gravity.CENTER_HORIZONTAL) -> {
+                        xOffset = it.lineSpaceLeft / it.lineViewCount
+                    }
+                    Gravity.hasFlag(gravity, Gravity.START) -> {}
+                    Gravity.hasFlag(gravity, Gravity.END) -> {
+                        xOffset = it.lineSpaceLeft
+                    }
+                }
+                when {
+                    Gravity.hasFlag(gravity, Gravity.CENTER_VERTICAL) -> {
+                        t = it.lineCenterY - viewRect.getHeight(index) / 2
+                        b = it.lineCenterY + viewRect.getHeight(index) / 2
+                    }
+                    Gravity.hasFlag(gravity, Gravity.TOP) -> {}
+                    Gravity.hasFlag(gravity, Gravity.BOTTOM) -> {
+                        yOffset = it.lineBottom - t
+                    }
+                }
+            }
+            view.layout(l + xOffset, t + yOffset, r + xOffset, b + yOffset)
         }
 
         /**
@@ -329,11 +377,11 @@ class FlowLayout @JvmOverloads constructor(
             lineBottom = 0
         }
 
-        fun newLine(left: Int, top: Int) {
+        fun newLine(spaceLeft: Int, top: Int) {
             lineNum++
             lineViewCount = 0
             lineCenterY = 0
-            lineSpaceLeft = left
+            lineSpaceLeft = spaceLeft
             lineTop = top
             lineBottom = top
         }
