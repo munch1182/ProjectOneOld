@@ -14,7 +14,7 @@ import java.lang.annotation.Inherited
     Gravity.BOTTOM,
     Gravity.CENTER_HORIZONTAL,
     Gravity.CENTER_VERTICAL,
-    Gravity.CENTER
+    Gravity.CENTER,
 )
 @Retention(AnnotationRetention.SOURCE)
 @Inherited

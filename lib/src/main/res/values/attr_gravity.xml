@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="gravity">
+        <flag name="start" value="1" />
+        <flag name="end" value="2" />
+        <flag name="top" value="4" />
+        <flag name="bottom" value="8" />
+        <flag name="center_horizontal" value="3" />
+        <flag name="center_vertical" value="12" />
+        <flag name="center" value="15" />
+    </attr>
+</resources>
