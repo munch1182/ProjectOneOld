@@ -1,5 +1,5 @@
 @file:Suppress("unused", "MemberVisibilityCanBePrivate")
-package com.munch.lib.android
+package com.munch.lib.android.log
 
 import android.util.Log
 import androidx.annotation.IntDef
