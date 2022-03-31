@@ -21,7 +21,7 @@ object Deps {
 
     /*https://github.com/material-components/material-components-android*/
     /*https://maven.google.com/web/index.html*/
-    const val material = "com.google.android.material:material:1.6.0"
+    const val material = "com.google.android.material:material:1.5.0"
 
     /*https://developer.android.google.cn/jetpack/androidx/releases/constraintlayout*/
     const val constraintLayout = "androidx.constraintlayout:constraintlayout:2.1.3"
