@@ -1,6 +1,5 @@
 package com.munch.lib.android.recyclerview
 
-import android.content.Context
 import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +14,7 @@ interface AdapterViewImp<VH : BaseViewHolder> {
 
     fun createVH(parent: ViewGroup, viewType: Int): VH
 
-    fun getItemViewType(position: Int): Int = 0
+    fun getItemViewTypeByPos(position: Int): Int = 0
 }
 
 interface ViewCreatorImp {
@@ -25,22 +24,23 @@ interface ViewCreatorImp {
     }
 }
 
-class SingleVHCreator(
+class SingleVHCreator<VH : BaseViewHolder>(
     @LayoutRes private val res: Int = 0,
     private val viewCreator: ViewCreator? = null
-) : AdapterViewImp<BaseViewHolder>, ViewCreatorImp {
+) : AdapterViewImp<VH>, ViewCreatorImp {
 
-    override fun createVH(parent: ViewGroup, viewType: Int): BaseViewHolder {
+    @Suppress("UNCHECKED_CAST")
+    override fun createVH(parent: ViewGroup, viewType: Int): VH {
         val v = when {
             res != 0 -> createView(parent, res)
             viewCreator != null -> viewCreator.invoke(parent.context)
             else -> throw IllegalArgumentException("cannot create ViewHolder without view")
         }
-        return BaseViewHolder(v)
+        return BaseViewHolder(v) as VH
     }
 }
 
-class MultiVHCreator(private val map: SparseArray<SingleVHCreator>) :
+class MultiVHCreator<VH : BaseViewHolder>(private val map: SparseArray<SingleVHCreator<VH>>) :
     AdapterViewImp<BaseViewHolder> {
 
     override fun createVH(parent: ViewGroup, viewType: Int): BaseViewHolder {
@@ -48,6 +48,6 @@ class MultiVHCreator(private val map: SparseArray<SingleVHCreator>) :
             ?: throw IllegalArgumentException("cannot create ViewHolder without view")
     }
 
-    override fun getItemViewType(position: Int) = 0
+    override fun getItemViewTypeByPos(position: Int) = 0
 
 }

@@ -15,9 +15,10 @@ import com.munch.lib.android.task.isMain
  * Create by munch1182 on 2021/8/5 17:01.
  */
 sealed class AdapterFunImp<D>(
-    override val adapter: BaseRecyclerViewAdapter<*, *>,
     private val mainHandler: Handler = Handler(Looper.getMainLooper())
-) : IsAdapter, IAdapterFun<D> {
+) : IAdapterFun<D> {
+
+    protected var adapter: BaseRecyclerViewAdapter<*, *>? = null
 
     protected fun impInMain(imp: () -> Unit) {
         if (Thread.currentThread().isMain()) {
@@ -27,10 +28,13 @@ sealed class AdapterFunImp<D>(
         }
     }
 
+    fun bindAdapter(adapter: BaseRecyclerViewAdapter<*, *>) {
+        this.adapter = adapter
+    }
+
     class Default<D>(
-        adapter: BaseRecyclerViewAdapter<*, *>,
         mainHandler: Handler = Handler(Looper.getMainLooper())
-    ) : AdapterFunImp<D>(adapter, mainHandler) {
+    ) : AdapterFunImp<D>(mainHandler) {
 
         private val list = mutableListOf<D>()
 
@@ -45,6 +49,7 @@ sealed class AdapterFunImp<D>(
             if (newData != null) {
                 list.addAll(newData)
             }
+            val adapter = adapter ?: return
             val newSize = list.size
             impInMain {
                 when {
@@ -58,6 +63,7 @@ sealed class AdapterFunImp<D>(
         override fun add(index: Int, element: D) {
             if (index in 0..list.size) {
                 list.add(index, element)
+                val adapter = adapter ?: return
                 impInMain { adapter.notifyItemInserted(index) }
             }
         }
@@ -66,6 +72,7 @@ sealed class AdapterFunImp<D>(
             if (index in 0..list.size) {
                 val size = elements.size
                 list.addAll(index, elements)
+                val adapter = adapter ?: return
                 impInMain { adapter.notifyItemRangeInserted(index, size) }
             }
         }
@@ -76,6 +83,7 @@ sealed class AdapterFunImp<D>(
                 return
             }
             list.remove(element)
+            val adapter = adapter ?: return
             impInMain { adapter.notifyItemRemoved(pos) }
         }
 
@@ -83,6 +91,7 @@ sealed class AdapterFunImp<D>(
             val endIndex = startIndex + size
             if (endIndex <= list.size) {
                 list.removeAll(list.subList(startIndex, endIndex))
+                val adapter = adapter ?: return
                 impInMain { adapter.notifyItemRangeRemoved(startIndex, size) }
             }
         }
@@ -91,6 +100,7 @@ sealed class AdapterFunImp<D>(
             list.removeAll(element)
             element.forEach {
                 val index = getIndex(it ?: return@forEach) ?: return@forEach
+                val adapter = adapter ?: return@forEach
                 impInMain { adapter.notifyItemRemoved(index) }
             }
         }
@@ -99,6 +109,7 @@ sealed class AdapterFunImp<D>(
             val size = list.size
             if (index in 0 until size) {
                 list[index] = element
+                val adapter = adapter ?: return
                 impInMain { adapter.notifyItemChanged(index, payload) }
             }
         }
@@ -109,6 +120,7 @@ sealed class AdapterFunImp<D>(
             //如果更改的数据在原有数据范围内
             if ((startIndex + updateCount) in 0 until size) {
                 elements.forEachIndexed { index, d -> list[startIndex + index] = d }
+                val adapter = adapter ?: return
                 impInMain {
                     adapter.notifyItemRangeChanged(startIndex, updateCount, payload)
                 }
@@ -146,11 +158,10 @@ sealed class AdapterFunImp<D>(
      * [androidx.recyclerview.widget.AsyncListDiffer.submitList]的回调线程不是固定的
      */
     class Differ<D>(
-        noTypeAdapter: BaseRecyclerViewAdapter<*, *>,
         private val differ: AsyncListDiffer<D>,
         mainHandler: Handler = Handler(Looper.getMainLooper()),
         private val runnable: Runnable? = null
-    ) : AdapterFunImp<D>(noTypeAdapter, mainHandler) {
+    ) : AdapterFunImp<D>(mainHandler) {
 
         override val data: List<D>
             get() = list

@@ -9,5 +9,6 @@ dependencies {
     implementation Deps.material
     implementation Deps.constraintLayout
     implementation Deps.coroutines
+    implementation Deps.swipeRefreshLayout
     implementation project(path: ':libfast')
 }
