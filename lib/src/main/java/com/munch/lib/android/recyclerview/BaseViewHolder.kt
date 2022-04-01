@@ -7,19 +7,23 @@ import androidx.viewbinding.ViewBinding
 /**
  * Create by munch1182 on 2022/3/31 14:18.
  */
-open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view), AdapterClickListener {
+open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view),
+    AdapterClickListener<BaseViewHolder> {
 
-    override fun setOnItemClickListener(listener: OnItemClickListener?) {
+    override fun setOnItemClickListener(listener: OnItemClickListener<BaseViewHolder>?) {
         itemView.tag = this
         itemView.setOnClickListener(listener)
     }
 
-    override fun setOnItemLongClickListener(listener: OnItemClickListener?) {
+    override fun setOnItemLongClickListener(listener: OnItemClickListener<BaseViewHolder>?) {
         itemView.tag = this
         itemView.setOnLongClickListener(listener)
     }
 
-    override fun setOnViewClickListener(listener: OnItemClickListener?, vararg ids: Int) {
+    override fun setOnViewClickListener(
+        listener: OnItemClickListener<BaseViewHolder>?,
+        vararg ids: Int
+    ) {
         ids.forEach { id ->
             itemView.findViewById<View>(id)?.let {
                 it.tag = this
@@ -28,7 +32,10 @@ open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view), AdapterCl
         }
     }
 
-    override fun setOnViewLongClickListener(listener: OnItemClickListener?, vararg ids: Int) {
+    override fun setOnViewLongClickListener(
+        listener: OnItemClickListener<BaseViewHolder>?,
+        vararg ids: Int
+    ) {
         ids.forEach { id ->
             itemView.findViewById<View>(id)?.let {
                 it.tag = this

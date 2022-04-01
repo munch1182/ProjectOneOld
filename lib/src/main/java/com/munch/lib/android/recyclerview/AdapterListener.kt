@@ -6,70 +6,73 @@ import android.view.View
  * Create by munch1182 on 2022/3/31 14:30.
  */
 
-interface OnItemClickListener : View.OnClickListener, View.OnLongClickListener {
+interface OnItemClickListener<VH : BaseViewHolder> : View.OnClickListener,
+    View.OnLongClickListener {
 
+    @Suppress("UNCHECKED_CAST")
     override fun onClick(v: View?) {
-        val holder = v?.tag as? BaseViewHolder? ?: return
+        val holder = v?.tag as? VH? ?: return
         onClick(v, holder.bindingAdapterPosition, holder)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun onLongClick(v: View?): Boolean {
-        val holder = v?.tag as? BaseViewHolder? ?: return false
+        val holder = v?.tag as? VH? ?: return false
         return onLongClick(v, holder.bindingAdapterPosition, holder)
     }
 
-    fun onClick(v: View?, pos: Int, holder: BaseViewHolder) {}
-    fun onLongClick(v: View?, pos: Int, holder: BaseViewHolder): Boolean = false
+    fun onClick(v: View?, pos: Int, holder: VH) {}
+    fun onLongClick(v: View?, pos: Int, holder: VH): Boolean = false
 }
 
-interface AdapterClickListener {
+interface AdapterClickListener<VH : BaseViewHolder> {
 
-    fun setOnItemClickListener(listener: OnItemClickListener?)
+    fun setOnItemClickListener(listener: OnItemClickListener<VH>?)
 
-    fun setOnItemLongClickListener(listener: OnItemClickListener?)
+    fun setOnItemLongClickListener(listener: OnItemClickListener<VH>?)
 
-    fun setOnViewClickListener(listener: OnItemClickListener?, vararg ids: Int)
+    fun setOnViewClickListener(listener: OnItemClickListener<VH>?, vararg ids: Int)
 
-    fun setOnViewLongClickListener(listener: OnItemClickListener?, vararg ids: Int)
+    fun setOnViewLongClickListener(listener: OnItemClickListener<VH>?, vararg ids: Int)
 }
 
-interface AdapterClickHandler : AdapterClickListener {
+interface AdapterClickHandler<VH : BaseViewHolder> : AdapterClickListener<VH> {
 
-    var itemClickListener: OnItemClickListener?
-    var itemLongClickListener: OnItemClickListener?
+    var itemClickListener: OnItemClickListener<VH>?
+    var itemLongClickListener: OnItemClickListener<VH>?
 
     var clickIds: IntArray
     var longClickIds: IntArray
-    var viewClickListener: OnItemClickListener?
-    var viewLongClickListener: OnItemClickListener?
+    var viewClickListener: OnItemClickListener<VH>?
+    var viewLongClickListener: OnItemClickListener<VH>?
 
-    override fun setOnItemClickListener(listener: OnItemClickListener?) {
+    override fun setOnItemClickListener(listener: OnItemClickListener<VH>?) {
         itemClickListener = listener
     }
 
-    override fun setOnItemLongClickListener(listener: OnItemClickListener?) {
+    override fun setOnItemLongClickListener(listener: OnItemClickListener<VH>?) {
         itemLongClickListener = listener
     }
 
-    override fun setOnViewClickListener(listener: OnItemClickListener?, vararg ids: Int) {
+    override fun setOnViewClickListener(listener: OnItemClickListener<VH>?, vararg ids: Int) {
         viewClickListener = listener
         clickIds = ids
     }
 
-    override fun setOnViewLongClickListener(listener: OnItemClickListener?, vararg ids: Int) {
+    override fun setOnViewLongClickListener(listener: OnItemClickListener<VH>?, vararg ids: Int) {
         viewLongClickListener = listener
         longClickIds = ids
     }
 }
 
-class AdapterListenerHelper : AdapterClickHandler {
+class AdapterListenerHelper<VH : BaseViewHolder> : AdapterClickHandler<VH> {
 
-    override var itemClickListener: OnItemClickListener? = null
-    override var itemLongClickListener: OnItemClickListener? = null
+    override var itemClickListener: OnItemClickListener<VH>? = null
+    override var itemLongClickListener: OnItemClickListener<VH>? = null
 
     override var clickIds: IntArray = intArrayOf()
     override var longClickIds: IntArray = intArrayOf()
-    override var viewClickListener: OnItemClickListener? = null
-    override var viewLongClickListener: OnItemClickListener? = null
+    override var viewClickListener: OnItemClickListener<VH>? = null
+    override var viewLongClickListener: OnItemClickListener<VH>? = null
 
 }
