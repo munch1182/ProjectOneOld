@@ -39,15 +39,20 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
 
     override fun getItemCount() = data.size
 
+    @Suppress("UNCHECKED_CAST")
     private fun handleClick(holder: VH) {
         holder.setOnItemClickListener(clickHelper.itemClickListener as? OnItemClickListener<BaseViewHolder>?)
         holder.setOnItemLongClickListener(clickHelper.itemLongClickListener as? OnItemClickListener<BaseViewHolder>?)
         if (clickHelper.clickIds.isNotEmpty()) {
-            holder.setOnViewClickListener(clickHelper.viewClickListener as? OnItemClickListener<BaseViewHolder>?, *clickHelper.clickIds)
+            holder.setOnViewClickListener(
+                clickHelper.viewClickListener as? OnItemClickListener<BaseViewHolder>?,
+                *clickHelper.clickIds
+            )
         }
         if (clickHelper.longClickIds.isNotEmpty()) {
             holder.setOnViewClickListener(
-                clickHelper.viewLongClickListener as? OnItemClickListener<BaseViewHolder>?, *clickHelper.longClickIds
+                clickHelper.viewLongClickListener as? OnItemClickListener<BaseViewHolder>?,
+                *clickHelper.longClickIds
             )
         }
     }

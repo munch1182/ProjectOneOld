@@ -6,7 +6,7 @@ package com.munch.lib.android.recyclerview
  *
  * Create by munch1182 on 2021/12/6 16:24.
  */
-interface IAdapterFun<D>{
+interface IAdapterFun<D> {
 
     val data: List<D>
 
@@ -64,6 +64,9 @@ interface IAdapterFun<D>{
      */
     fun updateOrThrow(startIndex: Int, elements: Collection<D>, payload: Any? = null)
 
+    /**
+     * 如果能获取到[index]的值，则返回该值，否则返回null，不会抛出异常
+     */
     fun get(index: Int): D?
     fun getIndex(element: D): Int?
     fun contains(element: D): Boolean

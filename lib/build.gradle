@@ -7,7 +7,7 @@ apply from: '../buildCom/commonbuildktx.gradle'
 dependencies {
 
     api Deps.material
-    api Deps.constraintLayout
+    api Deps.coroutines
     api Deps.mmkv
     api Deps.recyclerview
 }
