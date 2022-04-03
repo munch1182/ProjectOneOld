@@ -16,3 +16,4 @@ rootProject.name = "ProjectOne"
 include ':p1'
 include ':lib'
 include ':libfast'
+include ':launcher'

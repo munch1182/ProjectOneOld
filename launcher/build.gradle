@@ -1,0 +1,14 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+apply from: '../buildCom/commonbuildktx.gradle'
+
+dependencies {
+
+    implementation Deps.material
+    implementation Deps.constraintLayout
+    implementation Deps.coroutines
+    implementation Deps.swipeRefreshLayout
+    implementation project(path: ':libfast')
+}

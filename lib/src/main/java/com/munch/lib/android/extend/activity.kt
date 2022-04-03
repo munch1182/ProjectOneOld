@@ -2,6 +2,8 @@ package com.munch.lib.android.extend
 
 import android.view.LayoutInflater
 import androidx.core.app.ComponentActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
@@ -21,6 +23,12 @@ inline fun <reified VB : ViewBinding> ComponentActivity.bind(): Lazy<VB> {
             throw e
         }
     }
+}
+
+fun FragmentActivity.replace(id: Int, fragment: Fragment) {
+    supportFragmentManager.beginTransaction()
+        .replace(id, fragment)
+        .commit()
 }
 
 inline fun <reified VM : ViewModel> ViewModelStoreOwner.get(): Lazy<VM> {
