@@ -11,4 +11,5 @@ dependencies {
     implementation Deps.coroutines
     implementation Deps.swipeRefreshLayout
     implementation project(path: ':libfast')
+    implementation project(path: ':wheelview')
 }
