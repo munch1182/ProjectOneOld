@@ -15,8 +15,6 @@ import androidx.fragment.app.Fragment
 import com.munch.lib.android.extend.getStatusBarHeight
 
 /**
- * 此类采用了废弃的方法
- *
  * Create by munch1182 on 2020/12/12 21:03.
  */
 @Suppress("DEPRECATION")
@@ -35,11 +33,11 @@ class BarHelper(activity: Activity) {
     }
 
     /**
-     * @param hide 使内容延伸到状态栏
+     * @param extend 使内容延伸到状态栏
      */
-    fun hideStatusBar(hide: Boolean = true): BarHelper {
+    fun extendStatusBar(extend: Boolean = true): BarHelper {
         window.decorView.run {
-            systemUiVisibility = if (hide) {
+            systemUiVisibility = if (extend) {
                 systemUiVisibility or FLAGS_STATUS_BAR
             } else {
                 systemUiVisibility and FLAGS_STATUS_BAR.inv()
@@ -47,7 +45,6 @@ class BarHelper(activity: Activity) {
         }
         return this
     }
-
 
     /**
      * 设置状态栏颜色
@@ -109,7 +106,7 @@ class BarHelper(activity: Activity) {
         } else {
             window.decorView.run {
                 systemUiVisibility = if (black) {
-                    systemUiVisibility or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                    systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
                 } else {
                     systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
                 }

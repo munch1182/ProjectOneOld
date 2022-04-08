@@ -4,6 +4,7 @@ package com.munch.lib.android.extend
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.core.content.PermissionChecker
 import com.munch.lib.android.AppHelper
 
 /**
@@ -23,3 +24,8 @@ inline fun Context.getNavigationBarHeight() = getDimenById("navigation_bar_heigh
 
 inline fun getStatusBarHeight() = AppHelper.app.getStatusBarHeight()
 inline fun getNavigationBarHeight() = AppHelper.app.getNavigationBarHeight()
+
+inline fun Context.isPermissionGranted(permission: String) =
+    PermissionChecker.checkSelfPermission(this, permission) == PermissionChecker.PERMISSION_GRANTED
+
+inline fun isPermissionGranted(permission: String) = AppHelper.app.isPermissionGranted(permission)

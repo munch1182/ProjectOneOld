@@ -164,7 +164,7 @@ inline fun pool(submit: Boolean = false, task: Runnable) {
 
 inline fun <T> pool(task: Callable<T>): Future<T>? = ThreadPoolHelper.pool(task)
 
-class ThreadHandler private constructor(loop: Looper) : Handler(loop) {
+open class ThreadHandler private constructor(loop: Looper) : Handler(loop) {
 
     constructor(name: String) : this(HandlerThread(name).apply { start() }.looper)
 
