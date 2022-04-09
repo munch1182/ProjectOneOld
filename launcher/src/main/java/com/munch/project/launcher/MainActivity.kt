@@ -32,6 +32,5 @@ class MainActivity : BaseActivity() {
         }
         bind.extendNavigation2.setOnClickListener {
         }
-        ActivityHelper.getInstance()
     }
 }

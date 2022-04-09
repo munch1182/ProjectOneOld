@@ -37,6 +37,6 @@ class TextDrawDiagramView @JvmOverloads constructor(
 
         canvas ?: return
 
-        canvas.drawTextInYCenter(s,0f,height/2f,paint)
+        canvas.drawGuidLine(55f, 55f, 145f, 135f, null, paint)
     }
 }

@@ -13,12 +13,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectOne"
         tools:targetApi="s">
+        <activity android:name=".MainActivity" />
         <activity
-            android:name=".MainActivity">
+            android:name=".RvActivity"
+            android:exported="true">
 
-        </activity>
-        <activity android:name=".RvActivity"
-            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

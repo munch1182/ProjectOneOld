@@ -5,6 +5,8 @@ package com.munch.lib.android.extend
 import android.graphics.*
 import java.lang.Math.max
 import kotlin.math.abs
+import kotlin.math.absoluteValue
+import kotlin.math.atan2
 
 /**
  * Create by munch1182 on 2022/3/12 14:32.
@@ -79,4 +81,36 @@ fun Paint.measureMaxTextSpace(array: Array<String>): Pair<Int, Int> {
         maxHeight = rect.height().coerceAtLeast(maxHeight)
     }
     return Pair(maxWidth, maxHeight)
+}
+
+fun Canvas.drawGuidLine(
+    cx: Float,
+    cy: Float,
+    sx: Float,
+    sy: Float,
+    text: String?,
+    paint: Paint,
+    path: Path? = null
+) {
+    save()
+
+    val p = path ?: Path()
+    p.reset()
+
+    val w = sx.absoluteValue.toDouble()
+    val h = sy.absoluteValue.toDouble()
+    val angle = atan2(w, h) * 180 / Math.PI
+
+    rotate(angle.toFloat())
+    p.moveTo(0f, 0f)
+    rotate(30f)
+    p.moveTo(0f,15f)
+    rotate(-60f)
+    p.moveTo(0f,15f)
+    rotate(30f)
+    p.lineTo(sx, sy)
+    paint.setDashPath()
+    drawPath(p, paint)
+
+    restore()
 }

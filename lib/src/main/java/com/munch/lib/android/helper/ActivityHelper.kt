@@ -3,19 +3,12 @@ package com.munch.lib.android.helper
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import com.munch.lib.android.AppHelper
-import com.munch.lib.android.extend.SingletonHolder
 import java.lang.ref.WeakReference
 
 /**
  * Create by munch1192 on 2022/4/2 17:28.
  */
-class ActivityHelper private constructor(private val app: Application) {
-
-    companion object : SingletonHolder<ActivityHelper, Application>({ ActivityHelper(it) }) {
-
-        fun getInstance() = getInstance(AppHelper.app)
-    }
+object ActivityHelper {
 
     private var currWK: WeakReference<Activity>? = null
 
@@ -29,6 +22,7 @@ class ActivityHelper private constructor(private val app: Application) {
         override fun onActivityResumed(activity: Activity) {
             releaseCurr()
             currWK = WeakReference(activity)
+            resumeCheck()
         }
 
         override fun onActivityPaused(activity: Activity) {
@@ -45,11 +39,11 @@ class ActivityHelper private constructor(private val app: Application) {
         }
     }
 
-    fun register() {
+    fun register(app: Application) {
         app.registerActivityLifecycleCallbacks(callback)
     }
 
-    fun unregister() {
+    fun unregister(app: Application) {
         releaseCurr()
         app.unregisterActivityLifecycleCallbacks(callback)
     }
@@ -60,5 +54,8 @@ class ActivityHelper private constructor(private val app: Application) {
     private fun releaseCurr() {
         currWK?.clear()
         currWK = null
+    }
+
+    private fun resumeCheck() {
     }
 }
