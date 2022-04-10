@@ -7,7 +7,7 @@ import android.graphics.PointF
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
-import com.munch.lib.android.extend.setDashPath
+import com.munch.lib.extend.setDashPath
 import kotlin.math.abs
 
 /**

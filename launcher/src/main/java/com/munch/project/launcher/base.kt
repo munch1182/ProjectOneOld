@@ -8,8 +8,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
-import com.munch.lib.android.helper.BarHelper
-import com.munch.project.launcher.databinding.ActivityMainBinding
+import com.munch.lib.helper.BarHelper
 
 /**
  * Create by munch1182 on 2022/4/3 16:35.

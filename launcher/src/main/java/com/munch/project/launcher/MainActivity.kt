@@ -1,9 +1,8 @@
 package com.munch.project.launcher
 
 import android.os.Bundle
-import com.munch.lib.android.extend.bind
-import com.munch.lib.android.helper.ActivityHelper
-import com.munch.lib.android.helper.BarHelper
+import com.munch.lib.extend.bind
+import com.munch.lib.helper.BarHelper
 import com.munch.project.launcher.databinding.ActivityMainBinding
 
 /**

@@ -10,6 +10,7 @@ dependencies {
     implementation Deps.constraintLayout
     implementation Deps.coroutines
     implementation Deps.swipeRefreshLayout
+    implementation Deps.permissionX
     implementation project(path: ':libfast')
     implementation project(path: ':wheelview')
 }

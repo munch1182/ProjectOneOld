@@ -5,7 +5,7 @@ import android.graphics.*
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.View
-import com.munch.lib.android.extend.setDashPath
+import com.munch.lib.extend.setDashPath
 
 /**
  * Created by munch1182 on 2022/4/3 22:12.

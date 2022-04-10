@@ -1,5 +1,6 @@
 package com.munch.lib.android.extend
 
+import com.munch.lib.extend.*
 import junit.framework.TestCase
 import java.nio.charset.StandardCharsets
 

@@ -1,5 +1,7 @@
 package com.munch.lib.android.extend
 
+import com.munch.lib.extend.count
+import com.munch.lib.extend.split
 import junit.framework.TestCase
 
 /**

@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.munch.lib.android.extend.bind
+import com.munch.lib.extend.bind
 import com.munch.project.one.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {

@@ -7,8 +7,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
-import androidx.core.view.setPadding
-import com.munch.lib.android.extend.*
+import com.munch.lib.extend.drawGuidLine
 
 /**
  * Created by munch1182 on 2022/4/4 10:25.
