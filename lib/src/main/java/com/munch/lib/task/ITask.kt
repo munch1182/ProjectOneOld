@@ -11,10 +11,9 @@ interface ITask {
     /**
      * 用于标识该任务的唯一标识
      *
-     * 如果两个任务标识一致，则会使用后添加任务覆盖前任务
+     * 如果两个任务标识一致，在未执行的状态下后添加任务会覆盖前任务
      */
-    val key: Int
-        get() = this.hashCode()
+    val key: Key
 
     /**
      * 执行此任务前的等待时间
@@ -26,28 +25,23 @@ interface ITask {
      * 此任务执行的上下文
      */
     val coroutines: CoroutineContext
-        get() = Dispatchers.Default + CoroutineName(key.toString())
+        get() = Dispatchers.Default
 
     /**
-     * 此任务的依赖任务
-     *
-     * @see key
-     * @see isRunIfNoDepend
+     * 依赖的任务
      */
-    val dependents: Array<Int>?
+    val depends: Array<Int>?
         get() = null
 
-    /**
-     * 当前TaskHelper内，如果依赖任务未执行过，此任务是否执行
-     *
-     * 如果不执行，则会等待直到依赖任务被添加并执行
-     *
-     * @see dependents
-     */
-    val isRunIfNoDepend: Boolean
-        get() = false
-
     suspend fun run()
+}
+
+data class Key(private val key: Int)
+
+sealed class State {
+    object Wait : State()
+    object Executing : State()
+    object Completed : State()
 }
 
 interface OnTaskCompleteListener {

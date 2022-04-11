@@ -1,52 +1,110 @@
 package com.munch.lib.task
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
  * Create by munch1182 on 2022/4/11 16:23.
  */
-internal class TaskWrapper(private val task: ITask) {
 
-    val key: Int
-        get() = task.key
+internal open class TaskWrapper(val task: ITask) : ITask by task {
+    var state: State = State.Wait
+        private set
+}
 
-    var next: TaskWrapper? = null
+internal abstract class BaseTaskHandler {
+    var state: State = State.Wait
 
-    var onTaskComplete: OnTaskCompleteListener? = null
+    abstract suspend fun add(task: ITask)
 
-    /**
-     * 依赖于该任务的任务
-     */
-    var beDependency = mutableListOf<Int>()
+    abstract suspend fun run(helper: TaskHelper)
+}
 
-    /**
-     * 该任务依赖的任务
-     */
-    var needRunDepend = task.dependents?.toMutableList()
+internal class NormalTaskHandler : BaseTaskHandler() {
 
-    /**
-     * 当被依赖的任务执行完毕时，会回调此方法
-     */
-    private suspend fun onDependRun(key: Int, helper: TaskHelper) {
-        val needRunDepend = needRunDepend ?: return
-        needRunDepend.remove(element = key)
-        if (needRunDepend.isEmpty()) {
-            run(helper)
-        }
-    }
-
-    suspend fun run(helper: TaskHelper) {
+    override suspend fun add(task: ITask) {
         ContextScope(task.coroutines).launch {
-            delay(task.delayTime)
             try {
                 task.run()
-                beDependency.forEach { helper.getWrapper(it)?.onDependRun(it, helper) }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-        onTaskComplete?.onTaskComplete(task.key)
-        next?.run(helper)
     }
+
+    override suspend fun run(helper: TaskHelper) {
+    }
+}
+
+internal class OrderTaskWrapper(task: ITask) : TaskWrapper(task) {
+
+    var next: OrderTaskWrapper? = null
+}
+
+internal class OrderTaskHandler : BaseTaskHandler() {
+
+    var headTask: OrderTaskWrapper? = null
+    var tailTask: OrderTaskWrapper? = null
+
+    override suspend fun add(task: ITask) {
+        val wrapper = OrderTaskWrapper(task)
+
+        if (headTask == null) {
+            headTask = wrapper
+        }
+        tailTask?.next = wrapper
+        tailTask = wrapper
+    }
+
+    override suspend fun run(helper: TaskHelper) {
+        val task = headTask ?: return
+        ContextScope(task.coroutines).launch {
+            try {
+                task.run()
+                task.next?.run()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+}
+
+internal class DependentTaskWrapper(task: ITask) : TaskWrapper(task) {
+
+    /**
+     * 依赖于此任务的任务
+     */
+    private var dependentTask = mutableListOf<Key>()
+    private var dependCount = task.depends?.size ?: 0
+
+    suspend fun dependNotify(helper: TaskHelper) {
+        dependentTask.forEach {
+            (helper.getWrapper(it) as? DependentTaskWrapper)?.onDependNotify()
+        }
+    }
+
+    private suspend fun onDependNotify() {
+        dependCount--
+        if (dependCount <= 0) {
+            ContextScope(task.coroutines).launch {
+                task.run()
+            }
+        }
+    }
+}
+
+internal class DependentTaskHandler : BaseTaskHandler() {
+
+    private val list = mutableListOf<DependentTaskWrapper>()
+
+    override suspend fun add(task: ITask) {
+        list.add(DependentTaskWrapper(task))
+    }
+
+    override suspend fun run(helper: TaskHelper) {
+        list.forEach {
+            it.run()
+            it.dependNotify(helper)
+        }
+    }
+
 }
