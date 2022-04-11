@@ -7,7 +7,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
-import com.munch.lib.android.R
+import com.munch.lib.R
 import com.munch.lib.Testable
 import com.munch.lib.extend.drawRectLine
 import com.munch.lib.extend.testPaint
