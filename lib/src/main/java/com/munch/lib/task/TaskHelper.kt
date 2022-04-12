@@ -4,6 +4,7 @@ import android.util.ArrayMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -11,13 +12,25 @@ import kotlin.coroutines.CoroutineContext
  */
 class TaskHelper {
 
-    private val map = ArrayMap<Key, TaskWrapper>()
+    private val map = ArrayMap<Key, TaskWrapper?>()
+    private val orderHandler by lazy { OrderTaskHandler() }
+    private val dependentHandler by lazy { DependentTaskHandler() }
+    private val normalHandler by lazy { NormalTaskHandler() }
 
     fun add(task: ITask): TaskHelper {
+        TaskScope.launch {
+            val wrapper = TaskWrapper(task)
+            map[task.key] = wrapper
+            when (task) {
+                is IOrdered -> orderHandler.add(wrapper)
+                is IDependent -> dependentHandler.add(wrapper)
+                else -> normalHandler.add(wrapper)
+            }
+        }
         return this
     }
 
-    internal fun getWrapper(key: Key): TaskWrapper? = null
+    internal fun getWrapper(key: Key): TaskWrapper? = map.getOrDefault(key, null)
 
     internal object TaskScope : CoroutineScope {
         override val coroutineContext: CoroutineContext

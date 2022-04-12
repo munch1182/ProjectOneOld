@@ -38,6 +38,17 @@ interface ITask {
 
 data class Key(private val key: Int)
 
+interface IDependent {
+    val dependent: Array<Key>?
+        get() = null
+}
+
+interface IOrdered {
+    val order: OrderKey
+}
+
+data class OrderKey(private val key: Int)
+
 sealed class State {
     object Wait : State()
     object Executing : State()

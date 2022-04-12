@@ -14,14 +14,14 @@ internal open class TaskWrapper(val task: ITask) : ITask by task {
 internal abstract class BaseTaskHandler {
     var state: State = State.Wait
 
-    abstract suspend fun add(task: ITask)
+    abstract suspend fun add(task: TaskWrapper)
 
     abstract suspend fun run(helper: TaskHelper)
 }
 
 internal class NormalTaskHandler : BaseTaskHandler() {
 
-    override suspend fun add(task: ITask) {
+    override suspend fun add(task: TaskWrapper) {
         ContextScope(task.coroutines).launch {
             try {
                 task.run()
@@ -35,7 +35,7 @@ internal class NormalTaskHandler : BaseTaskHandler() {
     }
 }
 
-internal class OrderTaskWrapper(task: ITask) : TaskWrapper(task) {
+internal class OrderTaskWrapper(task: TaskWrapper) : TaskWrapper(task) {
 
     var next: OrderTaskWrapper? = null
 }
@@ -45,7 +45,7 @@ internal class OrderTaskHandler : BaseTaskHandler() {
     var headTask: OrderTaskWrapper? = null
     var tailTask: OrderTaskWrapper? = null
 
-    override suspend fun add(task: ITask) {
+    override suspend fun add(task: TaskWrapper) {
         val wrapper = OrderTaskWrapper(task)
 
         if (headTask == null) {
@@ -68,7 +68,7 @@ internal class OrderTaskHandler : BaseTaskHandler() {
     }
 }
 
-internal class DependentTaskWrapper(task: ITask) : TaskWrapper(task) {
+internal class DependentTaskWrapper(task: TaskWrapper) : TaskWrapper(task) {
 
     /**
      * 依赖于此任务的任务
@@ -96,7 +96,7 @@ internal class DependentTaskHandler : BaseTaskHandler() {
 
     private val list = mutableListOf<DependentTaskWrapper>()
 
-    override suspend fun add(task: ITask) {
+    override suspend fun add(task: TaskWrapper) {
         list.add(DependentTaskWrapper(task))
     }
 
