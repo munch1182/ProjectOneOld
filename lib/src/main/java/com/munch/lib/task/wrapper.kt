@@ -1,6 +1,8 @@
 package com.munch.lib.task
 
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Create by munch1182 on 2022/4/11 16:23.
@@ -9,14 +11,30 @@ import kotlinx.coroutines.launch
 internal open class TaskWrapper(val task: ITask) : ITask by task {
     var state: State = State.Wait
         private set
+
+    val isExecuting: Boolean
+        get() = state == State.Executing
 }
 
 internal abstract class BaseTaskHandler {
-    var state: State = State.Wait
+
+    private var state: State = State.Wait
+
+    private val mutex = Mutex()
 
     abstract suspend fun add(task: TaskWrapper)
 
     abstract suspend fun run(helper: TaskHelper)
+
+    suspend fun isExecuting() = mutex.withLock { state == State.Executing }
+
+    suspend fun stateWait() {
+        mutex.withLock { state = State.Wait }
+    }
+
+    suspend fun stateExecuting() {
+        mutex.withLock { state = State.Wait }
+    }
 }
 
 internal class NormalTaskHandler : BaseTaskHandler() {

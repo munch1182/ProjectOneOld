@@ -14,6 +14,7 @@ interface ITask {
      * 如果两个任务标识一致，在未执行的状态下后添加任务会覆盖前任务
      */
     val key: Key
+        get() = Key(10000 + TaskHelper.num.curr)
 
     /**
      * 执行此任务前的等待时间
@@ -36,7 +37,23 @@ interface ITask {
     suspend fun run()
 }
 
-data class Key(private val key: Int)
+data class Key(private val key: Int) {
+
+    override fun hashCode(): Int {
+        return key
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Key
+
+        if (key != other.key) return false
+
+        return true
+    }
+}
 
 interface IDependent {
     val dependent: Array<Key>?
@@ -58,4 +75,5 @@ sealed class State {
 interface OnTaskCompleteListener {
 
     fun onTaskComplete(key: Int, exception: Exception? = null)
+
 }

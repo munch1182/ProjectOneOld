@@ -36,6 +36,8 @@ class TextDrawDiagramView @JvmOverloads constructor(
 
         canvas ?: return
 
+        canvas.drawColor(Color.WHITE)
+
         canvas.drawGuidLine(55f, 55f, 145f, 135f, null, paint)
     }
 }

@@ -1,6 +1,8 @@
 package com.munch.project.one
 
+import android.graphics.Color
 import android.os.Bundle
+import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.munch.lib.UnSupportException
 import com.munch.lib.log.log
@@ -17,43 +19,10 @@ class RvActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val taskHelper = TaskHelper()
-        taskHelper
-            .addTask(object : ITask {
-                override suspend fun run() {
-                    log(1)
-                }
-            })
-            .addTask(object : ITask {
-                override val coroutines: CoroutineContext
-                    get() = Dispatchers.Default
-
-                override suspend fun run() {
-                    delay(3000L)
-                    log(2)
-                }
-            })
-            .addTask(object : ITask {
-                override suspend fun run() {
-                    log(3)
-                    throw UnSupportException()
-                }
-            })
-            .addTask(object : ITask {
-                override suspend fun run() {
-                    log(4)
-                }
-            })
-            .run()
-        taskHelper.addTask(object : ITask {
-            override val coroutines: CoroutineContext
-                get() = Dispatchers.Default
-
-            override suspend fun run() {
-                delay(5000L)
-                log(5)
-            }
-        }).run()
+        setContentView(FrameLayout(this).apply {
+            setBackgroundColor(Color.BLACK)
+            addView(TextDrawDiagramView(this@RvActivity))
+        })
 
     }
 }

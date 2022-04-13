@@ -12,6 +12,11 @@ import kotlin.coroutines.CoroutineContext
  */
 class TaskHelper {
 
+    companion object {
+
+        internal val num = NumberHelper()
+    }
+
     private val map = ArrayMap<Key, TaskWrapper?>()
     private val orderHandler by lazy { OrderTaskHandler() }
     private val dependentHandler by lazy { DependentTaskHandler() }
@@ -28,6 +33,20 @@ class TaskHelper {
             }
         }
         return this
+    }
+
+    fun run() {
+        TaskScope.launch {
+            if (!normalHandler.isExecuting()) {
+                normalHandler.run(this@TaskHelper)
+            }
+            if (!orderHandler.isExecuting()) {
+                orderHandler.run(this@TaskHelper)
+            }
+            if (!dependentHandler.isExecuting()) {
+                dependentHandler.run(this@TaskHelper)
+            }
+        }
     }
 
     internal fun getWrapper(key: Key): TaskWrapper? = map.getOrDefault(key, null)
