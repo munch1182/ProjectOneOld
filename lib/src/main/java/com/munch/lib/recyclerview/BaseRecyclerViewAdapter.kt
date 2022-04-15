@@ -37,7 +37,7 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
 
     abstract fun onBind(holder: VH, position: Int, bean: D)
 
-    override fun getItemCount() = data.size
+    override fun getItemCount() = itemSize
 
     @Suppress("UNCHECKED_CAST")
     private fun handleClick(holder: VH) {

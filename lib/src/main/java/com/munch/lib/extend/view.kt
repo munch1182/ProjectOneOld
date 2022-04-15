@@ -3,7 +3,9 @@
 package com.munch.lib.extend
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
@@ -13,11 +15,22 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.core.view.children
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.munch.lib.base.OnViewTagClickListener
+import kotlin.reflect.KClass
 
 /**
  * Create by munch1182 on 2022/4/15 21:48.
  */
 typealias ViewCreator = (context: Context) -> View
+
+interface OnViewUpdate<V : View> {
+
+    fun updateView(update: V.() -> Unit)
+}
 
 /**
  * 注意可能会重复调用的情形
@@ -96,4 +109,64 @@ fun newPressedDrawable(unpressedDrawable: Drawable?, pressedDrawable: Drawable?)
         addState(intArrayOf(-android.R.attr.state_pressed), unpressedDrawable)
         addState(intArrayOf(android.R.attr.state_pressed), pressedDrawable)
     }
+
+fun ViewGroup.clickItem(listener: OnViewTagClickListener<Int>, vararg target: KClass<out View>) {
+    var index = 0
+    children.forEach { v ->
+        if (!v.isVisible) {
+            return@forEach
+        }
+        if (target.isNotEmpty()) {
+            kotlin.run target@{
+                target.forEach {
+                    if (it.java.isAssignableFrom(v::class.java)) {
+                        return@target
+                    }
+                }
+                return@forEach
+            }
+        }
+        v.tag = index
+        v.setOnClickListener(listener)
+        index++
+    }
+}
+
+class LinearLineItemDecoration(
+    private val lm: LinearLayoutManager,
+    lineHeight: Float = 1f,
+    lineColor: Int = Color.parseColor("#f4f4f4")
+) : RecyclerView.ItemDecoration() {
+
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        strokeWidth = lineHeight
+        color = lineColor
+    }
+
+    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+        super.onDrawOver(c, parent, state)
+        lm.apply {
+            val fp = findFirstVisibleItemPosition()
+                .takeIf { it != RecyclerView.NO_POSITION }
+                ?: return
+            val ep = findLastVisibleItemPosition()
+                .takeIf { it != RecyclerView.NO_POSITION }
+                ?: return
+
+            val l = parent.left.toFloat()
+            val r = parent.right.toFloat()
+            for (i in fp..ep) {
+                findViewByPosition(i)?.let {
+                    c.drawLine(l, it.top.toFloat(), r, it.top.toFloat(), paint)
+                }
+            }
+            if (fp == 0) {
+                c.drawLine(l, parent.top.toFloat(), r, parent.top.toFloat(), paint)
+            }
+            if (ep == itemCount - 1) {
+                c.drawLine(l, parent.bottom.toFloat(), r, parent.bottom.toFloat(), paint)
+            }
+        }
+    }
+}
 

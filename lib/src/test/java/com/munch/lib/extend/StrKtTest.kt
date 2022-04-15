@@ -1,4 +1,4 @@
-package com.munch.lib.android.extend
+package com.munch.lib.extend
 
 import com.munch.lib.extend.count
 import com.munch.lib.extend.split

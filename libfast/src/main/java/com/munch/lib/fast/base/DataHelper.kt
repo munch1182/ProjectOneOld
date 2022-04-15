@@ -1,4 +1,4 @@
-package com.munch.project.one
+package com.munch.lib.fast.base
 
 import com.munch.lib.helper.data.DataFun
 import com.munch.lib.helper.data.MMKVHelper

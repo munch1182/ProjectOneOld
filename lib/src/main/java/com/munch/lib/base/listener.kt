@@ -44,6 +44,11 @@ interface Resettable {
     fun reset()
 }
 
+interface InitFunInterface {
+
+    fun init()
+}
+
 interface Manageable : Cancelable, Destroyable
 
 //<editor-fold desc="click">

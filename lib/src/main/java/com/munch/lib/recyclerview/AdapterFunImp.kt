@@ -38,9 +38,8 @@ sealed class AdapterFunImp<D>(
 
         private val list = mutableListOf<D>()
 
-        override val data: List<D>
-            get() = list
-
+        override val itemSize: Int
+            get() = list.size
 
         @SuppressLint("NotifyDataSetChanged")
         override fun set(newData: List<D>?) {
@@ -163,8 +162,8 @@ sealed class AdapterFunImp<D>(
         private val runnable: Runnable? = null
     ) : AdapterFunImp<D>(mainHandler) {
 
-        override val data: List<D>
-            get() = list
+        override val itemSize: Int
+            get() = list.size
 
         private val list: MutableList<D>
             get() = differ.currentList

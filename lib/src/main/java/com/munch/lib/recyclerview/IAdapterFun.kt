@@ -8,7 +8,7 @@ package com.munch.lib.recyclerview
  */
 interface IAdapterFun<D> {
 
-    val data: List<D>
+    val itemSize: Int
 
     fun set(newData: List<D>?)
 

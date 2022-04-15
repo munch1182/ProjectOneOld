@@ -3,12 +3,13 @@ package com.munch.lib.weight
 import android.content.Context
 import android.graphics.Canvas
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
 import com.munch.lib.R
 import com.munch.lib.Testable
+import com.munch.lib.extend.OnViewUpdate
+import com.munch.lib.extend.dp2Px
 import com.munch.lib.extend.drawRectLine
 import com.munch.lib.extend.testPaint
 import com.munch.lib.helper.array.RectArrayHelper
@@ -26,7 +27,7 @@ class FlowLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     styleDef: Int = 0
-) : ViewGroup(context, attrs, styleDef) {
+) : ViewGroup(context, attrs, styleDef), OnViewUpdate<FlowLayout> {
 
     companion object {
 
@@ -34,11 +35,13 @@ class FlowLayout @JvmOverloads constructor(
         const val STYLE_PACKED = 1
     }
 
+    private val dp8 by lazy { context.dp2Px(8f).toInt() }
+
     //行间隔
-    var lineSpace = 8
+    var lineSpace = 0
 
     //子view之间的间隔
-    var itemSpace = 8
+    var itemSpace = 0
 
     /**
      * 注意，使用的时[Gravity]，而不是系统的Gravity
@@ -62,8 +65,8 @@ class FlowLayout @JvmOverloads constructor(
     init {
         context.obtainStyledAttributes(attrs, R.styleable.FlowLayout).apply {
             test = getBoolean(R.styleable.FlowLayout_test, false)
-            lineSpace = getDimensionPixelOffset(R.styleable.FlowLayout_flow_lineSpace, 8)
-            itemSpace = getDimensionPixelOffset(R.styleable.FlowLayout_flow_itemSpace, 8)
+            lineSpace = getDimensionPixelOffset(R.styleable.FlowLayout_flow_lineSpace, dp8 / 2)
+            itemSpace = getDimensionPixelOffset(R.styleable.FlowLayout_flow_itemSpace, dp8)
             maxCountInLine = getInt(R.styleable.FlowLayout_flow_maxCountInLine, 0)
             gravity = getInt(R.styleable.FlowLayout_gravity, Gravity.START or Gravity.TOP)
             style = getInt(R.styleable.FlowLayout_flow_style, STYLE_SPREAD)
@@ -79,8 +82,8 @@ class FlowLayout @JvmOverloads constructor(
         val heightSize = MeasureSpec.getSize(heightMeasureSpec)
 
         layoutHelper.updateConfig(config.updateFrom(this))
-        //测量时将padding排除，设置宽高时再加上
-        layoutHelper.updateMaxWidth(widthSize)
+
+        layoutHelper.updateMaxWidth(widthSize - paddingLeft - paddingRight)
         if (layoutHelper.needMeasure()) {
             layoutHelper.startMeasure()
             children.forEach { child ->
@@ -98,7 +101,8 @@ class FlowLayout @JvmOverloads constructor(
         }
 
         val height =
-            if (hMode == MeasureSpec.EXACTLY) heightSize else (layoutHelper.usedMaxHeight)
+            if (hMode == MeasureSpec.EXACTLY) heightSize
+            else (layoutHelper.usedMaxHeight + paddingTop + paddingBottom)
         val width =
             if (wMode == MeasureSpec.EXACTLY) widthSize else (layoutHelper.usedMaxWidth)
         setMeasuredDimension(width, height)
@@ -106,7 +110,7 @@ class FlowLayout @JvmOverloads constructor(
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         val views = children.filter { it !is Space && it.visibility != View.GONE }.toList()
-        layoutHelper.layout(views, r - l)
+        layoutHelper.layout(this, views, r - l)
     }
 
     private data class Config(
@@ -268,7 +272,7 @@ class FlowLayout @JvmOverloads constructor(
             endLine()
         }
 
-        fun layout(views: List<View>, width: Int) {
+        fun layout(view: FlowLayout, views: List<View>, width: Int) {
             var line = setLineFromArray(0)
             var layoutViewCount = 0
             while (line != null) {
@@ -284,15 +288,15 @@ class FlowLayout @JvmOverloads constructor(
                 val spaceAvgSpread = lineLeft / (line.lineViewCount + 1)
                 val spaceAvgPacked = lineLeft / 2
                 val gravity = currConfig.gravity
-                Log.d("loglog", "layout: $gravity")
                 repeat(line.lineViewCount) {
                     val viewIndex = layoutViewCount + it
                     val l = rectHelper.getLeft(viewIndex)
                     val t = rectHelper.getTop(viewIndex)
                     val r = rectHelper.getRight(viewIndex)
                     val b = rectHelper.getBottom(viewIndex)
-                    var xOffset = it * currConfig.itemSpace
-                    var yOffset = 0
+                    // TODO: padding
+                    var xOffset = it * currConfig.itemSpace + view.paddingLeft
+                    var yOffset = view.paddingTop
                     when {
                         Gravity.hasFlag(gravity, Gravity.CENTER_HORIZONTAL) -> {
                             xOffset += if (currConfig.style == STYLE_SPREAD) {
@@ -489,5 +493,10 @@ class FlowLayout @JvmOverloads constructor(
 
     override fun generateDefaultLayoutParams(): LayoutParams {
         return MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+    }
+
+    override fun updateView(update: FlowLayout.() -> Unit) {
+        update.invoke(this)
+        requestLayout()
     }
 }

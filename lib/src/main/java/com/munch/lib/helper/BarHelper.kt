@@ -12,6 +12,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.munch.lib.extend.addPadding
 import com.munch.lib.extend.getStatusBarHeight
 
 /**
@@ -66,9 +67,6 @@ class BarHelper(activity: Activity) {
         }
         return this
     }
-
-    fun colorStatusBarByRes(@ColorRes res: Int) =
-        colorStatusBar(ContextCompat.getColor(window.context, res))
 
     /**
      * 隐藏状态栏和导航栏，使内容全屏

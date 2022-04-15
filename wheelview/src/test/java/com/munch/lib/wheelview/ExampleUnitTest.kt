@@ -1,4 +1,4 @@
-package com.munch.lib.android.wheelview
+package com.munch.lib.wheelview
 
 import org.junit.Test
 

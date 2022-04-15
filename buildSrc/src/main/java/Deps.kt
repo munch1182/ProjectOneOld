@@ -9,6 +9,7 @@ object Version {
     const val defaultVersionName = "1.0"
 }
 
+//module/Gradle: Tasks-help-dependencies : 查看依赖树
 @Suppress("unused")
 object Deps {
 

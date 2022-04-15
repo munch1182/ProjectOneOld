@@ -20,6 +20,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.annotation.ArrayRes
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 
 /**
@@ -34,6 +36,8 @@ fun Context.startActivity(target: Class<out Activity>, bundle: Bundle? = null) =
 inline fun Context.startActivity(clazz: Class<out Activity>, func: Bundle.() -> Unit) {
     startActivity(clazz, Bundle().apply { func.invoke(this) })
 }
+
+inline fun Context.getColorCompat(@ColorRes color: Int) = ContextCompat.getColor(this, color)
 
 fun Context.getDimenById(name: String): Int? {
     val id = resources.getIdentifier(name, "dimen", "android")
