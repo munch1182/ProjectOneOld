@@ -3,7 +3,7 @@ package com.munch.lib.recyclerview
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.lib.helper.ViewCreator
+import com.munch.lib.extend.ViewCreator
 
 /**
  * Create by munch1182 on 2022/3/31 14:17.

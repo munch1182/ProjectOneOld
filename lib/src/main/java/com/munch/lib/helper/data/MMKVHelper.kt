@@ -3,6 +3,7 @@ package com.munch.lib.helper.data
 
 import android.content.Context
 import android.os.Parcelable
+import com.munch.lib.AppHelper
 import com.tencent.mmkv.MMKV
 
 /**
@@ -30,7 +31,7 @@ class MMKVHelper constructor(private val id: String = ID_DEF, multiProcess: Bool
 
         private const val ID_DEF = "MMKV_ID_DEF"
 
-        fun init(context: Context) {
+        fun init(context: Context = AppHelper.app) {
             MMKV.initialize(context)
         }
 

@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import com.munch.lib.helper.ViewCreator
+import com.munch.lib.extend.ViewCreator
 
 /**
  * Create by munch1182 on 2022/3/31 14:23.

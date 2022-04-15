@@ -3,9 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.munch.project.one">
 
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_rules"
         android:fullBackupContent="@xml/backup_scheme"
@@ -15,17 +16,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectOne"
         tools:targetApi="s">
-        <activity android:name=".MainActivity" />
         <activity
-            android:name=".RvActivity"
+            android:name=".MainActivity"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".RvActivity" />
     </application>
 
 </manifest>

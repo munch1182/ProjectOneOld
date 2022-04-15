@@ -11,6 +11,8 @@ dependencies {
     implementation Deps.coroutines
     implementation Deps.swipeRefreshLayout
     implementation Deps.permissionX
+    implementation Deps.activityKtx
+    implementation Deps.fragmentKtx
     implementation project(path: ':libfast')
     implementation project(path: ':wheelview')
 }

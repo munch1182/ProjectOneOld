@@ -14,9 +14,9 @@ import kotlin.system.exitProcess
  * Create by munch1182 on 2021/8/19 15:05.
  */
 
-inline fun <T> MutableLiveData<T>.toImmutable(): LiveData<T> = this
+inline fun <T> MutableLiveData<T>.toLive(): LiveData<T> = this
 
-inline fun <T> MutableStateFlow<T>.toImmutable(): StateFlow<T> = this
+inline fun <T> MutableStateFlow<T>.toLive(): StateFlow<T> = this
 
 fun destroy() {
     Process.killProcess(Process.myPid())
@@ -37,6 +37,25 @@ fun <T : Any> KClass<T>.newInstance(): T? = try {
 } catch (e: Exception) {
     e.printStackTrace()
     null
+}
+
+inline fun <reified T : Any> invoke(methodName: String, vararg any: Any): T? {
+    return invoke(methodName, *any.map { Pair(it::class.java, it) }.toTypedArray())
+}
+
+inline fun <reified T : Any> invoke(
+    methodName: String,
+    vararg pairs: Pair<Class<out Any>, Any>
+): T? {
+    return try {
+        val method =
+            T::class.java.getDeclaredMethod(methodName, *pairs.map { it.first }.toTypedArray())
+        method.isAccessible = true
+        method.invoke(null, *pairs.map { it.second }.toTypedArray()) as? T
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
 
 /**
