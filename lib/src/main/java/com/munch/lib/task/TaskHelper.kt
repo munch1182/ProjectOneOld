@@ -1,10 +1,11 @@
 package com.munch.lib.task
 
 import android.util.ArrayMap
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import com.munch.lib.log.InfoStyle
+import com.munch.lib.log.Logger
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -14,21 +15,26 @@ class TaskHelper {
 
     companion object {
 
-        internal val num = NumberHelper()
+        internal val num = IDHelper()
+
+        internal val log = Logger("task", infoStyle = InfoStyle.THREAD_ONLY)
     }
 
     private val map = ArrayMap<Key, TaskWrapper?>()
-    private val orderHandler by lazy { OrderTaskHandler() }
-    private val dependentHandler by lazy { DependentTaskHandler() }
-    private val normalHandler by lazy { NormalTaskHandler() }
+    private val mapLock = Mutex()
+    private val orderHandler by lazy { TaskOrderHandler() }
+    private val normalHandler by lazy { TaskNormalHandler() }
 
+    /**
+     * 如果一个任务有多种属性，会按照属性的顺序执行
+     */
     fun add(task: ITask): TaskHelper {
-        TaskScope.launch {
+        // todo 其它方式保证执行顺序
+        runBlocking {
             val wrapper = TaskWrapper(task)
-            map[task.key] = wrapper
+            mapLock.withLock { map[task.key] = wrapper }
             when (task) {
-                is IOrdered -> orderHandler.add(wrapper)
-                is IDependent -> dependentHandler.add(wrapper)
+                is ITaskOrder -> orderHandler.add(wrapper)
                 else -> normalHandler.add(wrapper)
             }
         }
@@ -37,19 +43,17 @@ class TaskHelper {
 
     fun run() {
         TaskScope.launch {
-            if (!normalHandler.isExecuting()) {
-                normalHandler.run(this@TaskHelper)
-            }
-            if (!orderHandler.isExecuting()) {
-                orderHandler.run(this@TaskHelper)
-            }
-            if (!dependentHandler.isExecuting()) {
-                dependentHandler.run(this@TaskHelper)
-            }
+            normalHandler.run()
+            orderHandler.run()
         }
     }
 
-    internal fun getWrapper(key: Key): TaskWrapper? = map.getOrDefault(key, null)
+    fun cancel() {
+        runBlocking {
+            normalHandler.cancel()
+            orderHandler.cancel()
+        }
+    }
 
     internal object TaskScope : CoroutineScope {
         override val coroutineContext: CoroutineContext

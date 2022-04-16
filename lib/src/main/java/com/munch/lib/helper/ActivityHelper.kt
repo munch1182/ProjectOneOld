@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.lifecycle.MutableLiveData
 import com.munch.lib.AppHelper
 import com.munch.lib.extend.toLive
-import com.munch.lib.log.log
 import java.lang.ref.WeakReference
 
 /**
@@ -18,7 +17,6 @@ object ActivityHelper {
     private var currWK: WeakReference<Activity>? = null
     private var refCount = 0
         set(value) {
-            log(value)
             if (field == value) {
                 return
             }

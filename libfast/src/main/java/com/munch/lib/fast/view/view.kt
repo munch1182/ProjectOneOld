@@ -52,7 +52,6 @@ interface IFastView : InitFunInterface {
     }
 }
 
-
 //<editor-fold desc="FastView,主题需要App.Fast">
 /**
  * 传入adapter实现RecyclerView布局

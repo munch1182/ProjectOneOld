@@ -29,6 +29,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".contentresolver.ContentResolverActivity" />
+        <activity android:name=".task.TaskActivity" />
     </application>
 
 </manifest>

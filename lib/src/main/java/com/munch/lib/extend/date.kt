@@ -31,7 +31,15 @@ inline fun Calendar.setHMS(h: Int, m: Int, s: Int, ms: Int = 0): Calendar {
 /**
  * @param month 月份已修正
  */
-inline fun Calendar.set(y: Int, month: Int, d: Int, h: Int, minute: Int, s: Int, ms: Int = 0): Calendar {
+inline fun Calendar.set(
+    y: Int,
+    month: Int,
+    d: Int,
+    h: Int,
+    minute: Int,
+    s: Int,
+    ms: Int = 0
+): Calendar {
     set(y, month - 1, d, h, minute, s)
     set(Calendar.MILLISECOND, ms)
     return this
@@ -79,3 +87,21 @@ fun Int.toHMS(calendar: Calendar = Calendar.getInstance()): Calendar {
     calendar.setHMS(h, m, time)
     return calendar
 }
+
+fun Long.toDate(pattern: String = "yyyy-MM-dd HH:mm:ss") =
+    try {
+        SimpleDateFormat(pattern, Locale.getDefault()).format(Date(this))
+    } catch (e: Exception) {
+        e.printStackTrace()
+        ""
+    }
+
+fun Calendar.toDate(pattern: String = "yyyy-MM-dd HH:mm:ss") = timeInMillis.toDate(pattern)
+
+fun String.toDate(pattern: String = "yyyy-MM-dd HH:mm:ss") =
+    try {
+        SimpleDateFormat(pattern, Locale.getDefault()).parse(this)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
