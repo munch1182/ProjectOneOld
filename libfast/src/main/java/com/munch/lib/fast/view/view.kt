@@ -120,7 +120,9 @@ open class FVRecyclerView<D>(
     private val lm: RecyclerView.LayoutManager = LinearLayoutManager(context)
 ) : IFastView {
 
-    protected val view by lazy { RecyclerView(context) }
+    protected val view by lazy {
+        RecyclerView(context).apply { layoutParams = newMWLp() }
+    }
 
     override fun onAddView() = view
 
@@ -130,8 +132,7 @@ open class FVRecyclerView<D>(
     }
 }
 
-open class FVLineRvView(context: Context, str: List<String>) : FVRecyclerView<String>(
-    context,
+open class FVLineRvView(context: Context, str: List<String>) : FVRecyclerView<String>(context,
     object : BaseRecyclerViewAdapter<String, BaseViewHolder>({ ctx ->
         // todo 此方法添加的view宽度无法铺满
         TextView(ctx, null, R.attr.fastAttrTvLine)
@@ -141,8 +142,12 @@ open class FVLineRvView(context: Context, str: List<String>) : FVRecyclerView<St
             set(str)
         }
 
+
         override fun onBind(holder: BaseViewHolder, position: Int, bean: String) {
-            (holder.itemView as? TextView)?.text = bean
+            (holder.itemView as? TextView)?.apply {
+                // TODO: 先这样处理铺满
+                layoutParams = newMWLp()
+            }?.text = bean
         }
     }) {
 

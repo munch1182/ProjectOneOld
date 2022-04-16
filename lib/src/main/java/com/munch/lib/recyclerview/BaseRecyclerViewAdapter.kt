@@ -13,7 +13,6 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
     private val adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
     private val clickHelper: AdapterClickHandler<VH> = AdapterListenerHelper(),
 ) : RecyclerView.Adapter<VH>(),
-    AdapterViewImp<VH> by viewImp,
     IAdapterFun<D> by adapterFun,
     AdapterClickListener<VH> by clickHelper {
 
@@ -26,9 +25,10 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
         adapterFun.bindAdapter(this)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = createVH(parent, viewType)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        viewImp.createVH(parent, viewType)
 
-    override fun getItemViewType(position: Int) = getItemViewTypeByPos(position)
+    override fun getItemViewType(position: Int) = viewImp.getItemViewTypeByPos(position)
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         handleClick(holder)

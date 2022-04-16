@@ -22,6 +22,8 @@ interface IARSHelper<T> {
 
     fun notifyUpdate(update: (T) -> Unit)
 
+    fun clear()
+
     /**
      * 在调用的时候添加，在onDestroy的时候移除
      */
@@ -106,5 +108,9 @@ open class ARSHelper<T>(htName: String? = null) : IARSHelper<T> {
         synchronized(this) {
             list.forEach { handler?.post { update.invoke(it) } ?: update.invoke(it) }
         }
+    }
+
+    override fun clear() {
+        list.clear()
     }
 }

@@ -76,6 +76,9 @@ data class Key(private val key: Int) {
 }
 
 internal open class TaskWrapper(val task: ITask) : ITask by task {
+
+    override val key: Key = task.key
+
     var state: State = State.Wait
         set(value) {
             val old = field

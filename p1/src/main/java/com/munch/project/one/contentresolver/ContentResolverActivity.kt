@@ -1,22 +1,19 @@
 package com.munch.project.one.contentresolver
 
 import android.Manifest
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import com.munch.lib.fast.base.BaseFastActivity
-import com.munch.lib.fast.notification.NotificationHelper
-import com.munch.lib.fast.view.SupportActionBar
+import com.munch.lib.fast.view.ISupportActionBar
 import com.munch.lib.fast.view.fvFv
 import com.munch.lib.log.log
-import com.munch.lib.result.OnIntentResultListener
 import com.munch.lib.result.OnPermissionResultListener
 import com.munch.lib.result.ResultHelper
 
 /**
  * Create by munch1182 on 2022/4/16 11:06.
  */
-class ContentResolverActivity : BaseFastActivity(), SupportActionBar {
+class ContentResolverActivity : BaseFastActivity(), ISupportActionBar {
 
     private val bind by fvFv(
         arrayOf(

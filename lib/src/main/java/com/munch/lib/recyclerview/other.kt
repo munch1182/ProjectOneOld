@@ -28,7 +28,7 @@ open class ViewAdapter : BaseRecyclerViewAdapter<Byte, BaseViewHolder>() {
 
 class EmptyAdapter(private var emptyNotice: CharSequence? = null) : ViewAdapter() {
 
-    override fun createVH(parent: ViewGroup, viewType: Int): BaseViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return BaseViewHolder(TextView(parent.context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -41,7 +41,7 @@ class EmptyAdapter(private var emptyNotice: CharSequence? = null) : ViewAdapter(
 }
 
 class RefreshAdapter : ViewAdapter() {
-    override fun createVH(parent: ViewGroup, viewType: Int): BaseViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return BaseViewHolder(TextView(parent.context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -55,7 +55,7 @@ class RefreshAdapter : ViewAdapter() {
 }
 
 class LoadMoreAdapter : ViewAdapter() {
-    override fun createVH(parent: ViewGroup, viewType: Int): BaseViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return BaseViewHolder(TextView(parent.context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,

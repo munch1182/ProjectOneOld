@@ -32,6 +32,8 @@ interface OnCancelListener {
 
 typealias OnCancel = () -> Unit
 
+typealias OnShow = () -> Unit
+
 interface Cancelable {
     fun cancel()
 }

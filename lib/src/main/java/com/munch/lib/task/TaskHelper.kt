@@ -32,7 +32,7 @@ class TaskHelper {
         // todo 其它方式保证执行顺序
         runBlocking {
             val wrapper = TaskWrapper(task)
-            mapLock.withLock { map[task.key] = wrapper }
+            mapLock.withLock { map[wrapper.key] = wrapper }
             when (task) {
                 is ITaskOrder -> orderHandler.add(wrapper)
                 else -> normalHandler.add(wrapper)

@@ -28,6 +28,11 @@ open class BaseFastActivity : AppCompatActivity(), ActivityDispatch {
         return getOnActivityCreate().onOptionsItemSelected(this, item)
     }
 
+    override fun onDestroy() {
+        super<AppCompatActivity>.onDestroy()
+        getOnActivityCreate().onDestroy(this)
+    }
+
     fun toast(str: CharSequence) {
         runOnUiThread { Toast.makeText(AppHelper.app, str, Toast.LENGTH_SHORT).show() }
     }
