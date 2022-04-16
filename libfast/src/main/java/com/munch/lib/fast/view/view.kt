@@ -4,11 +4,8 @@ package com.munch.lib.fast.view
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Canvas
+import android.content.Intent
 import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -16,19 +13,21 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.view.children
-import androidx.core.view.get
-import androidx.core.view.setPadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.munch.lib.base.InitFunInterface
 import com.munch.lib.base.OnViewTagClickListener
-import com.munch.lib.extend.*
+import com.munch.lib.extend.LinearLineItemDecoration
+import com.munch.lib.extend.clickItem
+import com.munch.lib.extend.newMWLp
 import com.munch.lib.fast.R
-import com.munch.lib.log.log
 import com.munch.lib.recyclerview.BaseRecyclerViewAdapter
 import com.munch.lib.recyclerview.BaseViewHolder
+import com.munch.lib.recyclerview.setOnItemClickListener
 import com.munch.lib.weight.FlowLayout
 import com.munch.lib.weight.Space
+import kotlin.reflect.KClass
 
 /**
  * Created by munch1182 on 2022/4/15 23:23.
@@ -46,7 +45,7 @@ interface IFastView : InitFunInterface {
      */
     fun onAddView(): View
 
-    fun onViewCreate()
+    fun onViewAdd()
 
     override fun init() {
         //nothing
@@ -54,20 +53,56 @@ interface IFastView : InitFunInterface {
 }
 
 
+//<editor-fold desc="FastView,主题需要App.Fast">
 /**
- * 主题需要引用App.Fast
+ * 传入adapter实现RecyclerView布局
  */
 inline fun <D> Activity.fvRv(
     adapter: BaseRecyclerViewAdapter<D, BaseViewHolder>,
     lm: RecyclerView.LayoutManager = LinearLayoutManager(this)
 ) = fv<FVRecyclerView<D>> { FVRecyclerView(this, adapter, lm) }
 
+/**
+ * 两行TextView的RecyclerView
+ */
 inline fun Activity.fvLinesRv(str: List<Pair<String, String>>) =
     fv<FVLinesRvView> { FVLinesRvView(this, str) }
 
+/**
+ * 单行TextView的RecyclerView
+ */
 inline fun Activity.fvLineRv(str: List<String>) = fv<FVLineRvView> { FVLineRvView(this, str) }
-inline fun Activity.fvFv(names: Array<String>) = fv<FVFlowView> { FVFlowView(this, names) }
 
+/**
+ * 显示由Class名组成的Rv，点击即可跳转该Class(如果该Class可跳转)
+ */
+inline fun Activity.fvClassRv(target: List<KClass<*>>) =
+    fv<FVLineRvView> {
+        object : FVLineRvView(this,
+            target.map { it.simpleName?.replace("Activity", "") ?: "" }) {
+
+            override fun onViewAdd() {
+                super.onViewAdd()
+                adapter.setOnItemClickListener { _, pos, _ ->
+                    target.getOrNull(pos)?.let {
+                        try {
+                            startActivity(Intent(this@fvClassRv, it.java))
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+/**
+ * 包裹Btn的FlowView
+ */
+inline fun Activity.fvFv(names: Array<String>) = fv<FVFlowView> { FVFlowView(this, names) }
+//</editor-fold>
+
+//<editor-fold desc="FastViewImp">
 @Suppress("UNCHECKED_CAST")
 inline fun <D : IFastView> Activity.fv(
     crossinline creator: () -> IFastView
@@ -75,7 +110,7 @@ inline fun <D : IFastView> Activity.fv(
     return lazy {
         creator.invoke().apply {
             setContentView(onAddView(), lp)
-            onViewCreate()
+            onViewAdd()
         } as D
     }
 }
@@ -90,14 +125,16 @@ open class FVRecyclerView<D>(
 
     override fun onAddView() = view
 
-    override fun onViewCreate() {
+    override fun onViewAdd() {
         view.layoutManager = lm
         view.adapter = adapter
     }
 }
 
-class FVLineRvView(context: Context, str: List<String>) : FVRecyclerView<String>(context,
+open class FVLineRvView(context: Context, str: List<String>) : FVRecyclerView<String>(
+    context,
     object : BaseRecyclerViewAdapter<String, BaseViewHolder>({ ctx ->
+        // todo 此方法添加的view宽度无法铺满
         TextView(ctx, null, R.attr.fastAttrTvLine)
     }) {
 
@@ -111,8 +148,8 @@ class FVLineRvView(context: Context, str: List<String>) : FVRecyclerView<String>
     }) {
 
 
-    override fun onViewCreate() {
-        super.onViewCreate()
+    override fun onViewAdd() {
+        super.onViewAdd()
         view.setBackgroundColor(Color.WHITE)
         view.addItemDecoration(LinearLineItemDecoration(view.layoutManager as LinearLayoutManager))
     }
@@ -121,7 +158,7 @@ class FVLineRvView(context: Context, str: List<String>) : FVRecyclerView<String>
 class FVLinesRvView(context: Context, str: List<Pair<String, String>>) :
     FVRecyclerView<Pair<String, String>>(context,
         object : BaseRecyclerViewAdapter<Pair<String, String>, BaseViewHolder>({ ctx ->
-            LinearLayout(ctx, null, R.attr.fastAttrLinearLayout).apply {
+            LinearLayout(ctx, null, R.attr.fastAttrLineHorizontal).apply {
                 addView(TextView(ctx, null, R.attr.fastAttrTvNormal))
                 addView(TextView(ctx, null, R.attr.fastAttrTvDesc))
             }
@@ -137,20 +174,24 @@ class FVLinesRvView(context: Context, str: List<Pair<String, String>>) :
                 (vg.getChildAt(1) as? TextView)?.text = bean.second
             }
         }) {
+    override fun onViewAdd() {
+        super.onViewAdd()
+        view.setBackgroundColor(Color.WHITE)
+        view.addItemDecoration(LinearLineItemDecoration(view.layoutManager as LinearLayoutManager))
+    }
 }
 
 class FVFlowView(override val context: Context, names: Array<String> = arrayOf()) : IFastView {
 
-    private val view = FlowLayout(context).apply {
-        setPadding(dp2Px(16f).toInt())
+    private val view = FlowLayout(context, null, R.attr.fastAttrContainer).apply {
         names.forEach { if (it.isEmpty()) addView(Space(context)) else addView(childBtn(it)) }
     }
 
-    private fun childBtn(str: String) = AppCompatButton(context).apply { text = str }
+    private fun childBtn(str: String) = MaterialButton(context).apply { text = str }
 
     override fun onAddView() = view
 
-    override fun onViewCreate() {
+    override fun onViewAdd() {
     }
 
     fun click(listener: (view: View, index: Int) -> Unit) {
@@ -179,3 +220,4 @@ class FVFlowView(override val context: Context, names: Array<String> = arrayOf()
         view.addView(Space(context))
     }
 }
+//</editor-fold>

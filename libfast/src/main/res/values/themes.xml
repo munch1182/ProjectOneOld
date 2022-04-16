@@ -6,49 +6,63 @@
     <style name="App.Fast" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="fastAttrTvNormal">@style/App.Fast.TextView.Normal</item>
         <item name="fastAttrTvLine">@style/App.Fast.TextView.Normal.Line</item>
+        <item name="fastAttrLine">@style/App.Fast.Line</item>
         <item name="fastAttrTvDesc">@style/App.Fast.TextView.Desc</item>
-        <item name="fastAttrLinearLayout">@style/App.Fast.LinearLayout.Vertical</item>
-        <item name="fastAttrSpaceHorizontal">@style/App.Fast.Horizontal</item>
-        <item name="fastAttrSpaceVertical">@style/App.Fast.Vertical</item>
-        <item name="fastAttrPadding">@style/App.Fast.Padding</item>
+        <item name="fastAttrLineVertical">@style/App.Fast.Vertical</item>
+        <item name="fastAttrLineHorizontal">@style/App.Fast.Horizontal</item>
+        <item name="fastAttrSpaceHorizontal">@style/App.Fast.Space.Horizontal</item>
+        <item name="fastAttrSpaceVertical">@style/App.Fast.Space.Vertical</item>
+        <item name="fastAttrPadding">@style/App.Fast.PaddingRect</item>
+        <item name="fastAttrContainer">@style/App.Fast.PaddingFull</item>
+        <item name="android:windowBackground">@color/colorBg</item>
     </style>
 
     <attr name="fastAttrTvNormal" format="reference" />
+    <attr name="fastAttrLine" format="reference" />
     <attr name="fastAttrTvLine" format="reference" />
     <attr name="fastAttrTvDesc" format="reference" />
-    <attr name="fastAttrLinearLayout" format="reference" />
+    <attr name="fastAttrLineVertical" format="reference" />
+    <attr name="fastAttrLineHorizontal" format="reference" />
     <attr name="fastAttrSpaceHorizontal" format="reference" />
     <attr name="fastAttrSpaceVertical" format="reference" />
     <attr name="fastAttrPadding" format="reference" />
+    <attr name="fastAttrContainer" format="reference" />
+    <attr name="fastAttrBtn" format="reference" />
 
     <!--设置左右dimenDef，上下dimenDefSmall的padding-->
-    <style name="App.Fast.Padding">
+    <style name="App.Fast.PaddingRect">
         <item name="android:paddingStart">@dimen/dimenDef</item>
         <item name="android:paddingEnd">@dimen/dimenDef</item>
         <item name="android:paddingTop">@dimen/dimenDefSmall</item>
         <item name="android:paddingBottom">@dimen/dimenDefSmall</item>
+    </style>
+
+    <style name="App.Fast.PaddingFull">
+        <item name="android:padding">@dimen/dimenDef</item>
     </style>
 
     <!--基类text，设置ww-->
     <style name="App.Fast.TextView">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat</item>
     </style>
 
     <!--一般用TextView-->
     <style name="App.Fast.TextView.Normal">
-        <item name="android:textSize">@dimen/spDefText</item>
+        <item name="android:textSize">@dimen/spDefNormal</item>
         <item name="android:textColor">@color/colorTextDef</item>
     </style>
 
-    <!--占据整行的TextView，设置了默认padding、白色背景和点击效果-->
-    <style name="App.Fast.TextView.Normal.Line">
-        <item name="android:textSize">@dimen/spDefText</item>
+    <style name="App.Fast.TextView.Normal.Line" parent="App.Fast.Line">
+        <item name="android:textSize">@dimen/spDefNormal</item>
         <item name="android:textColor">@color/colorTextDef</item>
-        <item name="android:paddingStart">@dimen/dimenDef</item>
-        <item name="android:paddingEnd">@dimen/dimenDef</item>
-        <item name="android:paddingTop">@dimen/dimenDefSmall</item>
-        <item name="android:paddingBottom">@dimen/dimenDefSmall</item>
+    </style>
+
+    <!--占据整行，设置了默认padding、白色背景和点击效果-->
+    <style name="App.Fast.Line" parent="App.Fast.PaddingFull">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@color/colorWhite</item>
         <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
@@ -59,23 +73,11 @@
         <item name="android:textColor">@color/colorTextGray</item>
     </style>
 
-    <!--一行的LinearLayout，设置了默认padding、白色背景和点击效果-->
-    <style name="App.Fast.LinearLayout">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingStart">@dimen/dimenDef</item>
-        <item name="android:paddingEnd">@dimen/dimenDef</item>
-        <item name="android:paddingTop">@dimen/dimenDefSmall</item>
-        <item name="android:paddingBottom">@dimen/dimenDefSmall</item>
-        <item name="android:background">@color/colorWhite</item>
-        <item name="android:foreground">?attr/selectableItemBackground</item>
-    </style>
-
-    <style name="App.Fast.LinearLayout.Vertical">
+    <style name="App.Fast.Vertical" parent="App.Fast.Line">
         <item name="android:orientation">vertical</item>
     </style>
 
-    <style name="App.Fast.LinearLayout.Horizontal">
+    <style name="App.Fast.Horizontal" parent="App.Fast.Line">
         <item name="android:orientation">horizontal</item>
     </style>
 
@@ -84,12 +86,12 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="App.Fast.Vertical">
+    <style name="App.Fast.Space.Vertical">
         <item name="android:layout_height">0dp</item>
         <item name="android:layout_weight">1</item>
     </style>
 
-    <style name="App.Fast.Horizontal">
+    <style name="App.Fast.Space.Horizontal">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
     </style>

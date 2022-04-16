@@ -16,17 +16,17 @@ class ResultFragment : Fragment(),
     private val intent: IntentRequest = IntentRequestHandler(this)
     private val judge: Judge2ResultRequest = Judge2ResultRequestHandler(this)
 
-    override fun startIntent(intent: Intent, listener: OnIntentResultListener) {
+    override fun startIntent(intent: Intent, listener: OnIntentResultListener?) {
         this.intent.startIntent(intent, listener)
     }
 
-    override fun judge2Result(judge: OnJudge, intent: Intent, listener: OnJudgeResultListener) {
+    override fun judge2Result(judge: OnJudge, intent: Intent, listener: OnJudgeResultListener?) {
         this.judge.judge2Result(judge, intent, listener)
     }
 
     override fun requestPermissions(
         permissions: Array<out String>,
-        listener: OnPermissionResultListener
+        listener: OnPermissionResultListener?
     ) {
         this.permission.requestPermissions(permissions, listener)
     }

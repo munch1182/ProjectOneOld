@@ -7,7 +7,9 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.munch.lib.AppHelper
+import com.munch.lib.extend.getColorPrimary
 import com.munch.lib.fast.view.ActivityDispatch
+import com.munch.lib.helper.BarHelper
 
 /**
  * Created by munch1182 on 2022/4/15 23:04.
@@ -18,6 +20,7 @@ open class BaseFastActivity : AppCompatActivity(), ActivityDispatch {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onBar()
         getOnActivityCreate().onCreateActivity(this)
     }
 
@@ -27,5 +30,9 @@ open class BaseFastActivity : AppCompatActivity(), ActivityDispatch {
 
     fun toast(str: CharSequence) {
         runOnUiThread { Toast.makeText(AppHelper.app, str, Toast.LENGTH_SHORT).show() }
+    }
+
+    protected open fun onBar() {
+        BarHelper(this).colorStatusBar(getColorPrimary())
     }
 }

@@ -12,7 +12,7 @@ import com.munch.lib.result.OnIntentResultListener
  * Created by munch1182 on 2022/4/10 4:18.
  */
 interface IntentRequest {
-    fun startIntent(intent: Intent, listener: OnIntentResultListener)
+    fun startIntent(intent: Intent, listener: OnIntentResultListener?)
 }
 
 class IntentRequestHandler(fragment: Fragment) : IntentRequest, Resettable,
@@ -25,7 +25,7 @@ class IntentRequestHandler(fragment: Fragment) : IntentRequest, Resettable,
             reset()
         }
 
-    override fun startIntent(intent: Intent, listener: OnIntentResultListener) {
+    override fun startIntent(intent: Intent, listener: OnIntentResultListener?) {
         this.listener = listener
         onResultLauncher.launch(intent)
     }

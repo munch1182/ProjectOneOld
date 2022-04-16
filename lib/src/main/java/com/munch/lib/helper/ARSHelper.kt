@@ -83,7 +83,7 @@ interface IARSHelper<T> {
 
 open class ARSHelper<T>(htName: String? = null) : IARSHelper<T> {
 
-    private val list = mutableListOf<T>()
+    protected open val list = mutableListOf<T>()
     private val handler by lazy { htName?.let { ThreadHandler(it) } }
 
     override fun add(t: T) {

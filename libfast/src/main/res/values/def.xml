@@ -4,8 +4,9 @@
     <dimen name="dimenDefSmall">8dp</dimen>
 
     <!--系统默认字体大小-->
-    <dimen name="spDefText">14sp</dimen>
-    <dimen name="spDefDesc">10sp</dimen>
+    <dimen name="spDef">14sp</dimen>
+    <dimen name="spDefNormal">16sp</dimen>
+    <dimen name="spDefDesc">12sp</dimen>
 
     <color name="colorTextDef">#000</color>
     <color name="colorTextWhite">#fff</color>

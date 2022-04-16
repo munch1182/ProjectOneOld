@@ -132,6 +132,9 @@ fun ViewGroup.clickItem(listener: OnViewTagClickListener<Int>, vararg target: KC
     }
 }
 
+/**
+ * 一个使用颜色线分割的RecyclerView.ItemDecoration
+ */
 class LinearLineItemDecoration(
     private val lm: LinearLayoutManager,
     lineHeight: Float = 1f,
@@ -170,3 +173,6 @@ class LinearLineItemDecoration(
     }
 }
 
+inline fun View.parentView() = parent as? ViewGroup
+
+inline fun View.leaveParent() = parentView()?.removeView(this)

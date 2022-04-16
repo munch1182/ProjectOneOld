@@ -52,14 +52,14 @@ class ResultHelper(private val fm: FragmentManager) {
         private val fragment: ResultFragment
     ) {
 
-        fun request(listener: OnPermissionResultListener) {
+        fun request(listener: OnPermissionResultListener?) {
             fragment.requestPermissions(permissions, listener)
         }
     }
 
     class IntentRequest(private val intent: Intent, private val fragment: ResultFragment) {
 
-        fun start(listener: OnIntentResultListener) {
+        fun start(listener: OnIntentResultListener?) {
             fragment.startIntent(intent, listener)
         }
     }
@@ -70,7 +70,7 @@ class ResultHelper(private val fm: FragmentManager) {
         private val fragment: ResultFragment
     ) {
 
-        fun result(listener: OnJudgeResultListener) {
+        fun result(listener: OnJudgeResultListener?) {
             fragment.judge2Result(judge, intent, listener)
         }
     }

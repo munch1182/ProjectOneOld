@@ -11,7 +11,7 @@ import com.munch.lib.result.OnPermissionResultListener
  * Created by munch1182 on 2022/4/10 4:17.
  */
 interface PermissionRequest {
-    fun requestPermissions(permissions: Array<out String>, listener: OnPermissionResultListener)
+    fun requestPermissions(permissions: Array<out String>, listener: OnPermissionResultListener?)
 }
 
 class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettable,
@@ -53,7 +53,7 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
 
     override fun requestPermissions(
         permissions: Array<out String>,
-        listener: OnPermissionResultListener
+        listener: OnPermissionResultListener?
     ) {
 
         reset()

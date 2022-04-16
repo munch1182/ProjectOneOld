@@ -32,6 +32,7 @@ interface SupportActionBar : ActivityDispatch {
         activity.supportActionBar?.apply {
             this.setDisplayHomeAsUpEnabled(showHome)
         }
+        activity.title = activity::class.simpleName?.replace("Activity", "")
     }
 
     override fun onOptionsItemSelected(activity: Activity, item: MenuItem): Boolean {

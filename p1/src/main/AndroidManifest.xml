@@ -4,6 +4,9 @@
     package="com.munch.project.one">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
 
     <application
         android:name="com.munch.lib.fast.BaseApp"
@@ -14,7 +17,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ProjectOne"
+        android:theme="@style/App.Theme.ProjectOne"
         tools:targetApi="s">
         <activity
             android:name=".MainActivity"
@@ -25,6 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".contentresolver.ContentResolverActivity" />
     </application>
 
 </manifest>
