@@ -1,6 +1,5 @@
 package com.munch.lib.fast.view
 
-import android.app.Activity
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 
@@ -25,10 +24,10 @@ interface ISupportActionBar : ActivityDispatch {
             activity.onBackPressed()
             return true
         }
-        return false
+        return super.onOptionsItemSelected(activity, item)
     }
 }
 
 object SupportActionBar : ISupportActionBar {
-    override val list: MutableList<ActivityDispatch> = mutableListOf()
+    override val dispatchers: MutableList<ActivityDispatch> = mutableListOf()
 }

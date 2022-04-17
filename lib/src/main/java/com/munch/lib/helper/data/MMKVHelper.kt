@@ -4,6 +4,7 @@ package com.munch.lib.helper.data
 import android.content.Context
 import android.os.Parcelable
 import com.munch.lib.AppHelper
+import com.munch.lib.helper.data.MMKVHelper.Companion.init
 import com.tencent.mmkv.MMKV
 
 /**

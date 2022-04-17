@@ -3,8 +3,6 @@
 package com.munch.lib.extend
 
 import android.content.Context
-import android.content.res.TypedArray
-import androidx.annotation.ArrayRes
 import androidx.annotation.ColorRes
 import com.munch.lib.AppHelper
 

@@ -6,13 +6,10 @@ apply from: '../buildCom/commonbuildktx.gradle'
 
 dependencies {
 
-    implementation Deps.material
-    implementation Deps.constraintLayout
-    implementation Deps.coroutines
-    implementation Deps.swipeRefreshLayout
-    implementation Deps.permissionX
-    implementation Deps.activityKtx
-    implementation Deps.fragmentKtx
+    implementation deps['swipeRefreshLayout']
+    implementation deps['permissionX']
+    implementation deps['activityKtx']
+    implementation deps['fragmentKtx']
     implementation project(path: ':libfast')
     implementation project(path: ':wheelview')
 }

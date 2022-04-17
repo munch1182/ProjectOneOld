@@ -6,8 +6,8 @@ apply from: '../buildCom/commonbuildktx.gradle'
 
 dependencies {
 
-    api Deps.material
-    api Deps.coroutines
-    api Deps.mmkv
-    api Deps.recyclerview
+    api deps['appcompat']
+    api deps['coroutines']
+    api deps['mmkv']
+    api deps['recyclerview']
 }

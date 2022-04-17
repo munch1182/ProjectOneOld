@@ -1,6 +1,5 @@
 package com.munch.lib.extend
 
-import com.munch.lib.extend.*
 import junit.framework.TestCase
 import java.util.*
 

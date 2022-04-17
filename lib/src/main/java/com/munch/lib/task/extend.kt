@@ -1,4 +1,3 @@
-/**/
 @file:Suppress("NOTHING_TO_INLINE")
 
 package com.munch.lib.task
@@ -6,8 +5,8 @@ package com.munch.lib.task
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
-import java.lang.Math.min
 import java.lang.Math.max
+import java.lang.Math.min
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicInteger
 

@@ -1,30 +1,29 @@
 package com.munch.lib.fast.view
 
-import android.app.Activity
+import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import com.munch.lib.UnImplException
-import com.munch.lib.UnSupportException
 
 /**
  * Created by munch1182 on 2022/4/16 1:03.
  */
 /**
  * 将Activity的活动分发出去
+ * 其余的生命周期可以在onCreate中使用Lifecycle获取
  *
  * 可用于Activity固定设置的分发
  */
 interface ActivityDispatch {
 
-    val list: MutableList<ActivityDispatch>
-        get() = mutableListOf()
+    val dispatchers: MutableList<ActivityDispatch>?
+        get() = null
 
     fun onCreateActivity(activity: AppCompatActivity) {
-        list.forEach { it.onCreateActivity(activity) }
+        dispatchers?.forEach { it.onCreateActivity(activity) }
     }
 
     fun onOptionsItemSelected(activity: AppCompatActivity, item: MenuItem): Boolean {
-        list.forEach {
+        dispatchers?.forEach {
             if (it.onOptionsItemSelected(activity, item)) {
                 return true
             }
@@ -34,13 +33,35 @@ interface ActivityDispatch {
 
     fun getOnActivityCreate() = this
 
+    /**
+     * 如果有单个实现，则可以用接口的默认实现实现本接口并由需要的类实现
+     * 如果有多个实现，可以进行组合，即让需要的类实现本接口，并使用类委托委托给所有组合的实现类相加的结果
+     * 注意：相加后被添加的实现是否实现、实现顺序由添加的实现对ActivityDispatch默认实现的调用决定
+     */
     operator fun plus(dispatch: ActivityDispatch): ActivityDispatch {
-        list.add(dispatch)
+        dispatchers?.add(dispatch)
         return this
     }
 
     fun onDestroy(activity: AppCompatActivity) {
-        list.forEach { it.onDestroy(activity) }
-        list.clear()
+        dispatchers?.forEach { it.onDestroy(activity) }
+        dispatchers?.clear()
+    }
+}
+
+open class DispatcherActivity : AppCompatActivity(), ActivityDispatch {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        getOnActivityCreate().onCreateActivity(this)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return getOnActivityCreate().onOptionsItemSelected(this, item)
+    }
+
+    override fun onDestroy() {
+        super<AppCompatActivity>.onDestroy()
+        getOnActivityCreate().onDestroy(this)
     }
 }

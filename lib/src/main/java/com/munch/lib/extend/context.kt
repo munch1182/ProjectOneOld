@@ -16,8 +16,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.util.TypedValue
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import androidx.annotation.ArrayRes
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes

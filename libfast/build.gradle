@@ -6,7 +6,6 @@ apply from: '../buildCom/commonbuildktx.gradle'
 
 dependencies {
 
-    api Deps.material
-    api Deps.constraintLayout
+    api deps['material']
     api project(path: ':lib')
 }

@@ -8,3 +8,13 @@ plugins {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+apply from: './buildCom/androidversion.gradle'
+
+allprojects {
+
+    configurations.all {
+        resolutionStrategy.force "androidx.activity:activity:${Version['ACTIVITY_VERSION']}"
+        resolutionStrategy.force "androidx.fragment:fragment:${Version['FRAGMENT_VERSION']}"
+        resolutionStrategy.force "androidx.lifecycle:lifecycle-runtime:${Version['LIFECYCLE_VERSION']}"
+    }
+}

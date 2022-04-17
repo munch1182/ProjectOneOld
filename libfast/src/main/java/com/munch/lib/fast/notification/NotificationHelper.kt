@@ -8,7 +8,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.graphics.drawable.IconCompat
 import com.munch.lib.AppHelper
 import com.munch.lib.extend.SingletonHolder
 import com.munch.lib.fast.R

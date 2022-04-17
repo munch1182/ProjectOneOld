@@ -1,18 +1,13 @@
 package com.munch.lib.fast.view
 
 import android.app.Activity
-import android.app.Dialog
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.munch.lib.extend.BindBottomSheetDialogFragment
 import com.munch.lib.fast.R
+import com.munch.lib.fast.base.BindBottomSheetDialogFragment
 import com.munch.lib.fast.base.DataHelper
 import com.munch.lib.fast.databinding.LayoutConfigDialogBinding
-import com.munch.lib.log.log
 
 /**
  * Created by munch1182 on 2022/4/17 2:15.
@@ -26,15 +21,14 @@ class ConfigDialog(private val clazz: String) : BindBottomSheetDialogFragment() 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        bind.configStartUp.setOnClickListener { saveStartUp() }
+        bind.configStartUp.setOnCheckedChangeListener { _, isChecked -> saveStartUp(isChecked) }
 
-        DataHelper.getStartUp()?.let { it.canonicalName == clazz }?.let {
-            bind.configStartUp.isChecked = it
-        }
+        DataHelper.getStartUp()?.let { it.canonicalName == clazz }
+            ?.let { bind.configStartUp.isChecked = it }
     }
 
-    private fun saveStartUp() {
-        DataHelper.saveStartUp(clazz)
+    private fun saveStartUp(save: Boolean) {
+        DataHelper.saveStartUp(if (save) clazz else null)
     }
 
     override fun getTheme() = R.style.App_Fast_Dialog_Bottom
@@ -57,5 +51,5 @@ interface ISupportConfigDialog : ActivityDispatch {
 
 object SupportConfigDialog : ISupportConfigDialog {
 
-    override val list: MutableList<ActivityDispatch> = mutableListOf()
+    override val dispatchers: MutableList<ActivityDispatch> = mutableListOf()
 }

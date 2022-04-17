@@ -1,7 +1,5 @@
 package com.munch.lib.fast.base
 
-import android.content.Context
-import android.content.Intent
 import com.munch.lib.helper.data.DataFun
 import com.munch.lib.helper.data.MMKVHelper
 
@@ -14,7 +12,7 @@ object DataHelper : DataFun<String> by MMKVHelper.default() {
     //<editor-fold desc="startup">
     private const val KEY_START_UP = "start_up"
 
-    fun saveStartUp(clazz: String) {
+    fun saveStartUp(clazz: String?) {
         put(KEY_START_UP, clazz)
     }
 
