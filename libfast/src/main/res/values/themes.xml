@@ -54,6 +54,10 @@
         <item name="android:textColor">@color/colorTextDef</item>
     </style>
 
+    <style name="App.Fast.TextView.Normal.Title">
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="App.Fast.TextView.Normal.Line" parent="App.Fast.Line">
         <item name="android:textSize">@dimen/spDefNormal</item>
         <item name="android:textColor">@color/colorTextDef</item>
@@ -96,11 +100,24 @@
         <item name="android:layout_weight">1</item>
     </style>
 
-    <style name="App.Fast.Dialog" parent="Theme.MaterialComponents.BottomSheetDialog">
+    <style name="App.Fast.Dialog" parent="Theme.MaterialComponents.Dialog.Alert">
         <item name="android:background">@color/colorTran</item>
         <item name="android:windowBackground">@color/colorTran</item>
         <item name="android:windowFrame">@null</item>
     </style>
 
-    <style name="App.Fast.Dialog.Bottom"/>
+    <!--内容背景透明的BottomSheetDialog-->
+    <style name="App.Fast.Dialog.Bottom" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/StyleDialogBottomSheet</item>
+    </style>
+
+    <style name="StyleDialogBottomSheet" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="android:windowBackground">@color/colorTran</item>
+    </style>
+
+    <style name="StyleLineSplit">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/colorGray</item>
+    </style>
 </resources>

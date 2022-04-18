@@ -1,0 +1,20 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
+apply from: '../buildCom/commonbuildktx.gradle'
+
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas".toString())
+    }
+}
+
+dependencies {
+
+    api deps['room']
+    api deps['roomKtx']
+    kapt deps['roomCompiler']
+    api deps['coroutines']
+}

@@ -12,7 +12,7 @@ import com.munch.lib.task.TaskHelper
  * Create by munch1182 on 2022/4/16 20:19.
  */
 class TaskActivity : BaseFastActivity(),
-    ActivityDispatch by (SupportActionBar + SupportConfigDialog) {
+    ActivityDispatch by (SupportActionBar + SupportConfigDialog()) {
 
     private val bind by fvFv(arrayOf("normal task", "", "order task"))
     private val taskHelper = TaskHelper()

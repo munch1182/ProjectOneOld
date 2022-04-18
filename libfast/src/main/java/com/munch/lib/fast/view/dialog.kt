@@ -1,22 +1,49 @@
 package com.munch.lib.fast.view
 
-import android.app.Activity
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
+import androidx.viewbinding.ViewBinding
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.munch.lib.extend.*
 import com.munch.lib.fast.R
 import com.munch.lib.fast.base.BindBottomSheetDialogFragment
 import com.munch.lib.fast.base.DataHelper
 import com.munch.lib.fast.databinding.LayoutConfigDialogBinding
+import java.lang.reflect.Method
 
 /**
  * Created by munch1182 on 2022/4/17 2:15.
  */
-class ConfigDialog(private val clazz: String) : BindBottomSheetDialogFragment() {
-
-    constructor(activity: Activity) : this(activity::class.java.canonicalName!!)
+open class ConfigDialog : BindBottomSheetDialogFragment() {
 
     private val bind by bind<LayoutConfigDialogBinding>()
+
+    private val clazz by lazy { activity?.let { it::class.java.canonicalName } }
+
+    var contentViewBinding: ViewBinding? = null
+        private set
+
+    protected var contentMethod: Method? = null
+
+    @Suppress("UNCHECKED_CAST")
+    protected inline fun <reified VB : ViewBinding> add(): Lazy<VB> {
+        contentMethod = VB::class.inflateParent()
+        return lazy { contentViewBinding as VB }
+    }
+
+    override fun inflaterView(inflater: LayoutInflater, container: ViewGroup?): View? {
+        return super.inflaterView(inflater, container)?.toViewGroup()?.apply {
+            contentMethod?.inflate(layoutInflater, this, false)?.let {
+                contentViewBinding = it
+                addView(it.root, 0)
+            }
+        }
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -39,17 +66,28 @@ interface ISupportConfigDialog : ActivityDispatch {
     override fun onCreateActivity(activity: AppCompatActivity) {
         super.onCreateActivity(activity)
 
-        val config = ConfigDialog(activity::class.java.canonicalName!!)
+        val config = onCreateDialog(activity)
 
-        // TODO: 改为手势操作
-        /*activity.window.decorView.rootView.setOnClickListener {
-
-        }*/
-        config.show(activity.supportFragmentManager, null)
+        val last = activity.contentView().parentView()?.children
+            ?.lastOrNull()?.toViewGroup() // actionBarContainer
+            ?.children?.firstOrNull() // toolbar
+        last?.setDoubleClickListener {
+            config.show(activity.supportFragmentManager, null)
+        }
     }
+
+    /**
+     * 在此方法中创建Activity，此方法只会被调用一次
+     */
+    fun onCreateDialog(activity: AppCompatActivity): BottomSheetDialogFragment = ConfigDialog()
 }
 
-object SupportConfigDialog : ISupportConfigDialog {
+class SupportConfigDialog(private val dialogCreator: ((AppCompatActivity) -> BottomSheetDialogFragment)? = null) :
+    ISupportConfigDialog {
 
     override val dispatchers: MutableList<ActivityDispatch> = mutableListOf()
+
+    override fun onCreateDialog(activity: AppCompatActivity): BottomSheetDialogFragment {
+        return dialogCreator?.invoke(activity) ?: super.onCreateDialog(activity)
+    }
 }

@@ -1,6 +1,7 @@
 package com.munch.lib.extend
 
 import androidx.activity.ComponentActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
 
 /**
@@ -58,4 +59,8 @@ inline fun <reified VM : ViewModel> ComponentActivity.get(scopeName: String): La
 
 inline fun <reified VM : ViewModel> ViewModelStoreOwner.get(): Lazy<VM> {
     return lazy { ViewModelProvider(this).get(VM::class.java) }
+}
+
+inline fun <reified VM : ViewModel> Fragment.get(): Lazy<VM> {
+    return lazy { ViewModelProvider(requireActivity()).get(VM::class.java) }
 }

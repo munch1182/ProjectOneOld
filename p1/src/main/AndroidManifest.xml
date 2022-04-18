@@ -30,6 +30,7 @@
         </activity>
         <activity android:name=".contentresolver.ContentResolverActivity" />
         <activity android:name=".task.TaskActivity" />
+        <activity android:name=".log.LogActivity" />
     </application>
 
 </manifest>

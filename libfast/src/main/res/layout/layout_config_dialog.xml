@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/App.Fast.PaddingFull"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/shape_top_radius_8_white"
-    android:orientation="vertical"
-    android:paddingStart="@dimen/dimenDef"
-    android:paddingEnd="@dimen/dimenDef">
+    android:orientation="vertical">
+
+    <View style="@style/StyleLineSplit" />
 
     <CheckBox
         android:id="@+id/config_start_up"

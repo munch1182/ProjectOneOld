@@ -11,6 +11,7 @@ interface OnUpdateListener {
 
 typealias OnUpdate = () -> Unit
 typealias OnReceive<T> = (received: T) -> Unit
+typealias OnIndexListener = (index: Int) -> Unit
 
 interface OnResultListener<T> {
     fun onResult(result: T)

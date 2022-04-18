@@ -2,15 +2,18 @@
 
 package com.munch.lib.extend
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.app.ComponentActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewbinding.ViewBinding
 import java.lang.reflect.Method
+import kotlin.reflect.KClass
 
 /**
  * Create by munch1182 on 2022/3/8 16:23.
@@ -21,17 +24,46 @@ inline fun ViewBinding.init() {
     }
 }
 
+inline fun <reified VB : ViewBinding> KClass<VB>.inflateParent(): Method? =
+    java.getDeclaredMethod(
+        "inflate",
+        LayoutInflater::class.java,
+        ViewGroup::class.java,
+        Boolean::class.java
+    )
+
+inline fun Method.inflate(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    attach: Boolean
+): ViewBinding? {
+    return try {
+        invoke(null, inflater, container, attach) as? ViewBinding
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+inline fun <reified VB : ViewBinding> KClass<VB>.inflate(): Method? =
+    java.getDeclaredMethod("inflate", LayoutInflater::class.java)
+
+inline fun Method.inflate(
+    inflater: LayoutInflater,
+): ViewBinding? {
+    return try {
+        invoke(null, inflater) as? ViewBinding
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+inline fun Activity.contentView(): FrameLayout = findViewById(android.R.id.content)
+
 inline fun <reified VB : ViewBinding> ComponentActivity.bind(): Lazy<VB> {
     return lazy {
-        try {
-            val method = VB::class.java.getDeclaredMethod("inflate", LayoutInflater::class.java)
-            method.isAccessible = true
-            (method.invoke(null, layoutInflater) as? VB)!!.also {
-                setContentView(it.root)
-            }
-        } catch (e: Exception) {
-            throw e
-        }
+        VB::class.inflate()!!.inflate(layoutInflater)!!.also { v -> setContentView(v.root) } as VB
     }
 }
 
@@ -50,12 +82,7 @@ open class BindFragment : Fragment() {
 
     @Suppress("UNCHECKED_CAST")
     protected inline fun <reified VB : ViewBinding> bind(): Lazy<VB> {
-        method = VB::class.java.getDeclaredMethod(
-            "inflate",
-            LayoutInflater::class.java,
-            ViewGroup::class.java,
-            Boolean::class.java
-        )
+        method = VB::class.inflateParent()
         return lazy { viewBinding as VB }
     }
 
@@ -65,22 +92,13 @@ open class BindFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         container ?: return super.onCreateView(inflater, container, savedInstanceState)
-        return bindView(inflater, container)
+        return viewBinding?.root
+            ?: inflaterView(inflater, container)
             ?: super.onCreateView(inflater, container, savedInstanceState)
     }
 
-    protected open fun bindView(inflater: LayoutInflater, container: ViewGroup?) =
-        viewBinding?.root ?: method?.let { m ->
-            try {
-                m.isAccessible = true
-                (m.invoke(null, inflater, container, false) as? ViewBinding)?.let {
-                    viewBinding = it
-                    it.root
-                }
-            } catch (e: Exception) {
-                null
-            }
-        }
+    protected open fun inflaterView(inflater: LayoutInflater, container: ViewGroup?) =
+        method?.inflate(inflater, container, false).apply { viewBinding = this }?.root
 
     override fun onDestroyView() {
         super.onDestroyView()

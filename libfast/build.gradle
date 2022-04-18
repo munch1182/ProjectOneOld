@@ -8,4 +8,5 @@ dependencies {
 
     api deps['material']
     api project(path: ':lib')
+    api project(path: ':record')
 }

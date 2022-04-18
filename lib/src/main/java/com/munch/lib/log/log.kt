@@ -1,4 +1,5 @@
 @file:Suppress("unused", "MemberVisibilityCanBePrivate")
+
 package com.munch.lib.log
 
 import android.util.Log
@@ -28,7 +29,7 @@ fun log(vararg any: Any?) {
 }
 
 fun logAll(vararg any: Any?) {
-    val log = Logger(infoStyle = InfoStyle.ALL).offsetMethod(1)
+    val log = Logger(infoStyle = InfoStyle.FULL).offsetMethod(1)
     when {
         any.isEmpty() -> log.log(null)
         any.size == 1 -> log.log(any[0])
@@ -41,15 +42,25 @@ fun logAll(vararg any: Any?) {
  */
 object LogLog : Logger()
 
-@IntDef(InfoStyle.NULL, InfoStyle.NORMAL, InfoStyle.ALL, InfoStyle.THREAD_ONLY)
+@IntDef(InfoStyle.NULL, InfoStyle.NORMAL, InfoStyle.FULL, InfoStyle.THREAD_ONLY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class InfoStyle {
 
     companion object {
+        private const val FLAG_THREAD = 1 shl 0
+        private const val FLAG_STACK_SIMPLE = 1 shl 1
+        private const val FLAG_STACK_ALL = 1 shl 2
+
         const val NULL = 0
-        const val NORMAL = 1
-        const val ALL = 2
-        const val THREAD_ONLY = 3
+        const val NORMAL = FLAG_THREAD or FLAG_STACK_SIMPLE
+        const val THREAD_ONLY = FLAG_THREAD
+        const val FULL = FLAG_THREAD or FLAG_STACK_ALL
+
+        internal fun hasThread(@InfoStyle flag: Int) = flag and FLAG_THREAD == FLAG_THREAD
+        internal fun stackSimple(@InfoStyle flag: Int) =
+            flag and FLAG_STACK_SIMPLE == FLAG_STACK_SIMPLE
+
+        internal fun stackAll(@InfoStyle flag: Int) = flag and FLAG_STACK_ALL == FLAG_STACK_ALL
     }
 }
 
@@ -72,6 +83,23 @@ open class Logger(
     }
 
     private var methodOffset = 0
+    private var onLog: OnLogListener? = null
+    private var onPrint: OnPrintListener? = null
+
+    fun style(@InfoStyle style: Int): Logger {
+        this.infoStyle = style
+        return this
+    }
+
+    fun setOnLogListener(onLog: OnLogListener?): Logger {
+        this.onLog = onLog
+        return this
+    }
+
+    fun setOnPrintListener(onPrint: OnPrintListener?): Logger {
+        this.onPrint = onPrint
+        return this
+    }
 
     fun offsetMethod(offset: Int): Logger {
         methodOffset = offset
@@ -90,37 +118,44 @@ open class Logger(
     }
 
     private fun logStr(msg: String) {
-        val thread = Thread.currentThread()
-        val track = dumpStack()
+        var thread: Thread? = null
+        if (InfoStyle.hasThread(infoStyle)) {
+            thread = Thread.currentThread()
+        }
+        var track: Array<String>? = null
+        if (InfoStyle.stackSimple(infoStyle)) {
+            track = dumpStack(1)
+        } else if (InfoStyle.stackAll(infoStyle)) {
+            track = dumpStack(2)
+        }
 
         val split = msg.split(FMT.LINE_SEPARATOR)
         if (split.size == 1) {
-            when (infoStyle) {
-                InfoStyle.NULL -> print(msg)
-                InfoStyle.THREAD_ONLY -> print("$msg (${thread.name})")
-                InfoStyle.NORMAL -> print("$msg (${thread.name}/${track[0]})")
-                else -> {
-                    print("$msg (${thread.name})")
-                    track.forEach { print("\t$it") }
-                }
-
+            if ((track?.size ?: 0) > 1) {
+                print("$msg (${thread?.name})")
+                track?.forEach { print("\t$it") }
+            } else {
+                print("$msg (${thread?.name}/${track?.get(0)})")
             }
         } else {
             split.forEach { print(it) }
-            when (infoStyle) {
-                InfoStyle.NULL -> {}
-                InfoStyle.THREAD_ONLY -> print("--- (${thread.name})")
-                InfoStyle.NORMAL -> print("--- (${thread.name}/${track[0]})")
-                else -> track.forEach { print(it) }
+            if ((track?.size ?: 0) > 1) {
+                print("--- (${thread?.name})")
+                track?.forEach { print("\t$it") }
+            } else {
+                print("--- (${thread?.name}/${track?.get(0)})")
             }
         }
+
+        onLog?.onLog(msg, tag, thread, track)
     }
 
     private fun print(msg: String) {
         Log.d(tag, msg)
+        onPrint?.onPrint(tag, msg)
     }
 
-    private fun dumpStack(): Array<String> {
+    private fun dumpStack(level: Int): Array<String> {
         if (infoStyle == InfoStyle.NULL) {
             return arrayOf(Str.EMPTY)
         }
@@ -142,7 +177,7 @@ open class Logger(
         if (index < 0 || trace.size <= index) {
             return arrayOf(Str.EMPTY)
         }
-        return if (infoStyle == InfoStyle.ALL) {
+        return if (level > 1) {
             trace.map { FMT.fmtStackTrace(it) }.toTypedArray()
         } else {
             arrayOf(FMT.fmtStackTrace(trace[index]))
@@ -153,6 +188,16 @@ open class Logger(
         companion object {
             internal const val EMPTY = ""
         }
+    }
+
+    interface OnLogListener {
+
+        fun onLog(log: String, tag: String, thread: Thread?, stack: Array<String>?)
+    }
+
+    interface OnPrintListener {
+
+        fun onPrint(tag: String, log: String)
     }
 }
 
@@ -302,7 +347,7 @@ object FMT {
         val sb = StringBuilder()
         sb.append("[")
         any.forEachIndexed { index, byte ->
-            if (index > 0){
+            if (index > 0) {
                 sb.append(", ")
             }
             sb.append(any2Str(byte))

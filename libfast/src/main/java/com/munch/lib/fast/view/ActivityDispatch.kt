@@ -31,7 +31,7 @@ interface ActivityDispatch {
         return false
     }
 
-    fun getOnActivityCreate() = this
+    fun getActivityDispatcher() = this
 
     /**
      * 如果有单个实现，则可以用接口的默认实现实现本接口并由需要的类实现
@@ -53,15 +53,15 @@ open class DispatcherActivity : AppCompatActivity(), ActivityDispatch {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        getOnActivityCreate().onCreateActivity(this)
+        getActivityDispatcher().onCreateActivity(this)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return getOnActivityCreate().onOptionsItemSelected(this, item)
+        return getActivityDispatcher().onOptionsItemSelected(this, item)
     }
 
     override fun onDestroy() {
         super<AppCompatActivity>.onDestroy()
-        getOnActivityCreate().onDestroy(this)
+        getActivityDispatcher().onDestroy(this)
     }
 }

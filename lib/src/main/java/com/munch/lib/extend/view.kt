@@ -14,11 +14,14 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.inputmethod.InputMethodManager
+import android.widget.Checkable
+import android.widget.CompoundButton
 import android.widget.EditText
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.munch.lib.base.OnIndexListener
 import com.munch.lib.base.OnViewTagClickListener
 import kotlin.reflect.KClass
 
@@ -31,6 +34,8 @@ interface OnViewUpdate<V : View> {
 
     fun updateView(update: V.() -> Unit)
 }
+
+inline fun View.toViewGroup() = this as? ViewGroup
 
 /**
  * 注意可能会重复调用的情形
@@ -176,3 +181,65 @@ class LinearLineItemDecoration(
 inline fun View.parentView() = parent as? ViewGroup
 
 inline fun View.leaveParent() = parentView()?.removeView(this)
+
+/**
+ * 双击回调
+ * 已占用OnClickListener
+ */
+inline fun View.setDoubleClickListener(doubleTime: Long = 500L, listener: View.OnClickListener?) {
+    setOnClickListener(object : View.OnClickListener {
+        private var lastClick = 0L
+        override fun onClick(v: View?) {
+            val now = System.currentTimeMillis()
+            if (now - lastClick < doubleTime) {
+                listener?.onClick(v)
+            }
+            lastClick = now
+        }
+
+    })
+}
+
+inline fun View.setClickListener(fastClickTime: Long = 500L, listener: View.OnClickListener?) {
+    setOnClickListener(object : View.OnClickListener {
+        private var lastClick = 0L
+        override fun onClick(v: View?) {
+            val now = System.currentTimeMillis()
+            if (now - lastClick >= fastClickTime) {
+                listener?.onClick(v)
+            }
+            lastClick = now
+        }
+    })
+}
+
+inline fun List<CompoundButton>.checkView(view: Checkable): Int {
+    var index = -1
+    forEachIndexed { i, btn ->
+        val check = btn == view
+        btn.isChecked = check
+        if (check) {
+            index = i
+        }
+    }
+    return index
+}
+
+inline fun ViewGroup.checkOnly(checkIndex: Int = 0, noinline onIndex: OnIndexListener?) {
+    children.filter { it is CompoundButton }
+        .map { it as CompoundButton }
+        .toList().checkOnly(checkIndex, onIndex)
+}
+
+inline fun List<CompoundButton>.checkOnly(checkIndex: Int = 0, noinline onIndex: OnIndexListener?) {
+    val listener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+        if (isChecked) {
+            val index = checkView(buttonView)
+            onIndex?.invoke(index)
+        }
+    }
+    forEachIndexed { index, checkable ->
+        checkable.isChecked = checkIndex == index
+        checkable.setOnCheckedChangeListener(listener)
+    }
+}
