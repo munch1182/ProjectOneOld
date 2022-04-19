@@ -17,4 +17,5 @@ dependencies {
     api deps['roomKtx']
     kapt deps['roomCompiler']
     api deps['coroutines']
+    api project(path: ':lib')
 }

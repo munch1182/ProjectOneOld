@@ -4,6 +4,8 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.setPadding
+import com.munch.lib.extend.newMMLp
+import com.munch.lib.extend.newMWLp
 
 /**
  * Create by munch1182 on 2022/3/31 22:31.
@@ -31,11 +33,8 @@ class EmptyAdapter(private var emptyNotice: CharSequence? = null) : ViewAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return BaseViewHolder(TextView(parent.context).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-
+            layoutParams = newMMLp()
+            setPadding(16)
             gravity = Gravity.CENTER
             text = emptyNotice ?: "当前没有数据"
         })
@@ -45,10 +44,7 @@ class EmptyAdapter(private var emptyNotice: CharSequence? = null) : ViewAdapter(
 class RefreshAdapter : ViewAdapter() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return BaseViewHolder(TextView(parent.context).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            layoutParams = newMWLp()
             setPadding(16)
             gravity = Gravity.CENTER
             text = "正在刷新"
@@ -60,11 +56,9 @@ class RefreshAdapter : ViewAdapter() {
 class LoadMoreAdapter : ViewAdapter() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return BaseViewHolder(TextView(parent.context).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            layoutParams = newMWLp()
             gravity = Gravity.CENTER
+            setPadding(16)
             text = "正在加载更多"
         })
     }

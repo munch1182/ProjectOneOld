@@ -5,10 +5,10 @@ package com.munch.lib.task
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
-import java.lang.Math.max
-import java.lang.Math.min
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.max
+import kotlin.math.min
 
 
 /**
@@ -53,7 +53,8 @@ fun thread(
     return thread
 }
 
-object ThreadPoolHelper {
+object ThreadHelper {
+    //<editor-fold desc="pool">
     //cpu数量
     private val CPU_COUNT = Runtime.getRuntime().availableProcessors()
 
@@ -151,18 +152,22 @@ object ThreadPoolHelper {
     }
 
     fun <T> pool(task: Callable<T>): Future<T>? = cachedPool.submit(task)
+    //</editor-fold>
 
+    val mainHandler by lazy { Handler(Looper.getMainLooper()) }
 }
 
 inline fun pool(submit: Boolean = false, noinline block: () -> Unit) {
-    ThreadPoolHelper.pool(submit, block)
+    ThreadHelper.pool(submit, block)
 }
 
 inline fun pool(submit: Boolean = false, task: Runnable) {
-    ThreadPoolHelper.pool(submit, task)
+    ThreadHelper.pool(submit, task)
 }
 
-inline fun <T> pool(task: Callable<T>): Future<T>? = ThreadPoolHelper.pool(task)
+inline fun <T> pool(task: Callable<T>): Future<T>? = ThreadHelper.pool(task)
+
+inline fun postUI(runnable: Runnable) = ThreadHelper.mainHandler.post(runnable)
 
 open class ThreadHandler private constructor(loop: Looper) : Handler(loop) {
 

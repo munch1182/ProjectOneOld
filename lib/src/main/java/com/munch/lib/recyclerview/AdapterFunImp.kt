@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
 import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import com.munch.lib.recyclerview.AdapterFunImp.Default
 import com.munch.lib.recyclerview.AdapterFunImp.Differ
 import com.munch.lib.task.isMain
@@ -30,7 +31,7 @@ sealed class AdapterFunImp<D>(
         }
     }
 
-    fun bindAdapter(adapter: BaseRecyclerViewAdapter<*, *>) {
+    open fun bindAdapter(adapter: BaseRecyclerViewAdapter<*, *>) {
         this.adapter = adapter
     }
 
@@ -159,23 +160,31 @@ sealed class AdapterFunImp<D>(
      * [androidx.recyclerview.widget.AsyncListDiffer.submitList]的回调线程不是固定的
      */
     class Differ<D>(
-        private val differ: AsyncListDiffer<D>,
+        private val callback: DiffUtil.ItemCallback<D>,
         mainHandler: Handler = Handler(Looper.getMainLooper()),
         private val runnable: Runnable? = null
     ) : AdapterFunImp<D>(mainHandler) {
+
+        private var differ: AsyncListDiffer<D>? = null
+
+        override fun bindAdapter(adapter: BaseRecyclerViewAdapter<*, *>) {
+            super.bindAdapter(adapter)
+            differ = AsyncListDiffer(adapter, callback)
+        }
 
         override val itemSize: Int
             get() = list.size
 
         private val list: MutableList<D>
-            get() = differ.currentList
+            get() = differ?.currentList ?: mutableListOf()
 
         override fun set(newData: List<D>?) {
+            differ ?: throw IllegalArgumentException()
             if (list.isEmpty() || newData == null || newData.isEmpty()) {
-                impInMain { differ.submitList(newData, runnable) }
+                impInMain { differ?.submitList(newData, runnable) }
             } else {
                 //此方法在newData和data为null时会直接在当前线程回调，否则会在子线程中计算，在主线程中回调
-                differ.submitList(newData, runnable)
+                differ?.submitList(newData, runnable)
             }
         }
 

@@ -14,16 +14,15 @@ import android.widget.TextView
 import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import com.google.android.material.button.MaterialButton
-import com.munch.lib.base.InitFunInterface
-import com.munch.lib.base.OnViewTagClickListener
+import com.munch.lib.InitFunInterface
+import com.munch.lib.OnViewTagClickListener
 import com.munch.lib.extend.LinearLineItemDecoration
 import com.munch.lib.extend.clickItem
 import com.munch.lib.extend.newMWLp
 import com.munch.lib.fast.R
-import com.munch.lib.recyclerview.BaseRecyclerViewAdapter
-import com.munch.lib.recyclerview.BaseViewHolder
-import com.munch.lib.recyclerview.setOnItemClickListener
+import com.munch.lib.recyclerview.*
 import com.munch.lib.weight.FlowLayout
 import com.munch.lib.weight.Space
 import kotlin.reflect.KClass
@@ -58,7 +57,24 @@ interface IFastView : InitFunInterface {
 inline fun <D> Activity.fvRv(
     adapter: BaseRecyclerViewAdapter<D, BaseViewHolder>,
     lm: RecyclerView.LayoutManager = LinearLayoutManager(this)
-) = fv<FVRecyclerView<D>> { FVRecyclerView(this, adapter, lm) }
+) = fv<FVRecyclerView<D, BaseViewHolder>> { FVRecyclerView(this, adapter, lm) }
+
+inline fun <D, B : ViewBinding> Activity.fvBindRv(
+    adapter: BaseRecyclerViewAdapter<D, BaseBindViewHolder<B>>,
+    lm: RecyclerView.LayoutManager = LinearLayoutManager(this)
+) = fv<FVRecyclerView<D, BaseViewHolder>> { FVRecyclerView(this, adapter, lm) }
+
+inline fun <D> Activity.fvHelperRv(
+    adapter: BaseRecyclerViewAdapter<D, BaseViewHolder>,
+    lm: RecyclerView.LayoutManager = LinearLayoutManager(this)
+) = fv<FVRecyclerHelperView<D, BaseViewHolder>> { FVRecyclerView(this, adapter, lm) }
+
+inline fun <D, B : ViewBinding> Activity.fvHelperBindRv(
+    adapter: BaseRecyclerViewAdapter<D, BaseBindViewHolder<B>>,
+    lm: RecyclerView.LayoutManager = LinearLayoutManager(this)
+) = fv<FVRecyclerHelperView<D, BaseBindViewHolder<B>>> {
+    FVRecyclerHelperView(this, AdapterHelper(adapter), lm)
+}
 
 /**
  * 两行TextView的RecyclerView
@@ -113,9 +129,9 @@ inline fun <D : IFastView> Activity.fv(
     }
 }
 
-open class FVRecyclerView<D>(
+open class FVRecyclerView<D, B : BaseViewHolder>(
     override val context: Context,
-    val adapter: BaseRecyclerViewAdapter<D, BaseViewHolder>,
+    val adapter: BaseRecyclerViewAdapter<D, B>,
     private val lm: RecyclerView.LayoutManager = LinearLayoutManager(context)
 ) : IFastView {
 
@@ -131,24 +147,46 @@ open class FVRecyclerView<D>(
     }
 }
 
-open class FVLineRvView(context: Context, str: List<String>) : FVRecyclerView<String>(context,
-    object : BaseRecyclerViewAdapter<String, BaseViewHolder>({ ctx ->
-        // todo 此方法添加的view宽度无法铺满
-        TextView(ctx, null, R.attr.fastAttrTvLine)
-    }) {
+open class FVRecyclerHelperView<D, B : BaseViewHolder>(
+    override val context: Context,
+    val adapter: AdapterHelper<D, B>,
+    private val lm: RecyclerView.LayoutManager = LinearLayoutManager(context)
+) : IFastView {
 
-        init {
-            set(str)
+    protected val view by lazy { RecyclerView(context) }
+
+    override fun onAddView() = view
+
+    val rv: RecyclerView = view
+
+    override fun onViewAdd() {
+        adapter.bind(view)
+        view.layoutManager = lm
+        if (lm is LinearLayoutManager) {
+            view.addItemDecoration(LinearLineItemDecoration(lm))
         }
+    }
+}
+
+open class FVLineRvView(context: Context, str: List<String>) :
+    FVRecyclerView<String, BaseViewHolder>(context,
+        object : BaseRecyclerViewAdapter<String, BaseViewHolder>({ ctx ->
+            // 此方法添加的view宽度无法铺满
+            TextView(ctx, null, R.attr.fastAttrTvLine)
+        }) {
+
+            init {
+                set(str)
+            }
 
 
-        override fun onBind(holder: BaseViewHolder, position: Int, bean: String) {
-            (holder.itemView as? TextView)?.apply {
-                // TODO: 先这样处理铺满
-                layoutParams = newMWLp()
-            }?.text = bean
-        }
-    }) {
+            override fun onBind(holder: BaseViewHolder, position: Int, bean: String) {
+                (holder.itemView as? TextView)?.apply {
+                    // 先这样处理铺满
+                    layoutParams = newMWLp()
+                }?.text = bean
+            }
+        }) {
 
 
     override fun onViewAdd() {
@@ -159,7 +197,7 @@ open class FVLineRvView(context: Context, str: List<String>) : FVRecyclerView<St
 }
 
 class FVLinesRvView(context: Context, str: List<Pair<String, String>>) :
-    FVRecyclerView<Pair<String, String>>(context,
+    FVRecyclerView<Pair<String, String>, BaseViewHolder>(context,
         object : BaseRecyclerViewAdapter<Pair<String, String>, BaseViewHolder>({ ctx ->
             LinearLayout(ctx, null, R.attr.fastAttrLineHorizontal).apply {
                 addView(TextView(ctx, null, R.attr.fastAttrTvNormal))

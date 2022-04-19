@@ -21,8 +21,8 @@ import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.lib.base.OnIndexListener
-import com.munch.lib.base.OnViewTagClickListener
+import com.munch.lib.OnIndexListener
+import com.munch.lib.OnViewTagClickListener
 import kotlin.reflect.KClass
 
 /**

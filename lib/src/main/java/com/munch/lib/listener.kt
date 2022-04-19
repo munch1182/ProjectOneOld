@@ -1,4 +1,4 @@
-package com.munch.lib.base
+package com.munch.lib
 
 import android.view.View
 

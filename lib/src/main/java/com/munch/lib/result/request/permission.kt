@@ -3,7 +3,7 @@ package com.munch.lib.result.request
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import com.munch.lib.base.Resettable
+import com.munch.lib.Resettable
 import com.munch.lib.extend.isPermissionGranted
 import com.munch.lib.result.OnPermissionResultListener
 

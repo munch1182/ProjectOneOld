@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.munch.lib.weight.FlowLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context="com.munch.project.one.record.RecordActivity"
+    tools:ignore="HardcodedText">
+
+    <TextView
+        style="@style/App.Fast.TextView.Normal.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Type" />
+
+    <com.munch.lib.weight.Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <CheckBox
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ALL" />
+
+    <CheckBox
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MSG" />
+
+    <CheckBox
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ERROR" />
+
+    <CheckBox
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Exception" />
+
+    <CheckBox
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MEASURE" />
+
+    <CheckBox
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OTHER" />
+
+    <com.munch.lib.weight.Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        style="@style/App.Fast.TextView.Normal.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Time" />
+
+    <com.munch.lib.weight.Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        style="@style/App.Fast.EditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="Autofill,LabelFor,TextFields" />
+
+    <TextView
+        android:id="@+id/record_count"
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="当前数量: 300" />
+
+</com.munch.lib.weight.FlowLayout>

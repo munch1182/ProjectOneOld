@@ -4,7 +4,7 @@ import android.content.Intent
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import com.munch.lib.base.Resettable
+import com.munch.lib.Resettable
 import com.munch.lib.result.OnJudge
 import com.munch.lib.result.OnJudgeResultListener
 

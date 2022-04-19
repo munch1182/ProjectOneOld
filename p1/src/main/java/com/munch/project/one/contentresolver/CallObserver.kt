@@ -7,12 +7,12 @@ import android.content.Intent
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import com.munch.lib.AppHelper
-import com.munch.lib.base.OnReceive
+import com.munch.lib.OnReceive
 import com.munch.lib.fast.notification.NotificationHelper
 import com.munch.lib.log.InfoStyle
 import com.munch.lib.log.Logger
 import com.munch.lib.receiver.ReceiverHelper
-import com.munch.lib.task.ThreadPoolHelper
+import com.munch.lib.task.ThreadHelper
 
 /**
  * Create by munch1182 on 2022/4/16 13:49.
@@ -86,7 +86,7 @@ class CallObserver(
     }*/
     private val tm: TelephonyManager?
         get() = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-    private val pool by lazy { ThreadPoolHelper.newCachePool() }
+    private val pool by lazy { ThreadHelper.newCachePool() }
 
     private fun onAnswer(phoneNumber: String?) {
         log.log("onAnswer: $phoneNumber")

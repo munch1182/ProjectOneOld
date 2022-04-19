@@ -1,7 +1,6 @@
 package com.munch.lib.recyclerview
 
 import androidx.recyclerview.widget.RecyclerView
-import com.munch.lib.log.log
 
 /**
  * Create by munch1182 on 2022/4/19 17:47.

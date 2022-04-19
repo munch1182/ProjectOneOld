@@ -7,6 +7,8 @@ apply from: '../buildCom/commonbuildktx.gradle'
 dependencies {
 
     api deps['material']
+    api deps['activityKtx']
+    api deps['fragmentKtx']
     api project(path: ':lib')
     api project(path: ':record')
 }

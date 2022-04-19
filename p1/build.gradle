@@ -8,8 +8,6 @@ dependencies {
 
     implementation deps['swipeRefreshLayout']
     implementation deps['permissionX']
-    implementation deps['activityKtx']
-    implementation deps['fragmentKtx']
     implementation project(path: ':libfast')
     implementation project(path: ':wheelview')
 }

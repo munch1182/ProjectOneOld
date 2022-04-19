@@ -16,9 +16,17 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
     IAdapterFun<D> by adapterFun,
     AdapterClickListener<VH> by clickHelper {
 
-    constructor(@LayoutRes res: Int = 0) : this(viewImp = SingleVHCreator(res))
+    constructor(
+        @LayoutRes res: Int = 0,
+        adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
+        clickHelper: AdapterClickHandler<VH> = AdapterListenerHelper()
+    ) : this(viewImp = SingleVHCreator(res), adapterFun, clickHelper)
 
-    constructor(viewCreator: ViewCreator) : this(SingleVHCreator(viewCreator = viewCreator))
+    constructor(
+        viewCreator: ViewCreator,
+        adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
+        clickHelper: AdapterClickHandler<VH> = AdapterListenerHelper()
+    ) : this(SingleVHCreator(viewCreator = viewCreator), adapterFun, clickHelper)
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
