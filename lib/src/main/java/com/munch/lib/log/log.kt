@@ -37,18 +37,13 @@ fun logAll(vararg any: Any?) {
     }
 }
 
-inline fun Logger.setOnLog(noinline onLog: ((String, String, Thread?, Array<String>?) -> Unit)? = null) {
+inline fun Logger.setOnLog(noinline onLog: ((tag: String) -> Unit)? = null) {
     if (onLog == null) {
         setOnLogListener(null)
     } else {
         setOnLogListener(object : Logger.OnLogListener {
-            override fun onLog(
-                log: String,
-                tag: String,
-                thread: Thread?,
-                stack: Array<String>?
-            ) {
-                onLog.invoke(log, tag, thread, stack)
+            override fun onLog(tag: String) {
+                onLog.invoke(tag)
             }
         })
     }
@@ -93,7 +88,6 @@ annotation class InfoStyle {
     }
 }
 
-// TODO: 重写
 open class Logger(
     tag: String = LOG_DEFAULT,
     private var enable: Boolean = true,
@@ -147,36 +141,32 @@ open class Logger(
     }
 
     private fun logStr(msg: String) {
-        var thread: Thread? = null
-        if (InfoStyle.hasThread(infoStyle)) {
-            thread = Thread.currentThread()
-        }
-        var track: Array<String>? = null
-        if (InfoStyle.stackSimple(infoStyle)) {
-            track = dumpStack(1)
-        } else if (InfoStyle.stackAll(infoStyle)) {
-            track = dumpStack(2)
-        }
-
         val split = msg.split(FMT.LINE_SEPARATOR)
         if (split.size == 1) {
-            if ((track?.size ?: 0) > 1) {
-                print("$msg (${thread?.name})")
-                track?.forEach { print("\t$it") }
-            } else {
-                print("$msg (${thread?.name}/${track?.get(0)})")
+            when (infoStyle) {
+                InfoStyle.NULL -> print(split[0])
+                InfoStyle.THREAD_ONLY -> print("${split[0]} (${Thread.currentThread().name})")
+                InfoStyle.NORMAL -> print("${split[0]} (${Thread.currentThread().name}/${dumpStack(1)[0]})")
+                InfoStyle.FULL -> {
+                    print(split[0])
+                    print("--- (${Thread.currentThread().name})")
+                    dumpStack(2).forEach { print(it) }
+                }
             }
         } else {
             split.forEach { print(it) }
-            if ((track?.size ?: 0) > 1) {
-                print("---(${thread?.name})")
-                track?.forEach { print("\t$it") }
-            } else {
-                print("---(${thread?.name}/${track?.get(0)})")
+            when (infoStyle) {
+                InfoStyle.NULL -> {}
+                InfoStyle.THREAD_ONLY -> print("--- (${Thread.currentThread().name})")
+                InfoStyle.NORMAL -> print("--- (${Thread.currentThread().name}/${dumpStack(1)[0]})")
+                InfoStyle.FULL -> {
+                    print("--- (${Thread.currentThread().name})")
+                    dumpStack(2).forEach { print(it) }
+                }
             }
         }
 
-        onLog?.onLog(msg, tag, thread, track)
+        onLog?.onLog(tag)
     }
 
     private fun print(msg: String) {
@@ -221,7 +211,7 @@ open class Logger(
 
     interface OnLogListener {
 
-        fun onLog(log: String, tag: String, thread: Thread?, stack: Array<String>?)
+        fun onLog(tag: String)
     }
 
     interface OnPrintListener {
@@ -232,7 +222,7 @@ open class Logger(
 
 object FMT {
     val LINE_SEPARATOR = System.getProperty("line.separator") ?: ""
-    const val MAX_COUNT_IN_LINE = 450
+    const val MAX_COUNT_IN_LINE = 550
 
     fun any2Str(any: Any?): String {
         return when (any) {

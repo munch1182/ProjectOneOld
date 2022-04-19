@@ -60,7 +60,7 @@ class LogActivity : BaseFastActivity(),
         private val sb = StringBuilder()
         private val log = Logger().apply {
             setOnPrint { _, log -> sb.append(log).append("\n") }
-            setOnLog { _, _, _, _ -> out.postValue(sb.toString()) }
+            setOnLog { _ -> out.postValue(sb.toString()) }
         }
 
         var content = 0
@@ -101,12 +101,10 @@ class LogActivity : BaseFastActivity(),
 
         private fun logJson() {
             thread {
-                JSONObject("{\"code\":200,\"data\":{\"a\":1,\"b\":2}}")
-                    .toString(4)
-                    .split("\n")
-                    .forEach {
-                        log.log(it)
-                    }
+                log.log(
+                    JSONObject("{\"code\":200,\"data\":{\"a\":1,\"b\":2}}")
+                        .toString(4)
+                )
             }
         }
 
@@ -136,7 +134,7 @@ class LogActivity : BaseFastActivity(),
                 for (i in 0..1000) {
                     sb.append("$i$i$i")
                 }
-                log.log(sb)
+                log.log(sb.toString())
             }
         }
 
