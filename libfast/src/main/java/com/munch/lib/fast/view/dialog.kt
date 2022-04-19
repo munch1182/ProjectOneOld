@@ -66,13 +66,11 @@ interface ISupportConfigDialog : ActivityDispatch {
     override fun onCreateActivity(activity: AppCompatActivity) {
         super.onCreateActivity(activity)
 
-        val config = onCreateDialog(activity)
-
         val last = activity.contentView().parentView()?.children
             ?.lastOrNull()?.toViewGroup() // actionBarContainer
             ?.children?.firstOrNull() // toolbar
         last?.setDoubleClickListener {
-            config.show(activity.supportFragmentManager, null)
+            onCreateDialog(activity).show(activity.supportFragmentManager, "CONFIG")
         }
     }
 
@@ -82,8 +80,9 @@ interface ISupportConfigDialog : ActivityDispatch {
     fun onCreateDialog(activity: AppCompatActivity): BottomSheetDialogFragment = ConfigDialog()
 }
 
-class SupportConfigDialog(private val dialogCreator: ((AppCompatActivity) -> BottomSheetDialogFragment)? = null) :
-    ISupportConfigDialog {
+class SupportConfigDialog(
+    private val dialogCreator: ((AppCompatActivity) -> BottomSheetDialogFragment)? = null
+) : ISupportConfigDialog {
 
     override val dispatchers: MutableList<ActivityDispatch> = mutableListOf()
 

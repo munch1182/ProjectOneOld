@@ -1,4 +1,4 @@
-@file:Suppress("unused", "MemberVisibilityCanBePrivate")
+@file:Suppress("unused", "MemberVisibilityCanBePrivate", "NOTHING_TO_INLINE")
 
 package com.munch.lib.log
 
@@ -37,6 +37,35 @@ fun logAll(vararg any: Any?) {
     }
 }
 
+inline fun Logger.setOnLog(noinline onLog: ((String, String, Thread?, Array<String>?) -> Unit)? = null) {
+    if (onLog == null) {
+        setOnLogListener(null)
+    } else {
+        setOnLogListener(object : Logger.OnLogListener {
+            override fun onLog(
+                log: String,
+                tag: String,
+                thread: Thread?,
+                stack: Array<String>?
+            ) {
+                onLog.invoke(log, tag, thread, stack)
+            }
+        })
+    }
+}
+
+inline fun Logger.setOnPrint(noinline onPrint: ((tag: String, msg: String) -> Unit)? = null) {
+    if (onPrint == null) {
+        setOnPrintListener(null)
+    } else {
+        setOnPrintListener(object : Logger.OnPrintListener {
+            override fun onPrint(tag: String, log: String) {
+                onPrint.invoke(tag, log)
+            }
+        })
+    }
+}
+
 /**
  * 全局类
  */
@@ -64,7 +93,7 @@ annotation class InfoStyle {
     }
 }
 
-
+// TODO: 重写
 open class Logger(
     tag: String = LOG_DEFAULT,
     private var enable: Boolean = true,
@@ -140,10 +169,10 @@ open class Logger(
         } else {
             split.forEach { print(it) }
             if ((track?.size ?: 0) > 1) {
-                print("--- (${thread?.name})")
+                print("---(${thread?.name})")
                 track?.forEach { print("\t$it") }
             } else {
-                print("--- (${thread?.name}/${track?.get(0)})")
+                print("---(${thread?.name}/${track?.get(0)})")
             }
         }
 

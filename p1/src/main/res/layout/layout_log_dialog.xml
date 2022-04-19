@@ -41,6 +41,12 @@
         android:layout_height="wrap_content"
         android:text="List" />
 
+    <CheckBox
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Json" />
+
     <com.munch.lib.weight.Space
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
@@ -55,11 +61,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <CheckBox
-        style="@style/App.Fast.TextView.Normal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="NULL" />
 
     <CheckBox
         style="@style/App.Fast.TextView.Normal"
@@ -78,6 +79,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="FULL" />
+
+    <CheckBox
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NULL" />
 
     <com.munch.lib.weight.Space
         android:layout_width="wrap_content"

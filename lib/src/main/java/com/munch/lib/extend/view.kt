@@ -213,7 +213,8 @@ inline fun View.setClickListener(fastClickTime: Long = 500L, listener: View.OnCl
     })
 }
 
-inline fun List<CompoundButton>.checkView(view: Checkable): Int {
+//<editor-fold desc="checkOnly 在checkable的集合中做单选">
+inline fun Iterable<CompoundButton>.checkView(view: Checkable): Int {
     var index = -1
     forEachIndexed { i, btn ->
         val check = btn == view
@@ -231,7 +232,10 @@ inline fun ViewGroup.checkOnly(checkIndex: Int = 0, noinline onIndex: OnIndexLis
         .toList().checkOnly(checkIndex, onIndex)
 }
 
-inline fun List<CompoundButton>.checkOnly(checkIndex: Int = 0, noinline onIndex: OnIndexListener?) {
+fun Iterable<CompoundButton>.checkOnly(
+    checkIndex: Int = 0,
+    onIndex: OnIndexListener?
+) {
     val listener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
         if (isChecked) {
             val index = checkView(buttonView)
@@ -243,3 +247,9 @@ inline fun List<CompoundButton>.checkOnly(checkIndex: Int = 0, noinline onIndex:
         checkable.setOnCheckedChangeListener(listener)
     }
 }
+
+inline fun Sequence<CompoundButton>.checkOnly(
+    checkIndex: Int = 0,
+    noinline onIndex: OnIndexListener?
+) = toList().checkOnly(checkIndex, onIndex)
+//</editor-fold>

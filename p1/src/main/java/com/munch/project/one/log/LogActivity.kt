@@ -14,11 +14,11 @@ import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.ConfigDialog
 import com.munch.lib.fast.view.SupportActionBar
 import com.munch.lib.fast.view.SupportConfigDialog
-import com.munch.lib.log.InfoStyle
-import com.munch.lib.log.Logger
+import com.munch.lib.log.*
 import com.munch.lib.task.thread
 import com.munch.project.one.databinding.LayoutContentOnlyBinding
 import com.munch.project.one.databinding.LayoutLogDialogBinding
+import org.json.JSONObject
 
 /**
  * Create by munch1182 on 2022/4/18 16:01.
@@ -44,17 +44,13 @@ class LogActivity : BaseFastActivity(),
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            val map = bind.container.children.filter { it is CompoundButton }
-            map.filterIndexed { index, _ -> index <= 3 }
-                .map { it as CompoundButton }.toList()
-                .checkOnly {
-                    vm.changeContent(it)
-                }
-            map.filterIndexed { index, _ -> index >= 4 }
-                .map { it as CompoundButton }.toList()
-                .checkOnly {
-                    vm.changeStyle(it)
-                }
+            val map = bind.container.children
+                .filter { it is CompoundButton }
+                .map { it as CompoundButton }
+            map.filterIndexed { index, _ -> index <= 4 }
+                .checkOnly(vm.content) { vm.changeContent(it) }
+            map.filterIndexed { index, _ -> index >= 5 }
+                .checkOnly(vm.style) { vm.changeStyle(it) }
         }
     }
 
@@ -63,24 +59,18 @@ class LogActivity : BaseFastActivity(),
         fun out() = out.toLive()
         private val sb = StringBuilder()
         private val log = Logger().apply {
-            setOnPrintListener(object : Logger.OnPrintListener {
-                override fun onPrint(tag: String, log: String) {
-                    sb.append(log).append("\n")
-                }
-            })
-            setOnLogListener(object : Logger.OnLogListener {
-                override fun onLog(
-                    log: String,
-                    tag: String,
-                    thread: Thread?,
-                    stack: Array<String>?
-                ) {
-                    out.postValue(sb.toString())
-                }
-            })
+            setOnPrint { _, log -> sb.append(log).append("\n") }
+            setOnLog { _, _, _, _ -> out.postValue(sb.toString()) }
         }
 
-        private var content = 0
+        var content = 0
+            private set
+        var style = 0
+            private set
+
+        init {
+            print()
+        }
 
         fun changeContent(it: Int) {
             content = it
@@ -88,52 +78,72 @@ class LogActivity : BaseFastActivity(),
         }
 
         fun changeStyle(it: Int) {
-            when (it) {
-                4 -> log.style(InfoStyle.NULL)
-                5 -> log.style(InfoStyle.NORMAL)
-                6 -> log.style(InfoStyle.THREAD_ONLY)
-                7 -> log.style(InfoStyle.FULL)
-            }
+            style = it
             print()
         }
 
         private fun print() {
             sb.clear()
+            when (style) {
+                0 -> log.style(InfoStyle.NORMAL)
+                1 -> log.style(InfoStyle.THREAD_ONLY)
+                2 -> log.style(InfoStyle.FULL)
+                3 -> log.style(InfoStyle.NULL)
+            }
             when (content) {
-                0 -> {
-                    log.log("abcdefgABCDEFG")
-                    log.log("123", 123, 123L, 123F, 123.0)
-                    log.log(this)
-                }
-                1 -> {
-                    thread {
-                        val sb = StringBuilder()
-                        for (i in 0..1000) {
-                            sb.append("$i$i$i")
-                        }
-                        log.log(sb)
-                    }
-                }
-                2 -> {
-                    try {
-                        throw UnImplException()
-                    } catch (e: Exception) {
-                        log.log(e)
-                    }
-                }
-                3 -> {
-                    thread {
-                        log.log(Array(30) { "${it * 2}" })
-                        log.log(Array(11) { "${it * 2}" }.toList())
-                        log.log(ArrayMap<Int, Int>().apply {
-                            repeat(50) {
-                                put(it, it * 2)
-                            }
-                        })
-                    }
-                }
+                0 -> logNoraml()
+                1 -> logMutil()
+                2 -> logException()
+                3 -> logList()
+                4 -> logJson()
             }
         }
 
+        private fun logJson() {
+            thread {
+                JSONObject("{\"code\":200,\"data\":{\"a\":1,\"b\":2}}")
+                    .toString(4)
+                    .split("\n")
+                    .forEach {
+                        log.log(it)
+                    }
+            }
+        }
+
+        private fun logList() {
+            thread {
+                log.log(Array(30) { "${it * 2}" })
+                log.log(Array(11) { "${it * 2}" }.toList())
+                log.log(ArrayMap<Int, Int>().apply {
+                    repeat(50) {
+                        put(it, it * 2)
+                    }
+                })
+            }
+        }
+
+        private fun logException() {
+            try {
+                throw UnImplException()
+            } catch (e: Exception) {
+                log.log(e)
+            }
+        }
+
+        private fun logMutil() {
+            thread {
+                val sb = StringBuilder()
+                for (i in 0..1000) {
+                    sb.append("$i$i$i")
+                }
+                log.log(sb)
+            }
+        }
+
+        private fun logNoraml() {
+            log.log("abcdefgABCDEFG")
+            log.log("123", 123, 123L, 123F, 123.0, 0x01.toByte())
+            log.log(this)
+        }
     }
 }
