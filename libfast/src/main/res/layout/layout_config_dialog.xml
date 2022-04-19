@@ -7,7 +7,11 @@
     android:background="@drawable/shape_top_radius_8_white"
     android:orientation="vertical">
 
-    <View style="@style/StyleLineSplit" />
+    <View
+        android:id="@+id/config_split"
+        style="@style/StyleLineSplit"
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
     <CheckBox
         android:id="@+id/config_start_up"

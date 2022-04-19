@@ -38,12 +38,12 @@ open class ConfigDialog : BindBottomSheetDialogFragment() {
     override fun inflaterView(inflater: LayoutInflater, container: ViewGroup?): View? {
         return super.inflaterView(inflater, container)?.toViewGroup()?.apply {
             contentMethod?.inflate(layoutInflater, this, false)?.let {
+                bind.configSplit.visibility = View.VISIBLE
                 contentViewBinding = it
                 addView(it.root, 0)
             }
         }
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -8,6 +8,7 @@ import com.munch.lib.fast.view.ISupportActionBar
 import com.munch.lib.fast.view.fvClassRv
 import com.munch.project.one.contentresolver.ContentResolverActivity
 import com.munch.project.one.log.LogActivity
+import com.munch.project.one.record.RecordActivity
 import com.munch.project.one.task.TaskActivity
 
 class MainActivity : BaseFastActivity(), ISupportActionBar {
@@ -16,7 +17,8 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
         listOf(
             TaskActivity::class,
             ContentResolverActivity::class,
-            LogActivity::class
+            LogActivity::class,
+            RecordActivity::class
         )
     )
     override val showHome = false

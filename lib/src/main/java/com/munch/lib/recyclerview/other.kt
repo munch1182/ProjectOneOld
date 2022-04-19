@@ -3,6 +3,7 @@ package com.munch.lib.recyclerview
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.setPadding
 
 /**
  * Create by munch1182 on 2022/3/31 22:31.
@@ -34,6 +35,7 @@ class EmptyAdapter(private var emptyNotice: CharSequence? = null) : ViewAdapter(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
+
             gravity = Gravity.CENTER
             text = emptyNotice ?: "当前没有数据"
         })
@@ -47,6 +49,7 @@ class RefreshAdapter : ViewAdapter() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+            setPadding(16)
             gravity = Gravity.CENTER
             text = "正在刷新"
         })

@@ -2,6 +2,7 @@ package com.munch.lib.recyclerview
 
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.munch.lib.log.log
 
 /**
  * Create by munch1182 on 2022/4/1 10:12.
@@ -19,6 +20,19 @@ class AdapterHelper<D, VH : BaseViewHolder>(adapter: BaseRecyclerViewAdapter<D, 
     fun bind(rv: RecyclerView): AdapterHelper<D, VH> {
         rv.adapter = concatAdapter
         return this
+    }
+
+    init {
+        adapter.registerAdapterDataObserver(object : AdapterDataChangeObserver() {
+            override fun onDataChange() {
+                hideEmpty()
+                hideRefresh()
+                hideLoadMore()
+                if (adapter.itemSize == 0) {
+                    showEmpty()
+                }
+            }
+        })
     }
 
     fun showEmpty() {

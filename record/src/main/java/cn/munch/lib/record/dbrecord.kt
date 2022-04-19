@@ -40,7 +40,7 @@ class RecordHelper(app: Application) {
 @Entity(tableName = RecordHelper.NAME_TB)
 data class Record(
     val log: String,
-    val type: Int,
+    val type: Int = TYPE_MSG,
     val thread: String = Thread.currentThread().name,
     val stack: String? = null,
     val comment: String? = null,
