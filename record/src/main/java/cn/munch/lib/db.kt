@@ -13,21 +13,30 @@ import com.munch.lib.extend.SingletonHolder
  * Created by munch1182 on 2022/4/19 20:17.
  */
 
-object DBRecord : RecordDao by RecordHelper.getInstance(AppHelper.app).record
+object DBRecord : RecordDao by RecordDB.getInstance(AppHelper.app).record
 
-@Database(entities = [Record::class], version = 1)
+@Database(entities = [Record::class], version = RecordDB.VERSION_22_03_20)
 abstract class RecordDatabase : RoomDatabase() {
 
     abstract fun recordDao(): RecordDao
 }
 
-class RecordHelper private constructor(app: Application) {
+class RecordDB private constructor(app: Application) {
 
-    companion object : SingletonHolder<RecordHelper, Application>({ RecordHelper(it) }) {
+    companion object : SingletonHolder<RecordDB, Application>({ RecordDB(it) }) {
         internal const val NAME_TB = "tb_record"
+        internal const val NAME_DB = "db_record"
+        internal const val NAME_DB_READ = "db_record_read"
+
+        internal const val VERSION_22_03_20 = 1
     }
 
-    private val db = Room.databaseBuilder(app, RecordDatabase::class.java, "db_record").build()
+    private val db = Room.databaseBuilder(app, RecordDatabase::class.java, NAME_DB)
+        /*.setQueryCallback(
+            { sqlQuery, bindArgs -> log(sqlQuery, bindArgs) },
+            ThreadHelper.newCachePool()
+        )*/
+        .build()
 
     val record: RecordDao = db.recordDao()
 }

@@ -1,15 +1,13 @@
 package cn.munch.lib.record
 
 import androidx.room.*
-import cn.munch.lib.RecordHelper
+import cn.munch.lib.RecordDB
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Create by munch1182 on 2022/4/18 13:53.
  */
-
-
-@Entity(tableName = RecordHelper.NAME_TB)
+@Entity(tableName = RecordDB.NAME_TB)
 data class Record(
     val log: String,
     val type: Int = TYPE_MSG,
@@ -44,47 +42,42 @@ data class Record(
 
 @Dao
 interface RecordDao {
-    @Query("SELECT * FROM ${RecordHelper.NAME_TB} WHERE id = :id")
-    suspend fun query(id: Long): Record?
 
-    @Query("SELECT * FROM ${RecordHelper.NAME_TB}")
+    //todo 分页查询
+    @Query("SELECT * FROM ${RecordDB.NAME_TB} ORDER BY recordTime DESC")
     suspend fun queryAll(): List<Record>
-
-    @Query("SELECT COUNT(*) FROM ${RecordHelper.NAME_TB}")
-    fun querySizeFlow(): Flow<Int>
-
-    @Query("SELECT COUNT(*) FROM ${RecordHelper.NAME_TB}")
-    suspend fun querySize(): Int
-
-    @Query("SELECT COUNT(*) FROM ${RecordHelper.NAME_TB} WHERE type in (:type)")
-    suspend fun querySizeBy(type: Int): Int
 
     //对于flow的返回，当数据有更改时，会自动触发数据的更新的分发
     //但是这种触发时任意更新都会触发
     //如果要指定触发，可以使用flow的特性.distinctUntilChanged()
-    @Query("SELECT * FROM ${RecordHelper.NAME_TB}")
+    @Query("SELECT * FROM ${RecordDB.NAME_TB} ORDER BY recordTime DESC")
     fun queryAllFlow(): Flow<List<Record>>
 
-    @Query("SELECT * FROM ${RecordHelper.NAME_TB} WHERE type IN (:type)")
-    suspend fun queryByType(type: Int): List<Record>
+    @Query("SELECT * FROM ${RecordDB.NAME_TB} WHERE id == :id")
+    suspend fun query(id: Long): Record?
 
-    @Query("SELECT * FROM ${RecordHelper.NAME_TB} WHERE type IN (:type)")
-    fun queryByTypeFlow(type: Int): Flow<List<Record>>
+    //为null的值须为空
+    @Query(
+        "SELECT * FROM ${RecordDB.NAME_TB}" +
+                " WHERE (:type == -1 OR :type == type)" +
+                " AND (:like == '' OR (log LIKE :like OR thread LIKE :like OR stack LIKE :like OR comment LIKE :like)" +
+                " AND (:time == 0 OR recordTime >= :time)) ORDER BY recordTime DESC"
+    )
+    suspend fun query(type: Int, like: String, time: Long): List<Record>
 
-    @Query("SELECT * FROM ${RecordHelper.NAME_TB} WHERE recordTime > :time")
-    suspend fun queryAfterTime(time: Long): List<Record>
+    @Query(
+        "SELECT COUNT(*) FROM ${RecordDB.NAME_TB}" +
+                " WHERE (:type == -1 OR :type == type)" +
+                " AND (:like == '' OR (log LIKE :like OR thread LIKE :like OR stack LIKE :like OR comment LIKE :like)" +
+                " AND (:time == 0 OR recordTime >= :time))"
+    )
+    suspend fun querySize(type: Int, like: String?, time: Long): Int
 
-    @Query("SELECT * FROM ${RecordHelper.NAME_TB} WHERE recordTime > :time")
-    fun queryAfterTimeFlow(time: Long): Flow<List<Record>>
+    @Query("SELECT COUNT(*) FROM ${RecordDB.NAME_TB}")
+    fun querySizeFlow(): Flow<Int>
 
-    @Query("SELECT * FROM ${RecordHelper.NAME_TB} WHERE log LIKE :like OR thread LIKE :like OR stack LIKE :like OR comment LIKE :like ")
-    suspend fun queryLike(like: String): List<Record>
-
-    @Query("SELECT * FROM ${RecordHelper.NAME_TB} WHERE log LIKE :like OR thread LIKE :like OR stack LIKE :like OR comment LIKE :like ")
-    fun queryLikeFlow(like: String): Flow<List<Record>>
-
-    @Query("SELECT type FROM ${RecordHelper.NAME_TB}")
-    suspend fun queryType(): List<Int>
+    @Query("SELECT COUNT(*) FROM ${RecordDB.NAME_TB}")
+    suspend fun querySize(): Int
 
     @Insert
     suspend fun insert(vararg record: Record)
@@ -93,12 +86,12 @@ interface RecordDao {
     suspend fun time(log: String) = insert(Record(log, Record.TYPE_TIME_MEASURE))
 
     @Delete
-    suspend fun del(record: Record)
+    suspend fun del(vararg record: Record)
 
-    @Query("DELETE FROM ${RecordHelper.NAME_TB} WHERE id == :id")
+    @Query("DELETE FROM ${RecordDB.NAME_TB} WHERE id == :id")
     suspend fun delById(id: Long)
 
     @Update
-    suspend fun update(record: Record)
+    suspend fun update(vararg record: Record)
 }
 

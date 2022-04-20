@@ -67,7 +67,9 @@ inline fun <D, B : ViewBinding> Activity.fvBindRv(
 inline fun <D> Activity.fvHelperRv(
     adapter: BaseRecyclerViewAdapter<D, BaseViewHolder>,
     lm: RecyclerView.LayoutManager = LinearLayoutManager(this)
-) = fv<FVRecyclerHelperView<D, BaseViewHolder>> { FVRecyclerView(this, adapter, lm) }
+) = fv<FVRecyclerHelperView<D, BaseViewHolder>> {
+    FVRecyclerHelperView(this, AdapterHelper(adapter), lm)
+}
 
 inline fun <D, B : ViewBinding> Activity.fvHelperBindRv(
     adapter: BaseRecyclerViewAdapter<D, BaseBindViewHolder<B>>,
@@ -199,7 +201,7 @@ open class FVLineRvView(context: Context, str: List<String>) :
 class FVLinesRvView(context: Context, str: List<Pair<String, String>>) :
     FVRecyclerView<Pair<String, String>, BaseViewHolder>(context,
         object : BaseRecyclerViewAdapter<Pair<String, String>, BaseViewHolder>({ ctx ->
-            LinearLayout(ctx, null, R.attr.fastAttrLineHorizontal).apply {
+            LinearLayout(ctx, null, R.attr.fastAttrLineVertical).apply {
                 addView(TextView(ctx, null, R.attr.fastAttrTvNormal))
                 addView(TextView(ctx, null, R.attr.fastAttrTvDesc))
             }

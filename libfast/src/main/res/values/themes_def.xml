@@ -121,7 +121,11 @@
         <item name="android:background">@color/colorGray</item>
     </style>
 
-    <style name="App.Fast.EditText" parent="App.Fast.TextView">
+    <style name="App.Fast.EditText" parent="App.Fast.TextView.Normal">
         <item name="android:background">@drawable/select_radius_8_stroke</item>
+        <item name="android:paddingStart">6dp</item>
+        <item name="android:paddingEnd">6dp</item>
+        <item name="android:paddingTop">@dimen/dimenDefSmall</item>
+        <item name="android:paddingBottom">@dimen/dimenDefSmall</item>
     </style>
 </resources>

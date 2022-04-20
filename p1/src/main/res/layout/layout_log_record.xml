@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.munch.lib.weight.FlowLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/dimenDef"
+    app:gravity="center_vertical"
     tools:context="com.munch.project.one.record.RecordActivity"
     tools:ignore="HardcodedText">
 
@@ -39,7 +42,13 @@
         style="@style/App.Fast.TextView.Normal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Exception" />
+        android:text="EXCEPTION" />
+
+    <CheckBox
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OTHER" />
 
     <CheckBox
         style="@style/App.Fast.TextView.Normal"
@@ -47,11 +56,6 @@
         android:layout_height="wrap_content"
         android:text="MEASURE" />
 
-    <CheckBox
-        style="@style/App.Fast.TextView.Normal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="OTHER" />
 
     <com.munch.lib.weight.Space
         android:layout_width="wrap_content"
@@ -61,6 +65,7 @@
         style="@style/App.Fast.TextView.Normal.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/dimenDefSmall"
         android:text="Time" />
 
     <com.munch.lib.weight.Space
@@ -68,8 +73,42 @@
         android:layout_height="wrap_content" />
 
     <EditText
+        android:id="@+id/record_dialog_time"
         style="@style/App.Fast.EditText"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        tools:ignore="Autofill,LabelFor,TextFields" />
+
+    <TextView
+        android:id="@+id/record_db_from"
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/dimenDefSmall"
+        android:paddingBottom="@dimen/dimenDefSmall"
+        android:visibility="gone"
+        tools:text="当前DB: reader"
+        tools:visibility="visible" />
+
+    <com.munch.lib.weight.Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        style="@style/App.Fast.TextView.Normal.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/dimenDefSmall"
+        android:text="Like" />
+
+    <com.munch.lib.weight.Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/record_dialog_like"
+        style="@style/App.Fast.EditText"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         tools:ignore="Autofill,LabelFor,TextFields" />
 
@@ -78,6 +117,16 @@
         style="@style/App.Fast.TextView.Normal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingTop="@dimen/dimenDefSmall"
+        android:paddingBottom="@dimen/dimenDefSmall"
         tools:text="当前数量: 300" />
+
+    <Button
+        android:id="@+id/record_reader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="reader"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
 </com.munch.lib.weight.FlowLayout>

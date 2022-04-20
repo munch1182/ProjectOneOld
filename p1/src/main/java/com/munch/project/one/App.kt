@@ -19,6 +19,7 @@ class App : BaseApp() {
                     NotificationHelper.getInstance().notify("record count $it")
                 }
             }
+            //todo 此处不会执行，即可能会占用一个线程，因此考虑循环任务的方式，或者这样也可以
         }
     }
 }

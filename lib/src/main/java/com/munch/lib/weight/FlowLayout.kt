@@ -294,7 +294,6 @@ class FlowLayout @JvmOverloads constructor(
                     val t = rectHelper.getTop(viewIndex)
                     val r = rectHelper.getRight(viewIndex)
                     val b = rectHelper.getBottom(viewIndex)
-                    // TODO: padding
                     var xOffset = it * currConfig.itemSpace + view.paddingLeft
                     var yOffset = view.paddingTop
                     when {

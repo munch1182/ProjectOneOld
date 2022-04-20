@@ -1,31 +1,27 @@
 package com.munch.project.one.record
 
 import android.annotation.SuppressLint
+import android.content.DialogInterface
 import android.graphics.Canvas
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import cn.munch.lib.DBRecord
 import cn.munch.lib.record.Record
 import com.munch.lib.OnIndexListener
 import com.munch.lib.extend.checkOnly
 import com.munch.lib.extend.get
 import com.munch.lib.extend.toDate
-import com.munch.lib.extend.toLive
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.*
 import com.munch.lib.recyclerview.BaseBindViewHolder
 import com.munch.lib.recyclerview.BaseRecyclerViewAdapter
+import com.munch.lib.recyclerview.setOnItemClickListener
 import com.munch.project.one.databinding.ItemRecordBinding
 import com.munch.project.one.databinding.LayoutLogRecordBinding
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 /**
@@ -43,9 +39,19 @@ class RecordActivity : BaseFastActivity(),
         val adapter = bind.adapter
         adapter.showRefresh()
 
-        ItemTouchHelper(SwipedItemCallback { vm.del(adapter.get(it)) }).attachToRecyclerView(bind.rv)
+        ItemTouchHelper(SwipedItemCallback {
+            vm.del(adapter.get(it))
+        }).attachToRecyclerView(bind.rv)
 
-        vm.records().observe(this) { adapter.set(it) }
+        vm.records().observe(this) { it?.let { adapter.set(it) } }
+
+        adapter.setOnItemClickListener { _, pos, _ ->
+            val get = adapter.get(pos)
+            AlertDialog.Builder(this)
+                .setMessage("${get?.log}\n${get?.thread}")
+                .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog?.cancel() }
+                .show()
+        }
     }
 
     private class RecordAdapter :
@@ -111,67 +117,88 @@ class RecordActivity : BaseFastActivity(),
         }
     }
 
-    class RecordVM : ViewModel() {
-
-        private val record = MutableLiveData<List<Record>>(emptyList())
-        fun records() = record.toLive()
-        private val count = MutableLiveData(0)
-        fun count() = count.toLive()
-        var type = 0
-            private set
-
-        fun filter(type: Int) {
-            this.type = type
-            viewModelScope.launch {
-                if (type <= 0) {
-                    record.postValue(DBRecord.queryAll())
-                    count.postValue(DBRecord.querySize())
-                } else {
-                    record.postValue(DBRecord.queryByType(type))
-                    count.postValue(DBRecord.querySizeBy(type))
-                }
-            }
-        }
-
-        fun del(r: Record?) {
-            r ?: return
-            viewModelScope.launch { DBRecord.del(r) }
-        }
-
-        init {
-            viewModelScope.launch {
-                //使用flow的方式会在数据库更新时自动传递数据
-                DBRecord.queryAllFlow()
-                    .collectLatest {
-                        record.postValue(it)
-                        count.postValue(DBRecord.querySize())
-                    }
-            }
-        }
-    }
-
+    @SuppressLint("SetTextI18n")
     class RecordDialog : ConfigDialog() {
 
         private val bind by add<LayoutLogRecordBinding>()
         private val vm by get<RecordVM>()
 
-        @SuppressLint("SetTextI18n")
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            bind.container.checkOnly(vm.type) {
-                vm.filter(
-                    when (it) {
-                        1 -> Record.TYPE_MSG
-                        2 -> Record.TYPE_ERROR
-                        3 -> Record.TYPE_EXCEPTION
-                        4 -> Record.TYPE_TIME_MEASURE
-                        5 -> Record.TYPE_OTHER
-                        else -> -1
-                    }
-                )
+            bind.container.checkOnly(typeOffsetIndex()) {
+                updateQueryInput()
+                vm.query.type = when (it) {
+                    1 -> Record.TYPE_MSG
+                    2 -> Record.TYPE_ERROR
+                    3 -> Record.TYPE_EXCEPTION
+                    4 -> Record.TYPE_TIME_MEASURE
+                    5 -> Record.TYPE_OTHER
+                    else -> -1
+                }
+                vm.query()
+
             }
-            vm.count().observe(this) {
-                bind.recordCount.text = "当前数量: $it"
+            vm.count().observe(this) { bind.recordCount.text = "当前数量: ${it ?: 0}" }
+
+            val time = vm.query.time
+            if (time > 0L) {
+                bind.recordDialogTime.setText(time.toDate())
+                vm.query()
+            }
+
+            bind.recordDialogLike.setText(vm.query.like.replace("%", ""))
+            dialog?.setOnCancelListener {
+                updateQueryInput()
+                vm.query()
+            }
+
+            vm.dbFrom().observe(this) { showFrom(it) }
+            bind.recordReader.setOnClickListener { vm.changeFrom() }
+        }
+
+        private fun showFrom(it: Int?) {
+            if (it == RecordVM.TYPE_READER) {
+                bind.recordDbFrom.visibility = View.VISIBLE
+                bind.recordDbFrom.text = "当前DB: reader"
+
+                bind.recordReader.text = "SELF"
+            } else {
+                bind.recordDbFrom.visibility = View.GONE
+
+                bind.recordReader.text = "READER"
+            }
+        }
+
+        private fun typeOffsetIndex() = vm.query.type + 1
+
+        private fun updateQueryInput() {
+            bind.recordDialogTime.text.toString().trim().let {
+                if (it.isEmpty()) {
+                    null
+                } else if (it.contains("-") && !it.contains(":")) { // 2020-04-20
+                    "$it 00:00:00".toDate()
+                } else if (!it.contains("-") && !it.contains(":")) {
+                    if (it.length == 8) { // 20200420
+                        ("${it.subSequence(0, 4)}" +
+                                "-${it.subSequence(4, 6)}" +
+                                "-${it.subSequence(6, 8)} " +
+                                "00:00:00").toDate()
+                    } else { // 20200420 000000
+                        val sb = StringBuilder()
+                        repeat(15 - it.length) { sb.append("0") }
+                        sb.toString().toDate()
+                    }
+                } else if (it.length == 16) { // 2020-04-20 09:58
+                    "$it:00".toDate()
+                } else {
+                    it.toDate()
+                }
+            }?.time?.let {
+                vm.query.time = it
+            }
+            val like = bind.recordDialogLike.text.toString().trim()
+            if (like.isNotEmpty()) {
+                vm.query.like = "%$like%"
             }
         }
 
