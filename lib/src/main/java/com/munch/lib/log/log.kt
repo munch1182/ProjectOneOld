@@ -129,6 +129,11 @@ open class Logger(
         return this
     }
 
+    fun enable(enable: Boolean = false): Logger {
+        this.enable = enable
+        return this
+    }
+
     open fun log(vararg any: Any?) {
         if (!enable) {
             return

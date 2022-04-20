@@ -17,6 +17,8 @@ interface OnResultListener<T> {
     fun onResult(result: T)
 }
 
+typealias OnChangeListener<T> = (onChange: T) -> Unit
+
 interface OnResultNullableListener<T> {
     fun onResult(result: T?)
 }

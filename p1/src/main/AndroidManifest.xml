@@ -32,6 +32,16 @@
         <activity android:name=".task.TaskActivity" />
         <activity android:name=".log.LogActivity" />
         <activity android:name=".record.RecordActivity" />
+        <activity android:name=".notification.NotificationActivity" />
+
+        <service
+            android:name="com.munch.lib.helper.NotificationServiceHelper"
+            android:exported="false"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
