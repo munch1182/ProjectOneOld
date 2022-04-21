@@ -5,6 +5,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.munch.lib.Resettable
 import com.munch.lib.extend.isPermissionGranted
+import com.munch.lib.extend.notDeniedForever
+import com.munch.lib.log.Logger
 import com.munch.lib.result.OnPermissionResultListener
 
 /**
@@ -17,6 +19,7 @@ interface PermissionRequest {
 class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettable,
     ActivityResultCaller by fragment {
 
+    private val log = Logger("intent")
     private val activity by lazy { fragment.requireActivity() }
 
     private val onResultLauncher =
@@ -59,14 +62,18 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
         reset()
 
         permissions.forEach {
-            if (activity.isPermissionGranted(it)){
+            if (activity.isPermissionGranted(it)) {
                 grantedList.add(it)
-            }else{
-                requestList.add(it)
+            } else {
+                if (activity.notDeniedForever(it)) {
+                    requestList.add(it)
+                } else {
+                    deniedList.add(it)
+                }
             }
         }
 
-        if (requestList.isEmpty() ) {
+        if (requestList.isEmpty()) {
             requestComplete()
         } else {
             this.listener = listener

@@ -81,8 +81,10 @@ inline fun <D, B : ViewBinding> Activity.fvHelperBindRv(
 /**
  * 两行TextView的RecyclerView
  */
-inline fun Activity.fvLinesRv(str: List<Pair<String, String>>) =
-    fv<FVLinesRvView> { FVLinesRvView(this, str) }
+inline fun Activity.fvLinesRv(
+    str: List<Pair<String, String>>,
+    funImp: AdapterFunImp<Pair<String, String>> = AdapterFunImp.Default()
+) = fv<FVLinesRvView> { FVLinesRvView(this, str, funImp) }
 
 /**
  * 单行TextView的RecyclerView
@@ -198,25 +200,34 @@ open class FVLineRvView(context: Context, str: List<String>) :
     }
 }
 
-class FVLinesRvView(context: Context, str: List<Pair<String, String>>) :
-    FVRecyclerView<Pair<String, String>, BaseViewHolder>(context,
-        object : BaseRecyclerViewAdapter<Pair<String, String>, BaseViewHolder>({ ctx ->
-            LinearLayout(ctx, null, R.attr.fastAttrLineVertical).apply {
-                addView(TextView(ctx, null, R.attr.fastAttrTvNormal))
-                addView(TextView(ctx, null, R.attr.fastAttrTvDesc))
-            }
-        }) {
+class FVLinesRvView(
+    context: Context,
+    str: List<Pair<String, String>>,
+    funImp: AdapterFunImp<Pair<String, String>> = AdapterFunImp.Default()
+) :
+    FVRecyclerHelperView<Pair<String, String>, BaseViewHolder>(
+        context,
+        AdapterHelper(object :
+            BaseRecyclerViewAdapter<Pair<String, String>, BaseViewHolder>({ ctx ->
+                LinearLayout(ctx, null, R.attr.fastAttrLineVertical).apply {
+                    addView(TextView(ctx, null, R.attr.fastAttrTvNormal))
+                    addView(TextView(ctx, null, R.attr.fastAttrTvDesc))
+                }
+            }, funImp) {
 
             init {
-                set(str)
+                if (str.isNotEmpty()) {
+                    set(str)
+                }
             }
 
             override fun onBind(holder: BaseViewHolder, position: Int, bean: Pair<String, String>) {
-                val vg = holder.itemView as? ViewGroup ?: return
+                val vg = holder.itemView.apply { layoutParams = newMWLp() } as? ViewGroup ?: return
                 (vg.getChildAt(0) as? TextView)?.text = bean.first
                 (vg.getChildAt(1) as? TextView)?.text = bean.second
             }
-        }) {
+        })
+    ) {
     override fun onViewAdd() {
         super.onViewAdd()
         view.setBackgroundColor(Color.WHITE)

@@ -36,8 +36,8 @@ open class BaseFastActivity : DispatcherActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        MeasureHelper.start(this::class.java.simpleName)
         super.onCreate(savedInstanceState)
+        MeasureHelper.start(this::class.java.simpleName)
         onBar()
     }
 

@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.app.ActivityCompat
 import androidx.core.app.ComponentActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -71,6 +72,13 @@ fun FragmentActivity.replace(id: Int, fragment: Fragment) {
     supportFragmentManager.beginTransaction()
         .replace(id, fragment)
         .commit()
+}
+
+/**
+ * 此方法只有在请求了一次权限之后才能使用，不能单独拿出来判断
+ */
+inline fun Activity.notDeniedForever(permission: String): Boolean {
+    return ActivityCompat.shouldShowRequestPermissionRationale(this, permission)
 }
 
 open class BindFragment : Fragment() {

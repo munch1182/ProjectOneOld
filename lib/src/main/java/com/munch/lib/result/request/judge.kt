@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.munch.lib.Resettable
+import com.munch.lib.log.Logger
 import com.munch.lib.result.OnJudge
 import com.munch.lib.result.OnJudgeResultListener
 
@@ -18,13 +19,17 @@ interface Judge2ResultRequest {
 
 class Judge2ResultRequestHandler(fragment: Fragment) : Judge2ResultRequest, Resettable,
     ActivityResultCaller by fragment {
+
+    private val log = Logger("jud2Res")
     private val context by lazy { fragment.requireContext() }
     private var judge: OnJudge? = null
     private var listener: OnJudgeResultListener? = null
     private val onResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             judge?.let {
-                listener?.onJudgeResult(it.onJudge(context))
+                val result = it.onJudge(context)
+                log.log("receive result, judge result again: $result.")
+                listener?.onJudgeResult(result)
             }
             reset()
         }
@@ -32,10 +37,12 @@ class Judge2ResultRequestHandler(fragment: Fragment) : Judge2ResultRequest, Rese
     override fun judge2Result(judge: OnJudge, intent: Intent, listener: OnJudgeResultListener?) {
         reset()
         if (judge.onJudge(context)) {
+            log.log("judge result: true.")
             listener?.onJudgeResult(true)
         } else {
             this.judge = judge
             this.listener = listener
+            log.log("judge result: false, launch intent.")
             onResultLauncher.launch(intent)
         }
     }

@@ -1,5 +1,6 @@
 package com.munch.project.one
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import com.munch.lib.fast.base.BaseFastActivity
@@ -10,6 +11,7 @@ import com.munch.project.one.contentresolver.ContentResolverActivity
 import com.munch.project.one.log.LogActivity
 import com.munch.project.one.notification.NotificationActivity
 import com.munch.project.one.record.RecordActivity
+import com.munch.project.one.result.ResultActivity
 import com.munch.project.one.task.TaskActivity
 
 class MainActivity : BaseFastActivity(), ISupportActionBar {
@@ -17,6 +19,7 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
     private val vb by fvClassRv(
         listOf(
             TaskActivity::class,
+            ResultActivity::class,
             ContentResolverActivity::class,
             NotificationActivity::class,
             LogActivity::class,
@@ -25,6 +28,7 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
     )
     override val showHome = false
 
+    @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DataHelper.getStartUp()?.let {
