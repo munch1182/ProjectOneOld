@@ -8,6 +8,6 @@ dependencies {
 
     implementation deps['swipeRefreshLayout']
     implementation deps['permissionX']
-    implementation project(path: ':libfast')
-    implementation project(path: ':wheelview')
+    implementation "com.munch.lib:libfast:0.2.0"
+    implementation "com.munch.lib:wheelview:0.1.0"
 }

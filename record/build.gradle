@@ -5,9 +5,14 @@ plugins {
 }
 apply from: '../buildCom/commonbuildktx.gradle'
 
-kapt {
-    arguments {
-        arg("room.schemaLocation", "$projectDir/schemas".toString())
+android {
+    defaultConfig {
+        kapt {
+            //db exportSchema = true
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas".toString())
+            }
+        }
     }
 }
 
@@ -17,5 +22,35 @@ dependencies {
     api deps['roomKtx']
     kapt deps['roomCompiler']
     api deps['coroutines']
-    api project(path: ':lib')
+    //noinspection GradleDynamicVersion
+    api "com.munch.lib:lib:0.2.0"
+}
+
+apply plugin: 'maven-publish'
+
+android {
+    publishing {
+        singleVariant('release') { withSourcesJar() }
+    }
+}
+
+//Gradle - task
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                //release根据buildType
+                //aar
+                from components['release']
+                groupId "com.munch.lib"
+                artifactId "record"
+                version "0.1.0"
+            }
+        }
+        repositories {
+            maven {
+                url uri('../repository')
+            }
+        }
+    }
 }
