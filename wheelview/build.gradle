@@ -7,3 +7,32 @@ apply from: '../buildCom/commonbuildktx.gradle'
 dependencies {
     implementation project(path: ':lib')
 }
+
+apply plugin: 'maven-publish'
+
+android{
+    publishing {
+        singleVariant('release') { withSourcesJar() }
+    }
+}
+
+//Gradle - task
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                //release根据buildType
+                //aar
+                from components['release']
+                groupId "com.munch.lib"
+                artifactId "wheelview"
+                version "0.1.0"
+            }
+        }
+        repositories {
+            maven {
+                url uri('../repository')
+            }
+        }
+    }
+}

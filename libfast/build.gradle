@@ -9,6 +9,37 @@ dependencies {
     api deps['material']
     api deps['activityKtx']
     api deps['fragmentKtx']
-    api project(path: ':lib')
-    api project(path: ':record')
+    //noinspection GradleDynamicVersion
+    api "com.munch.lib:lib:0.2.0"
+    //noinspection GradleDynamicVersion
+    api "com.munch.lib:record:0.1.0"
+}
+
+apply plugin: 'maven-publish'
+
+android {
+    publishing {
+        singleVariant('release') { withSourcesJar() }
+    }
+}
+
+//Gradle - task
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                //release根据buildType
+                //aar
+                from components['release']
+                groupId "com.munch.lib"
+                artifactId "libfast"
+                version "0.2.0"
+            }
+        }
+        repositories {
+            maven {
+                url uri('../repository')
+            }
+        }
+    }
 }

@@ -15,7 +15,7 @@ import com.munch.lib.extend.SingletonHolder
 
 object DBRecord : RecordDao by RecordDB.getInstance(AppHelper.app).record
 
-@Database(entities = [Record::class], version = RecordDB.VERSION_22_03_20)
+@Database(entities = [Record::class], version = RecordDB.VERSION_22_03_20, exportSchema = true)
 abstract class RecordDatabase : RoomDatabase() {
 
     abstract fun recordDao(): RecordDao

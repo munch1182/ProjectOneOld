@@ -3,6 +3,8 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
+
+        maven { url 'file://~/repository' }
     }
 }
 dependencyResolutionManagement {
@@ -10,6 +12,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url 'file://~/repository' }
+        println "${'file://${rootProject.rootDir}/repository'}"
     }
 }
 rootProject.name = "ProjectOne"
