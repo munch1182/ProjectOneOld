@@ -6,5 +6,5 @@ apply from: '../buildCom/commonbuildktx.gradle'
 
 dependencies {
 
-    implementation project(path: ':libfast')
+    implementation "com.munch.lib:libfast:0.2.0"
 }

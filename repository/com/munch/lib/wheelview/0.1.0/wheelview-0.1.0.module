@@ -1,0 +1,138 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.munch.lib",
+    "module": "wheelview",
+    "version": "0.1.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.2"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.databinding",
+          "module": "viewbinding",
+          "version": {
+            "requires": "7.1.3"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk8",
+          "version": {
+            "requires": "1.6.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "wheelview-0.1.0.aar",
+          "url": "wheelview-0.1.0.aar",
+          "size": 1290,
+          "sha512": "ec040d052f141e6044a3c5caf70f8c5a83035968e8b7e72d0ba45aa2dcc60634c2d655ea84d0e919eecd8828a686417eeddfa94600e86d1433e913582305c8ab",
+          "sha256": "6602a6096e96b0ebe56e31e01e89b9f5d128a35677a3cd29a0ea9002229d3439",
+          "sha1": "6a9b001d624cc665ca4aa103d81c995ff3fa0426",
+          "md5": "451f3c3986d96bf57bf6a61229654107"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-parcelize-runtime",
+          "version": {
+            "requires": "1.6.20"
+          }
+        },
+        {
+          "group": "androidx.databinding",
+          "module": "viewbinding",
+          "version": {
+            "requires": "7.1.3"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk8",
+          "version": {
+            "requires": "1.6.20"
+          }
+        },
+        {
+          "group": "androidx.appcompat",
+          "module": "appcompat",
+          "version": {
+            "requires": "1.4.1"
+          }
+        },
+        {
+          "group": "androidx.core",
+          "module": "core-ktx",
+          "version": {
+            "requires": "1.7.0"
+          }
+        },
+        {
+          "group": "com.munch.lib",
+          "module": "lib",
+          "version": {
+            "requires": "0.2.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "wheelview-0.1.0.aar",
+          "url": "wheelview-0.1.0.aar",
+          "size": 1290,
+          "sha512": "ec040d052f141e6044a3c5caf70f8c5a83035968e8b7e72d0ba45aa2dcc60634c2d655ea84d0e919eecd8828a686417eeddfa94600e86d1433e913582305c8ab",
+          "sha256": "6602a6096e96b0ebe56e31e01e89b9f5d128a35677a3cd29a0ea9002229d3439",
+          "sha1": "6a9b001d624cc665ca4aa103d81c995ff3fa0426",
+          "md5": "451f3c3986d96bf57bf6a61229654107"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseSourcePublication",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "wheelview-0.1.0-sources.jar",
+          "url": "wheelview-0.1.0-sources.jar",
+          "size": 1100,
+          "sha512": "b7bbd44d197fc1a7275aaf5b9feef5829cd903fa6daa1bd5a7a6259d951b7ccc46c179907b9fec139477d3165b934e4f3aac9210a37321624ba12d10ee258163",
+          "sha256": "2171c2f9ed0ffd59e672e53f9fd72ae4eb6ff082a1a157b39d8de8a0a8240765",
+          "sha1": "6c5dd6ae7658eb285372e5d3630544fa1e4eafe7",
+          "md5": "a632071eae3821f3ed7a81885bad6dce"
+        }
+      ]
+    }
+  ]
+}

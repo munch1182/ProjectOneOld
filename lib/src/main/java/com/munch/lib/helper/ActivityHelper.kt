@@ -15,6 +15,7 @@ object ActivityHelper {
 
     //<editor-fold desc="imp">
     private var currWK: WeakReference<Activity>? = null
+    private var currCreateWK: WeakReference<Activity>? = null
     private var refCount = 0
         set(value) {
             if (field == value) {
@@ -30,6 +31,7 @@ object ActivityHelper {
 
     private val callback = object : Application.ActivityLifecycleCallbacks {
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+            currCreateWK = WeakReference(activity)
         }
 
         override fun onActivityStarted(activity: Activity) {
@@ -54,12 +56,18 @@ object ActivityHelper {
         }
 
         override fun onActivityDestroyed(activity: Activity) {
+            releaseCreate()
         }
     }
 
     private fun releaseCurr() {
         currWK?.clear()
         currWK = null
+    }
+
+    private fun releaseCreate() {
+        currCreateWK?.clear()
+        currCreateWK = null
     }
 
     private fun resumeCheck() {
@@ -77,6 +85,8 @@ object ActivityHelper {
 
     val curr: Activity?
         get() = currWK?.get()
+    val currCreate:Activity?
+        get() = currCreateWK?.get()
 
     val isForeground: Boolean
         get() = refCount >= 1
