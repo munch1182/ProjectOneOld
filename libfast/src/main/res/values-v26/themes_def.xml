@@ -18,5 +18,7 @@
         <item name="android:autoSizeMaxTextSize">@dimen/spDefNormal</item>
         <item name="android:autoSizeMinTextSize">8sp</item>
         <item name="android:maxLines">1</item>
+        <item name="android:textSize">@dimen/spDefNormal</item>
+        <item name="android:textColor">@color/colorTextDef</item>
     </style>
 </resources>

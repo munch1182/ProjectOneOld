@@ -77,11 +77,11 @@
         {
           "name": "libfast-0.2.0.aar",
           "url": "libfast-0.2.0.aar",
-          "size": 88209,
-          "sha512": "294203ca2236fcbf8dd9b9d6d1e008849c59e7b4539d102097baf41728ac0d2e7ccecc3dd5265094f2bff4e4c984643fa4b4b8fd8b4ee368f5f2016c4cbdc558",
-          "sha256": "ee336ade56379062b053ccc047e9db8e386ef34abdef202f7f9310f5293bd928",
-          "sha1": "e79625b315fb1eadb8e2ed2826b2bbb575da53d8",
-          "md5": "eeb98447881585253040dd13dc99b46c"
+          "size": 88234,
+          "sha512": "7752ee159fd7154f4d15bf873274f2cb65ca2e6a7bab40ae5f2c11e67337d536e2516e6af2f4f8abd0191799ee4504c8f9ded959c32fc835e70355cee4027a09",
+          "sha256": "83fe5bb4dead2083bf861b10a9744fc196f01d13fc1d5eb19a00674c9e65ccd5",
+          "sha1": "0d8d262f3aecb111c739f38cb4835415a076b998",
+          "md5": "17b07b58706686ac72c1162948fdec70"
         }
       ]
     },
@@ -169,11 +169,11 @@
         {
           "name": "libfast-0.2.0.aar",
           "url": "libfast-0.2.0.aar",
-          "size": 88209,
-          "sha512": "294203ca2236fcbf8dd9b9d6d1e008849c59e7b4539d102097baf41728ac0d2e7ccecc3dd5265094f2bff4e4c984643fa4b4b8fd8b4ee368f5f2016c4cbdc558",
-          "sha256": "ee336ade56379062b053ccc047e9db8e386ef34abdef202f7f9310f5293bd928",
-          "sha1": "e79625b315fb1eadb8e2ed2826b2bbb575da53d8",
-          "md5": "eeb98447881585253040dd13dc99b46c"
+          "size": 88234,
+          "sha512": "7752ee159fd7154f4d15bf873274f2cb65ca2e6a7bab40ae5f2c11e67337d536e2516e6af2f4f8abd0191799ee4504c8f9ded959c32fc835e70355cee4027a09",
+          "sha256": "83fe5bb4dead2083bf861b10a9744fc196f01d13fc1d5eb19a00674c9e65ccd5",
+          "sha1": "0d8d262f3aecb111c739f38cb4835415a076b998",
+          "md5": "17b07b58706686ac72c1162948fdec70"
         }
       ]
     },
@@ -190,10 +190,10 @@
           "name": "libfast-0.2.0-sources.jar",
           "url": "libfast-0.2.0-sources.jar",
           "size": 12489,
-          "sha512": "6ffd14735aa29ed96d8a7d9d9baa8bef351fe43641fe5aaa7b46762984d239a986240da40e28362c8b074ea87e65658855ee6d7d4ff71bf25d921337d8146541",
-          "sha256": "7368fea8be402a6ca4ee841900013f30582c2045b523c42fcb8d524e88ce9260",
-          "sha1": "8571f04b623edb7f3a9d9035156c2befd8efd61e",
-          "md5": "f2243cc42e56f21b20c0ef8127756c89"
+          "sha512": "5e8f2c4adbf3d638487ce362bd6826c2a4b2e7daac0b00ce14a784972b0b36ae91d319f66bce3143ddd25567d1040650297bbb751f3498942ea80d79a89b87fa",
+          "sha256": "ceaeef5c66240257ed318aa00057aaaffb29ae4568a6f9f736e76708bcebd496",
+          "sha1": "086f04796be81b56d739c96121cbccfcca40ca84",
+          "md5": "1d53e8f4ba664fac7262bcc8afb3caa7"
         }
       ]
     }

@@ -1,6 +1,7 @@
 package com.munch.lib.task
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -75,9 +76,7 @@ data class Key(private val key: Int) {
     override fun toString() = "task $key"
 }
 
-internal open class TaskWrapper(val task: ITask) : ITask by task {
-
-    override val key: Key = task.key
+internal open class TaskWrapper(override val key: Key, val task: ITask) : ITask by task {
 
     var state: State = State.Wait
         set(value) {
@@ -87,7 +86,7 @@ internal open class TaskWrapper(val task: ITask) : ITask by task {
         }
 
     override suspend fun run() {
-        TaskHelper.log.log("$key run")
+        TaskHelper.log.log("$key start run.")
         task.run()
     }
 }

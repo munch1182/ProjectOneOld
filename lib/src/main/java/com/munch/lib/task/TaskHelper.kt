@@ -21,7 +21,6 @@ class TaskHelper {
     }
 
     private val map = ArrayMap<Key, TaskWrapper?>()
-    private val mapLock = Mutex()
     private val orderHandler by lazy { TaskOrderHandler() }
     private val normalHandler by lazy { TaskNormalHandler() }
 
@@ -29,10 +28,11 @@ class TaskHelper {
      * 如果一个任务有多种属性，会按照属性的顺序执行
      */
     fun add(task: ITask): TaskHelper {
-        // todo 其它方式保证执行顺序
-        runBlocking {
-            val wrapper = TaskWrapper(task)
-            mapLock.withLock { map[wrapper.key] = wrapper }
+        runBlocking(TaskScope.coroutineContext) {
+            val key = task.key
+            log.log("wrap and dispatch $key")
+            val wrapper = TaskWrapper(key, task)
+            map[key] = wrapper
             when (task) {
                 is ITaskOrder -> orderHandler.add(wrapper)
                 else -> normalHandler.add(wrapper)
@@ -42,14 +42,15 @@ class TaskHelper {
     }
 
     fun run() {
-        TaskScope.launch {
+        TaskScope.launch(TaskScope.coroutineContext) {
+            log.log("call TaskHelper.run.")
             normalHandler.run()
             orderHandler.run()
         }
     }
 
     fun cancel() {
-        runBlocking {
+        runBlocking(TaskScope.coroutineContext) {
             normalHandler.cancel()
             orderHandler.cancel()
         }
