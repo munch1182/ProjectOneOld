@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import com.munch.lib.Resettable
 import com.munch.lib.extend.isPermissionGranted
 import com.munch.lib.extend.notDeniedForever
+import com.munch.lib.log.InfoStyle
 import com.munch.lib.log.Logger
 import com.munch.lib.result.OnPermissionResultListener
 
@@ -19,7 +20,7 @@ interface PermissionRequest {
 class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettable,
     ActivityResultCaller by fragment {
 
-    private val log = Logger("intent")
+    private val log = Logger("intent", infoStyle = InfoStyle.NULL)
     private val activity by lazy { fragment.requireActivity() }
 
     private val onResultLauncher =
@@ -28,22 +29,33 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
 
     private val normalPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+
+            log.log { "receive permission result." }
             it.forEach { m ->
                 val element = m.key
-                requestList.remove(element)
+                requestList.clear()
                 if (m.value) {
                     grantedList.add(element)
-                } else {
+                } else if (!activity.notDeniedForever(m.key)) {
                     deniedList.add(element)
+                } else {
+                    requestList.add(element)
                 }
             }
-            listener?.onPermissionResult(
-                deniedList.isEmpty(),
-                grantedList.toTypedArray(),
-                deniedList.toTypedArray()
-            )
-            reset()
+
+            if (requestList.isEmpty()) {
+                requestComplete()
+            } else {
+                // TODO: 显示dialog
+                log.log { "launch permission again" }
+                launchRequest()
+            }
         }
+
+    private fun launchRequest() {
+        log.log { "launch permission." }
+        normalPermissionLauncher.launch(requestList.toTypedArray())
+    }
 
     private val settingsResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -65,28 +77,30 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
             if (activity.isPermissionGranted(it)) {
                 grantedList.add(it)
             } else {
-                if (activity.notDeniedForever(it)) {
-                    requestList.add(it)
-                } else {
-                    deniedList.add(it)
-                }
+                requestList.add(it)
             }
+        }
+
+        log.log {
+            "request:${fmt(requestList)}, granted:${fmt(grantedList)}, denied:${fmt(deniedList)}"
         }
 
         if (requestList.isEmpty()) {
             requestComplete()
         } else {
+            //todo 显示dialog
             this.listener = listener
-            dispatchPermissionRequest()
+            launchRequest()
         }
     }
 
-    private fun dispatchPermissionRequest() {
-        normalPermissionLauncher.launch(requestList.toTypedArray())
-    }
-
     private fun requestComplete() {
-        listener?.onPermissionResult(true, grantedList.toTypedArray(), deniedList.toTypedArray())
+        log.log { "permission complete. granted: ${fmt(grantedList)}, denied:${fmt(deniedList)}" }
+        listener?.onPermissionResult(
+            deniedList.isEmpty(),
+            grantedList.toTypedArray(),
+            deniedList.toTypedArray()
+        )
         reset()
     }
 
@@ -96,4 +110,6 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
         deniedList.clear()
         listener = null
     }
+
+    private fun fmt(list: MutableList<String>) = list.joinToString(prefix = "[", postfix = "]")
 }

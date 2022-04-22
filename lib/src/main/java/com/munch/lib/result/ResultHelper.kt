@@ -55,6 +55,7 @@ class ResultHelper(private val fm: FragmentManager) {
         fun request(listener: OnPermissionResultListener?) {
             fragment.requestPermissions(permissions, listener)
         }
+
     }
 
     class IntentRequest(private val intent: Intent, private val fragment: ResultFragment) {

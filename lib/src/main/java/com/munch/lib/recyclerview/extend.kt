@@ -1,6 +1,7 @@
 package com.munch.lib.recyclerview
 
 import android.view.View
+import androidx.recyclerview.widget.DiffUtil
 
 /**
  * Create by munch1182 on 2022/3/31 17:19.
@@ -108,4 +109,11 @@ fun <D, VH : BaseViewHolder> AdapterHelper<D, VH>.setOnViewLongClickListener(
             return onLongClick.invoke(v, pos, holder)
         }
     }, *ids)
+}
+
+abstract class SimpleCallback<T : Any> : DiffUtil.ItemCallback<T>() {
+
+    override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
+        return oldItem.hashCode() == newItem.hashCode()
+    }
 }

@@ -11,13 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.CompoundButton
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.AppHelper
@@ -25,17 +23,21 @@ import com.munch.lib.extend.*
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.*
 import com.munch.lib.helper.ActivityHelper
+import com.munch.lib.log.log
 import com.munch.lib.recyclerview.AdapterFunImp
 import com.munch.lib.recyclerview.BaseViewHolder
+import com.munch.lib.recyclerview.SimpleCallback
 import com.munch.lib.recyclerview.setOnItemClickListener
 import com.munch.lib.result.permissionRequest
 import com.munch.lib.task.ThreadHelper
+import com.munch.project.one.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import com.munch.lib.recyclerview.BaseRecyclerViewAdapter as BADA
+import android.Manifest.permission as p
 
 /**
  * Created by munch1182 on 2022/4/21 20:31.
@@ -45,21 +47,13 @@ class ResultActivity : BaseFastActivity(),
 
     private val bind by fvLinesRv(
         emptyList(),
-        AdapterFunImp.Differ(object : DiffUtil.ItemCallback<Pair<String, String>>() {
-            override fun areItemsTheSame(
-                oldItem: Pair<String, String>,
-                newItem: Pair<String, String>
-            ): Boolean {
-                return oldItem == newItem
-            }
-
+        AdapterFunImp.Differ(object : SimpleCallback<Pair<String, String>>() {
             override fun areContentsTheSame(
                 oldItem: Pair<String, String>,
                 newItem: Pair<String, String>
             ): Boolean {
                 return oldItem.second == newItem.second
             }
-
         }, ThreadHelper.mainHandler)
     )
     private val adapter by lazy { bind.adapter }
@@ -71,7 +65,9 @@ class ResultActivity : BaseFastActivity(),
         bind.init()
 
         adapter.setOnItemClickListener { _, pos, _ ->
-            lifecycleScope.launch(Dispatchers.IO) { vm.get(pos)?.request() }
+            lifecycleScope.launch(Dispatchers.IO) {
+                vm.get(pos)?.request()
+            }
         }
         adapter.showRefresh()
         vm.pbs().observe(this) { adapter.set(it) }
@@ -86,13 +82,39 @@ class ResultActivity : BaseFastActivity(),
 
         private val all = mutableListOf(
             RBWrapper(true, SB("SET")),
-            RBWrapper(true, PB("NET", requestName = Manifest.permission.INTERNET)),
-            RBWrapper(true, PB("LOCATION", requestName = Manifest.permission.ACCESS_FINE_LOCATION)),
-            RBWrapper(true, PB("CAMERA", requestName = Manifest.permission.CAMERA)),
-            RBWrapper(true, PB("CALL", requestName = Manifest.permission.CALL_PHONE)),
+            RBWrapper(true, PB("NET", requestName = p.INTERNET)),
+            RBWrapper(true, PB("LOCATION", requestName = p.ACCESS_FINE_LOCATION)),
+            RBWrapper(true, PB("CAMERA", requestName = p.CAMERA)),
+            RBWrapper(true, PB("CALL", requestName = p.CALL_PHONE)),
+            RBWrapper(true, PB("READ PHONE STATE", requestName = p.READ_PHONE_STATE)),
+            RBWrapper(true, PB("BLUETOOTH", requestName = p.BLUETOOTH)),
+            RBWrapper(true, PB("BLUETOOTH_ADMIN", requestName = p.BLUETOOTH_ADMIN)),
+            RBWrapper(
+                Build.VERSION.SDK_INT >= 31,
+                PB(
+                    "BLUETOOTH_ADVERTISE",
+                    minSdk = 31,
+                    requestName = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) p.BLUETOOTH_ADVERTISE else "")
+                )
+            ),
+            RBWrapper(
+                Build.VERSION.SDK_INT >= 31,
+                PB(
+                    "BLUETOOTH_SCAN",
+                    minSdk = 31,
+                    requestName = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) p.BLUETOOTH_SCAN else "")
+                )
+            ),
+            RBWrapper(
+                Build.VERSION.SDK_INT >= 31,
+                PB(
+                    "BLUETOOTH_CONNECT",
+                    minSdk = 31,
+                    requestName = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) p.BLUETOOTH_CONNECT else "")
+                )
+            ),
         )
         private val pbs = MutableLiveData<List<Pair<String, String>>>(emptyList())
-        private var curr = all
         fun pbs() = pbs.toLive()
         fun allList() = all
 
@@ -103,7 +125,7 @@ class ResultActivity : BaseFastActivity(),
             }
         }
 
-        fun get(pos: Int) = curr.getOrNull(pos)?.rb
+        fun get(pos: Int) = all.filter { it.check }.getOrNull(pos)?.rb
 
         init {
             refresh()
@@ -118,7 +140,7 @@ class ResultActivity : BaseFastActivity(),
         private val rv by lazy { RecyclerView(requireContext()) }
         private val adapter by lazy {
             object : BADA<RBWrapper, BaseViewHolder>({
-                CheckBox(it)
+                CheckBox(it, null, com.munch.lib.fast.R.attr.fastAttrCheck)
             }) {
                 override fun onBind(
                     holder: BaseViewHolder, position: Int, bean: RBWrapper
@@ -159,8 +181,8 @@ class ResultActivity : BaseFastActivity(),
 
     abstract class ResultBean(
         val name: String,
-        val minSdk: Int = 1,
-        val maxSdk: Int = Int.MAX_VALUE,
+        val minSdk: Int,
+        val maxSdk: Int,
         val requestName: String = name
     ) {
 
@@ -171,10 +193,10 @@ class ResultActivity : BaseFastActivity(),
 
     class SB(
         name: String,
-        midSdk: Int = 1,
+        minSdk: Int = 1,
         maxSdk: Int = Int.MAX_VALUE,
         requestName: String = name
-    ) : ResultBean(name, midSdk, maxSdk, requestName) {
+    ) : ResultBean(name, minSdk, maxSdk, requestName) {
         override val state: String
             get() = "goto"
 
@@ -194,13 +216,13 @@ class ResultActivity : BaseFastActivity(),
 
     class PB(
         name: String,
-        midSdk: Int = 1,
+        minSdk: Int = 1,
         maxSdk: Int = Int.MAX_VALUE,
         requestName: String = name
-    ) : ResultBean(name, midSdk, maxSdk, requestName) {
+    ) : ResultBean(name, minSdk, maxSdk, requestName) {
 
         override val state: String
-            get() = "${hasPermission()} $minSdk${if (maxSdk == Int.MAX_VALUE) "+" else " ~ $maxSdk"}"
+            get() = "$minSdk${if (maxSdk == Int.MAX_VALUE) "+" else " ~ $maxSdk"} ${hasPermission()}"
 
         override suspend fun request() = suspendCancellableCoroutine<Boolean> {
             if (Build.VERSION.SDK_INT in minSdk..maxSdk) {
@@ -219,11 +241,7 @@ class ResultActivity : BaseFastActivity(),
             return if (isPermissionGranted(requestName)) {
                 "Granted"
             } else {
-                if (ActivityHelper.currCreate!!.notDeniedForever(requestName)) {
-                    "denied"
-                } else {
-                    "denied forever"
-                }
+                "denied"
             }
         }
 

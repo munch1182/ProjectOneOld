@@ -14,6 +14,7 @@
         <item name="fastAttrSpaceVertical">@style/App.Fast.Space.Vertical</item>
         <item name="fastAttrPadding">@style/App.Fast.PaddingRect</item>
         <item name="fastAttrContainer">@style/App.Fast.PaddingFull</item>
+        <item name="fastAttrCheck">@style/App.Fast.Check</item>
         <item name="android:windowBackground">@color/colorBg</item>
     </style>
 
@@ -28,6 +29,7 @@
     <attr name="fastAttrPadding" format="reference" />
     <attr name="fastAttrContainer" format="reference" />
     <attr name="fastAttrBtn" format="reference" />
+    <attr name="fastAttrCheck" format="reference" />
 
     <!--设置左右dimenDef，上下dimenDefSmall的padding-->
     <style name="App.Fast.PaddingRect">
@@ -45,7 +47,13 @@
     <style name="App.Fast.TextView">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat</item>
+    </style>
+
+    <style name="App.Fast.Check" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:paddingTop">@dimen/dimenDefSmall</item>
+        <item name="android:paddingBottom">@dimen/dimenDefSmall</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <!--一般用TextView-->
@@ -62,6 +70,7 @@
         <item name="android:textSize">@dimen/spDefNormal</item>
         <item name="android:textColor">@color/colorTextDef</item>
     </style>
+
 
     <!--占据整行，设置了默认padding、白色背景和点击效果-->
     <style name="App.Fast.Line" parent="App.Fast.PaddingFull">

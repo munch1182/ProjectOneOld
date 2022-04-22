@@ -134,6 +134,12 @@ open class Logger(
         return this
     }
 
+    open fun log(ifEnable: () -> Any) {
+        if (enable) {
+            logStr(FMT.any2Str(ifEnable.invoke()))
+        }
+    }
+
     open fun log(vararg any: Any?) {
         if (!enable) {
             return
