@@ -1,7 +1,6 @@
 package com.munch.lib.task
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -15,7 +14,6 @@ interface ITask {
      * 如果两个任务标识一致，在未执行的状态下后添加任务会覆盖前任务
      */
     val key: Key
-        get() = Key(10000 + TaskHelper.num.curr)
 
     /**
      * 执行此任务前的等待时间
@@ -36,6 +34,11 @@ interface ITask {
      * 需要在此处进行取消任务并返回取消结果
      */
     suspend fun cancel(): Boolean = true
+}
+
+abstract class Task : ITask {
+
+    override val key: Key = Key(10000 + TaskHelper.keyHelper.curr)
 }
 
 //todo 观测回调
@@ -73,7 +76,7 @@ data class Key(private val key: Int) {
         return true
     }
 
-    override fun toString() = "task $key"
+    override fun toString() = key.toString()
 }
 
 internal open class TaskWrapper(override val key: Key, val task: ITask) : ITask by task {

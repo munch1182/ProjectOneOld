@@ -13,9 +13,10 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 
 /**
+ * todo
  * Create by munch1182 on 2022/4/22 17:07.
  */
-class DialogTask(private val wrapper: DialogWrapper) : OrderTask {
+open class DialogTask(private val wrapper: DialogWrapper) : OrderTask() {
 
     constructor(dialog: AlertDialog) : this(AlertDialogWrapper(dialog))
     constructor(dialog: DialogFragment) : this(DialogFragmentWrapper(dialog))

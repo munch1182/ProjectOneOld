@@ -13,6 +13,8 @@ internal interface TaskHandler {
 
     suspend fun cancel() {
     }
+
+    suspend fun pause() {}
 }
 
 internal class TaskNormalHandler : TaskHandler {

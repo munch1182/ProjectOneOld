@@ -15,7 +15,9 @@ class TaskHelper {
 
     companion object {
 
-        internal val num = IDHelper()
+        val keyHelper = IDHelper()
+
+        val KEY_COMPLETE = Key(Int.MAX_VALUE)
 
         internal val log = Logger("task", infoStyle = InfoStyle.THREAD_ONLY)
     }
@@ -30,12 +32,18 @@ class TaskHelper {
     fun add(task: ITask): TaskHelper {
         runBlocking(TaskScope.coroutineContext) {
             val key = task.key
-            log.log("wrap and dispatch $key")
+
             val wrapper = TaskWrapper(key, task)
             map[key] = wrapper
             when (task) {
-                is ITaskOrder -> orderHandler.add(wrapper)
-                else -> normalHandler.add(wrapper)
+                is ITaskOrder -> {
+                    log.log("wrap and dispatch task($key), order(${task.orderKey})")
+                    orderHandler.add(wrapper)
+                }
+                else -> {
+                    log.log("wrap and dispatch task($key)")
+                    normalHandler.add(wrapper)
+                }
             }
         }
         return this

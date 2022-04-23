@@ -1,5 +1,6 @@
 package com.munch.lib.task
 
+import com.munch.lib.log.log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -15,11 +16,14 @@ interface ITaskOrder {
 
     /**
      * 用于标识该任务属于哪一条有序任务链
+     *
+     * 可能被反复调用
      */
     val orderKey: Key
 }
 
-interface OrderTask : ITask, ITaskOrder
+abstract class OrderTask : Task(), ITaskOrder
+
 
 internal class TaskOrderHandler : TaskHandler {
 
@@ -45,20 +49,19 @@ internal class TaskOrderHandler : TaskHandler {
         }
         mutex.withLock {
             state = State.Executing
-            //只是TaskChain的运行，不是实际任务执行的线程
-            /*while (map.isNotEmpty()) {
-                if (state.isCancel) {
-                    return
-                }
-                *//*map.removeAt(0)?.run()*//*
-                map[0]?.run()
-                map.remo
-            }*/
-            map.values.forEach { it.run() }
-            // TODO: 中途加入会出错
-            map.clear()
+            map.values.forEach {
+                it.addCompleteTaskIfNeed(CompleteOrderTask(it.orderKey) {
+                    map.remove(it.orderKey)
+                    if (map.isEmpty()) {
+                        state = State.Complete
+                    }
+                }).run()
+            }
         }
-        state = State.Complete
+    }
+
+    override suspend fun pause() {
+        super.pause()
     }
 
     override suspend fun cancel() {
@@ -69,10 +72,29 @@ internal class TaskOrderHandler : TaskHandler {
             map.clear()
         }
     }
+
 }
 
+internal class CompleteOrderTask(
+    order: Int,
+    private val onComplete: suspend () -> Unit
+) : OrderTask() {
+
+    override suspend fun run() {
+        onComplete.invoke()
+    }
+
+    override val key: Key = TaskHelper.KEY_COMPLETE
+
+    override val orderKey: Key = Key(order)
+
+}
+
+
 internal class OrderTaskWrapper(val task: TaskWrapper) {
+
     var next: OrderTaskWrapper? = null
+    var last: OrderTaskWrapper? = null
 
     /**
      * 任务依次执行
@@ -116,7 +138,7 @@ internal class OrderTaskWrapper(val task: TaskWrapper) {
     }
 }
 
-internal class TaskChain(orderKey: Int) {
+internal class TaskChain(val orderKey: Int) {
 
     var state: State = State.Wait
         private set
@@ -130,24 +152,38 @@ internal class TaskChain(orderKey: Int) {
     fun add(task: OrderTaskWrapper): TaskChain {
         if (head == null) {
             head = task
+            log("set head: ${task.task.key}")
+        }
+        while (tail != null && tail!!.task.task is CompleteOrderTask) {
+            tail = tail!!.last
+            log("set tail: ${tail?.task?.key}")
         }
         tail?.next = task
+        tail?.let {
+            log("set tail(${tail?.task?.key}) next: ${task.task.key}")
+        }
+        tail?.let { task.last = it }
+        log("set tail: ${task.task.key}")
         tail = task
+        return this
+    }
+
+
+    fun addCompleteTaskIfNeed(task: CompleteOrderTask): TaskChain {
+        add(OrderTaskWrapper(TaskWrapper(task.key, task)))
         return this
     }
 
     suspend fun run() {
         //正在执行中，则不需要再次运行，后续添加的任务自然会执行
         if (state.isExecuting) {
+            TaskHelper.log.log("call run but executing")
             return
         }
         state = State.Executing
         TaskHelper.TaskScope.launch(Dispatchers.Default) {
             //此方法会阻塞直到所有任务完成
             head?.run()
-            if (!state.isCancel) {
-                state = State.Complete
-            }
         }
     }
 
@@ -160,4 +196,5 @@ internal class TaskChain(orderKey: Int) {
         head?.cancel()
         state = State.Cancel
     }
+
 }
