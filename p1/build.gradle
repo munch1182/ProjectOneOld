@@ -12,5 +12,5 @@ dependencies {
     implementation "com.munch.lib:lib:+"
     //noinspection GradleDynamicVersion
     implementation "com.munch.lib:libfast:+"
-    implementation "com.munch.lib:wheelview:0.1.0"
+    implementation "com.munch.lib:weight:0.1.0"
 }

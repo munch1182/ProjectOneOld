@@ -15,11 +15,12 @@ inline fun Calendar.getYear() = get(Calendar.YEAR)
  */
 inline fun Calendar.getMonth() = get(Calendar.MONTH) + 1
 inline fun Calendar.getDay() = get(Calendar.DAY_OF_MONTH)
+inline fun Calendar.getWeekToday() = get(Calendar.DAY_OF_WEEK)
 inline fun Calendar.getDate() = get(Calendar.DAY_OF_YEAR)
 inline fun Calendar.getHour() = get(Calendar.HOUR_OF_DAY)
 inline fun Calendar.getMinute() = get(Calendar.MINUTE)
 inline fun Calendar.getSecond() = get(Calendar.SECOND)
-inline fun Calendar.getWeek() = get(Calendar.WEEK_OF_MONTH)
+inline fun Calendar.getWeekIndex() = get(Calendar.WEEK_OF_MONTH)
 inline fun Calendar.setHMS(h: Int, m: Int, s: Int, ms: Int = 0): Calendar {
     set(Calendar.HOUR_OF_DAY, h)
     set(Calendar.MINUTE, m)

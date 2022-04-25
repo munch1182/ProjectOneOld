@@ -62,7 +62,7 @@
           "group": "org.jetbrains.kotlin",
           "module": "kotlin-stdlib-jdk8",
           "version": {
-            "requires": "1.6.20"
+            "requires": "1.6.21"
           }
         }
       ],
@@ -70,11 +70,11 @@
         {
           "name": "lib-0.2.0.aar",
           "url": "lib-0.2.0.aar",
-          "size": 349850,
-          "sha512": "28ea5810e38816e47f69088a039a575a5db9eb8e0baaac77fd147aa54cbad3129e37242caaaafe95d4d206faef9bc55a23aaa658993b1df31fb1167c7426fe5d",
-          "sha256": "751e5587b53debe98b2c1141a8300d511bf2e2578751fb0c29e3d7e8b82d7cb5",
-          "sha1": "f4db2c43cbd60c96307f95b19d31304b114470a8",
-          "md5": "c175ae2793583ec2cab32a67b0a726f8"
+          "size": 349867,
+          "sha512": "46fcb748601ebcb72527a8cf67873dd3ca473c7f23bbdaef9c27efd3e6461ffccda9a8775d193d61849a86b00d3f84365f0130c339cd79e0c98c140ed2c39109",
+          "sha256": "a916884ef12dde84268e25cf3072a0aef5860edc5799b4681ff8c6cf8c98f1e9",
+          "sha1": "42a5be932aa2fd538b22ae61629f0b30b3563761",
+          "md5": "9474f796ff80e2316addd688793c0ef0"
         }
       ]
     },
@@ -91,7 +91,7 @@
           "group": "org.jetbrains.kotlin",
           "module": "kotlin-parcelize-runtime",
           "version": {
-            "requires": "1.6.20"
+            "requires": "1.6.21"
           }
         },
         {
@@ -133,7 +133,7 @@
           "group": "org.jetbrains.kotlin",
           "module": "kotlin-stdlib-jdk8",
           "version": {
-            "requires": "1.6.20"
+            "requires": "1.6.21"
           }
         },
         {
@@ -148,11 +148,11 @@
         {
           "name": "lib-0.2.0.aar",
           "url": "lib-0.2.0.aar",
-          "size": 349850,
-          "sha512": "28ea5810e38816e47f69088a039a575a5db9eb8e0baaac77fd147aa54cbad3129e37242caaaafe95d4d206faef9bc55a23aaa658993b1df31fb1167c7426fe5d",
-          "sha256": "751e5587b53debe98b2c1141a8300d511bf2e2578751fb0c29e3d7e8b82d7cb5",
-          "sha1": "f4db2c43cbd60c96307f95b19d31304b114470a8",
-          "md5": "c175ae2793583ec2cab32a67b0a726f8"
+          "size": 349867,
+          "sha512": "46fcb748601ebcb72527a8cf67873dd3ca473c7f23bbdaef9c27efd3e6461ffccda9a8775d193d61849a86b00d3f84365f0130c339cd79e0c98c140ed2c39109",
+          "sha256": "a916884ef12dde84268e25cf3072a0aef5860edc5799b4681ff8c6cf8c98f1e9",
+          "sha1": "42a5be932aa2fd538b22ae61629f0b30b3563761",
+          "md5": "9474f796ff80e2316addd688793c0ef0"
         }
       ]
     },
@@ -168,11 +168,11 @@
         {
           "name": "lib-0.2.0-sources.jar",
           "url": "lib-0.2.0-sources.jar",
-          "size": 61762,
-          "sha512": "25d57c68c837fd09ceca53a5be6670df3acdcc9e417a277840b3ac7e0d5a08bccbd733850dc0e5f5eb342dcc71ae759f9d9405a05ea935e6e8b5b38df6525670",
-          "sha256": "94de263853dad030aed494913dbbab6d9257db8b1630e390bb2fa3990d29b832",
-          "sha1": "f2cff4b0bf2ad9f29bd0a640fac14043c4cb032f",
-          "md5": "ca43167947a721bf751160873aae31d4"
+          "size": 61718,
+          "sha512": "51c12fd282915b5fdcf47fed8f8bb0163cf937f16976cb6531e5ea0b520412253d841441f8b558c069deea7039fb4ab2719c22821e92063b7268e56a97afabc1",
+          "sha256": "653ccc9946e1927e4a8c419c8f2365b122b3a48ba192b8c22e430d2968d3451f",
+          "sha1": "1767799429038812e3f6cb239a4559be74a68fc5",
+          "md5": "e342028adceaea91b2ff5946fe2331b7"
         }
       ]
     }
