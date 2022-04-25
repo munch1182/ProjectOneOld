@@ -1,4 +1,4 @@
-package com.munch.lib.wheelview
+package com.munch.lib.weight
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

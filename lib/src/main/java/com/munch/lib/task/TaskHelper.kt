@@ -4,8 +4,6 @@ import android.util.ArrayMap
 import com.munch.lib.log.InfoStyle
 import com.munch.lib.log.Logger
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
 
 /**

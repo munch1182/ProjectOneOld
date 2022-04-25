@@ -1,4 +1,4 @@
-package com.munch.lib.wheelview
+package com.munch.lib.weight
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -17,6 +17,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.munch.lib.wheelview", appContext.packageName)
+        assertEquals("com.munch.lib.weight.test", appContext.packageName)
     }
 }

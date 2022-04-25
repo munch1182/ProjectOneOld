@@ -5,12 +5,14 @@ plugins {
 apply from: '../buildCom/commonbuildktx.gradle'
 
 dependencies {
-    implementation "com.munch.lib:lib:0.2.0"
+
+    //noinspection GradleDynamicVersion
+    api "com.munch.lib:lib:0.2.0"
 }
 
 apply plugin: 'maven-publish'
 
-android{
+android {
     publishing {
         singleVariant('release') { withSourcesJar() }
     }
@@ -25,7 +27,7 @@ afterEvaluate {
                 //aar
                 from components['release']
                 groupId "com.munch.lib"
-                artifactId "wheelview"
+                artifactId "weight"
                 version "0.1.0"
             }
         }

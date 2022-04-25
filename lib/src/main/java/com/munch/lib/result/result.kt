@@ -6,8 +6,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.munch.lib.result.request.Judge2ResultRequest
-import com.munch.lib.result.request.Judge2ResultRequestHandler
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 

@@ -87,7 +87,7 @@ class TaskActivity : BaseFastActivity(),
                                 setPositiveButton("add") { _, _ -> now.lifecycleScope.launch { add.invoke() } }
                             }
                         }
-                        .setOnCancelListener { _ -> it.resume(true) }
+                        .setOnDismissListener { _ -> it.resume(true) }
                         .show()
                 }
             }

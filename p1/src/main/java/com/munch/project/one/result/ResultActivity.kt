@@ -1,6 +1,5 @@
 package com.munch.project.one.result
 
-import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -19,25 +18,26 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.AppHelper
-import com.munch.lib.extend.*
+import com.munch.lib.extend.get
+import com.munch.lib.extend.isPermissionGranted
+import com.munch.lib.extend.toLive
+import com.munch.lib.extend.toViewGroup
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.*
 import com.munch.lib.helper.ActivityHelper
-import com.munch.lib.log.log
 import com.munch.lib.recyclerview.AdapterFunImp
 import com.munch.lib.recyclerview.BaseViewHolder
 import com.munch.lib.recyclerview.SimpleCallback
 import com.munch.lib.recyclerview.setOnItemClickListener
 import com.munch.lib.result.permissionRequest
 import com.munch.lib.task.ThreadHelper
-import com.munch.project.one.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import com.munch.lib.recyclerview.BaseRecyclerViewAdapter as BADA
 import android.Manifest.permission as p
+import com.munch.lib.recyclerview.BaseRecyclerViewAdapter as BADA
 
 /**
  * Created by munch1182 on 2022/4/21 20:31.
