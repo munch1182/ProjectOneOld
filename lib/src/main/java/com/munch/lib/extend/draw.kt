@@ -3,6 +3,7 @@
 package com.munch.lib.extend
 
 import android.graphics.*
+import android.view.View
 import kotlin.math.absoluteValue
 import kotlin.math.atan2
 
@@ -20,6 +21,7 @@ fun testPaint(): Lazy<Paint> {
 inline fun Paint.setDashPath(color: Int = Color.RED): Paint {
     pathEffect = DashPathEffect(floatArrayOf(10f, 5f, 10f, 5f), 0f)
     setColor(color)
+    style = Paint.Style.STROKE
     return this
 }
 
@@ -102,9 +104,9 @@ fun Canvas.drawGuidLine(
     rotate(angle.toFloat())
     p.moveTo(0f, 0f)
     rotate(30f)
-    p.moveTo(0f,15f)
+    p.moveTo(0f, 15f)
     rotate(-60f)
-    p.moveTo(0f,15f)
+    p.moveTo(0f, 15f)
     rotate(30f)
     p.lineTo(sx, sy)
     paint.setDashPath()
@@ -112,3 +114,37 @@ fun Canvas.drawGuidLine(
 
     restore()
 }
+
+fun Rect.adjust(l: Int, t: Int, r: Int, b: Int) {
+    left += l
+    top += t
+    right += r
+    bottom += b
+}
+
+inline fun Rect.fitViewPadding(view: View, fitTopBottom: Boolean = true) =
+    adjust(
+        view.paddingLeft,
+        if (fitTopBottom) view.paddingTop else 0,
+        -view.paddingRight,
+        if (fitTopBottom) -view.paddingBottom else 0,
+    )
+
+inline fun Rect.translation(r: Int, b: Int) = adjust(r, b, r, b)
+
+fun RectF.adjust(l: Float, t: Float, r: Float, b: Float) {
+    left += l
+    top += t
+    right += r
+    bottom += b
+}
+
+inline fun RectF.fitViewPadding(view: View, fitTopBottom: Boolean = true) =
+    adjust(
+        view.paddingLeft.toFloat(),
+        if (fitTopBottom) view.paddingTop.toFloat() else 0f,
+        -view.paddingRight.toFloat(),
+        if (fitTopBottom) -view.paddingBottom.toFloat() else 0f,
+    )
+
+inline fun RectF.translation(r: Float, b: Float) = adjust(r, b, r, b)

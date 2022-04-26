@@ -5,10 +5,10 @@ import android.graphics.Canvas
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
-import com.munch.lib.extend.getMonth
-import com.munch.lib.extend.getWeekToday
-import com.munch.lib.extend.getYear
+import com.munch.lib.extend.*
+import com.munch.lib.log.log
 import java.util.Calendar
+import kotlin.math.log
 import kotlin.math.max
 import kotlin.math.min
 
@@ -18,18 +18,18 @@ import kotlin.math.min
 class Calendar @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    styleDef: Int = 0
+    styleDef: Int = 0,
+    var onMonthDraw: OnMonthLabelDraw = object : OnMonthLabelDraw {},
+    var onWeekDraw: OnWeekLabelDraw = object : OnWeekLabelDraw {},
+    var onDayDraw: OnDayDraw = object : OnDayDraw {},
 ) : View(context, attrs, styleDef) {
-
 
     var showStyle: Style = Style.Month(1)
 
     //是否绘制星期一
     var showWeek = true
-    var firstOfWeek = Calendar.SUNDAY
-    var onMonthDraw: OnMonthLabelDraw = object : OnMonthLabelDraw {}
-    var onWeekDraw: OnWeekLabelDraw = object : OnWeekLabelDraw {}
-    var onDayDraw: OnDayDraw = object : OnDayDraw {}
+    var firstOfWeek = Calendar.MONDAY
+
 
     private val rectDay = RectF()
     private val rectMonth = RectF()
@@ -118,7 +118,8 @@ class Calendar @JvmOverloads constructor(
         val index = weekLabels.indexOf(firstOfWeek)
 
         if (index != 0) {
-            val list = weekLabels.subList(0, index).apply { addAll(weekLabels.subList(index, 7)) }
+            val list =
+                weekLabels.subList(0, index).apply { addAll(weekLabels.subList(index, 7)) }.toList()
             weekLabels.clear()
             weekLabels.addAll(list)
         }
@@ -129,11 +130,9 @@ class Calendar @JvmOverloads constructor(
         canvas ?: return
 
         curr.firstDayOfWeek = firstOfWeek
+        currTemp.firstDayOfWeek = firstOfWeek
 
-        rectMonthTemp.set(rectMonth)
-        rectWeekTemp.set(rectDay)
-        rectDayTemp.set(rectDay)
-        when (val style = showStyle) {
+        when (showStyle) {
             is Style.Week -> {
                 drawMonthWeekLabel(canvas)
             }
@@ -142,18 +141,22 @@ class Calendar @JvmOverloads constructor(
                 val year = curr.getYear()
                 val month = curr.getMonth()
 
-                currTemp.set(year, month, 1)
-                val indexFirst = weekLabels.indexOf(currTemp.getWeekToday())
-                repeat(indexFirst) { days.add(0, -1) }
+                currTemp.set(year, month - 1, 1)
+                val indexFirst = weekLabels.indexOf(currTemp.getWeekToday()) - 1
+                if (indexFirst > 0) {
+                    repeat(indexFirst) { days.add(0, -1) }
+                }
 
-                val maxDay = curr.getMaximum(Calendar.DAY_OF_MONTH)
+                val maxDay = curr.getMaximum(Calendar.DAY_OF_MONTH) - 1
                 repeat(maxDay) { days.add(it + 1) }
 
-                currTemp.set(Calendar.DAY_OF_MONTH, maxDay)
-                val indexEnd = weekLabels.indexOf(currTemp.getWeekToday())
-                repeat(indexEnd) { days.add(-1) }
+                val size = 42 - days.size
+                repeat(size) { days.add(-1) }
+
+                rectDayTemp.set(rectDay)
                 val width = rectDay.width()
                 val height = rectDay.height()
+                val labelHeight = rectMonthTemp.height() + rectWeekTemp.height()
 
                 for (i in 0..41) {
                     val d = days.getOrNull(i) ?: return
@@ -162,9 +165,9 @@ class Calendar @JvmOverloads constructor(
                     }
                     rectDayTemp.left = (i % 7) * width
                     rectDayTemp.right = rectDayTemp.left + width
-                    rectDayTemp.top = (i / 7) * height
+                    rectDayTemp.top = (i / 7) * height + labelHeight
                     rectDayTemp.bottom = rectDayTemp.top + height
-                    onDayDraw.onDraw(canvas, rectDayTemp, year, month, i)
+                    onDayDraw.onDraw(canvas, rectDayTemp, year, month, d)
                 }
             }
             is Style.Year -> {
@@ -176,9 +179,20 @@ class Calendar @JvmOverloads constructor(
     }
 
     private fun drawMonthWeekLabel(canvas: Canvas) {
+        rectMonthTemp.set(rectMonth)
+        rectMonthTemp.fitViewPadding(this, false)
+        rectWeekTemp.set(rectDay)
+        rectWeekTemp.fitViewPadding(this, false)
         onMonthDraw.onDraw(canvas, rectMonthTemp, curr.getYear(), curr.getMonth())
         if (showWeek) {
-            weekLabels.forEach { onWeekDraw.onDraw(canvas, rectWeekTemp, it) }
+            val i = width / 7f
+            val height = rectWeekTemp.height()
+            rectWeekTemp.top += rectMonthTemp.bottom
+            rectWeekTemp.bottom = rectWeekTemp.top + height
+            weekLabels.forEach {
+                onWeekDraw.onDraw(canvas, rectWeekTemp, it)
+                rectWeekTemp.translation(i, 0f)
+            }
         }
     }
 }
