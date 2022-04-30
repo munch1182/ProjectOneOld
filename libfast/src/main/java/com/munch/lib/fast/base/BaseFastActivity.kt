@@ -26,7 +26,7 @@ import java.lang.reflect.Method
  */
 open class BaseFastActivity : DispatcherActivity() {
 
-    private var onCreate = false
+    private var measured = false
 
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase)
@@ -41,22 +41,16 @@ open class BaseFastActivity : DispatcherActivity() {
         onBar()
     }
 
-    override fun onResume() {
-        if (onCreate) {
-            MeasureHelper.start(this::class.java.simpleName)
-        }
-        super.onResume()
-    }
-
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
+        if (!measured && hasFocus) {
+            measured = true
             MeasureHelper.cost(this::class.java.simpleName, MeasureHelper.activityMeasureTime) {
                 lifecycleScope.launch(Dispatchers.IO) {
-                    DBRecord.time("${this@BaseFastActivity::class.java.simpleName} onCreate/onResume ~ onWindowFocusChanged cost $it ms")
+                    DBRecord.time("${this@BaseFastActivity::class.java.simpleName} onCreate ~ onWindowFocusChanged cost $it ms")
                 }
             }
-            onCreate = true
+
         }
     }
 

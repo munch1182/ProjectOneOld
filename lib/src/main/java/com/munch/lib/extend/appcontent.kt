@@ -24,7 +24,7 @@ inline fun sp2Px(sp: Float) = getCommonContext().sp2Px(sp)
 
 inline fun getSelectableItemBackground() = getCommonContext().getSelectableItemBackground()
 
-inline fun putStr2Clip(content: String) = getCommonContext().putStr2Clip(content)
+inline fun putStr2Clip(content: CharSequence) = getCommonContext().putStr2Clip(content)
 
 inline fun getNameVersion() = getCommonContext().getNameVersion()
 

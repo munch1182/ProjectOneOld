@@ -39,6 +39,7 @@
         <activity android:name=".result.ResultActivity" />
         <activity android:name=".weight.WeightActivity" />
         <activity android:name=".weight.CalendarActivity" />
+        <activity android:name=".about.AboutActivity" />
 
         <service
             android:name="com.munch.lib.helper.NotificationServiceHelper"

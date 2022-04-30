@@ -1,6 +1,7 @@
 package com.munch.lib.fast.view
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 
@@ -31,6 +32,15 @@ interface ActivityDispatch {
         return false
     }
 
+    fun onCreateOptionsMenu(activity: AppCompatActivity, menu: Menu): Boolean {
+        dispatchers?.forEach {
+            if (!it.onCreateOptionsMenu(activity, menu)) {
+                return true
+            }
+        }
+        return true
+    }
+
     fun getActivityDispatcher() = this
 
     /**
@@ -58,6 +68,11 @@ open class DispatcherActivity : AppCompatActivity(), ActivityDispatch {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return getActivityDispatcher().onOptionsItemSelected(this, item)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        getActivityDispatcher().onCreateOptionsMenu(this, menu)
+        return super<AppCompatActivity>.onCreateOptionsMenu(menu)
     }
 
     override fun onDestroy() {

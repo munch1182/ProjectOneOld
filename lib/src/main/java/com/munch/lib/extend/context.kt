@@ -115,11 +115,18 @@ fun Context.getIdsArray(@ArrayRes arrayId: Int): IntArray {
     return array
 }
 
-fun Context.putStr2Clip(content: String): Boolean {
+fun Context.putStr2Clip(content: CharSequence): Boolean {
     val cm = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return false
     val mClipData = ClipData.newPlainText(content, content)
     cm.setPrimaryClip(mClipData)
     return true
+}
+
+fun Context.shareView(content: CharSequence) {
+    startActivity(Intent(Intent.ACTION_SEND).apply {
+        putExtra(Intent.EXTRA_TEXT, content)
+        type = "text/plain"
+    })
 }
 
 fun Context.getNameVersion(): Pair<String, Long> {

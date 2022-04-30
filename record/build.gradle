@@ -23,7 +23,8 @@ dependencies {
     kapt deps['roomCompiler']
     api deps['coroutines']
     //noinspection GradleDynamicVersion
-    api "com.munch.lib:lib:0.2.0"
+    //api "com.munch.lib:lib:0.2.0"
+    api project(':lib')
 }
 
 apply plugin: 'maven-publish'

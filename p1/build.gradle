@@ -9,9 +9,10 @@ dependencies {
     implementation deps['swipeRefreshLayout']
     implementation deps['permissionX']
     //noinspection GradleDynamicVersion
-    implementation "com.munch.lib:lib:+"
+    //implementation "com.munch.lib:lib:+"
     //noinspection GradleDynamicVersion
-    implementation "com.munch.lib:libfast:+"
+    //implementation "com.munch.lib:libfast:+"
     //implementation "com.munch.lib:weight:0.1.0"
     implementation project(':weight')
+    implementation project(':libfast')
 }

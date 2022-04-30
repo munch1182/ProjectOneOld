@@ -7,6 +7,7 @@ import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.base.DataHelper
 import com.munch.lib.fast.view.ISupportActionBar
 import com.munch.lib.fast.view.fvClassRv
+import com.munch.project.one.about.AboutActivity
 import com.munch.project.one.contentresolver.ContentResolverActivity
 import com.munch.project.one.log.LogActivity
 import com.munch.project.one.notification.NotificationActivity
@@ -25,7 +26,8 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
             NotificationActivity::class,
             LogActivity::class,
             RecordActivity::class,
-            WeightActivity::class
+            WeightActivity::class,
+            AboutActivity::class,
         )
     )
     override val showHome = false

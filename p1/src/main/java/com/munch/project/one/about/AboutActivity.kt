@@ -1,0 +1,48 @@
+package com.munch.project.one.about
+
+import android.os.Bundle
+import android.view.MenuItem
+import androidx.core.view.setPadding
+import com.munch.lib.extend.bind
+import com.munch.lib.extend.putStr2Clip
+import com.munch.lib.extend.shareView
+import com.munch.lib.fast.R
+import com.munch.lib.fast.base.BaseFastActivity
+import com.munch.lib.fast.base.PhoneHelper
+import com.munch.lib.fast.view.*
+import com.munch.project.one.databinding.LayoutContentOnlyBinding
+
+/**
+ * Created by munch1182 on 2022/4/30 20:23.
+ */
+class AboutActivity : BaseFastActivity(),
+    ActivityDispatch by (SupportShareActionBar + SupportConfigDialog()) {
+
+    private val bind by bind<LayoutContentOnlyBinding>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        bind.content.apply {
+            setPadding(resources.getDimensionPixelSize(R.dimen.dimenDef))
+            setLineSpacing(0f, 1.3f)
+        }
+        bind.content.text = StringBuilder().apply {
+            PhoneHelper.collect().forEach {
+                append(it.key).append(": ").append(it.value).append("\n")
+            }
+
+            append("\n")
+            append(PhoneHelper.desc())
+        }.toString()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (ISupportShareActionBar.isShare(item)) {
+            val content = bind.content.text
+            putStr2Clip(content)
+            shareView(content)
+            return true
+        }
+        return super<BaseFastActivity>.onOptionsItemSelected(item)
+    }
+}
