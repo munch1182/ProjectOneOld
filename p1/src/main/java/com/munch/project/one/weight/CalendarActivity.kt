@@ -8,13 +8,13 @@ import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.SupportActionBar
 import com.munch.lib.fast.view.SupportConfigDialog
+import com.munch.lib.fast.view.supportDef
 import com.munch.lib.weight.calendar.*
 
 /**
  * Create by munch1182 on 2022/4/25 17:54.
  */
-class CalendarActivity : BaseFastActivity(),
-    ActivityDispatch by (SupportActionBar + SupportConfigDialog()) {
+class CalendarActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

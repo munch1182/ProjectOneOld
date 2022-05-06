@@ -26,8 +26,7 @@ import kotlin.math.absoluteValue
 /**
  * Create by munch1182 on 2022/4/19 17:04.
  */
-class RecordActivity : BaseFastActivity(),
-    ActivityDispatch by (SupportActionBar + SupportConfigDialog({ RecordDialog() })) {
+class RecordActivity : BaseFastActivity(), ActivityDispatch by supportDef({ RecordDialog() }) {
 
     private val bind by fvHelperBindRv(RecordAdapter())
     private val vm by get<RecordVM>()

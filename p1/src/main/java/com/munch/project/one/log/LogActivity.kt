@@ -10,10 +10,7 @@ import androidx.lifecycle.ViewModel
 import com.munch.lib.UnImplException
 import com.munch.lib.extend.*
 import com.munch.lib.fast.base.BaseFastActivity
-import com.munch.lib.fast.view.ActivityDispatch
-import com.munch.lib.fast.view.ConfigDialog
-import com.munch.lib.fast.view.SupportActionBar
-import com.munch.lib.fast.view.SupportConfigDialog
+import com.munch.lib.fast.view.*
 import com.munch.lib.log.InfoStyle
 import com.munch.lib.log.Logger
 import com.munch.lib.log.setOnLog
@@ -26,8 +23,7 @@ import org.json.JSONObject
 /**
  * Create by munch1182 on 2022/4/18 16:01.
  */
-class LogActivity : BaseFastActivity(),
-    ActivityDispatch by (SupportActionBar + SupportConfigDialog({ LogDialog() })) {
+class LogActivity : BaseFastActivity(), ActivityDispatch by supportDef({ LogDialog() }) {
 
     private val bind by bind<LayoutContentOnlyBinding>()
     private val vm by get<LogVM>()

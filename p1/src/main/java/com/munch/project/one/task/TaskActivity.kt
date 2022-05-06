@@ -5,10 +5,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.munch.lib.fast.base.BaseFastActivity
-import com.munch.lib.fast.view.ActivityDispatch
-import com.munch.lib.fast.view.SupportActionBar
-import com.munch.lib.fast.view.SupportConfigDialog
-import com.munch.lib.fast.view.fvFv
+import com.munch.lib.fast.view.*
 import com.munch.lib.helper.ActivityHelper
 import com.munch.lib.log.log
 import com.munch.lib.task.*
@@ -23,8 +20,7 @@ import kotlin.random.Random
 /**
  * Create by munch1182 on 2022/4/16 20:19.
  */
-class TaskActivity : BaseFastActivity(),
-    ActivityDispatch by (SupportActionBar + SupportConfigDialog()) {
+class TaskActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     private val bind by fvFv(arrayOf("normal task", "", "order task"))
     private val taskHelper = TaskHelper()

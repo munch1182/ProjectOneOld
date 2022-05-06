@@ -7,8 +7,7 @@ import com.munch.lib.fast.view.*
 /**
  * Create by munch1182 on 2022/4/25 17:54.
  */
-class WeightActivity : BaseFastActivity(),
-    ActivityDispatch by (SupportActionBar + SupportConfigDialog()) {
+class WeightActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     private val vb by fvClassRv(
         listOf(

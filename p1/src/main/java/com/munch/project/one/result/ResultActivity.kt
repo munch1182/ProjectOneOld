@@ -42,8 +42,7 @@ import com.munch.lib.recyclerview.BaseRecyclerViewAdapter as BADA
 /**
  * Created by munch1182 on 2022/4/21 20:31.
  */
-class ResultActivity : BaseFastActivity(),
-    ActivityDispatch by (SupportActionBar + SupportConfigDialog({ ResultDialog() })) {
+class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef({ ResultDialog() }) {
 
     private val bind by fvLinesRv(
         emptyList(),
