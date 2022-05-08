@@ -31,16 +31,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".contentresolver.ContentResolverActivity" />
         <activity android:name=".task.TaskActivity" />
         <activity android:name=".log.LogActivity" />
         <activity android:name=".record.RecordActivity" />
-        <activity android:name=".notification.NotificationActivity" />
         <activity android:name=".result.ResultActivity" />
         <activity android:name=".weight.WeightActivity" />
         <activity android:name=".weight.CalendarActivity" />
         <activity android:name=".about.AboutActivity" />
         <activity android:name=".file.FileActivity" />
+        <activity android:name=".task.WorkActivity" />
 
         <service
             android:name="com.munch.lib.helper.NotificationServiceHelper"

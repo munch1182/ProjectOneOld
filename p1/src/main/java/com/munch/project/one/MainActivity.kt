@@ -8,10 +8,8 @@ import com.munch.lib.fast.base.DataHelper
 import com.munch.lib.fast.view.ISupportActionBar
 import com.munch.lib.fast.view.fvClassRv
 import com.munch.project.one.about.AboutActivity
-import com.munch.project.one.contentresolver.ContentResolverActivity
 import com.munch.project.one.file.FileActivity
 import com.munch.project.one.log.LogActivity
-import com.munch.project.one.notification.NotificationActivity
 import com.munch.project.one.record.RecordActivity
 import com.munch.project.one.result.ResultActivity
 import com.munch.project.one.task.TaskActivity
@@ -24,8 +22,6 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
             TaskActivity::class,
             ResultActivity::class,
             FileActivity::class,
-            ContentResolverActivity::class,
-            NotificationActivity::class,
             LogActivity::class,
             RecordActivity::class,
             WeightActivity::class,

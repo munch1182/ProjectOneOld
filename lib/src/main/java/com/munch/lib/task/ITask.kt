@@ -1,5 +1,7 @@
 package com.munch.lib.task
 
+import com.munch.lib.helper.data.DataFun
+import com.munch.lib.log.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 
@@ -16,38 +18,37 @@ interface ITask {
     val key: Key
 
     /**
-     * 执行此任务前的等待时间
-     */
-    val delayTime: Long
-        get() = 0L
-
-    /**
      * 此任务执行的上下文
      */
     val coroutines: CoroutineContext
         get() = Dispatchers.Default
 
-    suspend fun run()
+    suspend fun run(input: Data?): Result
 
     /**
      * 当调用取消时此任务未执行完毕，则会被回调此方法
      * 需要在此处进行取消任务并返回取消结果
      */
-    suspend fun cancel(): Boolean = true
+    suspend fun cancel(input: Data?): Boolean = true
 }
 
-abstract class Task : ITask {
-
-    override val key: Key = Key(10000 + TaskHelper.keyHelper.curr)
-}
-
-//todo 观测回调
 sealed class State {
 
-    object Wait : State()
-    object Executing : State()
-    object Complete : State()
-    object Cancel : State()
+    object Wait : State() {
+        override fun toString() = "WAIT"
+    }
+
+    object Executing : State() {
+        override fun toString() = "EXECUTING"
+    }
+
+    object Complete : State() {
+        override fun toString() = "COMPLETE"
+    }
+
+    object Cancel : State() {
+        override fun toString() = "CANCEL"
+    }
 
     val isWait: Boolean
         get() = this is Wait
@@ -79,17 +80,74 @@ data class Key(private val key: Int) {
     override fun toString() = key.toString()
 }
 
-internal open class TaskWrapper(override val key: Key, val task: ITask) : ITask by task {
+sealed class Result {
+
+    class Success(private val input: Data? = null) : Result() {
+        override fun toString() = "SUCCESS"
+    }
+
+    object Failure : Result() {
+        override fun toString() = "FAILURE"
+    }
+
+    object Retry : Result() {
+        override fun toString() = "RETRY"
+    }
+}
+
+class Data(hashMap: HashMap<String, Any?>? = null) : DataFun<String> {
+
+    constructor(data: Data) : this(HashMap(data.map))
+
+    private var map: HashMap<String, Any?> = hashMap?.let { HashMap(it) } ?: hashMapOf()
+
+    override fun put(key: String, value: Any?) {
+        map[key] = value
+    }
+
+    override fun remove(key: String): Boolean {
+        map.remove(key)
+        return true
+    }
+
+    override fun <T> get(key: String, defValue: T?): T? {
+        @Suppress("UNCHECKED_CAST")
+        return if (hasKey(key)) map[key] as? T else defValue
+    }
+
+    override fun clear() {
+        map.clear()
+    }
+
+    override fun hasKey(key: String): Boolean {
+        return map.containsKey(key)
+    }
+
+}
+
+internal open class TaskWrapper(
+    override val key: Key,
+    val task: ITask,
+    val log: Logger
+) : ITask by task {
 
     var state: State = State.Wait
         set(value) {
             val old = field
             field = value
-            TaskHelper.log.log("$key state: $old -> $value.")
+            log.log { "task $key state: $old -> $field" }
         }
 
-    override suspend fun run() {
-        TaskHelper.log.log("$key start run.")
-        task.run()
+    override suspend fun run(input: Data?): Result {
+        if (state.isCancel) {
+            return Result.Failure
+        }
+        log.log { "task $key run." }
+        return task.run(input)
+    }
+
+    override suspend fun cancel(input: Data?): Boolean {
+        state = State.Cancel
+        return super.cancel(input)
     }
 }

@@ -8,6 +8,8 @@ dependencies {
 
     implementation deps['swipeRefreshLayout']
     implementation deps['permissionX']
+    implementation deps['work']
+    implementation deps['workKtx']
     //noinspection GradleDynamicVersion
     //implementation "com.munch.lib:lib:+"
     //noinspection GradleDynamicVersion

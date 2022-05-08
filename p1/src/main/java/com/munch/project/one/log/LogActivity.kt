@@ -15,7 +15,7 @@ import com.munch.lib.log.InfoStyle
 import com.munch.lib.log.Logger
 import com.munch.lib.log.setOnLog
 import com.munch.lib.log.setOnPrint
-import com.munch.lib.task.thread
+import com.munch.lib.extend.thread
 import com.munch.project.one.databinding.LayoutContentOnlyBinding
 import com.munch.project.one.databinding.LayoutLogDialogBinding
 import org.json.JSONObject

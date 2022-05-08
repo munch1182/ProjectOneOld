@@ -2,7 +2,7 @@ package com.munch.lib.helper
 
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.munch.lib.task.ThreadHandler
+import com.munch.lib.extend.ThreadHandler
 
 /**
  *
