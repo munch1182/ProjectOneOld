@@ -1,13 +1,8 @@
 package com.munch.lib.fast.view
 
-import android.content.Intent
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import com.munch.lib.extend.putStr2Clip
-import com.munch.lib.log.log
-import com.munch.lib.result.OnIntentResultListener
-import com.munch.lib.result.intent
 
 /**
  * Created by munch1182 on 2022/4/17 4:09.

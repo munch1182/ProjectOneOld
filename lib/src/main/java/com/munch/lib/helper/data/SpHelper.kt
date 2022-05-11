@@ -28,7 +28,6 @@ class SpHelper private constructor(private val sp: SharedPreferences) :
         }
     }
 
-
     override fun put(key: String, value: Any?) {
         sp.edit().apply { putVal(key, value, this) }.apply()
     }
@@ -94,4 +93,6 @@ class SpHelper private constructor(private val sp: SharedPreferences) :
             else -> throw IllegalStateException("unsupported")
         }
     }
+
+    override fun toMap(): Map<String, Any?> = sp.all
 }

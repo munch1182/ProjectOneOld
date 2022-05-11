@@ -23,7 +23,10 @@ import com.munch.lib.extend.isPermissionGranted
 import com.munch.lib.extend.toLive
 import com.munch.lib.extend.toViewGroup
 import com.munch.lib.fast.base.BaseFastActivity
-import com.munch.lib.fast.view.*
+import com.munch.lib.fast.view.ActivityDispatch
+import com.munch.lib.fast.view.ConfigDialog
+import com.munch.lib.fast.view.fvLinesRv
+import com.munch.lib.fast.view.supportDef
 import com.munch.lib.helper.ActivityHelper
 import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.recyclerview.AdapterFunImp

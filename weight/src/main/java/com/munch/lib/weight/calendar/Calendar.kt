@@ -6,9 +6,7 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
 import com.munch.lib.extend.*
-import com.munch.lib.log.log
 import java.util.Calendar
-import kotlin.math.log
 import kotlin.math.max
 import kotlin.math.min
 

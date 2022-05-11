@@ -15,7 +15,10 @@ import com.munch.lib.extend.checkOnly
 import com.munch.lib.extend.get
 import com.munch.lib.extend.toDate
 import com.munch.lib.fast.base.BaseFastActivity
-import com.munch.lib.fast.view.*
+import com.munch.lib.fast.view.ActivityDispatch
+import com.munch.lib.fast.view.ConfigDialog
+import com.munch.lib.fast.view.fvHelperBindRv
+import com.munch.lib.fast.view.supportDef
 import com.munch.lib.recyclerview.BaseBindViewHolder
 import com.munch.lib.recyclerview.BaseRecyclerViewAdapter
 import com.munch.lib.recyclerview.setOnItemClickListener

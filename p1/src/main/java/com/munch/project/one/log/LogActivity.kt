@@ -10,12 +10,13 @@ import androidx.lifecycle.ViewModel
 import com.munch.lib.UnImplException
 import com.munch.lib.extend.*
 import com.munch.lib.fast.base.BaseFastActivity
-import com.munch.lib.fast.view.*
+import com.munch.lib.fast.view.ActivityDispatch
+import com.munch.lib.fast.view.ConfigDialog
+import com.munch.lib.fast.view.supportDef
 import com.munch.lib.log.InfoStyle
 import com.munch.lib.log.Logger
 import com.munch.lib.log.setOnLog
 import com.munch.lib.log.setOnPrint
-import com.munch.lib.extend.thread
 import com.munch.project.one.databinding.LayoutContentOnlyBinding
 import com.munch.project.one.databinding.LayoutLogDialogBinding
 import org.json.JSONObject

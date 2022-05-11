@@ -100,4 +100,12 @@ class MMKVHelper constructor(private val id: String = ID_DEF, multiProcess: Bool
     override fun clear() {
         instance.clearAll()
     }
+
+    override fun toMap(): Map<String, Any?>? {
+        return instance.allKeys()?.let { keys ->
+            val map = HashMap<String, Any?>(keys.size)
+            keys.forEach { map[it] = get(it) }
+            map
+        }
+    }
 }

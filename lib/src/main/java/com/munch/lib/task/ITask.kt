@@ -23,6 +23,17 @@ interface ITask {
     val coroutines: CoroutineContext
         get() = Dispatchers.Default
 
+    /**
+     *
+     * 当需要该任务执行时会回调此方法，需要返回任务执行的结果
+     * 如果此方法不同步执行，则会在任务未完成时即返回任务的结果
+     *
+     * @param input 任务传递的参数，如果不使用此对象，传递的参数的消失
+     * @return 执行结果
+     *
+     * @see Result
+     * @see Data
+     */
     suspend fun run(input: Data?): Result
 
     /**
@@ -50,14 +61,14 @@ sealed class State {
         override fun toString() = "CANCEL"
     }
 
-    val isWait: Boolean
-        get() = this is Wait
-    val isExecuting: Boolean
-        get() = this is Executing
-    val isComplete: Boolean
-        get() = this is Complete
     val isCancel: Boolean
         get() = this is Cancel
+
+    val needRun: Boolean
+        get() = this is Wait
+
+    val can2Cancel: Boolean
+        get() = this is Wait || this is Executing
 }
 
 data class Key(private val key: Int) {
@@ -82,22 +93,47 @@ data class Key(private val key: Int) {
 
 sealed class Result {
 
-    class Success(private val input: Data? = null) : Result() {
+    internal open var data: Data? = null
+
+    internal fun with(data: Data?): Result {
+        this.data = data
+        return this
+    }
+
+    internal object Success : Result() {
         override fun toString() = "SUCCESS"
     }
 
-    object Failure : Result() {
+    internal class Failure(private val e: Exception? = null) : Result() {
         override fun toString() = "FAILURE"
     }
 
-    object Retry : Result() {
+    internal object Invalid : Result()
+
+    internal object Retry : Result() {
         override fun toString() = "RETRY"
+    }
+
+    internal val isSuccess: Boolean
+        get() = this is Success
+
+    internal val isFailure: Boolean
+        get() = this is Failure
+
+    internal val needRetry: Boolean
+        get() = this is Retry
+
+    companion object {
+
+        fun success(data: Data? = null) = Success.with(data)
+        fun failure(data: Data? = null, e: Exception? = null) = Failure(e).with(data)
+        fun retry(data: Data? = null) = Retry.with(data)
     }
 }
 
 class Data(hashMap: HashMap<String, Any?>? = null) : DataFun<String> {
 
-    constructor(data: Data) : this(HashMap(data.map))
+    constructor(data: Data?) : this(data?.map?.let { HashMap(it) })
 
     private var map: HashMap<String, Any?> = hashMap?.let { HashMap(it) } ?: hashMapOf()
 
@@ -123,12 +159,13 @@ class Data(hashMap: HashMap<String, Any?>? = null) : DataFun<String> {
         return map.containsKey(key)
     }
 
+    override fun toMap(): Map<String, Any?> = map
 }
 
-internal open class TaskWrapper(
+open class TaskWrapper(
     override val key: Key,
     val task: ITask,
-    val log: Logger
+    private val log: Logger
 ) : ITask by task {
 
     var state: State = State.Wait
@@ -139,14 +176,20 @@ internal open class TaskWrapper(
         }
 
     override suspend fun run(input: Data?): Result {
-        if (state.isCancel) {
-            return Result.Failure
+        //如果任务已被取消，但仍被调用执行，则直接返回执行失败
+        if (!state.needRun) {
+            return Result.Invalid
         }
         log.log { "task $key run." }
         return task.run(input)
     }
 
     override suspend fun cancel(input: Data?): Boolean {
+        //如果已经完成或者取消，则无需再次操作
+        if (!state.can2Cancel) {
+            return true
+        }
+        //取消时先将状态改为Cancel，再调用cancel方法，以组织其执行
         state = State.Cancel
         return super.cancel(input)
     }

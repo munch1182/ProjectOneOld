@@ -9,7 +9,10 @@ import com.munch.lib.extend.shareView
 import com.munch.lib.fast.R
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.base.PhoneHelper
-import com.munch.lib.fast.view.*
+import com.munch.lib.fast.view.ActivityDispatch
+import com.munch.lib.fast.view.ISupportShareActionBar
+import com.munch.lib.fast.view.SupportConfigDialog
+import com.munch.lib.fast.view.SupportShareActionBar
 import com.munch.project.one.databinding.LayoutContentOnlyBinding
 
 /**

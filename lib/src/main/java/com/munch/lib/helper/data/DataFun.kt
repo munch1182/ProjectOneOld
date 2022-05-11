@@ -130,4 +130,6 @@ interface DataFun<KEY> {
             return@update !it
         }, defValue)
     }
+
+    fun toMap(): Map<KEY, Any?>? = null
 }

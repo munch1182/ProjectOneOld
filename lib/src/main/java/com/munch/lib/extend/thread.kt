@@ -6,10 +6,8 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import com.munch.lib.helper.ThreadHelper
-import java.util.concurrent.*
-import java.util.concurrent.atomic.AtomicInteger
-import kotlin.math.max
-import kotlin.math.min
+import java.util.concurrent.Callable
+import java.util.concurrent.Future
 
 
 /**

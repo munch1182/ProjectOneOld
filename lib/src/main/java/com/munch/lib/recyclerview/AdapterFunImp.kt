@@ -6,9 +6,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
+import com.munch.lib.extend.isMain
 import com.munch.lib.recyclerview.AdapterFunImp.Default
 import com.munch.lib.recyclerview.AdapterFunImp.Differ
-import com.munch.lib.extend.isMain
 
 /**
  * 因为[Default]/[Differ]的实现中都有实际Adapter方法调用的线程判断

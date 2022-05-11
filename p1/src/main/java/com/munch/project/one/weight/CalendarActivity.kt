@@ -3,11 +3,12 @@ package com.munch.project.one.weight
 import android.graphics.*
 import android.os.Bundle
 import androidx.core.view.setPadding
-import com.munch.lib.extend.*
+import com.munch.lib.extend.dp2Px
+import com.munch.lib.extend.drawTextInCenter
+import com.munch.lib.extend.drawTextInYCenter
+import com.munch.lib.extend.sp2Px
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.ActivityDispatch
-import com.munch.lib.fast.view.SupportActionBar
-import com.munch.lib.fast.view.SupportConfigDialog
 import com.munch.lib.fast.view.supportDef
 import com.munch.lib.weight.calendar.*
 
