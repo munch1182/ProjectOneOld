@@ -3,6 +3,9 @@ package com.munch.lib.task
 import com.munch.lib.helper.data.DataFun
 import com.munch.lib.log.Logger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -41,6 +44,11 @@ interface ITask {
      * 需要在此处进行取消任务并返回取消结果
      */
     suspend fun cancel(input: Data?): Boolean = true
+}
+
+abstract class Task : ITask {
+
+    override val key: Key = Key(TaskKeyHelper.curr)
 }
 
 sealed class State {
@@ -168,12 +176,18 @@ open class TaskWrapper(
     private val log: Logger
 ) : ITask by task {
 
+    private val lock = Mutex()
     var state: State = State.Wait
         set(value) {
-            val old = field
-            field = value
-            log.log { "task $key state: $old -> $field" }
+            runBlocking {
+                lock.withLock {
+                    val old = field
+                    field = value
+                    log.log { "task $key: $old -> $field" }
+                }
+            }
         }
+        get() = runBlocking { lock.withLock { field } }
 
     override suspend fun run(input: Data?): Result {
         //如果任务已被取消，但仍被调用执行，则直接返回执行失败
@@ -181,7 +195,17 @@ open class TaskWrapper(
             return Result.Invalid
         }
         log.log { "task $key run." }
-        return task.run(input)
+        state = State.Executing
+        return try {
+            val run = task.run(input)
+            state = State.Complete
+            log.log { "task $key complete." }
+            run
+        } catch (e: Exception) {
+            state = State.Cancel
+            log.log { "task $key cancel because of exception." }
+            Result.failure(input, e)
+        }
     }
 
     override suspend fun cancel(input: Data?): Boolean {

@@ -3,20 +3,27 @@ package com.munch.lib.task
 import com.munch.lib.Destroyable
 import com.munch.lib.log.Logger
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Created by munch1182 on 2022/5/11 23:34.
  */
 class OrderTaskHelper(
-    override val key: Key,
     private val log: Logger = Logger("OrderTask")
-) : ITask, Destroyable {
+) : Destroyable {
 
     private var head: OrderTaskWrapper? = null
     private var tail: OrderTaskWrapper? = null
 
     private var input: Data? = null
+    private val lock = Mutex()
     private var state: State = State.Wait
+        set(value) {
+            runBlocking { lock.withLock { field = value } }
+        }
+        get() = runBlocking { lock.withLock { field } }
+
     private val scope = ContextScope(SupervisorJob() + CoroutineName("OrderTask"))
 
     fun add(task: ITask): OrderTaskHelper {
@@ -38,12 +45,12 @@ class OrderTaskHelper(
         return this
     }
 
-    override suspend fun run(input: Data?): Result {
+    suspend fun run() {
         if (!scope.isActive) {
-            return Result.Failure()
+            return
         }
         if (!state.needRun) {
-            return Result.Invalid
+            return
         }
         scope.launch(Dispatchers.Default) {
 
@@ -54,7 +61,6 @@ class OrderTaskHelper(
             }
         }
 
-        return Result.Invalid
     }
 
     private suspend fun executeTaskImp() {
