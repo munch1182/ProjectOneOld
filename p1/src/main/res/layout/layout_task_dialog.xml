@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="HardcodedText"
+    tools:padding="@dimen/dimenDef">
+
+    <RadioGroup
+        android:id="@+id/task_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Normal"
+            android:textColor="@color/colorTextDef" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Order"
+            android:textColor="@color/colorTextDef" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dependent"
+            android:textColor="@color/colorTextDef" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/task_task"
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/task_type"
+        tools:text="task: 1, 2, 3, 4, 5, 6, 7" />
+
+    <Button
+        android:id="@+id/task_random"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimenDef"
+        android:text="random"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/task_task" />
+
+    <Button
+        android:id="@+id/task_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimenDefSmall"
+        android:text="add"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/task_random" />
+
+    <Button
+        android:id="@+id/task_add_type1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimenDefSmall"
+        android:text="add add"
+        app:layout_constraintStart_toEndOf="@id/task_add"
+        app:layout_constraintTop_toTopOf="@id/task_add" />
+
+    <Button
+        android:id="@+id/task_add_type2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimenDefSmall"
+        android:text="cancel"
+        app:layout_constraintStart_toEndOf="@id/task_add_type1"
+        app:layout_constraintTop_toTopOf="@id/task_add_type1" />
+
+    <Button
+        android:id="@+id/task_run"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dimenDefSmall"
+        android:text="run"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/task_add" />
+
+    <Button
+        android:id="@+id/task_clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimenDefSmall"
+        android:text="clear"
+        app:layout_constraintStart_toEndOf="@id/task_run"
+        app:layout_constraintTop_toTopOf="@id/task_run" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

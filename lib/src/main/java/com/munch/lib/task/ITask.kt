@@ -1,5 +1,7 @@
 package com.munch.lib.task
 
+import com.munch.lib.helper.IInterHelper
+import com.munch.lib.helper.InterHelper
 import com.munch.lib.helper.data.DataFun
 import com.munch.lib.log.Logger
 import kotlinx.coroutines.Dispatchers
@@ -9,6 +11,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
 
 /**
+ * 所有的任务都应该有结果，也应该考虑进度
+ *
  * Create by munch1182 on 2022/4/11 11:48.
  */
 interface ITask {
@@ -78,6 +82,8 @@ sealed class State {
     val can2Cancel: Boolean
         get() = this is Wait || this is Executing
 }
+
+object TaskKeyHelper : IInterHelper by InterHelper()
 
 data class Key(private val key: Int) {
 
@@ -177,7 +183,7 @@ open class TaskWrapper(
 ) : ITask by task {
 
     private val lock = Mutex()
-    var state: State = State.Wait
+    private var state: State = State.Wait
         set(value) {
             runBlocking {
                 lock.withLock {
@@ -217,7 +223,7 @@ open class TaskWrapper(
         if (!state.can2Cancel) {
             return true
         }
-        //取消时先将状态改为Cancel，再调用cancel方法，以组织其执行
+        //取消时先将状态改为Cancel，再调用cancel方法，以阻止其执行
         state = State.Cancel
         return super.cancel(input)
     }

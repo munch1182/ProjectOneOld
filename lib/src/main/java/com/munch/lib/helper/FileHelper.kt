@@ -6,6 +6,10 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.annotation.WorkerThread
+import com.munch.lib.task.Data
+import com.munch.lib.task.ITask
+import com.munch.lib.task.Key
+import com.munch.lib.task.Result
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -15,7 +19,9 @@ import java.io.InputStream
  */
 object FileHelper {
 
-    const val KB = 1024L
+    const val BYTE = 1024L
+
+    const val KB = 1024 * BYTE
 
     const val MB = 1024 * KB
 
@@ -30,11 +36,12 @@ object FileHelper {
         context: Context,
         uri: Uri?,
         dir: File = context.cacheDir,
+        name: String? = null,
         onProgress: OnProgressListener? = null
     ): File? {
         uri ?: return null
-        val name = queryName(context, uri) ?: return null
-        val file = File(dir, name)
+        val n = name ?: queryName(context, uri) ?: return null
+        val file = File(dir, n)
         context.contentResolver.openInputStream(uri)?.use {
             if (!copy2File(it, file, false, onProgress = onProgress)) {
                 return null
@@ -43,6 +50,9 @@ object FileHelper {
         return file
     }
 
+    /**
+     * 获取uri的文件名
+     */
     fun queryName(context: Context, uri: Uri?): String? {
         uri ?: return null
         var name: String? = null
@@ -56,7 +66,6 @@ object FileHelper {
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    return null
                 }
             }
             ?.close()
@@ -117,3 +126,15 @@ object FileHelper {
         fun onProgress(progress: Long, all: Long)
     }
 }
+
+
+class FileTask : ITask {
+    override val key: Key = Key("FileTask".toInt() * 1000 + FileTaskKeyHelper.curr)
+
+    override suspend fun run(input: Data?): Result {
+
+        return Result.failure()
+    }
+}
+
+internal object FileTaskKeyHelper : IInterHelper by InterHelper()

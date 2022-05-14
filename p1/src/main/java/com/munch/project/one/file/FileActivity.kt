@@ -39,16 +39,17 @@ class FileActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                             ) {
                                 log(data?.data)
                                 lifecycleScope.launch(Dispatchers.Default) {
-                                    log(
-                                        FileHelper.uri2File(
-                                            this@FileActivity,
-                                            data?.data,
-                                            onProgress = object : FileHelper.OnProgressListener {
-                                                override fun onProgress(progress: Long, all: Long) {
-                                                    log("$progress/$all")
-                                                }
-                                            })
-                                    )
+                                    val file = FileHelper.uri2File(
+                                        this@FileActivity,
+                                        data?.data,
+                                        onProgress = object : FileHelper.OnProgressListener {
+                                            override fun onProgress(progress: Long, all: Long) {
+                                                log("$progress/$all")
+                                            }
+                                        })
+                                    lifecycleScope.launch(Dispatchers.Main){
+                                        bind.desc(file?.toString())
+                                    }
                                 }
                             }
                         })

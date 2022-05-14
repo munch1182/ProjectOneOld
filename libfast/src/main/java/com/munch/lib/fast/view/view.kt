@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -204,30 +205,29 @@ class FVLinesRvView(
     context: Context,
     str: List<Pair<String, String>>,
     funImp: AdapterFunImp<Pair<String, String>> = AdapterFunImp.Default()
-) :
-    FVRecyclerHelperView<Pair<String, String>, BaseViewHolder>(
-        context,
-        AdapterHelper(object :
-            BaseRecyclerViewAdapter<Pair<String, String>, BaseViewHolder>({ ctx ->
-                LinearLayout(ctx, null, R.attr.fastAttrLineVertical).apply {
-                    addView(TextView(ctx, null, R.attr.fastAttrTvNormal))
-                    addView(TextView(ctx, null, R.attr.fastAttrTvDesc))
-                }
-            }, funImp) {
-
-            init {
-                if (str.isNotEmpty()) {
-                    set(str)
-                }
+) : FVRecyclerHelperView<Pair<String, String>, BaseViewHolder>(
+    context,
+    AdapterHelper(object :
+        BaseRecyclerViewAdapter<Pair<String, String>, BaseViewHolder>({ ctx ->
+            LinearLayout(ctx, null, R.attr.fastAttrLineVertical).apply {
+                addView(TextView(ctx, null, R.attr.fastAttrTvNormal))
+                addView(TextView(ctx, null, R.attr.fastAttrTvDesc))
             }
+        }, funImp) {
 
-            override fun onBind(holder: BaseViewHolder, position: Int, bean: Pair<String, String>) {
-                val vg = holder.itemView.apply { layoutParams = newMWLp() } as? ViewGroup ?: return
-                (vg.getChildAt(0) as? TextView)?.text = bean.first
-                (vg.getChildAt(1) as? TextView)?.text = bean.second
+        init {
+            if (str.isNotEmpty()) {
+                set(str)
             }
-        })
-    ) {
+        }
+
+        override fun onBind(holder: BaseViewHolder, position: Int, bean: Pair<String, String>) {
+            val vg = holder.itemView.apply { layoutParams = newMWLp() } as? ViewGroup ?: return
+            (vg.getChildAt(0) as? TextView)?.text = bean.first
+            (vg.getChildAt(1) as? TextView)?.text = bean.second
+        }
+    })
+) {
     override fun onViewAdd() {
         super.onViewAdd()
         view.setBackgroundColor(Color.WHITE)
@@ -237,15 +237,22 @@ class FVLinesRvView(
 
 class FVFlowView(override val context: Context, names: Array<String> = arrayOf()) : IFastView {
 
+    private val desc by lazy { TextView(context, null, R.attr.fastAttrTvDesc) }
     private val view = FlowLayout(context, null, R.attr.fastAttrContainer).apply {
         names.forEach { if (it.isEmpty()) addView(Space(context)) else addView(childBtn(it)) }
+        addView(Space(context))
+        addView(desc)
     }
 
     private fun childBtn(str: String) = MaterialButton(context).apply { text = str }
 
-    override fun onAddView() = view
+    override fun onAddView() = ScrollView(context).apply { addView(view) }
 
     override fun onViewAdd() {
+    }
+
+    fun desc(charSequence: CharSequence?) {
+        desc.text = charSequence
     }
 
     fun click(listener: (view: View, index: Int) -> Unit) {
