@@ -194,12 +194,16 @@ open class TaskWrapper(
         if (!state.needRun) {
             return Result.Invalid
         }
-        log.log { "task $key run." }
-        state = State.Executing
         return try {
-            val run = task.run(input)
-            state = State.Complete
+            state = State.Executing
+            log.log { "task $key run." }
+            var run = task.run(input)
+            while (run.needRetry) {
+                log.log { "task $key retry." }
+                run = task.run(input)
+            }
             log.log { "task $key complete." }
+            state = State.Complete
             run
         } catch (e: Exception) {
             state = State.Cancel
