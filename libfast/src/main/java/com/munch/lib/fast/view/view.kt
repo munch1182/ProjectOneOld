@@ -255,6 +255,14 @@ class FVFlowView(override val context: Context, names: Array<String> = arrayOf()
         desc.text = charSequence
     }
 
+    fun append(charSequence: CharSequence?) {
+        desc.text = buildString {
+            append(desc.text)
+            append("\n")
+            append(charSequence)
+        }
+    }
+
     fun click(listener: (view: View, index: Int) -> Unit) {
         view.clickItem(object : OnViewTagClickListener<Int> {
             override fun onClick(v: View?, tagVal: Int) {

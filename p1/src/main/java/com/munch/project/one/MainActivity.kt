@@ -10,6 +10,7 @@ import com.munch.lib.fast.view.fvClassRv
 import com.munch.project.one.about.AboutActivity
 import com.munch.project.one.file.FileActivity
 import com.munch.project.one.log.LogActivity
+import com.munch.project.one.net.NetActivity
 import com.munch.project.one.record.RecordActivity
 import com.munch.project.one.result.ResultActivity
 import com.munch.project.one.task.TaskActivity
@@ -22,6 +23,7 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
             TaskActivity::class,
             ResultActivity::class,
             FileActivity::class,
+            NetActivity::class,
             LogActivity::class,
             RecordActivity::class,
             WeightActivity::class,

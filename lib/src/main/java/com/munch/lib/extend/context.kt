@@ -13,7 +13,6 @@ import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.os.Bundle
 import android.os.PowerManager
 import android.util.TypedValue
 import androidx.annotation.ArrayRes
@@ -21,19 +20,14 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import kotlin.reflect.KClass
 
 /**
  * Created by munch1182 on 2022/4/3 17:50.
  */
-fun Context.startActivity(target: Class<out Activity>, bundle: Bundle? = null) =
-    startActivity(Intent(this, target).apply {
-        val extras = bundle ?: return@apply
-        putExtras(extras)
-    })
 
-inline fun Context.startActivity(clazz: Class<out Activity>, func: Bundle.() -> Unit) {
-    startActivity(clazz, Bundle().apply { func.invoke(this) })
-}
+inline fun Context.startActivity(target: KClass<out Activity>) =
+    startActivity(Intent(this, target.java))
 
 inline fun Context.getColorCompat(@ColorRes color: Int) = ContextCompat.getColor(this, color)
 
