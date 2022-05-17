@@ -43,6 +43,7 @@
         <activity android:name=".file.FileActivity" />
         <activity android:name=".task.WorkActivity" />
         <activity android:name=".net.NetActivity" />
+        <activity android:name=".dialog.DialogActivity" />
 
         <service
             android:name="com.munch.lib.helper.NotificationServiceHelper"

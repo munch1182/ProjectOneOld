@@ -9,3 +9,13 @@ package com.munch.lib
  */
 @Retention(AnnotationRetention.SOURCE)
 annotation class Testable
+
+@JvmInline
+value class Priority(val priority: Int) {
+    override fun toString() = priority.toString()
+}
+
+@JvmInline
+value class Key(private val key: Int) {
+    override fun toString() = key.toString()
+}

@@ -8,6 +8,7 @@ import com.munch.lib.fast.base.DataHelper
 import com.munch.lib.fast.view.ISupportActionBar
 import com.munch.lib.fast.view.fvClassRv
 import com.munch.project.one.about.AboutActivity
+import com.munch.project.one.dialog.DialogActivity
 import com.munch.project.one.file.FileActivity
 import com.munch.project.one.log.LogActivity
 import com.munch.project.one.net.NetActivity
@@ -21,6 +22,7 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
     private val vb by fvClassRv(
         listOf(
             TaskActivity::class,
+            DialogActivity::class,
             ResultActivity::class,
             FileActivity::class,
             NetActivity::class,

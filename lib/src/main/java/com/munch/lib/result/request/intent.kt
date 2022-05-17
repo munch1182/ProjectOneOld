@@ -30,6 +30,7 @@ class IntentRequestHandler(fragment: Fragment) : IntentRequest, Resettable,
         }
 
     override fun startIntent(intent: Intent, listener: OnIntentResultListener?) {
+        reset()
         this.listener = listener
         log.log("launch intent.")
         onResultLauncher.launch(intent)

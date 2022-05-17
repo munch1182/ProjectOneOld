@@ -1,5 +1,6 @@
 package com.munch.lib.task
 
+import com.munch.lib.Key
 import com.munch.lib.helper.IInterHelper
 import com.munch.lib.helper.InterHelper
 import com.munch.lib.helper.data.DataFun
@@ -84,26 +85,6 @@ sealed class State {
 }
 
 object TaskKeyHelper : IInterHelper by InterHelper()
-
-data class Key(private val key: Int) {
-
-    override fun hashCode(): Int {
-        return key
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Key
-
-        if (key != other.key) return false
-
-        return true
-    }
-
-    override fun toString() = key.toString()
-}
 
 sealed class Result {
 
