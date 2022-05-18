@@ -8,7 +8,6 @@ import com.munch.lib.extend.isPermissionGranted
 import com.munch.lib.extend.notDeniedForever
 import com.munch.lib.log.InfoStyle
 import com.munch.lib.log.Logger
-import com.munch.lib.notice.INotice
 import com.munch.lib.result.OnPermissionResultListener
 
 /**
