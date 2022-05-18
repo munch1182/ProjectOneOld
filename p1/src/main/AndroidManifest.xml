@@ -12,6 +12,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:name=".App"
@@ -44,6 +48,7 @@
         <activity android:name=".task.WorkActivity" />
         <activity android:name=".net.NetActivity" />
         <activity android:name=".dialog.DialogActivity" />
+        <activity android:name=".bluetooth.BluetoothActivity" />
 
         <service
             android:name="com.munch.lib.helper.NotificationServiceHelper"

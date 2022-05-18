@@ -72,6 +72,7 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
     ) {
 
         reset()
+        this.listener = listener
 
         permissions.forEach {
             if (activity.isPermissionGranted(it)) {
@@ -89,7 +90,6 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
             requestComplete()
         } else {
             //todo 显示dialog
-            this.listener = listener
             launchRequest()
         }
     }
@@ -102,13 +102,14 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
             deniedList.toTypedArray()
         )
         reset()
+
+        listener = null
     }
 
     override fun reset() {
         grantedList.clear()
         requestList.clear()
         deniedList.clear()
-        listener = null
     }
 
     private fun fmt(list: MutableList<String>) = list.joinToString(prefix = "[", postfix = "]")

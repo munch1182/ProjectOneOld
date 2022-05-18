@@ -28,10 +28,14 @@ sealed class RepeatStrategy {
     /**
      * 无视后续执行，只执行第一次的执行
      */
-    object Ignore : RepeatStrategy()
+    object Ignore : RepeatStrategy() {
+        override fun toString() = "Ignore"
+    }
 
     /**
      * 终止正在执行，替换成新的执行
      */
-    object Replace : RepeatStrategy()
+    object Replace : RepeatStrategy() {
+        override fun toString() = "Replace"
+    }
 }

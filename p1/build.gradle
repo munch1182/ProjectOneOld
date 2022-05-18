@@ -17,4 +17,5 @@ dependencies {
     //implementation "com.munch.lib:weight:0.1.0"
     implementation project(':weight')
     implementation project(':libfast')
+    implementation project(':bluetooth')
 }
