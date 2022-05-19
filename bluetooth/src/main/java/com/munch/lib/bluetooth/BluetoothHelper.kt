@@ -2,6 +2,8 @@ package com.munch.lib.bluetooth
 
 import android.content.Context
 import android.os.Handler
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.AppHelper
 import com.munch.lib.Destroyable
 import com.munch.lib.extend.SingletonHolder
@@ -15,8 +17,8 @@ import kotlin.coroutines.CoroutineContext
  */
 class BluetoothHelper private constructor(
     context: Context,
-    private val log: Logger = Logger("bluetooth"),
-    private val btWrapper: BluetoothWrapper = BluetoothWrapper(context),
+    internal val log: Logger = Logger("bluetooth"),
+    private val btWrapper: BluetoothWrapper = BluetoothWrapper(context, log),
     private val scanner: BleScanner = BleScanner(log),
 ) : CoroutineScope,
     IBluetoothManager by btWrapper,
@@ -29,18 +31,46 @@ class BluetoothHelper private constructor(
         val instance = getInstance(AppHelper.app)
     }
 
-    init {
-        scanner.helper = this
-    }
-
     private val job = Job()
     private val dispatcher = BluetoothDispatcher()
 
     val handler: Handler
         get() = dispatcher.handler
 
+    init {
+        scanner.helper = this
+        btWrapper.setHandler(handler)
+    }
+
+
     fun isPair(mac: String) = pairedDevs?.any { it.address == mac } ?: false
     fun isGattConnect(mac: String) = connectGattDevs?.any { it.address == mac } ?: false
+
+    fun setScanOnResume(owner: LifecycleOwner, listener: ScanListener) {
+        owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                super.onResume(owner)
+                registerScanListener(listener)
+            }
+
+            override fun onPause(owner: LifecycleOwner) {
+                super.onPause(owner)
+                unregisterScanListener(listener)
+            }
+
+            override fun onDestroy(owner: LifecycleOwner) {
+                super.onDestroy(owner)
+                owner.lifecycle.removeObserver(this)
+            }
+        })
+    }
+
+    override fun stop(): Boolean {
+        if (isScanning.value == true) {
+            return scanner.stop()
+        }
+        return true
+    }
 
     override fun destroy() {
         job.cancel()

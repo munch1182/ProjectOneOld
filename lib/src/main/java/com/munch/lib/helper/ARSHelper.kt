@@ -1,8 +1,8 @@
 package com.munch.lib.helper
 
+import android.os.Handler
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.munch.lib.extend.ThreadHandler
 
 /**
  *
@@ -83,10 +83,13 @@ interface IARSHelper<T> {
     }
 }
 
-open class ARSHelper<T>(htName: String? = null) : IARSHelper<T> {
+open class ARSHelper<T>(private var handler: Handler? = null) : IARSHelper<T> {
 
     protected open val list = mutableListOf<T>()
-    private val handler by lazy { htName?.let { ThreadHandler(it) } }
+
+    open fun setHandler(handler: Handler?) {
+        this.handler = handler
+    }
 
     override fun add(t: T) {
         synchronized(this) {

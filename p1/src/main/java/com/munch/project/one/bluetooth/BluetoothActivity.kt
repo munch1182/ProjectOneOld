@@ -2,8 +2,6 @@ package com.munch.project.one.bluetooth
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanSettings
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -91,18 +89,27 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 bind.btScan.text = "SCAN START"
                 bind.btScan.setOnClickListener {
                     checkOrRequest {
-                        instance.scan(ScanTarget().apply {
+                        /*instance.scan(ScanTarget().apply {
                             this.filter = ScanFilter().apply {
                                 isIgnoreNoName = false
                             }
-                        })
+                        })*/
+                        instance.launch {
+                            val dev = BluetoothDev("87:21:20:A1:05:E4")
+                            log("find:${dev.find()}")
+                            log("bond:${dev.createBond()}")
+                            log("connect:${dev.connect()}")
+                        }
                     }
                 }
             }
         }
 
-        instance.setWhenResume(this, object : ScanListener {
-            override fun onScanned(dev: BluetoothDev, map: LinkedHashMap<String, BluetoothDev>) {
+        instance.setScanOnResume(this, object : ScanListener {
+            override fun onScanned(
+                dev: BluetoothDev,
+                map: LinkedHashMap<String, BluetoothDev>
+            ) {
                 adapter.set(map.values.toList())
             }
         })

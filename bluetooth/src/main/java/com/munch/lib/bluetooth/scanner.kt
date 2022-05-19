@@ -6,6 +6,7 @@ import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.os.Message
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.munch.lib.RepeatStrategy
@@ -315,11 +316,7 @@ internal class BleScanner(private val log: Logger) : Scanner {
         clear()
         scanTarget = target
         scanListener = listener
-
-        helper?.handler?.apply {
-            removeCallbacks(stopRunnable)
-            postDelayed(stopRunnable, target.timeout)
-        }
+        timeoutStop(target.timeout)
 
         _isScanning = true
 
@@ -328,6 +325,21 @@ internal class BleScanner(private val log: Logger) : Scanner {
         scanner?.startScan(null, target.scanSetting, callback)
 
         return true
+    }
+
+    private fun timeoutStop(timeout: Long) {
+        helper?.handler?.apply {
+            removeMessages(1191)
+            //removeCallbacks(stopRunnable)
+            val msg = Message.obtain(this, stopRunnable)
+            msg.what = 1191
+            //postDelayed(stopRunnable, timeout)
+            sendMessageDelayed(msg,timeout)
+        }
+    }
+
+    private fun clearTimeout(){
+        helper?.handler?.removeMessages(1191)
     }
 
     override fun stop(): Boolean {
@@ -352,17 +364,17 @@ internal class BleScanner(private val log: Logger) : Scanner {
     }
 
     private fun clear() {
-        helper?.handler?.removeCallbacks(stopRunnable)
+        clearTimeout()
         scanTarget = null
         scanListener = null
         devMap.clear()
     }
 
-    override fun register(t: ScanListener?) {
+    override fun registerScanListener(t: ScanListener?) {
         registeredScanListener = t
     }
 
-    override fun unregister(t: ScanListener?) {
+    override fun unregisterScanListener(t: ScanListener?) {
         registeredScanListener = null
     }
 

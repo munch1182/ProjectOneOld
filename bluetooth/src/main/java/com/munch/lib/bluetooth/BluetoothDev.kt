@@ -3,7 +3,9 @@ package com.munch.lib.bluetooth
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
+import com.munch.lib.log.Logger
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 
 /**
@@ -20,20 +22,35 @@ class BluetoothDev(val mac: String) {
     // TODO: 如何设置
     private var helper: BluetoothHelper? = BluetoothHelper.instance
 
-
     constructor(dev: BluetoothDevice) : this(dev.address) {
         this.dev = dev
     }
 
-    private var dev: BluetoothDevice? = null
+    var dev: BluetoothDevice? = null
+        private set
 
     val name: String?
         get() = dev?.name
 
     var rssi: Int = 0
 
-    fun connect(): Boolean {
-        return false
+    val isPair: Boolean
+        get() = helper?.isPair(mac) ?: false
+
+    val isValid: Boolean
+        get() {
+            val b = dev != null
+            if (!b) {
+                helper?.log?.log { "dev $mac is invalid." }
+            }
+            return b
+        }
+
+    private var connector = BleConnector(this, helper?.log ?: Logger("bluetooth"))
+
+    fun connect(connectListener: ConnectListener? = null): Boolean {
+        connector.helper = helper
+        return connector.connect(connectListener = connectListener)
     }
 
     /**
@@ -78,6 +95,40 @@ class BluetoothDev(val mac: String) {
                 this.timeout = timeout
             }, scanListener)
         }
+    }
+
+    /**
+     * 如果不是[isValid]，则会直接返回false
+     */
+    suspend fun createBond(timeout: Long = 10000L): Boolean {
+        if (!isValid) {
+            return false
+        }
+        if (isPair) {
+            return true
+        }
+        val helper = helper ?: return false
+        return withTimeoutOrNull(timeout) {
+            suspendCancellableCoroutine {
+                val bondChange = object : OnStateChangeListener {
+                    override fun onStateChange(state: StateNotify, mac: String?) {
+                        if (state == StateNotify.BondNone || state == StateNotify.Bonded) {
+                            it.resume(isPair)
+                            helper.remove(this)
+                        }
+
+                    }
+                }
+                helper.add(bondChange)
+
+                val result = dev?.createBond() ?: false
+                helper.log.log { "[$mac] create bond: $result." }
+                if (!result) {
+                    helper.remove(bondChange)
+                    it.resume(false)
+                }
+            }
+        } ?: false
     }
 
     override fun toString(): String {

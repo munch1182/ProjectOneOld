@@ -99,7 +99,7 @@ abstract class ReceiverHelper<T> constructor(
         override fun onReceive(context: Context?, intent: Intent?) {
             intent ?: return
             actions.find { it == intent.action }?.let {
-                notifyUpdate { handleAction(this@ReceiverHelper.context, intent.action!!, intent) }
+                handleAction(this@ReceiverHelper.context, intent.action!!, intent)
             }
             afterNotify()
         }

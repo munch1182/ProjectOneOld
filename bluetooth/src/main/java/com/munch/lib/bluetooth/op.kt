@@ -1,7 +1,6 @@
 package com.munch.lib.bluetooth
 
 import androidx.lifecycle.LiveData
-import com.munch.lib.helper.RegisterHelper
 
 /**
  * Created by munch1182 on 2022/5/19 0:03.
@@ -17,7 +16,7 @@ interface IBluetoothStop {
     fun stop(): Boolean
 }
 
-interface Scanner : IBluetoothStop, RegisterHelper<ScanListener> {
+interface Scanner : IBluetoothStop {
 
     /**
      * 启动蓝牙扫描
@@ -31,8 +30,8 @@ interface Scanner : IBluetoothStop, RegisterHelper<ScanListener> {
     /**
      * 注册一个全局的扫描回调，需要手动解除注册
      */
-    override fun register(t: ScanListener?)
-    override fun unregister(t: ScanListener?)
+    fun registerScanListener(t: ScanListener?)
+    fun unregisterScanListener(t: ScanListener? = null)
 
     val isScanning: LiveData<Boolean>
 }
@@ -52,6 +51,15 @@ interface SimpleScanListener : ScanListener {
     fun onScanned(dev: BluetoothDev)
 }
 
+sealed class ConnectFail {
+
+    class CodeError(val code: Int) : ConnectFail()
+
+    object DevNotScanned : ConnectFail()
+
+    object Other : ConnectFail()
+}
+
 /**
  * 表示单次连接活动的结果
  *
@@ -59,9 +67,14 @@ interface SimpleScanListener : ScanListener {
  */
 interface ConnectListener {
 
-    fun onConnectSuccess()
+    fun onStart(mac: String)
 
-    fun onConnectFail()
+    fun onConnectSuccess(mac: String)
+
+    fun onConnectFail(mac: String, fail: ConnectFail)
 }
 
-interface Connector : IBluetoothStop, RegisterHelper<ConnectListener>
+interface Connector : IBluetoothStop {
+
+    fun connect(timeout: Long = 15 * 1000L, connectListener: ConnectListener? = null): Boolean
+}
