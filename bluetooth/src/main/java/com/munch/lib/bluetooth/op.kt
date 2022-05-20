@@ -1,5 +1,6 @@
 package com.munch.lib.bluetooth
 
+import android.bluetooth.BluetoothGatt
 import androidx.lifecycle.LiveData
 
 /**
@@ -77,4 +78,15 @@ interface ConnectListener {
 interface Connector : IBluetoothStop {
 
     fun connect(timeout: Long = 15 * 1000L, connectListener: ConnectListener? = null): Boolean
+
+    fun setConnectHandler(connectHandler: OnConnectHandler? = null)
+}
+
+interface OnConnectHandler {
+
+    suspend fun onConnect(
+        connector: Connector,
+        gatt: BluetoothGatt,
+        callbackDispatch: GattCallbackDispatch
+    ): Boolean
 }

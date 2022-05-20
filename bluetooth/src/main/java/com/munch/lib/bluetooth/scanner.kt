@@ -113,7 +113,7 @@ class ScanFilter : IBluetoothFilter {
     }
 
     override fun enough(dev: BluetoothDev, devMap: LinkedHashMap<String, BluetoothDev>): Boolean {
-        return mac?.let { dev.mac == it } ?: false
+        return mac?.let { if (isMatchMac) dev.mac == it else false } ?: false
     }
 
     override fun toString(): String {
@@ -191,8 +191,18 @@ class ScanTarget {
     }
 }
 
+inline fun ScanTarget.ScanFilter(init: ScanFilter.() -> Unit) {
+    filter = ScanFilter().apply(init)
+}
+
+inline fun ScanTarget(init: ScanTarget.() -> Unit) = ScanTarget().apply(init)
+
 @SuppressLint("MissingPermission")
 internal class BleScanner(private val log: Logger) : Scanner {
+
+    companion object {
+        private const val WHAT_TIMEOUT_STOP = 519
+    }
 
     /**
      * helper对象，提供上下文
@@ -266,7 +276,7 @@ internal class BleScanner(private val log: Logger) : Scanner {
      * 超时停止扫描机制
      */
     private val stopRunnable = {
-        log.log { "scanner stop runnable call. isScanning:$_isScanning." }
+        log.log { "scanner stop runnable call(${scanTarget?.timeout}ms). isScanning:$_isScanning." }
         if (_isScanning) {
             stopBy()
         }
@@ -279,6 +289,10 @@ internal class BleScanner(private val log: Logger) : Scanner {
         get() = runBlocking { synchronized(BleScanner::class.java) { field } }
         set(value) = runBlocking {
             synchronized(BleScanner::class.java) {
+                //dev
+                if (field == value) {
+                    throw IllegalStateException("scan state repeat: $value")
+                }
                 field = value
                 _isScanningData.postValue(field)
                 log.log { "curr isScanning: $_isScanning." }
@@ -289,6 +303,7 @@ internal class BleScanner(private val log: Logger) : Scanner {
                 }
             }
         }
+
     private val _isScanningData = MutableLiveData(_isScanning)
 
     override val isScanning: LiveData<Boolean> = _isScanningData
@@ -329,17 +344,15 @@ internal class BleScanner(private val log: Logger) : Scanner {
 
     private fun timeoutStop(timeout: Long) {
         helper?.handler?.apply {
-            removeMessages(1191)
-            //removeCallbacks(stopRunnable)
+            clearTimeout()
             val msg = Message.obtain(this, stopRunnable)
-            msg.what = 1191
-            //postDelayed(stopRunnable, timeout)
-            sendMessageDelayed(msg,timeout)
+            msg.what = WHAT_TIMEOUT_STOP
+            sendMessageDelayed(msg, timeout)
         }
     }
 
-    private fun clearTimeout(){
-        helper?.handler?.removeMessages(1191)
+    private fun clearTimeout() {
+        helper?.handler?.removeMessages(WHAT_TIMEOUT_STOP)
     }
 
     override fun stop(): Boolean {

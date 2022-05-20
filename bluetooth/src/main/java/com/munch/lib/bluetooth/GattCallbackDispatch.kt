@@ -8,7 +8,7 @@ import com.munch.lib.Destroyable
 import com.munch.lib.helper.ARSHelper
 import com.munch.lib.log.Logger
 
-class GattCallbackDispatch(private val log: Logger) : BluetoothGattCallback(), Destroyable {
+open class GattCallbackDispatch(private val log: Logger) : BluetoothGattCallback(), Destroyable {
 
     val onStateChange = ARSHelper<OnStateChange>()
     val onServiceDiscover = ARSHelper<OnServicesDiscovered>()

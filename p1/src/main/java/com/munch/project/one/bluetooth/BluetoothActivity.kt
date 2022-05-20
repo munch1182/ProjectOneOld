@@ -2,6 +2,7 @@ package com.munch.project.one.bluetooth
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothGatt
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -89,16 +90,24 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 bind.btScan.text = "SCAN START"
                 bind.btScan.setOnClickListener {
                     checkOrRequest {
-                        /*instance.scan(ScanTarget().apply {
-                            this.filter = ScanFilter().apply {
-                                isIgnoreNoName = false
-                            }
-                        })*/
+                        //instance.scan()
                         instance.launch {
                             val dev = BluetoothDev("87:21:20:A1:05:E4")
                             log("find:${dev.find()}")
                             log("bond:${dev.createBond()}")
-                            log("connect:${dev.connect()}")
+                            log(
+                                "connect:${
+                                    dev.connect(connectHandler = object : OnConnectHandler {
+                                        override suspend fun onConnect(
+                                            connector: Connector,
+                                            gatt: BluetoothGatt,
+                                            callbackDispatch: GattCallbackDispatch
+                                        ): Boolean {
+                                            return true
+                                        }
+                                    })
+                                }"
+                            )
                         }
                     }
                 }

@@ -46,10 +46,54 @@ class BleConnector(private val dev: BluetoothDev, private val log: Logger) : Con
     private var connectListener: ConnectListener? = null
     internal var helper: BluetoothHelper? = null
     private var gatt: BluetoothGatt? = null
+    private var connectHandler: OnConnectHandler? = null
 
     private var currState: ConnectState = ConnectState.Disconnected
+        get() = synchronized(this) { field }
+        set(value) {
+            synchronized(this) {
+                lastState = field
+                field = value
+            }
+            log.log { "[${dev.mac}] connect state: $lastState->$field." }
+            if (lastState != ConnectState.Disconnected
+                && field == ConnectState.Disconnected
+            ) {
+                //dev
+                throw IllegalStateException("connector state: $lastState -> $field")
+            }
+            if (field == ConnectState.Disconnecting) {
+                stopBy()
+            }
+        }
+    private var lastState = currState
 
-    private val callBack = GattCallbackDispatch(log)
+    private val callBack = object : GattCallbackDispatch(log) {
+        override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
+            super.onConnectionStateChange(gatt, status, newState)
+            /*val state = ConnectState.from(newState)
+            currState = state*/
+            if (newState == BluetoothGatt.STATE_CONNECTED) {
+                if (connectHandler != null) {
+                    val cb = this
+                    if (gatt == null) {
+                        log.log { "gatt null." }
+                        currState = ConnectState.Disconnecting
+                        return
+                    }
+                    helper?.launch {
+                        if (connectHandler?.onConnect(this@BleConnector, gatt, cb) != false) {
+                            currState = ConnectState.Connected
+                        }
+                    }
+                } else {
+                    currState = ConnectState.Connected
+                }
+            } else {
+                currState = ConnectState.from(newState)
+            }
+        }
+    }
 
     override fun connect(
         timeout: Long,
@@ -67,9 +111,6 @@ class BleConnector(private val dev: BluetoothDev, private val log: Logger) : Con
                 connectListener?.onConnectFail(dev.mac, ConnectFail.Other)
                 return@launch
             }
-            /*callBack.onStateChange.add { _, _ ->
-
-            }*/
             gatt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 device.connectGatt(
                     null,
@@ -96,6 +137,10 @@ class BleConnector(private val dev: BluetoothDev, private val log: Logger) : Con
         gatt?.close()
         gatt = null
         return true
+    }
+
+    override fun setConnectHandler(connectHandler: OnConnectHandler?) {
+        this.connectHandler = connectHandler
     }
 }
 

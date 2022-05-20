@@ -12,7 +12,7 @@ import kotlin.coroutines.resume
  * Create by munch1182 on 2022/5/18 14:15.
  */
 @SuppressLint("MissingPermission")
-class BluetoothDev(val mac: String) {
+class BluetoothDev(val mac: String) : IBluetoothStop {
 
     companion object {
 
@@ -48,9 +48,18 @@ class BluetoothDev(val mac: String) {
 
     private var connector = BleConnector(this, helper?.log ?: Logger("bluetooth"))
 
-    fun connect(connectListener: ConnectListener? = null): Boolean {
+    override fun stop(): Boolean {
+        return helper?.stop() ?: false
+    }
+
+    fun connect(
+        timeout: Long = 15 * 1000L,
+        connectHandler: OnConnectHandler? = null,
+        connectListener: ConnectListener? = null
+    ): Boolean {
         connector.helper = helper
-        return connector.connect(connectListener = connectListener)
+        connector.setConnectHandler(connectHandler)
+        return connector.connect(timeout, connectListener)
     }
 
     /**
@@ -89,8 +98,8 @@ class BluetoothDev(val mac: String) {
                     }
                 }
             }
-            helper.scan(ScanTarget().apply {
-                filter = ScanFilter().apply { mac = this@BluetoothDev.mac }
+            helper.scan(ScanTarget {
+                ScanFilter { mac = this@BluetoothDev.mac }
                 isFromUser = false
                 this.timeout = timeout
             }, scanListener)
@@ -98,9 +107,15 @@ class BluetoothDev(val mac: String) {
     }
 
     /**
-     * 如果不是[isValid]，则会直接返回false
+     * 如果不是[isValid]，则会直接返回false，此时可能需要先调用[find]
+     * 如果已经在配对列表，则会之间返回true
+     * 否则会调用[BluetoothDevice.createBond]方法来发起配对操作
+     * 如果在[timeout]ms时间内无响应，则会返回失败
+     * 否则，返回是否配对的结果
+     *
+     * 配对服务需要用户手动确认
      */
-    suspend fun createBond(timeout: Long = 10000L): Boolean {
+    suspend fun createBond(timeout: Long = 20000L): Boolean {
         if (!isValid) {
             return false
         }
@@ -131,7 +146,5 @@ class BluetoothDev(val mac: String) {
         } ?: false
     }
 
-    override fun toString(): String {
-        return "$name($mac)"
-    }
+    override fun toString() = "$name($mac)"
 }
