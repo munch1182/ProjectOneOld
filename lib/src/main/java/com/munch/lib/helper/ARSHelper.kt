@@ -3,6 +3,7 @@ package com.munch.lib.helper
 import android.os.Handler
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.munch.lib.UnImplException
 
 /**
  *
@@ -83,12 +84,22 @@ interface IARSHelper<T> {
     }
 }
 
-open class ARSHelper<T>(private var handler: Handler? = null) : IARSHelper<T> {
+interface ISet<T> {
+
+    /**
+     * 一次性设置，此方法需要自行实现
+     */
+    fun set(t: T) {
+        throw UnImplException()
+    }
+}
+
+open class ARSHelper<T>(protected open var _handler: Handler? = null) : IARSHelper<T> {
 
     protected open val list = mutableListOf<T>()
 
     open fun setHandler(handler: Handler?) {
-        this.handler = handler
+        this._handler = handler
     }
 
     override fun add(t: T) {
@@ -109,11 +120,32 @@ open class ARSHelper<T>(private var handler: Handler? = null) : IARSHelper<T> {
 
     override fun notifyUpdate(update: (T) -> Unit) {
         synchronized(this) {
-            list.forEach { handler?.post { update.invoke(it) } ?: update.invoke(it) }
+            list.forEach { _handler?.post { update.invoke(it) } ?: update.invoke(it) }
         }
     }
 
     override fun clear() {
         list.clear()
+    }
+}
+
+open class ARSSHelper<T>(handler: Handler? = null) : ARSHelper<T>(handler), ISet<T> {
+
+    protected open val onceList = mutableListOf<T>()
+
+    override fun set(t: T) {
+        synchronized(this) {
+            if (!onceList.contains(t)) {
+                onceList.add(t)
+            }
+        }
+    }
+
+    override fun notifyUpdate(update: (T) -> Unit) {
+        super.notifyUpdate(update)
+        synchronized(this) {
+            onceList.forEach { _handler?.post { update.invoke(it) } ?: update.invoke(it) }
+            onceList.clear()
+        }
     }
 }

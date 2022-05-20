@@ -1,7 +1,9 @@
 package com.munch.lib.bluetooth
 
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.os.Handler
+import androidx.collection.ArrayMap
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.AppHelper
@@ -33,15 +35,35 @@ class BluetoothHelper private constructor(
 
     private val job = Job()
     private val dispatcher = BluetoothDispatcher()
+    private val cache = ArrayMap<String, BluetoothDev>()
+    internal val handler: Handler = dispatcher.handler
 
-    val handler: Handler
-        get() = dispatcher.handler
+    /**
+     * 获取当前已经程序已经连接的设备
+     */
+    val devs: List<BluetoothDev>
+        get() = cache.values.toList()
+
+    /**
+     * gatt已经连接的设备
+     */
+    override val connectGattDevs: List<BluetoothDevice>?
+        get() = btWrapper.connectGattDevs
 
     init {
         scanner.helper = this
         btWrapper.setHandler(handler)
+        //监听蓝牙关闭
+        add(object : OnStateChangeListener {
+            override fun onStateChange(state: StateNotify, mac: String?) {
+                if (state == StateNotify.StateOff) {
+                    stop()
+                }
+            }
+        })
     }
 
+    fun get(mac: String): BluetoothDev? = cache[mac]
 
     fun isPair(mac: String) = pairedDevs?.any { it.address == mac } ?: false
     fun isGattConnect(mac: String) = connectGattDevs?.any { it.address == mac } ?: false
@@ -69,6 +91,7 @@ class BluetoothHelper private constructor(
         if (isScanning.value == true) {
             return scanner.stop()
         }
+        cache.values.forEach { it.stop() }
         return true
     }
 
@@ -76,6 +99,19 @@ class BluetoothHelper private constructor(
         job.cancel()
     }
 
-    override val coroutineContext: CoroutineContext = dispatcher + job
+    /**
+     * 当设备连接时，需要缓存设备对象
+     */
+    internal fun cacheDev(dev: BluetoothDev) {
+        cache[dev.mac] = dev
+    }
 
+    /**
+     * 当设备断开连接时，需要清除该缓存
+     */
+    internal fun clearDev(mac: String) {
+        cache.remove(mac)
+    }
+
+    override val coroutineContext: CoroutineContext = dispatcher + job
 }

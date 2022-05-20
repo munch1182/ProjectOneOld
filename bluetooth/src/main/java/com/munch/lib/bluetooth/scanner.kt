@@ -32,7 +32,7 @@ interface IBluetoothFilter {
     /**
      * 是否已经获取到需要的设备
      *
-     * @return 如果不需要在寻找设备，则返回true，否则，返回false
+     * @return 如果不需要再寻找设备，则返回true，否则，返回false
      */
     fun enough(dev: BluetoothDev, devMap: LinkedHashMap<String, BluetoothDev>): Boolean {
         return false
@@ -308,6 +308,9 @@ internal class BleScanner(private val log: Logger) : Scanner {
 
     override val isScanning: LiveData<Boolean> = _isScanningData
 
+    override val isScanningNow: Boolean
+        get() = _isScanning
+
     override fun scan(target: ScanTarget, listener: ScanListener?): Boolean {
         log.log { "scanner scan() call. target = $target" }
         if (helper == null || scanner == null) {
@@ -335,7 +338,7 @@ internal class BleScanner(private val log: Logger) : Scanner {
 
         _isScanning = true
 
-        log.log { "scanner start scan." }
+        log.log { "scanner START SCAN." }
 
         scanner?.startScan(null, target.scanSetting, callback)
 
@@ -365,7 +368,7 @@ internal class BleScanner(private val log: Logger) : Scanner {
             log.log { "isScanning = ${isScanning}, ignore scanner stop()." }
             return true
         }
-        log.log { "scanner stop scan." }
+        log.log { "scanner STOP SCAN." }
 
         scanner?.stopScan(callback)
 

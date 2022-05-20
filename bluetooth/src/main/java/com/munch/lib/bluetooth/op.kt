@@ -2,10 +2,16 @@ package com.munch.lib.bluetooth
 
 import android.bluetooth.BluetoothGatt
 import androidx.lifecycle.LiveData
+import com.munch.lib.extend.HandlerDispatcher
 
 /**
  * Created by munch1182 on 2022/5/19 0:03.
  */
+internal class BluetoothDispatcher : HandlerDispatcher("bluetooth_thread") {
+
+    override fun toString(): String = "BluetoothDispatcher"
+}
+
 interface IBluetoothStop {
 
     /**
@@ -35,6 +41,8 @@ interface Scanner : IBluetoothStop {
     fun unregisterScanListener(t: ScanListener? = null)
 
     val isScanning: LiveData<Boolean>
+
+    val isScanningNow: Boolean
 }
 
 interface ScanListener {
@@ -75,18 +83,43 @@ interface ConnectListener {
     fun onConnectFail(mac: String, fail: ConnectFail)
 }
 
-interface Connector : IBluetoothStop {
+interface Connector : IBluetoothStop, IConnectHandler {
 
+    /**
+     * 连接设备
+     *
+     * 只能在非连接状态下才能连接，调用时应该使用队列，而不能并发
+     */
     fun connect(timeout: Long = 15 * 1000L, connectListener: ConnectListener? = null): Boolean
 
-    fun setConnectHandler(connectHandler: OnConnectHandler? = null)
+    override fun addConnectHandler(handler: OnConnectHandler): Connector
+    override fun removeConnectHandler(handler: OnConnectHandler): Connector
+
+    val curr: LiveData<ConnectState>
+
+    val currState: ConnectState
+}
+
+interface IConnectHandler {
+    /**
+     * 添加一个蓝牙连接的处理器
+     *
+     * @see OnConnectHandler
+     */
+    fun addConnectHandler(handler: OnConnectHandler): IConnectHandler
+    fun removeConnectHandler(handler: OnConnectHandler): IConnectHandler
 }
 
 interface OnConnectHandler {
 
+    /**
+     * 当蓝牙连接成功后，会回调此方法，可以对gatt进行自定义处理并返回结果
+     * 如果自定义结果返回false，则会视为连接失败，进行断开操作并回调状态为连接失败
+     * 否则，则会循环回调每一个处理方法，如果全都成功，则视为连接成功
+     */
     suspend fun onConnect(
         connector: Connector,
         gatt: BluetoothGatt,
-        callbackDispatch: GattCallbackDispatch
+        dispatcher: GattCallbackDispatcher
     ): Boolean
 }

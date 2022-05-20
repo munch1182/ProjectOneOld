@@ -23,7 +23,11 @@ import com.munch.lib.result.OnPermissionResultListener
 import com.munch.lib.result.permission
 import com.munch.project.one.databinding.ActivityBluetoothBinding
 import com.munch.project.one.databinding.ItemBluetoothBinding
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 /**
  * Created by munch1182 on 2022/5/18 21:20.
@@ -95,19 +99,10 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                             val dev = BluetoothDev("87:21:20:A1:05:E4")
                             log("find:${dev.find()}")
                             log("bond:${dev.createBond()}")
-                            log(
-                                "connect:${
-                                    dev.connect(connectHandler = object : OnConnectHandler {
-                                        override suspend fun onConnect(
-                                            connector: Connector,
-                                            gatt: BluetoothGatt,
-                                            callbackDispatch: GattCallbackDispatch
-                                        ): Boolean {
-                                            return true
-                                        }
-                                    })
-                                }"
-                            )
+                            log("connect:${dev.addConnectHandler(TheHandler()).connect()}")
+
+                            delay(3000L)
+                            log("remove bond:${dev.removeBond()}")
                         }
                     }
                 }
@@ -128,6 +123,41 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             layoutManager = lm
             addItemDecoration(LinearLineItemDecoration(lm))
             adapter = this@BluetoothActivity.adapter
+        }
+    }
+
+    private class TheHandler : OnConnectHandler {
+        override suspend fun onConnect(
+            connector: Connector,
+            gatt: BluetoothGatt,
+            dispatcher: GattCallbackDispatcher
+        ): Boolean {
+            return suspendCancellableCoroutine { c ->
+                runBlocking {
+                    var g = dispatcher.discoverService()
+                    var index = 5
+                    while (g == null && index > 0) {
+                        index--
+                        g = dispatcher.discoverService()
+                    }
+                    if (g == null) {
+                        c.resume(false)
+                        return@runBlocking
+                    }
+                    val mtu = 247
+                    index = 5
+                    var requestMtu = dispatcher.requestMtu(mtu)
+                    while (requestMtu != mtu && index > 0) {
+                        index--
+                        requestMtu = dispatcher.requestMtu(mtu)
+                    }
+                    if (requestMtu == null) {
+                        c.resume(false)
+                        return@runBlocking
+                    }
+                    c.resume(true)
+                }
+            }
         }
     }
 

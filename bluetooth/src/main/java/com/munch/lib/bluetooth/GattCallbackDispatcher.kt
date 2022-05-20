@@ -1,30 +1,36 @@
 package com.munch.lib.bluetooth
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
-import com.munch.lib.Destroyable
-import com.munch.lib.helper.ARSHelper
+import com.munch.lib.extend.suspendCancellableCoroutine
 import com.munch.lib.log.Logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.resume
 
-open class GattCallbackDispatch(private val log: Logger) : BluetoothGattCallback(), Destroyable {
+@SuppressLint("MissingPermission")
+open class GattCallbackDispatcher(private val log: Logger) : BluetoothGattCallback() {
 
-    val onStateChange = ARSHelper<OnStateChange>()
-    val onServiceDiscover = ARSHelper<OnServicesDiscovered>()
-    val onMtuChange = ARSHelper<OnMtuChanged>()
-    val onDescriptorRead = ARSHelper<OnDescriptorRead>()
-    val onDescriptorWrite = ARSHelper<OnDescriptorWrite>()
-    val onCharacteristicRead = ARSHelper<OnCharacteristicRead>()
-    val onCharacteristicWrite = ARSHelper<OnCharacteristicWrite>()
-    val onCharacteristicChanged = ARSHelper<OnCharacteristicChanged>()
-    val onReadRemoteRssi = ARSHelper<OnReadRemoteRssi>()
+    var gatt: BluetoothGatt? = null
+        get() {
+            if (field == null) {
+                log.log { "gatt null." }
+            }
+            return field
+        }
 
-    override fun destroy() {
-        onStateChange.clear()
-        onServiceDiscover.clear()
-        onServiceDiscover.clear()
-    }
+    private var _onStateChange: OnStateChange? = null
+    private var _onServiceDiscover: OnServicesDiscovered? = null
+    private var _onMtuChange: OnMtuChanged? = null
+    private var _onDescriptorRead: OnDescriptorRead? = null
+    private var _onDescriptorWrite: OnDescriptorWrite? = null
+    private var _onCharacteristicRead: OnCharacteristicRead? = null
+    private var _onCharacteristicWrite: OnCharacteristicWrite? = null
+    private var _onCharacteristicChanged: OnCharacteristicChanged? = null
+    private var _onReadRemoteRssi: OnReadRemoteRssi? = null
 
     private fun fmtStatus(status: Int): String {
         return "${
@@ -46,23 +52,75 @@ open class GattCallbackDispatch(private val log: Logger) : BluetoothGattCallback
 
     private fun isSuccess(status: Int) = status == BluetoothGatt.GATT_SUCCESS
 
+    private fun mac(gatt: BluetoothGatt?) = gatt?.device?.address
+
     override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
         super.onConnectionStateChange(gatt, status, newState)
+        this.gatt = gatt
         val state = ConnectState.from(newState)
-        log.log { "onConnectionStateChange: ${fmtStatus(status)}, $state" }
-        onStateChange.notifyUpdate { it.invoke(isSuccess(status), state) }
+        log.log { "[${mac(gatt)}] onConnectionStateChange: ${fmtStatus(status)}, $state." }
+        val success = isSuccess(status)
+        _onStateChange?.invoke(success, state)
     }
 
     override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
         super.onServicesDiscovered(gatt, status)
-        log.log { "onServicesDiscovered: ${fmtStatus(status)}" }
-        onServiceDiscover.notifyUpdate { it.invoke(isSuccess(status), gatt) }
+        log.log { "[${mac(gatt)}] onServicesDiscovered: ${fmtStatus(status)}." }
+        val success = isSuccess(status)
+        _onServiceDiscover?.invoke(success, gatt)
+    }
+
+    /**
+     * 用于发现服务
+     * 如果超时未发现或者发现失败，则返回为null，否则则是发现成功
+     */
+    suspend fun discoverService(timeout: Long = 3000L): BluetoothGatt? {
+        val g = gatt ?: return null
+        if (g.services.isNotEmpty()) {
+            log.log { "[${mac(gatt)}] services had discovered: ${g.services.size}." }
+            return gatt
+        }
+        val serviceGatt = suspendCancellableCoroutine<BluetoothGatt?>(timeout) {
+            _onServiceDiscover = { isSuccess, gatt -> it.resume(if (isSuccess) gatt else null) }
+            val dis = runBlocking(Dispatchers.Main) {
+                g.discoverServices()
+                    .also { log.log { "[${mac(gatt)}] DISCOVER SERVICES(${it})." } }
+            }
+            if (!dis) {
+                it.resume(null)
+            }
+        }
+        _onServiceDiscover = null
+        log.log { "[${mac(gatt)}] services discovered: ${serviceGatt?.services?.size}." }
+        return serviceGatt
     }
 
     override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
         super.onMtuChanged(gatt, mtu, status)
-        log.log { "onMtuChanged: ${fmtStatus(status)}, mtu:$mtu" }
-        onMtuChange.notifyUpdate { it.invoke(isSuccess(status), mtu) }
+        log.log { "[${mac(gatt)}] onMtuChanged: ${fmtStatus(status)}, mtu:$mtu." }
+        val success = isSuccess(status)
+        _onMtuChange?.invoke(success, mtu)
+    }
+
+    /**
+     * 协商mtu值，返回回调的mtu值
+     *
+     * mtu的回调可能先于请求和回调之前
+     */
+    suspend fun requestMtu(mtu: Int = 247, timeout: Long = 1500L): Int? {
+        val g = gatt ?: return null
+        val mtuChanged = suspendCancellableCoroutine<Int?>(timeout) {
+            _onMtuChange = { isSuccess, mtu -> it.resume(if (isSuccess) mtu else null) }
+            val request = runBlocking {
+                g.requestMtu(mtu).also { log.log { "[${mac(gatt)}] REQUEST MTU(${mtu}): $it." } }
+            }
+            if (!request) {
+                it.resume(null)
+            }
+        }
+        _onMtuChange = null
+        log.log { "[${mac(gatt)}] mtu requested: ${mtuChanged}." }
+        return mtuChanged
     }
 
     override fun onDescriptorRead(
@@ -71,8 +129,7 @@ open class GattCallbackDispatch(private val log: Logger) : BluetoothGattCallback
         status: Int
     ) {
         super.onDescriptorRead(gatt, descriptor, status)
-        log.log { "onDescriptorRead: ${fmtStatus(status)}" }
-        onDescriptorRead.notifyUpdate { it.invoke(isSuccess(status), descriptor) }
+        log.log { "[${mac(gatt)}] onDescriptorRead: ${fmtStatus(status)}" }
     }
 
     override fun onDescriptorWrite(
@@ -81,8 +138,7 @@ open class GattCallbackDispatch(private val log: Logger) : BluetoothGattCallback
         status: Int
     ) {
         super.onDescriptorWrite(gatt, descriptor, status)
-        log.log { "onDescriptorWrite: ${fmtStatus(status)}" }
-        onDescriptorWrite.notifyUpdate { it.invoke(isSuccess(status), descriptor) }
+        log.log { "[${mac(gatt)}] onDescriptorWrite: ${fmtStatus(status)}" }
     }
 
     override fun onCharacteristicRead(
@@ -91,8 +147,7 @@ open class GattCallbackDispatch(private val log: Logger) : BluetoothGattCallback
         status: Int
     ) {
         super.onCharacteristicRead(gatt, characteristic, status)
-        log.log { "onCharacteristicRead: ${fmtStatus(status)}" }
-        onCharacteristicRead.notifyUpdate { it.invoke(isSuccess(status), characteristic) }
+        log.log { "[${mac(gatt)}] onCharacteristicRead: ${fmtStatus(status)}" }
     }
 
     override fun onCharacteristicWrite(
@@ -101,8 +156,7 @@ open class GattCallbackDispatch(private val log: Logger) : BluetoothGattCallback
         status: Int
     ) {
         super.onCharacteristicWrite(gatt, characteristic, status)
-        log.log { "onCharacteristicWrite: ${fmtStatus(status)}" }
-        onCharacteristicWrite.notifyUpdate { it.invoke(isSuccess(status), characteristic) }
+        log.log { "[${mac(gatt)}] onCharacteristicWrite: ${fmtStatus(status)}" }
     }
 
     override fun onCharacteristicChanged(
@@ -110,14 +164,12 @@ open class GattCallbackDispatch(private val log: Logger) : BluetoothGattCallback
         characteristic: BluetoothGattCharacteristic?
     ) {
         super.onCharacteristicChanged(gatt, characteristic)
-        log.log { "onCharacteristicChanged" }
-        onCharacteristicChanged.notifyUpdate { it.invoke(characteristic) }
+        log.log { "[${mac(gatt)}] onCharacteristicChanged" }
     }
 
     override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
         super.onReadRemoteRssi(gatt, rssi, status)
-        log.log { "onReadRemoteRssi: ${fmtStatus(status)}, rssi:${rssi}" }
-        onReadRemoteRssi.notifyUpdate { it.invoke(isSuccess(status), rssi) }
+        log.log { "[${mac(gatt)}] onReadRemoteRssi: ${fmtStatus(status)}, rssi:${rssi}" }
     }
 
     override fun onPhyRead(gatt: BluetoothGatt?, txPhy: Int, rxPhy: Int, status: Int) {
@@ -131,7 +183,7 @@ open class GattCallbackDispatch(private val log: Logger) : BluetoothGattCallback
 
 typealias OnStateChange = (isSuccess: Boolean, state: ConnectState) -> Unit
 typealias OnServicesDiscovered = (isSuccess: Boolean, gatt: BluetoothGatt?) -> Unit
-typealias  OnMtuChanged = (isSuccess: Boolean, mtu: Int) -> Unit
+typealias OnMtuChanged = (isSuccess: Boolean, mtu: Int) -> Unit
 typealias OnDescriptorRead = (isSuccess: Boolean, descriptor: BluetoothGattDescriptor?) -> Unit
 typealias OnDescriptorWrite = (isSuccess: Boolean, descriptor: BluetoothGattDescriptor?) -> Unit
 typealias OnCharacteristicRead = (isSuccess: Boolean, characteristic: BluetoothGattCharacteristic?) -> Unit

@@ -32,24 +32,24 @@ interface IBluetoothState : IARSHelper<OnStateChangeListener> {
 
 sealed class StateNotify {
 
-    object Connected : StateNotify() {
-        override fun toString() = "Connected"
+    object StateOn : StateNotify() {
+        override fun toString() = "CONNECTED"
     }
 
-    object Disconnected : StateNotify() {
-        override fun toString() = "Disconnected"
+    object StateOff : StateNotify() {
+        override fun toString() = "DISCONNECTED"
     }
 
     object Bonded : StateNotify() {
-        override fun toString() = "Bonded"
+        override fun toString() = "BONDED"
     }
 
     object Bonding : StateNotify() {
-        override fun toString() = "Bonding"
+        override fun toString() = "BONDING"
     }
 
     object BondNone : StateNotify() {
-        override fun toString() = "BondNone"
+        override fun toString() = "BOND NONE"
     }
 }
 
@@ -60,7 +60,6 @@ interface OnStateChangeListener {
      */
     fun onStateChange(state: StateNotify, mac: String? = null)
 }
-
 
 @SuppressLint("MissingPermission")
 class BluetoothWrapper(context: Context, private val log: Logger) :
@@ -105,15 +104,16 @@ class BluetoothWrapper(context: Context, private val log: Logger) :
         override fun handleAction(context: Context, action: String, intent: Intent) {
             val mac =
                 intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)?.address
-            log.log {
-                "[$mac] broadcast receive action:${
-                    action.replace("android.bluetooth.device.action.", "")
-                        .replace("android.bluetooth.adapter.action.", "")
-                }."
+            val actionStr = action.replace("android.bluetooth.device.action.", "")
+                .replace("android.bluetooth.adapter.action.", "")
+            if (mac != null) {
+                log.log { "[$mac] broadcast receive action: $actionStr." }
+            } else {
+                log.log { "broadcast receive action: $actionStr." }
             }
             val state = when (action) {
-                BluetoothDevice.ACTION_ACL_CONNECTED -> StateNotify.Connected
-                BluetoothDevice.ACTION_ACL_DISCONNECTED -> StateNotify.Disconnected
+                BluetoothDevice.ACTION_ACL_CONNECTED,
+                BluetoothDevice.ACTION_ACL_DISCONNECTED -> return
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
                     val bondState = intent.getIntExtra(
                         BluetoothDevice.EXTRA_BOND_STATE,
@@ -130,8 +130,7 @@ class BluetoothWrapper(context: Context, private val log: Logger) :
                 }
                 BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED -> {
                     val connectState = intent.getIntExtra(
-                        BluetoothAdapter.EXTRA_CONNECTION_STATE,
-                        BluetoothAdapter.STATE_DISCONNECTED
+                        BluetoothAdapter.EXTRA_CONNECTION_STATE, BluetoothAdapter.STATE_DISCONNECTED
                     )
                     val str = when (connectState) {
                         BluetoothAdapter.STATE_DISCONNECTED -> "STATE_DISCONNECTED"
@@ -142,6 +141,27 @@ class BluetoothWrapper(context: Context, private val log: Logger) :
                     }
                     log.log { "[$mac] connect state change: $str." }
                     return
+                }
+                BluetoothAdapter.ACTION_STATE_CHANGED -> {
+                    val state = intent.getIntExtra(
+                        BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF
+                    )
+                    val str = when (state) {
+                        BluetoothAdapter.STATE_OFF -> "STATE_OFF"
+                        BluetoothAdapter.STATE_TURNING_ON -> "TURNING_ON"
+                        BluetoothAdapter.STATE_ON -> "STATE_ON"
+                        BluetoothAdapter.STATE_TURNING_OFF -> "TURNING_OFF"
+                        else -> state.toString()
+                    }
+                    log.log { "bluetooth state: $str." }
+                    when (state) {
+                        BluetoothAdapter.STATE_OFF, BluetoothAdapter.STATE_TURNING_ON -> return
+                        //开始后才通知开启
+                        BluetoothAdapter.STATE_ON -> StateNotify.StateOn
+                        //关闭中即通知关闭
+                        BluetoothAdapter.STATE_TURNING_OFF -> StateNotify.StateOff
+                        else -> return
+                    }
                 }
                 else -> return
             }

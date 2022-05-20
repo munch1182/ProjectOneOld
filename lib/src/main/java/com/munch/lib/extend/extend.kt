@@ -5,8 +5,10 @@ package com.munch.lib.extend
 import android.os.Process
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -57,6 +59,12 @@ inline fun <reified T : Any> invoke(
         null
     }
 }
+
+suspend inline fun <T> suspendCancellableCoroutine(
+    timeout: Long,
+    crossinline block: (CancellableContinuation<T>) -> Unit
+): T? = withTimeoutOrNull(timeout) { kotlinx.coroutines.suspendCancellableCoroutine(block) }
+
 
 /**
  * 默认一个参数的单例

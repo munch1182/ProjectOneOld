@@ -6,8 +6,13 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import com.munch.lib.helper.ThreadHelper
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import java.util.concurrent.Callable
 import java.util.concurrent.Future
+import kotlin.coroutines.CoroutineContext
 
 
 /**
@@ -72,4 +77,35 @@ open class ThreadHandler private constructor(loop: Looper) : Handler(loop) {
 
     val thread: HandlerThread
         get() = looper.thread as HandlerThread
+}
+
+/**
+ * @see kotlinx.coroutines.android.HandlerContext
+ */
+open class HandlerDispatcher(name: String) : CoroutineDispatcher() {
+
+    open val handler = ThreadHandler(name)
+
+    override fun isDispatchNeeded(context: CoroutineContext): Boolean {
+        return Looper.myLooper() != handler.looper
+    }
+
+    override fun dispatch(context: CoroutineContext, block: Runnable) {
+        if (!handler.post(block)) {
+            cancelOnRejection(context, block)
+        }
+    }
+
+    private fun cancelOnRejection(context: CoroutineContext, block: Runnable) {
+        context.cancel(CancellationException("The task was rejected, the handler underlying the dispatcher '${toString()}' was closed"))
+        Dispatchers.IO.dispatch(context, block)
+    }
+
+    override fun toString(): String = "HandlerDispatcher"
+
+    override fun equals(other: Any?): Boolean =
+        other is HandlerDispatcher && other.handler === handler
+
+    override fun hashCode(): Int = System.identityHashCode(handler)
+
 }
