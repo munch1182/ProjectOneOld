@@ -2,6 +2,7 @@ package cn.munch.lib.record
 
 import androidx.room.*
 import cn.munch.lib.RecordDB
+import com.munch.lib.extend.toDate
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -38,14 +39,20 @@ data class Record(
                 else -> type.toString()
             }
         }
+
+    override fun toString(): String {
+        return "${recordTime.toDate()}: $log"
+    }
 }
 
 @Dao
 interface RecordDao {
 
-    //todo 分页查询
     @Query("SELECT * FROM ${RecordDB.NAME_TB} ORDER BY recordTime DESC")
     suspend fun queryAll(): List<Record>
+
+    @Query("SELECT * FROM ${RecordDB.NAME_TB} ORDER BY recordTime DESC LIMIT :size OFFSET :page*:size")
+    suspend fun queryAll(page: Int = 0, size: Int = 15): List<Record>
 
     //对于flow的返回，当数据有更改时，会自动触发数据的更新的分发
     //但是这种触发时任意更新都会触发
@@ -59,19 +66,27 @@ interface RecordDao {
     //为null的值须为空
     @Query(
         "SELECT * FROM ${RecordDB.NAME_TB}" +
-                " WHERE (:type == -1 OR :type == type)" +
-                " AND (:like == '' OR (log LIKE :like OR thread LIKE :like OR stack LIKE :like OR comment LIKE :like)" +
-                " AND (:time == 0 OR recordTime >= :time)) ORDER BY recordTime DESC"
+                " WHERE ((:type == -1) OR (:type == type))" +
+                " AND ((:like == '') OR (log LIKE :like OR thread LIKE :like OR stack LIKE :like OR comment LIKE :like))" +
+                " AND ((:time == 0) OR (recordTime >= :time)) ORDER BY recordTime DESC" +
+                " LIMIT :size OFFSET :page*:size"
     )
-    suspend fun query(type: Int, like: String, time: Long): List<Record>
+    suspend fun query(
+        type: Int,
+        like: String,
+        time: Long,
+        page: Int = 0,
+        size: Int = 15
+    ): List<Record>
 
     @Query(
         "SELECT COUNT(*) FROM ${RecordDB.NAME_TB}" +
                 " WHERE (:type == -1 OR :type == type)" +
                 " AND (:like == '' OR (log LIKE :like OR thread LIKE :like OR stack LIKE :like OR comment LIKE :like)" +
-                " AND (:time == 0 OR recordTime >= :time))"
+                " AND (:time == 0 OR recordTime >= :time))" +
+                " LIMIT :size OFFSET :page*:size"
     )
-    suspend fun querySize(type: Int, like: String?, time: Long): Int
+    suspend fun querySize(type: Int, like: String?, time: Long, page: Int = 0, size: Int = 15): Int
 
     @Query("SELECT COUNT(*) FROM ${RecordDB.NAME_TB}")
     fun querySizeFlow(): Flow<Int>
@@ -87,6 +102,9 @@ interface RecordDao {
 
     @Delete
     suspend fun del(vararg record: Record)
+
+    @Query("DELETE FROM ${RecordDB.NAME_TB}")
+    suspend fun clear()
 
     @Query("DELETE FROM ${RecordDB.NAME_TB} WHERE id == :id")
     suspend fun delById(id: Long)

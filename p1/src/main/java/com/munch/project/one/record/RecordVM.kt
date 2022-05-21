@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.munch.lib.DBRecord
 import cn.munch.lib.record.Record
-import cn.munch.lib.record.RecordDao
 import com.munch.lib.extend.toLive
+import com.munch.lib.log.log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -14,59 +16,50 @@ import kotlinx.coroutines.launch
  */
 class RecordVM : ViewModel() {
 
-    companion object {
-        const val TYPE_NORMAL = 0
-        const val TYPE_READER = 1
-    }
+    private val dao = DBRecord
+    private val _uiState = MutableLiveData<UIState>(UIState.Querying)
+    val uiState = _uiState.toLive()
+    private val userIntent = MutableSharedFlow<QueryIntent>()
+    private var change = Change(RecordQuery(), "dbRecord", 0)
 
-    private val dbFrom = MutableLiveData(TYPE_NORMAL)
-    fun dbFrom() = dbFrom.toLive()
-    private val record = MutableLiveData<List<Record>>(null)
-    fun records() = record.toLive()
-    private val count = MutableLiveData(0)
-    fun count() = count.toLive()
-    var query: RecordQuery = RecordQuery()
-        private set
-    private var reps: RecordDao? = DBRecord
-    private var repsNormal = DBRecord
-
-    //todo 更换未完成
-    private var repsReader: RecordDao? = /*DBReader.getInstance(File("")).db.recordDao()*/null
-
-
-    fun query() {
-        viewModelScope.launch {
-            record.postValue(reps?.query(query.type, query.like, query.time))
-            count.postValue(reps?.querySize(query.type, query.like, query.time))
+    init {
+        viewModelScope.launch(Dispatchers.Default) {
+            userIntent.collect {
+                when (it) {
+                    QueryIntent.Clear -> clear()
+                    is QueryIntent.Query -> change.query = it.query
+                    is QueryIntent.Del -> del(it.record)
+                }
+                query()
+            }
         }
     }
 
-    fun del(r: Record?) {
+
+    private suspend fun query() {
+        val it = change.query
+        log(it)
+        val list = dao.query(it.type, it.like, it.time, it.page, it.size)
+        change.count = list.size
+        _uiState.postValue(UIState.Data(change, list))
+    }
+
+    fun dispatch(intent: QueryIntent) {
+        viewModelScope.launch { userIntent.emit(intent) }
+    }
+
+    private suspend fun del(r: Record?) {
         r ?: return
-        viewModelScope.launch {
-            reps?.del(r)
-            query()
-        }
+        dao.del(r)
     }
 
-    fun changeFrom() {
-        if (reps == repsNormal) {
-            reps = repsReader
-            dbFrom.postValue(TYPE_READER)
-        } else {
-            reps = repsNormal
-            dbFrom.postValue(TYPE_NORMAL)
-        }
-        query()
+
+    private suspend fun clear() {
+        dao.clear()
     }
 
     init {
-        query()
+        viewModelScope.launch { query() }
     }
 }
 
-data class RecordQuery(
-    var type: Int = -1,
-    var time: Long = 0,
-    var like: String = ""
-)

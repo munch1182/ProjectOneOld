@@ -186,7 +186,7 @@ inline fun View.leaveParent() = parentView()?.removeView(this)
  * 双击回调
  * 已占用OnClickListener
  */
-inline fun View.setDoubleClickListener(doubleTime: Long = 500L, listener: View.OnClickListener?) {
+fun View.setDoubleClickListener(doubleTime: Long = 500L, listener: View.OnClickListener?) {
     setOnClickListener(object : View.OnClickListener {
         private var lastClick = 0L
         override fun onClick(v: View?) {
@@ -200,7 +200,7 @@ inline fun View.setDoubleClickListener(doubleTime: Long = 500L, listener: View.O
     })
 }
 
-inline fun View.setClickListener(fastClickTime: Long = 500L, listener: View.OnClickListener?) {
+fun View.setClickListener(fastClickTime: Long = 500L, listener: View.OnClickListener?) {
     setOnClickListener(object : View.OnClickListener {
         private var lastClick = 0L
         override fun onClick(v: View?) {
@@ -211,6 +211,14 @@ inline fun View.setClickListener(fastClickTime: Long = 500L, listener: View.OnCl
             lastClick = now
         }
     })
+}
+
+fun ViewGroup.clearFocusAll() {
+    children.forEach {
+        if (it is EditText) {
+            it.clearFocus()
+        }
+    }
 }
 
 //<editor-fold desc="checkOnly 在checkable的集合中做单选">

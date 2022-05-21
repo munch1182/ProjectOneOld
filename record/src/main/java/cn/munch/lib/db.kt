@@ -8,12 +8,25 @@ import cn.munch.lib.record.Record
 import cn.munch.lib.record.RecordDao
 import com.munch.lib.AppHelper
 import com.munch.lib.extend.SingletonHolder
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import java.io.OutputStream
 
 /**
  * Created by munch1182 on 2022/4/19 20:17.
  */
 
-object DBRecord : RecordDao by RecordDB.getInstance(AppHelper.app).record
+object DBRecord : RecordDao by RecordDB.getInstance(AppHelper.app).record {
+
+    suspend fun share2File(os: OutputStream) {
+        /*queryAll()
+            .asFlow()
+            .collect {
+                os.write(it.toString().toByteArray())
+            }*/
+    }
+
+}
 
 @Database(entities = [Record::class], version = RecordDB.VERSION_22_03_20, exportSchema = true)
 abstract class RecordDatabase : RoomDatabase() {

@@ -6,12 +6,18 @@ import android.os.Handler
 import androidx.collection.ArrayMap
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import cn.munch.lib.DBRecord
 import com.munch.lib.AppHelper
 import com.munch.lib.Destroyable
 import com.munch.lib.extend.SingletonHolder
+import com.munch.lib.log.InfoStyle
 import com.munch.lib.log.Logger
+import com.munch.lib.log.setOnLog
+import com.munch.lib.log.setOnPrint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -19,7 +25,7 @@ import kotlin.coroutines.CoroutineContext
  */
 class BluetoothHelper private constructor(
     context: Context,
-    internal val log: Logger = Logger("bluetooth"),
+    internal val log: Logger = Logger("bluetooth", infoStyle = InfoStyle.THREAD_ONLY),
     private val btWrapper: BluetoothWrapper = BluetoothWrapper(context, log),
     private val scanner: BleScanner = BleScanner(log),
 ) : CoroutineScope,
@@ -61,6 +67,9 @@ class BluetoothHelper private constructor(
                 }
             }
         })
+        log.setOnPrint { _, msg ->
+            launch(Dispatchers.Default) { DBRecord.insert(msg) }
+        }
     }
 
     fun get(mac: String): BluetoothDev? = cache[mac]

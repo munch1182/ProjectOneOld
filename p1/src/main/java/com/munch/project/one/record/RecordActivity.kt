@@ -3,33 +3,33 @@ package com.munch.project.one.record
 import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import cn.munch.lib.DBRecord
 import cn.munch.lib.record.Record
 import com.munch.lib.OnIndexListener
-import com.munch.lib.extend.checkOnly
-import com.munch.lib.extend.get
-import com.munch.lib.extend.toDate
+import com.munch.lib.extend.*
 import com.munch.lib.fast.base.BaseFastActivity
-import com.munch.lib.fast.view.ActivityDispatch
-import com.munch.lib.fast.view.ConfigDialog
-import com.munch.lib.fast.view.fvHelperBindRv
-import com.munch.lib.fast.view.supportDef
+import com.munch.lib.fast.view.*
 import com.munch.lib.recyclerview.BaseBindViewHolder
 import com.munch.lib.recyclerview.BindRVAdapter
 import com.munch.lib.recyclerview.setOnItemClickListener
 import com.munch.project.one.databinding.ItemRecordBinding
 import com.munch.project.one.databinding.LayoutLogRecordBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 /**
  * Create by munch1182 on 2022/4/19 17:04.
  */
-class RecordActivity : BaseFastActivity(), ActivityDispatch by supportDef({ RecordDialog() }) {
+class RecordActivity : BaseFastActivity(),
+    ActivityDispatch by (SupportShareActionBar + SupportConfigDialog({ RecordDialog() })) {
 
     private val bind by fvHelperBindRv(RecordAdapter())
     private val vm by get<RecordVM>()
@@ -41,10 +41,17 @@ class RecordActivity : BaseFastActivity(), ActivityDispatch by supportDef({ Reco
         adapter.showRefresh()
 
         ItemTouchHelper(SwipedItemCallback {
-            vm.del(adapter.get(it))
+            vm.dispatch(QueryIntent.Del(adapter.get(it) ?: return@SwipedItemCallback))
         }).attachToRecyclerView(bind.rv)
 
-        vm.records().observe(this) { it?.let { adapter.set(it) } }
+
+        vm.uiState.observe(this) {
+            when (it) {
+                UIState.Querying -> adapter.showRefresh()
+                is UIState.Data -> adapter.set(it.data)
+                is UIState.Error -> adapter.showEmpty()
+            }
+        }
 
         adapter.setOnItemClickListener { _, pos, _ ->
             val get = adapter.get(pos)
@@ -53,6 +60,16 @@ class RecordActivity : BaseFastActivity(), ActivityDispatch by supportDef({ Reco
                 .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog?.cancel() }
                 .show()
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (ISupportShareActionBar.isShare(item)) {
+            lifecycleScope.launch(Dispatchers.Default) {
+                //DBRecord.share2File()
+            }
+            return true
+        }
+        return super<BaseFastActivity>.onOptionsItemSelected(item)
     }
 
     private class RecordAdapter :
@@ -107,92 +124,103 @@ class RecordActivity : BaseFastActivity(), ActivityDispatch by supportDef({ Reco
             viewHolder.itemView.alpha = 1f
             super.clearView(recyclerView, viewHolder)
         }
+
     }
 
-    @SuppressLint("SetTextI18n")
     class RecordDialog : ConfigDialog() {
 
         private val bind by add<LayoutLogRecordBinding>()
         private val vm by get<RecordVM>()
+        private var query = RecordQuery()
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            bind.container.checkOnly(typeOffsetIndex()) {
-                updateQueryInput()
-                vm.query.type = when (it) {
+            dialog?.setOnCancelListener { query() }
+
+            bind.recordClear.setOnClickListener { vm.dispatch(QueryIntent.Clear) }
+            bind.recordQuery.setOnClickListener { query() }
+
+            vm.uiState.observe(this) {
+                if (it is UIState.Data) {
+                    showQuery(it.query)
+                }
+            }
+        }
+
+        private fun query() {
+            updateQueryInput()
+            vm.dispatch(QueryIntent.Query(query))
+        }
+
+        @SuppressLint("SetTextI18n")
+        private fun showQuery(change: Change) {
+            query = change.query
+
+            bind.container.checkOnly(typeOffsetIndex(query.type)) {
+                query.type = when (it) {
                     1 -> Record.TYPE_MSG
                     2 -> Record.TYPE_ERROR
                     3 -> Record.TYPE_EXCEPTION
-                    4 -> Record.TYPE_TIME_MEASURE
-                    5 -> Record.TYPE_OTHER
+                    5 -> Record.TYPE_TIME_MEASURE
+                    4 -> Record.TYPE_OTHER
                     else -> -1
                 }
-                vm.query()
-
+                vm.dispatch(QueryIntent.Query(query))
             }
-            vm.count().observe(this) { bind.recordCount.text = "当前数量: ${it ?: 0}" }
-
-            val time = vm.query.time
-            if (time > 0L) {
-                bind.recordDialogTime.setText(time.toDate())
-                vm.query()
+            val page = query.page
+            if (page > 0) {
+                bind.recordDialogPage.setText(page.toString())
             }
 
-            bind.recordDialogLike.setText(vm.query.like.replace("%", ""))
-            dialog?.setOnCancelListener {
-                updateQueryInput()
-                vm.query()
+            val time = query.time
+            if (time > 0) {
+                bind.recordDialogTime.setText(time.toDate("yyyyMMddHHmmss"))
             }
 
-            vm.dbFrom().observe(this) { showFrom(it) }
-            bind.recordReader.setOnClickListener { vm.changeFrom() }
+            val like = query.like.removePrefix("%").removeSuffix("%")
+            if (like.isNotEmpty()) {
+                bind.recordDialogLike.setText(like)
+            }
+
+            bind.recordDialogPage.setText(query.page.toString())
+            bind.recordDialogSize.setText(query.size.toString())
+            bind.recordCount.text = "当前数量: ${change.count}"
         }
 
-        private fun showFrom(it: Int?) {
-            if (it == RecordVM.TYPE_READER) {
-                bind.recordDbFrom.visibility = View.VISIBLE
-                bind.recordDbFrom.text = "当前DB: reader"
-
-                bind.recordReader.text = "SELF"
-            } else {
-                bind.recordDbFrom.visibility = View.GONE
-
-                bind.recordReader.text = "READER"
-            }
-        }
-
-        private fun typeOffsetIndex() = vm.query.type + 1
+        private fun typeOffsetIndex(type: Int) = type + 1
 
         private fun updateQueryInput() {
-            bind.recordDialogTime.text.toString().trim().let {
-                if (it.isEmpty()) {
-                    null
-                } else if (it.contains("-") && !it.contains(":")) { // 2020-04-20
-                    "$it 00:00:00".toDate()
-                } else if (!it.contains("-") && !it.contains(":")) {
-                    if (it.length == 8) { // 20200420
-                        ("${it.subSequence(0, 4)}" +
-                                "-${it.subSequence(4, 6)}" +
-                                "-${it.subSequence(6, 8)} " +
-                                "00:00:00").toDate()
-                    } else { // 20200420 000000
-                        val sb = StringBuilder()
-                        repeat(15 - it.length) { sb.append("0") }
-                        sb.toString().toDate()
-                    }
-                } else if (it.length == 16) { // 2020-04-20 09:58
-                    "$it:00".toDate()
-                } else {
-                    it.toDate()
-                }
-            }?.time?.let {
-                vm.query.time = it
+            val timeStr = bind.recordDialogTime.text.toString().trim()
+            if (timeStr.length in 1..14) {
+                val sb = StringBuilder(timeStr)
+                repeat(14 - timeStr.length) { sb.append("0") }
+                query.time = sb.toString().toDate("yyyyMMddHHmmss")?.time ?: 0
+            } else {
+                query.time = 0
             }
             val like = bind.recordDialogLike.text.toString().trim()
             if (like.isNotEmpty()) {
-                vm.query.like = "%$like%"
+                query.like = "%$like%"
+            } else {
+                query.like = ""
             }
+            try {
+                val trim = bind.recordDialogPage.text.toString().trim()
+                if (trim.isNotEmpty()) {
+                    query.page = trim.toInt()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            try {
+                val trim = bind.recordDialogSize.text.toString().trim()
+                if (trim.isNotEmpty()) {
+                    query.size = trim.toInt()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            bind.container.clearFocusAll()
         }
-
     }
 }

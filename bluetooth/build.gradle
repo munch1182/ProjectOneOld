@@ -9,6 +9,7 @@ dependencies {
     //noinspection GradleDynamicVersion
     //api "com.munch.lib:lib:0.2.0"
     api project(':lib')
+    api project(':record')
 }
 
 apply plugin: 'maven-publish'
