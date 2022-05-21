@@ -7,6 +7,7 @@ import android.os.Looper
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.munch.lib.extend.isMain
+import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.recyclerview.AdapterFunImp.Default
 import com.munch.lib.recyclerview.AdapterFunImp.Differ
 
@@ -36,7 +37,7 @@ sealed class AdapterFunImp<D>(
     }
 
     class Default<D>(
-        mainHandler: Handler = Handler(Looper.getMainLooper())
+        mainHandler: Handler = ThreadHelper.mainHandler
     ) : AdapterFunImp<D>(mainHandler) {
 
         private val list = mutableListOf<D>()
@@ -161,7 +162,7 @@ sealed class AdapterFunImp<D>(
      */
     class Differ<D>(
         private val callback: DiffUtil.ItemCallback<D>,
-        mainHandler: Handler = Handler(Looper.getMainLooper()),
+        mainHandler: Handler = ThreadHelper.mainHandler,
         private val runnable: Runnable? = null
     ) : AdapterFunImp<D>(mainHandler) {
 

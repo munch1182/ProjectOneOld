@@ -5,9 +5,6 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGatt
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.bluetooth.*
 import com.munch.lib.extend.LinearLineItemDecoration
@@ -15,16 +12,13 @@ import com.munch.lib.extend.bind
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
-import com.munch.lib.log.log
-import com.munch.lib.recyclerview.AdapterFunImp
 import com.munch.lib.recyclerview.BaseBindViewHolder
-import com.munch.lib.recyclerview.BaseRecyclerViewAdapter
+import com.munch.lib.recyclerview.BindRVAdapter
+import com.munch.lib.recyclerview.differ
 import com.munch.lib.result.OnPermissionResultListener
 import com.munch.lib.result.permission
 import com.munch.project.one.databinding.ActivityBluetoothBinding
 import com.munch.project.one.databinding.ItemBluetoothBinding
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -36,35 +30,10 @@ import kotlin.coroutines.resume
 class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     private val bind by bind<ActivityBluetoothBinding>()
-    private val adapter = object :
-        BaseRecyclerViewAdapter<BluetoothDev, BaseBindViewHolder<ItemBluetoothBinding>>(
-            adapterFun = AdapterFunImp.Differ(object :
-                DiffUtil.ItemCallback<BluetoothDev>() {
-                override fun areItemsTheSame(
-                    oldItem: BluetoothDev,
-                    newItem: BluetoothDev
-                ) = oldItem.mac == newItem.mac
-
-                override fun areContentsTheSame(
-                    oldItem: BluetoothDev,
-                    newItem: BluetoothDev
-                ) = oldItem.rssi == newItem.rssi
-            })
-        ) {
-
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): BaseBindViewHolder<ItemBluetoothBinding> {
-            return BaseBindViewHolder(
-                ItemBluetoothBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-            )
-        }
-
+    private val adapter = object : BindRVAdapter<BluetoothDev, ItemBluetoothBinding>(
+        ItemBluetoothBinding::class,
+        differ({ o, n -> o.rssi == n.rssi }, { o, n -> o.mac == n.mac })
+    ) {
         override fun onBind(
             holder: BaseBindViewHolder<ItemBluetoothBinding>,
             position: Int,
@@ -93,18 +62,7 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             } else {
                 bind.btScan.text = "SCAN START"
                 bind.btScan.setOnClickListener {
-                    checkOrRequest {
-                        //instance.scan()
-                        instance.launch {
-                            val dev = BluetoothDev("87:21:20:A1:05:E4")
-                            log("find:${dev.find()}")
-                            log("bond:${dev.createBond()}")
-                            log("connect:${dev.addConnectHandler(TheHandler()).connect()}")
-
-                            delay(3000L)
-                            log("remove bond:${dev.removeBond()}")
-                        }
-                    }
+                    checkOrRequest { instance.scan() }
                 }
             }
         }

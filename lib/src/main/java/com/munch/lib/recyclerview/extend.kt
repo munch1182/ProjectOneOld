@@ -1,7 +1,11 @@
 package com.munch.lib.recyclerview
 
+import android.os.Handler
 import android.view.View
+import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.DiffUtil
+import com.munch.lib.extend.ViewCreator
+import com.munch.lib.helper.ThreadHelper
 
 /**
  * Create by munch1182 on 2022/3/31 17:19.
@@ -111,9 +115,42 @@ fun <D, VH : BaseViewHolder> AdapterHelper<D, VH>.setOnViewLongClickListener(
     }, *ids)
 }
 
-abstract class SimpleCallback<T : Any> : DiffUtil.ItemCallback<T>() {
+abstract class RVAdapter<D>(
+    viewImp: AdapterViewImp<BaseViewHolder>,
+    adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
+    clickHelper: AdapterClickHandler<BaseViewHolder> = AdapterListenerHelper(),
+) : BaseRecyclerViewAdapter<D, BaseViewHolder>(viewImp, adapterFun, clickHelper) {
 
+    constructor(
+        @LayoutRes res: Int = 0,
+        adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
+        clickHelper: AdapterClickHandler<BaseViewHolder> = AdapterListenerHelper()
+    ) : this(viewImp = SingleVHCreator(res), adapterFun, clickHelper)
+
+    constructor(
+        viewCreator: ViewCreator,
+        adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
+        clickHelper: AdapterClickHandler<BaseViewHolder> = AdapterListenerHelper()
+    ) : this(SingleVHCreator(viewCreator = viewCreator), adapterFun, clickHelper)
+}
+
+abstract class SimpleCallback<T : Any> : DiffUtil.ItemCallback<T>() {
     override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
         return oldItem.hashCode() == newItem.hashCode()
     }
+}
+
+fun <D : Any> differ(
+    content: (o: D, n: D) -> Boolean, item: (((o: D, n: D) -> Boolean)?) = null,
+    handler: Handler = ThreadHelper.mainHandler
+): AdapterFunImp.Differ<D> {
+    return AdapterFunImp.Differ(object : DiffUtil.ItemCallback<D>() {
+        override fun areItemsTheSame(oldItem: D, newItem: D): Boolean {
+            return item?.invoke(oldItem, newItem) ?: (oldItem.hashCode() == newItem.hashCode())
+        }
+
+        override fun areContentsTheSame(oldItem: D, newItem: D): Boolean {
+            return content.invoke(oldItem, newItem)
+        }
+    }, handler)
 }

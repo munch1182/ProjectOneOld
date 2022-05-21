@@ -28,11 +28,7 @@ import com.munch.lib.fast.view.ConfigDialog
 import com.munch.lib.fast.view.fvLinesRv
 import com.munch.lib.fast.view.supportDef
 import com.munch.lib.helper.ActivityHelper
-import com.munch.lib.helper.ThreadHelper
-import com.munch.lib.recyclerview.AdapterFunImp
-import com.munch.lib.recyclerview.BaseViewHolder
-import com.munch.lib.recyclerview.SimpleCallback
-import com.munch.lib.recyclerview.setOnItemClickListener
+import com.munch.lib.recyclerview.*
 import com.munch.lib.result.permissionRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,24 +36,13 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import android.Manifest.permission as p
-import com.munch.lib.recyclerview.BaseRecyclerViewAdapter as BADA
 
 /**
  * Created by munch1182 on 2022/4/21 20:31.
  */
 class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef({ ResultDialog() }) {
 
-    private val bind by fvLinesRv(
-        emptyList(),
-        AdapterFunImp.Differ(object : SimpleCallback<Pair<String, String>>() {
-            override fun areContentsTheSame(
-                oldItem: Pair<String, String>,
-                newItem: Pair<String, String>
-            ): Boolean {
-                return oldItem.second == newItem.second
-            }
-        }, ThreadHelper.mainHandler)
-    )
+    private val bind by fvLinesRv(emptyList(), differ({ o, n -> o.second == n.second }))
     private val adapter by lazy { bind.adapter }
     private val vm by get<ResultVM>()
 
@@ -141,7 +126,7 @@ class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef({ Resu
         private val vm by get<ResultVM>()
         private val rv by lazy { RecyclerView(requireContext()) }
         private val adapter by lazy {
-            object : BADA<RBWrapper, BaseViewHolder>({
+            object : RVAdapter<RBWrapper>({
                 CheckBox(it, null, com.munch.lib.fast.R.attr.fastAttrCheck)
             }) {
                 override fun onBind(

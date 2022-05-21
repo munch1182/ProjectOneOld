@@ -20,7 +20,7 @@ import com.munch.lib.fast.view.ConfigDialog
 import com.munch.lib.fast.view.fvHelperBindRv
 import com.munch.lib.fast.view.supportDef
 import com.munch.lib.recyclerview.BaseBindViewHolder
-import com.munch.lib.recyclerview.BaseRecyclerViewAdapter
+import com.munch.lib.recyclerview.BindRVAdapter
 import com.munch.lib.recyclerview.setOnItemClickListener
 import com.munch.project.one.databinding.ItemRecordBinding
 import com.munch.project.one.databinding.LayoutLogRecordBinding
@@ -56,16 +56,7 @@ class RecordActivity : BaseFastActivity(), ActivityDispatch by supportDef({ Reco
     }
 
     private class RecordAdapter :
-        BaseRecyclerViewAdapter<Record, BaseBindViewHolder<ItemRecordBinding>>() {
-
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): BaseBindViewHolder<ItemRecordBinding> {
-            return BaseBindViewHolder(
-                ItemRecordBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            )
-        }
+        BindRVAdapter<Record, ItemRecordBinding>(ItemRecordBinding::class) {
 
         override fun onBind(
             holder: BaseBindViewHolder<ItemRecordBinding>,

@@ -44,5 +44,3 @@ open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view),
         }
     }
 }
-
-open class BaseBindViewHolder<B : ViewBinding>(open val bind: B) : BaseViewHolder(bind.root)

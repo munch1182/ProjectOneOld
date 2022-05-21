@@ -207,13 +207,12 @@ class FVLinesRvView(
     funImp: AdapterFunImp<Pair<String, String>> = AdapterFunImp.Default()
 ) : FVRecyclerHelperView<Pair<String, String>, BaseViewHolder>(
     context,
-    AdapterHelper(object :
-        BaseRecyclerViewAdapter<Pair<String, String>, BaseViewHolder>({ ctx ->
-            LinearLayout(ctx, null, R.attr.fastAttrLineVertical).apply {
-                addView(TextView(ctx, null, R.attr.fastAttrTvNormal))
-                addView(TextView(ctx, null, R.attr.fastAttrTvDesc))
-            }
-        }, funImp) {
+    AdapterHelper(object : RVAdapter<Pair<String, String>>({ ctx ->
+        LinearLayout(ctx, null, R.attr.fastAttrLineVertical).apply {
+            addView(TextView(ctx, null, R.attr.fastAttrTvNormal))
+            addView(TextView(ctx, null, R.attr.fastAttrTvDesc))
+        }
+    }, funImp) {
 
         init {
             if (str.isNotEmpty()) {

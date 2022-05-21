@@ -106,7 +106,7 @@ class ScanFilter : IBluetoothFilter {
             }
         }
         //忽略dev.rssi为0的设备，因为那代表着未获取到信号
-        if (dev.rssi != 0 && rssi != 0 && rssi.absoluteValue < dev.rssi) {
+        if (dev.rssi != 0 && rssi != 0 && rssi.absoluteValue < dev.rssi.absoluteValue) {
             return null
         }
         return dev

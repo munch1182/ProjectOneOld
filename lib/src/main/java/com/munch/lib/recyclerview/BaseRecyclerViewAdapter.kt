@@ -6,6 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.extend.ViewCreator
 
 /**
+ * @param viewImp 用于创建item视图
+ * @param adapterFun 用于处理数据
+ * @param clickHelper 用于处理点击等事件
+ *
  * Create by munch1182 on 2022/3/31 14:17.
  */
 abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
