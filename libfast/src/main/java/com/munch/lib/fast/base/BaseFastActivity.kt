@@ -11,6 +11,7 @@ import androidx.viewbinding.ViewBinding
 import cn.munch.lib.DBRecord
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.munch.lib.AppHelper
+import com.munch.lib.extend.IContext
 import com.munch.lib.extend.getColorPrimary
 import com.munch.lib.extend.inflate
 import com.munch.lib.extend.inflateParent
@@ -24,7 +25,7 @@ import java.lang.reflect.Method
 /**
  * Created by munch1182 on 2022/4/15 23:04.
  */
-open class BaseFastActivity : DispatcherActivity() {
+open class BaseFastActivity : DispatcherActivity(), IContext {
 
     private var measured = false
 
@@ -64,7 +65,7 @@ open class BaseFastActivity : DispatcherActivity() {
 }
 
 
-open class BindBottomSheetDialogFragment : BottomSheetDialogFragment() {
+open class BindBottomSheetDialogFragment : BottomSheetDialogFragment(), IContext {
 
     var viewBinding: ViewBinding? = null
         private set
@@ -93,4 +94,6 @@ open class BindBottomSheetDialogFragment : BottomSheetDialogFragment() {
         super.onDestroyView()
         viewBinding = null
     }
+
+    override fun context(): Context = requireContext()
 }

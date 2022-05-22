@@ -82,6 +82,8 @@ interface IARSHelper<T> {
             }
         })
     }
+
+    val count: Int
 }
 
 interface ISet<T> {
@@ -127,6 +129,10 @@ open class ARSHelper<T>(protected open var _handler: Handler? = null) : IARSHelp
     override fun clear() {
         list.clear()
     }
+
+    override val count: Int
+        get() = list.size
+
 }
 
 open class ARSSHelper<T>(handler: Handler? = null) : ARSHelper<T>(handler), ISet<T> {
@@ -148,4 +154,7 @@ open class ARSSHelper<T>(handler: Handler? = null) : ARSHelper<T>(handler), ISet
             onceList.clear()
         }
     }
+
+    override val count: Int
+        get() = list.size
 }

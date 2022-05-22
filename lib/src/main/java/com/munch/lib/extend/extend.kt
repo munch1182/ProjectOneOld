@@ -3,12 +3,16 @@
 package com.munch.lib.extend
 
 import android.os.Process
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withTimeoutOrNull
+import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -40,6 +44,33 @@ fun <T : Any> KClass<T>.newInstance(): T? = try {
     e.printStackTrace()
     null
 }
+
+inline fun Method.inflate(
+    inflater: LayoutInflater,
+): ViewBinding? {
+    return try {
+        invoke(null, inflater) as? ViewBinding
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+inline fun Method.inflate(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    attach: Boolean
+): ViewBinding? {
+    return try {
+        invoke(null, inflater, container, attach) as? ViewBinding
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+inline fun <reified VB : ViewBinding> KClass<VB>.inflate(): Method? =
+    java.getDeclaredMethod("inflate", LayoutInflater::class.java)
 
 inline fun <reified T : Any> invoke(methodName: String, vararg any: Any): T? {
     return invoke(methodName, *any.map { Pair(it::class.java, it) }.toTypedArray())

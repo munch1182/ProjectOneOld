@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +15,8 @@ import com.munch.lib.OnIndexListener
 import com.munch.lib.extend.*
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.*
+import com.munch.lib.helper.FileHelper
+import com.munch.lib.helper.new
 import com.munch.lib.recyclerview.BaseBindViewHolder
 import com.munch.lib.recyclerview.BindRVAdapter
 import com.munch.lib.recyclerview.setOnItemClickListener
@@ -23,6 +24,8 @@ import com.munch.project.one.databinding.ItemRecordBinding
 import com.munch.project.one.databinding.LayoutLogRecordBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 import kotlin.math.absoluteValue
 
 /**
@@ -64,8 +67,12 @@ class RecordActivity : BaseFastActivity(),
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (ISupportShareActionBar.isShare(item)) {
-            lifecycleScope.launch(Dispatchers.Default) {
-                //DBRecord.share2File()
+            lifecycleScope.launch(Dispatchers.IO) {
+                val name = "log/${System.currentTimeMillis().toDate("yyyyMMddHHmmss")}.txt"
+                val file = File(cacheDir, name)
+                file.new()
+                FileOutputStream(file).use { DBRecord.share2File(it) }
+                FileHelper.toUri(context(), file)?.let { shareUri(it) }
             }
             return true
         }

@@ -3,7 +3,6 @@
 package com.munch.lib.log
 
 import android.util.Log
-import androidx.annotation.IntDef
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -28,16 +27,7 @@ fun log(vararg any: Any?) {
     }
 }
 
-fun logAll(vararg any: Any?) {
-    val log = Logger(infoStyle = InfoStyle.FULL).offsetMethod(1)
-    when {
-        any.isEmpty() -> log.log(null)
-        any.size == 1 -> log.log(any[0])
-        else -> log.log(any)
-    }
-}
-
-inline fun Logger.setOnLog(noinline onLog: ((tag: String) -> Unit)? = null) {
+fun Logger.setOnLog(onLog: ((tag: String) -> Unit)? = null) {
     if (onLog == null) {
         setOnLogListener(null)
     } else {
@@ -49,7 +39,7 @@ inline fun Logger.setOnLog(noinline onLog: ((tag: String) -> Unit)? = null) {
     }
 }
 
-inline fun Logger.setOnPrint(noinline onPrint: ((tag: String, msg: String) -> Unit)? = null) {
+fun Logger.setOnPrint(onPrint: ((tag: String, msg: String) -> Unit)? = null) {
     if (onPrint == null) {
         setOnPrintListener(null)
     } else {
@@ -66,32 +56,17 @@ inline fun Logger.setOnPrint(noinline onPrint: ((tag: String, msg: String) -> Un
  */
 object LogLog : Logger()
 
-@IntDef(InfoStyle.NULL, InfoStyle.NORMAL, InfoStyle.FULL, InfoStyle.THREAD_ONLY)
-@Retention(AnnotationRetention.SOURCE)
-annotation class InfoStyle {
-
-    companion object {
-        private const val FLAG_THREAD = 1 shl 0
-        private const val FLAG_STACK_SIMPLE = 1 shl 1
-        private const val FLAG_STACK_ALL = 1 shl 2
-
-        const val NULL = 0
-        const val NORMAL = FLAG_THREAD or FLAG_STACK_SIMPLE
-        const val THREAD_ONLY = FLAG_THREAD
-        const val FULL = FLAG_THREAD or FLAG_STACK_ALL
-
-        internal fun hasThread(@InfoStyle flag: Int) = flag and FLAG_THREAD == FLAG_THREAD
-        internal fun stackSimple(@InfoStyle flag: Int) =
-            flag and FLAG_STACK_SIMPLE == FLAG_STACK_SIMPLE
-
-        internal fun stackAll(@InfoStyle flag: Int) = flag and FLAG_STACK_ALL == FLAG_STACK_ALL
-    }
+sealed class LogStyle {
+    object NONE : LogStyle()
+    object THREAD : LogStyle()
+    object NORMAL : LogStyle()
+    object FULL : LogStyle()
 }
 
 open class Logger(
     tag: String = LOG_DEFAULT,
     private var enable: Boolean = true,
-    private var infoStyle: Int = InfoStyle.NORMAL,
+    private var infoStyle: LogStyle = LogStyle.NORMAL,
 ) {
 
     private var tag: String = LOG_DEFAULT
@@ -109,7 +84,7 @@ open class Logger(
     private var onLog: OnLogListener? = null
     private var onPrint: OnPrintListener? = null
 
-    fun style(@InfoStyle style: Int): Logger {
+    fun style(style: LogStyle): Logger {
         this.infoStyle = style
         return this
     }
@@ -155,10 +130,10 @@ open class Logger(
         val split = msg.split(FMT.LINE_SEPARATOR)
         if (split.size == 1) {
             when (infoStyle) {
-                InfoStyle.NULL -> print(split[0])
-                InfoStyle.THREAD_ONLY -> print("${split[0]} (${Thread.currentThread().name})")
-                InfoStyle.NORMAL -> print("${split[0]} (${Thread.currentThread().name}/${dumpStack(1)[0]})")
-                InfoStyle.FULL -> {
+                LogStyle.NONE -> print(split[0])
+                LogStyle.THREAD -> print("${split[0]} (${Thread.currentThread().name})")
+                LogStyle.NORMAL -> print("${split[0]} (${Thread.currentThread().name}/${dumpStack(1)[0]})")
+                LogStyle.FULL -> {
                     print(split[0])
                     print("--- (${Thread.currentThread().name})")
                     dumpStack(2).forEach { print(it) }
@@ -167,10 +142,10 @@ open class Logger(
         } else {
             split.forEach { print(it) }
             when (infoStyle) {
-                InfoStyle.NULL -> {}
-                InfoStyle.THREAD_ONLY -> print("--- (${Thread.currentThread().name})")
-                InfoStyle.NORMAL -> print("--- (${Thread.currentThread().name}/${dumpStack(1)[0]})")
-                InfoStyle.FULL -> {
+                LogStyle.NONE -> {}
+                LogStyle.THREAD -> print("--- (${Thread.currentThread().name})")
+                LogStyle.NORMAL -> print("--- (${Thread.currentThread().name}/${dumpStack(1)[0]})")
+                LogStyle.FULL -> {
                     print("--- (${Thread.currentThread().name})")
                     dumpStack(2).forEach { print(it) }
                 }
@@ -186,7 +161,7 @@ open class Logger(
     }
 
     private fun dumpStack(level: Int): Array<String> {
-        if (infoStyle == InfoStyle.NULL) {
+        if (infoStyle == LogStyle.NONE) {
             return arrayOf(Str.EMPTY)
         }
         var index = -1
@@ -385,4 +360,9 @@ object FMT {
         sb.append("]")
         return sb.toString()
     }
+}
+
+interface ILogger {
+
+    fun setLog(log: Logger? = null)
 }

@@ -49,8 +49,9 @@ sealed class ConnectState {
 /**
  * gatt cmd -> callback -> state change -> gatt cmd
  */
-class BleConnector(private val dev: BluetoothDev, private val log: Logger) : Connector {
+class BleConnector(private val dev: BluetoothDev) : Connector {
 
+    private val log: Logger = BluetoothHelper.log
     private var connectListener: ConnectListener? = null
     internal var helper: BluetoothHelper? = BluetoothHelper.instance
     private var gatt: BluetoothGatt? = null
@@ -121,6 +122,9 @@ class BleConnector(private val dev: BluetoothDev, private val log: Logger) : Con
         }
     }
 
+    /**
+     * @return 是否发起连接成功
+     */
     @SuppressLint("MissingPermission")
     override fun connect(
         timeout: Long,
@@ -175,6 +179,9 @@ class BleConnector(private val dev: BluetoothDev, private val log: Logger) : Con
         return disconnectBy(true)
     }
 
+    /**
+     * @return 是否发起连接断开成功
+     */
     @SuppressLint("MissingPermission")
     private fun disconnectBy(user: Boolean = false): Boolean {
         log.log { "[${dev.mac}] connect stop() call by user($user) and now($_currState)." }
@@ -194,7 +201,7 @@ class BleConnector(private val dev: BluetoothDev, private val log: Logger) : Con
     @SuppressLint("MissingPermission")
     private fun closeIfDisconnected() {
         if (_currState != ConnectState.Disconnected) {
-            throw IllegalStateException("[${dev.mac}] cannot close after disconnect.")
+            throw IllegalStateException("[${dev.mac}] cannot close state:$_currState.")
         }
         log.log { "[${dev.mac}] CLOSE()." }
         try {

@@ -33,33 +33,6 @@ inline fun <reified VB : ViewBinding> KClass<VB>.inflateParent(): Method? =
         Boolean::class.java
     )
 
-inline fun Method.inflate(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    attach: Boolean
-): ViewBinding? {
-    return try {
-        invoke(null, inflater, container, attach) as? ViewBinding
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
-
-inline fun <reified VB : ViewBinding> KClass<VB>.inflate(): Method? =
-    java.getDeclaredMethod("inflate", LayoutInflater::class.java)
-
-inline fun Method.inflate(
-    inflater: LayoutInflater,
-): ViewBinding? {
-    return try {
-        invoke(null, inflater) as? ViewBinding
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
-
 inline fun Activity.contentView(): FrameLayout = findViewById(android.R.id.content)
 
 inline fun <reified VB : ViewBinding> ComponentActivity.bind(): Lazy<VB> {

@@ -6,13 +6,13 @@ import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.os.Handler
 import android.os.Message
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.munch.lib.RepeatStrategy
 import com.munch.lib.log.Logger
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import kotlin.math.absoluteValue
 
 /**
@@ -198,22 +198,23 @@ inline fun ScanTarget.ScanFilter(init: ScanFilter.() -> Unit) {
 inline fun ScanTarget(init: ScanTarget.() -> Unit) = ScanTarget().apply(init)
 
 @SuppressLint("MissingPermission")
-internal class BleScanner(private val log: Logger) : Scanner {
+internal class BleScanner(
+    private val bm: IBluetoothManager? = null,
+    private var handler: Handler? = null
+) : Scanner {
 
     companion object {
         private const val WHAT_TIMEOUT_STOP = 519
     }
 
-    /**
-     * helper对象，提供上下文
-     */
-    internal var helper: BluetoothHelper? = null
+    private val log: Logger
+        get() = BluetoothHelper.log
 
     /**
      * ble scanner对象
      */
     private val scanner: BluetoothLeScanner?
-        get() = helper?.adapter?.bluetoothLeScanner.also {
+        get() = bm?.adapter?.bluetoothLeScanner.also {
             if (it == null) {
                 log.log { "scanner is null. " }
             }
@@ -236,11 +237,11 @@ internal class BleScanner(private val log: Logger) : Scanner {
             val dev = result?.let { BluetoothDev.from(result) } ?: return
             //log.log { "onScanResult ${dev.mac}." }
             //结果在子线程中处理
-            helper?.launch {
-                val target = scanTarget ?: return@launch
+            handler?.post {
+                val target = scanTarget ?: return@post
                 val filter = target.filter
                 if (filter.onFilter(dev) == null) {
-                    return@launch
+                    return@post
                 }
 
                 devMap[dev.mac] = dev
@@ -311,10 +312,14 @@ internal class BleScanner(private val log: Logger) : Scanner {
     override val isScanningNow: Boolean
         get() = _isScanning
 
+    fun setHandler(handler: Handler?) {
+        this.handler = handler
+    }
+
     override fun scan(target: ScanTarget, listener: ScanListener?): Boolean {
         log.log { "scanner scan() call. target = $target" }
-        if (helper == null || scanner == null) {
-            log.log { "scanner error: help=$helper, scanner=$scanner." }
+        if (scanner == null) {
+            log.log { "scanner error: scanner=$scanner." }
             return false
         }
         if (_isScanning) {
@@ -334,6 +339,7 @@ internal class BleScanner(private val log: Logger) : Scanner {
         clear()
         scanTarget = target
         scanListener = listener
+
         timeoutStop(target.timeout)
 
         _isScanning = true
@@ -346,7 +352,7 @@ internal class BleScanner(private val log: Logger) : Scanner {
     }
 
     private fun timeoutStop(timeout: Long) {
-        helper?.handler?.apply {
+        handler?.apply {
             clearTimeout()
             val msg = Message.obtain(this, stopRunnable)
             msg.what = WHAT_TIMEOUT_STOP
@@ -355,7 +361,7 @@ internal class BleScanner(private val log: Logger) : Scanner {
     }
 
     private fun clearTimeout() {
-        helper?.handler?.removeMessages(WHAT_TIMEOUT_STOP)
+        handler?.removeMessages(WHAT_TIMEOUT_STOP)
     }
 
     override fun stop(): Boolean {

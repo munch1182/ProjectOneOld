@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import cn.munch.lib.DBRecord
 import cn.munch.lib.record.Record
 import com.munch.lib.extend.toLive
-import com.munch.lib.log.log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -38,7 +37,6 @@ class RecordVM : ViewModel() {
 
     private suspend fun query() {
         val it = change.query
-        log(it)
         val list = dao.query(it.type, it.like, it.time, it.page, it.size)
         change.count = list.size
         _uiState.postValue(UIState.Data(change, list))

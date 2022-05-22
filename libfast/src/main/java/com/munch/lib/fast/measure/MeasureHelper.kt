@@ -1,7 +1,7 @@
 package com.munch.lib.fast.measure
 
 import android.util.SparseArray
-import com.munch.lib.log.InfoStyle
+import com.munch.lib.log.LogStyle
 import com.munch.lib.log.Logger
 
 
@@ -10,7 +10,7 @@ import com.munch.lib.log.Logger
  */
 object MeasureHelper {
 
-    private val measureLog = Logger("measure", infoStyle = InfoStyle.NULL)
+    private val measureLog = Logger("measure", infoStyle = LogStyle.NONE)
 
     /**
      * 超过此时间的Activity加载时间将会被输出到logcat

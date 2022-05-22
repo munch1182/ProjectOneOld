@@ -13,10 +13,7 @@ import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.ConfigDialog
 import com.munch.lib.fast.view.supportDef
-import com.munch.lib.log.InfoStyle
-import com.munch.lib.log.Logger
-import com.munch.lib.log.setOnLog
-import com.munch.lib.log.setOnPrint
+import com.munch.lib.log.*
 import com.munch.project.one.databinding.LayoutContentOnlyBinding
 import com.munch.project.one.databinding.LayoutLogDialogBinding
 import org.json.JSONObject
@@ -60,7 +57,7 @@ class LogActivity : BaseFastActivity(), ActivityDispatch by supportDef({ LogDial
         private val sb = StringBuilder()
         private val log = Logger().apply {
             setOnPrint { _, log -> sb.append(log).append("\n") }
-            setOnLog { _ -> out.postValue(sb.toString()) }
+            setOnLog { out.postValue(sb.toString()) }
         }
 
         var content = 0
@@ -85,10 +82,10 @@ class LogActivity : BaseFastActivity(), ActivityDispatch by supportDef({ LogDial
         private fun print() {
             sb.clear()
             when (style) {
-                0 -> log.style(InfoStyle.NORMAL)
-                1 -> log.style(InfoStyle.THREAD_ONLY)
-                2 -> log.style(InfoStyle.FULL)
-                3 -> log.style(InfoStyle.NULL)
+                0 -> log.style(LogStyle.NORMAL)
+                1 -> log.style(LogStyle.THREAD)
+                2 -> log.style(LogStyle.FULL)
+                3 -> log.style(LogStyle.NONE)
             }
             when (content) {
                 0 -> logNoraml()

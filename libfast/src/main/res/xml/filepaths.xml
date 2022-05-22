@@ -1,0 +1,10 @@
+<paths>
+    <!--Context.getFilesDir()-->
+    <files-path
+        name="file"
+        path="/" />
+    <!--Context.getCacheDir()-->
+    <cache-path
+        name="cache"
+        path="/"/>
+</paths>

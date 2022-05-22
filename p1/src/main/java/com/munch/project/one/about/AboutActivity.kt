@@ -5,7 +5,7 @@ import android.view.MenuItem
 import androidx.core.view.setPadding
 import com.munch.lib.extend.bind
 import com.munch.lib.extend.putStr2Clip
-import com.munch.lib.extend.shareView
+import com.munch.lib.extend.shareText
 import com.munch.lib.fast.R
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.base.PhoneHelper
@@ -43,7 +43,7 @@ class AboutActivity : BaseFastActivity(),
         if (ISupportShareActionBar.isShare(item)) {
             val content = bind.content.text
             putStr2Clip(content)
-            shareView(content)
+            shareText(content)
             return true
         }
         return super<BaseFastActivity>.onOptionsItemSelected(item)

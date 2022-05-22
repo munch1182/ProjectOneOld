@@ -3,9 +3,12 @@
 package com.munch.lib.helper
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.OpenableColumns
 import androidx.annotation.WorkerThread
+import androidx.core.content.FileProvider
 import com.munch.lib.Key
 import com.munch.lib.task.Data
 import com.munch.lib.task.ITask
@@ -26,6 +29,22 @@ object FileHelper {
     const val MB = 1024 * KB
 
     const val GB = 1024 * MB
+
+    /**
+     * 将文件转为uri
+     *
+     * Android7.0以上需要设置FileProvider
+     *
+     * @see [https://developer.android.google.cn/training/secure-file-sharing/setup-sharing]
+     *
+     */
+    fun toUri(context: Context, file: File): Uri? {
+        return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+        } else {
+            Uri.fromFile(file)
+        }
+    }
 
     /**
      * 将uri的数据复制到dir目录下的同名文件中
@@ -127,6 +146,9 @@ object FileHelper {
     }
 }
 
+inline fun File.new(): Boolean {
+    return (parentFile?.mkdirs() ?: true) && delete() && createNewFile()
+}
 
 class FileTask : ITask {
     override val key: Key = Key("FileTask".toInt() * 1000 + FileTaskKeyHelper.curr)

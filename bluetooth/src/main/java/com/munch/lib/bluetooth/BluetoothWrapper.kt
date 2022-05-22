@@ -61,14 +61,11 @@ interface OnStateChangeListener {
     fun onStateChange(state: StateNotify, mac: String? = null)
 }
 
-@SuppressLint("MissingPermission")
-class BluetoothWrapper(context: Context, private val log: Logger) :
-    ARSHelper<OnStateChangeListener>(),
-    IBluetoothManager, IBluetoothState,
-    Destroyable {
+class BluetoothWrapper(context: Context) :
+    ARSHelper<OnStateChangeListener>(), IBluetoothManager, IBluetoothState, Destroyable {
 
     override val bm by lazy { (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager) }
-    private val receiver = BluetoothReceiver(context, this, log)
+    private val receiver = BluetoothReceiver(context, this)
     override val adapter: BluetoothAdapter?
         get() = bm?.adapter
 
@@ -77,20 +74,22 @@ class BluetoothWrapper(context: Context, private val log: Logger) :
     override val isEnable: Boolean
         get() = adapter?.isEnabled ?: false
     override val pairedDevs: Set<BluetoothDevice>?
+        @SuppressLint("MissingPermission")
         get() = adapter?.bondedDevices
     override val connectGattDevs: List<BluetoothDevice>?
+        @SuppressLint("MissingPermission")
         get() = bm?.getConnectedDevices(BluetoothProfile.GATT)
-
+    private val log: Logger
+        get() = BluetoothHelper.log
 
     init {
-        log.log { "broadcast register." }
+        //log.log { "broadcast register." }
         receiver.register()
     }
 
     class BluetoothReceiver(
         context: Context,
         private val wrapper: BluetoothWrapper,
-        private val log: Logger
     ) : ReceiverHelper<OnReceive<Intent>>(
         context, arrayOf(
             BluetoothDevice.ACTION_ACL_CONNECTED,
@@ -101,6 +100,10 @@ class BluetoothWrapper(context: Context, private val log: Logger) :
             BluetoothAdapter.ACTION_STATE_CHANGED,
         )
     ) {
+
+        private val log: Logger
+            get() = BluetoothHelper.log
+
         override fun handleAction(context: Context, action: String, intent: Intent) {
             val mac =
                 intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)?.address

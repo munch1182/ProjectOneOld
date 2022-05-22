@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGatt
 import android.os.Build
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.bluetooth.*
 import com.munch.lib.extend.LinearLineItemDecoration
@@ -15,10 +16,12 @@ import com.munch.lib.fast.view.supportDef
 import com.munch.lib.recyclerview.BaseBindViewHolder
 import com.munch.lib.recyclerview.BindRVAdapter
 import com.munch.lib.recyclerview.differ
+import com.munch.lib.recyclerview.setOnItemClickListener
 import com.munch.lib.result.OnPermissionResultListener
 import com.munch.lib.result.permission
 import com.munch.project.one.databinding.ActivityBluetoothBinding
 import com.munch.project.one.databinding.ItemBluetoothBinding
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -48,7 +51,6 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     }
     private val instance = BluetoothHelper.instance
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +83,14 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             layoutManager = lm
             addItemDecoration(LinearLineItemDecoration(lm))
             adapter = this@BluetoothActivity.adapter
+        }
+
+        adapter.setOnItemClickListener { _, pos, _ ->
+            instance.stop()
+            val dev = adapter.get(pos)
+            lifecycleScope.launch {
+                dev?.createBond()
+            }
         }
     }
 

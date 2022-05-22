@@ -6,18 +6,11 @@ import android.os.Handler
 import androidx.collection.ArrayMap
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import cn.munch.lib.DBRecord
 import com.munch.lib.AppHelper
 import com.munch.lib.Destroyable
 import com.munch.lib.extend.SingletonHolder
-import com.munch.lib.log.InfoStyle
-import com.munch.lib.log.Logger
-import com.munch.lib.log.setOnLog
-import com.munch.lib.log.setOnPrint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import com.munch.lib.log.*
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -25,9 +18,8 @@ import kotlin.coroutines.CoroutineContext
  */
 class BluetoothHelper private constructor(
     context: Context,
-    internal val log: Logger = Logger("bluetooth", infoStyle = InfoStyle.THREAD_ONLY),
-    private val btWrapper: BluetoothWrapper = BluetoothWrapper(context, log),
-    private val scanner: BleScanner = BleScanner(log),
+    private val btWrapper: BluetoothWrapper = BluetoothWrapper(context),
+    private val scanner: BleScanner = BleScanner(btWrapper),
 ) : CoroutineScope,
     IBluetoothManager by btWrapper,
     IBluetoothState by btWrapper,
@@ -37,12 +29,14 @@ class BluetoothHelper private constructor(
     companion object : SingletonHolder<BluetoothHelper, Context>({ BluetoothHelper(it) }) {
 
         val instance = getInstance(AppHelper.app)
+
+        internal val log: Logger = Logger("bluetooth", infoStyle = LogStyle.THREAD)
     }
 
-    private val job = Job()
+    private val job = SupervisorJob()
     private val dispatcher = BluetoothDispatcher()
     private val cache = ArrayMap<String, BluetoothDev>()
-    internal val handler: Handler = dispatcher.handler
+    private val handler: Handler = dispatcher.handler
 
     /**
      * 获取当前已经程序已经连接的设备
@@ -55,21 +49,19 @@ class BluetoothHelper private constructor(
      */
     override val connectGattDevs: List<BluetoothDevice>?
         get() = btWrapper.connectGattDevs
+    private val onStateOff = object : OnStateChangeListener {
+        override fun onStateChange(state: StateNotify, mac: String?) {
+            if (state == StateNotify.StateOff) {
+                stop()
+            }
+        }
+    }
 
     init {
-        scanner.helper = this
         btWrapper.setHandler(handler)
+        scanner.setHandler(handler)
         //监听蓝牙关闭
-        add(object : OnStateChangeListener {
-            override fun onStateChange(state: StateNotify, mac: String?) {
-                if (state == StateNotify.StateOff) {
-                    stop()
-                }
-            }
-        })
-        log.setOnPrint { _, msg ->
-            launch(Dispatchers.Default) { DBRecord.insert(msg) }
-        }
+        add(onStateOff)
     }
 
     fun get(mac: String): BluetoothDev? = cache[mac]
@@ -106,6 +98,7 @@ class BluetoothHelper private constructor(
 
     override fun destroy() {
         job.cancel()
+        remove(onStateOff)
     }
 
     /**

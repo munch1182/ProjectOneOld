@@ -1,6 +1,7 @@
 package cn.munch.lib
 
 import android.app.Application
+import androidx.annotation.WorkerThread
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -18,12 +19,12 @@ import java.io.OutputStream
 
 object DBRecord : RecordDao by RecordDB.getInstance(AppHelper.app).record {
 
+    @WorkerThread
     suspend fun share2File(os: OutputStream) {
-        /*queryAll()
-            .asFlow()
-            .collect {
-                os.write(it.toString().toByteArray())
-            }*/
+        queryAll().asFlow().collect {
+            os.write(it.toString().toByteArray())
+            os.write("\n".toByteArray())
+        }
     }
 
 }

@@ -6,7 +6,7 @@ import androidx.fragment.app.Fragment
 import com.munch.lib.Resettable
 import com.munch.lib.extend.isPermissionGranted
 import com.munch.lib.extend.notDeniedForever
-import com.munch.lib.log.InfoStyle
+import com.munch.lib.log.LogStyle
 import com.munch.lib.log.Logger
 import com.munch.lib.result.OnPermissionResultListener
 
@@ -20,7 +20,7 @@ interface PermissionRequest {
 class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettable,
     ActivityResultCaller by fragment {
 
-    private val log = Logger("intent", infoStyle = InfoStyle.NULL)
+    private val log = Logger("intent", infoStyle = LogStyle.NONE)
     private val activity by lazy { fragment.requireActivity() }
 
     private val onResultLauncher =

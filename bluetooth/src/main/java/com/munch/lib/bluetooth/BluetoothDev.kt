@@ -5,25 +5,28 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import androidx.lifecycle.LiveData
 import com.munch.lib.extend.suspendCancellableCoroutine
-import com.munch.lib.log.Logger
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 /**
  * Create by munch1182 on 2022/5/18 14:15.
  */
-@SuppressLint("MissingPermission")
-class BluetoothDev(val mac: String) : IBluetoothStop, Connector {
+class BluetoothDev(
+    val mac: String,
+    private var helper: BluetoothHelper? = BluetoothHelper.instance
+) : IBluetoothStop, Connector {
 
     companion object {
 
         fun from(result: ScanResult) = BluetoothDev(result.device).apply { rssi = result.rssi }
     }
 
-    // TODO: 如何设置
-    private var helper: BluetoothHelper? = BluetoothHelper.instance
+    private val log = BluetoothHelper.log
 
-    constructor(dev: BluetoothDevice) : this(dev.address) {
+    constructor(
+        dev: BluetoothDevice, helper:
+        BluetoothHelper? = BluetoothHelper.instance
+    ) : this(dev.address, helper) {
         this.dev = dev
     }
 
@@ -31,6 +34,7 @@ class BluetoothDev(val mac: String) : IBluetoothStop, Connector {
         private set
 
     val name: String?
+        @SuppressLint("MissingPermission")
         get() = dev?.name
 
     var rssi: Int = 0
@@ -42,12 +46,12 @@ class BluetoothDev(val mac: String) : IBluetoothStop, Connector {
         get() {
             val b = dev != null
             if (!b) {
-                helper?.log?.log { "dev $mac is invalid." }
+                log.log { "dev $mac just a address." }
             }
             return b
         }
 
-    private var connector: Connector = BleConnector(this, helper?.log ?: Logger("bluetooth"))
+    private var connector: Connector = BleConnector(this)
 
     override val curr: LiveData<ConnectState> = connector.curr
 
@@ -67,11 +71,14 @@ class BluetoothDev(val mac: String) : IBluetoothStop, Connector {
         return this
     }
 
+    /**
+     * @return 是否发起连接成功，结果的回调在[connectListener]
+     */
     override fun connect(timeout: Long, connectListener: ConnectListener?): Boolean {
         //只能在非连接状态下才能连接，调用时应该使用队列，而不能并发
         helper?.devs?.forEach {
             if (!it.canConnect) {
-                helper?.log?.log { "cannot connect now: ${it.mac}: ${currState}." }
+                log.log { "cannot connect now: ${it.mac}: ${currState}." }
                 return false
             }
         }
@@ -85,6 +92,8 @@ class BluetoothDev(val mac: String) : IBluetoothStop, Connector {
      * 如果已被配对，则保存至缓存并返回true
      * 否在，将发起扫描查找该设备，如果找到则保存至缓存并返回true
      * 如果要在查找时间内即中止查找，则可以使用[BluetoothHelper.stop]，此时会立即返回false
+     *
+     * @return 是否找到
      */
     suspend fun find(timeout: Long = ScanTarget.TIMEOUT): Boolean {
         if (dev != null) {
@@ -132,7 +141,10 @@ class BluetoothDev(val mac: String) : IBluetoothStop, Connector {
      * 否则，返回是否配对的结果
      *
      * 配对服务需要用户手动确认
+     *
+     * @return 是否绑定成功
      */
+    @SuppressLint("MissingPermission")
     suspend fun createBond(timeout: Long = 20000L): Boolean {
         if (!isValid) {
             return false
@@ -141,7 +153,6 @@ class BluetoothDev(val mac: String) : IBluetoothStop, Connector {
             return true
         }
         val helper = helper ?: return false
-        //todo 超时helper.remove(bondChange)
         return suspendCancellableCoroutine(timeout) {
             val bondChange = object : OnStateChangeListener {
                 override fun onStateChange(state: StateNotify, mac: String?) {
@@ -153,7 +164,7 @@ class BluetoothDev(val mac: String) : IBluetoothStop, Connector {
             }
             helper.add(bondChange)
             val result = dev?.createBond() ?: false
-            helper.log.log { "[$mac] create bond: $result." }
+            log.log { "[$mac] CREATE BOND: $result." }
             if (!result) {
                 helper.remove(bondChange)
                 it.resume(false)
@@ -161,6 +172,9 @@ class BluetoothDev(val mac: String) : IBluetoothStop, Connector {
         } ?: false
     }
 
+    /**
+     * @return 是否解绑成功
+     */
     suspend fun removeBond(timeout: Long = 1000L): Boolean {
         if (!isValid) {
             return false
@@ -169,7 +183,6 @@ class BluetoothDev(val mac: String) : IBluetoothStop, Connector {
             return true
         }
         val helper = helper ?: return false
-        //todo 超时helper.remove(bondChange)
         return suspendCancellableCoroutine(timeout) {
             val bondChange = object : OnStateChangeListener {
                 override fun onStateChange(state: StateNotify, mac: String?) {
@@ -183,7 +196,7 @@ class BluetoothDev(val mac: String) : IBluetoothStop, Connector {
 
             val method = BluetoothDevice::class.java.getDeclaredMethod("removeBond")
             val result = method.invoke(dev) as? Boolean ?: false
-            helper.log.log { "[$mac] remove bond(invoke): $result." }
+            log.log { "[$mac] REMOVE BOND(invoke): $result." }
             if (!result) {
                 helper.remove(bondChange)
                 it.resume(false)

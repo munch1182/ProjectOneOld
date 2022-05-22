@@ -12,6 +12,7 @@ import android.content.res.Resources
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.util.TypedValue
@@ -20,11 +21,25 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import com.munch.lib.UnSupportException
 import kotlin.reflect.KClass
 
 /**
  * Created by munch1182 on 2022/4/3 17:50.
  */
+
+/**
+ * 主要用于同一获取的方法名，避免诸如this@的形式
+ */
+interface IContext {
+
+    fun context(): Context {
+        if (this !is Context) {
+            throw UnSupportException()
+        }
+        return this
+    }
+}
 
 inline fun Context.startActivity(target: KClass<out Activity>) =
     startActivity(Intent(this, target.java))
@@ -116,10 +131,20 @@ fun Context.putStr2Clip(content: CharSequence): Boolean {
     return true
 }
 
-fun Context.shareView(content: CharSequence) {
+fun Context.shareText(content: CharSequence) {
     startActivity(Intent(Intent.ACTION_SEND).apply {
         putExtra(Intent.EXTRA_TEXT, content)
         type = "text/plain"
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    })
+}
+
+fun Context.shareUri(uri: Uri) {
+    startActivity(Intent(Intent.ACTION_SEND).apply {
+        putExtra(Intent.EXTRA_STREAM, uri)
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        type = "*/*"
     })
 }
 

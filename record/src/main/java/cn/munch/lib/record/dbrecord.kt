@@ -58,7 +58,7 @@ interface RecordDao {
     //但是这种触发时任意更新都会触发
     //如果要指定触发，可以使用flow的特性.distinctUntilChanged()
     @Query("SELECT * FROM ${RecordDB.NAME_TB} ORDER BY recordTime DESC")
-    fun queryAllFlow(): Flow<List<Record>>
+    fun queryAllFlow(): Flow<Record>
 
     @Query("SELECT * FROM ${RecordDB.NAME_TB} WHERE id == :id")
     suspend fun query(id: Long): Record?
