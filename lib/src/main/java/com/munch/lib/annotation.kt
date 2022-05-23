@@ -13,6 +13,8 @@ annotation class Testable
 @JvmInline
 value class Priority(val priority: Int) {
     override fun toString() = priority.toString()
+
+    operator fun compareTo(p: Priority) = priority.compareTo(p.priority)
 }
 
 @JvmInline

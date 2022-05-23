@@ -1,6 +1,6 @@
 package com.munch.lib.notice
 
-import androidx.appcompat.app.AlertDialog
+import android.content.DialogInterface
 import com.munch.lib.OnCancel
 import com.munch.lib.Priority
 
@@ -8,7 +8,7 @@ import com.munch.lib.Priority
 /**
  * Create by munch1182 on 2022/4/22 16:38.
  */
-interface INotice {
+interface Notice {
 
     fun show()
 
@@ -17,36 +17,48 @@ interface INotice {
     val priority: Priority
         get() = Priority(0)
 
-    fun onCancel(onCancel: OnCancel? = null)
+
+    /**
+     * 添加当notice取消时的回调
+     *
+     * 该回调会在notice消失时被自动移除
+     *
+     * 此方法与[Chose.Cancel]不同，无需主动触发
+     */
+    fun addOnCancel(onCancel: OnCancel? = null)
+
+    /**
+     * 添加选项选择的回调
+     *
+     * 该回调会在notice消失时被自动移除
+     *
+     * 此方法的回调不应该主动调用[cancel]
+     *
+     * @see Chose.Ok
+     * @see Chose.Cancel
+     */
+    fun addOnSelect(chose: OnSelect)
 
     val isShowing: Boolean
 }
 
-class DialogNotice(
-    private val dialog: AlertDialog,
-    override val priority: Priority = Priority(0)
-) : INotice {
+typealias OnSelect = (chose: Chose) -> Unit
+typealias OnSelectOk = () -> Unit
+typealias OnSelectCancel = () -> Unit
 
-    override fun show() {
-        dialog.show()
+@JvmInline
+value class Chose(val item: Int) {
+
+    companion object {
+        val Ok = Chose(DialogInterface.BUTTON_POSITIVE)
+        val Cancel = Chose(DialogInterface.BUTTON_NEGATIVE)
     }
 
-    override fun cancel() {
-        dialog.cancel()
-    }
-
-    override fun onCancel(onCancel: OnCancel?) {
-        if (onCancel != null) {
-            dialog.setOnCancelListener { onCancel.invoke() }
-        } else {
-            dialog.setOnCancelListener(null)
+    override fun toString(): String {
+        return when {
+            this == Ok -> "Ok"
+            this == Cancel -> "Cancel"
+            else -> super.toString()
         }
     }
-
-    override val isShowing: Boolean
-        get() = dialog.isShowing
 }
-
-@Suppress("NOTHING_TO_INLINE")
-inline fun AlertDialog.Builder.toNotice(priority: Priority = Priority(0)) =
-    DialogNotice(this.create(), priority)

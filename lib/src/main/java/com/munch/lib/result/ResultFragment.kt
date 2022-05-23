@@ -26,9 +26,10 @@ class ResultFragment : Fragment(),
 
     override fun requestPermissions(
         permissions: Array<out String>,
+        notice: PermissionNotice?,
         listener: OnPermissionResultListener?
     ) {
-        this.permission.requestPermissions(permissions, listener)
+        this.permission.requestPermissions(permissions, notice, listener)
     }
 
 }

@@ -1,16 +1,17 @@
 package com.munch.project.one.dialog
 
+import android.content.DialogInterface
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import com.munch.lib.OnCancel
 import com.munch.lib.Priority
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.fvFv
 import com.munch.lib.fast.view.supportDef
-import com.munch.lib.notice.ActivityNoticeManager
-import com.munch.lib.notice.byManager
-import com.munch.lib.notice.toNotice
+import com.munch.lib.helper.ARSHelper
+import com.munch.lib.notice.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -68,7 +69,8 @@ class DialogActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 .Builder(this@DialogActivity)
                 .setMessage("您的账号已过期或者已在其它地方登录")
                 .setPositiveButton(android.R.string.ok) { _, _ ->
-                    anm.cancel(clear = true, cancelNow = true)
+                    anm.removeOthers()
+                    anm.cancel()
                 }
                 .toNotice(Priority(100))
                 .byManager(anm)
@@ -85,3 +87,54 @@ class DialogActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         }
     }
 }
+
+
+class DialogNotice(
+    private val dialog: AlertDialog,
+    override val priority: Priority = Priority(0)
+) : Notice {
+
+    private val onSelect = ARSHelper<OnSelect>()
+    private var onCancel: OnCancel? = null
+
+    init {
+        val function: (dialog: DialogInterface, which: Int) -> Unit =
+            { _, which -> onSelect.notifyUpdate { it.invoke(Chose(which)) } }
+        dialog.setButton(
+            DialogInterface.BUTTON_POSITIVE,
+            dialog.context.getString(android.R.string.ok), function
+        )
+        dialog.setButton(
+            DialogInterface.BUTTON_NEGATIVE,
+            dialog.context.getString(android.R.string.ok), function
+        )
+        dialog.setOnCancelListener {
+            it.cancel()
+            onSelect.clear()
+            onCancel?.invoke()
+        }
+    }
+
+    override fun addOnCancel(onCancel: OnCancel?) {
+        this.onCancel = onCancel
+    }
+
+    override fun show() {
+        dialog.show()
+    }
+
+    override fun cancel() {
+        dialog.cancel()
+    }
+
+    override fun addOnSelect(chose: OnSelect) {
+        onSelect.add(chose)
+    }
+
+    override val isShowing: Boolean
+        get() = dialog.isShowing
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun AlertDialog.Builder.toNotice(priority: Priority = Priority(0)) =
+    DialogNotice(this.create(), priority)

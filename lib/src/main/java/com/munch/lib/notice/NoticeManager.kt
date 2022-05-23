@@ -1,5 +1,6 @@
 package com.munch.lib.notice
 
+import com.munch.lib.Priority
 import com.munch.lib.extend.postUI
 
 /**
@@ -7,12 +8,12 @@ import com.munch.lib.extend.postUI
  */
 class ActivityNoticeManager {
 
-    private val stack = ArrayDeque<INotice>()
+    private val stack = ArrayDeque<Notice>()
     private val onCancel = { onCancel() }
     private var cancel = false
 
-    fun add(notice: INotice): ActivityNoticeManager {
-        notice.onCancel(onCancel)
+    fun add(notice: Notice): ActivityNoticeManager {
+        notice.addOnCancel(onCancel)
         stack.add(notice)
         return this
     }
@@ -27,21 +28,21 @@ class ActivityNoticeManager {
     }
 
     /**
-     * 取消后续Notice的显示
-     *
-     * 需要在INotice调用cancel之前调用
-     *
-     * todo 只能去掉优先度更低的notice
+     * 隐藏当前显示的notice，并将其移除
      */
-    fun cancel(clear: Boolean = false, cancelNow: Boolean = false) {
+    fun cancel() {
+        stack.firstOrNull()?.cancel()
+    }
+
+    /**
+     * 移除未显示的、Priority比[priority]低的notice
+     */
+    fun removeOthers(priority: Priority = Priority(Int.MAX_VALUE)) {
         val first = stack.firstOrNull() ?: return
-        cancel = true
-        if (clear) {
-            stack.clear()
-            stack.add(first)
-        }
-        if (cancelNow) {
-            first.cancel()
+        val list = stack.filter { it.priority > priority }
+        list.forEach { stack.remove(it) }
+        if (first.isShowing) {
+            stack.addFirst(first)
         }
     }
 
@@ -61,4 +62,4 @@ class ActivityNoticeManager {
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun INotice.byManager(anm: ActivityNoticeManager) = anm.add(this)
+inline fun Notice.byManager(anm: ActivityNoticeManager) = anm.add(this)

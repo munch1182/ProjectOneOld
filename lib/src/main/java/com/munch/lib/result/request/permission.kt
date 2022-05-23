@@ -8,13 +8,19 @@ import com.munch.lib.extend.isPermissionGranted
 import com.munch.lib.extend.notDeniedForever
 import com.munch.lib.log.LogStyle
 import com.munch.lib.log.Logger
+import com.munch.lib.notice.Chose
+import com.munch.lib.notice.Notice
 import com.munch.lib.result.OnPermissionResultListener
 
 /**
  * Created by munch1182 on 2022/4/10 4:17.
  */
 interface PermissionRequest {
-    fun requestPermissions(permissions: Array<out String>, listener: OnPermissionResultListener?)
+    fun requestPermissions(
+        permissions: Array<out String>,
+        notice: PermissionNotice?,
+        listener: OnPermissionResultListener?
+    )
 }
 
 class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettable,
@@ -45,10 +51,11 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
 
             if (requestList.isEmpty()) {
                 requestComplete()
-            } else {
-                // TODO: 显示dialog
-                log.log { "launch permission again" }
+            } else if (onNotice(false)) {
+                log.log { "launch permission again." }
                 launchRequest()
+            } else {
+                requestComplete()
             }
         }
 
@@ -62,17 +69,19 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
         }
 
     private var listener: OnPermissionResultListener? = null
+    private var notice: PermissionNotice? = null
     private val grantedList = mutableListOf<String>()
     private val requestList = mutableListOf<String>()
     private val deniedList = mutableListOf<String>()
 
     override fun requestPermissions(
         permissions: Array<out String>,
+        notice: PermissionNotice?,
         listener: OnPermissionResultListener?
     ) {
-
         reset()
         this.listener = listener
+        this.notice = notice
 
         permissions.forEach {
             if (activity.isPermissionGranted(it)) {
@@ -83,14 +92,32 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
         }
 
         log.log {
-            "request:${fmt(requestList)}, granted:${fmt(grantedList)}, denied:${fmt(deniedList)}"
+            "request:${fmt(requestList)}, granted:${fmt(grantedList)}, denied:${fmt(deniedList)}."
         }
 
         if (requestList.isEmpty()) {
             requestComplete()
-        } else {
-            //todo 显示dialog
+        } else if (!onNotice(true)) {
             launchRequest()
+        }
+    }
+
+    private fun onNotice(isBeforeRequest: Boolean): Boolean {
+        val n = notice ?: return false
+        return if (n.onExplain(isBeforeRequest, requestList, deniedList)) {
+            n.addOnSelect {
+                log.log { "before notice onChose: $it." }
+                if (it == Chose.Ok) {
+                    launchRequest()
+                } else {
+                    requestComplete()
+                }
+            }
+            log.log { "before notice SHOW." }
+            n.show()
+            true
+        } else {
+            false
         }
     }
 
@@ -113,4 +140,23 @@ class PermissionRequestHandler(fragment: Fragment) : PermissionRequest, Resettab
     }
 
     private fun fmt(list: MutableList<String>) = list.joinToString(prefix = "[", postfix = "]")
+}
+
+interface PermissionNotice : Notice {
+
+    /**
+     * 当需要解释权限时会回调此方法，此方法用来更新视图
+     *
+     * @param isBeforeRequest 是否是在请求权限之前的回调
+     * @param requested 需要请求的权限
+     * @param denied 已经拒绝的权限
+     *
+     * @return 返回true时将调用[show]，否则不会调用
+     */
+    fun onExplain(isBeforeRequest: Boolean, requested: List<String>, denied: List<String>): Boolean
+
+    /**
+     * 当需要调整android详情界面时会回调此方法
+     */
+    fun toSet(denied: List<String>)
 }

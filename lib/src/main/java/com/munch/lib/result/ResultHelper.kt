@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import com.munch.lib.result.request.PermissionNotice
 
 /**
  * Created by munch1182 on 2022/4/10 3:34.
@@ -52,8 +53,18 @@ class ResultHelper(private val fm: FragmentManager) {
         private val fragment: ResultFragment
     ) {
 
+        private var notice: PermissionNotice? = null
+
+        /**
+         * 当需要解释权限时，会显示notice并根据选择处理结果
+         */
+        fun onExplainPermission(notice: PermissionNotice): PermissionRequest {
+            this.notice = notice
+            return this
+        }
+
         fun request(listener: OnPermissionResultListener?) {
-            fragment.requestPermissions(permissions, listener)
+            fragment.requestPermissions(permissions, notice, listener)
         }
 
     }
