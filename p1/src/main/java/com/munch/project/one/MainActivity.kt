@@ -1,6 +1,5 @@
 package com.munch.project.one
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import com.munch.lib.fast.base.BaseFastActivity
@@ -36,7 +35,6 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
     )
     override val showHome = false
 
-    @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DataHelper.getStartUp()?.let {

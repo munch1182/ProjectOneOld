@@ -29,7 +29,6 @@ import com.munch.lib.fast.view.fvLinesRv
 import com.munch.lib.fast.view.supportDef
 import com.munch.lib.helper.ActivityHelper
 import com.munch.lib.recyclerview.*
-import com.munch.lib.result.permissionRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -215,8 +214,9 @@ class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef({ Resu
             if (Build.VERSION.SDK_INT in minSdk..maxSdk) {
                 runBlocking(Dispatchers.Main) {
                     it.resume(
-                        (ActivityHelper.currCreate as FragmentActivity)
-                            .permissionRequest(requestName)
+                        /*(ActivityHelper.currCreate as FragmentActivity)
+                            .permissionRequest(requestName)*/
+                        false
                     )
                 }
             } else {

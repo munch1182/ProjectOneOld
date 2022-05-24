@@ -2,10 +2,11 @@ package com.munch.lib.result
 
 import android.content.Context
 import android.content.Intent
+import androidx.annotation.WorkerThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import com.munch.lib.result.request.PermissionNotice
+import com.munch.lib.notice.Notice
 
 /**
  * Created by munch1182 on 2022/4/10 3:34.
@@ -36,7 +37,7 @@ class ResultHelper(private val fm: FragmentManager) {
     /**
      * 进行权限请求
      */
-    fun permission(vararg permissions: String) = PermissionRequest(permissions, fragment)
+    fun permission(vararg permissions: String) = PermissionRequest(arrayOf(*permissions), fragment)
 
     /**
      * 进行intent跳转，获取result
@@ -44,49 +45,51 @@ class ResultHelper(private val fm: FragmentManager) {
     fun intent(intent: Intent) = IntentRequest(intent, fragment)
 
     /**
-     * 先进行[judge]判断，如果判断为false，则跳转[intent]，并在intent返回后再次判断[judge]
+     * 先进行[onJudge]判断，如果结果为false，则调用[intent]，当有结果时，再判断一次[onJudge]并回调结果
      */
-    fun judge(judge: OnJudge, intent: Intent) = JudgeIntentRequest(judge, intent, fragment)
+    fun judgeOrIntent(onJudge: OnJudge, intent: Intent) =
+        JudgeOrIntentRequest(onJudge, intent, fragment)
 
     class PermissionRequest(
-        private val permissions: Array<out String>,
+        private val permissions: Array<String>,
         private val fragment: ResultFragment
     ) {
-
-        private var notice: PermissionNotice? = null
-
-        /**
-         * 当需要解释权限时，会显示notice并根据选择处理结果
-         */
-        fun onExplainPermission(notice: PermissionNotice): PermissionRequest {
-            this.notice = notice
-            return this
-        }
+        private var explain: Notice? = null
 
         fun request(listener: OnPermissionResultListener?) {
-            fragment.requestPermissions(permissions, notice, listener)
+            fragment.requestPermissions(permissions, listener)
         }
 
     }
 
     class IntentRequest(private val intent: Intent, private val fragment: ResultFragment) {
 
+        private var explain: Notice? = null
+
         fun start(listener: OnIntentResultListener?) {
             fragment.startIntent(intent, listener)
         }
     }
 
-    class JudgeIntentRequest(
+    class JudgeOrIntentRequest(
         private val judge: OnJudge,
         private val intent: Intent,
         private val fragment: ResultFragment
     ) {
+        private var explain: Notice? = null
 
-        fun result(listener: OnJudgeResultListener?) {
-            fragment.judge2Result(judge, intent, listener)
+        fun start(listener: OnJudgeResultListener?) {
+            //第一次判断
+            if (judge.onJudge(fragment.requireContext())) {
+                listener?.onJudgeResult(true)
+                return
+            }
+            IntentRequest(intent, fragment).start { _, _ ->
+                //第二次判断并回调
+                listener?.onJudgeResult(judge.onJudge(fragment.requireContext()))
+            }
         }
     }
-
 }
 
 interface OnJudge {
@@ -96,16 +99,12 @@ interface OnJudge {
 
 interface OnPermissionResultListener {
 
-    fun onPermissionResult(
-        isGrantAll: Boolean,
-        grantedArray: Array<String>,
-        deniedArray: Array<String>
-    )
+    fun onPermissionResult(isGrantAll: Boolean, result: Map<String, Boolean>)
 }
 
 interface OnIntentResultListener {
 
-    fun onIntentResult(isOk: Boolean, resultCode: Int, data: Intent?)
+    fun onIntentResult(isOk: Boolean, data: Intent?)
 }
 
 interface OnJudgeResultListener {

@@ -143,12 +143,10 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
         }.request(object : OnPermissionResultListener {
-            override fun onPermissionResult(
-                isGrantAll: Boolean,
-                grantedArray: Array<String>,
-                deniedArray: Array<String>
-            ) {
-                grant.invoke()
+            override fun onPermissionResult(isGrantAll: Boolean, result: Map<String, Boolean>) {
+                if (isGrantAll) {
+                    grant.invoke()
+                }
             }
         })
     }
