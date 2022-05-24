@@ -20,13 +20,37 @@ inline fun Calendar.getDate() = get(Calendar.DAY_OF_YEAR)
 inline fun Calendar.getHour() = get(Calendar.HOUR_OF_DAY)
 inline fun Calendar.getMinute() = get(Calendar.MINUTE)
 inline fun Calendar.getSecond() = get(Calendar.SECOND)
+
+//返回本月第几周
 inline fun Calendar.getWeekIndex() = get(Calendar.WEEK_OF_MONTH)
-inline fun Calendar.setHMS(h: Int, m: Int, s: Int, ms: Int = 0): Calendar {
+fun Calendar.setHMS(h: Int, m: Int, s: Int, ms: Int = 0): Calendar {
     set(Calendar.HOUR_OF_DAY, h)
     set(Calendar.MINUTE, m)
     set(Calendar.SECOND, s)
     set(Calendar.MILLISECOND, ms)
     return this
+}
+
+/**
+ * 获取当前星期较在星期中的序列，从0开始
+ *
+ * 例如，以星期二为起始星期，则星期三的序列为1
+ */
+fun Calendar.getDayInWeekIndex(): Int {
+    var currWeek = firstDayOfWeek
+    val week = getWeekToday()
+    var index = 0
+    repeat(7) {
+        if (currWeek > 7) {
+            currWeek = 1
+        }
+        if (currWeek == week) {
+            return index
+        }
+        currWeek++
+        index++
+    }
+    return if (index > 7) 0 else index
 }
 
 /**

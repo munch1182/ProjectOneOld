@@ -32,11 +32,7 @@ class FileActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                     ResultHelper.with(this)
                         .intent(Intent(intent))
                         .start(object : OnIntentResultListener {
-                            override fun onIntentResult(
-                                isOk: Boolean,
-                                resultCode: Int,
-                                data: Intent?
-                            ) {
+                            override fun onIntentResult(isOk: Boolean, data: Intent?) {
                                 log(data?.data)
                                 lifecycleScope.launch(Dispatchers.Default) {
                                     val file = FileHelper.uri2File(
@@ -47,7 +43,7 @@ class FileActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                                                 log("$progress/$all")
                                             }
                                         })
-                                    lifecycleScope.launch(Dispatchers.Main){
+                                    lifecycleScope.launch(Dispatchers.Main) {
                                         bind.desc(file?.toString())
                                     }
                                 }

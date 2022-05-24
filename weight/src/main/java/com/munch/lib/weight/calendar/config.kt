@@ -1,69 +1,99 @@
 package com.munch.lib.weight.calendar
 
-import android.graphics.Canvas
-import android.graphics.RectF
-import java.util.Calendar
+import android.content.Context
+import android.graphics.*
+import com.munch.lib.extend.*
+import java.util.*
 
 /**
  * Create by munch1182 on 2022/4/25 16:13.
  */
-//日期显示样式
-sealed class Style {
-    data class Week(
-        val count: Int = 1,//显示的周数
-        val fill: Boolean = true, //是否填充空白的位置
-    ) : Style()
 
-    data class Month(
-        val count: Int = 1,
-        val fill: Boolean = true, //是否填充空白的位置
-    ) : Style()
-
-    data class Year(
-        val monthSpanCount: Int = 3, //显示一行的月份数
-        val monthSpace: Int = 8, //月份之间的间隔
-    ) : Style()
-
-    object Fill : Style()
+data class Measure(val w: Int, val h: Int)
+interface OnItemDraw {
+    fun onItemMeasure(): Measure
+    fun onItemDraw(c: Canvas, rect: RectF, calendar: Calendar)
 }
 
+interface OnMonthDraw : OnItemDraw
+interface OnDayDraw : OnItemDraw
+interface OnWeekDraw : OnItemDraw
 
-data class Measure(val with: Int, val height: Int)
+class MonthDrawer(context: Context) : OnMonthDraw {
 
-/**
- * 用于绘制每一天
- */
-interface OnDayDraw {
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#0078FF")
+        textSize = context.sp2Px(20f)
+    }
+    private val bond = Rect()
+    private val test by testPaint()
 
-    fun onMeasure(style: Style): Measure {
-        return Measure(0, 0)
+    override fun onItemMeasure(): Measure {
+        paint.measureTextBounds("2020年12月", bond)
+        return Measure(bond.width(), bond.height() * 2)
     }
 
-    fun onDraw(canvas: Canvas, rect: RectF, year: Int, month: Int, day: Int) {}
+    override fun onItemDraw(c: Canvas, rect: RectF, calendar: Calendar) {
+        c.drawRect(rect, test)
+        val m = "${calendar.getYear()}年${calendar.getMonth()}月"
+        c.drawTextInYCenter(m, rect.left + 32f, rect.centerY(), paint)
+    }
 }
 
-/**
- * 用于绘制月标识
- */
-interface OnMonthLabelDraw {
+class WeekDrawer(context: Context) : OnWeekDraw {
 
-    fun onMeasure(style: Style): Measure {
-        return Measure(0, 0)
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#3C3C4399")
+        textSize = context.sp2Px(13f)
+    }
+    private val bond = Rect()
+    private val test by testPaint()
+
+    override fun onItemMeasure(): Measure {
+        paint.measureTextBounds("周日", bond)
+        return Measure(bond.width(), bond.height() * 2)
     }
 
-    fun onDraw(canvas: Canvas, rect: RectF, year: Int, month: Int) {}
+    override fun onItemDraw(c: Canvas, rect: RectF, calendar: Calendar) {
+        c.drawRect(rect, test)
+        val m = when (calendar.getWeekToday()) {
+            Calendar.SUNDAY -> "周日"
+            Calendar.MONDAY -> "周一"
+            Calendar.TUESDAY -> "周二"
+            Calendar.WEDNESDAY -> "周三"
+            Calendar.THURSDAY -> "周四"
+            Calendar.FRIDAY -> "周五"
+            Calendar.SATURDAY -> "周六"
+            else -> return
+        }
+        c.drawTextInCenter(m, rect.centerX(), rect.centerY(), paint)
+    }
 }
 
-/**
- * 用于绘制星期标识
- */
-interface OnWeekLabelDraw {
+class DayDrawer(context: Context) : OnDayDraw {
 
-    fun onMeasureHeight(): Int = 0
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor("#0078FF")
+        textSize = context.sp2Px(18f)
+    }
+    private val bond = Rect()
+    private val test by testPaint()
 
-    /**
-     * @param dayOfWeek [Calendar.DAY_OF_WEEK]
-     */
-    fun onDraw(canvas: Canvas, rect: RectF, dayOfWeek: Int) {}
+    override fun onItemMeasure(): Measure {
+        paint.measureTextBounds("31", bond)
+        return Measure(bond.width(), bond.height() * 4)
+    }
+
+    override fun onItemDraw(c: Canvas, rect: RectF, calendar: Calendar) {
+        val cX = rect.centerX()
+
+        c.drawRect(rect, test)
+        paint.color = Color.parseColor("#0078FF")
+        c.drawTextInCenter(
+            calendar.getDay().toString(),
+            cX, rect.top + rect.height() / 4, paint
+        )
+        paint.color = Color.parseColor("#C5C5C7")
+        c.drawCircle(cX, rect.top + rect.height() * 3f / 4f, 8f, paint)
+    }
 }
-
