@@ -72,7 +72,11 @@ class BluetoothWrapper(context: Context) :
     override val isSupportBle: Boolean =
         context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
     override val isEnable: Boolean
-        get() = adapter?.isEnabled ?: false
+        get() {
+            return adapter
+                ?.let { it.isEnabled || it.state == BluetoothAdapter.STATE_TURNING_ON }
+                ?: false
+        }
     override val pairedDevs: Set<BluetoothDevice>?
         @SuppressLint("MissingPermission")
         get() = adapter?.bondedDevices

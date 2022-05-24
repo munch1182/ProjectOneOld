@@ -17,7 +17,6 @@ interface Notice {
     val priority: Priority
         get() = Priority(0)
 
-
     /**
      * 添加当notice取消时的回调
      *
@@ -25,7 +24,7 @@ interface Notice {
      *
      * 此方法与[Chose.Cancel]不同，无需主动触发
      */
-    fun addOnCancel(onCancel: OnCancel? = null)
+    fun addOnCancel(onCancel: OnCancel? = null): Notice
 
     /**
      * 添加选项选择的回调
@@ -37,9 +36,28 @@ interface Notice {
      * @see Chose.Ok
      * @see Chose.Cancel
      */
-    fun addOnSelect(chose: OnSelect)
+    fun addOnSelect(chose: OnSelect): Notice
 
     val isShowing: Boolean
+
+    fun addOnSelectOk(onSelectOk: OnSelectOk): Notice {
+        addOnSelect {
+            if (it == Chose.Ok) {
+                onSelectOk.invoke()
+            }
+        }
+        return this
+    }
+
+    fun addOnSelectCancel(OnSelectCancel: OnSelectOk): Notice {
+        addOnSelect {
+            if (it == Chose.Cancel) {
+                OnSelectCancel.invoke()
+            }
+        }
+        return this
+    }
+
 }
 
 typealias OnSelect = (chose: Chose) -> Unit

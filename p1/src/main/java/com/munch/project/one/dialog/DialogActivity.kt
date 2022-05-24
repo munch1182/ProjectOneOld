@@ -115,11 +115,15 @@ class DialogNotice(
         }
     }
 
-    override fun addOnCancel(onCancel: OnCancel?) {
+    override fun addOnCancel(onCancel: OnCancel?): DialogNotice {
         this.onCancel = onCancel
+        return this
     }
 
     override fun show() {
+        if (isShowing) {
+            return
+        }
         dialog.show()
     }
 
@@ -127,8 +131,9 @@ class DialogNotice(
         dialog.cancel()
     }
 
-    override fun addOnSelect(chose: OnSelect) {
+    override fun addOnSelect(chose: OnSelect): DialogNotice {
         onSelect.add(chose)
+        return this
     }
 
     override val isShowing: Boolean

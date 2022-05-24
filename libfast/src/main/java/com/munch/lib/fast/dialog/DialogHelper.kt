@@ -23,16 +23,17 @@ class BottomFragmentNotice(
         dialog.dialog?.cancel()
     }
 
-    override fun addOnCancel(onCancel: OnCancel?) {
+    override fun addOnCancel(onCancel: OnCancel?): BottomFragmentNotice {
         if (onCancel != null) {
             dialog.dialog?.setOnCancelListener { onCancel.invoke() }
         } else {
             dialog.dialog?.setOnCancelListener(null)
         }
+        return this
     }
 
-    override fun addOnSelect(chose: OnSelect) {
-
+    override fun addOnSelect(chose: OnSelect): BottomFragmentNotice {
+        return this
     }
 
     override val isShowing: Boolean

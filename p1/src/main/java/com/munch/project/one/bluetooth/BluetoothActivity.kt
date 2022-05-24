@@ -2,23 +2,32 @@ package com.munch.project.one.bluetooth
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.bluetooth.BluetoothGatt
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.widget.Button
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.munch.lib.OnCancel
 import com.munch.lib.bluetooth.*
 import com.munch.lib.extend.LinearLineItemDecoration
 import com.munch.lib.extend.bind
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
+import com.munch.lib.notice.Chose
+import com.munch.lib.notice.OnSelect
 import com.munch.lib.recyclerview.BaseBindViewHolder
 import com.munch.lib.recyclerview.BindRVAdapter
 import com.munch.lib.recyclerview.differ
 import com.munch.lib.recyclerview.setOnItemClickListener
-import com.munch.lib.result.OnPermissionResultListener
-import com.munch.lib.result.permission
+import com.munch.lib.result.*
 import com.munch.project.one.databinding.ActivityBluetoothBinding
 import com.munch.project.one.databinding.ItemBluetoothBinding
 import kotlinx.coroutines.launch
@@ -145,9 +154,68 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         }.request(object : OnPermissionResultListener {
             override fun onPermissionResult(isGrantAll: Boolean, result: Map<String, Boolean>) {
                 if (isGrantAll) {
-                    grant.invoke()
+                    judgeIntent({ c ->
+                        val lm =
+                            c.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                        lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                    }, Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                        .explain { GPSExplain(it) }
+                        .start { c ->
+                            if (c) {
+                                judgeIntent(
+                                    { instance.isEnable },
+                                    Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
+                                ).delay(1500L)
+                                    .start {
+                                        if (it) {
+                                            grant.invoke()
+                                        }
+                                    }
+                            }
+                        }
+
                 }
             }
         })
+    }
+
+    private class GPSExplain(private val context: Context) : ExplainIntentNotice {
+
+        private val db = AlertDialog.Builder(context)
+        private var dialog: AlertDialog? = null
+            get() = field ?: db.create().also { field = it }
+
+        override fun onIntentExplain(): Boolean {
+            db.setMessage("搜寻蓝牙设备需要GPS服务")
+            return true
+        }
+
+        override fun show() {
+            dialog?.show()
+        }
+
+        override fun cancel() {
+            dialog?.cancel()
+            dialog = null
+        }
+
+        override fun addOnCancel(onCancel: OnCancel?): GPSExplain {
+            dialog?.setOnCancelListener { onCancel?.invoke() }
+            return this
+        }
+
+        override fun addOnSelect(chose: OnSelect): GPSExplain {
+            dialog?.setButton(
+                DialogInterface.BUTTON_POSITIVE,
+                context.getString(android.R.string.ok)
+            ) { d, _ ->
+                d.cancel()
+                chose.invoke(Chose.Ok)
+            }
+            return this
+        }
+
+        override val isShowing: Boolean
+            get() = dialog?.isShowing ?: false
     }
 }
