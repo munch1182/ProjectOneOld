@@ -130,7 +130,56 @@ inline fun Rect.fitViewPadding(view: View, fitTopBottom: Boolean = true) =
         if (fitTopBottom) -view.paddingBottom else 0,
     )
 
+/**
+ * rect水平方向平移[r]的距离，垂直方向平移[b]的距离
+ */
 inline fun Rect.translation(r: Int, b: Int) = adjust(r, b, r, b)
+
+//<editor-fold desc="move2">
+/**
+ * 将rect的left移动向[left]点，rect的right会跟随移动，且宽度会保持不变
+ */
+inline fun Rect.moveLeftTo(left: Int) {
+    val width = width()
+    this.left = left
+    this.right = left + width
+}
+
+inline fun Rect.moveRightTo(right: Int) {
+    val width = width()
+    this.right = right
+    this.left = right - width
+}
+
+inline fun Rect.moveTopTo(top: Int) {
+    val height = height()
+    this.top = top
+    this.bottom = top + height
+}
+
+inline fun Rect.moveBottomTo(bottom: Int) {
+    val height = height()
+    this.bottom = bottom
+    this.top = bottom - height
+}
+
+inline fun Rect.moveTo(left: Int, top: Int) {
+    moveLeftTo(left)
+    moveTopTo(top)
+}
+//</editor-fold>
+
+//<editor-fold desc="copy">
+inline fun Rect.copyLR(rect: Rect) {
+    left = rect.left
+    right = rect.right
+}
+
+inline fun Rect.copyTB(rect: Rect) {
+    top = rect.top
+    bottom = rect.bottom
+}
+//</editor-fold>
 
 fun RectF.adjust(l: Float, t: Float, r: Float, b: Float) {
     left += l
@@ -147,4 +196,57 @@ inline fun RectF.fitViewPadding(view: View, fitTopBottom: Boolean = true) =
         if (fitTopBottom) -view.paddingBottom.toFloat() else 0f,
     )
 
+/**
+ * rect水平方向平移[r]的距离，垂直方向平移[b]的距离
+ */
 inline fun RectF.translation(r: Float, b: Float) = adjust(r, b, r, b)
+
+inline fun PointF.isIn(rectF: RectF): Boolean {
+    return x in rectF.left..rectF.right && y in rectF.top..rectF.bottom
+}
+
+//<editor-fold desc="move2">
+/**
+ * 将rect的left移动向[left]点，rect的right会跟随移动，且宽度会保持不变
+ */
+inline fun RectF.moveLeftTo(left: Float) {
+    val width = width()
+    this.left = left
+    this.right = left + width
+}
+
+inline fun RectF.moveRightTo(right: Float) {
+    val width = width()
+    this.right = right
+    this.left = right - width
+}
+
+inline fun RectF.moveTopTo(top: Float) {
+    val height = height()
+    this.top = top
+    this.bottom = top + height
+}
+
+inline fun RectF.moveBottomTo(bottom: Float) {
+    val height = height()
+    this.bottom = bottom
+    this.top = bottom - height
+}
+//</editor-fold>
+
+//<editor-fold desc="copy">
+inline fun RectF.copyLR(rect: RectF) {
+    left = rect.left
+    right = rect.right
+}
+
+inline fun RectF.copyTB(rect: RectF) {
+    top = rect.top
+    bottom = rect.bottom
+}
+
+inline fun RectF.moveTo(left: Float, top: Float) {
+    moveLeftTo(left)
+    moveTopTo(top)
+}
+//</editor-fold>

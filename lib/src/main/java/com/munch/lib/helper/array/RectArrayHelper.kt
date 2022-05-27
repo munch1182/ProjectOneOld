@@ -3,14 +3,14 @@
 package com.munch.lib.helper.array
 
 import android.graphics.Rect
-import android.graphics.RectF
+import com.munch.lib.graphics.RectF
 
 /**
  * 用array来替代大量的[android.graphics.Rect]对象
  *
  * Create by munch1182 on 2021/1/10 1:32.
  */
-class RectFArrayHelper : SpecialFloatArrayHelper(4) {
+class RectFArrayHelper : SpecialFloatArrayHelper(4), Iterable<RectF> {
 
     fun getLeft(index: Int) = getVal(index, 0)
     fun getTop(index: Int) = getVal(index, 1)
@@ -25,9 +25,30 @@ class RectFArrayHelper : SpecialFloatArrayHelper(4) {
 
     fun getRect(index: Int) =
         RectF(getLeft(index), getTop(index), getRight(index), getBottom(index))
+
+    fun add(rectF: RectF) {
+        add(rectF.left, rectF.top, rectF.right, rectF.bottom)
+    }
+
+    override fun iterator(): Iterator<RectF> = RectFIterator()
+
+    private inner class RectFIterator : Iterator<RectF> {
+        private val rectF = RectF()
+        private var elementLine = 0
+
+
+        override fun hasNext() = elementLine < size
+
+        override fun next(): RectF {
+            val index = elementLine
+            rectF.set(getLeft(index), getTop(index), getRight(index), getBottom(index))
+            elementLine++
+            return rectF
+        }
+    }
 }
 
-class RectArrayHelper : SpecialIntArrayHelper(4) {
+class RectArrayHelper : SpecialIntArrayHelper(4), Iterable<Rect> {
 
     fun getLeft(index: Int) = getVal(index, 0)
     fun getTop(index: Int) = getVal(index, 1)
@@ -42,4 +63,24 @@ class RectArrayHelper : SpecialIntArrayHelper(4) {
 
     fun getRect(index: Int) =
         Rect(getLeft(index), getTop(index), getRight(index), getBottom(index))
+
+    fun add(rect: Rect) {
+        add(rect.left, rect.top, rect.right, rect.bottom)
+    }
+
+    override fun iterator(): Iterator<Rect> = RectIterator()
+
+    private inner class RectIterator : Iterator<Rect> {
+        private val rect = Rect()
+        private var elementLine = 0
+
+        override fun hasNext() = elementLine < size
+
+        override fun next(): Rect {
+            val index = elementLine
+            rect.set(getLeft(index), getTop(index), getRight(index), getBottom(index))
+            elementLine++
+            return rect
+        }
+    }
 }

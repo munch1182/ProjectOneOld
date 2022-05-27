@@ -16,6 +16,9 @@ interface SpecialArray<N : Number> {
     val unit: Int
     val array: MutableList<N>
 
+    val size: Int
+        get() = array.size / unit
+
     fun clear() {
         array.clear()
     }
