@@ -3,7 +3,6 @@ package com.munch.lib.weight.calendar
 import android.content.Context
 import android.graphics.*
 import com.munch.lib.extend.*
-import com.munch.lib.log.log
 import java.util.*
 
 /**

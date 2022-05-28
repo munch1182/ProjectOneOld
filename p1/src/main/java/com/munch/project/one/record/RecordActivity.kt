@@ -50,9 +50,9 @@ class RecordActivity : BaseFastActivity(),
 
         vm.uiState.observe(this) {
             when (it) {
-                UIState.Querying -> adapter.showRefresh()
-                is UIState.Data -> adapter.set(it.data)
-                is UIState.Error -> adapter.showEmpty()
+                RecordUIState.Querying -> adapter.showRefresh()
+                is RecordUIState.Data -> adapter.set(it.data)
+                is RecordUIState.Error -> adapter.showEmpty()
             }
         }
 
@@ -148,7 +148,7 @@ class RecordActivity : BaseFastActivity(),
             bind.recordQuery.setOnClickListener { query() }
 
             vm.uiState.observe(this) {
-                if (it is UIState.Data) {
+                if (it is RecordUIState.Data) {
                     showQuery(it.query)
                 }
             }

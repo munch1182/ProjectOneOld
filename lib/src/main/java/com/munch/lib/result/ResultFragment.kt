@@ -5,15 +5,21 @@ import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.munch.lib.log.Logger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by munch1182 on 2022/4/10 3:58.
  */
-class ResultFragment : Fragment() {
+class ResultFragment : Fragment(), CoroutineScope {
 
     private var result: OnIntentResultListener? = null
     private var permission: OnPermissionResultListener? = null
     private val log = Logger("result")
+    private val job = Job()
 
     val isValid: Boolean
         get() = activity != null && !requireActivity().isDestroyed && !requireActivity().isFinishing
@@ -22,7 +28,7 @@ class ResultFragment : Fragment() {
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
             log.log {
                 val str = it.map { p -> "${p.key}: ${p.value}" }.joinToString()
-                "MultiplePermission result: $str"
+                "multiplePermission result: $str"
             }
             permission?.onPermissionResult(!it.any { v -> !v.value }, it)
             permission = null
@@ -36,7 +42,7 @@ class ResultFragment : Fragment() {
                     Activity.RESULT_CANCELED -> "Cancel"
                     else -> it.resultCode.toString()
                 }
-                "Intent result: $r"
+                "intent result: $r."
             }
             result?.onIntentResult(it.resultCode == Activity.RESULT_OK, it.data)
             result = null
@@ -60,5 +66,12 @@ class ResultFragment : Fragment() {
         permission = listener
         permissionsLauncher.launch(permissions)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cancel()
+    }
+
+    override val coroutineContext: CoroutineContext = Dispatchers.Unconfined + job
 
 }

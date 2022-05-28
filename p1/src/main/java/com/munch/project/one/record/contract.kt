@@ -6,15 +6,15 @@ import cn.munch.lib.record.Record
  * Create by munch1182 on 2022/5/21 16:59.
  */
 
-sealed class UIState {
-    object Querying : UIState()
+internal sealed class RecordUIState {
+    object Querying : RecordUIState()
 
-    class Data(val query: Change, val data: List<Record>) : UIState()
+    class Data(val query: Change, val data: List<Record>) : RecordUIState()
 
-    class Error(val e: Exception) : UIState()
+    class Error(val e: Exception) : RecordUIState()
 }
 
-sealed class QueryIntent {
+internal sealed class QueryIntent {
 
     class Query(val query: RecordQuery) : QueryIntent() {
 

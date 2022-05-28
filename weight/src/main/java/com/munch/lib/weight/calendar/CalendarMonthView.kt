@@ -9,9 +9,7 @@ import android.view.View
 import com.munch.lib.extend.*
 import com.munch.lib.graphics.RectF
 import com.munch.lib.helper.array.RectFArrayHelper
-import com.munch.lib.log.log
 import java.util.*
-import kotlin.math.log
 import kotlin.math.max
 
 /**

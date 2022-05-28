@@ -6,6 +6,7 @@ import com.munch.lib.OnCancel
 import com.munch.lib.Priority
 import com.munch.lib.notice.Notice
 import com.munch.lib.notice.OnSelect
+import com.munch.lib.notice.OnSelectOk
 
 /**
  * Create by munch1182 on 2022/4/2 17:26.
@@ -38,4 +39,12 @@ class BottomFragmentNotice(
 
     override val isShowing: Boolean
         get() = dialog.dialog?.isShowing ?: false
+
+    override fun addOnSelectOk(ok: OnSelectOk): Notice {
+        return this
+    }
+
+    override fun addOnSelectCancel(cancel: OnSelectOk): Notice {
+        return this
+    }
 }

@@ -9,8 +9,10 @@ import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.AppHelper
 import com.munch.lib.Destroyable
 import com.munch.lib.extend.SingletonHolder
-import com.munch.lib.log.*
-import kotlinx.coroutines.*
+import com.munch.lib.log.LogStyle
+import com.munch.lib.log.Logger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
 /**

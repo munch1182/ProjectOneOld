@@ -16,8 +16,8 @@ import kotlinx.coroutines.launch
 class RecordVM : ViewModel() {
 
     private val dao = DBRecord
-    private val _uiState = MutableLiveData<UIState>(UIState.Querying)
-    val uiState = _uiState.toLive()
+    private val _uiState = MutableLiveData<RecordUIState>(RecordUIState.Querying)
+    internal val uiState = _uiState.toLive()
     private val userIntent = MutableSharedFlow<QueryIntent>()
     private var change = Change(RecordQuery(), "dbRecord", 0)
 
@@ -39,10 +39,10 @@ class RecordVM : ViewModel() {
         val it = change.query
         val list = dao.query(it.type, it.like, it.time, it.page, it.size)
         change.count = list.size
-        _uiState.postValue(UIState.Data(change, list))
+        _uiState.postValue(RecordUIState.Data(change, list))
     }
 
-    fun dispatch(intent: QueryIntent) {
+    internal fun dispatch(intent: QueryIntent) {
         viewModelScope.launch { userIntent.emit(intent) }
     }
 

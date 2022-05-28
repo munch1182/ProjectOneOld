@@ -12,7 +12,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.munch.lib.RepeatStrategy
 import com.munch.lib.log.Logger
-import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
 import kotlin.math.absoluteValue
 
 /**

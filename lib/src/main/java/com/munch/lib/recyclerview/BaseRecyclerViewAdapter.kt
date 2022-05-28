@@ -47,7 +47,14 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
         onBind(holder, holder.bindingAdapterPosition, get(position)!!)
     }
 
+    override fun onBindViewHolder(holder: VH, position: Int, payloads: MutableList<Any>) {
+        onBind(holder, holder.bindingAdapterPosition, get(position)!!, payloads)
+    }
+
     abstract fun onBind(holder: VH, position: Int, bean: D)
+    open fun onBind(holder: VH, position: Int, bean: D, payloads: MutableList<Any>) {
+        super.onBindViewHolder(holder, position, payloads)
+    }
 
     override fun getItemCount() = itemSize
 

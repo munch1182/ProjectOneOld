@@ -100,7 +100,7 @@ sealed class AdapterFunImp<D>(
         }
 
         override fun remove(element: Collection<D?>) {
-            list.removeAll(element)
+            list.removeAll(element.toSet())
             element.forEach {
                 val index = getIndex(it ?: return@forEach) ?: return@forEach
                 val adapter = adapter ?: return@forEach
@@ -115,6 +115,11 @@ sealed class AdapterFunImp<D>(
                 val adapter = adapter ?: return
                 impInMain { adapter.notifyItemChanged(index, payload) }
             }
+        }
+
+        override fun update(start: Int, end: Int, payload: Any?) {
+            val adapter = adapter ?: return
+            adapter.notifyItemRangeChanged(start, end - start, payload)
         }
 
         override fun update(startIndex: Int, elements: Collection<D>, payload: Any?) {
@@ -207,7 +212,7 @@ sealed class AdapterFunImp<D>(
             val list = ArrayList(list)
             val endIndex = startIndex + size
             if (endIndex <= list.size) {
-                list.removeAll(list.subList(startIndex, endIndex))
+                list.removeAll(list.subList(startIndex, endIndex).toSet())
                 set(list)
             }
         }
@@ -226,6 +231,11 @@ sealed class AdapterFunImp<D>(
             if (index in 0 until size) {
                 set(ArrayList(list).apply { set(index, element) })
             }
+        }
+
+        override fun update(start: Int, end: Int, payload: Any?) {
+            val adapter = adapter ?: return
+            adapter.notifyItemRangeChanged(start, end - start, payload)
         }
 
         override fun update(startIndex: Int, elements: Collection<D>, payload: Any?) {

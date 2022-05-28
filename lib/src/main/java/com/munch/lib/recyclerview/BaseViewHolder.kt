@@ -2,7 +2,6 @@ package com.munch.lib.recyclerview
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewbinding.ViewBinding
 
 /**
  * Create by munch1182 on 2022/3/31 14:18.

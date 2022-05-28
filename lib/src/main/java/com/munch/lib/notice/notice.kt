@@ -40,24 +40,9 @@ interface Notice {
 
     val isShowing: Boolean
 
-    fun addOnSelectOk(onSelectOk: OnSelectOk): Notice {
-        addOnSelect {
-            if (it == Chose.Ok) {
-                onSelectOk.invoke()
-            }
-        }
-        return this
-    }
+    fun addOnSelectOk(ok: OnSelectOk): Notice
 
-    fun addOnSelectCancel(OnSelectCancel: OnSelectOk): Notice {
-        addOnSelect {
-            if (it == Chose.Cancel) {
-                OnSelectCancel.invoke()
-            }
-        }
-        return this
-    }
-
+    fun addOnSelectCancel(cancel: OnSelectCancel): Notice
 }
 
 typealias OnSelect = (chose: Chose) -> Unit

@@ -43,6 +43,16 @@ interface IAdapterFun<D> {
     fun update(index: Int, element: D, payload: Any? = null)
 
     /**
+     * 从[start]到[end]更新[payload]
+     */
+    fun update(start: Int, end: Int = itemSize, payload: Any?)
+
+    /**
+     * 更新[pos]的[payload]
+     */
+    fun update(pos: Int, payload: Any?) = update(pos, pos + 1, payload)
+
+    /**
      * 更新[index]位置的数据为[element]，如果[index]超出数据范围，则抛出异常
      *
      * @see update

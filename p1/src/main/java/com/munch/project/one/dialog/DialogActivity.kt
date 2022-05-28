@@ -120,6 +120,24 @@ class DialogNotice(
         return this
     }
 
+    override fun addOnSelectCancel(cancel: OnSelectOk): Notice {
+        onSelect.add {
+            if (it == Chose.Cancel) {
+                cancel.invoke()
+            }
+        }
+        return this
+    }
+
+    override fun addOnSelectOk(ok: OnSelectOk): Notice {
+        onSelect.add {
+            if (it == Chose.Ok) {
+                ok.invoke()
+            }
+        }
+        return this
+    }
+
     override fun show() {
         if (isShowing) {
             return
