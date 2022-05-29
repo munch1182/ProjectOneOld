@@ -15,7 +15,7 @@ import kotlin.coroutines.resume
 
 class PermissionRequest(
     private val permissions: Array<out String>,
-    private val fragment: ResultFragment,
+    private val fragment: ResultFragment
 ) : ResultHelper.IRequest {
     private val log = Logger("result")
     private var explain: ExplainPermissionNotice? = null
@@ -43,6 +43,7 @@ class PermissionRequest(
             return
         }
         fragment.launch(Dispatchers.Default) {
+            //处理notice
             val firstChose = choseFromRequestNotice(true, map)
             //如果解释权限后就被拒绝，则直接回调
             if (!firstChose) {
@@ -51,12 +52,13 @@ class PermissionRequest(
                 return@launch
             }
             //开始请求权限
-            permissionRequest(request.toTypedArray())
+            startPermissionRequest(request.toTypedArray())
             //在请求后，即可正式判断
             checkPermission()
+            //先请求未被完全拒绝的权限
             if (request.isNotEmpty()) {
                 log.log { "permission judge request again for request." }
-                //先请求未被完全拒绝的权限
+                //处理notice
                 val requestAgain = choseFromRequestNotice(false, map)
                 //如果解释后不请求权限，则结束
                 if (!requestAgain) {
@@ -66,7 +68,7 @@ class PermissionRequest(
                 }
                 log.log { "permission request again." }
                 // 再次请求未被拒绝的权限
-                permissionRequest(request.toTypedArray())
+                startPermissionRequest(request.toTypedArray())
                 checkPermission()
             }
             if (denied.isNotEmpty()) {
@@ -116,7 +118,7 @@ class PermissionRequest(
         }
     }
 
-    private suspend fun permissionRequest(permissions: Array<String>): Boolean {
+    private suspend fun startPermissionRequest(permissions: Array<String>): Boolean {
         return suspendCancellableCoroutine {
             fragment.requestPermissions(permissions, object : OnPermissionResultListener {
                 override fun onPermissionResult(isGrantAll: Boolean, result: Map<String, Boolean>) {

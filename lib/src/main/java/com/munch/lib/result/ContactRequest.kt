@@ -13,6 +13,7 @@ import kotlin.coroutines.resume
 class ContactRequest(private val fragment: ResultFragment) : Iterable<ResultHelper.IRequest> {
 
     private val list = mutableListOf<ResultHelper.IRequest>()
+    private var explain: ExplainContactNotice? = null
 
     fun contact(vararg permission: String): ContactRequest {
         list.add(PermissionRequest(permission, fragment))
@@ -29,7 +30,6 @@ class ContactRequest(private val fragment: ResultFragment) : Iterable<ResultHelp
         return this
     }
 
-    private var explain: ExplainContactNotice? = null
 
     fun explain(explain: (Context) -> ExplainContactNotice): ContactRequest {
         this.explain = explain.invoke(fragment.requireContext())
@@ -39,27 +39,28 @@ class ContactRequest(private val fragment: ResultFragment) : Iterable<ResultHelp
     fun start(onResult: (isOk: Boolean) -> Unit) {
         fragment.launch(Dispatchers.Default) {
             var result = true
-            kotlin.run stop@{
-                forEach { req ->
-                    when (req) {
-                        is IntentRequest -> result = suspendCancellableCoroutine {
-                            explain?.let { e -> req.explain { e } }
-                            req.start { isOk, _ -> it.resume(isOk) }
-                        }
-                        is JudgeOrIntentRequest -> result = suspendCancellableCoroutine {
-                            explain?.let { e -> req.explain { e } }
-                            req.start { isOk -> it.resume(isOk) }
-                        }
-                        is PermissionRequest -> result = suspendCancellableCoroutine {
-                            explain?.let { e -> req.explain { e } }
-                            req.request { isGrantAll, _ -> it.resume(isGrantAll) }
-                        }
+            forEach { req ->
+                when (req) {
+                    is IntentRequest -> result = suspendCancellableCoroutine {
+                        explain?.let { e -> req.explain { e } }
+                        req.start { isOk, _ -> it.resume(isOk) }
                     }
-                    if (!result) {
-                        return@stop
+                    is JudgeOrIntentRequest -> result = suspendCancellableCoroutine {
+                        explain?.let { e -> req.explain { e } }
+                        req.start { isOk -> it.resume(isOk) }
+                    }
+                    is PermissionRequest -> result = suspendCancellableCoroutine {
+                        explain?.let { e -> req.explain { e } }
+                        req.request { isGrantAll, _ -> it.resume(isGrantAll) }
                     }
                 }
+                //如果某个request失败，则直接结束
+                if (!result) {
+                    onResult.invoke(result)
+                    return@launch
+                }
             }
+            //全部成功
             onResult.invoke(result)
         }
     }

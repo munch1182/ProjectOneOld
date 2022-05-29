@@ -6,7 +6,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.munch.lib.log.Logger
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlin.coroutines.CoroutineContext
@@ -72,6 +71,6 @@ class ResultFragment : Fragment(), CoroutineScope {
         cancel()
     }
 
-    override val coroutineContext: CoroutineContext = Dispatchers.Unconfined + job
+    override val coroutineContext: CoroutineContext = job
 
 }

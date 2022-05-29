@@ -9,8 +9,8 @@ import com.munch.lib.fast.view.fvFv
 import com.munch.lib.fast.view.supportDef
 import com.munch.lib.helper.FileHelper
 import com.munch.lib.log.log
-import com.munch.lib.result.OnIntentResultListener
-import com.munch.lib.result.ResultHelper
+import com.munch.lib.result.intent
+import com.munch.lib.result.start
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -29,26 +29,22 @@ class FileActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
                     intent.type = "*/*"
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
-                    ResultHelper.with(this)
-                        .intent(Intent(intent))
-                        .start(object : OnIntentResultListener {
-                            override fun onIntentResult(isOk: Boolean, data: Intent?) {
-                                log(data?.data)
-                                lifecycleScope.launch(Dispatchers.Default) {
-                                    val file = FileHelper.uri2File(
-                                        this@FileActivity,
-                                        data?.data,
-                                        onProgress = object : FileHelper.OnProgressListener {
-                                            override fun onProgress(progress: Long, all: Long) {
-                                                log("$progress/$all")
-                                            }
-                                        })
-                                    lifecycleScope.launch(Dispatchers.Main) {
-                                        bind.desc(file?.toString())
+                    intent(Intent(intent)).start { _, data ->
+                        log(data?.data)
+                        lifecycleScope.launch(Dispatchers.Default) {
+                            val file = FileHelper.uri2File(
+                                this@FileActivity,
+                                data?.data,
+                                onProgress = object : FileHelper.OnProgressListener {
+                                    override fun onProgress(progress: Long, all: Long) {
+                                        log("$progress/$all")
                                     }
-                                }
+                                })
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                bind.desc(file?.toString())
                             }
-                        })
+                        }
+                    }
                 }
             }
         }

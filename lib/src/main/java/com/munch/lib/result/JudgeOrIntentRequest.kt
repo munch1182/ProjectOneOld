@@ -49,22 +49,22 @@ class JudgeOrIntentRequest(
             if (!chose) {
                 log.log { "chose cancel, onJudgeResult(false)." }
                 listener?.onJudgeResult(false)
-                // 否则开始请求intent
-            } else {
-                intentRequest()
-                log.log { "intent request over." }
-                if (time > 0) {
-                    delay(time)
-                }
-                val j2 = judge.invoke(fragment.requireContext())
-                log.log { "second judge $intent: $j2." }
-
-                listener?.onJudgeResult(j2)
+                return@launch
             }
+            // 否则开始请求intent
+            startIntentRequest()
+            log.log { "intent request over." }
+            if (time > 0) {
+                delay(time)
+            }
+            val j2 = judge.invoke(fragment.requireContext())
+            log.log { "second judge $intent: $j2." }
+
+            listener?.onJudgeResult(j2)
         }
     }
 
-    private suspend fun intentRequest() = suspendCancellableCoroutine<Boolean> {
+    private suspend fun startIntentRequest() = suspendCancellableCoroutine<Boolean> {
         IntentRequest(intent, fragment).start { _, _ -> it.resume(true) }
     }
 

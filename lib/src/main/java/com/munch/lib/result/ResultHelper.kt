@@ -37,7 +37,7 @@ class ResultHelper(private val fm: FragmentManager) {
     /**
      * 进行权限请求
      */
-    fun permission(vararg permissions: String) = PermissionRequest(arrayOf(*permissions), fragment)
+    fun permission(vararg permissions: String) = PermissionRequest(permissions, fragment)
 
     /**
      * 进行intent跳转，获取result
