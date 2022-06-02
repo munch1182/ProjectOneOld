@@ -34,9 +34,9 @@ class CalendarMonthView @JvmOverloads constructor(
     private val calendarSelected = Calendar.getInstance()
 
     //drawer
-    private val month = MonthDrawer(context)
-    private val day = DayDrawer(context)
-    private val week = WeekDrawer(context)
+    var month: OnItemDraw? = MonthDrawer(context)
+    var day: OnItemDraw? = DayDrawer(context)
+    var week: OnItemDraw? = WeekDrawer(context)
 
 
     //rect, 绘制的区域
@@ -44,9 +44,9 @@ class CalendarMonthView @JvmOverloads constructor(
     private val rectWeek = RectF()
     private val rectDay = RectF()
 
-    private val measureDay = day.onItemMeasure()
-    private val measureWeek = week.onItemMeasure()
-    private val measureMonth = month.onItemMeasure()
+    private val measureDay = day?.onItemMeasure() ?: Measure(0, 0)
+    private val measureWeek = week?.onItemMeasure() ?: Measure(0, 0)
+    private val measureMonth = month?.onItemMeasure() ?: Measure(0, 0)
 
     private val rectBuff = RectF()
     private val calendarBuff = Calendar.getInstance().apply {
@@ -61,6 +61,11 @@ class CalendarMonthView @JvmOverloads constructor(
 
     private val itemDesc = OnItemDesc(rectBuff)
 
+    fun setCalender(calendar: Calendar) {
+        this.calendar.time = calendar.time
+        invalidate()
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val width = max(
             max(measureDay.w, measureWeek.w) * 7 + paddingLeft + paddingRight,
@@ -68,7 +73,7 @@ class CalendarMonthView @JvmOverloads constructor(
         )
         //todo 高度设置或者计算
         val height =
-            measureMonth.h + measureWeek.h * 3 + measureDay.h * 12 + paddingTop + paddingBottom
+            measureMonth.h + measureWeek.h + measureDay.h * calendar.getActualMaximum(Calendar.WEEK_OF_MONTH) + paddingTop + paddingBottom
         setMeasuredDimension(width, height)
     }
 
@@ -149,7 +154,7 @@ class CalendarMonthView @JvmOverloads constructor(
             //此处只考虑连贯选择
             itemDesc.hasLastSelected = itemDesc.isSelected && daysChose.firstOrNull() != d
             itemDesc.hasNextSelected = itemDesc.isSelected && daysChose.lastOrNull() != d
-            day.onItemDraw(canvas, itemDesc, calendarBuff)
+            day?.onItemDraw(canvas, itemDesc, calendarBuff)
 
             daysRect.add(rectBuff)
 
@@ -173,7 +178,7 @@ class CalendarMonthView @JvmOverloads constructor(
             itemDesc.isLineEnd = it == 6
             itemDesc.hasLastSelected = it != 0
             itemDesc.hasNextSelected = it != 6
-            week.onItemDraw(canvas, itemDesc, calendarBuff)
+            week?.onItemDraw(canvas, itemDesc, calendarBuff)
 
             rectBuff.left += width
             rectBuff.right += width
@@ -190,7 +195,7 @@ class CalendarMonthView @JvmOverloads constructor(
 
         calendarBuff.time = calendarNow.time
         itemDesc.reset()
-        month.onItemDraw(canvas, itemDesc, calendarBuff)
+        month?.onItemDraw(canvas, itemDesc, calendarBuff)
 
         return rectMonth.height()
     }
@@ -202,9 +207,12 @@ class CalendarMonthView @JvmOverloads constructor(
     private val lastPress = PointF()
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         val e = event ?: return super.onTouchEvent(event)
-        if (lastPress.x != e.x && lastPress.y != e.y) {
+        if (event.action == MotionEvent.ACTION_DOWN) {
             lastPress.set(e.x, e.y)
-            choseByLastPress()
+        } else if (event.action == MotionEvent.ACTION_UP) {
+            if (lastPress.x == e.x && lastPress.y == e.y) {
+                choseByLastPress()
+            }
         }
         performClick()
         return true

@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.View
 import com.munch.lib.extend.drawTextInCenter
 import com.munch.lib.extend.measureTextBounds
-import java.lang.Integer.max
+import kotlin.math.min
 
 /**
  * Create by munch1182 on 2022/5/23 16:41.
@@ -17,7 +17,6 @@ class WheelView @JvmOverloads constructor(
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
 ) : View(context, attrs, defStyleAttr, defStyleRes) {
-
 
     private var onItem = NumberItemListener()
 
@@ -52,10 +51,9 @@ class WheelView @JvmOverloads constructor(
         val w = MeasureSpec.getSize(widthMeasureSpec)
         val h = MeasureSpec.getSize(heightMeasureSpec)
         updatePaint()
-        val max = onItem.maxWidthStr()
-        paint.measureTextBounds(max, itemRect)
-        val width = max(itemRect.width(), w) + paddingLeft + paddingRight
-        val height = max(itemRect.height() * itemNumber, h) + paddingTop + paddingBottom
+        paint.measureTextBounds(onItem.curr, itemRect)
+        val width = min(itemRect.width() + paddingLeft + paddingRight, w)
+        val height = min(itemRect.height() * itemNumber + paddingTop + paddingBottom, h)
         setMeasuredDimension(width, height)
     }
 
@@ -83,6 +81,8 @@ class WheelView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas ?: return
+
+        canvas.drawColor(Color.RED)
 
         var str = onItem.curr
 
@@ -118,8 +118,6 @@ class WheelView @JvmOverloads constructor(
 
         fun onItem(index: Int): String
 
-        fun maxWidthStr(): String
-
         val curr: String
             get() = onItem(currIndex)
 
@@ -137,8 +135,6 @@ class WheelView @JvmOverloads constructor(
         override var currIndex: Int = 0
 
         override fun onItem(index: Int): String = index.toString()
-
-        override fun maxWidthStr(): String = onItem(maxIndex)
 
         override fun onIndexValid(index: Int): Boolean {
             return currIndex in minIndex..maxIndex
