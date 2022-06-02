@@ -12,7 +12,7 @@ import kotlin.math.min
  *
  * @param str 需要统计的字符串
  */
-fun String.count(str: String): Int {
+fun CharSequence.count(str: String): Int {
     val matcher = Pattern.compile(str).matcher(this)
     var count = 0
     while (matcher.find()) {
@@ -27,7 +27,7 @@ fun String.count(str: String): Int {
  * @param count 分割的数量
  * @param start 字符开始位置
  */
-fun String.split(count: Int, start: Int = 0): Array<String> {
+fun CharSequence.split(count: Int, start: Int = 0): Array<CharSequence> {
     val len = length - start
     if (len <= 0) {
         return arrayOf()
@@ -41,5 +41,4 @@ fun String.split(count: Int, start: Int = 0): Array<String> {
         e = s + min(count, length - s)
         this.substring(s, e).apply { s = e }
     }
-
 }

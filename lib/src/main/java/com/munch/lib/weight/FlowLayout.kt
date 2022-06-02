@@ -9,8 +9,9 @@ import androidx.core.view.children
 import com.munch.lib.R
 import com.munch.lib.Testable
 import com.munch.lib.extend.OnViewUpdate
-import com.munch.lib.extend.dp2Px
 import com.munch.lib.extend.drawRectLine
+import com.munch.lib.extend.icontext.IContext
+import com.munch.lib.extend.icontext.dp2Px
 import com.munch.lib.extend.testPaint
 import com.munch.lib.helper.array.RectArrayHelper
 import com.munch.lib.helper.array.SpecialIntArrayHelper
@@ -27,7 +28,7 @@ class FlowLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     styleDef: Int = 0
-) : ViewGroup(context, attrs, styleDef), OnViewUpdate<FlowLayout> {
+) : ViewGroup(context, attrs, styleDef), OnViewUpdate<FlowLayout>,IContext {
 
     companion object {
 
@@ -35,7 +36,10 @@ class FlowLayout @JvmOverloads constructor(
         const val STYLE_PACKED = 1
     }
 
-    private val dp8 by lazy { context.dp2Px(8f).toInt() }
+    override val ctx: Context
+        get() = context
+
+    private val dp8 by lazy { dp2Px(8f).toInt() }
 
     //行间隔
     var lineSpace = 0

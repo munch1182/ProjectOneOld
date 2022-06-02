@@ -29,12 +29,23 @@ class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         }
         val adapter = AdapterHelper(resultAdapter)
         bind.resultRv.apply {
-            val lm = LinearLayoutManager(context())
+            val lm = LinearLayoutManager(ctx)
             layoutManager = lm
             adapter.bind(this)
             addItemDecoration(LinearLineItemDecoration(lm))
         }
         adapter.setOnItemClickListener { _, pos, _ ->
+            if (resultAdapter.isSelectedMode) {
+                resultAdapter.get(pos)?.let {
+                    it.isSelected = !it.isSelected
+                    resultAdapter.update(pos, true)
+                }
+            } else {
+                resultAdapter.get(pos)?.let {
+                    it.isSelected = true
+                    vm.dispatch(ResultIntent.Request)
+                }
+            }
         }
         adapter.setOnItemLongClickListener { _, _, _ -> showBtn(resultAdapter.toggle()) }
         adapter.showRefresh()
@@ -68,7 +79,8 @@ class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
     private class ResultAdapter(var onItemCheck: ((PI, Boolean) -> Unit)? = null) :
         BindRVAdapter<PI, ItemResultBinding>(ItemResultBinding::class) {
 
-        private var isSelectedMode = false
+        var isSelectedMode = false
+            private set
 
         override fun onBind(
             holder: BaseBindViewHolder<ItemResultBinding>,

@@ -1,13 +1,15 @@
 package com.munch.lib
 
 import android.app.Application
+import android.content.Context
+import com.munch.lib.extend.icontext.IContext
 
 /**
  * 此类作为context的存储类，赋值后可供本库中的其它类和函数提供context，而无需再传参
  *
  * Create by munch1182 on 2022/3/30 19:15.
  */
-object AppHelper {
+object AppHelper : IContext {
 
     private var application: Application? = null
 
@@ -20,4 +22,7 @@ object AppHelper {
     fun init(application: Application) {
         AppHelper.application = application
     }
+
+    override val ctx: Context
+        get() = app
 }

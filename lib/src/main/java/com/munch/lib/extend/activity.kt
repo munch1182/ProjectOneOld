@@ -19,7 +19,9 @@ import kotlin.reflect.KClass
 /**
  * Create by munch1182 on 2022/3/8 16:23.
  */
-
+/**
+ * 用于触发vb
+ */
 inline fun ViewBinding.init() {
     this.apply { //nothing
     }
@@ -37,7 +39,7 @@ inline fun Activity.contentView(): FrameLayout = findViewById(android.R.id.conte
 
 inline fun <reified VB : ViewBinding> ComponentActivity.bind(): Lazy<VB> {
     return lazy {
-        VB::class.inflate()!!.inflate(layoutInflater)!!.also { v -> setContentView(v.root) } as VB
+        VB::class.inflate()!!.inflate(layoutInflater)!!.also { setContentView(it.root) } as VB
     }
 }
 

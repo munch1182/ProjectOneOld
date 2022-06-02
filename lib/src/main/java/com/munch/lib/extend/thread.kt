@@ -67,8 +67,7 @@ inline fun pool(submit: Boolean = false, task: Runnable) {
 
 inline fun <T> pool(task: Callable<T>): Future<T>? = ThreadHelper.pool(task)
 
-inline fun postUI(runnable: Runnable) = ThreadHelper.mainHandler.post(runnable)
-inline fun postUI(time: Long, runnable: Runnable) =
+inline fun postUI(time: Long = 0L, runnable: Runnable) =
     ThreadHelper.mainHandler.postDelayed(runnable, time)
 
 open class ThreadHandler private constructor(loop: Looper) : Handler(loop) {

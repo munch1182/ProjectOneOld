@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.munch.lib.extend.suspendCancellableCoroutine
 import com.munch.lib.extend.toLive
 import com.munch.lib.helper.ActivityHelper
 import com.munch.lib.result.ResultHelper
@@ -16,8 +17,6 @@ import com.munch.lib.result.isGranted
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import android.Manifest.permission as P
 import android.content.Intent as I
@@ -49,18 +48,16 @@ internal class ResultVM : ViewModel() {
                         val i = list.filterIsInstance<PI.Intent>()
                             .filter { it.isSelected }
                             .map { it.intent.invoke(ActivityHelper.curr!!) }
-                        withContext(Dispatchers.Main) {
-                            suspendCancellableCoroutine<Boolean> { c ->
-                                ResultHelper
-                                    .with(ActivityHelper.curr as FragmentActivity)
-                                    .contact()
-                                    .apply {
-                                        permissions.apply { contact(*this) }
-                                        i.forEach { contact(it) }
-                                    }.start {
-                                        c.resume(true)
-                                    }
-                            }
+                        suspendCancellableCoroutine<Boolean>(Dispatchers.Main) { c ->
+                            ResultHelper
+                                .with(ActivityHelper.curr as FragmentActivity)
+                                .contact()
+                                .apply {
+                                    permissions.apply { contact(*this) }
+                                    i.forEach { contact(it) }
+                                }.start {
+                                    c.resume(true)
+                                }
                         }
                         updateList()
                         _data.postValue(ResultUIState.Data(list))
@@ -83,18 +80,21 @@ internal class ResultVM : ViewModel() {
                 arrayListOf(
                     PI.Permission(P.CALL_PHONE),
                     PI.Permission(P.ACCESS_FINE_LOCATION),
+                    PI.Permission(P.WRITE_EXTERNAL_STORAGE),
                     PI.Intent.DEVELOP,
-                    PI.Intent.SET
+                    PI.Intent.SET,
+                    PI.Intent.POLICY,
+                    PI.Intent.NOTIFICATION
                 )
             )
         }
-        list.filterIsInstance<PI.Permission>()
-            .forEach {
-                if (it.permission.isGranted()) {
-                    it.state = PermissionState.Granted
-                }
+        list.forEach {
+            if (it is PI.Permission && it.permission.isGranted()) {
+                it.state = PermissionState.Granted
             }
-     }
+            it.isSelected = false
+        }
+    }
 }
 
 internal sealed class PI {
@@ -150,6 +150,9 @@ internal sealed class PI {
                     Uri.parse("package:${it.packageName}")
                 )
             }
+            val POLICY = Intent("POLICY") { I(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS) }
+            val NOTIFICATION =
+                Intent("NOTIFICATION") { I(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS) }
         }
 
         override fun toString(): String {

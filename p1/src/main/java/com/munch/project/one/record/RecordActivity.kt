@@ -72,7 +72,7 @@ class RecordActivity : BaseFastActivity(),
                 val file = File(cacheDir, name)
                 file.new()
                 FileOutputStream(file).use { DBRecord.share2File(it) }
-                FileHelper.toUri(context(), file)?.let { shareUri(it) }
+                FileHelper.toUri(ctx, file)?.let { shareUri(it) }
             }
             return true
         }

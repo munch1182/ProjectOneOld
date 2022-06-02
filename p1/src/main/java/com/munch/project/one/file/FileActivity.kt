@@ -19,13 +19,16 @@ import kotlinx.coroutines.launch
  */
 class FileActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
-    private val bind by fvFv(arrayOf("open"))
+    private val bind by fvFv(arrayOf("new", "open"))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind.click { _, index ->
             when (index) {
                 0 -> {
+
+                }
+                1 -> {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
                     intent.type = "*/*"
                     intent.addCategory(Intent.CATEGORY_OPENABLE)

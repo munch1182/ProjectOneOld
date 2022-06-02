@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.core.view.setPadding
 import com.munch.lib.extend.bind
-import com.munch.lib.extend.putStr2Clip
+import com.munch.lib.extend.icontext.putStr2Clip
 import com.munch.lib.extend.shareText
 import com.munch.lib.fast.R
 import com.munch.lib.fast.base.BaseFastActivity

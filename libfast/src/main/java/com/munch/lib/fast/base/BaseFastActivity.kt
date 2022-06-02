@@ -11,8 +11,8 @@ import androidx.viewbinding.ViewBinding
 import cn.munch.lib.DBRecord
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.munch.lib.AppHelper
-import com.munch.lib.extend.IContext
 import com.munch.lib.extend.getColorPrimary
+import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.inflate
 import com.munch.lib.extend.inflateParent
 import com.munch.lib.fast.measure.MeasureHelper
@@ -95,5 +95,6 @@ open class BindBottomSheetDialogFragment : BottomSheetDialogFragment(), IContext
         viewBinding = null
     }
 
-    override fun context(): Context = requireContext()
+    override val ctx: Context
+        get() = requireContext()
 }

@@ -20,6 +20,9 @@ inline fun Calendar.getDate() = get(Calendar.DAY_OF_YEAR)
 inline fun Calendar.getHour() = get(Calendar.HOUR_OF_DAY)
 inline fun Calendar.getMinute() = get(Calendar.MINUTE)
 inline fun Calendar.getSecond() = get(Calendar.SECOND)
+inline fun Calendar.addDay(days: Int) = add(Calendar.DAY_OF_MONTH, days)
+inline fun Calendar.addMonth(month: Int) = add(Calendar.MONTH, month)
+inline fun Calendar.addYear(year: Int) = add(Calendar.YEAR, year)
 
 //返回本月第几周
 inline fun Calendar.getWeekIndex() = get(Calendar.WEEK_OF_MONTH)

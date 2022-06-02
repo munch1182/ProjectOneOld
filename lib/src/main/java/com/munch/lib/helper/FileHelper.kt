@@ -8,10 +8,7 @@ import android.os.Build
 import android.provider.OpenableColumns
 import androidx.annotation.WorkerThread
 import androidx.core.content.FileProvider
-import com.munch.lib.Key
-import com.munch.lib.task.Data
-import com.munch.lib.task.ITask
-import com.munch.lib.task.Result
+import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -37,35 +34,42 @@ object FileHelper {
      * @see [https://developer.android.google.cn/training/secure-file-sharing/setup-sharing]
      *
      */
-    fun toUri(context: Context, file: File): Uri? {
+    fun toUri(
+        context: Context,
+        file: File,
+        authority: String = "${context.packageName}.fileprovider"
+    ): Uri? {
         return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
-            FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            FileProvider.getUriForFile(context, authority, file)
         } else {
             Uri.fromFile(file)
         }
     }
 
     /**
-     * 将uri的数据复制到dir目录下的同名文件中
+     * 将uri的数据复制到文件中
      *
-     * 如果未查到文件名也将为空
+     * @param f 如果传入的是个文件夹，则将uri复制到该文件夹下同名文件，否则，则复制到该文件中
      */
     fun uri2File(
         context: Context,
         uri: Uri?,
-        dir: File = context.cacheDir,
-        name: String? = null,
+        f: File = context.cacheDir,
         onProgress: OnProgressListener? = null
     ): File? {
         uri ?: return null
-        val n = name ?: queryName(context, uri) ?: return null
-        val file = File(dir, n)
-        context.contentResolver.openInputStream(uri)?.use {
+        val file = if (f.isFile) {
+            f
+        } else {
+            val n = queryName(context, uri) ?: return null
+            File(f, n)
+        }
+        return context.contentResolver.openInputStream(uri)?.close {
             if (!copy2File(it, file, false, onProgress = onProgress)) {
                 return null
             }
+            file
         }
-        return file
     }
 
     /**
@@ -107,27 +111,22 @@ object FileHelper {
         size: Int = buffSize(ins.available().toLong()),
         onProgress: OnProgressListener? = null
     ): Boolean {
-        return try {
-            FileOutputStream(file, append).use { os ->
-                val buffer = ByteArray(size)
-                var length: Int
-                val all = ins.available().toLong()
-                var progress = 0L
-                while (ins.read(buffer).also { length = it } > 0) {
-                    os.write(buffer, 0, length)
-                    progress += length
-                    onProgress?.onProgress(progress, all)
-                }
-                os.flush()
-                if (progress < all) {
-                    onProgress?.onProgress(all, all)
-                }
-                true
+        return FileOutputStream(file, append).close { os ->
+            val buffer = ByteArray(size)
+            var length: Int
+            val all = ins.available().toLong()
+            var progress = 0L
+            while (ins.read(buffer).also { length = it } > 0) {
+                os.write(buffer, 0, length)
+                progress += length
+                onProgress?.onProgress(progress, all)
             }
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            false
-        }
+            os.flush()
+            if (progress < all) {
+                onProgress?.onProgress(all, all)
+            }
+            true
+        } ?: false
     }
 
     fun buffSize(size: Long): Int {
@@ -145,17 +144,41 @@ object FileHelper {
     }
 }
 
-inline fun File.new(): Boolean {
-    return (parentFile?.mkdirs() ?: true) && delete() && createNewFile()
+/**
+ * 创建文件及文件夹
+ */
+fun File.new(): Boolean {
+    return (parentFile?.let { exists() or mkdirs() } ?: true)
+            && (if (exists()) delete() else true)
+            && createNewFile()
 }
 
-class FileTask : ITask {
-    override val key: Key = Key("FileTask".toInt() * 1000 + FileTaskKeyHelper.curr)
+/**
+ * 删除所有能删除的文件或者文件夹内的文件及文件本身
+ */
+fun File.del(): Boolean {
+    if (isFile) return delete()
+    var result = true
+    listFiles()?.forEach {
+        result = it.del() && result
+    }
+    delete()
+    return result
+}
 
-    override suspend fun run(input: Data?): Result {
-
-        return Result.failure()
+inline fun <T : Closeable?, R> T.close(block: (T) -> R): R? {
+    return try {
+        block(this)
+    } catch (e: Throwable) {
+        null
+    } finally {
+        when {
+            this == null -> {}
+            else ->
+                try {
+                    close()
+                } catch (closeException: Throwable) {
+                }
+        }
     }
 }
-
-internal object FileTaskKeyHelper : IInterHelper by InterHelper()

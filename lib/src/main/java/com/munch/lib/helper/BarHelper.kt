@@ -8,7 +8,6 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import com.munch.lib.extend.addPadding
 import com.munch.lib.extend.getStatusBarHeight
@@ -17,7 +16,6 @@ import com.munch.lib.extend.getStatusBarHeight
  * Create by munch1182 on 2020/12/12 21:03.
  */
 @Suppress("DEPRECATION")
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class BarHelper(activity: Activity) {
 
     constructor(fragment: Fragment) : this(fragment.requireActivity())
@@ -92,7 +90,6 @@ class BarHelper(activity: Activity) {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     fun setTextColorBlack(black: Boolean = true): BarHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.setSystemBarsAppearance(

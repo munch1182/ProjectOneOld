@@ -9,8 +9,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
@@ -91,11 +93,29 @@ inline fun <reified T : Any> invoke(
     }
 }
 
+inline fun <T> catch(block: () -> T): T? {
+    return try {
+        block.invoke()
+    } catch (e: Exception) {
+        null
+    }
+}
+
 suspend inline fun <T> suspendCancellableCoroutine(
     timeout: Long,
     crossinline block: (CancellableContinuation<T>) -> Unit
 ): T? = withTimeoutOrNull(timeout) { kotlinx.coroutines.suspendCancellableCoroutine(block) }
 
+suspend inline fun <T> suspendCancellableCoroutine(
+    dispatcher: CoroutineDispatcher,
+    crossinline block: (CancellableContinuation<T>) -> Unit
+): T? = withContext(dispatcher) { kotlinx.coroutines.suspendCancellableCoroutine(block) }
+
+suspend inline fun <T> suspendCancellableCoroutine(
+    dispatcher: CoroutineDispatcher,
+    timeout: Long,
+    crossinline block: (CancellableContinuation<T>) -> Unit
+): T? = withContext(dispatcher) { suspendCancellableCoroutine(timeout, block) }
 
 /**
  * 默认一个参数的单例

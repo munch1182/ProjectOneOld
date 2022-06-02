@@ -1,8 +1,7 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package com.munch.lib.extend
+package com.munch.lib.extend.icontext
 
-import android.content.Context
 import androidx.annotation.ColorRes
 import com.munch.lib.AppHelper
 
@@ -10,7 +9,7 @@ import com.munch.lib.AppHelper
  * Create by munch1182 on 2022/4/15 20:53.
  */
 //依赖于theme的不能使用AppHelper.app
-inline fun getCommonContext(): Context = AppHelper.app
+inline fun getCommonContext(): IContext = AppHelper
 
 inline fun getColorCompat(@ColorRes color: Int) = getCommonContext().getColorCompat(color)
 inline fun getStatusBarHeight() = getCommonContext().getStatusBarHeight()
