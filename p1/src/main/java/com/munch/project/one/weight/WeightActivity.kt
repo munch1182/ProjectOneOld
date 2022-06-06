@@ -11,6 +11,7 @@ import com.munch.lib.fast.view.fvClassRv
 import com.munch.lib.fast.view.supportDef
 import com.munch.lib.weight.calendar.CalendarView
 import com.munch.lib.weight.wheelview.WheelView
+import com.munch.project.one.databinding.ActivityWeightRvhBinding
 
 /**
  * Create by munch1182 on 2022/4/25 17:54.
@@ -21,6 +22,7 @@ class WeightActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         listOf(
             CalendarActivity::class,
             WheelActivity::class,
+            RecyclerViewHeaderActivity::class
         )
     )
 
@@ -48,5 +50,16 @@ class WheelActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 WheelView(ctx),
                 newWWLp().apply { setPadding(dp2Px(16f).toInt()) })
         })
+    }
+}
+
+class RecyclerViewHeaderActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
+
+    //private val bind by bind<ActivityWeightRvhBinding>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        //bind.init()
+        setContentView(ActivityWeightRvhBinding.inflate(layoutInflater).root)
     }
 }

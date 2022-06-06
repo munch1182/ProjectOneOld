@@ -18,7 +18,10 @@ class BluetoothDev(
 
     companion object {
 
-        fun from(result: ScanResult) = BluetoothDev(result.device).apply { rssi = result.rssi }
+        fun from(result: ScanResult) = BluetoothDev(result.device).apply {
+            rssi = result.rssi
+            scanRecord = result.scanRecord?.bytes
+        }
     }
 
     private val log = BluetoothHelper.log
@@ -38,6 +41,7 @@ class BluetoothDev(
         get() = dev?.name
 
     var rssi: Int = 0
+    var scanRecord: ByteArray? = null
 
     val isPair: Boolean
         get() = helper?.isPair(mac) ?: false

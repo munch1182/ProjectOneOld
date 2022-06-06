@@ -53,6 +53,7 @@ inline fun IContext.shareText(content: CharSequence) = ctx.shareText(content)
 inline fun IContext.shareUri(uri: Uri) = ctx.shareUri(uri)
 inline fun IContext.getNameVersion() = ctx.getNameVersion()
 inline fun IContext.isScreenOn() = ctx.isScreenOn()
+inline fun IContext.getScreenSize(full: Boolean = false) = ctx.getScreenSize(full)
 
 @ColorInt
 fun IContext.getColorPrimary() = ctx.getColorPrimary()

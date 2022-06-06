@@ -1,4 +1,4 @@
-package com.munch.lib.weight.calendar
+package com.munch.lib.weight.recyclerview
 
 import android.content.Context
 import android.graphics.Canvas
@@ -9,13 +9,14 @@ import android.view.View
 import com.munch.lib.extend.*
 import com.munch.lib.graphics.RectF
 import com.munch.lib.helper.array.RectFArrayHelper
+import com.munch.lib.weight.calendar.*
 import java.util.*
 import kotlin.math.max
 
 /**
  * Create by munch1182 on 2022/4/25 16:05.
  */
-class CalendarMonthView @JvmOverloads constructor(
+class CalendarMonthOnlyView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     styleDef: Int = 0,
@@ -35,8 +36,8 @@ class CalendarMonthView @JvmOverloads constructor(
 
     //drawer
     var month: OnItemDraw? = MonthDrawer(context)
-    var day: OnItemDraw? = DayDrawer(context)
-    var week: OnItemDraw? = /*WeekDrawer(context)*/null
+    var day: OnItemDraw? = null
+    var week: OnItemDraw? = WeekDrawer(context)
 
 
     //rect, 绘制的区域

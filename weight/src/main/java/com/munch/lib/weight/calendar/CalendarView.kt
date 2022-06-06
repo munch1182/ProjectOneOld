@@ -59,15 +59,21 @@ class CalendarView @JvmOverloads constructor(
 
         val currIndex = count - 3
 
+        private val list = mutableListOf<Calendar>()
+
+        init {
+            list.clear()
+            repeat(count) {
+                list.add(0, Calendar.getInstance().apply { addMonth(count - 1 - it - currIndex) })
+            }
+        }
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MonthVH {
             return MonthVH(CalendarMonthView(parent.context))
         }
 
         override fun onBindViewHolder(holder: MonthVH, position: Int) {
-            holder.view.setCalender(Calendar.getInstance().apply {
-                time = calendarNow.time
-                addMonth(position - currIndex)
-            })
+            holder.view.setCalender(list[position])
         }
 
         override fun getItemCount() = count

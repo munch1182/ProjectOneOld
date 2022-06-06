@@ -3,10 +3,11 @@
 package com.munch.lib.extend
 
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.DisplayMetrics
+import android.util.Size
+import android.view.*
 import android.widget.FrameLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ComponentActivity
@@ -42,6 +43,35 @@ inline fun <reified VB : ViewBinding> ComponentActivity.bind(): Lazy<VB> {
         VB::class.inflate()!!.inflate(layoutInflater)!!.also { setContentView(it.root) } as VB
     }
 }
+
+/**
+ * 获取屏幕宽高
+ *
+ * @param full 宽高是否包括系统栏区域，如状态栏、导航栏
+ */
+@Suppress("DEPRECATION")
+fun WindowManager.getScreenSize(full: Boolean = false): Size {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val metrics = currentWindowMetrics
+        val bd = metrics.bounds
+        if (full) {
+            Size(bd.width(), bd.height())
+        } else {
+            val mask = WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout()
+            val insets = metrics.windowInsets.getInsetsIgnoringVisibility(mask)
+            Size(
+                (bd.width() - insets.right - insets.left),
+                (bd.height() - insets.top - insets.bottom)
+            )
+        }
+    } else {
+        DisplayMetrics()
+            .also { if (full) defaultDisplay.getRealMetrics(it) else defaultDisplay.getMetrics(it) }
+            .let { Size(it.widthPixels, it.heightPixels) }
+    }
+}
+
+inline fun Activity.getScreenSize(full: Boolean = false) = windowManager.getScreenSize(full)
 
 fun FragmentActivity.replace(id: Int, fragment: Fragment) {
     supportFragmentManager.beginTransaction()

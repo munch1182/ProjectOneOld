@@ -6,7 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.munch.lib.log.Logger
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlin.coroutines.CoroutineContext
 
@@ -18,10 +18,10 @@ class ResultFragment : Fragment(), CoroutineScope {
     private var result: OnIntentResultListener? = null
     private var permission: OnPermissionResultListener? = null
     private val log = Logger("result")
-    private val job = Job()
+    private val job = SupervisorJob()
 
     val isValid: Boolean
-        get() = activity != null && !requireActivity().isDestroyed && !requireActivity().isFinishing
+        get() = activity != null && !requireActivity().isDestroyed && !requireActivity().isFinishing && job.isActive
 
     private val permissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {

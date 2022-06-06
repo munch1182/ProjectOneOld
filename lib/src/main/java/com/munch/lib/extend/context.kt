@@ -15,6 +15,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.util.TypedValue
+import android.view.WindowManager
 import androidx.annotation.ArrayRes
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -38,6 +39,9 @@ fun Context.getDimenById(name: String): Int? {
 
 inline fun Context.getStatusBarHeight() = getDimenById("status_bar_height")
 inline fun Context.getNavigationBarHeight() = getDimenById("navigation_bar_height")
+
+inline fun Context.getScreenSize(full: Boolean = false) =
+    (getSystemService(Context.WINDOW_SERVICE) as? WindowManager)?.getScreenSize(full)
 
 inline fun Context.isPermissionGranted(permission: String) =
     PermissionChecker.checkSelfPermission(
