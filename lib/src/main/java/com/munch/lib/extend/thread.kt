@@ -5,6 +5,7 @@ package com.munch.lib.extend
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
+import android.os.SystemClock
 import com.munch.lib.helper.ThreadHelper
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -69,6 +70,15 @@ inline fun <T> pool(task: Callable<T>): Future<T>? = ThreadHelper.pool(task)
 
 inline fun postUI(time: Long = 0L, runnable: Runnable) =
     ThreadHelper.mainHandler.postDelayed(runnable, time)
+
+inline fun delay(time: Long = 0L, runnable: Runnable) {
+    if (Thread.currentThread().isMain()) {
+        postUI(time, runnable)
+    } else {
+        SystemClock.sleep(time)
+        runnable.run()
+    }
+}
 
 open class ThreadHandler private constructor(loop: Looper) : Handler(loop) {
 

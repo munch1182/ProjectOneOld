@@ -58,12 +58,7 @@ object FileHelper {
         onProgress: OnProgressListener? = null
     ): File? {
         uri ?: return null
-        val file = if (f.isFile) {
-            f
-        } else {
-            val n = queryName(context, uri) ?: return null
-            File(f, n)
-        }
+        val file = if (f.isFile) f else queryName(context, uri)?.let { File(f, it) } ?: return null
         return context.contentResolver.openInputStream(uri)?.close {
             if (!copy2File(it, file, false, onProgress = onProgress)) {
                 return null

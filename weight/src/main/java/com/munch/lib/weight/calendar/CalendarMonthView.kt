@@ -9,6 +9,7 @@ import android.view.View
 import com.munch.lib.extend.*
 import com.munch.lib.graphics.RectF
 import com.munch.lib.helper.array.RectFArrayHelper
+import com.munch.lib.log.log
 import java.util.*
 import kotlin.math.max
 
@@ -19,6 +20,9 @@ class CalendarMonthView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     styleDef: Int = 0,
+    var month: OnItemDraw? = MonthDrawer(context),
+    var day: OnItemDraw? = DayDrawer(context),
+    var week: OnItemDraw? = WeekDrawer(context)
 ) : View(context, attrs, styleDef) {
 
     //当前时间
@@ -26,18 +30,6 @@ class CalendarMonthView @JvmOverloads constructor(
         //firstDayOfWeek = Calendar.MONDAY
     }
     private var choseType: ChoseType = ChoseType.Week
-
-    //当前显示的月份
-    private val calendarNow = Calendar.getInstance()
-
-    //选中的时间，只代表点中的时间
-    private val calendarSelected = Calendar.getInstance()
-
-    //drawer
-    var month: OnItemDraw? = MonthDrawer(context)
-    var day: OnItemDraw? = DayDrawer(context)
-    var week: OnItemDraw? = /*WeekDrawer(context)*/null
-
 
     //rect, 绘制的区域
     private val rectMonth = RectF()
@@ -61,6 +53,8 @@ class CalendarMonthView @JvmOverloads constructor(
 
     private val itemDesc = OnItemDesc(rectBuff)
 
+    var onDateChose: OnDateChoseListener? = null
+
     fun setCalender(calendar: Calendar) {
         this.calendar.time = calendar.time
         invalidate()
@@ -72,8 +66,9 @@ class CalendarMonthView @JvmOverloads constructor(
             MeasureSpec.getSize(widthMeasureSpec)
         )
         //todo 高度设置或者计算
-        val height =
-            measureMonth.h + measureWeek.h + measureDay.h * calendar.getActualMaximum(Calendar.WEEK_OF_MONTH) + paddingTop + paddingBottom
+        val height = measureMonth.h + measureWeek.h +
+                measureDay.h * calendar.getActualMaximum(Calendar.WEEK_OF_MONTH) +
+                paddingTop + paddingBottom
         setMeasuredDimension(width, height)
     }
 
@@ -106,15 +101,15 @@ class CalendarMonthView @JvmOverloads constructor(
         super.onDraw(canvas)
         canvas ?: return
 
-        calendarNow.timeInMillis = calendar.timeInMillis
+        calendarBuff.timeInMillis = calendar.timeInMillis
         var height = paddingTop.toFloat()
 
         //month
-        height += drawMonth(canvas, height)
+        month?.let { height += drawMonth(canvas, height) }
         //week
-        height += drawWeeks(canvas, height)
+        week?.let { height += drawWeeks(canvas, height) }
         //day
-        height += drawDays(canvas, height)
+        day?.let { height += drawDays(canvas, height) }
     }
 
     private fun drawDays(canvas: Canvas, height: Float): Float {
@@ -123,7 +118,7 @@ class CalendarMonthView @JvmOverloads constructor(
 
         val width = rectWeek.width()
 
-        calendarBuff.time = calendarNow.time
+        calendarBuff.time = calendar.time
         calendarBuff.set(Calendar.DAY_OF_MONTH, 1)
         val days = calendarBuff.getActualMaximum(Calendar.DAY_OF_MONTH)
 
@@ -170,7 +165,7 @@ class CalendarMonthView @JvmOverloads constructor(
 
         val width = rectWeek.width()
 
-        calendarBuff.time = calendarNow.time
+        calendarBuff.time = calendar.time
         calendarBuff.set(Calendar.DAY_OF_WEEK, calendarBuff.firstDayOfWeek)
         itemDesc.reset()
         repeat(7) {
@@ -193,7 +188,7 @@ class CalendarMonthView @JvmOverloads constructor(
         rectBuff.top += height
         rectBuff.bottom += height
 
-        calendarBuff.time = calendarNow.time
+        calendarBuff.time = calendar.time
         itemDesc.reset()
         month?.onItemDraw(canvas, itemDesc, calendarBuff)
 
@@ -205,12 +200,14 @@ class CalendarMonthView @JvmOverloads constructor(
     }
 
     private val lastPress = PointF()
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         val e = event ?: return super.onTouchEvent(event)
         if (event.action == MotionEvent.ACTION_DOWN) {
             lastPress.set(e.x, e.y)
         } else if (event.action == MotionEvent.ACTION_UP) {
             if (lastPress.x == e.x && lastPress.y == e.y) {
+                performClick()
                 choseByLastPress()
             }
         }
@@ -221,42 +218,23 @@ class CalendarMonthView @JvmOverloads constructor(
     private fun choseByLastPress() {
         var date = daysRect.indexOfFirst { lastPress in it }
         if (date != -1) {
+            //因为index是从0开始的
             date += 1
-            when (choseType) {
-                ChoseType.Day -> {
-                    //因为index是从0开始的
-                    daysChose.clear()
-                    daysChose.add(date)
-
-                }
-                ChoseType.Month -> {
-                    daysChose.clear()
-                    repeat(daysRect.size) {
-                        date = it + 1
-                        daysChose.add(date)
-                    }
-                }
-                ChoseType.Week -> {
-                    daysChose.clear()
-                    calendarBuff.set(Calendar.DAY_OF_MONTH, date)
-                    var index = calendarBuff.getDayInWeekIndex()
-                    if (index == 0) {
-                        index = 6
-                    } else {
-                        index -= 1
-                    }
-                    repeat(index) { daysChose.add(date - (it + 1)) }
-                    repeat(7 - index) { daysChose.add(date + it) }
-                }
-            }
-            invalidate()
+            calendarBuff.time = calendar.time
+            calendarBuff.set(Calendar.DAY_OF_MONTH, date)
+            onDateChose?.onDateChose(calendarBuff, choseType)
         }
+    }
+
+    fun chose(calendar: Calendar) {
+        choseByDate(calendar)
     }
 
     /**
      * @see choseType
      */
     private fun choseByDate(calendar: Calendar) {
+        calendarBuff.time = calendar.time
         val monthNumber = calendarBuff.getMonth()
         when (choseType) {
             ChoseType.Day -> {
@@ -265,7 +243,7 @@ class CalendarMonthView @JvmOverloads constructor(
                 }
                 daysChose.clear()
                 daysChose.add(calendar.getDay())
-
+                invalidate()
             }
             ChoseType.Month -> {
                 if (calendar.getMonth() != monthNumber) {
@@ -275,6 +253,7 @@ class CalendarMonthView @JvmOverloads constructor(
                 repeat(daysRect.size) {
                     daysChose.add(it + 1)
                 }
+                invalidate()
             }
             ChoseType.Week -> {
                 daysChose.clear()
@@ -284,25 +263,47 @@ class CalendarMonthView @JvmOverloads constructor(
                 } else {
                     index -= 1
                 }
-                val date = calendar.getDate()
+                val date = calendar.getDay()
+                var needUpdate = false
+                calendarBuff.time = calendar.time
                 repeat(index) {
+                    val i = date - (it + 1)
+
                     if (calendar.getMonth() == monthNumber) {
-                        daysChose.add(date - (it + 1))
+                        daysChose.add(i)
+                        needUpdate = needUpdate || true
                     }
                 }
                 repeat(7 - index) {
+                    val i = date + it
+                    calendarBuff.set(Calendar.DAY_OF_MONTH, i)
                     if (calendar.getMonth() == monthNumber) {
-                        daysChose.add(date + it)
+                        daysChose.add(i)
+                        needUpdate = needUpdate || true
                     }
                 }
+                if (needUpdate) {
+                    invalidate()
+                }
+                log(
+                    calendar.getMonth(),
+                    monthNumber,
+                    calendar.getMonth() != monthNumber,
+                    needUpdate,
+                    date
+                )
             }
         }
-        invalidate()
     }
 
     sealed class ChoseType {
         object Day : ChoseType()
         object Week : ChoseType()
         object Month : ChoseType()
+    }
+
+    interface OnDateChoseListener {
+
+        fun onDateChose(calendar: Calendar, type: ChoseType)
     }
 }

@@ -14,6 +14,7 @@ inline fun Calendar.getYear() = get(Calendar.YEAR)
  * 月份已修正
  */
 inline fun Calendar.getMonth() = get(Calendar.MONTH) + 1
+inline fun Calendar.getMonthIndex() = getYear() * 12 + get(Calendar.MONTH) + 1
 inline fun Calendar.getDay() = get(Calendar.DAY_OF_MONTH)
 inline fun Calendar.getWeekToday() = get(Calendar.DAY_OF_WEEK)
 inline fun Calendar.getDate() = get(Calendar.DAY_OF_YEAR)
@@ -133,3 +134,22 @@ fun String.toDate(pattern: String = "yyyy-MM-dd HH:mm:ss") =
         e.printStackTrace()
         null
     }
+
+abstract class NumberImp : Number() {
+
+    protected abstract val number: Number
+
+    override fun toByte(): Byte = number.toByte()
+
+    override fun toChar() = number.toChar()
+
+    override fun toDouble() = number.toDouble()
+
+    override fun toFloat() = number.toFloat()
+
+    override fun toInt() = number.toInt()
+
+    override fun toLong() = number.toLong()
+
+    override fun toShort() = number.toShort()
+}

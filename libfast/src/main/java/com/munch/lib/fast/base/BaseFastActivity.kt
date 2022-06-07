@@ -51,8 +51,12 @@ open class BaseFastActivity : DispatcherActivity(), IContext {
                     DBRecord.time("${this@BaseFastActivity::class.java.simpleName} onCreate ~ onWindowFocusChanged cost $it ms")
                 }
             }
-
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        measured = true
     }
 
     fun toast(str: CharSequence) {

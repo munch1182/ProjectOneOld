@@ -4,6 +4,14 @@ plugins {
 }
 apply from: '../buildCom/commonbuildktx.gradle'
 
+android {
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
 dependencies {
 
     implementation deps['swipeRefreshLayout']
@@ -18,4 +26,6 @@ dependencies {
     implementation project(':weight')
     implementation project(':libfast')
     implementation project(':bluetooth')
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }

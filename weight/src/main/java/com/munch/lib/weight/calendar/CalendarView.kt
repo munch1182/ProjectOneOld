@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.extend.addMonth
 import com.munch.lib.extend.getMonth
+import com.munch.lib.extend.getMonthIndex
 import com.munch.lib.extend.getYear
 import com.munch.lib.extend.icontext.IContext
 import java.util.*
@@ -24,33 +25,33 @@ class CalendarView @JvmOverloads constructor(
     private val calendarStart = Calendar.getInstance().apply {
         set(2020, 1, 1)
     }
-    private var lastPos = -1
+    private val count =
+        (calendarNow.getYear() - calendarStart.getYear()) * 12 + calendarNow.getMonth() + 2
+
+    private val monthAdapter = MonthAdapter(count)
 
     init {
         val lm = LinearLayoutManager(ctx)
-
-        val count =
-            (calendarNow.getYear() - calendarStart.getYear()) * 12 + calendarNow.getMonth() + 2
-
-        val monthAdapter = MonthAdapter(count)
-
         layoutManager = lm
         adapter = monthAdapter
         lm.scrollToPosition(monthAdapter.currIndex)
-        addOnScrollListener(object : OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (newState != SCROLL_STATE_IDLE) {
-                    val pos = lm.findFirstVisibleItemPosition()
-                    if (lastPos == pos) {
-                        return
-                    }
-                    lastPos = pos
-                }
-            }
-        })
     }
 
+    fun get(pos: Int): Calendar? {
+        return monthAdapter.get(pos)
+    }
+
+    fun select(calendar: Calendar) {
+        val month = monthAdapter.get(0) ?: return
+        val diff = calendar.getMonthIndex() - month.getMonthIndex()
+        monthAdapter.notifyItemChanged(diff, calendar)
+        monthAdapter.notifyItemChanged(diff - 1, calendar)
+        monthAdapter.notifyItemChanged(diff + 1, calendar)
+    }
+
+    private fun onDateChose(calendar: Calendar, type: CalendarMonthView.ChoseType, pos: Int) {
+        select(calendar)
+    }
 
     override val ctx: Context
         get() = context
@@ -68,15 +69,36 @@ class CalendarView @JvmOverloads constructor(
             }
         }
 
+        fun get(pos: Int): Calendar? {
+            return list.getOrNull(pos)
+        }
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MonthVH {
-            return MonthVH(CalendarMonthView(parent.context))
+            return MonthVH(CalendarMonthView(parent.context, week = null))
         }
 
         override fun onBindViewHolder(holder: MonthVH, position: Int) {
             holder.view.setCalender(list[position])
+            holder.view.onDateChose = object : CalendarMonthView.OnDateChoseListener {
+                override fun onDateChose(
+                    calendar: Calendar,
+                    type: CalendarMonthView.ChoseType
+                ) {
+                    onDateChose(calendar, type, holder.absoluteAdapterPosition)
+                }
+            }
         }
 
-        override fun getItemCount() = count
+        override fun onBindViewHolder(holder: MonthVH, position: Int, payloads: MutableList<Any>) {
+            if (payloads.isNotEmpty()) {
+                val c = payloads[0] as Calendar? ?: return
+                holder.view.chose(c)
+            } else {
+                super.onBindViewHolder(holder, position, payloads)
+            }
+        }
+
+        override fun getItemCount() = list.size
     }
 
     class MonthVH(val view: CalendarMonthView) : RecyclerView.ViewHolder(view)
