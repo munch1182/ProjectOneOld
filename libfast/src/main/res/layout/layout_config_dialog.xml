@@ -4,10 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/shape_top_radius_8_white"
-    android:orientation="vertical"
-    android:paddingStart="@dimen/dimenDef"
-    android:paddingTop="@dimen/dimenDef"
-    android:paddingEnd="@dimen/dimenDef">
+    android:orientation="vertical">
 
     <View
         android:id="@+id/config_split"
@@ -18,8 +15,9 @@
     <CheckBox
         android:id="@+id/config_start_up"
         style="@style/App.Fast.Check"
-        android:paddingTop="@dimen/dimenDef"
-        android:paddingBottom="@dimen/dimenDef"
+        android:layout_width="match_parent"
+        android:layout_marginStart="@dimen/dimenDef"
+        android:padding="@dimen/dimenDef"
         android:text="快速跳转"
         tools:ignore="HardcodedText" />
 

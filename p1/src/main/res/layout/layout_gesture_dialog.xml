@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="HardcodedText">
+
+    <RadioGroup
+        android:id="@+id/mode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/dimenDef"
+        android:paddingEnd="@dimen/dimenDef">
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/dimenDefSmall"
+            android:paddingBottom="@dimen/dimenDefSmall"
+            android:text="TOUCH"
+            android:textColor="@color/colorTextDef" />
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/dimenDefSmall"
+            android:paddingBottom="@dimen/dimenDefSmall"
+            android:text="MOVE"
+            android:textColor="@color/colorTextDef" />
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/dimenDefSmall"
+            android:paddingBottom="@dimen/dimenDefSmall"
+            android:text="CLICK"
+            android:textColor="@color/colorTextDef" />
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/dimenDefSmall"
+            android:paddingBottom="@dimen/dimenDefSmall"
+            android:text="LONG CLICK"
+            android:textColor="@color/colorTextDef" />
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/dimenDefSmall"
+            android:paddingBottom="@dimen/dimenDefSmall"
+            android:text="BEZIER"
+            android:textColor="@color/colorTextDef" />
+    </RadioGroup>
+
+    <Button
+        android:layout_marginStart="@dimen/dimenDef"
+        android:layout_marginEnd="@dimen/dimenDef"
+        android:id="@+id/clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="clear" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

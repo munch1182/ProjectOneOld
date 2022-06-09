@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:ignore="HardcodedText"
-    tools:padding="@dimen/dimenDef">
+    android:padding="@dimen/dimenDef"
+    tools:ignore="HardcodedText">
 
     <RadioGroup
         android:id="@+id/task_type"

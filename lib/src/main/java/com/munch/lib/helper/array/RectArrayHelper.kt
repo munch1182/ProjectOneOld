@@ -2,6 +2,8 @@
 
 package com.munch.lib.helper.array
 
+import android.graphics.Point
+import android.graphics.PointF
 import android.graphics.Rect
 import com.munch.lib.graphics.RectF
 
@@ -81,6 +83,33 @@ class RectArrayHelper : SpecialIntArrayHelper(4), Iterable<Rect> {
             rect.set(getLeft(index), getTop(index), getRight(index), getBottom(index))
             elementLine++
             return rect
+        }
+    }
+}
+
+class PointFArrayHelper : SpecialFloatArrayHelper(2), Iterable<PointF> {
+
+    fun getX(index: Int) = getVal(index, 0)
+    fun getY(index: Int) = getVal(index, 1)
+
+    fun add(point: PointF) {
+        add(point.x, point.y)
+    }
+
+    override fun iterator(): Iterator<PointF> = RectFIterator()
+
+    private inner class RectFIterator : Iterator<PointF> {
+        private val pointF = PointF()
+        private var elementLine = 0
+
+
+        override fun hasNext() = elementLine < size
+
+        override fun next(): PointF {
+            val index = elementLine
+            pointF.set(getX(index), getY(index))
+            elementLine++
+            return pointF
         }
     }
 }

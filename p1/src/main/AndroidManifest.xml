@@ -57,6 +57,7 @@
         <activity android:name=".bluetooth.BluetoothActivity" />
         <activity android:name=".weight.WheelActivity" />
         <activity android:name=".weight.RecyclerViewHeaderActivity" />
+        <activity android:name=".weight.GestureActivity" />
 
         <service
             android:name="com.munch.lib.helper.NotificationServiceHelper"

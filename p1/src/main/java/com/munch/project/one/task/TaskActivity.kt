@@ -117,7 +117,7 @@ class TaskActivity : BaseFastActivity(), ActivityDispatch by supportDef({ TaskDi
         }
     }
 
-    class TaskDialog : ConfigDialog() {
+    internal class TaskDialog : ConfigDialog() {
 
         private val bind by add<LayoutTaskDialogBinding>()
         private val vm by get<TaskVM>()

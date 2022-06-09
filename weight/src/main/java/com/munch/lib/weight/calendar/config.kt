@@ -24,7 +24,7 @@ data class OnItemDesc(
     var rectF: RectF,
     //该item是否是该行起始
     var isLineStart: Boolean = false,
-    //该item是否改行结束
+    //该item是否该行结束
     var isLineEnd: Boolean = false,
     //该item是否选中
     var isSelected: Boolean = false,

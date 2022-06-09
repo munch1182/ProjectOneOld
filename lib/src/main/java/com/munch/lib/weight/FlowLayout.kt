@@ -28,7 +28,7 @@ class FlowLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     styleDef: Int = 0
-) : ViewGroup(context, attrs, styleDef), OnViewUpdate<FlowLayout>,IContext {
+) : ViewGroup(context, attrs, styleDef), OnViewUpdate<FlowLayout>, IContext {
 
     companion object {
 
@@ -316,12 +316,12 @@ class FlowLayout @JvmOverloads constructor(
                     }
                     when {
                         Gravity.hasFlag(gravity, Gravity.CENTER_VERTICAL) -> {
-                            yOffset = (currLine.lineBottom - b) / 2
+                            yOffset = view.paddingTop + (currLine.lineBottom - b) / 2
                         }
                         Gravity.hasFlag(gravity, Gravity.TOP) -> {
                         }
                         Gravity.hasFlag(gravity, Gravity.BOTTOM) -> {
-                            yOffset = currLine.lineBottom - b
+                            yOffset = view.paddingTop + currLine.lineBottom - b
                         }
                     }
                     views[viewIndex].layout(l + xOffset, t + yOffset, r + xOffset, b + yOffset)

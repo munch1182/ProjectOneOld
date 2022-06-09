@@ -2,7 +2,7 @@ package cn.munch.lib.record
 
 import androidx.room.*
 import cn.munch.lib.RecordDB
-import com.munch.lib.extend.toDate
+import com.munch.lib.extend.toDateStr
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -41,7 +41,7 @@ data class Record(
         }
 
     override fun toString(): String {
-        return "${recordTime.toDate()}: $log"
+        return "${recordTime.toDateStr()}: $log"
     }
 }
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.viewbinding.ViewBinding
@@ -45,8 +46,12 @@ open class ConfigDialog : BindBottomSheetDialogFragment() {
         }
     }
 
-    protected fun showSplit(){
+    protected open fun showSplit() {
         bind.configSplit.visibility = View.VISIBLE
+    }
+
+    protected open fun setColor(@ColorInt color: Int) {
+        bind.root.setBackgroundColor(color)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

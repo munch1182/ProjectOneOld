@@ -44,6 +44,8 @@ interface SpecialArray<N : Number> {
     }
 
     fun getCount() = array.size / unit
+
+    fun get(index: Int) = array[index]
 }
 
 open class SpecialIntArrayHelper(override val unit: Int) : SpecialArray<Int> {

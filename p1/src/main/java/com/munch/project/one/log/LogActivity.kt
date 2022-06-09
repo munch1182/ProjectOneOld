@@ -37,7 +37,7 @@ class LogActivity : BaseFastActivity(), ActivityDispatch by supportDef({ LogDial
         }
     }
 
-    class LogDialog : ConfigDialog() {
+    internal class LogDialog : ConfigDialog() {
 
         private val bind by add<LayoutLogDialogBinding>()
         private val vm by get<LogVM>()

@@ -68,7 +68,7 @@ class RecordActivity : BaseFastActivity(),
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (ISupportShareActionBar.isShare(item)) {
             lifecycleScope.launch(Dispatchers.IO) {
-                val name = "log/${System.currentTimeMillis().toDate("yyyyMMddHHmmss")}.txt"
+                val name = "log/${System.currentTimeMillis().toDateStr("yyyyMMddHHmmss")}.txt"
                 val file = File(cacheDir, name)
                 file.new()
                 FileOutputStream(file).use { DBRecord.share2File(it) }
@@ -89,7 +89,7 @@ class RecordActivity : BaseFastActivity(),
         ) {
             holder.bind.apply {
                 recordContent.text = bean.log
-                recordTime.text = bean.recordTime.toDate()
+                recordTime.text = bean.recordTime.toDateStr()
                 recordType.text = bean.typeStr
             }
         }
@@ -134,7 +134,7 @@ class RecordActivity : BaseFastActivity(),
 
     }
 
-    class RecordDialog : ConfigDialog() {
+    internal class RecordDialog : ConfigDialog() {
 
         private val bind by add<LayoutLogRecordBinding>()
         private val vm by get<RecordVM>()
@@ -181,7 +181,7 @@ class RecordActivity : BaseFastActivity(),
 
             val time = query.time
             if (time > 0) {
-                bind.recordDialogTime.setText(time.toDate("yyyyMMddHHmmss"))
+                bind.recordDialogTime.setText(time.toDateStr("yyyyMMddHHmmss"))
             }
 
             val like = query.like.removePrefix("%").removeSuffix("%")
@@ -201,7 +201,7 @@ class RecordActivity : BaseFastActivity(),
             if (timeStr.length in 1..14) {
                 val sb = StringBuilder(timeStr)
                 repeat(14 - timeStr.length) { sb.append("0") }
-                query.time = sb.toString().toDate("yyyyMMddHHmmss")?.time ?: 0
+                query.time = sb.toString().toDateStr("yyyyMMddHHmmss")?.time ?: 0
             } else {
                 query.time = 0
             }
