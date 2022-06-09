@@ -9,7 +9,6 @@ import android.view.View
 import com.munch.lib.extend.*
 import com.munch.lib.graphics.RectF
 import com.munch.lib.helper.array.RectFArrayHelper
-import com.munch.lib.log.log
 import java.util.*
 import kotlin.math.max
 
@@ -130,6 +129,7 @@ class CalendarMonthView @JvmOverloads constructor(
         repeat(index) { rectBuff.translation(width, 0f) }
 
         daysChose.sort()
+        daysRect.clear()
 
         repeat(days) {
             val d = it + 1
@@ -217,17 +217,24 @@ class CalendarMonthView @JvmOverloads constructor(
 
     private fun choseByLastPress() {
         var date = daysRect.indexOfFirst { lastPress in it }
-        if (date != -1) {
+        if (date in 0 until calendar.getActualMaximum(Calendar.DAY_OF_MONTH)) {
             //因为index是从0开始的
             date += 1
             calendarBuff.time = calendar.time
             calendarBuff.set(Calendar.DAY_OF_MONTH, date)
-            onDateChose?.onDateChose(calendarBuff, choseType)
+            val c = Calendar.getInstance()
+            c.time = calendarBuff.time
+            onDateChose?.onDateChose(c, choseType)
         }
     }
 
-    fun chose(calendar: Calendar) {
-        choseByDate(calendar)
+    fun chose(calendar: Calendar? = null) {
+        if (calendar != null) {
+            choseByDate(calendar)
+        } else if (daysChose.isNotEmpty()) {
+            daysChose.clear()
+            invalidate()
+        }
     }
 
     /**
@@ -235,64 +242,43 @@ class CalendarMonthView @JvmOverloads constructor(
      */
     private fun choseByDate(calendar: Calendar) {
         calendarBuff.time = calendar.time
-        val monthNumber = calendarBuff.getMonth()
+        val monthNumber = this.calendar.getMonthIndex()
+        val daysChoseNow = arrayListOf<Int>()
+        // TODO: 应该将选择类型移出此类，view应该只负责显示和点击的传递
         when (choseType) {
             ChoseType.Day -> {
-                if (calendar.getMonth() != monthNumber) {
+                if (calendar.getMonthIndex() != monthNumber) {
                     return
                 }
-                daysChose.clear()
-                daysChose.add(calendar.getDay())
-                invalidate()
+                daysChoseNow.add(calendar.getDay())
             }
             ChoseType.Month -> {
-                if (calendar.getMonth() != monthNumber) {
+                if (calendar.getMonthIndex() != monthNumber) {
                     return
                 }
-                daysChose.clear()
                 repeat(daysRect.size) {
-                    daysChose.add(it + 1)
+                    daysChoseNow.add(it + 1)
                 }
-                invalidate()
             }
             ChoseType.Week -> {
-                daysChose.clear()
-                var index = calendar.getDayInWeekIndex()
+                var index = calendarBuff.getDayInWeekIndex()
+                //强制星期开/星期一转换
                 if (index == 0) {
-                    index = 6
-                } else {
-                    index -= 1
+                    index = 7
                 }
-                val date = calendar.getDay()
-                var needUpdate = false
-                calendarBuff.time = calendar.time
-                repeat(index) {
-                    val i = date - (it + 1)
-
-                    if (calendar.getMonth() == monthNumber) {
-                        daysChose.add(i)
-                        needUpdate = needUpdate || true
+                calendarBuff.addDay(-index + 1)
+                repeat(7) {
+                    calendarBuff.addDay(if (it == 0) 0 else 1)
+                    if (calendarBuff.getMonthIndex() == monthNumber) {
+                        daysChoseNow.add(calendarBuff.getDay())
                     }
                 }
-                repeat(7 - index) {
-                    val i = date + it
-                    calendarBuff.set(Calendar.DAY_OF_MONTH, i)
-                    if (calendar.getMonth() == monthNumber) {
-                        daysChose.add(i)
-                        needUpdate = needUpdate || true
-                    }
-                }
-                if (needUpdate) {
-                    invalidate()
-                }
-                log(
-                    calendar.getMonth(),
-                    monthNumber,
-                    calendar.getMonth() != monthNumber,
-                    needUpdate,
-                    date
-                )
             }
+        }
+        if (daysChose != daysChoseNow) {
+            daysChose.clear()
+            daysChose.addAll(daysChoseNow)
+            invalidate()
         }
     }
 

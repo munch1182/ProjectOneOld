@@ -8,12 +8,12 @@ import java.util.*
 /**
  * Create by munch1182 on 2022/4/1 15:00.
  */
-inline fun Calendar.getYear() = get(Calendar.YEAR)
 
 /**
  * 月份已修正
  */
 inline fun Calendar.getMonth() = get(Calendar.MONTH) + 1
+inline fun Calendar.getYear() = get(Calendar.YEAR)
 inline fun Calendar.getMonthIndex() = getYear() * 12 + get(Calendar.MONTH) + 1
 inline fun Calendar.getDay() = get(Calendar.DAY_OF_MONTH)
 inline fun Calendar.getWeekToday() = get(Calendar.DAY_OF_WEEK)
@@ -22,8 +22,10 @@ inline fun Calendar.getHour() = get(Calendar.HOUR_OF_DAY)
 inline fun Calendar.getMinute() = get(Calendar.MINUTE)
 inline fun Calendar.getSecond() = get(Calendar.SECOND)
 inline fun Calendar.addDay(days: Int) = add(Calendar.DAY_OF_MONTH, days)
+inline fun Calendar.setDay(day: Int) = set(Calendar.DAY_OF_MONTH, day)
 inline fun Calendar.addMonth(month: Int) = add(Calendar.MONTH, month)
 inline fun Calendar.addYear(year: Int) = add(Calendar.YEAR, year)
+inline fun Calendar.getMouthDayCount() = getActualMaximum(Calendar.DAY_OF_MONTH)
 
 //返回本月第几周
 inline fun Calendar.getWeekIndex() = get(Calendar.WEEK_OF_MONTH)
@@ -74,14 +76,14 @@ inline fun Calendar.set(
     return this
 }
 
-inline fun Calendar.toStr(pattern: String, locale: Locale = Locale.getDefault()) =
+inline fun Calendar.toDateStr(pattern: String, locale: Locale = Locale.getDefault()) =
     SimpleDateFormat(pattern, locale).format(time)
 
 inline fun Calendar.setMD(month: Int, day: Int) {
     set(getYear(), month - 1, day)
 }
 
-fun String.toDate(pattern: String, locale: Locale = Locale.getDefault()): Date? {
+fun String.toDateStr(pattern: String, locale: Locale = Locale.getDefault()): Date? {
     return try {
         SimpleDateFormat(pattern, locale).parse(this)
     } catch (e: Exception) {
@@ -90,7 +92,7 @@ fun String.toDate(pattern: String, locale: Locale = Locale.getDefault()): Date? 
 }
 
 fun String.toCalendar(pattern: String, locale: Locale = Locale.getDefault()) =
-    toDate(pattern, locale)?.toCalendar()
+    toDateStr(pattern, locale)?.toCalendar()
 
 fun Date.toCalendar() = Calendar.getInstance().apply { time = this@toCalendar }
 
@@ -117,7 +119,7 @@ fun Int.toHMS(calendar: Calendar = Calendar.getInstance()): Calendar {
     return calendar
 }
 
-fun Long.toDate(pattern: String = "yyyy-MM-dd HH:mm:ss") =
+fun Long.toDateStr(pattern: String = "yyyy-MM-dd HH:mm:ss") =
     try {
         SimpleDateFormat(pattern, Locale.getDefault()).format(Date(this))
     } catch (e: Exception) {
@@ -125,31 +127,12 @@ fun Long.toDate(pattern: String = "yyyy-MM-dd HH:mm:ss") =
         ""
     }
 
-fun Calendar.toDate(pattern: String = "yyyy-MM-dd HH:mm:ss") = timeInMillis.toDate(pattern)
+fun Calendar.toDateStr(pattern: String = "yyyy-MM-dd HH:mm:ss") = timeInMillis.toDateStr(pattern)
 
-fun String.toDate(pattern: String = "yyyy-MM-dd HH:mm:ss") =
+fun String.toDateStr(pattern: String = "yyyy-MM-dd HH:mm:ss") =
     try {
         SimpleDateFormat(pattern, Locale.getDefault()).parse(this)
     } catch (e: Exception) {
         e.printStackTrace()
         null
     }
-
-abstract class NumberImp : Number() {
-
-    protected abstract val number: Number
-
-    override fun toByte(): Byte = number.toByte()
-
-    override fun toChar() = number.toChar()
-
-    override fun toDouble() = number.toDouble()
-
-    override fun toFloat() = number.toFloat()
-
-    override fun toInt() = number.toInt()
-
-    override fun toLong() = number.toLong()
-
-    override fun toShort() = number.toShort()
-}

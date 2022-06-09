@@ -1,11 +1,10 @@
-package com.munch.lib.weight.recyclerview
+package com.munch.lib.weight.calendar
 
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
-import com.munch.lib.weight.calendar.CalendarMonthView
-import com.munch.lib.weight.calendar.CalendarView
+import com.munch.lib.weight.recyclerview.RecyclerHeaderView
 import java.util.*
 
 /**
@@ -40,5 +39,10 @@ class CalendarHeaderView @JvmOverloads constructor(
     fun select(calendar: Calendar) {
         recyclerView.select(calendar)
     }
+
+    fun setOnDayChose(onDayChose: CalendarView.OnDayChoseListener) {
+        calendar.setOnDayChose(onDayChose)
+    }
+
 
 }

@@ -18,7 +18,7 @@ class DateKtTest : TestCase() {
         val c = Calendar.getInstance()
         c.setHMS(23, 55, 21)
         val pattern = "HH:mm:ss"
-        assertEquals(86121.toHMS().toStr(pattern), c.toStr(pattern))
+        assertEquals(86121.toHMS().toDateStr(pattern), c.toDateStr(pattern))
     }
 
     fun testToDate() {

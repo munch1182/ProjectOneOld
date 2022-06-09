@@ -5,13 +5,16 @@ import android.widget.FrameLayout
 import androidx.core.view.setPadding
 import com.munch.lib.extend.dp2Px
 import com.munch.lib.extend.newWWLp
+import com.munch.lib.extend.toDateStr
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.fvClassRv
 import com.munch.lib.fast.view.supportDef
+import com.munch.lib.log.log
+import com.munch.lib.weight.calendar.CalendarHeaderView
 import com.munch.lib.weight.calendar.CalendarView
-import com.munch.lib.weight.recyclerview.CalendarHeaderView
 import com.munch.lib.weight.wheelview.WheelView
+import java.util.*
 
 /**
  * Create by munch1182 on 2022/4/25 17:54.
@@ -57,6 +60,13 @@ class RecyclerViewHeaderActivity : BaseFastActivity(), ActivityDispatch by suppo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(CalendarHeaderView(ctx))
+        setContentView(CalendarHeaderView(ctx).apply {
+            setOnDayChose(object : CalendarView.OnDayChoseListener {
+                override fun onDayChose(start: Calendar, end: Calendar): Boolean {
+                    log(start.toDateStr("yyyy-MM-dd"), end.toDateStr("yyyy-MM-dd"))
+                    return true
+                }
+            })
+        })
     }
 }
