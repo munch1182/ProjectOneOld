@@ -1,17 +1,22 @@
 package com.munch.lib.fast.base
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBar
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
-import cn.munch.lib.DBRecord
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.munch.lib.AppHelper
+import com.munch.lib.DBRecord
 import com.munch.lib.extend.getColorPrimary
+import com.munch.lib.extend.getSelectableItemBackgroundBorderless
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.inflate
 import com.munch.lib.extend.inflateParent
@@ -65,6 +70,29 @@ open class BaseFastActivity : DispatcherActivity(), IContext {
 
     protected open fun onBar() {
         BarHelper(this).colorStatusBar(getColorPrimary())
+    }
+
+    protected open fun addRightText(str: CharSequence, click: (View) -> Unit) {
+        val v = TextView(this)
+        v.background = getSelectableItemBackgroundBorderless()
+        v.setTextColor(Color.WHITE)
+        v.text = str
+        v.setOnClickListener(click)
+        addRight(v)
+    }
+
+    protected open fun addRight(v: View) {
+        supportActionBar?.apply {
+            val lp = ActionBar.LayoutParams(
+                ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.WRAP_CONTENT
+            )
+            lp.gravity = Gravity.END or Gravity.CENTER_VERTICAL
+            setCustomView(v, lp)
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowTitleEnabled(true)
+            setDisplayShowCustomEnabled(true)
+        }
     }
 }
 

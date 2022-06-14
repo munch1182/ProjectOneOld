@@ -1,6 +1,6 @@
 package com.munch.project.one.record
 
-import cn.munch.lib.record.Record
+import com.munch.lib.record.Record
 
 /**
  * Create by munch1182 on 2022/5/21 16:59.

@@ -3,9 +3,9 @@ package com.munch.project.one.record
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.munch.lib.DBRecord
-import cn.munch.lib.record.Record
+import com.munch.lib.DBRecord
 import com.munch.lib.extend.toLive
+import com.munch.lib.record.Record
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch

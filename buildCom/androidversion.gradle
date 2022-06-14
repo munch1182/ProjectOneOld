@@ -8,6 +8,7 @@ ext {
             defaultVersionCode: 1,
             defaultVersionName: "1.0",
 
+            COMPOSE_VERSION   : "1.1.0-beta01",
             ACTIVITY_VERSION  : "1.4.0",
             FRAGMENT_VERSION  : "1.4.1",
             ROOM_VERSION      : "2.4.2",
@@ -29,12 +30,18 @@ ext {
             appcompat         : "androidx.appcompat:appcompat:1.4.1",
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/core*/
-            core_ktx          : "androidx.core:core-ktx:1.7.0",
+            coreKtx           : "androidx.core:core-ktx:1.7.0",
 
             /*https://github.com/material-components/material-components-android*/
             /*https://maven.google.com/web/index.html*/
             //include
             material          : "com.google.android.material:material:1.5.0",
+
+            //compose
+            composeUi         : "androidx.compose.ui:ui:${Version['COMPOSE_VERSION']}",
+            composeMaterial   : "androidx.compose.material:material:${Version['COMPOSE_VERSION']}",
+            composeUiTool     : "androidx.compose.ui:ui-tooling-preview:${Version['COMPOSE_VERSION']}",
+            composeActivity   : 'androidx.activity:activity-compose:1.3.1',
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/constraintlayout*/
             constraintLayout  : "androidx.constraintlayout:constraintlayout:2.1.3",
@@ -68,6 +75,7 @@ ext {
             /*https://developer.android.google.cn/jetpack/androidx/releases/lifecycle*/
             /*https://developer.android.google.cn/kotlin/ktx?hl:zh_cn#lifecycle*/
 
+            lifecycleKtx      : "androidx.lifecycle:lifecycle-runtime-ktx:${Version['LIFECYCLE_VERSION']}",
             viewModelKtx      : "androidx.lifecycle:lifecycle-viewmodel-ktx:${Version['LIFECYCLE_VERSION']}",
             liveDataKtx       : "androidx.lifecycle:lifecycle-livedata-ktx:${Version['LIFECYCLE_VERSION']}",
 

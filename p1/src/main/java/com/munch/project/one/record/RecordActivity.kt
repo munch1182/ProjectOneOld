@@ -9,14 +9,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import cn.munch.lib.DBRecord
-import cn.munch.lib.record.Record
+import com.munch.lib.DBRecord
 import com.munch.lib.OnIndexListener
 import com.munch.lib.extend.*
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.*
 import com.munch.lib.helper.FileHelper
 import com.munch.lib.helper.new
+import com.munch.lib.record.Record
 import com.munch.lib.recyclerview.BaseBindViewHolder
 import com.munch.lib.recyclerview.BindRVAdapter
 import com.munch.lib.recyclerview.setOnItemClickListener

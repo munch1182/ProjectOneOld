@@ -7,21 +7,17 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.ViewModel
 import com.munch.lib.AppHelper
 import com.munch.lib.helper.NetHelper
-import com.munch.lib.helper.getLinkProperties
 import com.munch.lib.log.log
 
 
 /**
  * Created by munch1182 on 2022/5/15 23:04.
  */
+@Suppress("DEPRECATION")
 class NetViewModel : ViewModel() {
 
     private val net = NetHelper.instance
     private val wm by lazy { AppHelper.app.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager }
-
-    fun getState() {
-        val lp = net.curr?.getLinkProperties()
-    }
 
     val isStaticIp: Boolean
         get() = wm?.dhcpInfo?.leaseDuration == 0

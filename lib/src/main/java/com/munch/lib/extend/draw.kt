@@ -3,9 +3,9 @@
 package com.munch.lib.extend
 
 import android.graphics.*
+import android.view.MotionEvent
 import android.view.View
-import kotlin.math.absoluteValue
-import kotlin.math.atan2
+import kotlin.math.abs
 
 /**
  * Create by munch1182 on 2022/3/12 14:32.
@@ -81,38 +81,6 @@ fun Paint.measureMaxTextSpace(array: Array<String>): Pair<Int, Int> {
         maxHeight = rect.height().coerceAtLeast(maxHeight)
     }
     return Pair(maxWidth, maxHeight)
-}
-
-fun Canvas.drawGuidLine(
-    cx: Float,
-    cy: Float,
-    sx: Float,
-    sy: Float,
-    text: String?,
-    paint: Paint,
-    path: Path? = null
-) {
-    save()
-
-    val p = path ?: Path()
-    p.reset()
-
-    val w = sx.absoluteValue.toDouble()
-    val h = sy.absoluteValue.toDouble()
-    val angle = atan2(w, h) * 180 / Math.PI
-
-    rotate(angle.toFloat())
-    p.moveTo(0f, 0f)
-    rotate(30f)
-    p.moveTo(0f, 15f)
-    rotate(-60f)
-    p.moveTo(0f, 15f)
-    rotate(30f)
-    p.lineTo(sx, sy)
-    paint.setDashPath()
-    drawPath(p, paint)
-
-    restore()
 }
 
 fun Rect.adjust(l: Int, t: Int, r: Int, b: Int) {
@@ -250,3 +218,16 @@ inline fun RectF.moveTo(left: Float, top: Float) {
     moveTopTo(top)
 }
 //</editor-fold>
+
+fun MotionEvent.toStr() = this.let {
+    val act = when (it.action) {
+        MotionEvent.ACTION_DOWN -> "down"
+        MotionEvent.ACTION_UP -> "up"
+        MotionEvent.ACTION_MOVE -> "move"
+        MotionEvent.ACTION_CANCEL -> "cancel"
+        else -> it.action
+    }
+    "$act(${it.x},${it.y})"
+}
+
+fun PointF.isMove(point: PointF, dis: Float = 25f) = abs(x - point.x) > dis || abs(y - point.y) > dis

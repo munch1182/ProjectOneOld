@@ -5,14 +5,10 @@ plugins {
 }
 apply from: '../buildCom/commonbuildktx.gradle'
 
-android {
-    defaultConfig {
-        kapt {
-            //db exportSchema = true
-            arguments {
-                arg("room.schemaLocation", "$projectDir/schemas".toString())
-            }
-        }
+kapt {
+    //db exportSchema = true
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas".toString())
     }
 }
 

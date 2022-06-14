@@ -72,6 +72,10 @@ fun Context.getSelectableItemBackground(): Drawable? {
     return getAttrArrayFromTheme(android.R.attr.selectableItemBackground) { getDrawable(0) }
 }
 
+fun Context.getSelectableItemBackgroundBorderless(): Drawable? {
+    return getAttrArrayFromTheme(android.R.attr.selectableItemBackgroundBorderless) { getDrawable(0) }
+}
+
 fun <T> Context.getAttrArrayFromTheme(attrId: Int, get: TypedArray.() -> T): T {
     val typedArray = theme.obtainStyledAttributes(intArrayOf(attrId))
     val value = get.invoke(typedArray)

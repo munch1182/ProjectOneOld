@@ -8,10 +8,12 @@ import android.bluetooth.BluetoothGatt
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Color
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.OnCancel
@@ -62,21 +64,20 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     }
     private val instance = BluetoothHelper.instance
+    private val barText by lazy { TextView(this).apply { setTextColor(Color.WHITE) } }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        addRight(barText)
+
         instance.isScanning.observe(this) {
             if (it) {
-                bind.btScan.text = "SCAN STOP"
-                bind.btScan.setOnClickListener {
-                    checkOrRequest { instance.stop() }
-                }
+                barText.text = "SCAN STOP"
+                barText.setOnClickListener { checkOrRequest { instance.stop() } }
             } else {
-                bind.btScan.text = "SCAN START"
-                bind.btScan.setOnClickListener {
-                    checkOrRequest { instance.scan() }
-                }
+                barText.text = "SCAN START"
+                barText.setOnClickListener { checkOrRequest { instance.scan() } }
             }
         }
 
