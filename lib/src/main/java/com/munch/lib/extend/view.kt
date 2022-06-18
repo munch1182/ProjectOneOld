@@ -61,6 +61,9 @@ fun View.addMargin(l: Int = 0, t: Int = 0, r: Int = 0, b: Int = 0) {
     }
 }
 
+inline fun View.idStr(prefix: String = "id:", suffix: String = ""): String? =
+    catch { "$prefix${resources.getResourceEntryName(id)}$suffix" }
+
 fun EditText.showSoftInput() {
     val im = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
     im?.showSoftInput(this, 0)

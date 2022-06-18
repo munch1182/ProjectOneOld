@@ -3,15 +3,21 @@
 package com.munch.lib.helper
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import androidx.annotation.WorkerThread
 import androidx.core.content.FileProvider
+import androidx.fragment.app.FragmentActivity
+import com.munch.lib.result.ResultHelper
+import com.munch.lib.result.start
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import kotlin.coroutines.resume
 
 /**
  * Create by munch1182 on 2022/5/14 20:05.
@@ -136,6 +142,19 @@ object FileHelper {
     interface OnProgressListener {
 
         fun onProgress(progress: Long, all: Long)
+    }
+
+    suspend fun chose(activity: FragmentActivity, type: String = "*/*"): Uri? {
+        return suspendCancellableCoroutine {
+            ResultHelper.with(activity)
+                .intent(Intent.createChooser(Intent(Intent.ACTION_GET_CONTENT).apply {
+                    setType(type)
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                }, "chose"))
+                .start { isOk, data ->
+                    it.resume(if (isOk) data?.data else null)
+                }
+        }
     }
 }
 

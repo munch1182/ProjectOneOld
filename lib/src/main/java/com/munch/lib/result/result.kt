@@ -10,6 +10,8 @@ import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.munch.lib.AppHelper
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 /**
  * Create by munch1182 on 2022/4/15 22:03.
@@ -51,6 +53,16 @@ fun PermissionRequest.request(r: (isGrantAll: Boolean, result: Map<String, Boole
             r.invoke(isGrantAll, result)
         }
     })
+}
+
+suspend fun PermissionRequest.isGrantAll(): Boolean {
+    return suspendCancellableCoroutine {
+        request(object : OnPermissionResultListener {
+            override fun onPermissionResult(isGrantAll: Boolean, result: Map<String, Boolean>) {
+                it.resume(isGrantAll)
+            }
+        })
+    }
 }
 
 inline fun FragmentActivity.contact(vararg permission: String) =

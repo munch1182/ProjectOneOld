@@ -8,6 +8,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -57,9 +58,11 @@ fun Context.sp2Px(sp: Float): Float {
     return sp * resources.displayMetrics.scaledDensity + 0.5f
 }
 
-fun Context.getAttrFromTheme(attrId: Int): TypedValue {
+fun Context.getAttrFromTheme(attrId: Int, theme: Resources.Theme = this.theme): TypedValue? {
     val typedValue = TypedValue()
-    theme.resolveAttribute(attrId, typedValue, true)
+    if (!theme.resolveAttribute(attrId, typedValue, true)) {
+        return null
+    }
     return typedValue
 }
 

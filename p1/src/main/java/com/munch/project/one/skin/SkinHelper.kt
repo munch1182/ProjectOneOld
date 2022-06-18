@@ -19,6 +19,9 @@ import androidx.core.view.ViewCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.extend.catch
+import com.munch.lib.extend.idStr
+import com.munch.lib.log.LogStyle
+import com.munch.lib.log.Logger
 import com.munch.project.one.R
 
 /**
@@ -35,18 +38,21 @@ class SkinHelper {
             "foregroundTint",
             "text"
         )
+        internal val log = Logger("skin", infoStyle = LogStyle.THREAD)
+
+        fun loadSkin(context: Context, path: String) = Loader.loadResource(context, path)
     }
+
 
     private val views = mutableListOf<SkinView>()
 
     fun apply(activity: AppCompatActivity) {
+        log.log { "SkinHelper apply." }
         activity.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onCreate(owner: LifecycleOwner) {
-                super.onCreate(owner)
-            }
 
             override fun onDestroy(owner: LifecycleOwner) {
                 super.onDestroy(owner)
+                log.log { "SkinHelper clear." }
                 views.clear()
             }
         })
@@ -72,7 +78,9 @@ class SkinHelper {
         }
 
         private fun applyAttr(ctx: Context, attr: SkinAttr) {
-            when (ctx.resources.getResourceTypeName(attr.resId)) {
+            val name = ctx.resources.getResourceTypeName(attr.resId)
+            log.log { "SkinHelper clear." }
+            when (name) {
                 "color" -> {
                     val color = Loader.getColor(ctx, attr.resId)
                     when (attr.name) {
@@ -143,17 +151,21 @@ class SkinHelper {
             }
             val value = set.getAttributeValue(i)
             val skinAttr = analyzeAttr(view.context, name, value)
+            log.log {
+                "analyzeAttr ${view::class.simpleName}(${view.idStr()} $name($value)): ${skinAttr != null}."
+            }
             if (skinAttr != null) {
                 sv.attrs.add(skinAttr)
             }
         }
         views.add(sv)
+        log.log { "analyzeAttr over: ${views.size}." }
     }
 
     private fun analyzeAttr(context: Context, attrName: String, attrValue: String): SkinAttr? {
-        return if (attrName.startsWith("@")) {  //以@开头，如引用@color/white, 其attrValue即资源id
+        return if (attrValue.startsWith("@")) {  //以@开头，如引用@color/white, 其attrValue即资源id
             SkinAttr(attrName, attrValue.substring(1).toInt())
-        } else if (attrName.startsWith("?")) {  //以?开头，诸如?colorPrimary, 其attrValue为资源id，但需要通过主题去查找
+        } else if (attrValue.startsWith("?")) {  //以?开头，诸如?colorPrimary, 其attrValue为资源id，但需要通过主题去查找
             val resId = attrValue.substring(1).toInt()
             getResIdFromTheme(context, resId)?.let { SkinAttr(attrName, it) }
         } else { //否则则是被写死的资源
@@ -195,7 +207,9 @@ class SkinHelper {
                     context.resources.displayMetrics,
                     context.resources.configuration
                 )
+                log.log { "load Resource($skinPath) success." }
             } catch (e: Exception) {
+                log.log { "load Resource($skinPath) fail: ${e.localizedMessage}." }
                 return false
             }
             return true
@@ -229,6 +243,7 @@ class SkinHelper {
             val resourceEntryName = context.resources.getResourceEntryName(redId)
             val resourceTypeName = context.resources.getResourceTypeName(redId)
             return skinResources?.getIdentifier(resourceEntryName, resourceTypeName, skinPkgName)
+                ?.takeIf { it != 0 }
         }
     }
 }

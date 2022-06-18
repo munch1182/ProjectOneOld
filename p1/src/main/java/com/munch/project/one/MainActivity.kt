@@ -14,6 +14,7 @@ import com.munch.project.one.log.LogActivity
 import com.munch.project.one.net.NetActivity
 import com.munch.project.one.record.RecordActivity
 import com.munch.project.one.result.ResultActivity
+import com.munch.project.one.skin.SkinActivity
 import com.munch.project.one.task.TaskActivity
 import com.munch.project.one.weight.WeightActivity
 
@@ -21,6 +22,7 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
 
     private val vb by fvClassRv(
         listOf(
+            SkinActivity::class,
             BluetoothActivity::class,
             TaskActivity::class,
             DialogActivity::class,
