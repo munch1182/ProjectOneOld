@@ -1,5 +1,8 @@
 package com.munch.lib.extend
 
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import androidx.annotation.ColorRes
 import java.util.regex.Pattern
 import kotlin.math.min
 
@@ -42,3 +45,8 @@ fun CharSequence.split(count: Int, start: Int = 0): Array<CharSequence> {
         this.substring(s, e).apply { s = e }
     }
 }
+
+fun CharSequence.color(@ColorRes color: Int, start: Int = 0, end: Int = length) =
+    SpannableString(this).apply {
+        setSpan(ForegroundColorSpan(color), start, end, SpannableString.SPAN_INCLUSIVE_EXCLUSIVE)
+    }

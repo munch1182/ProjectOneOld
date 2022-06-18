@@ -112,6 +112,7 @@ object FileHelper {
         size: Int = buffSize(ins.available().toLong()),
         onProgress: OnProgressListener? = null
     ): Boolean {
+        if (!file.new(false)) return false
         return FileOutputStream(file, append).close { os ->
             val buffer = ByteArray(size)
             var length: Int
@@ -159,11 +160,13 @@ object FileHelper {
 }
 
 /**
- * 创建文件及文件夹
+ * 创建文件
+ *
+ * @param delIfExists 如果存在该文件，是否将其删除，此次没有判断存在同名文件夹的情形
  */
-fun File.new(): Boolean {
-    return (parentFile?.let { exists() or mkdirs() } ?: true)
-            && (if (exists()) delete() else true)
+fun File.new(delIfExists: Boolean = true): Boolean {
+    return (parentFile?.let { it.exists() or it.mkdirs() } ?: true)
+            && (if (delIfExists && exists()) delete() else true)
             && createNewFile()
 }
 
