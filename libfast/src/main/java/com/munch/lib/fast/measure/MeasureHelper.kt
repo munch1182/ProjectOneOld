@@ -10,7 +10,7 @@ import com.munch.lib.log.Logger
  */
 object MeasureHelper {
 
-    private val measureLog = Logger("measure", infoStyle = LogStyle.NONE)
+    private val measureLog = Logger("measure", style = LogStyle.NONE)
 
     /**
      * 超过此时间的Activity加载时间将会被输出到logcat

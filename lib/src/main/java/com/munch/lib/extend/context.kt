@@ -151,7 +151,5 @@ fun Context.getNameVersion(): Pair<String, Long> {
 }
 
 fun Context.isScreenOn(): Boolean? {
-    val pw = getSystemService(Context.POWER_SERVICE) as? PowerManager?
-        ?: return null
-    return pw.isInteractive
+    return (getSystemService(Context.POWER_SERVICE) as? PowerManager?)?.isInteractive
 }

@@ -57,6 +57,12 @@ interface InitFunInterface {
 
 interface Manageable : Cancelable, Destroyable
 
+
+interface OnProgressListener {
+
+    fun onProgress(progress: Long, all: Long)
+}
+
 //<editor-fold desc="click">
 @Suppress("UNCHECKED_CAST")
 interface OnViewTagClickListener<T> : View.OnClickListener, View.OnLongClickListener {

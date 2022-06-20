@@ -16,7 +16,17 @@ object DataHelper : DataFun<String> by MMKVHelper.default() {
         put(KEY_START_UP, clazz)
     }
 
-    fun getStartUp() = get<String>(KEY_START_UP, null)
-        ?.let { Class.forName(it) }
+    val startUp: Class<*>?
+        get() = get<String>(KEY_START_UP, null)
+            ?.let { Class.forName(it) }
     //</editor-fold>
+
+    private const val KEY_SKIN_PATH = "skin_path"
+
+    fun saveSkinPath(path: String?) {
+        put(KEY_SKIN_PATH, path)
+    }
+
+    val skinPath: String?
+        get() = get<String>(KEY_SKIN_PATH, null)
 }

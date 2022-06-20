@@ -57,6 +57,7 @@ inline fun IContext.getScreenSize(full: Boolean = false) = ctx.getScreenSize(ful
 
 @ColorInt
 fun IContext.getColorPrimary() = ctx.getColorPrimary()
+
 inline fun <T> IContext.getAttrArrayFromTheme(attrId: Int, noinline get: TypedArray.() -> T) =
     ctx.getAttrArrayFromTheme(attrId, get)
 

@@ -10,6 +10,7 @@ import android.provider.OpenableColumns
 import androidx.annotation.WorkerThread
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
+import com.munch.lib.OnProgressListener
 import com.munch.lib.result.ResultHelper
 import com.munch.lib.result.start
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -138,11 +139,6 @@ object FileHelper {
             size > mb4 -> MB.toInt()
             else -> 4096
         }
-    }
-
-    interface OnProgressListener {
-
-        fun onProgress(progress: Long, all: Long)
     }
 
     suspend fun chose(activity: FragmentActivity, type: String = "*/*"): Uri? {

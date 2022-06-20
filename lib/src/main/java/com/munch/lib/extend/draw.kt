@@ -18,8 +18,11 @@ fun testPaint(): Lazy<Paint> {
     return lazy { Paint(Paint.ANTI_ALIAS_FLAG).setDashPath() }
 }
 
-inline fun Paint.setDashPath(color: Int = Color.RED): Paint {
-    pathEffect = DashPathEffect(floatArrayOf(10f, 5f, 10f, 5f), 0f)
+inline fun Paint.setDashPath(
+    color: Int = Color.RED,
+    dash: PathEffect = DashPathEffect(floatArrayOf(10f, 5f, 10f, 5f), 0f)
+): Paint {
+    pathEffect = dash
     setColor(color)
     style = Paint.Style.STROKE
     return this
@@ -28,9 +31,12 @@ inline fun Paint.setDashPath(color: Int = Color.RED): Paint {
 /**
  * 绘制Rect的边线
  */
-fun Canvas.drawRectLine(l: Float, t: Float, r: Float, b: Float, paint: Paint) {
+inline fun Canvas.drawRectLine(l: Float, t: Float, r: Float, b: Float, paint: Paint) {
     drawLines(floatArrayOf(l, t, r, t, r, t, r, b, r, b, l, b, l, b, l, t), paint)
 }
+
+inline fun Canvas.drawRectLint(rect: RectF, paint: Paint) =
+    drawRectLine(rect.left, rect.top, rect.right, rect.bottom, paint)
 
 /**
  * 将text从cx右，cy下开始绘制
@@ -230,4 +236,5 @@ fun MotionEvent.toStr() = this.let {
     "$act(${it.x},${it.y})"
 }
 
-fun PointF.isMove(point: PointF, dis: Float = 25f) = abs(x - point.x) > dis || abs(y - point.y) > dis
+fun PointF.isMove(point: PointF, dis: Float = 25f) =
+    abs(x - point.x) > dis || abs(y - point.y) > dis

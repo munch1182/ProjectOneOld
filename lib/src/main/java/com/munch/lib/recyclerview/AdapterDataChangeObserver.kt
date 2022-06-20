@@ -37,9 +37,5 @@ abstract class AdapterDataChangeObserver : RecyclerView.AdapterDataObserver() {
         onDataChange()
     }
 
-    override fun onStateRestorationPolicyChanged() {
-        super.onStateRestorationPolicyChanged()
-    }
-
     protected abstract fun onDataChange()
 }

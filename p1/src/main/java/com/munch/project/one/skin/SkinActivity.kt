@@ -1,22 +1,20 @@
 package com.munch.project.one.skin
 
 import android.Manifest
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.TextView
 import androidx.core.view.setPadding
 import androidx.lifecycle.lifecycleScope
-import com.munch.lib.extend.*
+import com.munch.lib.extend.bind
+import com.munch.lib.extend.dp2Px
 import com.munch.lib.fast.base.BaseFastActivity
+import com.munch.lib.fast.base.DataHelper
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
-import com.munch.lib.helper.BarHelper
 import com.munch.lib.helper.FileHelper
 import com.munch.lib.helper.SkinHelper
 import com.munch.lib.result.isGrantAll
 import com.munch.lib.result.permission
-import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivitySkinBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,17 +27,10 @@ import java.io.File
 class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     private val bind by bind<ActivitySkinBinding>()
-    private val skin by lazy { SkinHelper() }
-    private val bar by lazy { BarHelper(this) }
 
     private val skinDir by lazy { File(filesDir, "skin") }
 
-    override fun onBar() {
-        bar.colorStatusBar(getColorPrimary())
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        skin.apply(this)
         super.onCreate(savedInstanceState)
         bind.query.setOnClickListener { querySkin() }
         bind.load.setOnClickListener {
@@ -53,27 +44,12 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 }
             }
         }
-        skin.onUpdate {
-            val primary = SkinHelper.getColor(ctx, R.color.colorPrimary)
-            val onPrimary = SkinHelper.getColor(ctx, R.color.colorOnPrimary)
-            supportActionBar?.apply {
-                setBackgroundDrawable(ColorDrawable(primary))
-                title = title?.color(onPrimary)
-                val home =
-                    getAttrArrayFromTheme(android.R.attr.homeAsUpIndicator)
-                    { getDrawable(0) }?.apply { setTint(onPrimary) }
-                setHomeAsUpIndicator(home)
-            }
-            bar.colorStatusBar(primary)
-                //简单判断
-                .setTextColorBlack(onPrimary != Color.WHITE)
-                .extendStatusBar(false)
-        }
     }
 
     private fun updateSkin(file: File) {
         lifecycleScope.launch(Dispatchers.IO) {
             if (SkinHelper.loadSkin(ctx, file.absolutePath)) {
+                DataHelper.saveSkinPath(file.absolutePath)
                 withContext(Dispatchers.Main) { skin.update() }
             }
         }
@@ -104,7 +80,7 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             }
             skin.add(
                 view,
-                mutableListOf(SkinHelper.SkinAttr.TextColor(R.color.colorText))
+                mutableSetOf(SkinHelper.SkinAttr.TextColor(com.munch.lib.fast.R.color.colorText))
             )
             bind.container.addView(view, 3)
         }
@@ -115,7 +91,7 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         }
         skin.add(
             reset,
-            mutableListOf(SkinHelper.SkinAttr.TextColor(R.color.colorText))
+            mutableSetOf(SkinHelper.SkinAttr.TextColor(com.munch.lib.fast.R.color.colorText))
         )
         bind.container.addView(reset, 3)
     }

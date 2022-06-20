@@ -49,7 +49,7 @@ class SkinHelper {
             attr_foreground, attr_foregroundTint, attr_text
         )
 
-        internal val log = Logger("skin", infoStyle = LogStyle.THREAD, enable = true)
+        internal val log = Logger("skin", style = LogStyle.THREAD, enable = false)
 
         fun loadSkin(context: Context, path: String) = Loader.loadResource(context, path)
 
@@ -88,10 +88,10 @@ class SkinHelper {
         LayoutInflaterCompat.setFactory2(activity.layoutInflater, SkinFactory(activity.delegate))
     }
 
-    fun add(view: View, attr: MutableList<SkinAttr>) {
+    fun add(view: View, attr: MutableSet<SkinAttr>) {
         val sv = SkinView(view, attr)
         sv.applySkinIfCan()
-        views.add(sv)
+        collectSV(sv)
     }
 
     /**
@@ -162,7 +162,15 @@ class SkinHelper {
                 sv.attrs.add(skinAttr)
             }
         }
-        views.add(sv)
+        collectSV(sv)
+    }
+
+    private fun collectSV(sv: SkinView) {
+        if (views.contains(sv)) {
+            views[views.indexOf(sv)].attrs.addAll(sv.attrs)
+        } else {
+            views.add(sv)
+        }
     }
 
     private fun analyzeAttr(context: Context, attrName: String, attrValue: String): SkinAttr? {
@@ -195,6 +203,14 @@ class SkinHelper {
         class Text(resId: Int) : SkinAttr(attr_text, resId)
 
         override fun toString() = "$name($resId)"
+
+        override fun hashCode(): Int = resId
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is SkinAttr) return false
+            return other.hashCode() == hashCode()
+        }
     }
 
     private object SkinAttrFactory {
@@ -258,11 +274,21 @@ class SkinHelper {
 
     private class SkinView(
         val view: View,
-        val attrs: MutableList<SkinAttr> = mutableListOf()
+        val attrs: MutableSet<SkinAttr> = mutableSetOf()
     ) {
 
         fun applySkinIfCan() {
             attrs.forEach { SkinAttrFactory.applySkinAttr(view, it) }
+        }
+
+        override fun hashCode(): Int {
+            return view.hashCode()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is SkinView) return false
+            return hashCode() == other.hashCode()
         }
     }
 

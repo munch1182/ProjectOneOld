@@ -32,7 +32,7 @@ class BluetoothHelper private constructor(
 
         val instance = getInstance(AppHelper.app)
 
-        internal val log: Logger = Logger("bluetooth", infoStyle = LogStyle.THREAD)
+        internal val log: Logger = Logger("bluetooth", style = LogStyle.THREAD)
     }
 
     private val job = SupervisorJob()

@@ -66,7 +66,7 @@ sealed class LogStyle {
 open class Logger(
     tag: String = LOG_DEFAULT,
     private var enable: Boolean = true,
-    private var infoStyle: LogStyle = LogStyle.NORMAL,
+    private var style: LogStyle = LogStyle.NORMAL,
 ) {
 
     private var tag: String = LOG_DEFAULT
@@ -85,7 +85,7 @@ open class Logger(
     private var onPrint: OnPrintListener? = null
 
     fun style(style: LogStyle): Logger {
-        this.infoStyle = style
+        this.style = style
         return this
     }
 
@@ -129,7 +129,7 @@ open class Logger(
     private fun logStr(msg: String) {
         val split = msg.split(FMT.LINE_SEPARATOR)
         if (split.size == 1) {
-            when (infoStyle) {
+            when (style) {
                 LogStyle.NONE -> print(split[0])
                 LogStyle.THREAD -> print("${split[0]} (${Thread.currentThread().name})")
                 LogStyle.NORMAL -> print("${split[0]} (${Thread.currentThread().name}/${dumpStack(1)[0]})")
@@ -141,7 +141,7 @@ open class Logger(
             }
         } else {
             split.forEach { print(it) }
-            when (infoStyle) {
+            when (style) {
                 LogStyle.NONE -> {}
                 LogStyle.THREAD -> print("--- (${Thread.currentThread().name})")
                 LogStyle.NORMAL -> print("--- (${Thread.currentThread().name}/${dumpStack(1)[0]})")
@@ -161,7 +161,7 @@ open class Logger(
     }
 
     private fun dumpStack(level: Int): Array<String> {
-        if (infoStyle == LogStyle.NONE) {
+        if (style == LogStyle.NONE) {
             return arrayOf(Str.EMPTY)
         }
         var index = -1

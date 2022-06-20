@@ -81,8 +81,7 @@ object ThreadHelper {
      */
     fun newScheduledPool(coreNum: Int = 1) =
         Executors.newScheduledThreadPool(
-            coreNum,
-            NameThread("schedule")
+            coreNum, NameThread("schedule")
         )
 
     fun execute(task: Runnable) = cachedPool.execute(task)

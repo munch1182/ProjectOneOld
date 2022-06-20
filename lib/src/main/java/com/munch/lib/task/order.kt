@@ -2,6 +2,7 @@ package com.munch.lib.task
 
 import com.munch.lib.Destroyable
 import com.munch.lib.Key
+import com.munch.lib.extend.ContextScope
 import com.munch.lib.log.Logger
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -25,7 +26,7 @@ class OrderTaskHelper(
         }
         get() = runBlocking { lock.withLock { field } }
 
-    private val scope = ContextScope(SupervisorJob() + CoroutineName("OrderTask"))
+    private val scope = ContextScope(SupervisorJob(), CoroutineName("OrderTask"))
 
     fun add(task: ITask): OrderTaskHelper {
         val key = task.key

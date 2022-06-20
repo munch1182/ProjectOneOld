@@ -2,27 +2,29 @@ package com.munch.lib.fast.base
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
+import androidx.core.view.forEach
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.munch.lib.AppHelper
 import com.munch.lib.DBRecord
-import com.munch.lib.extend.getColorPrimary
-import com.munch.lib.extend.getSelectableItemBackgroundBorderless
+import com.munch.lib.extend.*
 import com.munch.lib.extend.icontext.IContext
-import com.munch.lib.extend.inflate
-import com.munch.lib.extend.inflateParent
+import com.munch.lib.fast.R
 import com.munch.lib.fast.measure.MeasureHelper
 import com.munch.lib.fast.view.DispatcherActivity
 import com.munch.lib.helper.BarHelper
+import com.munch.lib.helper.SkinHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.reflect.Method
@@ -33,6 +35,8 @@ import java.lang.reflect.Method
 open class BaseFastActivity : DispatcherActivity(), IContext {
 
     private var measured = false
+    protected open val bar by lazy { BarHelper(this) }
+    protected open val skin by lazy { SkinHelper() }
 
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase)
@@ -42,9 +46,27 @@ open class BaseFastActivity : DispatcherActivity(), IContext {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        skin.apply(this)
         super.onCreate(savedInstanceState)
         MeasureHelper.start(this::class.java.simpleName)
         onBar()
+        skinUpdate()
+    }
+
+    private fun skinUpdate() {
+        skin.onUpdate {
+            val primary = SkinHelper.getColor(ctx, R.color.colorPrimary)
+            val onPrimary = SkinHelper.getColor(ctx, R.color.colorOnPrimary)
+            supportActionBar?.apply {
+                setBackgroundDrawable(ColorDrawable(primary))
+                title = title?.color(onPrimary)
+                val home =
+                    getAttrArrayFromTheme(android.R.attr.homeAsUpIndicator)
+                    { getDrawable(0)?.apply { setTint(onPrimary) } }
+                setHomeAsUpIndicator(home)
+            }
+            bar.colorStatusBar(primary)
+        }
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -69,7 +91,7 @@ open class BaseFastActivity : DispatcherActivity(), IContext {
     }
 
     protected open fun onBar() {
-        BarHelper(this).colorStatusBar(getColorPrimary())
+        bar.colorStatusBar(getColorPrimary())
     }
 
     protected open fun addRightText(str: CharSequence, click: (View) -> Unit) {
@@ -92,6 +114,32 @@ open class BaseFastActivity : DispatcherActivity(), IContext {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(true)
             setDisplayShowCustomEnabled(true)
+        }
+    }
+
+    override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
+        lifecycleScope.launch(Dispatchers.Default) { compatViewSkin(view) }
+        super.setContentView(view, params)
+    }
+
+    private fun compatViewSkin(view: View?) {
+        view ?: return
+        if (view is ViewGroup) {
+            view.forEach { compatViewSkin(it) }
+        } else {
+            if (view is Button) {
+                skin.add(
+                    view,
+                    mutableSetOf(SkinHelper.SkinAttr.BackgroundTint(R.color.colorPrimary))
+                )
+            }
+            if (view is TextView) {
+                skin.add(
+                    view,
+                    mutableSetOf(SkinHelper.SkinAttr.TextColor(R.color.colorText))
+                )
+            }
+
         }
     }
 }

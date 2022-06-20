@@ -7,10 +7,7 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.os.SystemClock
 import com.munch.lib.helper.ThreadHelper
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import java.util.concurrent.Callable
 import java.util.concurrent.Future
 import kotlin.coroutines.CoroutineContext
@@ -116,5 +113,12 @@ open class HandlerDispatcher(name: String) : CoroutineDispatcher() {
         other is HandlerDispatcher && other.handler === handler
 
     override fun hashCode(): Int = System.identityHashCode(handler)
-
 }
+
+class ContextScope(job: Job, context: CoroutineContext) : CoroutineScope, Job by job {
+    override val coroutineContext: CoroutineContext = job + context
+
+    // CoroutineScope is used intentionally for user-friendly representation
+    override fun toString(): String = "CoroutineScope(coroutineContext=$coroutineContext)"
+}
+

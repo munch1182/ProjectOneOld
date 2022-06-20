@@ -9,22 +9,24 @@ import com.munch.lib.AppHelper
  * Create by munch1182 on 2022/4/15 20:53.
  */
 //依赖于theme的不能使用AppHelper.app
-inline fun getCommonContext(): IContext = AppHelper
+inline fun context(): IContext = AppHelper
 
-inline fun getColorCompat(@ColorRes color: Int) = getCommonContext().getColorCompat(color)
-inline fun getStatusBarHeight() = getCommonContext().getStatusBarHeight()
-inline fun getNavigationBarHeight() = getCommonContext().getNavigationBarHeight()
+inline fun getColorCompat(@ColorRes color: Int) = context().getColorCompat(color)
+inline fun getStatusBarHeight() = context().getStatusBarHeight()
+inline fun getNavigationBarHeight() = context().getNavigationBarHeight()
 
 inline fun isPermissionGranted(permission: String) =
-    getCommonContext().isPermissionGranted(permission)
+    context().isPermissionGranted(permission)
 
-inline fun dp2Px(dp: Float) = getCommonContext().dp2Px(dp)
-inline fun sp2Px(sp: Float) = getCommonContext().sp2Px(sp)
+inline fun dp2Px(dp: Float) = context().dp2Px(dp)
+inline fun sp2Px(sp: Float) = context().sp2Px(sp)
 
-inline fun getSelectableItemBackground() = getCommonContext().getSelectableItemBackground()
+inline fun getSelectableItemBackground() = context().getSelectableItemBackground()
 
-inline fun putStr2Clip(content: CharSequence) = getCommonContext().putStr2Clip(content)
+inline fun putStr2Clip(content: CharSequence) = context().putStr2Clip(content)
 
-inline fun getNameVersion() = getCommonContext().getNameVersion()
+inline fun getNameVersion() = context().getNameVersion()
 
-inline fun isScreenOn() = getCommonContext().isScreenOn()
+inline fun isScreenOn() = context().isScreenOn()
+
+inline fun getScreenSize(full: Boolean = false) = context().getScreenSize(full)

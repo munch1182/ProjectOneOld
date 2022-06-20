@@ -59,7 +59,7 @@ open class ConfigDialog : BindBottomSheetDialogFragment() {
 
         bind.configStartUp.setOnCheckedChangeListener { _, isChecked -> saveStartUp(isChecked) }
 
-        DataHelper.getStartUp()?.let { it.canonicalName == clazz }
+        DataHelper.startUp?.let { it.canonicalName == clazz }
             ?.let { bind.configStartUp.isChecked = it }
     }
 

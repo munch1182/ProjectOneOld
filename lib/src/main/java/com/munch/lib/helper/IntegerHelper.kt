@@ -5,12 +5,12 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * Created by munch1182 on 2022/5/14 21:46.
  */
-interface IInterHelper {
+interface IIntegerHelper {
 
     val curr: Int
 }
 
-open class InterHelper : IInterHelper {
+open class IntegerHelper : IIntegerHelper {
 
     private val ai = AtomicInteger()
 

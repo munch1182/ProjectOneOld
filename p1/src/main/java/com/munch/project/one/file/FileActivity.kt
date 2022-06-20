@@ -3,6 +3,7 @@ package com.munch.project.one.file
 import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
+import com.munch.lib.OnProgressListener
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.fvFv
@@ -38,7 +39,7 @@ class FileActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                             val file = FileHelper.uri2File(
                                 this@FileActivity,
                                 data?.data,
-                                onProgress = object : FileHelper.OnProgressListener {
+                                onProgress = object : OnProgressListener {
                                     override fun onProgress(progress: Long, all: Long) {
                                         log("$progress/$all")
                                     }

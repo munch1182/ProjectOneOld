@@ -18,7 +18,7 @@ import kotlinx.coroutines.withContext
  */
 class NetActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
-    private val bind by fvFv(arrayOf("set static ip"))
+    private val bind by fvFv(arrayOf("set static ip", "query"))
     private val vm by get<NetViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,8 +33,13 @@ class NetActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         bind.click { _, index ->
             when (index) {
                 0 -> setStaticIp()
+                1 -> scan()
             }
         }
+
+    }
+
+    private fun scan() {
         lifecycleScope.launch(Dispatchers.IO) {
             val s = vm.queryNotAvailableAddress()?.joinToString() ?: "null"
             withContext(Dispatchers.Main) { bind.desc(s) }

@@ -10,6 +10,20 @@ import com.munch.lib.AppHelper
 import com.munch.lib.log.Logger
 
 /**
+ * 用于监听通知栏变动
+ *
+ * 需要权限和服务注册：
+ * <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"/>
+ *
+ * <service
+ *  android:name=".NotificationServiceHelper"
+ *  android:exported="true"
+ *  android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+ *      <intent-filter>
+ *          <action android:name="android.service.notification.NotificationListenerService" />
+ *      </intent-filter>
+ * </service>
+ *
  * Created by munch1182 on 2022/4/20 19:31.
  */
 class NotificationServiceHelper : NotificationListenerService() {
@@ -25,7 +39,7 @@ class NotificationServiceHelper : NotificationListenerService() {
         val isEnable: Boolean
             get() = isEnable(AppHelper.app)
 
-        val request:Intent
+        val request: Intent
             get() = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
     }
 

@@ -1,8 +1,8 @@
 package com.munch.lib.task
 
 import com.munch.lib.Key
-import com.munch.lib.helper.IInterHelper
-import com.munch.lib.helper.InterHelper
+import com.munch.lib.helper.IIntegerHelper
+import com.munch.lib.helper.IntegerHelper
 import com.munch.lib.helper.data.DataFun
 import com.munch.lib.log.Logger
 import kotlinx.coroutines.Dispatchers
@@ -84,7 +84,7 @@ sealed class State {
         get() = this is Wait || this is Executing
 }
 
-object TaskKeyHelper : IInterHelper by InterHelper()
+object TaskKeyHelper : IIntegerHelper by IntegerHelper()
 
 sealed class Result {
 
