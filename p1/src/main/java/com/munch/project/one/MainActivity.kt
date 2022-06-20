@@ -39,7 +39,7 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        DataHelper.startUp?.let { startActivity(Intent(this, it)) }
         vb.init()
+        DataHelper.startUp?.let { startActivity(Intent(this, it)) }
     }
 }

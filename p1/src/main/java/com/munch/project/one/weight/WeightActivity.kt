@@ -1,7 +1,6 @@
 package com.munch.project.one.weight
 
 import android.os.Bundle
-import android.view.GestureDetector
 import android.widget.FrameLayout
 import androidx.core.view.setPadding
 import com.munch.lib.extend.dp2Px

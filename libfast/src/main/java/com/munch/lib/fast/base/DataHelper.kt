@@ -9,7 +9,7 @@ import com.munch.lib.helper.data.MMKVHelper
 object DataHelper : DataFun<String> by MMKVHelper.default() {
 
 
-    //<editor-fold desc="startup">
+    //<editor-fold desc="startUp">
     private const val KEY_START_UP = "start_up"
 
     fun saveStartUp(clazz: String?) {
@@ -20,13 +20,4 @@ object DataHelper : DataFun<String> by MMKVHelper.default() {
         get() = get<String>(KEY_START_UP, null)
             ?.let { Class.forName(it) }
     //</editor-fold>
-
-    private const val KEY_SKIN_PATH = "skin_path"
-
-    fun saveSkinPath(path: String?) {
-        put(KEY_SKIN_PATH, path)
-    }
-
-    val skinPath: String?
-        get() = get<String>(KEY_SKIN_PATH, null)
 }

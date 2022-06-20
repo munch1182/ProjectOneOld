@@ -8,7 +8,6 @@ import android.bluetooth.BluetoothGatt
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Color
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -64,7 +63,7 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     }
     private val instance = BluetoothHelper.instance
-    private val barText by lazy { TextView(this).apply { setTextColor(Color.WHITE) } }
+    private val barText by lazy { TextView(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

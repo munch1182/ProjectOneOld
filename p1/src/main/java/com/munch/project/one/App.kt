@@ -1,8 +1,6 @@
 package com.munch.project.one
 
 import com.munch.lib.fast.BaseApp
-import com.munch.lib.fast.base.DataHelper
-import com.munch.lib.helper.SkinHelper
 import com.munch.lib.log.log
 
 /**
@@ -20,7 +18,6 @@ class App : BaseApp() {
             }
             //todo 此处不会执行，即可能会占用一个线程，因此考虑循环任务的方式，或者这样也可以
         }*/
-        DataHelper.skinPath?.let { SkinHelper.loadSkin(ctx, it) }
         Thread.setDefaultUncaughtExceptionHandler { _, e -> log(e) }
     }
 }

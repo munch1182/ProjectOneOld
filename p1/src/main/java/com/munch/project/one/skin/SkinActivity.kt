@@ -1,14 +1,21 @@
 package com.munch.project.one.skin
 
 import android.Manifest
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.TextView
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.setPadding
 import androidx.lifecycle.lifecycleScope
 import com.munch.lib.extend.bind
+import com.munch.lib.extend.color
 import com.munch.lib.extend.dp2Px
+import com.munch.lib.extend.getAttrArrayFromTheme
+import com.munch.lib.fast.R
 import com.munch.lib.fast.base.BaseFastActivity
-import com.munch.lib.fast.base.DataHelper
+import com.munch.lib.fast.helper.ViewColorHelper
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
 import com.munch.lib.helper.FileHelper
@@ -20,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.random.Random
 
 /**
  * Created by munch1182 on 2022/6/17 19:05.
@@ -27,12 +35,16 @@ import java.io.File
 class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     private val bind by bind<ActivitySkinBinding>()
+    private val skin by lazy { SkinHelper() }
 
     private val skinDir by lazy { File(filesDir, "skin") }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        skin.apply(this)
         super.onCreate(savedInstanceState)
+        skinUpdate()
         bind.query.setOnClickListener { querySkin() }
+        bind.generateColor.setOnClickListener { generateColor() }
         bind.load.setOnClickListener {
             lifecycleScope.launch {
                 if (permission(Manifest.permission.READ_EXTERNAL_STORAGE).isGrantAll()) {
@@ -46,10 +58,57 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         }
     }
 
+    private fun skinUpdate() {
+        skin.onUpdate {
+            val primary = SkinHelper.getColor(ctx, R.color.colorPrimary)
+            val onPrimary = SkinHelper.getColor(ctx, R.color.colorOnPrimary)
+            supportActionBar?.apply {
+                setBackgroundDrawable(ColorDrawable(primary))
+                title = title?.color(onPrimary)
+                val home =
+                    getAttrArrayFromTheme(android.R.attr.homeAsUpIndicator) {
+                        getDrawable(0)?.apply { setTint(onPrimary) }
+                    }
+                setHomeAsUpIndicator(home)
+            }
+            bar.colorStatusBar(primary).fitStatusTextColor()
+        }
+    }
+
+    private fun generateColor() {
+        val r = Random
+        val color = Color.rgb(r.nextInt(255), r.nextInt(255), r.nextInt(255))
+        val luminance = ColorUtils.calculateLuminance(color)
+        val needBlack = luminance > 0.5
+        val textColor = if (needBlack) Color.BLACK else Color.WHITE
+
+        val btn = arrayOf(bind.load, bind.query, bind.generateColor)
+
+        btn.forEach {
+            it.backgroundTintList = ColorStateList(arrayOf(intArrayOf()), intArrayOf(color))
+            it.setTextColor(textColor)
+        }
+
+        supportActionBar?.apply {
+            setBackgroundDrawable(ColorDrawable(color))
+            title = title?.color(textColor)
+            val home = getAttrArrayFromTheme(android.R.attr.homeAsUpIndicator) {
+                getDrawable(0)?.apply { setTint(textColor) }
+            }
+            setHomeAsUpIndicator(home)
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowTitleEnabled(true)
+            setDisplayShowCustomEnabled(true)
+        }
+        bar.colorStatusBar(color).setTextColorBlack(needBlack)
+
+        ViewColorHelper.setColor(color)
+    }
+
     private fun updateSkin(file: File) {
         lifecycleScope.launch(Dispatchers.IO) {
-            if (SkinHelper.loadSkin(ctx, file.absolutePath)) {
-                DataHelper.saveSkinPath(file.absolutePath)
+            val path = file.absolutePath
+            if (SkinHelper.loadSkin(ctx, path)) {
                 withContext(Dispatchers.Main) { skin.update() }
             }
         }
@@ -68,7 +127,6 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             }
             withContext(Dispatchers.Main) { showSkinInView() }
         }
-
     }
 
     private fun showSkinInView() {
@@ -80,7 +138,7 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             }
             skin.add(
                 view,
-                mutableSetOf(SkinHelper.SkinAttr.TextColor(com.munch.lib.fast.R.color.colorText))
+                mutableSetOf(SkinHelper.SkinAttr.TextColor(R.color.colorText))
             )
             bind.container.addView(view, 3)
         }
@@ -91,7 +149,7 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         }
         skin.add(
             reset,
-            mutableSetOf(SkinHelper.SkinAttr.TextColor(com.munch.lib.fast.R.color.colorText))
+            mutableSetOf(SkinHelper.SkinAttr.TextColor(R.color.colorText))
         )
         bind.container.addView(reset, 3)
     }

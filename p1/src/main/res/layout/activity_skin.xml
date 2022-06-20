@@ -1,55 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.munch.lib.weight.FlowLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+
+    android:orientation="vertical"
+    android:padding="@dimen/dimenDef"
     tools:context=".skin.SkinActivity"
     tools:ignore="HardcodedText">
-    <!--因为更改了状态栏文字颜色，所以布局被延申到状态栏，所以需要fitsSystemWindows，
-    所以需要加一个布局保持padding，
-    所以不如最开始就延申到状态栏-->
-    <com.munch.lib.weight.FlowLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
+
+    <Button
+        android:id="@+id/load"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/dimenDef">
+        android:backgroundTint="@color/colorPrimary"
+        android:text="选择皮肤包"
+        android:textColor="@color/colorOnPrimary"
+        app:skinEnable="true" />
 
-        <Button
-            android:id="@+id/load"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
-            android:text="选择皮肤包"
-            android:textColor="@color/colorOnPrimary"
-            app:skinEnable="true" />
+    <Button
+        android:id="@+id/query"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
+        android:text="查询"
+        android:textColor="@color/colorOnPrimary"
+        app:skinEnable="true" />
 
-        <Button
-            android:id="@+id/query"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
-            android:text="查询"
-            android:textColor="@color/colorOnPrimary"
-            app:skinEnable="true" />
+    <com.munch.lib.weight.Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <com.munch.lib.weight.Space
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <com.munch.lib.weight.Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <com.munch.lib.weight.Space
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/skin_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/skin_name"
+        android:textColor="@color/colorText"
+        app:skinEnable="true" />
 
-        <TextView
-            android:id="@+id/skin_test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/skin_name"
-            android:textColor="@color/colorText"
-            app:skinEnable="true" />
-    </com.munch.lib.weight.FlowLayout>
+    <com.munch.lib.weight.Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-</FrameLayout>
+    <Button
+        android:id="@+id/generate_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
+        android:text="生成随机颜色"
+        android:textColor="@color/colorOnPrimary"
+        app:skinEnable="true" />
+
+    <com.munch.lib.weight.Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</com.munch.lib.weight.FlowLayout>

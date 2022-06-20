@@ -132,10 +132,10 @@ class SkinHelper {
             context.obtainStyledAttributes(attrs, R.styleable.SkinSupport).apply {
                 catch { isSupportSkin = this.getBoolean(R.styleable.SkinSupport_skinEnable, false) }
             }.recycle()
-            if (!isSupportSkin) {
-                return null
-            }
             val view = delegate?.createView(parent, name, context, attrs) ?: return null
+            if (!isSupportSkin) {
+                return view
+            }
             analyzeAttr2SkinView(view, attrs)
             return view
         }
