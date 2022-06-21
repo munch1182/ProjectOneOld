@@ -31,6 +31,12 @@ fun destroy() {
     exitProcess(1)
 }
 
+inline fun <T> lazy(noinline initializer: () -> T): Lazy<T> =
+    lazy(LazyThreadSafetyMode.NONE, initializer)
+
+inline fun <T> lazySync(noinline initializer: () -> T): Lazy<T> =
+    lazy(LazyThreadSafetyMode.SYNCHRONIZED, initializer)
+
 @Suppress("UNCHECKED_CAST")
 fun <T : Any> KClass<T>.toClass(): Class<T>? = try {
     Class.forName(qualifiedName!!) as Class<T>
