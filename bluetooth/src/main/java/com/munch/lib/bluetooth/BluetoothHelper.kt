@@ -51,11 +51,9 @@ class BluetoothHelper private constructor(
      */
     override val connectGattDevs: List<BluetoothDevice>?
         get() = btWrapper.connectGattDevs
-    private val onStateOff = object : OnStateChangeListener {
-        override fun onStateChange(state: StateNotify, mac: String?) {
-            if (state == StateNotify.StateOff) {
-                stop()
-            }
+    private val onStateOff = OnStateChangeListener { state, _ ->
+        if (state == StateNotify.StateOff) {
+            stop()
         }
     }
 

@@ -110,7 +110,7 @@ interface IConnectHandler {
     fun removeConnectHandler(handler: OnConnectHandler): IConnectHandler
 }
 
-interface OnConnectHandler {
+fun interface OnConnectHandler {
 
     /**
      * 当蓝牙连接成功后，会回调此方法，可以对gatt进行自定义处理并返回结果

@@ -53,12 +53,12 @@ sealed class StateNotify {
     }
 }
 
-interface OnStateChangeListener {
+fun interface OnStateChangeListener {
 
     /**
      * @param state
      */
-    fun onStateChange(state: StateNotify, mac: String? = null)
+    fun onStateChange(state: StateNotify, mac: String?)
 }
 
 class BluetoothWrapper(context: Context) :

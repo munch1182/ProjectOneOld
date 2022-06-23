@@ -58,7 +58,7 @@ interface InitFunInterface {
 interface Manageable : Cancelable, Destroyable
 
 
-interface OnProgressListener {
+fun interface OnProgressListener {
 
     fun onProgress(progress: Long, all: Long)
 }

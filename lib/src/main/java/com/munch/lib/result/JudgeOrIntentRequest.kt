@@ -80,7 +80,7 @@ class JudgeOrIntentRequest(
 typealias OnJudge = (Context) -> Boolean
 typealias OnIntent = (Context) -> Intent
 
-interface OnJudgeResultListener {
+fun interface OnJudgeResultListener {
 
     fun onJudgeResult(result: Boolean)
 }
