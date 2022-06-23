@@ -40,7 +40,7 @@ class IntentRequest(private val intent: Intent, private val fragment: ResultFrag
     }
 }
 
-interface OnIntentResultListener {
+fun interface OnIntentResultListener {
 
     fun onIntentResult(isOk: Boolean, data: Intent?)
 }

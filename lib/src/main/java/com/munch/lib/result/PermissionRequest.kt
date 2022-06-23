@@ -120,11 +120,7 @@ class PermissionRequest(
 
     private suspend fun startPermissionRequest(permissions: Array<String>): Boolean {
         return suspendCancellableCoroutine {
-            fragment.requestPermissions(permissions, object : OnPermissionResultListener {
-                override fun onPermissionResult(isGrantAll: Boolean, result: Map<String, Boolean>) {
-                    it.resume(isGrantAll)
-                }
-            })
+            fragment.requestPermissions(permissions) { isGrantAll, _ -> it.resume(isGrantAll) }
         }
     }
 
@@ -183,7 +179,7 @@ interface ExplainPermissionNotice : Notice {
     fun onToSetExplain(denied: Array<String>): Boolean = false
 }
 
-interface OnPermissionResultListener {
+fun interface OnPermissionResultListener {
 
     fun onPermissionResult(isGrantAll: Boolean, result: Map<String, Boolean>)
 }

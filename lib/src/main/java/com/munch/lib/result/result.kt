@@ -33,36 +33,8 @@ fun FragmentActivity.judgeIntent(onJudge: OnJudge, intent: OnIntent) =
 fun Fragment.judgeIntent(onJudge: OnJudge, intent: OnIntent) =
     ResultHelper.with(this).judgeOrIntent(onJudge, intent)
 
-fun IntentRequest.start(f: (isOk: Boolean, data: Intent?) -> Unit) =
-    start(object : OnIntentResultListener {
-        override fun onIntentResult(isOk: Boolean, data: Intent?) {
-            f.invoke(isOk, data)
-        }
-    })
-
-fun JudgeOrIntentRequest.start(f: (isOk: Boolean) -> Unit) =
-    start(object : OnJudgeResultListener {
-        override fun onJudgeResult(result: Boolean) {
-            f.invoke(result)
-        }
-    })
-
-fun PermissionRequest.request(r: (isGrantAll: Boolean, result: Map<String, Boolean>) -> Unit) {
-    request(object : OnPermissionResultListener {
-        override fun onPermissionResult(isGrantAll: Boolean, result: Map<String, Boolean>) {
-            r.invoke(isGrantAll, result)
-        }
-    })
-}
-
 suspend fun PermissionRequest.isGrantAll(): Boolean {
-    return suspendCancellableCoroutine {
-        request(object : OnPermissionResultListener {
-            override fun onPermissionResult(isGrantAll: Boolean, result: Map<String, Boolean>) {
-                it.resume(isGrantAll)
-            }
-        })
-    }
+    return suspendCancellableCoroutine { request { isGrantAll, _ -> it.resume(isGrantAll) } }
 }
 
 inline fun FragmentActivity.contact(vararg permission: String) =
