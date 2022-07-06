@@ -1,14 +1,12 @@
 package com.munch.lib.bluetooth
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothGatt
-import android.bluetooth.BluetoothGattCallback
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattDescriptor
+import android.bluetooth.*
 import com.munch.lib.extend.suspendCancellableCoroutine
 import com.munch.lib.log.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import java.util.*
 import kotlin.coroutines.resume
 
 @SuppressLint("MissingPermission")
@@ -74,7 +72,7 @@ open class GattCallbackDispatcher(private val log: Logger) : BluetoothGattCallba
      * 用于发现服务
      * 如果超时未发现或者发现失败，则返回为null，否则则是发现成功
      */
-    suspend fun discoverService(timeout: Long = 3000L): BluetoothGatt? {
+    suspend fun discoverService(timeout: Long = 1000L): BluetoothGatt? {
         val g = gatt ?: return null
         if (g.services.isNotEmpty()) {
             log.log { "[${mac(gatt)}] services had discovered: ${g.services.size}." }
@@ -95,6 +93,14 @@ open class GattCallbackDispatcher(private val log: Logger) : BluetoothGattCallba
         return serviceGatt
     }
 
+    /**
+     * @see discoverService
+     */
+    fun getService(uuid: UUID): BluetoothGattService? {
+        val g = gatt ?: return null
+        return g.getService(uuid)
+    }
+
     override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
         super.onMtuChanged(gatt, mtu, status)
         log.log { "[${mac(gatt)}] onMtuChanged: ${fmtStatus(status)}, mtu:$mtu." }
@@ -107,7 +113,7 @@ open class GattCallbackDispatcher(private val log: Logger) : BluetoothGattCallba
      *
      * mtu的回调可能先于请求和回调之前
      */
-    suspend fun requestMtu(mtu: Int = 247, timeout: Long = 1500L): Int? {
+    suspend fun requestMtu(mtu: Int = 247, timeout: Long = 10000L): Int? {
         val g = gatt ?: return null
         val mtuChanged = suspendCancellableCoroutine<Int?>(timeout) {
             _onMtuChange = { isSuccess, mtu -> it.resume(if (isSuccess) mtu else null) }
@@ -141,13 +147,36 @@ open class GattCallbackDispatcher(private val log: Logger) : BluetoothGattCallba
         log.log { "[${mac(gatt)}] onDescriptorWrite: ${fmtStatus(status)}" }
     }
 
+    suspend fun readCharacteristic(
+        characteristic: BluetoothGattCharacteristic?,
+        timeout: Long = 10000L
+    ): BluetoothGattCharacteristic? {
+        val g = gatt ?: return null
+        val c = characteristic ?: return null
+        val readBluetoothGattCharacteristic =
+            suspendCancellableCoroutine<BluetoothGattCharacteristic?>(timeout) {
+                _onCharacteristicRead = { isSuccess, characteristic ->
+                    it.resume(if (isSuccess) characteristic else null)
+                }
+                val read = runBlocking(Dispatchers.Main) {
+                    g.readCharacteristic(c)
+                        .also { log.log { "[${mac(gatt)}] READ CHARACTERISTIC(${c.uuid}: ${it})." } }
+                }
+                if (!read) {
+                    it.resume(null)
+                }
+            }
+        return readBluetoothGattCharacteristic
+    }
+
     override fun onCharacteristicRead(
         gatt: BluetoothGatt?,
         characteristic: BluetoothGattCharacteristic?,
         status: Int
     ) {
         super.onCharacteristicRead(gatt, characteristic, status)
-        log.log { "[${mac(gatt)}] onCharacteristicRead: ${fmtStatus(status)}" }
+        log.log { "[${mac(gatt)}] onCharacteristicRead(${characteristic?.uuid}): ${fmtStatus(status)}" }
+        _onCharacteristicRead?.invoke(isSuccess(status), characteristic)
     }
 
     override fun onCharacteristicWrite(
@@ -159,12 +188,36 @@ open class GattCallbackDispatcher(private val log: Logger) : BluetoothGattCallba
         log.log { "[${mac(gatt)}] onCharacteristicWrite: ${fmtStatus(status)}" }
     }
 
+    suspend fun setCharacteristicNotification(
+        characteristic: BluetoothGattCharacteristic?,
+        enable: Boolean,
+        timeout: Long = 3000L
+    ): BluetoothGattCharacteristic? {
+        val g = gatt ?: return null
+        val c = characteristic ?: return null
+        val updateCharacteristic =
+            suspendCancellableCoroutine<BluetoothGattCharacteristic?>(timeout = timeout) {
+                _onCharacteristicChanged = { c2 ->
+                    if (c.uuid == c2?.uuid) {
+                        it.resume(c2)
+                    }
+                }
+                val setEnable =
+                    runBlocking(Dispatchers.Main) { g.setCharacteristicNotification(c, enable) }
+                if (!setEnable) {
+                    it.resume(null)
+                }
+            }
+        return updateCharacteristic
+    }
+
     override fun onCharacteristicChanged(
         gatt: BluetoothGatt?,
         characteristic: BluetoothGattCharacteristic?
     ) {
         super.onCharacteristicChanged(gatt, characteristic)
         log.log { "[${mac(gatt)}] onCharacteristicChanged" }
+        _onCharacteristicChanged?.invoke(characteristic)
     }
 
     override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {

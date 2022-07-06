@@ -22,6 +22,7 @@ import com.munch.lib.extend.bind
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
+import com.munch.lib.log.log
 import com.munch.lib.notice.Notice
 import com.munch.lib.notice.OnSelect
 import com.munch.lib.notice.OnSelectOk
@@ -33,9 +34,11 @@ import com.munch.lib.result.ExplainContactNotice
 import com.munch.lib.result.contact
 import com.munch.project.one.databinding.ActivityBluetoothBinding
 import com.munch.project.one.databinding.ItemBluetoothBinding
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.*
 import kotlin.coroutines.resume
 
 /**
@@ -76,7 +79,18 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 barText.setOnClickListener { checkOrRequest { instance.stop() } }
             } else {
                 barText.text = "SCAN START"
-                barText.setOnClickListener { checkOrRequest { instance.scan() } }
+                barText.setOnClickListener {
+                    checkOrRequest {
+                        //instance.scan()
+                        BluetoothDev("84:A2:20:A1:05:34").apply {
+                            addConnectHandler(TheHandler())
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                find()
+                                connect()
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -109,26 +123,51 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         override suspend fun onConnect(
             connector: Connector,
             gatt: BluetoothGatt,
+            timeout: Long,
             dispatcher: GattCallbackDispatcher
         ): Boolean {
             return suspendCancellableCoroutine { c ->
                 runBlocking {
-                    var g = dispatcher.discoverService()
+                    log(dispatcher.gatt?.services?.size ?: 0)
+                    var g = dispatcher.discoverService(timeout)
                     var index = 5
                     while (g == null && index > 0) {
                         index--
-                        g = dispatcher.discoverService()
+                        g = dispatcher.discoverService(timeout)
                     }
+
                     if (g == null) {
                         c.resume(false)
                         return@runBlocking
                     }
+
+                    log(dispatcher.gatt?.services?.size ?: 0)
+
+                    val hidService =
+                        dispatcher.getService(UUID.fromString("00001812-0000-1000-8000-00805f9b34fb"))
+
+                    if (hidService == null) {
+                        c.resume(false)
+                        return@runBlocking
+                    }
+                    val protocolMode =
+                        hidService.getCharacteristic(UUID.fromString("00002a4e-0000-1000-8000-00805f9b34fb"))
+                    if (protocolMode == null) {
+                        c.resume(false)
+                        return@runBlocking
+                    }
+                    val characteristic = dispatcher.readCharacteristic(protocolMode, timeout)
+                    if (characteristic == null) {
+                        c.resume(false)
+                        return@runBlocking
+                    }
+
                     val mtu = 247
                     index = 5
-                    var requestMtu = dispatcher.requestMtu(mtu)
+                    var requestMtu = dispatcher.requestMtu(mtu, timeout)
                     while (requestMtu != mtu && index > 0) {
                         index--
-                        requestMtu = dispatcher.requestMtu(mtu)
+                        requestMtu = dispatcher.requestMtu(mtu, timeout)
                     }
                     if (requestMtu == null) {
                         c.resume(false)

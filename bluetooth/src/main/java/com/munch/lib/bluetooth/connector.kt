@@ -87,6 +87,8 @@ class BleConnector(private val dev: BluetoothDev) : Connector {
     private var lastState = _currState
     private val handlerList = mutableListOf<OnConnectHandler>()
 
+    private var timeout = 45 * 1000L
+
     private val callBack = object : GattCallbackDispatcher(log) {
         override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
@@ -102,7 +104,8 @@ class BleConnector(private val dev: BluetoothDev) : Connector {
                     var handlerResult = true
                     kotlin.run {
                         handlerList.forEach {
-                            handlerResult = handlerResult && it.onConnect(connector, gatt, cb)
+                            handlerResult =
+                                handlerResult && it.onConnect(connector, gatt, timeout, cb)
                             log.log { "[${dev.mac}] onConnect(${it.javaClass.simpleName}): $handlerResult." }
                             if (!handlerResult) {
                                 return@run
@@ -142,6 +145,7 @@ class BleConnector(private val dev: BluetoothDev) : Connector {
                 connectListener?.onConnectFail(dev.mac, ConnectFail.Other)
                 return@launch
             }
+            this@BleConnector.timeout = timeout
             withContext(Dispatchers.Main) {
                 gatt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     log.log { "[${dev.mac}] CONNECT(TRANSPORT_LE, PHY_LE_1M_MASK)." }

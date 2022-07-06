@@ -89,8 +89,10 @@ interface Connector : IBluetoothStop, IConnectHandler {
      * 连接设备
      *
      * 只能在非连接状态下才能连接，调用时应该使用队列，而不能并发
+     *
+     * @param timeout 每一个异步操作的超时时间(而不是整个流程的超时时间)
      */
-    fun connect(timeout: Long = 15 * 1000L, connectListener: ConnectListener? = null): Boolean
+    fun connect(timeout: Long = 45 * 1000L, connectListener: ConnectListener? = null): Boolean
 
     override fun addConnectHandler(handler: OnConnectHandler): Connector
     override fun removeConnectHandler(handler: OnConnectHandler): Connector
@@ -120,6 +122,7 @@ fun interface OnConnectHandler {
     suspend fun onConnect(
         connector: Connector,
         gatt: BluetoothGatt,
+        timeout: Long,
         dispatcher: GattCallbackDispatcher
     ): Boolean
 }
