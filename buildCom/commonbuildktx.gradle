@@ -5,5 +5,5 @@ apply from: '../buildCom/commonbuild.gradle'
 
 dependencies {
 
-    implementation Deps.core_ktx
+    implementation deps.coreKtx
 }

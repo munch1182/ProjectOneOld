@@ -4,6 +4,7 @@
 // 注意文件路径
 
 apply from: '../buildCom/gitversion.gradle'
+apply from: '../buildCom/androidversion.gradle'
 
 android {
     compileSdk Version.compileSdk
@@ -132,7 +133,7 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation Deps.appcompat
+    implementation deps['appcompat']
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.4.0'
