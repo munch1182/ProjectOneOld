@@ -7,13 +7,13 @@ apply from: '../buildCom/gitversion.gradle'
 apply from: '../buildCom/androidversion.gradle'
 
 android {
-    compileSdk Version.compileSdk
+    compileSdk Ver.compileSdk
 
     def versionDesc = gitVersion['versionDesc']
 
     defaultConfig {
-        minSdk Version.minSdk
-        targetSdk Version.targetSdk
+        minSdk Ver.minSdk
+        targetSdk Ver.targetSdk
 
         versionCode gitVersion['versionCode']
         versionName gitVersion['versionName']
