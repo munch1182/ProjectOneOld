@@ -1,7 +1,7 @@
 //module/Gradle: Tasks-help-dependencies : 查看依赖树
 //不使用buildSrc的原因是：1. 依赖并不会经常性更改，2. buildSrc会添加固定版本的kotlin依赖，与使用的版本可能会不一致
 ext {
-    Version = [
+    Ver = [
             compileSdk        : 31,
             minSdk            : 23,
             targetSdk         : 31,
@@ -38,9 +38,9 @@ ext {
             material          : "com.google.android.material:material:1.5.0",
 
             //compose
-            composeUi         : "androidx.compose.ui:ui:${Version['COMPOSE_VERSION']}",
-            composeMaterial   : "androidx.compose.material:material:${Version['COMPOSE_VERSION']}",
-            composeUiTool     : "androidx.compose.ui:ui-tooling-preview:${Version['COMPOSE_VERSION']}",
+            composeUi         : "androidx.compose.ui:ui:${Ver['COMPOSE_VERSION']}",
+            composeMaterial   : "androidx.compose.material:material:${Ver['COMPOSE_VERSION']}",
+            composeUiTool     : "androidx.compose.ui:ui-tooling-preview:${Ver['COMPOSE_VERSION']}",
             composeActivity   : 'androidx.activity:activity-compose:1.3.1',
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/constraintlayout*/
@@ -69,56 +69,56 @@ ext {
 
             /*https://developer.android.google.cn/kotlin/ktx/extensions-list?hl:zh_cn*/
 
-            activityKtx       : "androidx.activity:activity-ktx:${Version['ACTIVITY_VERSION']}",
-            fragmentKtx       : "androidx.fragment:fragment-ktx:${Version['FRAGMENT_VERSION']}",
+            activityKtx       : "androidx.activity:activity-ktx:${Ver['ACTIVITY_VERSION']}",
+            fragmentKtx       : "androidx.fragment:fragment-ktx:${Ver['FRAGMENT_VERSION']}",
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/lifecycle*/
             /*https://developer.android.google.cn/kotlin/ktx?hl:zh_cn#lifecycle*/
 
-            lifecycleKtx      : "androidx.lifecycle:lifecycle-runtime-ktx:${Version['LIFECYCLE_VERSION']}",
-            viewModelKtx      : "androidx.lifecycle:lifecycle-viewmodel-ktx:${Version['LIFECYCLE_VERSION']}",
-            liveDataKtx       : "androidx.lifecycle:lifecycle-livedata-ktx:${Version['LIFECYCLE_VERSION']}",
+            lifecycleKtx      : "androidx.lifecycle:lifecycle-runtime-ktx:${Ver['LIFECYCLE_VERSION']}",
+            viewModelKtx      : "androidx.lifecycle:lifecycle-viewmodel-ktx:${Ver['LIFECYCLE_VERSION']}",
+            liveDataKtx       : "androidx.lifecycle:lifecycle-livedata-ktx:${Ver['LIFECYCLE_VERSION']}",
 
             /*https://developer.android.google.cn/topic/libraries/architecture/workmanager/basics*/
             /*https://developer.android.google.cn/kotlin/ktx?hl:zh_cn#workmanager*/
 
-            work              : "androidx.work:work-runtime:${Version['WORK_VERSION']}",
-            workKtx           : "androidx.work:work-runtime-ktx:${Version['WORK_VERSION']}",
-            workTest          : "androidx.work:work-testing:${Version['WORK_VERSION']}",
+            work              : "androidx.work:work-runtime:${Ver['WORK_VERSION']}",
+            workKtx           : "androidx.work:work-runtime-ktx:${Ver['WORK_VERSION']}",
+            workTest          : "androidx.work:work-testing:${Ver['WORK_VERSION']}",
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/room*/
             /*https://developer.android.google.cn/kotlin/ktx?hl:zh_cn#room*/
-            room              : "androidx.room:room-runtime:${Version['ROOM_VERSION']}",
-            roomCompiler      : "androidx.room:room-compiler:${Version['ROOM_VERSION']}",
-            roomKtx           : "androidx.room:room-ktx:${Version['ROOM_VERSION']}",
-            roomTest          : "androidx.room:room-testing:${Version['ROOM_VERSION']}",
+            room              : "androidx.room:room-runtime:${Ver['ROOM_VERSION']}",
+            roomCompiler      : "androidx.room:room-compiler:${Ver['ROOM_VERSION']}",
+            roomKtx           : "androidx.room:room-ktx:${Ver['ROOM_VERSION']}",
+            roomTest          : "androidx.room:room-testing:${Ver['ROOM_VERSION']}",
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/paging*/
 
-            paging            : "androidx.paging:paging-runtime:${Version['PAGING_VERSION']}",
-            pagingTest        : "androidx.paging:paging-common:${Version['PAGING_VERSION']}",
+            paging            : "androidx.paging:paging-runtime:${Ver['PAGING_VERSION']}",
+            pagingTest        : "androidx.paging:paging-common:${Ver['PAGING_VERSION']}",
 
             /*https://github.com/Kotlin/kotlinx.coroutines*/
             coroutines        : "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0",
 
             /*https://github.com/bumptech/glide*/
-            glide             : "com.github.bumptech.glide:glide:${Version['GLIDE_VERSION']}",
-            glideCompiler     : "com.github.bumptech.glide:compiler:${Version['GLIDE_VERSION']}",
-            glideIntegration  : "com.github.bumptech.glide:okhttp3-integration:${Version['GLIDE_VERSION']}",
+            glide             : "com.github.bumptech.glide:glide:${Ver['GLIDE_VERSION']}",
+            glideCompiler     : "com.github.bumptech.glide:compiler:${Ver['GLIDE_VERSION']}",
+            glideIntegration  : "com.github.bumptech.glide:okhttp3-integration:${Ver['GLIDE_VERSION']}",
 
             /*https://github.com/square/okhttp*/
             /*https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor*/
 
-            okhttp            : "com.squareup.okhttp3:okhttp:${Version['OKHTTP_VERSION']}",
-            okhttpInterceptor : "com.squareup.okhttp3:logging-interceptor:${Version['OKHTTP_VERSION']}",
+            okhttp            : "com.squareup.okhttp3:okhttp:${Ver['OKHTTP_VERSION']}",
+            okhttpInterceptor : "com.squareup.okhttp3:logging-interceptor:${Ver['OKHTTP_VERSION']}",
 
             /*https://github.com/square/leakcanary*/
             leakcanary        : "com.squareup.leakcanary:leakcanary-android:2.8.1",
 
             /*https://github.com/square/retrofit*/
             /*https://github.com/square/retrofit/tree/master/retrofit-converters/gson*/
-            retrofit          : "com.squareup.retrofit2:retrofit:${Version['RETROFIT_VERSION']}",
-            retrofitGson      : "com.squareup.retrofit2:converter-gson:${Version['RETROFIT_VERSION']}",
+            retrofit          : "com.squareup.retrofit2:retrofit:${Ver['RETROFIT_VERSION']}",
+            retrofitGson      : "com.squareup.retrofit2:converter-gson:${Ver['RETROFIT_VERSION']}",
 
             /*https://github.com/google/gson*/
             gson              : "com.google.code.gson:gson:2.9.0",
@@ -127,9 +127,9 @@ ext {
             /*https://developer.android.google.cn/training/dependency-injection/hilt-android?hl:zh_cn*/
             /*https://developer.android.google.cn/jetpack/androidx/releases/hilt*/
 
-            hilt              : "com.google.dagger:hilt-android:${Version['HILT_CORE_VERSION']}",
-            hiltCompiler      : "com.google.dagger:hilt-android-compiler:${Version['HILT_CORE_VERSION']}",
-            hiltGradle        : "com.google.dagger:hilt-android-gradle-plugin:${Version['HILT_CORE_VERSION']}",
+            hilt              : "com.google.dagger:hilt-android:${Ver['HILT_CORE_VERSION']}",
+            hiltCompiler      : "com.google.dagger:hilt-android-compiler:${Ver['HILT_CORE_VERSION']}",
+            hiltGradle        : "com.google.dagger:hilt-android-gradle-plugin:${Ver['HILT_CORE_VERSION']}",
 
             /*https://github.com/guolindev/PermissionX*/
             permissionX       : "com.guolindev.permissionx:permissionx:1.6.1",

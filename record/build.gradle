@@ -1,22 +1,21 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    // id 'kotlin-kapt'
+    //ksp: https://kotlinlang.org/docs/ksp-quickstart.html#use-your-own-processor-in-a-project
+    id 'com.google.devtools.ksp' version '1.7.0-1.0.6'
 }
 apply from: '../buildCom/commonbuildktx.gradle'
 
-kapt {
+ksp {
     //db exportSchema = true
-    arguments {
-        arg("room.schemaLocation", "$projectDir/schemas".toString())
-    }
+    arg("room.schemaLocation", "$projectDir/schemas".toString())
 }
 
 dependencies {
-
     api deps['room']
     api deps['roomKtx']
-    kapt deps['roomCompiler']
+    ksp deps['roomCompiler']
     api deps['coroutines']
     //noinspection GradleDynamicVersion
     //api "com.munch.lib:lib:0.2.0"

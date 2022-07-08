@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 /*buildscript {
     dependencies {
-        classpath 'com.munch.plugin:plugin:0.1.0'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10'
     }
 }*/
 plugins {
@@ -17,10 +17,9 @@ task clean(type: Delete) {
 apply from: './buildCom/androidversion.gradle'
 
 allprojects {
-
     configurations.all {
-        resolutionStrategy.force "androidx.activity:activity:${Version['ACTIVITY_VERSION']}"
-        resolutionStrategy.force "androidx.fragment:fragment:${Version['FRAGMENT_VERSION']}"
-        resolutionStrategy.force "androidx.lifecycle:lifecycle-runtime:${Version['LIFECYCLE_VERSION']}"
+        resolutionStrategy.force "androidx.activity:activity:${Ver['ACTIVITY_VERSION']}"
+        resolutionStrategy.force "androidx.fragment:fragment:${Ver['FRAGMENT_VERSION']}"
+        resolutionStrategy.force "androidx.lifecycle:lifecycle-runtime:${Ver['LIFECYCLE_VERSION']}"
     }
 }
