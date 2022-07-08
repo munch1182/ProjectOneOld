@@ -188,27 +188,17 @@ open class GattCallbackDispatcher(private val log: Logger) : BluetoothGattCallba
         log.log { "[${mac(gatt)}] onCharacteristicWrite: ${fmtStatus(status)}" }
     }
 
-    suspend fun setCharacteristicNotification(
+    fun setCharacteristicNotification(
         characteristic: BluetoothGattCharacteristic?,
-        enable: Boolean,
-        timeout: Long = 3000L
-    ): BluetoothGattCharacteristic? {
+        enable: Boolean
+    ): Boolean? {
         val g = gatt ?: return null
         val c = characteristic ?: return null
-        val updateCharacteristic =
-            suspendCancellableCoroutine<BluetoothGattCharacteristic?>(timeout = timeout) {
-                _onCharacteristicChanged = { c2 ->
-                    if (c.uuid == c2?.uuid) {
-                        it.resume(c2)
-                    }
-                }
-                val setEnable =
-                    runBlocking(Dispatchers.Main) { g.setCharacteristicNotification(c, enable) }
-                if (!setEnable) {
-                    it.resume(null)
-                }
-            }
-        return updateCharacteristic
+        val result = g.setCharacteristicNotification(c, enable)
+        log.log {
+            "[${mac(gatt)}] SET NOTIFICATION(${c.uuid}) ${enable.toString().uppercase()}: $result"
+        }
+        return result
     }
 
     override fun onCharacteristicChanged(
