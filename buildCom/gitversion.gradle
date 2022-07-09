@@ -8,6 +8,7 @@
 static def getGitCommitCount() throws IOException, NumberFormatException {
     'git rev-list --all --count HEAD'.execute().text.toInteger()
 }
+
 //有三种情形：
 //1. 未添加任何tag               --> 返回空
 //2. 刚添加完tag                 --> 返回tag
@@ -15,6 +16,23 @@ static def getGitCommitCount() throws IOException, NumberFormatException {
 //如果编译时未进行提交，则2、3的返回会追加-test，否则则不会
 static def getGitDesc() throws IOException {
     'git describe --tags --dirty="-test"'.execute().text.trim()
+}
+
+//
+// 通过tag生成发布版本, 因此, tag格式为: x.y.z(建议与当前version一致)
+//
+static def getNewestTag() {
+    'git describe --tags'.execute().text.trim()
+}
+
+static def getVersionPublish() {
+    def versionPublish = "0.0.1"
+    try {
+        versionPublish = getNewestTag()
+    } catch (Exception e) {
+        e.printStackTrace()
+    }
+    return versionPublish
 }
 
 static def getVersionCode() {
@@ -37,6 +55,9 @@ static def getVersionDesc() {
     return versionDesc
 }
 
+//
+// tag格式为x.x.x, 但是作为版本号时只会取前两位, 第三位会被提交数自动替换
+//
 static def getVersionName() {
     def versionName = "0.0.1"
     try {
@@ -46,7 +67,12 @@ static def getVersionName() {
             desc = desc.replace("-test", "")
             //对应刚打完tag未进行任何提交的情形
             if (!desc.contains('-')) {
-                versionName = desc + ".0"
+                def split = desc.split("\\.")
+                if (split.length > 2) {
+                    versionName = split[0] + "." + split[1] + ".0"
+                } else {
+                    versionName = desc + ".0"
+                }
             } else {
                 //进行局部匹配，返回java.util.regex.Matcher对象
                 //^: 开始符
@@ -56,6 +82,11 @@ static def getVersionName() {
                 def matcher = desc =~ "^.*?-\\d*"
                 if (matcher) { //调用的是matcher.find()方法
                     versionName = matcher.group().replace('-', '.')
+
+                    def split = versionName.split("\\.")
+                    if (split.length >= 2) {
+                        versionName = split[0] + "." + split[1] + "." + split[split.length - 1]
+                    }
                 }
             }
             if (isTest) {
@@ -71,8 +102,9 @@ static def getVersionName() {
 
 ext {
     gitVersion = [
-            versionCode: getVersionCode(),
-            versionName: getVersionName(),
-            versionDesc: getVersionDesc(),
+            versionCode   : getVersionCode(),
+            versionName   : getVersionName(),
+            versionDesc   : getVersionDesc(),
+            versionPublish: getVersionPublish()
     ]
 }

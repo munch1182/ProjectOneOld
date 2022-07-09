@@ -5,8 +5,7 @@
 
 apply from: '../buildCom/gitversion.gradle'
 apply from: '../buildCom/androidversion.gradle'
-//此文件需要gitversion.gradle
-apply from: '../publishversion.gradle'
+apply from: '../buildCom/publishversion.gradle'
 
 android {
     compileSdk Ver.compileSdk

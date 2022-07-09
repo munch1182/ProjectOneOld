@@ -6,10 +6,23 @@ plugins {
 apply from: '../buildCom/commonbuildktx.gradle'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\munch1182\\StudioProjects\\ProjectOne\\release.jks')
+            storePassword 'release'
+            keyAlias 'release'
+            keyPassword 'release'
+        }
+    }
     compileOptions {
         coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildTypes{
+        release{
+            signingConfig signingConfigs.release
+        }
     }
 }
 

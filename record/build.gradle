@@ -6,6 +6,7 @@ plugins {
     id 'com.google.devtools.ksp' version '1.7.0-1.0.6'
 }
 apply from: '../buildCom/commonbuildktx.gradle'
+apply from: '../buildCom/publish.gradle'
 
 ksp {
     //db exportSchema = true
@@ -19,32 +20,4 @@ dependencies {
     api deps['coroutines']
     releaseApi("com.munch.lib:lib:${publishVersion}")
     debugApi(project(':lib'))
-}
-
-apply plugin: 'maven-publish'
-
-android {
-    publishing {
-        singleVariant('release') { withSourcesJar() }
-    }
-}
-
-//Gradle - task
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                //release根据buildType
-                //aar
-                from components['release']
-                groupId = "com.munch.lib"
-                artifactId = "record"
-                version = publishVersion
-            }
-        }
-        repositories {
-            // maven { url uri('../repository') }
-            mavenLocal()
-        }
-    }
 }

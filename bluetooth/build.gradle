@@ -3,38 +3,11 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 apply from: '../buildCom/commonbuildktx.gradle'
+apply from: '../buildCom/publish.gradle'
 
 dependencies {
 
     //noinspection GradleDynamicVersion
     releaseApi("com.munch.lib:lib:${publishVersion}")
     debugApi(project(':lib'))
-}
-
-apply plugin: 'maven-publish'
-
-android {
-    publishing {
-        singleVariant('release') { withSourcesJar() }
-    }
-}
-
-//Gradle - task
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                //release根据buildType
-                //aar
-                from components['release']
-                groupId = "com.munch.lib"
-                artifactId = "bluetooth"
-                version = publishVersion
-            }
-        }
-        repositories {
-            // maven { url uri('../repository') }
-            mavenLocal()
-        }
-    }
 }

@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 apply from: '../buildCom/commonbuildktx.gradle'
+apply from: '../buildCom/publish.gradle'
 
 dependencies {
 
@@ -13,32 +14,4 @@ dependencies {
     debugApi(project(':lib'))
     releaseApi("com.munch.lib:record:${publishVersion}")
     debugApi(project(':record'))
-}
-
-apply plugin: 'maven-publish'
-
-android {
-    publishing {
-        singleVariant('release') { withSourcesJar() }
-    }
-}
-
-//Gradle - task
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                //release根据buildType
-                //aar
-                from components['release']
-                groupId = "com.munch.lib"
-                artifactId = "libfast"
-                version = publishVersion
-            }
-        }
-        repositories {
-            // maven { url uri('../repository') }
-            mavenLocal()
-        }
-    }
 }
