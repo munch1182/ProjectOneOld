@@ -1,8 +1,8 @@
 def version = gitVersion['versionName'].replace("-test", "")
 def versionSnapshot = version + "-SNAPSHOT"
 ext {
-    publishVersion = version
-//    publishVersion = versionSnapshot
+//    publishVersion = version
+    publishVersion = versionSnapshot
 }
 
 //因为目前version使用gitVersion, 所以正式版发表时需要使用tag, tag格式为: x.x, 第3位会被提交数自动补齐
