@@ -5,6 +5,8 @@
 
 apply from: '../buildCom/gitversion.gradle'
 apply from: '../buildCom/androidversion.gradle'
+//此文件需要gitversion.gradle
+apply from: '../publishversion.gradle'
 
 android {
     compileSdk Ver.compileSdk
@@ -82,7 +84,7 @@ android {
     }*/
 }
 
-private static def getTime(){
+private static def getTime() {
     return new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("GMT+08"))
 }
 

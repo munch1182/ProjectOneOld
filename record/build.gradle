@@ -17,7 +17,7 @@ dependencies {
     api deps['roomKtx']
     ksp deps['roomCompiler']
     api deps['coroutines']
-    releaseApi("com.munch.lib:lib:0.3.0")
+    releaseApi("com.munch.lib:lib:${publishVersion}")
     debugApi(project(':lib'))
 }
 
@@ -39,7 +39,7 @@ afterEvaluate {
                 from components['release']
                 groupId = "com.munch.lib"
                 artifactId = "record"
-                version = "0.1.0"
+                version = publishVersion
             }
         }
         repositories {

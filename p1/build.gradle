@@ -20,9 +20,11 @@ dependencies {
     implementation deps['work']
     implementation deps['workKtx']
     debugImplementation(project(':weight'))
-    releaseImplementation("com.munch.lib:weight:0.1.0")
+    releaseImplementation("com.munch.lib:weight:${publishVersion}")
     debugImplementation(project(':libfast'))
-    releaseImplementation("com.munch.lib:libfast:0.3.0")
+    releaseImplementation("com.munch.lib:libfast:${publishVersion}")
+    debugImplementation(project(':bluetooth'))
+    releaseImplementation("com.munch.lib:bluetooth:${publishVersion}")
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }

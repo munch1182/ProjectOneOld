@@ -20,6 +20,7 @@ android {
     }
 }
 
+
 //Gradle - task
 afterEvaluate {
     publishing {
@@ -30,7 +31,8 @@ afterEvaluate {
                 from components['release']
                 groupId = "com.munch.lib"
                 artifactId = "lib"
-                version = "0.3.0"
+                // version = "0.3.0"
+                version = publishVersion
             }
         }
         repositories {
