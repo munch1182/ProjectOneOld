@@ -14,7 +14,7 @@ dependencies {
 
 apply plugin: 'maven-publish'
 
-android{
+android {
     publishing {
         singleVariant('release') { withSourcesJar() }
     }
@@ -34,9 +34,8 @@ afterEvaluate {
             }
         }
         repositories {
-            maven {
-                url uri('../repository')
-            }
+            // maven { url uri('../repository') }
+            mavenLocal()
         }
     }
 }

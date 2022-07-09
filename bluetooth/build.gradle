@@ -33,9 +33,8 @@ afterEvaluate {
             }
         }
         repositories {
-            maven {
-                url uri('../repository')
-            }
+            // maven { url uri('../repository') }
+            mavenLocal()
         }
     }
 }
