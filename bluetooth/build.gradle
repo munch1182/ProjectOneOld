@@ -7,13 +7,13 @@ apply from: '../buildCom/commonbuildktx.gradle'
 dependencies {
 
     //noinspection GradleDynamicVersion
-    //api "com.munch.lib:lib:0.2.0"
-    api project(':lib')
+    releaseApi("com.munch.lib:lib:0.3.0")
+    debugApi(project(':lib'))
 }
 
 apply plugin: 'maven-publish'
 
-android{
+android {
     publishing {
         singleVariant('release') { withSourcesJar() }
     }
@@ -27,9 +27,9 @@ afterEvaluate {
                 //release根据buildType
                 //aar
                 from components['release']
-                groupId "com.munch.lib"
-                artifactId "bluetooth"
-                version "0.1.0"
+                groupId = "com.munch.lib"
+                artifactId = "bluetooth"
+                version = "0.1.0"
             }
         }
         repositories {

@@ -28,9 +28,9 @@ afterEvaluate {
                 //release根据buildType
                 //aar
                 from components['release']
-                groupId "com.munch.lib"
-                artifactId "lib"
-                version "0.2.0"
+                groupId = "com.munch.lib"
+                artifactId = "lib"
+                version = "0.3.0"
             }
         }
         repositories {

@@ -9,12 +9,10 @@ dependencies {
     api deps['material']
     api deps['activityKtx']
     api deps['fragmentKtx']
-    //noinspection GradleDynamicVersion
-    api "com.munch.lib:lib:0.2.0"
-//    api project(':lib')
-    //noinspection GradleDynamicVersion
-    //api "com.munch.lib:record:0.1.0"
-    api project(':record')
+    releaseApi("com.munch.lib:lib:0.3.0")
+    debugApi(project(':lib'))
+    releaseApi("com.munch.lib:record:0.1.0")
+    debugApi(project(':record'))
 }
 
 apply plugin: 'maven-publish'
@@ -33,9 +31,9 @@ afterEvaluate {
                 //release根据buildType
                 //aar
                 from components['release']
-                groupId "com.munch.lib"
-                artifactId "libfast"
-                version "0.2.0"
+                groupId = "com.munch.lib"
+                artifactId = "libfast"
+                version = "0.3.0"
             }
         }
         repositories {
