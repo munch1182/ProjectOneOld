@@ -28,7 +28,7 @@ static def getNewestTag() {
 static def getVersionPublish() {
     def versionPublish = "0.0.1"
     try {
-        versionPublish = getNewestTag()
+        versionPublish = getNewestTag().toString().replace("\"", "")
     } catch (Exception e) {
         e.printStackTrace()
     }
@@ -48,7 +48,7 @@ static def getVersionCode() {
 static def getVersionDesc() {
     def versionDesc = "null"
     try {
-        return getGitDesc()
+        return getGitDesc().toString().replace("\"", "")
     } catch (Exception e) {
         e.printStackTrace()
     }
@@ -61,7 +61,7 @@ static def getVersionDesc() {
 static def getVersionName() {
     def versionName = "0.0.1"
     try {
-        def desc = getGitDesc()
+        def desc = getGitDesc().toString().replace("\"", "")
         if (!desc.isEmpty()) {
             def isTest = desc.contains("-test")
             desc = desc.replace("-test", "")
