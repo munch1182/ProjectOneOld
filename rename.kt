@@ -1,3 +1,9 @@
+import java.io.File
+import java.io.FileReader
+import java.io.FileWriter
+import java.io.IOException
+
+
 /**
  * 使用:
  *
@@ -7,13 +13,7 @@
  */
 private const val newProjectName = "NewName"
 
-
 //<editor-fold desc="code">
-import java.io.File
-import java.io.FileReader
-import java.io.FileWriter
-import java.io.IOException
-
 private val newPkgName = "com.munch.project.${newProjectName.lowercase()}"
 
 private const val oldPkgName = "com.munch.template.android"
