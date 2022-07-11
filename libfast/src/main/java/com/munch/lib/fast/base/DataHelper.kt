@@ -1,7 +1,7 @@
 package com.munch.lib.fast.base
 
 import com.munch.lib.helper.data.DataFun
-import com.munch.lib.helper.data.MMKVHelper
+import com.munch.lib.fast.helper.MMKVHelper
 
 /**
  * Create by munch1182 on 2022/4/15 20:50.

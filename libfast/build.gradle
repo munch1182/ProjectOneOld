@@ -10,8 +10,11 @@ dependencies {
     api deps['material']
     api deps['activityKtx']
     api deps['fragmentKtx']
-    releaseApi("com.munch.lib:lib:${publishVersion}")
+    api deps['mmkv']
+
+    releaseApi lib['lib']
+    releaseApi lib['record']
+
     debugApi(project(':lib'))
-    releaseApi("com.munch.lib:record:${publishVersion}")
     debugApi(project(':record'))
 }

@@ -19,8 +19,8 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    buildTypes{
-        release{
+    buildTypes {
+        release {
             signingConfig signingConfigs.release
         }
     }
@@ -32,12 +32,14 @@ dependencies {
     implementation deps['permissionX']
     implementation deps['work']
     implementation deps['workKtx']
-    debugImplementation(project(':weight'))
-    releaseImplementation("com.munch.lib:weight:${publishVersion}")
-    debugImplementation(project(':libfast'))
-    releaseImplementation("com.munch.lib:libfast:${publishVersion}")
-    debugImplementation(project(':bluetooth'))
-    releaseImplementation("com.munch.lib:bluetooth:${publishVersion}")
+    releaseImplementation lib['weight']
+    releaseImplementation lib['libfast']
+    releaseImplementation lib['bluetooth']
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+
+    debugImplementation(project(':weight'))
+    debugImplementation(project(':libfast'))
+    debugImplementation(project(':bluetooth'))
+
 }

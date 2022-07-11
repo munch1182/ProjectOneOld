@@ -9,6 +9,5 @@ dependencies {
 
     api deps['appcompat']
     api deps['coroutines']
-    api deps['mmkv']
     api deps['recyclerview']
 }

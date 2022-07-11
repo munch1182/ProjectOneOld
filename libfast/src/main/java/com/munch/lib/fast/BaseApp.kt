@@ -6,7 +6,7 @@ import com.munch.lib.AppHelper
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.fast.measure.MeasureHelper
 import com.munch.lib.helper.ActivityHelper
-import com.munch.lib.helper.data.MMKVHelper
+import com.munch.lib.fast.helper.MMKVHelper
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlin.coroutines.CoroutineContext

@@ -1,5 +1,5 @@
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-parcelize'
+// apply plugin: 'kotlin-parcelize'
 
 apply from: '../buildCom/commonbuild.gradle'
 

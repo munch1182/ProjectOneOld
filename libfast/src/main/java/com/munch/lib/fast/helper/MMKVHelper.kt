@@ -1,10 +1,11 @@
-package com.munch.lib.helper.data
+package com.munch.lib.fast.helper
 
 
 import android.content.Context
 import android.os.Parcelable
 import com.munch.lib.AppHelper
-import com.munch.lib.helper.data.MMKVHelper.Companion.init
+import com.munch.lib.fast.helper.MMKVHelper.Companion.init
+import com.munch.lib.helper.data.DataFun
 import com.tencent.mmkv.MMKV
 
 /**

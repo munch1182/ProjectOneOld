@@ -6,6 +6,7 @@ apply from: '../buildCom/commonbuildktx.gradle'
 apply from: '../buildCom/publish.gradle'
 
 dependencies {
-    releaseApi("com.munch.lib:lib:${publishVersion}")
+    releaseApi lib['lib']
+
     debugApi(project(':lib'))
 }

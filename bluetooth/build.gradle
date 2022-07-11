@@ -7,7 +7,6 @@ apply from: '../buildCom/publish.gradle'
 
 dependencies {
 
-    //noinspection GradleDynamicVersion
-    releaseApi("com.munch.lib:lib:${publishVersion}")
+    releaseApi lib['lib']
     debugApi(project(':lib'))
 }

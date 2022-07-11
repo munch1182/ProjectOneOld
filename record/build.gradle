@@ -18,6 +18,7 @@ dependencies {
     api deps['roomKtx']
     ksp deps['roomCompiler']
     api deps['coroutines']
-    releaseApi("com.munch.lib:lib:${publishVersion}")
+    releaseApi lib['lib']
+
     debugApi(project(':lib'))
 }
