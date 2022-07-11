@@ -6,6 +6,8 @@ apply from: '../buildCom/commonbuildktx.gradle'
 
 dependencies {
 
-    implementation deps['appcompat']
     implementation deps['material']
+
+    implementation lib['lib']
+    debugImplementation lib['libfast']
 }
