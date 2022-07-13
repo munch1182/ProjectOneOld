@@ -23,12 +23,14 @@ ext {
             PAGING_VERSION    : "3.1.0",
             OKHTTP_VERSION    : "4.9.3",
             HILT_CORE_VERSION : "2.41",
+
+            LIB_VERSION       : "0.3.7"
     ]
 
 
     deps = [
 
-            // https://developer.android.google.cn/jetpack/androidx/versions?hl:zh_cn
+            //https://developer.android.google.cn/jetpack/androidx/versions?hl:zh_cn
             /*https://developer.android.google.cn/jetpack/androidx/releases/activity?hl:zh_cn*/
             appcompat         : "androidx.appcompat:appcompat:1.4.1",
 
@@ -95,7 +97,6 @@ ext {
             roomTest          : "androidx.room:room-testing:${Ver['ROOM_VERSION']}",
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/paging*/
-
             paging            : "androidx.paging:paging-runtime:${Ver['PAGING_VERSION']}",
             pagingTest        : "androidx.paging:paging-common:${Ver['PAGING_VERSION']}",
 
@@ -109,7 +110,6 @@ ext {
 
             /*https://github.com/square/okhttp*/
             /*https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor*/
-
             okhttp            : "com.squareup.okhttp3:okhttp:${Ver['OKHTTP_VERSION']}",
             okhttpInterceptor : "com.squareup.okhttp3:logging-interceptor:${Ver['OKHTTP_VERSION']}",
 
@@ -127,7 +127,6 @@ ext {
             /*https://dagger.dev/hilt/gradle-setup*/
             /*https://developer.android.google.cn/training/dependency-injection/hilt-android?hl:zh_cn*/
             /*https://developer.android.google.cn/jetpack/androidx/releases/hilt*/
-
             hilt              : "com.google.dagger:hilt-android:${Ver['HILT_CORE_VERSION']}",
             hiltCompiler      : "com.google.dagger:hilt-android-compiler:${Ver['HILT_CORE_VERSION']}",
             hiltGradle        : "com.google.dagger:hilt-android-gradle-plugin:${Ver['HILT_CORE_VERSION']}",
@@ -152,10 +151,10 @@ ext {
     ]
 
     lib = [
-            lib      : "com.github.munch1182.ProjectOne:lib:+",
-            record   : "com.github.munch1182.ProjectOne:record:+",
-            bluetooth: "com.github.munch1182.ProjectOne:bluetooth:+",
-            weight   : "com.github.munch1182.ProjectOne:weight:+",
-            libfast  : "com.github.munch1182.ProjectOne:libfast:+",
+            lib      : "com.github.munch1182.ProjectOne:lib:${Ver['LIB_VERSION']}",
+            record   : "com.github.munch1182.ProjectOne:record:${Ver['LIB_VERSION']}",
+            bluetooth: "com.github.munch1182.ProjectOne:bluetooth:${Ver['LIB_VERSION']}",
+            weight   : "com.github.munch1182.ProjectOne:weight:${Ver['LIB_VERSION']}",
+            libfast  : "com.github.munch1182.ProjectOne:libfast:${Ver['LIB_VERSION']}",
     ]
 }
