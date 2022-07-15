@@ -114,7 +114,7 @@ ext {
             okhttpInterceptor : "com.squareup.okhttp3:logging-interceptor:${Ver['OKHTTP_VERSION']}",
 
             /*https://github.com/square/leakcanary*/
-            leakcanary        : "com.squareup.leakcanary:leakcanary-android:2.8.1",
+            leakcanary        : "com.squareup.leakcanary:leakcanary-android:2.9.1",
 
             /*https://github.com/square/retrofit*/
             /*https://github.com/square/retrofit/tree/master/retrofit-converters/gson*/

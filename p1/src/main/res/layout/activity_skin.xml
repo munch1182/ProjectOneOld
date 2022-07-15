@@ -62,6 +62,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <Button
+        android:id="@+id/chose_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
+        android:text="选择颜色"
+        android:textColor="@color/colorOnPrimary"
+        android:visibility="gone"
+        app:skinEnable="true" />
+
+    <com.munch.lib.weight.Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <TextView
         android:id="@+id/color"
         android:layout_width="wrap_content"

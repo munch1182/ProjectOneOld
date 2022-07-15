@@ -19,12 +19,14 @@ class ActivityNoticeManager {
     }
 
     fun show() {
-        if (stack.firstOrNull()?.isShowing != false) {
-            return
+        synchronized(this){
+            if (stack.firstOrNull()?.isShowing != false) {
+                return
+            }
+            cancel = false
+            stack.sortByDescending { it.priority.priority }
+            stack.firstOrNull()?.show()
         }
-        cancel = false
-        stack.sortByDescending { it.priority.priority }
-        stack.firstOrNull()?.show()
     }
 
     /**

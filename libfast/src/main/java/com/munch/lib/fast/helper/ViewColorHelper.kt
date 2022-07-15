@@ -55,7 +55,7 @@ object ViewColorHelper {
             setHomeAsUpIndicator(home)
             setDisplayShowTitleEnabled(true)
             setDisplayShowCustomEnabled(true)
-            fitViewColor(customView, true)
+            fitViewColor(customView, false)
         }
         activity.bar.colorStatusBar(c).setTextColorBlack(needBlack)
     }

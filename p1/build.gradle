@@ -11,6 +11,7 @@ dependencies {
     implementation deps['permissionX']
     implementation deps['work']
     implementation deps['workKtx']
+
     releaseImplementation lib['weight']
     releaseImplementation lib['libfast']
     releaseImplementation lib['bluetooth']
@@ -20,5 +21,6 @@ dependencies {
     debugImplementation(project(':weight'))
     debugImplementation(project(':libfast'))
     debugImplementation(project(':bluetooth'))
+    debugImplementation(deps['leakcanary'])
 
 }

@@ -9,10 +9,7 @@ import android.widget.TextView
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.setPadding
 import androidx.lifecycle.lifecycleScope
-import com.munch.lib.extend.bind
-import com.munch.lib.extend.color
-import com.munch.lib.extend.dp2Px
-import com.munch.lib.extend.getAttrArrayFromTheme
+import com.munch.lib.extend.*
 import com.munch.lib.fast.R
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.helper.ViewColorHelper
@@ -27,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.lazy
 import kotlin.random.Random
 
 /**
@@ -81,7 +79,13 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         val luminance = ColorUtils.calculateLuminance(color)
         val needBlack = luminance > 0.5
         val textColor = if (needBlack) Color.BLACK else Color.WHITE
+        ViewColorHelper.setColor(color)
 
+        val cs = color.toColorStr()
+        bind.color.text = cs
+        bind.color.setTextColor(Color.parseColor(cs))
+
+        //手动更改当前页面, 否则调用ViewColorHelper.updateColor(this)
         val btn = arrayOf(bind.load, bind.query, bind.generateColor)
 
         btn.forEach {
@@ -102,7 +106,6 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         }
         bar.colorStatusBar(color).setTextColorBlack(needBlack)
 
-        ViewColorHelper.setColor(color)
     }
 
     private fun updateSkin(file: File) {

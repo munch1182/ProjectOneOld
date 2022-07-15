@@ -8,7 +8,6 @@ import com.munch.lib.fast.view.ISupportActionBar
 import com.munch.lib.fast.view.fvClassRv
 import com.munch.project.one.about.AboutActivity
 import com.munch.project.one.bluetooth.BluetoothActivity
-import com.munch.project.one.dialog.DialogActivity
 import com.munch.project.one.file.FileActivity
 import com.munch.project.one.log.LogActivity
 import com.munch.project.one.net.NetActivity
@@ -25,7 +24,6 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
             SkinActivity::class,
             BluetoothActivity::class,
             TaskActivity::class,
-            DialogActivity::class,
             ResultActivity::class,
             FileActivity::class,
             NetActivity::class,
@@ -41,5 +39,10 @@ class MainActivity : BaseFastActivity(), ISupportActionBar {
         super.onCreate(savedInstanceState)
         vb.init()
         DataHelper.startUp?.let { startActivity(Intent(this, it)) }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
     }
 }

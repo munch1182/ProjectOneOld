@@ -61,3 +61,6 @@ inline fun String.isGranted(context: Context = AppHelper.app): Boolean {
 inline fun String.isDeniedForever(activity: Activity): Boolean {
     return !ActivityCompat.shouldShowRequestPermissionRationale(activity, this)
 }
+
+suspend fun ContactRequest.isOk() =
+    suspendCancellableCoroutine { this.start { res -> it.resume(res) } }

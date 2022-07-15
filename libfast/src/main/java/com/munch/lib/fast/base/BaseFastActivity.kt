@@ -48,7 +48,6 @@ open class BaseFastActivity : DispatcherActivity(), IContext {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MeasureHelper.start(this::class.java.simpleName)
-        onBar()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -70,6 +69,25 @@ open class BaseFastActivity : DispatcherActivity(), IContext {
 
     fun toast(str: CharSequence) {
         runOnUiThread { Toast.makeText(AppHelper.app, str, Toast.LENGTH_SHORT).show() }
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+        onContentSet()
+    }
+
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        onContentSet()
+    }
+
+    override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
+        super.setContentView(view, params)
+        onContentSet()
+    }
+
+    open fun onContentSet() {
+        onBar()
     }
 
     protected open fun onBar() {

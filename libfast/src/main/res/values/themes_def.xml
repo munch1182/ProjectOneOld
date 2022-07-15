@@ -4,6 +4,7 @@
     <!--引用错误可尝试重启as-->
 
     <style name="App.Fast" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="android:statusBarColor">@color/colorTran</item>
         <item name="fastAttrTvNormal">@style/App.Fast.TextView.Normal</item>
         <item name="fastAttrTvLine">@style/App.Fast.TextView.Normal.Line</item>
         <item name="fastAttrLine">@style/App.Fast.Line</item>

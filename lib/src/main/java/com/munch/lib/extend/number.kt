@@ -2,6 +2,7 @@
 
 package com.munch.lib.extend
 
+import android.graphics.Color
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
@@ -105,6 +106,13 @@ inline fun ByteArray.toHexStrSimple(firstEnd: Int = 8, endStart: Int = size - 4)
         this.joinToString { it.toHexStr() }
     }
 }
+
+inline fun Int.toHexStr() = Integer.toHexString(this)
+
+fun Int.toColorStr() =
+    "#${Color.red(this).toHexStr().toString(2)}" +
+            Color.green(this).toHexStr().toString(2) +
+            Color.blue(this).toHexStr().toString(2)
 //</editor-fold>
 
 //<editor-fold desc="toBytes">

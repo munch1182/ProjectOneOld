@@ -32,7 +32,7 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/App.Theme.ProjectOne"
+        android:theme="@style/App.Fast"
         tools:targetApi="s">
         <activity
             android:name=".MainActivity"
@@ -53,7 +53,6 @@
         <activity android:name=".file.FileActivity" />
         <activity android:name=".task.WorkActivity" />
         <activity android:name=".net.NetActivity" />
-        <activity android:name=".dialog.DialogActivity" />
         <activity android:name=".bluetooth.BluetoothActivity" />
         <activity android:name=".weight.WheelActivity" />
         <activity android:name=".weight.RecyclerViewHeaderActivity" />

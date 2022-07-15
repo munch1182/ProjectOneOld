@@ -14,6 +14,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.PowerManager
 import android.util.TypedValue
 import android.view.WindowManager
@@ -30,6 +31,11 @@ import kotlin.reflect.KClass
 
 inline fun Context.startActivity(target: KClass<out Activity>) =
     startActivity(Intent(this, target.java))
+
+inline fun Context.startActivity(target: KClass<out Activity>, bundle: Bundle) =
+    startActivity(Intent(this, target.java).apply {
+        putExtras(bundle)
+    })
 
 inline fun Context.getColorCompat(@ColorRes color: Int) = ContextCompat.getColor(this, color)
 

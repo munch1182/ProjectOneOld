@@ -71,3 +71,21 @@ inline fun SpannableString.size(
 ) = apply {
     setSpan(RelativeSizeSpan(multiple), start, end, SpannableString.SPAN_INCLUSIVE_EXCLUSIVE)
 }
+
+
+/**
+ * 如果string位数不足num, 则在前面补齐str
+ */
+fun String.toString(num: Int = 0, str: Char = '0'): String {
+    val s = this
+    return if (s.length < num) {
+        val sb = StringBuilder()
+        repeat(num - s.length) {
+            sb.append(str)
+        }
+        sb.append(s)
+        sb.toString()
+    } else {
+        s
+    }
+}
