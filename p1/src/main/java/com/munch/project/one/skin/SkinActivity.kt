@@ -76,6 +76,10 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
     private fun generateColor() {
         val r = Random
         val color = Color.rgb(r.nextInt(255), r.nextInt(255), r.nextInt(255))
+        updateColor(color)
+    }
+
+    private fun updateColor(color: Int) {
         val luminance = ColorUtils.calculateLuminance(color)
         val needBlack = luminance > 0.5
         val textColor = if (needBlack) Color.BLACK else Color.WHITE
@@ -105,7 +109,6 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             setDisplayShowCustomEnabled(true)
         }
         bar.colorStatusBar(color).setTextColorBlack(needBlack)
-
     }
 
     private fun updateSkin(file: File) {

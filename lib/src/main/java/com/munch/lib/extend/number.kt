@@ -107,12 +107,14 @@ inline fun ByteArray.toHexStrSimple(firstEnd: Int = 8, endStart: Int = size - 4)
     }
 }
 
-inline fun Int.toHexStr() = Integer.toHexString(this)
+/**
+ * int转为16进制
+ */
+inline fun Int.toHexStr(): String = Integer.toHexString(this)
 
-fun Int.toColorStr() =
-    "#${Color.red(this).toHexStr().toString(2)}" +
-            Color.green(this).toHexStr().toString(2) +
-            Color.blue(this).toHexStr().toString(2)
+fun Int.toColorStr() = "#${Color.red(this).toHexStr().toString(2)}" +
+        Color.green(this).toHexStr().toString(2) +
+        Color.blue(this).toHexStr().toString(2)
 //</editor-fold>
 
 //<editor-fold desc="toBytes">

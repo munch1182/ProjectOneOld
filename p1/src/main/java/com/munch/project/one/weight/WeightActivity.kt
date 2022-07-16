@@ -2,6 +2,7 @@ package com.munch.project.one.weight
 
 import android.os.Bundle
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.core.view.setPadding
 import com.munch.lib.extend.dp2Px
 import com.munch.lib.extend.newWWLp
@@ -13,6 +14,7 @@ import com.munch.lib.fast.view.supportDef
 import com.munch.lib.log.log
 import com.munch.lib.weight.calendar.CalendarHeaderView
 import com.munch.lib.weight.calendar.CalendarView
+import com.munch.lib.weight.color.ColorPlateWithTouch
 import com.munch.lib.weight.wheelview.WheelView
 import java.util.*
 
@@ -23,6 +25,7 @@ class WeightActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     private val vb by fvClassRv(
         listOf(
+            ColorPlateActivity::class,
             GestureActivity::class,
             CalendarActivity::class,
             WheelActivity::class,
@@ -34,7 +37,6 @@ class WeightActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         super.onCreate(savedInstanceState)
         vb.init()
     }
-
 }
 
 class CalendarActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
@@ -68,6 +70,19 @@ class RecyclerViewHeaderActivity : BaseFastActivity(), ActivityDispatch by suppo
                     return true
                 }
             })
+        })
+    }
+}
+
+class ColorPlateActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(
+                ColorPlateWithTouch(ctx),
+                newWWLp().apply { setPadding(dp2Px(16f).toInt()) })
         })
     }
 }

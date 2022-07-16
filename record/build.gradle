@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     // id 'kotlin-kapt'
     //ksp: https://kotlinlang.org/docs/ksp-quickstart.html#use-your-own-processor-in-a-project
-    id 'com.google.devtools.ksp' version '1.7.0-1.0.6'
+    id 'com.google.devtools.ksp' version '1.7.10-1.0.6'
 }
 apply from: '../buildCom/commonbuildktx.gradle'
 apply from: '../buildCom/publish.gradle'

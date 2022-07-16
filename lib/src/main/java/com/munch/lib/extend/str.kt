@@ -80,9 +80,7 @@ fun String.toString(num: Int = 0, str: Char = '0'): String {
     val s = this
     return if (s.length < num) {
         val sb = StringBuilder()
-        repeat(num - s.length) {
-            sb.append(str)
-        }
+        repeat(num - s.length) { sb.append(str) }
         sb.append(s)
         sb.toString()
     } else {

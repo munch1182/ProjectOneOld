@@ -8,6 +8,7 @@ import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.base.PhoneHelper
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
+import com.munch.project.one.BuildConfig
 import com.munch.project.one.databinding.LayoutContentOnlyBinding
 
 /**
@@ -32,6 +33,13 @@ class AboutActivity : BaseFastActivity(),
 
             append("\n")
             append(PhoneHelper.desc())
+            append("\n")
+            append("\n")
+            append(BuildConfig.VERSION_NAME)
+            append("\n")
+            append(BuildConfig.VERSION_CODE)
+            append("\n")
+            append(BuildConfig.BUILD_TIME)
         }.toString()
     }
 

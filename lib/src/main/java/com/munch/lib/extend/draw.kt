@@ -5,7 +5,9 @@ package com.munch.lib.extend
 import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
-import kotlin.math.abs
+import com.munch.lib.graphics.Shape
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 /**
  * Create by munch1182 on 2022/3/12 14:32.
@@ -236,5 +238,11 @@ fun MotionEvent.toStr() = this.let {
     "$act(${it.x},${it.y})"
 }
 
-fun PointF.isMove(point: PointF, dis: Float = 25f) =
-    abs(x - point.x) > dis || abs(y - point.y) > dis
+/**
+ * 两点之间的距离
+ *
+ * 勾股定理
+ */
+fun PointF.dis(point: PointF): Float {
+    return sqrt((point.x - x).toDouble().pow(2) + (point.y - y).toDouble().pow(2)).toFloat()
+}

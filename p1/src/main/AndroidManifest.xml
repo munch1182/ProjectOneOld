@@ -58,6 +58,7 @@
         <activity android:name=".weight.RecyclerViewHeaderActivity" />
         <activity android:name=".weight.GestureActivity" />
         <activity android:name=".skin.SkinActivity" />
+        <activity android:name=".weight.ColorPlateActivity" />
 
         <service
             android:name="com.munch.lib.helper.NotificationServiceHelper"
