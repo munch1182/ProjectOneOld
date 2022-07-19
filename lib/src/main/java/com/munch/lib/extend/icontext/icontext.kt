@@ -7,7 +7,9 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.net.Uri
 import android.os.Build
+import android.view.View
 import androidx.annotation.*
+import androidx.fragment.app.Fragment
 import com.munch.lib.UnSupportException
 import com.munch.lib.extend.*
 import kotlin.reflect.KClass
@@ -23,10 +25,12 @@ interface IContext {
 
     val ctx: Context
         get() {
-            if (this !is Context) {
-                throw UnSupportException()
+            return when (this) {
+                is Context -> this
+                is Fragment -> requireContext()
+                is View -> context
+                else -> throw UnSupportException()
             }
-            return this
         }
 }
 

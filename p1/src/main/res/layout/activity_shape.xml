@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".weight.ShapeActivity">
+
+    <com.munch.lib.weight.shape.Shape
+        android:id="@+id/shape"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:bottomRightRadius="12dp"
+        android:strokeWidth="2"
+        android:strokeColor="@color/black"
+        android:topRightRadius="12dp"
+        app:skinEnable="true" />
+
+    <TextView
+        android:id="@+id/text"
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="com.munch.lib.weight.shape.Shape"
+        tools:ignore="HardcodedText" />
+
+    <com.munch.lib.weight.shape.Selector
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.munch.lib.weight.shape.Shape
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:bottomRightRadius="12dp"
+            android:color="@color/yellow"
+            android:state_pressed="true"
+            android:strokeWidth="2"
+            android:strokeColor="@color/black"
+            android:topRightRadius="12dp" />
+
+        <com.munch.lib.weight.shape.Shape
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:bottomRightRadius="12dp"
+            android:color="@color/yellow"
+            android:strokeWidth="2"
+            android:strokeColor="@color/black"
+            android:topRightRadius="12dp" />
+    </com.munch.lib.weight.shape.Selector>
+</LinearLayout>

@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.forEach
+import com.munch.lib.OnUpdate
 import com.munch.lib.extend.color
 import com.munch.lib.extend.getAttrArrayFromTheme
 import com.munch.lib.fast.base.BaseFastActivity
@@ -22,9 +23,21 @@ object ViewColorHelper {
 
     private const val PARAMS_KEY = "color"
     private var color: Int? = null
+    private var onUpdate: OnUpdate? = null
 
-    fun setColor(@ColorInt color: Int?) {
+    fun setColor(@ColorInt color: Int?): ViewColorHelper {
         this.color = color
+        return this
+    }
+
+    @ColorInt
+    fun getColor(activity: BaseFastActivity): Int? {
+        return activity.activityParams[PARAMS_KEY] as? Int
+    }
+
+    fun onUpdate(onUpdate: OnUpdate): ViewColorHelper {
+        this.onUpdate = onUpdate
+        return this
     }
 
     fun updateColor(activity: BaseFastActivity) {
@@ -35,10 +48,10 @@ object ViewColorHelper {
         if (color == this.color) {
             return
         }
+        activity.activityParams[PARAMS_KEY] = ViewColorHelper.color
         fitStatusColor(activity)
         val view = activity.findViewById<FrameLayout>(android.R.id.content)
         fitViewColor(view)
-        activity.activityParams[PARAMS_KEY] = ViewColorHelper.color
     }
 
     private fun fitStatusColor(activity: BaseFastActivity) {
@@ -58,6 +71,7 @@ object ViewColorHelper {
             fitViewColor(customView, false)
         }
         activity.bar.colorStatusBar(c).setTextColorBlack(needBlack)
+        onUpdate?.invoke()
     }
 
     private fun fitViewColor(view: View?, fitTextColor: Boolean = false) {

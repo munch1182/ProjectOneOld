@@ -30,10 +30,12 @@ import kotlin.reflect.KClass
  */
 typealias ViewCreator = (context: Context) -> View
 
-interface OnViewUpdate<V : View> {
+interface OnUpdateListener<V : Any> {
 
-    fun updateView(update: V.() -> Unit)
+    fun onUpdate(update: V.() -> Unit)
 }
+
+interface OnViewUpdateListener<V : View> : OnUpdateListener<V>
 
 inline fun View.toViewGroup() = this as? ViewGroup
 

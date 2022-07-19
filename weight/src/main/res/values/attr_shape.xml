@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Shape">
+        <attr name="android:shape" />
+        <attr name="android:radius" format="dimension" />
+        <attr name="android:topLeftRadius" />
+        <attr name="android:topRightRadius" />
+        <attr name="android:bottomLeftRadius" />
+        <attr name="android:bottomRightRadius" />
+        <attr name="android:color" />
+        <attr name="android:strokeColor" />
+        <attr name="android:strokeAlpha" />
+        <attr name="android:strokeWidth" />
+        <attr name="android:strokeLineCap" />
+        <attr name="android:strokeLineJoin" />
+        <attr name="android:dashGap" />
+        <attr name="android:dashWidth" />
+        <attr name="android:angle" />
+        <attr name="android:type" />
+        <attr name="android:centerX" />
+        <attr name="android:centerY" />
+        <attr name="android:gradientRadius" />
+        <attr name="android:startColor" />
+        <attr name="android:centerColor" />
+        <attr name="android:endColor" />
+    </declare-styleable>
+
+</resources>

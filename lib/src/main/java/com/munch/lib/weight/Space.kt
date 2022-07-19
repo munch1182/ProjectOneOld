@@ -13,7 +13,7 @@ class Space @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     styleDef: Int = 0
-) : View(context, attrs, styleDef) {
+) : View(context, attrs, styleDef), FunctionalView {
 
     init {
         visibility = GONE
