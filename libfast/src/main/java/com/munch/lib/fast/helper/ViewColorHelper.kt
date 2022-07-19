@@ -14,6 +14,8 @@ import androidx.core.view.forEach
 import com.munch.lib.OnUpdate
 import com.munch.lib.extend.color
 import com.munch.lib.extend.getAttrArrayFromTheme
+import com.munch.lib.extend.isLight
+import com.munch.lib.extend.randomColor
 import com.munch.lib.fast.base.BaseFastActivity
 
 /**
@@ -42,7 +44,7 @@ object ViewColorHelper {
 
     fun updateColor(activity: BaseFastActivity) {
         if (this.color == null) {
-            this.color = generaColor()
+            this.color = randomColor()
         }
         val color = activity.activityParams[PARAMS_KEY] as? Int
         if (color == this.color) {
@@ -56,8 +58,7 @@ object ViewColorHelper {
 
     private fun fitStatusColor(activity: BaseFastActivity) {
         val c = color ?: return
-        val luminance = ColorUtils.calculateLuminance(c)
-        val needBlack = luminance > 0.5
+        val needBlack = c.isLight()
         val textColor = if (needBlack) Color.BLACK else Color.WHITE
         activity.supportActionBar?.apply {
             setBackgroundDrawable(ColorDrawable(c))
@@ -80,9 +81,7 @@ object ViewColorHelper {
         if (view is ViewGroup) {
             view.forEach { fitViewColor(it) }
         } else {
-            val luminance = ColorUtils.calculateLuminance(c)
-            val needBlack = luminance > 0.5
-            val textColor = if (needBlack) Color.BLACK else Color.WHITE
+            val textColor = if (c.isLight()) Color.BLACK else Color.WHITE
             if (view is Button) {
                 view.backgroundTintList = ColorStateList(arrayOf(intArrayOf()), intArrayOf(c))
                 view.setTextColor(textColor)
@@ -91,11 +90,5 @@ object ViewColorHelper {
                 view.setTextColor(textColor)
             }
         }
-    }
-
-    @ColorInt
-    private fun generaColor(): Int {
-        val r = java.util.Random()
-        return Color.rgb(r.nextInt(255), r.nextInt(255), r.nextInt(255))
     }
 }

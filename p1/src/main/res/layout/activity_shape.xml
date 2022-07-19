@@ -53,4 +53,5 @@
             android:strokeColor="@color/black"
             android:topRightRadius="12dp" />
     </com.munch.lib.weight.shape.Selector>
+
 </LinearLayout>

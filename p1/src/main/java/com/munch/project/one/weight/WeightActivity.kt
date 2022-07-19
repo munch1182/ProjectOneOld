@@ -5,10 +5,9 @@ import android.os.Bundle
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.toColor
 import androidx.core.view.setPadding
-import com.munch.lib.extend.dp2Px
-import com.munch.lib.extend.newWWLp
-import com.munch.lib.extend.toDateStr
+import com.munch.lib.extend.*
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.helper.ViewColorHelper
 import com.munch.lib.fast.view.ActivityDispatch
@@ -102,14 +101,13 @@ class ShapeActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             binding.shape.onUpdate {
                 ViewColorHelper.getColor(this@ShapeActivity)?.let {
                     this.color = it
-                    // todo 将颜色加深
-                    //this.strokeColor =
-                    val luminance = ColorUtils.calculateLuminance(it)
-                    val needBlack = luminance > 0.5
-                    val textColor = if (needBlack) Color.BLACK else Color.WHITE
+                    this.strokeColor = it.darker(0.6f)
+
+                    val textColor = if (it.isLight()) Color.BLACK else Color.WHITE
                     binding.text.setTextColor(textColor)
                 }
             }
         }
+
     }
 }

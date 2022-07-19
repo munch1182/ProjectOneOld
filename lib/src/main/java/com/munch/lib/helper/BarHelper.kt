@@ -12,6 +12,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.Fragment
 import com.munch.lib.extend.addPadding
 import com.munch.lib.extend.getStatusBarHeight
+import com.munch.lib.extend.isLight
 
 /**
  * Create by munch1182 on 2020/12/12 21:03.
@@ -62,8 +63,7 @@ class BarHelper(activity: Activity) {
      * 根据状态栏颜色自动设置状态栏文字颜色
      */
     fun fitStatusTextColor() {
-        val luminance = ColorUtils.calculateLuminance(window.statusBarColor)
-        setTextColorBlack(luminance > 0.5)
+        setTextColorBlack(window.statusBarColor.isLight())
     }
 
     fun colorNavigation(@ColorInt color: Int): BarHelper {

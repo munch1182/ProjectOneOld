@@ -80,8 +80,7 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
     }
 
     private fun updateColor(color: Int) {
-        val luminance = ColorUtils.calculateLuminance(color)
-        val needBlack = luminance > 0.5
+        val needBlack = color.isLight()
         val textColor = if (needBlack) Color.BLACK else Color.WHITE
         ViewColorHelper.setColor(color)
 
