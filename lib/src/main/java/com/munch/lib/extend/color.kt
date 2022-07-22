@@ -22,7 +22,7 @@ fun @receiver:ColorInt Int.darker(darker: Float): Int {
 
 @ColorInt
 fun randomColor(): Int {
-    return Color.rgb(Random.nextInt(255), Random.nextInt(255), Random.nextInt(255))
+    return Color.rgb(Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
 }
 
 /**

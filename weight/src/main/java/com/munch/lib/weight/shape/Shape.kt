@@ -2,6 +2,7 @@ package com.munch.lib.weight.shape
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import androidx.core.view.isVisible
@@ -9,6 +10,7 @@ import com.munch.lib.extend.OnUpdateListener
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.lazy
 import com.munch.lib.weight.ContainerLayout
+import com.munch.lib.weight.DrawableView
 import com.munch.lib.weight.FunctionalView
 import com.munch.lib.weight.R
 
@@ -16,8 +18,8 @@ class Shape @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ContainerLayout(context, attrs, defStyleAttr), FunctionalView, OnUpdateListener<Shape.Builder>,
-    IContext {
+) : ContainerLayout(context, attrs, defStyleAttr), FunctionalView, DrawableView,
+    OnUpdateListener<Shape.Builder>, IContext {
 
     class Builder {
         var shape: Int = 0
@@ -42,6 +44,7 @@ class Shape @JvmOverloads constructor(
         var startColor: Int = Color.WHITE
         var centerColor: Int = Color.WHITE
         var endColor: Int = Color.WHITE
+        var state: IntArray = intArrayOf()
     }
 
     private val b = Builder()
@@ -71,16 +74,59 @@ class Shape @JvmOverloads constructor(
             b.startColor = this.getColor(R.styleable.Shape_android_startColor, Color.TRANSPARENT)
             b.centerColor = this.getColor(R.styleable.Shape_android_centerColor, Color.TRANSPARENT)
             b.endColor = this.getColor(R.styleable.Shape_android_endColor, Color.TRANSPARENT)
+
+            val state = mutableListOf<Int>()
+            var have = this.getBoolean(R.styleable.Shape_android_state_pressed, false)
+            if (have) state.add(android.R.attr.state_pressed)
+            have = this.getBoolean(R.styleable.Shape_android_state_active, false)
+            if (have) state.add(android.R.attr.state_active)
+            have = this.getBoolean(R.styleable.Shape_android_state_accelerated, false)
+            if (have) state.add(android.R.attr.state_accelerated)
+            have = this.getBoolean(R.styleable.Shape_android_state_activated, false)
+            if (have) state.add(android.R.attr.state_activated)
+            have = this.getBoolean(R.styleable.Shape_android_state_checkable, false)
+            if (have) state.add(android.R.attr.state_checkable)
+            have = this.getBoolean(R.styleable.Shape_android_state_checked, false)
+            if (have) state.add(android.R.attr.state_checked)
+            have = this.getBoolean(R.styleable.Shape_android_state_drag_can_accept, false)
+            if (have) state.add(android.R.attr.state_drag_can_accept)
+            have = this.getBoolean(R.styleable.Shape_android_state_drag_hovered, false)
+            if (have) state.add(android.R.attr.state_drag_hovered)
+            have = this.getBoolean(R.styleable.Shape_android_state_enabled, false)
+            if (have) state.add(android.R.attr.state_enabled)
+            have = this.getBoolean(R.styleable.Shape_android_state_first, false)
+            if (have) state.add(android.R.attr.state_first)
+            have = this.getBoolean(R.styleable.Shape_android_state_focused, false)
+            if (have) state.add(android.R.attr.state_focused)
+            have = this.getBoolean(R.styleable.Shape_android_state_hovered, false)
+            if (have) state.add(android.R.attr.state_hovered)
+            have = this.getBoolean(R.styleable.Shape_android_state_last, false)
+            if (have) state.add(android.R.attr.state_last)
+            have = this.getBoolean(R.styleable.Shape_android_state_middle, false)
+            if (have) state.add(android.R.attr.state_middle)
+            have = this.getBoolean(R.styleable.Shape_android_state_selected, false)
+            if (have) state.add(android.R.attr.state_selected)
+            have = this.getBoolean(R.styleable.Shape_android_state_single, false)
+            if (have) state.add(android.R.attr.state_single)
+            have = this.getBoolean(R.styleable.Shape_android_state_window_focused, false)
+            if (have) state.add(android.R.attr.state_window_focused)
+
+            b.state = state.toIntArray()
         }.recycle()
     }
 
     override fun onUpdate(update: Builder.() -> Unit) {
         update.invoke(b)
-        updateDrawable()
+        updateViewBackground()
     }
 
-    private fun updateDrawable() {
+    private fun updateViewBackground() {
         val v = getView() ?: return
+        updateDrawable()
+        v.background = drawable
+    }
+
+    override fun updateDrawable(): GradientDrawable {
         drawable.shape = b.shape
         if (b.radius != 0f) {
             drawable.cornerRadius = b.radius
@@ -116,15 +162,19 @@ class Shape @JvmOverloads constructor(
             }
             drawable.colors = intArrayOf(b.startColor, b.centerColor, b.endColor)
         }
-
-        v.background = drawable
+        drawable.state = b.state
+        return drawable
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         super.onLayout(changed, l, t, r, b)
         if (isVisible) {
-            updateDrawable()
+            updateViewBackground()
         }
     }
 
+    override fun setBackground(background: Drawable?) {
+        super.setBackground(background)
+        updateViewBackground()
+    }
 }

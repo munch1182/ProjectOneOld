@@ -15,6 +15,8 @@ open class ContainerLayout @JvmOverloads constructor(
 
     protected open var target: View? = null
 
+    private val tagTargeted = "TAG_TARGETED"
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val child = getChild()
         if (child == null) {
@@ -62,7 +64,8 @@ open class ContainerLayout @JvmOverloads constructor(
                 while (i < count - 1) {
                     i += 1
                     target = p.getChildAt(i)
-                    if (target != null && target !is FunctionalView) {
+                    if (judgeCanBeTarget(target)) {
+                        target?.tag = tagTargeted
                         return target
                     }
                 }
@@ -71,7 +74,8 @@ open class ContainerLayout @JvmOverloads constructor(
                 while (i > 0) {
                     i -= 1
                     target = p.getChildAt(i)
-                    if (target != null && target !is FunctionalView) {
+                    if (judgeCanBeTarget(target)) {
+                        target?.tag = tagTargeted
                         return target
                     }
                 }
@@ -81,4 +85,7 @@ open class ContainerLayout @JvmOverloads constructor(
         }
         return null
     }
+
+    protected open fun judgeCanBeTarget(target: View?) =
+        target != null && target !is FunctionalView && target.tag != tagTargeted
 }

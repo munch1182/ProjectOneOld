@@ -8,7 +8,6 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
-import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.Fragment
 import com.munch.lib.extend.addPadding
 import com.munch.lib.extend.getStatusBarHeight

@@ -97,4 +97,9 @@ class StrKtTest : TestCase() {
         assertEquals(split.size, array.size)
         repeat(split.size) { assertEquals(split[it], array[it]) }
     }
+
+    fun testTimes() {
+        assertEquals("111111111", '1' * 9)
+        assertEquals("123123123", "123" * 3)
+    }
 }

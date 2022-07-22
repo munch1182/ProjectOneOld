@@ -9,7 +9,6 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.ColorInt
-import androidx.core.graphics.ColorUtils
 import androidx.core.view.forEach
 import com.munch.lib.OnUpdate
 import com.munch.lib.extend.color
@@ -17,6 +16,7 @@ import com.munch.lib.extend.getAttrArrayFromTheme
 import com.munch.lib.extend.isLight
 import com.munch.lib.extend.randomColor
 import com.munch.lib.fast.base.BaseFastActivity
+import com.munch.lib.weight.ITextView
 
 /**
  * Create by munch1182 on 2022/6/20 16:24.
@@ -75,7 +75,7 @@ object ViewColorHelper {
         onUpdate?.invoke()
     }
 
-    private fun fitViewColor(view: View?, fitTextColor: Boolean = false) {
+    fun fitViewColor(view: View?, fitTextColor: Boolean = false) {
         view ?: return
         val c = color ?: return
         if (view is ViewGroup) {
@@ -87,6 +87,8 @@ object ViewColorHelper {
                 view.setTextColor(textColor)
             }
             if (fitTextColor && view is TextView) {
+                view.setTextColor(textColor)
+            } else if (fitTextColor && view is ITextView) {
                 view.setTextColor(textColor)
             }
         }

@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.TextView
-import androidx.core.graphics.ColorUtils
 import androidx.core.view.setPadding
 import androidx.lifecycle.lifecycleScope
 import com.munch.lib.extend.*

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Color">
+        <attr name="android:color" />
+        <attr name="android:textColor" format="color" />
+
+        <attr name="android:state_focused" />
+        <attr name="android:state_window_focused" />
+        <attr name="android:state_enabled" />
+        <attr name="android:state_checkable" />
+        <attr name="android:state_checked" />
+        <attr name="android:state_selected" />
+        <attr name="android:state_pressed" />
+        <attr name="android:state_activated" />
+        <attr name="android:state_active" />
+        <attr name="android:state_single" />
+        <attr name="android:state_first" />
+        <attr name="android:state_middle" />
+        <attr name="android:state_last" />
+        <attr name="android:state_accelerated" />
+        <attr name="android:state_hovered" />
+        <attr name="android:state_drag_can_accept" />
+        <attr name="android:state_drag_hovered" />
+    </declare-styleable>
+
+</resources>

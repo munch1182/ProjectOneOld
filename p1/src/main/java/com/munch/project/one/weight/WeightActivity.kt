@@ -4,8 +4,6 @@ import android.graphics.Color
 import android.os.Bundle
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import androidx.core.graphics.ColorUtils
-import androidx.core.graphics.toColor
 import androidx.core.view.setPadding
 import com.munch.lib.extend.*
 import com.munch.lib.fast.base.BaseFastActivity

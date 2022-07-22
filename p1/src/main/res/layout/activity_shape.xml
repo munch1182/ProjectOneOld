@@ -11,10 +11,10 @@
         android:id="@+id/shape"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:bottomRightRadius="12dp"
+        android:bottomRightRadius="24dp"
         android:strokeWidth="2"
         android:strokeColor="@color/black"
-        android:topRightRadius="12dp"
+        android:topRightRadius="24dp"
         app:skinEnable="true" />
 
     <TextView
@@ -30,6 +30,76 @@
         android:text="com.munch.lib.weight.shape.Shape"
         tools:ignore="HardcodedText" />
 
+    <com.munch.lib.weight.shape.Shape
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:angle="45"
+        android:bottomLeftRadius="24dp"
+        android:centerColor="@color/cyan"
+        android:endColor="@color/black"
+        android:startColor="@color/orange"
+        android:strokeWidth="2"
+        android:strokeColor="@color/black"
+        android:topLeftRadius="24dp"
+        android:type="linear"
+        app:skinEnable="true" />
+
+    <TextView
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="com.munch.lib.weight.shape.Shape"
+        tools:ignore="HardcodedText" />
+
+    <com.munch.lib.weight.shape.Selector
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.munch.lib.weight.shape.Shape
+            android:id="@+id/shap1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:bottomRightRadius="24dp"
+            android:color="@color/red"
+            android:state_enabled="true"
+            android:state_pressed="true"
+            android:strokeWidth="2"
+            android:strokeColor="@color/black"
+            android:topRightRadius="24dp" />
+
+        <com.munch.lib.weight.shape.Shape
+            android:id="@+id/shap2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:bottomRightRadius="24dp"
+            android:color="@color/yellow"
+            android:strokeWidth="2"
+            android:strokeColor="@color/black"
+            android:topRightRadius="24dp" />
+    </com.munch.lib.weight.shape.Selector>
+
+    <TextView
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="com.munch.lib.weight.shape.Selector"
+        tools:ignore="HardcodedText" />
+
     <com.munch.lib.weight.shape.Selector
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -37,21 +107,43 @@
         <com.munch.lib.weight.shape.Shape
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:bottomRightRadius="12dp"
-            android:color="@color/yellow"
+            android:bottomLeftRadius="24dp"
+            android:color="@color/limegreen"
             android:state_pressed="true"
-            android:strokeWidth="2"
-            android:strokeColor="@color/black"
-            android:topRightRadius="12dp" />
+            android:topLeftRadius="24dp"
+            app:skinEnable="true" />
 
         <com.munch.lib.weight.shape.Shape
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:bottomRightRadius="12dp"
-            android:color="@color/yellow"
-            android:strokeWidth="2"
-            android:strokeColor="@color/black"
-            android:topRightRadius="12dp" />
+            android:bottomLeftRadius="24dp"
+            android:color="@color/aqua"
+            android:topLeftRadius="24dp" />
+
+        <com.munch.lib.weight.shape.Color
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:state_pressed="true"
+            android:textColor="@color/white" />
+
+        <com.munch.lib.weight.shape.Color
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black" />
     </com.munch.lib.weight.shape.Selector>
 
+    <TextView
+        style="@style/App.Fast.TextView.Normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="com.munch.lib.weight.shape.Selector"
+        tools:ignore="HardcodedText" />
 </LinearLayout>

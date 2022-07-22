@@ -72,7 +72,6 @@ inline fun SpannableString.size(
     setSpan(RelativeSizeSpan(multiple), start, end, SpannableString.SPAN_INCLUSIVE_EXCLUSIVE)
 }
 
-
 /**
  * 如果string位数不足num, 则在前面补齐str
  */
@@ -87,3 +86,9 @@ fun String.toString(num: Int = 0, str: Char = '0'): String {
         s
     }
 }
+
+/**
+ * 重复n次
+ */
+operator fun Char.times(n: Int) = String(CharArray(n) { this })
+operator fun String.times(n: Int) = String(CharArray(n * length) { this[it % length] })
