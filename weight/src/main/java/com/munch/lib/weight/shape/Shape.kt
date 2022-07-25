@@ -6,20 +6,18 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import androidx.core.view.isVisible
-import com.munch.lib.extend.OnUpdateListener
+import com.munch.lib.extend.UpdateListener
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.lazy
-import com.munch.lib.weight.ContainerLayout
-import com.munch.lib.weight.DrawableView
-import com.munch.lib.weight.FunctionalView
-import com.munch.lib.weight.R
+import com.munch.lib.weight.*
 
 class Shape @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ContainerLayout(context, attrs, defStyleAttr), FunctionalView, DrawableView,
-    OnUpdateListener<Shape.Builder>, IContext {
+) : ContainerLayout(context, attrs, defStyleAttr), FunctionalView,
+    IDrawableView, IColorView,
+    UpdateListener<Shape.Builder>, IContext {
 
     class Builder {
         var shape: Int = 0
@@ -115,9 +113,13 @@ class Shape @JvmOverloads constructor(
         }.recycle()
     }
 
-    override fun onUpdate(update: Builder.() -> Unit) {
+    override fun update(update: Builder.() -> Unit) {
         update.invoke(b)
         updateViewBackground()
+    }
+
+    override fun setColor(color: Int) {
+        update { this.color = color }
     }
 
     private fun updateViewBackground() {

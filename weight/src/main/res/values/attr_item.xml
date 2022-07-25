@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ItemView">
+        <attr name="android:text" />
+        <attr name="android:textColor" />
+        <attr name="android:textSize" />
+        <attr name="android:textStyle" />
+
+        <attr name="titleIcon" format="reference" />
+        <attr name="titleIcon_width" format="dimension" />
+        <attr name="titleIcon_height" format="dimension" />
+        <attr name="titleIcon_margin" format="dimension" />
+        <attr name="titleIcon_marginStart" format="dimension" />
+        <attr name="titleIcon_marginEnd" format="dimension" />
+        <attr name="titleIcon_marginTop" format="dimension" />
+        <attr name="titleIcon_marginBottom" format="dimension" />
+
+        <attr name="title" format="string" />
+        <attr name="title_textColor" format="color" />
+        <attr name="title_textSize" format="dimension" />
+        <attr name="title_textStyle">
+            <flag name="normal" value="0" />
+            <flag name="bold" value="1" />
+            <flag name="sans_serif" value="2" />
+        </attr>
+
+        <attr name="textIcon" format="reference" />
+        <attr name="textIcon_width" format="dimension">
+            <enum name="wrap_content" value="-1" />
+            <enum name="match_parent" value="-2" />
+        </attr>
+        <attr name="textIcon_height" format="dimension">
+            <enum name="wrap_content" value="-1" />
+            <enum name="match_parent" value="-2" />
+        </attr>
+        <attr name="textIcon_margin" format="dimension" />
+        <attr name="textIcon_marginStart" format="dimension" />
+        <attr name="textIcon_marginEnd" format="dimension" />
+        <attr name="textIcon_marginTop" format="dimension" />
+        <attr name="textIcon_marginBottom" format="dimension" />
+    </declare-styleable>
+</resources>

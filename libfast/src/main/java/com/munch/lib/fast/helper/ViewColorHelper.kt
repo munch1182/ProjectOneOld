@@ -16,7 +16,9 @@ import com.munch.lib.extend.getAttrArrayFromTheme
 import com.munch.lib.extend.isLight
 import com.munch.lib.extend.randomColor
 import com.munch.lib.fast.base.BaseFastActivity
+import com.munch.lib.weight.IColorView
 import com.munch.lib.weight.ITextView
+import kotlin.collections.set
 
 /**
  * Create by munch1182 on 2022/6/20 16:24.
@@ -78,18 +80,18 @@ object ViewColorHelper {
     fun fitViewColor(view: View?, fitTextColor: Boolean = false) {
         view ?: return
         val c = color ?: return
-        if (view is ViewGroup) {
+        if (view is IColorView) {
+            view.setColor(c)
+        } else if (view is ViewGroup) {
             view.forEach { fitViewColor(it) }
         } else {
             val textColor = if (c.isLight()) Color.BLACK else Color.WHITE
             if (view is Button) {
                 view.backgroundTintList = ColorStateList(arrayOf(intArrayOf()), intArrayOf(c))
                 view.setTextColor(textColor)
-            }
-            if (fitTextColor && view is TextView) {
-                view.setTextColor(textColor)
-            } else if (fitTextColor && view is ITextView) {
-                view.setTextColor(textColor)
+            } else if (fitTextColor) {
+                if (view is TextView) view.setTextColor(textColor)
+                if (view is ITextView) view.setTextColor(textColor)
             }
         }
     }

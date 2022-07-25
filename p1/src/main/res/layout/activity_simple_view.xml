@@ -5,10 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".weight.ShapeActivity">
+    tools:context=".weight.SimpleViewActivity">
 
     <com.munch.lib.weight.shape.Shape
-        android:id="@+id/shape"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:bottomRightRadius="24dp"
@@ -57,14 +56,13 @@
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
         android:text="com.munch.lib.weight.shape.Shape"
-        tools:ignore="HardcodedText" />
+        tools:ignore="HardcodedText,TouchTargetSizeCheck" />
 
     <com.munch.lib.weight.shape.Selector
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <com.munch.lib.weight.shape.Shape
-            android:id="@+id/shap1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:bottomRightRadius="24dp"
@@ -76,7 +74,6 @@
             android:topRightRadius="24dp" />
 
         <com.munch.lib.weight.shape.Shape
-            android:id="@+id/shap2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:bottomRightRadius="24dp"
@@ -145,5 +142,23 @@
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
         android:text="com.munch.lib.weight.shape.Selector"
+        tools:ignore="HardcodedText" />
+
+    <com.munch.lib.weight.item.ItemView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="12231"
+        android:textSize="12sp"
+        app:textIcon="@drawable/ic_next_24"
+        app:textIcon_marginStart="16dp"
+        app:title="1234"
+        app:titleIcon="@drawable/ic_set_24"
+        app:titleIcon_marginEnd="16dp"
+        app:title_textSize="16sp"
         tools:ignore="HardcodedText" />
 </LinearLayout>

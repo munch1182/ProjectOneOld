@@ -59,7 +59,7 @@
         <activity android:name=".weight.GestureActivity" />
         <activity android:name=".skin.SkinActivity" />
         <activity android:name=".weight.ColorPlateActivity" />
-        <activity android:name=".weight.ShapeActivity" />
+        <activity android:name=".weight.SimpleViewActivity" />
 
         <service
             android:name="com.munch.lib.helper.NotificationServiceHelper"

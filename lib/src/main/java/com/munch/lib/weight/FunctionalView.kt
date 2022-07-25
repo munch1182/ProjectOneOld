@@ -6,15 +6,23 @@ import androidx.annotation.ColorInt
 
 interface FunctionalView
 
-interface DrawableView {
+interface IDrawableView {
 
     fun updateDrawable(): Drawable?
 }
 
-interface ITextView {
+interface ITextView : IColorView {
 
     fun setTextColor(color: ColorStateList)
 
     fun setTextColor(@ColorInt color: Int)
 
+    override fun setColor(color: Int) {
+        setTextColor(color)
+    }
+}
+
+interface IColorView {
+
+    fun setColor(@ColorInt color: Int)
 }

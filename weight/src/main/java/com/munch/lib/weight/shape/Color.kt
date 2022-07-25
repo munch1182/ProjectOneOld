@@ -14,7 +14,7 @@ class Color @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ContainerLayout(context, attrs, defStyleAttr), FunctionalView, ITextView, DrawableView,
+) : ContainerLayout(context, attrs, defStyleAttr), FunctionalView, ITextView, IDrawableView,
     IContext {
 
     private var state = intArrayOf()
@@ -65,6 +65,10 @@ class Color @JvmOverloads constructor(
 
             this@Color.state = state.toIntArray()
         }.recycle()
+    }
+
+    override fun setColor(color: Int) {
+        super.setColor(color)
     }
 
     override fun setTextColor(color: ColorStateList) {

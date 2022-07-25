@@ -9,13 +9,14 @@ import androidx.core.view.children
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.weight.ContainerLayout
 import com.munch.lib.weight.FunctionalView
+import com.munch.lib.weight.IColorView
 import com.munch.lib.weight.ITextView
 
 class Selector @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ContainerLayout(context, attrs, defStyleAttr), FunctionalView, IContext {
+) : ContainerLayout(context, attrs, defStyleAttr), FunctionalView, IColorView, IContext {
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         super.onLayout(changed, l, t, r, b)
@@ -28,6 +29,9 @@ class Selector @JvmOverloads constructor(
         } else if (v is ITextView) {
             collectTextColor()?.let { v.setTextColor(it) }
         }
+    }
+
+    override fun setColor(color: Int) {
     }
 
     private fun collectTextColor() = children.filterIsInstance<Color>()

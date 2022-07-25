@@ -50,6 +50,10 @@ object PhoneHelper {
     val rom: String
         get() = MANUFACTURER
 
+    //支持的abi
+    val abis: Array<out String>?
+        get() = SUPPORTED_ABIS
+
     fun collect(): Map<String, String> = linkedMapOf(
         "brand" to brand,
         "model" to model,
@@ -62,6 +66,7 @@ object PhoneHelper {
         "host" to host,
         "hardware" to hardware,
         "codeName" to condeName,
+        "abis" to (abis?.joinToString() ?: "")
     )
 
     fun desc() = "$brand $model $romVersion android$version version$versionCode"

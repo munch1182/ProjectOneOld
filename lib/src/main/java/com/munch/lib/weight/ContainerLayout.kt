@@ -40,7 +40,7 @@ open class ContainerLayout @JvmOverloads constructor(
     }
 
     /**
-     * 查找第一个显示的非FunctionalView的view
+     * 查找第一个显示的非FunctionalView的child
      */
     protected open fun getChild(): View? {
         val view = children.firstOrNull { it.isVisible && it !is FunctionalView } ?: return null

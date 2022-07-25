@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.core.view.children
 import com.munch.lib.R
 import com.munch.lib.Testable
-import com.munch.lib.extend.OnViewUpdateListener
+import com.munch.lib.extend.ViewUpdateListener
 import com.munch.lib.extend.drawRectLine
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.icontext.dp2Px
@@ -28,7 +28,7 @@ class FlowLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     styleDef: Int = 0
-) : ViewGroup(context, attrs, styleDef), OnViewUpdateListener<FlowLayout>, IContext {
+) : ViewGroup(context, attrs, styleDef), ViewUpdateListener<FlowLayout>, IContext {
 
     companion object {
 
@@ -498,7 +498,7 @@ class FlowLayout @JvmOverloads constructor(
         return MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
     }
 
-    override fun onUpdate(update: FlowLayout.() -> Unit) {
+    override fun update(update: FlowLayout.() -> Unit) {
         update.invoke(this)
         requestLayout()
     }

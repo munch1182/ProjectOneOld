@@ -3,7 +3,6 @@ package com.munch.lib.extend
 import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
-import kotlin.random.Random
 
 fun @receiver:ColorInt Int.toColorStr() = "#${Color.red(this).toHexStr().toString(2)}" +
         Color.green(this).toHexStr().toString(2) +
@@ -22,7 +21,8 @@ fun @receiver:ColorInt Int.darker(darker: Float): Int {
 
 @ColorInt
 fun randomColor(): Int {
-    return Color.rgb(Random.nextInt(256), Random.nextInt(256), Random.nextInt(256))
+    val r = java.util.Random()
+    return Color.rgb(r.nextInt(256), r.nextInt(256), r.nextInt(256))
 }
 
 /**

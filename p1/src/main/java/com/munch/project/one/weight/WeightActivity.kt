@@ -1,11 +1,12 @@
 package com.munch.project.one.weight
 
-import android.graphics.Color
 import android.os.Bundle
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.view.setPadding
-import com.munch.lib.extend.*
+import com.munch.lib.extend.dp2Px
+import com.munch.lib.extend.newWWLp
+import com.munch.lib.extend.toDateStr
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.helper.ViewColorHelper
 import com.munch.lib.fast.view.ActivityDispatch
@@ -16,7 +17,7 @@ import com.munch.lib.weight.calendar.CalendarHeaderView
 import com.munch.lib.weight.calendar.CalendarView
 import com.munch.lib.weight.color.ColorPlateWithTouch
 import com.munch.lib.weight.wheelview.WheelView
-import com.munch.project.one.databinding.ActivityShapeBinding
+import com.munch.project.one.databinding.ActivitySimpleViewBinding
 import java.util.*
 
 /**
@@ -30,7 +31,7 @@ class WeightActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             GestureActivity::class,
             CalendarActivity::class,
             WheelActivity::class,
-            ShapeActivity::class,
+            SimpleViewActivity::class,
             RecyclerViewHeaderActivity::class
         )
     )
@@ -89,23 +90,12 @@ class ColorPlateActivity : BaseFastActivity(), ActivityDispatch by supportDef() 
     }
 }
 
-class ShapeActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
+class SimpleViewActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityShapeBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        ViewColorHelper.onUpdate {
-            binding.shape.onUpdate {
-                ViewColorHelper.getColor(this@ShapeActivity)?.let {
-                    this.color = it
-                    this.strokeColor = it.darker(0.6f)
-
-                    val textColor = if (it.isLight()) Color.BLACK else Color.WHITE
-                    binding.text.setTextColor(textColor)
-                }
-            }
-        }
-
+        val bind = ActivitySimpleViewBinding.inflate(layoutInflater)
+        setContentView(bind.root)
+        ViewColorHelper.fitViewColor(bind.text, true)
     }
 }
