@@ -55,7 +55,7 @@ object ViewColorHelper {
         activity.activityParams[PARAMS_KEY] = ViewColorHelper.color
         fitStatusColor(activity)
         val view = activity.findViewById<FrameLayout>(android.R.id.content)
-        fitViewColor(view)
+        fitTextColor(view)
     }
 
     private fun fitStatusColor(activity: BaseFastActivity) {
@@ -71,19 +71,19 @@ object ViewColorHelper {
             setHomeAsUpIndicator(home)
             setDisplayShowTitleEnabled(true)
             setDisplayShowCustomEnabled(true)
-            fitViewColor(customView, false)
+            fitTextColor(customView, false)
         }
         activity.bar.colorStatusBar(c).setTextColorBlack(needBlack)
         onUpdate?.invoke()
     }
 
-    fun fitViewColor(view: View?, fitTextColor: Boolean = false) {
+    fun fitTextColor(view: View?, fitTextColor: Boolean = false) {
         view ?: return
         val c = color ?: return
         if (view is IColorView) {
             view.setColor(c)
         } else if (view is ViewGroup) {
-            view.forEach { fitViewColor(it) }
+            view.forEach { fitTextColor(it, fitTextColor) }
         } else {
             val textColor = if (c.isLight()) Color.BLACK else Color.WHITE
             if (view is Button) {

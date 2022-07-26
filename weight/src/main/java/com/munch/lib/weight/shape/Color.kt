@@ -67,18 +67,12 @@ class Color @JvmOverloads constructor(
         }.recycle()
     }
 
-    override fun setColor(color: Int) {
-        super.setColor(color)
-    }
-
     override fun setTextColor(color: ColorStateList) {
         this.textColor = TextColorDrawable().apply { setTintList(color) }
-        updateView()
     }
 
     override fun setTextColor(color: Int) {
         this.textColor = TextColorDrawable(color)
-        updateView()
     }
 
     override fun updateDrawable(): ColorDrawable? {

@@ -96,6 +96,7 @@ class SimpleViewActivity : BaseFastActivity(), ActivityDispatch by supportDef() 
         super.onCreate(savedInstanceState)
         val bind = ActivitySimpleViewBinding.inflate(layoutInflater)
         setContentView(bind.root)
-        ViewColorHelper.fitViewColor(bind.text, true)
+        ViewColorHelper.fitTextColor(bind.text, true)
     }
+
 }

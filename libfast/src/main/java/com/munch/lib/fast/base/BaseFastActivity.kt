@@ -114,7 +114,7 @@ open class BaseFastActivity : DispatcherActivity(), IContext {
             setDisplayShowTitleEnabled(true)
             setDisplayShowCustomEnabled(true)
         }
-        ViewColorHelper.fitViewColor(v, true)
+        ViewColorHelper.fitTextColor(v, true)
     }
 
     override fun onResume() {

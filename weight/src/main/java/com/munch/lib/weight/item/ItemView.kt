@@ -1,6 +1,7 @@
 package com.munch.lib.weight.item
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
@@ -10,18 +11,21 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import com.munch.lib.extend.UpdateListener
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.lazy
+import com.munch.lib.weight.ITextView
 import com.munch.lib.weight.R
 import kotlin.math.max
 import kotlin.math.min
 
-class ItemView @JvmOverloads constructor(
+open class ItemView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
-) : ViewGroup(context, attrs, defStyleAttr, defStyleRes), IContext {
+) : ViewGroup(context, attrs, defStyleAttr, defStyleRes), IContext, ITextView,
+    UpdateListener<ItemView.Builder> {
 
     class Builder {
 
@@ -33,11 +37,12 @@ class ItemView @JvmOverloads constructor(
         var titleIconMarginStart = 0f
         var titleIconMarginBottom = 0f
         var titleIconMarginEnd = 0f
+        var titleIconTint = Color.TRANSPARENT
         var title: String? = null
 
         @ColorInt
         var titleColor = Color.BLACK
-        var titleSize = 20f
+        var titleSize = 0f
         var titleStyle = 0
         var textIcon: Drawable? = null
         var textIconWidth = 0f
@@ -47,19 +52,20 @@ class ItemView @JvmOverloads constructor(
         var textIconMarginStart = 0f
         var textIconMarginBottom = 0f
         var textIconMarginEnd = 0f
+        var textIconTint = Color.TRANSPARENT
         var text: String? = null
 
         @ColorInt
         var textColor = titleColor
-        var textSize = titleSize
+        var textSize = 0f
         var textStyle = titleStyle
     }
 
-    private val b = Builder()
-    private val titleIcon by lazy { AppCompatImageView(context) }
-    private val title by lazy { AppCompatTextView(context) }
-    private val text by lazy { AppCompatTextView(context) }
-    private val textIcon by lazy { AppCompatTextView(context) }
+    protected open val b = Builder()
+    protected open val titleIcon by lazy { AppCompatImageView(context) }
+    protected open val title by lazy { AppCompatTextView(context) }
+    protected open val text by lazy { AppCompatTextView(context) }
+    protected open val textIcon by lazy { AppCompatImageView(context) }
 
     init {
         context.obtainStyledAttributes(attrs, R.styleable.ItemView).apply {
@@ -77,6 +83,7 @@ class ItemView @JvmOverloads constructor(
                 getDimension(R.styleable.ItemView_titleIcon_marginTop, b.titleIconMargin)
             b.titleIconMarginBottom =
                 getDimension(R.styleable.ItemView_titleIcon_marginBottom, b.titleIconMargin)
+            b.titleIconTint = getColor(R.styleable.ItemView_titleIcon_tint, b.titleIconTint)
 
             b.title = getString(R.styleable.ItemView_title)
             b.titleSize = getDimension(R.styleable.ItemView_title_textSize, b.titleSize)
@@ -97,44 +104,64 @@ class ItemView @JvmOverloads constructor(
                 getDimension(R.styleable.ItemView_textIcon_marginTop, b.textIconMargin)
             b.textIconMarginBottom =
                 getDimension(R.styleable.ItemView_textIcon_marginBottom, b.textIconMargin)
+            b.textIconTint = getColor(R.styleable.ItemView_textIcon_tint, b.textIconTint)
 
-            b.text = getString(R.styleable.ItemView_android_text)
-            b.textSize = getDimension(R.styleable.ItemView_android_textSize, b.textSize)
-            b.textStyle = getInt(R.styleable.ItemView_android_textStyle, b.textStyle)
-            b.textColor = getColor(R.styleable.ItemView_android_textColor, b.textColor)
+            b.text = getString(R.styleable.ItemView_text)
+            b.textSize = getDimension(R.styleable.ItemView_textSize, b.textSize)
+            b.textStyle = getInt(R.styleable.ItemView_textStyle, b.textStyle)
+            b.textColor = getColor(R.styleable.ItemView_textColor, b.textColor)
         }.recycle()
     }
 
+    override fun setTextColor(color: Int) {
+        update { this.textColor = color }
+    }
+
+    override fun setTextColor(color: ColorStateList) {
+        text.setTextColor(color)
+    }
+
+    override fun update(update: Builder.() -> Unit) {
+        update.invoke(b)
+        requestLayout()
+    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = MeasureSpec.getSize(widthMeasureSpec)
         val h = MeasureSpec.getSize(heightMeasureSpec)
 
-        removeAllViews()
-        b.titleIcon?.let { addView(titleIcon) }
-        b.title?.let { addView(title) }
-        b.text?.let { addView(text) }
-        b.textIcon?.let { addView(textIcon) }
-
         var maxW = 0f
         var maxH = 0f
+
+        removeAllViews()
+
         b.titleIcon?.let {
-            titleIcon.background = it
+            addView(titleIcon)
+            if (b.titleIconTint != Color.TRANSPARENT) it.setTint(b.titleIconTint)
+            titleIcon.setImageDrawable(it)
+
             val titleIconWidth = if (b.titleIconWidth != 0f) b.titleIconWidth else w
             val titleIconHeight = if (b.titleIconHeight != 0f) b.titleIconHeight else h
             measureChild(
                 titleIcon,
-                MeasureSpec.makeMeasureSpec(titleIconWidth.toInt(), MeasureSpec.AT_MOST),
-                MeasureSpec.makeMeasureSpec(titleIconHeight.toInt(), MeasureSpec.AT_MOST),
+                MeasureSpec.makeMeasureSpec(
+                    titleIconWidth.toInt() + paddingStart + paddingEnd,
+                    MeasureSpec.EXACTLY
+                ),
+                MeasureSpec.makeMeasureSpec(
+                    titleIconHeight.toInt() + paddingTop + paddingBottom,
+                    MeasureSpec.EXACTLY
+                ),
             )
             maxW += titleIcon.measuredWidth
             maxH =
                 max(titleIcon.measuredHeight + b.titleIconMarginTop + b.titleIconMarginBottom, maxH)
         }
         b.title?.let {
+            addView(title)
             title.text = it
-            title.setTextColor(b.textColor)
-            title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, b.titleSize)
+            title.setTextColor(b.titleColor)
+            if (b.titleSize > 0f) title.setTextSize(TypedValue.COMPLEX_UNIT_PX, b.titleSize)
 
             when (b.titleStyle) {
                 0 -> title.typeface = Typeface.DEFAULT
@@ -150,9 +177,10 @@ class ItemView @JvmOverloads constructor(
             maxH = max(title.measuredHeight.toFloat(), maxH)
         }
         b.text?.let {
+            addView(text)
             text.text = it
             text.setTextColor(b.textColor)
-            text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, b.titleSize)
+            if (b.textSize > 0f) text.setTextSize(TypedValue.COMPLEX_UNIT_PX, b.textSize)
 
             when (b.titleStyle) {
                 0 -> text.typeface = Typeface.DEFAULT
@@ -168,13 +196,22 @@ class ItemView @JvmOverloads constructor(
             maxH = max(text.measuredHeight.toFloat(), maxH)
         }
         b.textIcon?.let {
-            textIcon.background = it
+            addView(textIcon)
+            if (b.textIconTint != Color.TRANSPARENT) it.setTint(b.textIconTint)
+            textIcon.setImageDrawable(it)
+
             val titleIconWidth = if (b.textIconWidth != 0f) b.textIconWidth else w
             val titleIconHeight = if (b.textIconHeight != 0f) b.textIconHeight else h
             measureChild(
                 textIcon,
-                MeasureSpec.makeMeasureSpec(titleIconWidth.toInt(), MeasureSpec.AT_MOST),
-                MeasureSpec.makeMeasureSpec(titleIconHeight.toInt(), MeasureSpec.AT_MOST),
+                MeasureSpec.makeMeasureSpec(
+                    titleIconWidth.toInt() + paddingStart + paddingEnd,
+                    MeasureSpec.EXACTLY
+                ),
+                MeasureSpec.makeMeasureSpec(
+                    titleIconHeight.toInt() + paddingStart + paddingEnd,
+                    MeasureSpec.EXACTLY
+                ),
             )
             maxW += textIcon.measuredWidth
             maxH = max(textIcon.measuredHeight + b.textIconMarginTop + b.textIconMarginBottom, maxH)
@@ -206,8 +243,6 @@ class ItemView @JvmOverloads constructor(
             right = left + title.measuredWidth
             bottom = top + title.measuredHeight
             title.layout(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
-
-            title.setBackgroundColor(Color.RED)
         }
 
         val maxLeft = right
@@ -225,8 +260,6 @@ class ItemView @JvmOverloads constructor(
             left = max(right - text.measuredWidth, maxLeft)
             bottom = top + text.measuredHeight
             text.layout(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
-
-            text.setBackgroundColor(Color.YELLOW)
         }
     }
 

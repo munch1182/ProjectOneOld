@@ -1,7 +1,6 @@
 package com.munch.project.one.skin
 
 import android.Manifest
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -79,8 +78,6 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
     }
 
     private fun updateColor(color: Int) {
-        val needBlack = color.isLight()
-        val textColor = if (needBlack) Color.BLACK else Color.WHITE
         ViewColorHelper.setColor(color)
 
         val cs = color.toColorStr()
@@ -88,7 +85,9 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         bind.color.setTextColor(Color.parseColor(cs))
 
         //手动更改当前页面, 否则调用ViewColorHelper.updateColor(this)
-        val btn = arrayOf(bind.load, bind.query, bind.generateColor)
+        /*val btn = arrayOf(bind.load, bind.query, bind.generateColor)
+        val needBlack = color.isLight()
+        val textColor = if (needBlack) Color.BLACK else Color.WHITE
 
         btn.forEach {
             it.backgroundTintList = ColorStateList(arrayOf(intArrayOf()), intArrayOf(color))
@@ -106,7 +105,8 @@ class SkinActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             setDisplayShowTitleEnabled(true)
             setDisplayShowCustomEnabled(true)
         }
-        bar.colorStatusBar(color).setTextColorBlack(needBlack)
+        bar.colorStatusBar(color).setTextColorBlack(needBlack)*/
+        updateViewColor()
     }
 
     private fun updateSkin(file: File) {

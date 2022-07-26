@@ -11,15 +11,12 @@ interface IDrawableView {
     fun updateDrawable(): Drawable?
 }
 
-interface ITextView : IColorView {
+interface ITextView {
 
     fun setTextColor(color: ColorStateList)
 
     fun setTextColor(@ColorInt color: Int)
 
-    override fun setColor(color: Int) {
-        setTextColor(color)
-    }
 }
 
 interface IColorView {
