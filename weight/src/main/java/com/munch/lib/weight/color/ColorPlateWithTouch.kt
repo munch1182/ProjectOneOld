@@ -4,10 +4,13 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PointF
 import android.util.AttributeSet
 import android.view.MotionEvent
+import com.munch.lib.extend.dis
 import com.munch.lib.graphics.Shape
 import com.munch.lib.weight.TouchHelper
+import com.munch.lib.extend.lazy
 import com.munch.lib.weight.TouchHelperDefault
 
 open class ColorPlateWithTouch @JvmOverloads constructor(
@@ -52,7 +55,19 @@ open class ColorPlateWithTouch @JvmOverloads constructor(
         event ?: return super.onTouchEvent(event)
         if (event.action == MotionEvent.ACTION_DOWN) performClick()
         updateEvent(event) { it in circle }
+        val h = calculateHue()
+        val s = calculateSaturation()
+        val c = Color.HSVToColor(floatArrayOf(h, s, 1f))
         invalidate()
         return true
+    }
+
+    private fun calculateSaturation(): Float {
+        //val line = movePoint.dis(circle.centerPoint)
+        return 0f
+    }
+
+    private fun calculateHue(): Float {
+        return 0f
     }
 }

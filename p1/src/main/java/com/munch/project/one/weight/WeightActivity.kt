@@ -1,5 +1,6 @@
 package com.munch.project.one.weight
 
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -84,8 +85,10 @@ class ColorPlateActivity : BaseFastActivity(), ActivityDispatch by supportDef() 
         setContentView(LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
             addView(
-                ColorPlateWithTouch(ctx),
-                newWWLp().apply { setPadding(dp2Px(16f).toInt()) })
+                ColorPlateWithTouch(ctx).apply {
+                    setPadding(dp2Px(48f).toInt())
+                    setBackgroundColor(Color.BLACK)
+                })
         })
     }
 }

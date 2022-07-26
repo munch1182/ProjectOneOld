@@ -20,7 +20,10 @@ interface ViewHelper {
     }
 
     fun layoutView(view: View, left: Int, top: Int, right: Int, bottom: Int) {
-        viewRect.set(left, top, right, bottom)
+        viewRect.set(
+            left + view.paddingLeft, top + view.paddingTop,
+            right - view.paddingRight, bottom - view.paddingBottom
+        )
         centerPoint.set(
             (right - top - view.paddingLeft - view.paddingRight) / 2f,
             (bottom - top - view.paddingTop - view.paddingBottom) / 2f

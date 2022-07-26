@@ -36,7 +36,7 @@ inline fun <reified VB : ViewBinding> KClass<VB>.inflateParent(): Method? =
         Boolean::class.java
     )
 
-inline fun Activity.contentView(): FrameLayout = findViewById(android.R.id.content)
+inline fun Activity.contentView(): FrameLayout = findViewById(Window.ID_ANDROID_CONTENT)
 
 inline fun <reified VB : ViewBinding> ComponentActivity.bind(): Lazy<VB> {
     return lazy {

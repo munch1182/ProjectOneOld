@@ -51,7 +51,7 @@ open class ColorPlateOnly @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas ?: return
-        canvas.drawBitmap(generateColorPlate(), 0f, 0f, paint)
+        canvas.drawBitmap(generateColorPlate(), paddingLeft.toFloat(), paddingTop.toFloat(), paint)
     }
 
 }

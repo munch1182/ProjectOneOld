@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -54,7 +55,7 @@ object ViewColorHelper {
         }
         activity.activityParams[PARAMS_KEY] = ViewColorHelper.color
         fitStatusColor(activity)
-        val view = activity.findViewById<FrameLayout>(android.R.id.content)
+        val view = activity.findViewById<FrameLayout>(Window.ID_ANDROID_CONTENT)
         fitTextColor(view)
     }
 

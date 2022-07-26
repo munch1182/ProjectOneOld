@@ -43,7 +43,7 @@ sealed class Shape {
                 update()
             }
 
-        private val centerPoint = PointF()
+        val centerPoint = PointF()
 
         private fun update() {
             centerPoint.set(x + radius, y + radius)

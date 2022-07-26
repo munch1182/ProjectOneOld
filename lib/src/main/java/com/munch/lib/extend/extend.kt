@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.lang.reflect.Method
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -104,6 +106,40 @@ inline fun <T> catch(block: () -> T): T? {
         block.invoke()
     } catch (e: Exception) {
         null
+    }
+}
+
+/**
+ * 寻找[Type]上继承自[target]泛型的类
+ *
+ * 如果找不到, 则返回null
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T> Type.findParameterized(target: Class<T>): Class<out T>? {
+    when (this) {
+        is ParameterizedType -> {
+            actualTypeArguments.forEach {
+                if (it is Class<*>) {
+                    if (target.isAssignableFrom(it)) {
+                        return it as? Class<out T>
+                    }
+                } else {
+                    return null
+                }
+            }
+            val type = this.rawType
+            if (type == Any::class.java || type == Object::class.java) {
+                return null
+            }
+            return type.findParameterized(target)
+        }
+        is Class<*> -> {
+            if (this == Any::class.java || this == Object::class.java) {
+                return null
+            }
+            return this.genericSuperclass?.findParameterized(target)
+        }
+        else -> return null
     }
 }
 
