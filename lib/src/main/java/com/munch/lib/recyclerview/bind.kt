@@ -20,7 +20,6 @@ abstract class BindRVAdapter<D, VB : ViewBinding>(
     clickHelper = clickHelper
 )
 
-@Suppress("UNUSED")
 class BindVHCreator<VB : ViewBinding> : DefaultVHProvider() {
 
     init {

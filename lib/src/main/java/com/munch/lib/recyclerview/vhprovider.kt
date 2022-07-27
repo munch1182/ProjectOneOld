@@ -47,5 +47,5 @@ class SimpleVHProvider(
 
 interface TypeItem {
 
-    fun getItemType(): Int
+    fun getItemType(pos: Int): Int = 0
 }

@@ -47,7 +47,7 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
 
     override fun getItemViewType(position: Int): Int {
         val d = get(position)
-        return if (d is TypeItem) d.getItemType() else 0
+        return if (d is TypeItem) d.getItemType(position) else 0
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {

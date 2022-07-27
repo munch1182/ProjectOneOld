@@ -118,26 +118,15 @@ inline fun <T> catch(block: () -> T): T? {
 fun <T> Type.findParameterized(target: Class<T>): Class<T>? {
     when (this) {
         is ParameterizedType -> {
-            actualTypeArguments.forEach {
-                if (it is Class<*>) {
-                    if (target.isAssignableFrom(it)) {
-                        return it as? Class<T>
-                    }
-                } else {
-                    return null
-                }
-            }
+            val find = actualTypeArguments.find { it is Class<*> && target.isAssignableFrom(it) }
+            if (find != null) return find as? Class<T>?
             val type = this.rawType
-            if (type == Any::class.java || type == Object::class.java) {
-                return null
-            }
+            if (type == Any::class.java) return null
             return type.findParameterized(target)
         }
         is Class<*> -> {
-            if (this == Any::class.java || this == Object::class.java) {
-                return null
-            }
-            return this.genericSuperclass?.findParameterized(target)
+            return if (this == Any::class.java) null
+            else this.genericSuperclass?.findParameterized(target)
         }
         else -> return null
     }
