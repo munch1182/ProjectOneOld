@@ -4,13 +4,11 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.PointF
 import android.util.AttributeSet
 import android.view.MotionEvent
-import com.munch.lib.extend.dis
+import com.munch.lib.extend.lazy
 import com.munch.lib.graphics.Shape
 import com.munch.lib.weight.TouchHelper
-import com.munch.lib.extend.lazy
 import com.munch.lib.weight.TouchHelperDefault
 
 open class ColorPlateWithTouch @JvmOverloads constructor(

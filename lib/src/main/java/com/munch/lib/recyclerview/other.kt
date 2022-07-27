@@ -13,7 +13,7 @@ import com.munch.lib.extend.newMWLp
 open class ViewAdapter : BaseRecyclerViewAdapter<Byte, BaseViewHolder>() {
 
 
-    override fun onBind(holder: BaseViewHolder, position: Int, bean: Byte) {
+    override fun onBind(holder: BaseViewHolder, bean: Byte) {
     }
 
     fun show() {

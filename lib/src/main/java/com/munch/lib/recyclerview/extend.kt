@@ -116,7 +116,7 @@ fun <D, VH : BaseViewHolder> AdapterHelper<D, VH>.setOnViewLongClickListener(
 }
 
 abstract class RVAdapter<D>(
-    viewImp: AdapterViewImp<BaseViewHolder>,
+    viewImp: VHProvider,
     adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
     clickHelper: AdapterClickHandler<BaseViewHolder> = AdapterListenerHelper(),
 ) : BaseRecyclerViewAdapter<D, BaseViewHolder>(viewImp, adapterFun, clickHelper) {
@@ -125,13 +125,13 @@ abstract class RVAdapter<D>(
         @LayoutRes res: Int = 0,
         adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
         clickHelper: AdapterClickHandler<BaseViewHolder> = AdapterListenerHelper()
-    ) : this(viewImp = SingleVHCreator(res), adapterFun, clickHelper)
+    ) : this(SimpleVHProvider(res), adapterFun, clickHelper)
 
     constructor(
         viewCreator: ViewCreator,
         adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
         clickHelper: AdapterClickHandler<BaseViewHolder> = AdapterListenerHelper()
-    ) : this(SingleVHCreator(viewCreator = viewCreator), adapterFun, clickHelper)
+    ) : this(SimpleVHProvider(viewCreator), adapterFun, clickHelper)
 }
 
 abstract class SimpleCallback<T : Any> : DiffUtil.ItemCallback<T>() {

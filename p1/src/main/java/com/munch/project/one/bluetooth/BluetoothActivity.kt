@@ -50,12 +50,10 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     private val bind by bind<ActivityBluetoothBinding>()
     private val adapter = object : BindRVAdapter<BluetoothDev, ItemBluetoothBinding>(
-        ItemBluetoothBinding::class,
         differ({ o, n -> o.rssi == n.rssi }, { o, n -> o.mac == n.mac })
     ) {
         override fun onBind(
             holder: BaseBindViewHolder<ItemBluetoothBinding>,
-            position: Int,
             bean: BluetoothDev
         ) {
             holder.bind.apply {

@@ -77,14 +77,13 @@ class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
     }
 
     private class ResultAdapter(var onItemCheck: ((PI, Boolean) -> Unit)? = null) :
-        BindRVAdapter<PI, ItemResultBinding>(ItemResultBinding::class) {
+        BindRVAdapter<PI, ItemResultBinding>() {
 
         var isSelectedMode = false
             private set
 
         override fun onBind(
             holder: BaseBindViewHolder<ItemResultBinding>,
-            position: Int,
             bean: PI
         ) {
             holder.bind.apply {
@@ -95,11 +94,10 @@ class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
         override fun onBind(
             holder: BaseBindViewHolder<ItemResultBinding>,
-            position: Int,
             bean: PI,
             payloads: MutableList<Any>
         ) {
-            super.onBind(holder, position, bean, payloads)
+            super.onBind(holder, bean, payloads)
             holder.bind.resultCb.apply {
                 isChecked = bean.isSelected
                 visibility = if (payloads.isNotEmpty()) View.VISIBLE else View.INVISIBLE

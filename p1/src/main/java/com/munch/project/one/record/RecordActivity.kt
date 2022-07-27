@@ -79,12 +79,10 @@ class RecordActivity : BaseFastActivity(),
         return super<BaseFastActivity>.onOptionsItemSelected(item)
     }
 
-    private class RecordAdapter :
-        BindRVAdapter<Record, ItemRecordBinding>(ItemRecordBinding::class) {
+    private class RecordAdapter : BindRVAdapter<Record, ItemRecordBinding>() {
 
         override fun onBind(
             holder: BaseBindViewHolder<ItemRecordBinding>,
-            position: Int,
             bean: Record
         ) {
             holder.bind.apply {

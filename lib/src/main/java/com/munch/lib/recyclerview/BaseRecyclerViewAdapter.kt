@@ -6,17 +6,18 @@ import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.extend.ViewCreator
 
 /**
- * @param viewImp 用于创建item视图
+ * @param provider 用于创建item视图
  * @param adapterFun 用于处理数据
  * @param clickHelper 用于处理点击等事件
  *
  * Create by munch1182 on 2022/3/31 14:17.
  */
 abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
-    private val viewImp: AdapterViewImp<VH>,
+    private val provider: VHProvider,
     private val adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
     private val clickHelper: AdapterClickHandler<VH> = AdapterListenerHelper(),
 ) : RecyclerView.Adapter<VH>(),
+    VHProvider by provider,
     IAdapterFun<D> by adapterFun,
     AdapterClickListener<VH> by clickHelper {
 
@@ -24,37 +25,47 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
         @LayoutRes res: Int = 0,
         adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
         clickHelper: AdapterClickHandler<VH> = AdapterListenerHelper()
-    ) : this(viewImp = SingleVHCreator(res), adapterFun, clickHelper)
+    ) : this(SimpleVHProvider(res), adapterFun, clickHelper)
 
     constructor(
         viewCreator: ViewCreator,
         adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
         clickHelper: AdapterClickHandler<VH> = AdapterListenerHelper()
-    ) : this(SingleVHCreator(viewCreator = viewCreator), adapterFun, clickHelper)
+    ) : this(SimpleVHProvider(viewCreator), adapterFun, clickHelper)
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         adapterFun.bindAdapter(this)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        viewImp.createVH(parent, viewType)
+    @Suppress("UNCHECKED_CAST")
+    protected open fun <VH> provideVH(parent: ViewGroup, viewType: Int) =
+        map.get(viewType).onCreateVH(parent) as VH
 
-    override fun getItemViewType(position: Int) = viewImp.getItemViewTypeByPos(position)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        provideVH<VH>(parent, viewType)
+
+    override fun getItemViewType(position: Int): Int {
+        val d = get(position)
+        return if (d is TypeItem) d.getItemType() else 0
+    }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         handleClick(holder)
-        onBind(holder, holder.bindingAdapterPosition, get(position)!!)
+        onBind(holder, get(position)!!)
     }
 
     override fun onBindViewHolder(holder: VH, position: Int, payloads: MutableList<Any>) {
-        onBind(holder, holder.bindingAdapterPosition, get(position)!!, payloads)
+        //拦截了RecyclerView.Adapter的bind事件传递
+        onBind(holder, get(position)!!, payloads)
     }
 
-    abstract fun onBind(holder: VH, position: Int, bean: D)
-    open fun onBind(holder: VH, position: Int, bean: D, payloads: MutableList<Any>) {
-        super.onBindViewHolder(holder, position, payloads)
+    protected open fun onBind(holder: VH, bean: D, payloads: MutableList<Any>) {
+        //重新传递RecyclerView.Adapter的bind事件
+        super.onBindViewHolder(holder, holder.bindingAdapterPosition, payloads)
     }
+
+    abstract fun onBind(holder: VH, bean: D)
 
     override fun getItemCount() = itemSize
 

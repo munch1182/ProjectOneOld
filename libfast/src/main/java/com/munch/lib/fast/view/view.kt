@@ -185,7 +185,7 @@ open class FVLineRvView(context: Context, str: List<String>) :
             }
 
 
-            override fun onBind(holder: BaseViewHolder, position: Int, bean: String) {
+            override fun onBind(holder: BaseViewHolder, bean: String) {
                 (holder.itemView as? TextView)?.apply {
                     // 先这样处理铺满
                     layoutParams = newMWLp()
@@ -220,7 +220,7 @@ class FVLinesRvView(
             }
         }
 
-        override fun onBind(holder: BaseViewHolder, position: Int, bean: Pair<String, String>) {
+        override fun onBind(holder: BaseViewHolder, bean: Pair<String, String>) {
             val vg = holder.itemView.apply { layoutParams = newMWLp() } as? ViewGroup ?: return
             (vg.getChildAt(0) as? TextView)?.text = bean.first
             (vg.getChildAt(1) as? TextView)?.text = bean.second

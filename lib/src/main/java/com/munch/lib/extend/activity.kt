@@ -28,12 +28,12 @@ inline fun ViewBinding.init() {
     }
 }
 
-inline fun <reified VB : ViewBinding> KClass<VB>.inflateParent(): Method? =
-    java.getDeclaredMethod(
+inline fun <reified VB : ViewBinding> KClass<VB>.inflateParent(): Method? = java.inflateParent()
+
+inline fun <reified VB : ViewBinding> Class<VB>.inflateParent(): Method? =
+    getDeclaredMethod(
         "inflate",
-        LayoutInflater::class.java,
-        ViewGroup::class.java,
-        Boolean::class.java
+        LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.java
     )
 
 inline fun Activity.contentView(): FrameLayout = findViewById(Window.ID_ANDROID_CONTENT)

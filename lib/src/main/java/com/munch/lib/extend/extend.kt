@@ -115,13 +115,13 @@ inline fun <T> catch(block: () -> T): T? {
  * 如果找不到, 则返回null
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> Type.findParameterized(target: Class<T>): Class<out T>? {
+fun <T> Type.findParameterized(target: Class<T>): Class<T>? {
     when (this) {
         is ParameterizedType -> {
             actualTypeArguments.forEach {
                 if (it is Class<*>) {
                     if (target.isAssignableFrom(it)) {
-                        return it as? Class<out T>
+                        return it as? Class<T>
                     }
                 } else {
                     return null
