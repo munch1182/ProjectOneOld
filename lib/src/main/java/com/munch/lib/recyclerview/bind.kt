@@ -5,8 +5,8 @@ import android.view.ViewGroup
 import androidx.viewbinding.ViewBinding
 import com.munch.lib.extend.findParameterized
 import com.munch.lib.extend.inflate
-import com.munch.lib.extend.lazy
 import com.munch.lib.extend.inflateParent
+import com.munch.lib.extend.lazy
 
 /**
  * Create by munch1182 on 2022/5/21 15:21.
@@ -33,4 +33,19 @@ abstract class BindRVAdapter<D, VB : ViewBinding>(
             ?: throw IllegalStateException("")
         return BindViewHolder(vb as VB)
     }
+}
+
+abstract class BaseBindRvAdapter<D>(
+    adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
+    clickHelper: AdapterClickHandler<BindViewHolder<ViewBinding>> = AdapterListenerHelper(),
+) : BaseRecyclerViewAdapter<D, BindViewHolder<ViewBinding>>(0, adapterFun, clickHelper)
+
+inline fun <reified VB : ViewBinding> BaseBindRvAdapter<*>.registerViewHolder(itemType: Int): BaseBindRvAdapter<*> {
+    vhCreator[itemType] = {
+        BindViewHolder(
+            VB::class.java.inflateParent()?.inflate(LayoutInflater.from(it.context), it, false)
+                ?: throw IllegalStateException()
+        )
+    }
+    return this
 }

@@ -40,14 +40,14 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
 
     @Suppress("UNCHECKED_CAST")
     protected open fun <VH> provideVH(parent: ViewGroup, viewType: Int) =
-        map.get(viewType).onCreateVH(parent) as VH
+        vhCreator.get(viewType).onCreateVH(parent) as VH
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         provideVH<VH>(parent, viewType)
 
     override fun getItemViewType(position: Int): Int {
         val d = get(position)
-        return if (d is TypeItem) d.getItemType(position) else 0
+        return if (d is ItemType) d.getItemType(position) else 0
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {

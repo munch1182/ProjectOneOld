@@ -99,7 +99,7 @@ class BluetoothDev(
      *
      * @return 是否找到
      */
-    suspend fun find(timeout: Long = ScanTarget.TIMEOUT): Boolean {
+    suspend fun find(timeout: Long = ScanSet.TIMEOUT): Boolean {
         if (dev != null) {
             return true
         }

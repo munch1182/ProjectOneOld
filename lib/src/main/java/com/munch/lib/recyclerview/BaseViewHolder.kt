@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
+import com.munch.lib.R
 
 /**
  * Create by munch1182 on 2022/3/31 14:18.
@@ -17,12 +18,12 @@ open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view),
     )
 
     override fun setOnItemClickListener(listener: OnItemClickListener<BaseViewHolder>?) {
-        itemView.tag = this
+        itemView.setTag(R.id.id_tag, this)
         itemView.setOnClickListener(listener)
     }
 
     override fun setOnItemLongClickListener(listener: OnItemClickListener<BaseViewHolder>?) {
-        itemView.tag = this
+        itemView.setTag(R.id.id_tag, this)
         itemView.setOnLongClickListener(listener)
     }
 
@@ -32,7 +33,7 @@ open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view),
     ) {
         ids.forEach { id ->
             itemView.findViewById<View>(id)?.let {
-                it.tag = this
+                itemView.setTag(R.id.id_tag, this)
                 it.setOnClickListener(listener)
             }
         }
@@ -44,7 +45,7 @@ open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view),
     ) {
         ids.forEach { id ->
             itemView.findViewById<View>(id)?.let {
-                it.tag = this
+                itemView.setTag(R.id.id_tag, this)
                 it.setOnLongClickListener(listener)
             }
         }

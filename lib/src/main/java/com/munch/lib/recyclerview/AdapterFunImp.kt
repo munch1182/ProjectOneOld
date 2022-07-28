@@ -1,6 +1,5 @@
 package com.munch.lib.recyclerview
 
-
 import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper

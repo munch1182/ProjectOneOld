@@ -150,7 +150,7 @@ class ScanFilter : IBluetoothFilter {
 
 }
 
-class ScanTarget {
+class ScanSet {
     companion object {
         const val TIMEOUT = 10000L
     }
@@ -191,11 +191,11 @@ class ScanTarget {
     }
 }
 
-inline fun ScanTarget.ScanFilter(init: ScanFilter.() -> Unit) {
+inline fun ScanSet.ScanFilter(init: ScanFilter.() -> Unit) {
     filter = ScanFilter().apply(init)
 }
 
-inline fun ScanTarget(init: ScanTarget.() -> Unit) = ScanTarget().apply(init)
+inline fun ScanTarget(init: ScanSet.() -> Unit) = ScanSet().apply(init)
 
 @SuppressLint("MissingPermission")
 internal class BleScanner(
@@ -238,7 +238,7 @@ internal class BleScanner(
             //log.log { "onScanResult ${dev.mac}." }
             //结果在子线程中处理
             handler?.post {
-                val target = scanTarget ?: return@post
+                val target = scanSet ?: return@post
                 val filter = target.filter
                 if (filter.onFilter(dev) == null) {
                     return@post
@@ -271,13 +271,13 @@ internal class BleScanner(
     /**
      * 此处扫描的设置
      */
-    private var scanTarget: ScanTarget? = null
+    private var scanSet: ScanSet? = null
 
     /**
      * 超时停止扫描机制
      */
     private val stopRunnable = {
-        log.log { "scanner stop runnable call(${scanTarget?.timeout}ms). isScanning:$_isScanning." }
+        log.log { "scanner stop runnable call(${scanSet?.timeout}ms). isScanning:$_isScanning." }
         if (_isScanning) {
             stopBy()
         }
@@ -316,7 +316,7 @@ internal class BleScanner(
         this.handler = handler
     }
 
-    override fun scan(target: ScanTarget, listener: ScanListener?): Boolean {
+    override fun scan(target: ScanSet, listener: ScanListener?): Boolean {
         log.log { "scanner scan() call. target = $target" }
         if (scanner == null) {
             log.log { "scanner error: scanner=$scanner." }
@@ -337,7 +337,7 @@ internal class BleScanner(
         }
 
         clear()
-        scanTarget = target
+        scanSet = target
         scanListener = listener
 
         timeoutStop(target.timeout)
@@ -387,7 +387,7 @@ internal class BleScanner(
 
     private fun clear() {
         clearTimeout()
-        scanTarget = null
+        scanSet = null
         scanListener = null
         devMap.clear()
     }

@@ -59,7 +59,6 @@ interface IAdapterFun<D> {
      */
     fun updateOrThrow(index: Int, element: D, payload: Any? = null)
 
-
     /**
      * 如果在原有数据长度内，则从[startIndex]开始，更改[elements]长度的元素为[elements]
      *
@@ -80,4 +79,12 @@ interface IAdapterFun<D> {
     fun get(index: Int): D?
     fun getIndex(element: D): Int?
     fun contains(element: D): Boolean
+}
+
+interface DataHandler<D> {
+    fun handle(data: MutableList<D>): MutableList<D> {
+        return data.filter { handle(it) != null }.toMutableList()
+    }
+
+    fun handle(data: D): D?
 }

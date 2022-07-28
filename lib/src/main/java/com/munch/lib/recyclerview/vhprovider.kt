@@ -15,21 +15,31 @@ fun interface VHCreator {
 
 interface VHProvider {
 
-    val map: SparseArray<VHCreator>
+    val vhCreator: SparseArray<VHCreator>
 
     fun registerViewHolder(itemType: Int, creator: VHCreator): VHProvider {
-        map[itemType] = creator
+        vhCreator[itemType] = creator
         return this
     }
 }
 
 open class DefaultVHProvider : VHProvider {
-    override val map: SparseArray<VHCreator> = SparseArray()
+    override val vhCreator: SparseArray<VHCreator> = SparseArray(2)
+}
+
+fun VHProvider.registerViewHolder(itemType: Int, @LayoutRes resId: Int): VHProvider {
+    vhCreator[itemType] = { BaseViewHolder(it, resId) }
+    return this
+}
+
+fun VHProvider.registerViewHolder(itemType: Int, vc: ViewCreator): VHProvider {
+    vhCreator[itemType] = { BaseViewHolder(vc.invoke(it.context)) }
+    return this
 }
 
 class SimpleVHProvider(
-    @LayoutRes private val resId: Int,
-    private val vc: ViewCreator?
+    @LayoutRes resId: Int,
+    vc: ViewCreator?
 ) : DefaultVHProvider() {
 
     constructor(@LayoutRes resId: Int) : this(resId, null)
@@ -37,15 +47,20 @@ class SimpleVHProvider(
 
     init {
         if (vc != null) {
-            registerViewHolder(0) { BaseViewHolder(vc.invoke(it.context)) }
+            registerViewHolder(0, vc)
         } else {
-            registerViewHolder(0) { BaseViewHolder(it, resId) }
+            registerViewHolder(0, resId)
         }
-
     }
 }
 
-interface TypeItem {
-
+interface ItemType {
     fun getItemType(pos: Int): Int = 0
+}
+
+interface ItemNode : ItemType {
+    val children: List<ItemNode>
+        get() = listOf()
+    val isExpand: Boolean
+        get() = false
 }

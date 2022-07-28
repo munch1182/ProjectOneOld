@@ -1,6 +1,7 @@
 package com.munch.lib.recyclerview
 
 import android.view.View
+import com.munch.lib.R
 
 /**
  * Create by munch1182 on 2022/3/31 14:30.
@@ -11,13 +12,13 @@ interface OnItemClickListener<VH : BaseViewHolder> : View.OnClickListener,
 
     @Suppress("UNCHECKED_CAST")
     override fun onClick(v: View?) {
-        val holder = v?.tag as? VH? ?: return
+        val holder = v?.getTag(R.id.id_tag) as? VH? ?: return
         onClick(v, holder.bindingAdapterPosition, holder)
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun onLongClick(v: View?): Boolean {
-        val holder = v?.tag as? VH? ?: return false
+        val holder = v?.getTag(R.id.id_tag) as? VH? ?: return false
         return onLongClick(v, holder.bindingAdapterPosition, holder)
     }
 

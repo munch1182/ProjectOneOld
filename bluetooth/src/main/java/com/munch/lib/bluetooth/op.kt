@@ -32,7 +32,7 @@ interface Scanner : IBluetoothStop {
      * @param listener 扫描结果的回调，会在关闭扫描时自动取消回调的注册
      * @return 是否启动成功
      */
-    fun scan(target: ScanTarget = ScanTarget(), listener: ScanListener? = null): Boolean
+    fun scan(target: ScanSet = ScanSet(), listener: ScanListener? = null): Boolean
 
     /**
      * 注册一个全局的扫描回调，需要手动解除注册
