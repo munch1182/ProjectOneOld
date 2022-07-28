@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * Create by munch1182 on 2022/3/31 14:18.
  */
-open class BaseViewHolder(view: View) :
-    RecyclerView.ViewHolder(view), AdapterClickListener<BaseViewHolder> {
+open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view),
+    AdapterClickListener<BaseViewHolder> {
 
     constructor(parent: ViewGroup, @LayoutRes resId: Int) : this(
         LayoutInflater.from(parent.context).inflate(resId, parent, false)

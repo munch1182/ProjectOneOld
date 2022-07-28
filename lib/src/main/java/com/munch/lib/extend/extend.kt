@@ -115,11 +115,11 @@ inline fun <T> catch(block: () -> T): T? {
  * 如果找不到, 则返回null
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> Type.findParameterized(target: Class<T>): Class<T>? {
+fun <T> Type.findParameterized(target: Class<in T>): Class<T>? {
     when (this) {
         is ParameterizedType -> {
-            val find = actualTypeArguments.find { it is Class<*> && target.isAssignableFrom(it) }
-            if (find != null) return find as? Class<T>?
+            val c = actualTypeArguments.find { it is Class<*> && target.isAssignableFrom(it) }
+            if (c != null) return c as Class<T>
             val type = this.rawType
             if (type == Any::class.java) return null
             return type.findParameterized(target)

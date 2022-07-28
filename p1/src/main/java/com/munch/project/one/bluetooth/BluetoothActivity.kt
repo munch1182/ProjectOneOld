@@ -26,7 +26,7 @@ import com.munch.lib.log.log
 import com.munch.lib.notice.Notice
 import com.munch.lib.notice.OnSelect
 import com.munch.lib.notice.OnSelectOk
-import com.munch.lib.recyclerview.BaseBindViewHolder
+import com.munch.lib.recyclerview.BindViewHolder
 import com.munch.lib.recyclerview.BindRVAdapter
 import com.munch.lib.recyclerview.differ
 import com.munch.lib.recyclerview.setOnItemClickListener
@@ -52,10 +52,7 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
     private val adapter = object : BindRVAdapter<BluetoothDev, ItemBluetoothBinding>(
         differ({ o, n -> o.rssi == n.rssi }, { o, n -> o.mac == n.mac })
     ) {
-        override fun onBind(
-            holder: BaseBindViewHolder<ItemBluetoothBinding>,
-            bean: BluetoothDev
-        ) {
+        override fun onBind(holder: BindViewHolder<ItemBluetoothBinding>, bean: BluetoothDev) {
             holder.bind.apply {
                 btDevMac.text = bean.mac
                 btDevName.text = bean.name?.takeIf { it.isNotEmpty() } ?: "N/A"

@@ -3,12 +3,10 @@ package com.munch.project.one
 import android.content.Intent
 import android.os.Bundle
 import androidx.viewbinding.ViewBinding
-import com.munch.lib.extend.findParameterized
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.base.DataHelper
 import com.munch.lib.fast.view.ISupportActionBar
 import com.munch.lib.fast.view.fvClassRv
-import com.munch.lib.log.log
 import com.munch.project.one.about.AboutActivity
 import com.munch.project.one.bluetooth.BluetoothActivity
 import com.munch.project.one.databinding.ActivityMainBinding
@@ -43,9 +41,6 @@ class MainActivity : BaseFastActivity(), ISupportActionBar, IView<ActivityMainBi
         super.onCreate(savedInstanceState)
         vb.init()
         DataHelper.startUp?.let { startActivity(Intent(this, it)) }
-
-        log(this::class.java.findParameterized(ViewBinding::class.java))
-        log(this.javaClass.findParameterized(ViewBinding::class.java))
     }
 
     override fun onBackPressed() {

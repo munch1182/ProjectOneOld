@@ -61,7 +61,7 @@ inline fun <D> Activity.fvRv(
 ) = fv<FVRecyclerView<D, BaseViewHolder>> { FVRecyclerView(this, adapter, lm) }
 
 inline fun <D, B : ViewBinding> Activity.fvBindRv(
-    adapter: BaseRecyclerViewAdapter<D, BaseBindViewHolder<B>>,
+    adapter: BaseRecyclerViewAdapter<D, BindViewHolder<B>>,
     lm: RecyclerView.LayoutManager = LinearLayoutManager(this)
 ) = fv<FVRecyclerView<D, BaseViewHolder>> { FVRecyclerView(this, adapter, lm) }
 
@@ -73,9 +73,9 @@ inline fun <D> Activity.fvHelperRv(
 }
 
 inline fun <D, B : ViewBinding> Activity.fvHelperBindRv(
-    adapter: BaseRecyclerViewAdapter<D, BaseBindViewHolder<B>>,
+    adapter: BaseRecyclerViewAdapter<D, BindViewHolder<B>>,
     lm: RecyclerView.LayoutManager = LinearLayoutManager(this)
-) = fv<FVRecyclerHelperView<D, BaseBindViewHolder<B>>> {
+) = fv<FVRecyclerHelperView<D, BindViewHolder<B>>> {
     FVRecyclerHelperView(this, AdapterHelper(adapter), lm)
 }
 

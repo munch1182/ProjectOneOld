@@ -82,10 +82,7 @@ class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         var isSelectedMode = false
             private set
 
-        override fun onBind(
-            holder: BaseBindViewHolder<ItemResultBinding>,
-            bean: PI
-        ) {
+        override fun onBind(holder: BindViewHolder<ItemResultBinding>, bean: PI) {
             holder.bind.apply {
                 resultName.text = bean.name
                 resultDesc.text = bean.desc
@@ -93,7 +90,7 @@ class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         }
 
         override fun onBind(
-            holder: BaseBindViewHolder<ItemResultBinding>,
+            holder: BindViewHolder<ItemResultBinding>,
             bean: PI,
             payloads: MutableList<Any>
         ) {

@@ -17,7 +17,7 @@ import com.munch.lib.fast.view.*
 import com.munch.lib.helper.FileHelper
 import com.munch.lib.helper.new
 import com.munch.lib.record.Record
-import com.munch.lib.recyclerview.BaseBindViewHolder
+import com.munch.lib.recyclerview.BindViewHolder
 import com.munch.lib.recyclerview.BindRVAdapter
 import com.munch.lib.recyclerview.setOnItemClickListener
 import com.munch.project.one.databinding.ItemRecordBinding
@@ -81,10 +81,7 @@ class RecordActivity : BaseFastActivity(),
 
     private class RecordAdapter : BindRVAdapter<Record, ItemRecordBinding>() {
 
-        override fun onBind(
-            holder: BaseBindViewHolder<ItemRecordBinding>,
-            bean: Record
-        ) {
+        override fun onBind(holder: BindViewHolder<ItemRecordBinding>, bean: Record) {
             holder.bind.apply {
                 recordContent.text = bean.log
                 recordTime.text = bean.recordTime.toDateStr()
