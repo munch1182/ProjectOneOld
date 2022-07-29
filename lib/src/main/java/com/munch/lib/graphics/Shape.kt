@@ -56,6 +56,8 @@ sealed class Shape {
         operator fun contains(point: PointF): Boolean {
             return centerPoint.dis(point) <= radius
         }
+
+        override fun toString() = "Circle($x, $y, radius=$radius)"
     }
 
     /**
@@ -75,6 +77,8 @@ sealed class Shape {
         operator fun contains(point: PointF): Boolean {
             return point.x in x..x + width && point.y in y..y + height
         }
+
+        override fun toString() = "Rectangle($x, $y, width=$width, height=$height)"
     }
 
     /**
@@ -92,6 +96,8 @@ sealed class Shape {
         operator fun contains(point: PointF): Boolean {
             return point.x in x..(x + size) && point.y in y..(y + size)
         }
+
+        override fun toString() = "Square($x, $y, size=$size)"
     }
 
 

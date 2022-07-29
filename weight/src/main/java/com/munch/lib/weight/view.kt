@@ -6,12 +6,12 @@ import android.graphics.Rect
 import android.view.MotionEvent
 import android.view.View
 import kotlin.math.min
+import com.munch.lib.extend.lazy
 
 interface ViewHelper {
 
     val paint: Paint
     val viewRect: Rect
-    val centerPoint: PointF
 
     fun measureSquare(widthMeasureSpec: Int, heightMeasureSpec: Int): Int {
         val w = View.MeasureSpec.getSize(widthMeasureSpec)
@@ -24,17 +24,12 @@ interface ViewHelper {
             left + view.paddingLeft, top + view.paddingTop,
             right - view.paddingRight, bottom - view.paddingBottom
         )
-        centerPoint.set(
-            (right - top - view.paddingLeft - view.paddingRight) / 2f,
-            (bottom - top - view.paddingTop - view.paddingBottom) / 2f
-        )
     }
 }
 
 object ViewHelperDefault : ViewHelper {
     override val paint: Paint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
     override val viewRect: Rect by lazy { Rect() }
-    override val centerPoint: PointF by lazy { PointF() }
 }
 
 interface TouchHelper {

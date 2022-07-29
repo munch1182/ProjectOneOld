@@ -4,18 +4,20 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 
-fun @receiver:ColorInt Int.toColorStr() = "#${Color.red(this).toHexStr().toString(2)}" +
+fun @receiver:ColorInt Int.toColorStr() = "#" +
+        Color.alpha(this).toHexStr().toString(2) +
+        Color.red(this).toHexStr().toString(2) +
         Color.green(this).toHexStr().toString(2) +
         Color.blue(this).toHexStr().toString(2)
 
 /**
- * @param darker 更改明度, 值0f-1f, 越小越黑
+ * @param saturation 更改明度, 值0f-1f, 越小越黑
  */
 @ColorInt
-fun @receiver:ColorInt Int.darker(darker: Float): Int {
+fun @receiver:ColorInt Int.colorSaturation(saturation: Float): Int {
     val hsv = FloatArray(3) { 0f }
     Color.colorToHSV(this, hsv)
-    hsv[2] = darker
+    hsv[2] = saturation
     return Color.HSVToColor(hsv)
 }
 
