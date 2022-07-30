@@ -1,5 +1,7 @@
 package com.munch.lib
 
+import com.munch.lib.extend.SealedClassToStringByName
+
 /**
  * Create by munch1182 on 2022/3/12 15:47.
  */
@@ -25,19 +27,15 @@ value class Key(private val key: Int) {
 /**
  * 重复执行处理策略
  */
-sealed class RepeatStrategy {
+sealed class RepeatStrategy : SealedClassToStringByName() {
 
     /**
      * 无视后续执行，只执行第一次的执行
      */
-    object Ignore : RepeatStrategy() {
-        override fun toString() = "Ignore"
-    }
+    object Ignore : RepeatStrategy()
 
     /**
      * 终止正在执行，替换成新的执行
      */
-    object Replace : RepeatStrategy() {
-        override fun toString() = "Replace"
-    }
+    object Replace : RepeatStrategy()
 }

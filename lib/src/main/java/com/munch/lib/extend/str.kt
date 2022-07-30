@@ -92,3 +92,13 @@ fun String.toString(num: Int = 0, str: Char = '0'): String {
  */
 operator fun Char.times(n: Int) = String(CharArray(n) { this })
 operator fun String.times(n: Int) = String(CharArray(n * length) { this[it % length] })
+
+interface SealedClassToString {
+    override fun toString(): String
+}
+
+open class SealedClassToStringByName : SealedClassToString {
+    override fun toString(): String {
+        return javaClass.simpleName
+    }
+}

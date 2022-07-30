@@ -8,11 +8,9 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Checkable
-import com.munch.lib.extend.ViewUpdateListener
+import com.munch.lib.extend.*
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.icontext.getColorPrimary
-import com.munch.lib.extend.paddingHorizontal
-import com.munch.lib.extend.paddingVertical
 import com.munch.lib.graphics.Shape
 import com.munch.lib.weight.*
 
@@ -30,28 +28,15 @@ class Switch @JvmOverloads constructor(
         private const val HEIGHT_DEF = 24f
     }
 
-    sealed class Direction {
-        object Left2Right : Direction() {
-            override fun toString() = "Left2Right"
-        }
-
-        object Right2Left : Direction() {
-            override fun toString() = "Right2Left"
-        }
+    sealed class Direction : SealedClassToStringByName() {
+        object Left2Right : Direction()
+        object Right2Left : Direction()
     }
 
-    sealed class CheckType {
-        object Any : CheckType() {
-            override fun toString() = "Any"
-        }
-
-        object Click : CheckType() {
-            override fun toString() = "Click"
-        }
-
-        object Call : CheckType() {
-            override fun toString() = "Call"
-        }
+    sealed class CheckType : SealedClassToStringByName() {
+        object Any : CheckType()
+        object Click : CheckType()
+        object Call : CheckType()
     }
 
     private val roundRectangle = Shape.RoundRectangle()
