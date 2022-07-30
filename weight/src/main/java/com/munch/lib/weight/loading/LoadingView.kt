@@ -100,7 +100,7 @@ class LoadingView @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        layoutView(this, w, h)
+        updateViewRect(this, w, h)
 
         val rw = w - paddingLeft - paddingRight
         val rh = h - paddingTop - paddingBottom

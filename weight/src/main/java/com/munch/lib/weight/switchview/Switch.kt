@@ -109,7 +109,7 @@ class Switch @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        layoutView(this, w, h)
+        updateViewRect(this, w, h)
         roundRectangle.x = paddingLeft.toFloat()
         roundRectangle.y = paddingTop.toFloat()
         roundRectangle.width = (w - paddingHorizontal()).toFloat()

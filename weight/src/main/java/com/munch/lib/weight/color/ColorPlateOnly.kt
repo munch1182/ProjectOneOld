@@ -22,7 +22,7 @@ open class ColorPlateOnly @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        layoutView(this, w, h)
+        updateViewRect(this, w, h)
     }
 
     protected open fun generateColorPlate(): Bitmap {

@@ -1,6 +1,5 @@
 package com.munch.lib.weight
 
-import android.annotation.SuppressLint
 import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.Rect
@@ -43,7 +42,7 @@ interface ViewHelper {
         return width + view.paddingHorizontal() to height + view.paddingVertical()
     }
 
-    fun layoutView(view: View, w: Int, h: Int) {
+    fun updateViewRect(view: View, w: Int, h: Int) {
         rectView.set(
             view.paddingLeft, view.paddingTop, w - view.paddingRight, h - view.paddingBottom
         )

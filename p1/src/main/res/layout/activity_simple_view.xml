@@ -212,7 +212,7 @@
         app:item_title_textSize="16sp"
         tools:ignore="HardcodedText">
 
-        <com.munch.lib.weight.switchview.Switch
+        <com.munch.lib.weight.switchview.LoadingSwitch
             android:id="@+id/view_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

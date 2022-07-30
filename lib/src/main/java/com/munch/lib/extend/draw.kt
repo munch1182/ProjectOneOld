@@ -5,6 +5,7 @@ package com.munch.lib.extend
 import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -249,4 +250,19 @@ fun PointF.dis(point: PointF): Float {
 fun PointF.isInOffset(point: PointF, offset: Float = 0f): Boolean {
     return x in (point.x - offset)..(point.x + offset) &&
             y in (point.y - offset)..(point.y + offset)
+}
+
+fun View.layoutCenter(pw: Int, ph: Int) {
+    val w = measuredWidth
+    val h = measuredHeight
+    val halfPW = pw / 2f
+    val halfPH = ph / 2f
+    val halfW = w / 2f
+    val halfH = h / 2f
+    layout(
+        (halfPW - halfW).toInt(),
+        (halfPH - h / 2f).toInt(),
+        (halfPW + halfW).toInt(),
+        (halfPH + halfH).toInt()
+    )
 }
