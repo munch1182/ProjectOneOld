@@ -32,7 +32,7 @@ open class ColorPlateWithTouch @JvmOverloads constructor(
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
-        val radius = viewRect.width() / 2f
+        val radius = rectView.width() / 2f
         movePoint.set(radius, radius)
         circle.x = paddingLeft.toFloat()
         circle.y = paddingTop.toFloat()

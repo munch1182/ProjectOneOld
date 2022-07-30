@@ -50,12 +50,32 @@ inline fun newWWLp() = ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
 inline fun newMWLp() = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
 inline fun newMMLp() = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
 
+inline fun View.paddingHorizontal() = paddingLeft + paddingRight
+inline fun View.paddingVertical() = paddingTop + paddingBottom
+
+fun View.getMarginLayoutParams() = when (val lp = layoutParams) {
+    is ViewGroup.MarginLayoutParams -> lp
+    else -> null
+}
+
+fun View.getOrNewMarginLayoutParams() = when (val lp = layoutParams) {
+    null -> ViewGroup.MarginLayoutParams(newWWLp())
+    is ViewGroup.MarginLayoutParams -> lp
+    else -> ViewGroup.MarginLayoutParams(lp)
+}
+
+fun View.marginHorizontal() = when (val lp = layoutParams) {
+    is ViewGroup.MarginLayoutParams -> lp.leftMargin + lp.rightMargin
+    else -> 0
+}
+
+fun View.marginVertical() = when (val lp = layoutParams) {
+    is ViewGroup.MarginLayoutParams -> lp.topMargin + lp.bottomMargin
+    else -> 0
+}
+
 fun View.addMargin(l: Int = 0, t: Int = 0, r: Int = 0, b: Int = 0) {
-    layoutParams = when (val lp = layoutParams) {
-        null -> ViewGroup.MarginLayoutParams(newWWLp())
-        is ViewGroup.MarginLayoutParams -> lp
-        else -> ViewGroup.MarginLayoutParams(lp)
-    }.apply {
+    getOrNewMarginLayoutParams().apply {
         leftMargin += l
         topMargin += t
         rightMargin += r

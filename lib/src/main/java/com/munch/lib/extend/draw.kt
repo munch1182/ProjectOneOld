@@ -245,3 +245,8 @@ fun MotionEvent.toStr() = this.let {
 fun PointF.dis(point: PointF): Float {
     return sqrt((point.x - x).toDouble().pow(2) + (point.y - y).toDouble().pow(2)).toFloat()
 }
+
+fun PointF.isInOffset(point: PointF, offset: Float = 0f): Boolean {
+    return x in (point.x - offset)..(point.x + offset) &&
+            y in (point.y - offset)..(point.y + offset)
+}

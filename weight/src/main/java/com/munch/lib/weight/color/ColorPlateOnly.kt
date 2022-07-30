@@ -16,17 +16,17 @@ open class ColorPlateOnly @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr, defStyleRes), ViewHelper by ViewHelperDefault {
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val size = measureSquare(widthMeasureSpec, heightMeasureSpec)
+        val size = getSquareRadius(widthMeasureSpec, heightMeasureSpec)
         setMeasuredDimension(size, size)
     }
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-        layoutView(this, left, top, right, bottom)
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        layoutView(this, w, h)
     }
 
     protected open fun generateColorPlate(): Bitmap {
-        val s = viewRect.width()
+        val s = rectView.width()
         val r = s / 2f
         val bitmap = Bitmap.createBitmap(s, s, Bitmap.Config.ARGB_8888)
 

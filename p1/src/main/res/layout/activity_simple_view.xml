@@ -159,10 +159,6 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="8dp"
         app:text="***"
         app:textIcon="@drawable/ic_next_24"
         app:textIcon_marginStart="16dp"
@@ -175,7 +171,6 @@
     <View style="@style/StyleLineSplit" />
 
     <com.munch.lib.weight.item.ItemView
-        android:id="@+id/collect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorWhite"
@@ -183,39 +178,44 @@
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
         app:textIcon="@drawable/ic_next_24"
-        app:textIcon_height="24dp"
-        app:textIcon_marginEnd="16dp"
-        app:textIcon_marginStart="16dp"
-        app:textIcon_width="24dp"
         app:textSize="12sp"
         app:title="我的收藏"
         app:titleIcon="@drawable/ic_favorite"
-        app:titleIcon_marginBottom="8dp"
-        app:titleIcon_marginEnd="16dp"
-        app:titleIcon_marginStart="16dp"
-        app:titleIcon_marginTop="8dp"
         app:title_textSize="16sp"
         tools:ignore="HardcodedText" />
 
     <View style="@style/StyleLineSplit" />
 
     <com.munch.lib.weight.item.ItemView
-        android:id="@+id/version"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorWhite"
         app:text="暂不可用"
         app:textColor="@color/colorTextGray"
-        app:textIcon_marginEnd="16dp"
-        app:textIcon_marginStart="16dp"
         app:title="更改密码"
         app:titleIcon="@drawable/ic_pwd"
-        app:titleIcon_marginBottom="8dp"
-        app:titleIcon_marginEnd="16dp"
-        app:titleIcon_marginStart="16dp"
-        app:titleIcon_marginTop="8dp"
         app:title_textSize="16sp"
         tools:ignore="HardcodedText" />
 
     <View style="@style/StyleLineSplit" />
+
+    <com.munch.lib.weight.item.ItemView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        app:textColor="@color/colorTextGray"
+        app:title="自动收藏"
+        app:titleIcon="@drawable/ic_note"
+        app:title_textSize="16sp"
+        tools:ignore="HardcodedText">
+
+        <com.munch.lib.weight.switchview.Switch
+            android:id="@+id/view_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </com.munch.lib.weight.item.ItemView>
+
 </LinearLayout>

@@ -88,7 +88,7 @@ class LoadingView @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        var radius = measureSquare(widthMeasureSpec, heightMeasureSpec)
+        var radius = getSquareRadius(widthMeasureSpec, heightMeasureSpec)
         if (radius == 0) {
             radius = 25
         }
@@ -98,13 +98,9 @@ class LoadingView @JvmOverloads constructor(
         )
     }
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-        layoutView(this, left, top, right, bottom)
-    }
-
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
+        layoutView(this, w, h)
 
         val rw = w - paddingLeft - paddingRight
         val rh = h - paddingTop - paddingBottom
@@ -138,7 +134,9 @@ class LoadingView @JvmOverloads constructor(
             pos = 0
         }
 
-        postInvalidateDelayed(speed)
+        if (!isInEditMode) {
+            postInvalidateDelayed(speed)
+        }
     }
 
     private fun getColorIndex(i: Int) = when {

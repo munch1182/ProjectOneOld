@@ -7,15 +7,21 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
-import com.munch.lib.extend.UpdateListener
+import androidx.core.view.children
+import com.munch.lib.extend.*
 import com.munch.lib.extend.icontext.IContext
-import com.munch.lib.extend.lazy
+import com.munch.lib.extend.icontext.dp2Px
+import com.munch.lib.log.log
 import com.munch.lib.weight.ITextView
 import com.munch.lib.weight.R
+import com.munch.lib.weight.TouchHelper
+import com.munch.lib.weight.TouchHelperDefault
 import kotlin.math.max
 import kotlin.math.min
 
@@ -25,7 +31,7 @@ open class ItemView @JvmOverloads constructor(
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr, defStyleRes), IContext, ITextView,
-    UpdateListener<ItemView.Builder> {
+    TouchHelper by TouchHelperDefault, UpdateListener<ItemView.Builder> {
 
     class Builder {
 
@@ -61,11 +67,21 @@ open class ItemView @JvmOverloads constructor(
         var textStyle = titleStyle
     }
 
+    protected open val idTag = com.munch.lib.R.id.id_tag
     protected open val b = Builder()
-    protected open val titleIcon by lazy { AppCompatImageView(context) }
-    protected open val title by lazy { AppCompatTextView(context) }
-    protected open val text by lazy { AppCompatTextView(context) }
-    protected open val textIcon by lazy { AppCompatImageView(context) }
+    protected open val titleIcon by lazy {
+        AppCompatImageView(context).apply { setTag(idTag, true) }
+    }
+    protected open val title by lazy {
+        AppCompatTextView(context).apply { setTag(idTag, true) }
+    }
+    protected open val text by lazy {
+        AppCompatTextView(context).apply { setTag(idTag, true) }
+    }
+    protected open val textIcon by lazy {
+        AppCompatImageView(context).apply { setTag(idTag, true) }
+    }
+    protected open var childView: View? = null
 
     init {
         context.obtainStyledAttributes(attrs, R.styleable.ItemView).apply {
@@ -74,15 +90,17 @@ open class ItemView @JvmOverloads constructor(
             b.titleIconHeight =
                 getDimension(R.styleable.ItemView_titleIcon_height, b.titleIconHeight)
             b.titleIconMargin =
-                getDimension(R.styleable.ItemView_titleIcon_margin, b.titleIconMargin)
+                getDimension(R.styleable.ItemView_titleIcon_margin, -1f)
+            val titleMarginWidth = if (b.titleIconMargin == -1f) dp2Px(16f) else b.titleIconMargin
+            val titleMarginHeight = if (b.titleIconMargin == -1f) dp2Px(8f) else b.titleIconMargin
             b.titleIconMarginStart =
-                getDimension(R.styleable.ItemView_titleIcon_marginStart, b.titleIconMargin)
+                getDimension(R.styleable.ItemView_titleIcon_marginStart, titleMarginWidth)
             b.titleIconMarginEnd =
-                getDimension(R.styleable.ItemView_titleIcon_marginEnd, b.titleIconMargin)
+                getDimension(R.styleable.ItemView_titleIcon_marginEnd, titleMarginWidth)
             b.titleIconMarginTop =
-                getDimension(R.styleable.ItemView_titleIcon_marginTop, b.titleIconMargin)
+                getDimension(R.styleable.ItemView_titleIcon_marginTop, titleMarginHeight)
             b.titleIconMarginBottom =
-                getDimension(R.styleable.ItemView_titleIcon_marginBottom, b.titleIconMargin)
+                getDimension(R.styleable.ItemView_titleIcon_marginBottom, titleMarginHeight)
             b.titleIconTint = getColor(R.styleable.ItemView_titleIcon_tint, b.titleIconTint)
 
             b.title = getString(R.styleable.ItemView_title)
@@ -95,15 +113,17 @@ open class ItemView @JvmOverloads constructor(
             b.textIconHeight =
                 getDimension(R.styleable.ItemView_textIcon_height, b.textIconHeight)
             b.textIconMargin =
-                getDimension(R.styleable.ItemView_textIcon_margin, b.textIconMargin)
+                getDimension(R.styleable.ItemView_textIcon_margin, -1f)
+            val textMarginWidth = if (b.textIconMargin == -1f) dp2Px(16f) else b.textIconMargin
+            val textMarginHeight = if (b.textIconMargin == -1f) dp2Px(8f) else b.textIconMargin
             b.textIconMarginStart =
-                getDimension(R.styleable.ItemView_textIcon_marginStart, b.textIconMargin)
+                getDimension(R.styleable.ItemView_textIcon_marginStart, textMarginWidth)
             b.textIconMarginEnd =
-                getDimension(R.styleable.ItemView_textIcon_marginEnd, b.textIconMargin)
+                getDimension(R.styleable.ItemView_textIcon_marginEnd, textMarginWidth)
             b.textIconMarginTop =
-                getDimension(R.styleable.ItemView_textIcon_marginTop, b.textIconMargin)
+                getDimension(R.styleable.ItemView_textIcon_marginTop, textMarginHeight)
             b.textIconMarginBottom =
-                getDimension(R.styleable.ItemView_textIcon_marginBottom, b.textIconMargin)
+                getDimension(R.styleable.ItemView_textIcon_marginBottom, textMarginHeight)
             b.textIconTint = getColor(R.styleable.ItemView_textIcon_tint, b.textIconTint)
 
             b.text = getString(R.styleable.ItemView_text)
@@ -133,7 +153,11 @@ open class ItemView @JvmOverloads constructor(
         var maxW = 0f
         var maxH = 0f
 
+        if (childView == null) {
+            childView = findChild()
+        }
         removeAllViews()
+        childView?.let { addView(it) }
 
         b.titleIcon?.let {
             addView(titleIcon)
@@ -216,6 +240,15 @@ open class ItemView @JvmOverloads constructor(
             maxW += textIcon.measuredWidth
             maxH = max(textIcon.measuredHeight + b.textIconMarginTop + b.textIconMarginBottom, maxH)
         }
+        findChild()?.let {
+            measureChild(
+                it,
+                MeasureSpec.makeMeasureSpec(w, MeasureSpec.UNSPECIFIED),
+                MeasureSpec.makeMeasureSpec(maxH.toInt(), MeasureSpec.EXACTLY),
+            )
+            maxW += it.measuredWidth
+            maxH = max(it.measuredHeight.toFloat(), maxH)
+        }
         maxW += b.textIconMarginStart + b.textIconMarginEnd + b.titleIconMarginStart + b.titleIconMarginEnd
 
         maxW += paddingLeft + paddingRight
@@ -261,6 +294,36 @@ open class ItemView @JvmOverloads constructor(
             bottom = top + text.measuredHeight
             text.layout(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
         }
+        findChild()?.let {
+            right = left - br.textIconMarginStart
+            top = ((b - t) - it.measuredHeight) / 2f
+            left = max(right - it.measuredWidth, maxLeft)
+            bottom = top + it.measuredHeight
+            it.layout(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
+        }
+    }
+
+    private fun findChild() =
+        childView ?: children.find { it.getTag(idTag) == null }
+            .apply { childView = this }
+
+    override fun performClick(): Boolean {
+        findChild()?.performClick()
+        return super.performClick()
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        event ?: return super.onTouchEvent(event)
+        updateEvent(event)
+        if (event.action == MotionEvent.ACTION_UP && isClick) {
+            performClick()
+        }
+        return super.onTouchEvent(event)
+    }
+
+    override fun callOnClick(): Boolean {
+        log(2)
+        return super.callOnClick()
     }
 
     fun getTitleIconView() = titleIcon

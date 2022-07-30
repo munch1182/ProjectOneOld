@@ -4,10 +4,11 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PointF
 import com.munch.lib.extend.dis
+import com.munch.lib.extend.isIn
 
 sealed class Shape {
 
-    class Circle : Shape() {
+    open class Circle : Shape() {
 
         companion object {
 
@@ -27,17 +28,17 @@ sealed class Shape {
             }
         }
 
-        var x: Float = 0f
+        var x = 0f
             set(value) {
                 field = value
                 update()
             }
-        var y: Float = 0f
+        var y = 0f
             set(value) {
                 field = value
                 update()
             }
-        var radius: Float = 0f
+        var radius = 0f
             set(value) {
                 field = value
                 update()
@@ -45,7 +46,7 @@ sealed class Shape {
 
         val centerPoint = PointF()
 
-        private fun update() {
+        protected open fun update() {
             centerPoint.set(x + radius, y + radius)
         }
 
@@ -60,46 +61,108 @@ sealed class Shape {
         override fun toString() = "Circle($x, $y, radius=$radius)"
     }
 
-    /**
-     * 矩形
-     *
-     * @param x 左上点x
-     * @param y 左上点y
-     * @param width 长度
-     * @param height 宽度
-     */
-    data class Rectangle(var x: Float, var y: Float, var width: Float, var height: Float) :
-        Shape() {
-        override fun draw(canvas: Canvas, paint: Paint) {
-            canvas.drawRect(x, y, x + width, y + height, paint)
+    open class Rectangle : Shape() {
+        companion object {
+
+            /**
+             * 圆形
+             *
+             * @param x 左上点x
+             * @param y 左上点y
+             * @param width 宽
+             * @param height 高
+             */
+            fun of(x: Float, y: Float, width: Float, height: Float): Rectangle {
+                return Rectangle().apply {
+                    this.x = x
+                    this.y = y
+                    this.width = width
+                    this.height = height
+                }
+            }
         }
 
-        operator fun contains(point: PointF): Boolean {
-            return point.x in x..x + width && point.y in y..y + height
+        var x = 0f
+            set(value) {
+                field = value
+                update()
+            }
+        var y = 0f
+            set(value) {
+                field = value
+                update()
+            }
+        var width = 0f
+            set(value) {
+                field = value
+                update()
+            }
+        var height = 0f
+            set(value) {
+                field = value
+                update()
+            }
+
+        var rect = RectF()
+
+        protected open fun update() {
+            rect.set(x, y, x + width, y + height)
         }
+
+        override fun draw(canvas: Canvas, paint: Paint) {
+            canvas.drawRect(rect, paint)
+        }
+
+        operator fun contains(point: PointF) = point.isIn(rect)
 
         override fun toString() = "Rectangle($x, $y, width=$width, height=$height)"
     }
 
-    /**
-     * 正方形
-     *
-     * @param x 左上点x
-     * @param y 左上点y
-     * @param size 长度
-     */
-    data class Square(var x: Float, var y: Float, var size: Float) : Shape() {
-        override fun draw(canvas: Canvas, paint: Paint) {
-            canvas.drawRect(x, y, x + size, y + size, paint)
+    class Square : Rectangle() {
+
+        companion object {
+            fun of(x: Float, y: Float, size: Float) = Square().apply {
+                this.x = x
+                this.y = y
+                this.width = size
+                this.height = size
+            }
         }
 
-        operator fun contains(point: PointF): Boolean {
-            return point.x in x..(x + size) && point.y in y..(y + size)
-        }
-
-        override fun toString() = "Square($x, $y, size=$size)"
+        override fun toString() = "Square($x, $y, size=$width)"
     }
 
+    /**
+     * 圆角矩形
+     */
+    open class RoundRectangle : Rectangle() {
+
+        companion object {
+
+            fun of(
+                x: Float = 0f, y: Float = 0f,
+                width: Float = 0f,
+                height: Float = 0f,
+                radius: Float = height / 2f
+            ): RoundRectangle {
+                return RoundRectangle().apply {
+                    this.x = x
+                    this.y = y
+                    this.width = width
+                    this.height = height
+                    this.radius = radius
+                }
+            }
+        }
+
+        //矩形圆角半径
+        var radius: Float = height / 2f
+
+        override fun draw(canvas: Canvas, paint: Paint) {
+            canvas.drawRoundRect(rect, radius, radius, paint)
+        }
+
+    }
 
     abstract fun draw(canvas: Canvas, paint: Paint)
 }

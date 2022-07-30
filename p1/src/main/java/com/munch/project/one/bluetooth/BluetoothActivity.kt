@@ -3,7 +3,9 @@ package com.munch.project.one.bluetooth
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.bluetooth.*
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -25,7 +27,9 @@ import com.munch.lib.log.log
 import com.munch.lib.notice.Notice
 import com.munch.lib.notice.OnSelect
 import com.munch.lib.notice.OnSelectOk
-import com.munch.lib.recyclerview.*
+import com.munch.lib.recyclerview.BaseBindRvAdapter
+import com.munch.lib.recyclerview.BindViewHolder
+import com.munch.lib.recyclerview.registerViewHolder
 import com.munch.lib.result.ExplainContactNotice
 import com.munch.lib.result.contact
 import com.munch.project.one.databinding.ActivityBluetoothBinding

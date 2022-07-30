@@ -73,8 +73,8 @@ fun Context.getAttrFromTheme(attrId: Int, theme: Resources.Theme = this.theme): 
 }
 
 @ColorInt
-fun Context.getColorPrimary(): Int {
-    return getAttrArrayFromTheme(android.R.attr.colorPrimary) { getColor(0, Color.WHITE) }
+fun Context.getColorPrimary(@ColorInt defValue: Int = Color.WHITE): Int {
+    return getAttrArrayFromTheme(android.R.attr.colorPrimary) { getColor(0, defValue) }
 }
 
 fun Context.getSelectableItemBackground(): Drawable? {

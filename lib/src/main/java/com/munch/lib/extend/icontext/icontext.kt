@@ -5,6 +5,7 @@ package com.munch.lib.extend.icontext
 import android.app.Activity
 import android.content.Context
 import android.content.res.TypedArray
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.view.View
@@ -60,7 +61,7 @@ inline fun IContext.isScreenOn() = ctx.isScreenOn()
 inline fun IContext.getScreenSize(full: Boolean = false) = ctx.getScreenSize(full)
 
 @ColorInt
-fun IContext.getColorPrimary() = ctx.getColorPrimary()
+fun IContext.getColorPrimary(@ColorInt defValue: Int = Color.WHITE) = ctx.getColorPrimary(defValue)
 
 inline fun <T> IContext.getAttrArrayFromTheme(attrId: Int, noinline get: TypedArray.() -> T) =
     ctx.getAttrArrayFromTheme(attrId, get)

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Switch">
+        <attr name="direction">
+            <flag name="left2Right" value="0" />
+            <flag name="right2Left" value="1" />
+        </attr>
+        <attr name="checkFrom">
+            <flag name="any" value="0" />
+            <flag name="click" value="1" />
+            <flag name="call" value="2" />
+        </attr>
+        <attr name="checkPadding" format="dimension" />
+        <attr name="switch_speed" format="float" />
+        <attr name="android:checked" />
+        <attr name="checkBgColor" format="color" />
+        <attr name="checkCenterColor" format="color" />
+        <attr name="uncheckBgColor" format="color" />
+        <attr name="uncheckCenterColor" format="color" />
+    </declare-styleable>
+</resources>

@@ -168,11 +168,9 @@ class Shape @JvmOverloads constructor(
         return drawable
     }
 
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        super.onLayout(changed, l, t, r, b)
-        if (isVisible) {
-            updateViewBackground()
-        }
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        if (isVisible) updateViewBackground()
     }
 
     override fun setBackground(background: Drawable?) {

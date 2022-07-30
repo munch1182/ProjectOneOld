@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.core.view.isVisible
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.weight.*
 
@@ -85,9 +86,9 @@ class Color @JvmOverloads constructor(
         }?.apply { this.state = this@Color.state }
     }
 
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        super.onLayout(changed, l, t, r, b)
-        updateView()
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        if (isVisible) updateView()
     }
 
     private fun updateView() {
