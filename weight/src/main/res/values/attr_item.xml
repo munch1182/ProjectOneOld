@@ -2,46 +2,45 @@
 <resources>
     <declare-styleable name="ItemView">
 
+        <attr name="item_titleIcon" format="reference" />
+        <attr name="item_titleIcon_width" format="dimension" />
+        <attr name="item_titleIcon_height" format="dimension" />
+        <attr name="item_titleIcon_margin" format="dimension" />
+        <attr name="item_titleIcon_marginStart" format="dimension" />
+        <attr name="item_titleIcon_marginEnd" format="dimension" />
+        <attr name="item_titleIcon_marginTop" format="dimension" />
+        <attr name="item_titleIcon_marginBottom" format="dimension" />
+        <attr name="item_titleIcon_tint" format="color" />
 
-        <attr name="titleIcon" format="reference" />
-        <attr name="titleIcon_width" format="dimension" />
-        <attr name="titleIcon_height" format="dimension" />
-        <attr name="titleIcon_margin" format="dimension" />
-        <attr name="titleIcon_marginStart" format="dimension" />
-        <attr name="titleIcon_marginEnd" format="dimension" />
-        <attr name="titleIcon_marginTop" format="dimension" />
-        <attr name="titleIcon_marginBottom" format="dimension" />
-        <attr name="titleIcon_tint" format="color" />
-
-        <attr name="title" format="string" />
-        <attr name="title_textColor" format="color" />
-        <attr name="title_textSize" format="dimension" />
-        <attr name="title_textStyle">
+        <attr name="item_title" format="string" />
+        <attr name="item_title_textColor" format="color" />
+        <attr name="item_title_textSize" format="dimension" />
+        <attr name="item_title_textStyle">
             <flag name="normal" value="0" />
             <flag name="bold" value="1" />
         </attr>
 
-        <attr name="text" format="string" />
-        <attr name="textColor" format="color" />
-        <attr name="textSize" format="dimension" />
-        <attr name="textStyle">
+        <attr name="item_text" format="string" />
+        <attr name="item_textColor" format="color" />
+        <attr name="item_textSize" format="dimension" />
+        <attr name="item_textStyle">
             <flag name="normal" value="0" />
             <flag name="bold" value="1" />
         </attr>
-        <attr name="textIcon" format="reference" />
-        <attr name="textIcon_width" format="dimension">
+        <attr name="item_textIcon" format="reference" />
+        <attr name="item_textIcon_width" format="dimension">
             <enum name="wrap_content" value="-1" />
             <enum name="match_parent" value="-2" />
         </attr>
-        <attr name="textIcon_height" format="dimension">
+        <attr name="item_textIcon_height" format="dimension">
             <enum name="wrap_content" value="-1" />
             <enum name="match_parent" value="-2" />
         </attr>
-        <attr name="textIcon_margin" format="dimension" />
-        <attr name="textIcon_marginStart" format="dimension" />
-        <attr name="textIcon_marginEnd" format="dimension" />
-        <attr name="textIcon_marginTop" format="dimension" />
-        <attr name="textIcon_marginBottom" format="dimension" />
-        <attr name="textIcon_tint" format="color" />
+        <attr name="item_textIcon_margin" format="dimension" />
+        <attr name="item_textIcon_marginStart" format="dimension" />
+        <attr name="item_textIcon_marginEnd" format="dimension" />
+        <attr name="item_textIcon_marginTop" format="dimension" />
+        <attr name="item_textIcon_marginBottom" format="dimension" />
+        <attr name="item_textIcon_tint" format="color" />
     </declare-styleable>
 </resources>

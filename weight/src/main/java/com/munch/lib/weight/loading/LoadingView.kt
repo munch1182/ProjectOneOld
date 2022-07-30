@@ -1,4 +1,4 @@
-package com.munch.lib.weight.load
+package com.munch.lib.weight.loading
 
 import android.content.Context
 import android.graphics.Canvas
@@ -59,9 +59,9 @@ class LoadingView @JvmOverloads constructor(
 
     init {
         context.obtainStyledAttributes(attrs, R.styleable.LoadingView).apply {
-            speed = getInteger(R.styleable.LoadingView_speed, speed.toInt()).toLong()
-            shapeAlpha = getFloat(R.styleable.LoadingView_shapeAlpha, shapeAlpha)
-            shapeCount = getInteger(R.styleable.LoadingView_shapeCount, shapeCount)
+            speed = getInteger(R.styleable.LoadingView_loading_speed, speed.toInt()).toLong()
+            shapeAlpha = getFloat(R.styleable.LoadingView_loading_shapeAlpha, shapeAlpha)
+            shapeCount = getInteger(R.styleable.LoadingView_loading_shapeCount, shapeCount)
             mainColor = getColor(R.styleable.LoadingView_android_color, mainColor)
         }.recycle()
     }

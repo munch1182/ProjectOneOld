@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="LoadingView">
-        <attr name="speed" format="integer" />
+        <attr name="loading_speed" format="integer" />
         <attr name="android:color" />
         <!--颜色梯度-->
-        <attr name="shapeAlpha" format="float" />
+        <attr name="loading_shapeAlpha" format="float" />
 
-        <attr name="shapeCount" format="integer" />
+        <attr name="loading_shapeCount" format="integer" />
     </declare-styleable>
 </resources>

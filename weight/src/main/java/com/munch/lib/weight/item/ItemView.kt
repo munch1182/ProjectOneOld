@@ -17,7 +17,6 @@ import androidx.core.view.children
 import com.munch.lib.extend.*
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.icontext.dp2Px
-import com.munch.lib.log.log
 import com.munch.lib.weight.ITextView
 import com.munch.lib.weight.R
 import com.munch.lib.weight.TouchHelper
@@ -85,51 +84,53 @@ open class ItemView @JvmOverloads constructor(
 
     init {
         context.obtainStyledAttributes(attrs, R.styleable.ItemView).apply {
-            b.titleIcon = getDrawable(R.styleable.ItemView_titleIcon)
-            b.titleIconWidth = getDimension(R.styleable.ItemView_titleIcon_width, b.titleIconWidth)
+            b.titleIcon = getDrawable(R.styleable.ItemView_item_titleIcon)
+            b.titleIconWidth =
+                getDimension(R.styleable.ItemView_item_titleIcon_width, b.titleIconWidth)
             b.titleIconHeight =
-                getDimension(R.styleable.ItemView_titleIcon_height, b.titleIconHeight)
+                getDimension(R.styleable.ItemView_item_titleIcon_height, b.titleIconHeight)
             b.titleIconMargin =
-                getDimension(R.styleable.ItemView_titleIcon_margin, -1f)
+                getDimension(R.styleable.ItemView_item_titleIcon_margin, -1f)
             val titleMarginWidth = if (b.titleIconMargin == -1f) dp2Px(16f) else b.titleIconMargin
             val titleMarginHeight = if (b.titleIconMargin == -1f) dp2Px(8f) else b.titleIconMargin
             b.titleIconMarginStart =
-                getDimension(R.styleable.ItemView_titleIcon_marginStart, titleMarginWidth)
+                getDimension(R.styleable.ItemView_item_titleIcon_marginStart, titleMarginWidth)
             b.titleIconMarginEnd =
-                getDimension(R.styleable.ItemView_titleIcon_marginEnd, titleMarginWidth)
+                getDimension(R.styleable.ItemView_item_titleIcon_marginEnd, titleMarginWidth)
             b.titleIconMarginTop =
-                getDimension(R.styleable.ItemView_titleIcon_marginTop, titleMarginHeight)
+                getDimension(R.styleable.ItemView_item_titleIcon_marginTop, titleMarginHeight)
             b.titleIconMarginBottom =
-                getDimension(R.styleable.ItemView_titleIcon_marginBottom, titleMarginHeight)
-            b.titleIconTint = getColor(R.styleable.ItemView_titleIcon_tint, b.titleIconTint)
+                getDimension(R.styleable.ItemView_item_titleIcon_marginBottom, titleMarginHeight)
+            b.titleIconTint = getColor(R.styleable.ItemView_item_titleIcon_tint, b.titleIconTint)
 
-            b.title = getString(R.styleable.ItemView_title)
-            b.titleSize = getDimension(R.styleable.ItemView_title_textSize, b.titleSize)
-            b.titleStyle = getInt(R.styleable.ItemView_title_textStyle, b.titleStyle)
-            b.titleColor = getColor(R.styleable.ItemView_title_textColor, b.titleColor)
+            b.title = getString(R.styleable.ItemView_item_title)
+            b.titleSize = getDimension(R.styleable.ItemView_item_title_textSize, b.titleSize)
+            b.titleStyle = getInt(R.styleable.ItemView_item_title_textStyle, b.titleStyle)
+            b.titleColor = getColor(R.styleable.ItemView_item_title_textColor, b.titleColor)
 
-            b.textIcon = getDrawable(R.styleable.ItemView_textIcon)
-            b.textIconWidth = getDimension(R.styleable.ItemView_textIcon_width, b.textIconWidth)
+            b.textIcon = getDrawable(R.styleable.ItemView_item_textIcon)
+            b.textIconWidth =
+                getDimension(R.styleable.ItemView_item_textIcon_width, b.textIconWidth)
             b.textIconHeight =
-                getDimension(R.styleable.ItemView_textIcon_height, b.textIconHeight)
+                getDimension(R.styleable.ItemView_item_textIcon_height, b.textIconHeight)
             b.textIconMargin =
-                getDimension(R.styleable.ItemView_textIcon_margin, -1f)
+                getDimension(R.styleable.ItemView_item_textIcon_margin, -1f)
             val textMarginWidth = if (b.textIconMargin == -1f) dp2Px(16f) else b.textIconMargin
             val textMarginHeight = if (b.textIconMargin == -1f) dp2Px(8f) else b.textIconMargin
             b.textIconMarginStart =
-                getDimension(R.styleable.ItemView_textIcon_marginStart, textMarginWidth)
+                getDimension(R.styleable.ItemView_item_textIcon_marginStart, textMarginWidth)
             b.textIconMarginEnd =
-                getDimension(R.styleable.ItemView_textIcon_marginEnd, textMarginWidth)
+                getDimension(R.styleable.ItemView_item_textIcon_marginEnd, textMarginWidth)
             b.textIconMarginTop =
-                getDimension(R.styleable.ItemView_textIcon_marginTop, textMarginHeight)
+                getDimension(R.styleable.ItemView_item_textIcon_marginTop, textMarginHeight)
             b.textIconMarginBottom =
-                getDimension(R.styleable.ItemView_textIcon_marginBottom, textMarginHeight)
-            b.textIconTint = getColor(R.styleable.ItemView_textIcon_tint, b.textIconTint)
+                getDimension(R.styleable.ItemView_item_textIcon_marginBottom, textMarginHeight)
+            b.textIconTint = getColor(R.styleable.ItemView_item_textIcon_tint, b.textIconTint)
 
-            b.text = getString(R.styleable.ItemView_text)
-            b.textSize = getDimension(R.styleable.ItemView_textSize, b.textSize)
-            b.textStyle = getInt(R.styleable.ItemView_textStyle, b.textStyle)
-            b.textColor = getColor(R.styleable.ItemView_textColor, b.textColor)
+            b.text = getString(R.styleable.ItemView_item_text)
+            b.textSize = getDimension(R.styleable.ItemView_item_textSize, b.textSize)
+            b.textStyle = getInt(R.styleable.ItemView_item_textStyle, b.textStyle)
+            b.textColor = getColor(R.styleable.ItemView_item_textColor, b.textColor)
         }.recycle()
     }
 
@@ -319,11 +320,6 @@ open class ItemView @JvmOverloads constructor(
             performClick()
         }
         return super.onTouchEvent(event)
-    }
-
-    override fun callOnClick(): Boolean {
-        log(2)
-        return super.callOnClick()
     }
 
     fun getTitleIconView() = titleIcon

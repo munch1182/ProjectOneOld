@@ -82,20 +82,22 @@ class Switch @JvmOverloads constructor(
         circlePaint.style = Paint.Style.FILL
 
         context.obtainStyledAttributes(attrs, R.styleable.Switch).apply {
-            when (getInteger(R.styleable.Switch_direction, 0)) {
+            when (getInteger(R.styleable.Switch_switch_direction, 0)) {
                 0 -> direction = Direction.Left2Right
                 1 -> direction = Direction.Right2Left
             }
-            when (getInteger(R.styleable.Switch_checkFrom, 0)) {
+            when (getInteger(R.styleable.Switch_switch_checkFrom, 0)) {
                 0 -> checkFrom = CheckType.Any
                 1 -> checkFrom = CheckType.Click
                 2 -> checkFrom = CheckType.Call
             }
-            checkPadding = getDimension(R.styleable.Switch_checkPadding, checkPadding)
-            checkBgColor = getColor(R.styleable.Switch_checkBgColor, checkBgColor)
-            checkCenterColor = getColor(R.styleable.Switch_checkCenterColor, checkCenterColor)
-            uncheckBgColor = getColor(R.styleable.Switch_uncheckBgColor, uncheckBgColor)
-            uncheckCenterColor = getColor(R.styleable.Switch_uncheckCenterColor, uncheckCenterColor)
+            checkPadding = getDimension(R.styleable.Switch_switch_checkPadding, checkPadding)
+            checkBgColor = getColor(R.styleable.Switch_switch_checkBgColor, checkBgColor)
+            checkCenterColor =
+                getColor(R.styleable.Switch_switch_checkCenterColor, checkCenterColor)
+            uncheckBgColor = getColor(R.styleable.Switch_switch_uncheckBgColor, uncheckBgColor)
+            uncheckCenterColor =
+                getColor(R.styleable.Switch_switch_uncheckCenterColor, uncheckCenterColor)
             isCheck = getBoolean(R.styleable.Switch_android_checked, false)
             move.speed = getFloat(R.styleable.Switch_switch_speed, move.speed)
             if (0f <= move.speed || move.speed >= 1f) {

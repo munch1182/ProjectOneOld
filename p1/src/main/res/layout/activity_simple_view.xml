@@ -8,7 +8,7 @@
     android:orientation="vertical"
     tools:context=".weight.SimpleViewActivity">
 
-    <com.munch.lib.weight.load.LoadingView
+    <com.munch.lib.weight.loading.LoadingView
         android:layout_width="32dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -159,13 +159,13 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
-        app:text="***"
-        app:textIcon="@drawable/ic_next_24"
-        app:textIcon_marginStart="16dp"
-        app:title="用户信息"
-        app:titleIcon="@drawable/ic_user"
-        app:titleIcon_marginEnd="16dp"
-        app:title_textSize="16sp"
+        app:item_text="***"
+        app:item_textIcon="@drawable/ic_next_24"
+        app:item_textIcon_marginStart="16dp"
+        app:item_title="用户信息"
+        app:item_titleIcon="@drawable/ic_user"
+        app:item_titleIcon_marginEnd="16dp"
+        app:item_title_textSize="16sp"
         tools:ignore="HardcodedText" />
 
     <View style="@style/StyleLineSplit" />
@@ -177,11 +177,11 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
-        app:textIcon="@drawable/ic_next_24"
-        app:textSize="12sp"
-        app:title="我的收藏"
-        app:titleIcon="@drawable/ic_favorite"
-        app:title_textSize="16sp"
+        app:item_textIcon="@drawable/ic_next_24"
+        app:item_textSize="12sp"
+        app:item_title="我的收藏"
+        app:item_titleIcon="@drawable/ic_favorite"
+        app:item_title_textSize="16sp"
         tools:ignore="HardcodedText" />
 
     <View style="@style/StyleLineSplit" />
@@ -190,11 +190,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorWhite"
-        app:text="暂不可用"
-        app:textColor="@color/colorTextGray"
-        app:title="更改密码"
-        app:titleIcon="@drawable/ic_pwd"
-        app:title_textSize="16sp"
+        app:item_text="暂不可用"
+        app:item_textColor="@color/colorTextGray"
+        app:item_title="更改密码"
+        app:item_titleIcon="@drawable/ic_pwd"
+        app:item_title_textSize="16sp"
         tools:ignore="HardcodedText" />
 
     <View style="@style/StyleLineSplit" />
@@ -206,10 +206,10 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
-        app:textColor="@color/colorTextGray"
-        app:title="自动收藏"
-        app:titleIcon="@drawable/ic_note"
-        app:title_textSize="16sp"
+        app:item_textColor="@color/colorTextGray"
+        app:item_title="自动收藏"
+        app:item_titleIcon="@drawable/ic_note"
+        app:item_title_textSize="16sp"
         tools:ignore="HardcodedText">
 
         <com.munch.lib.weight.switchview.Switch
