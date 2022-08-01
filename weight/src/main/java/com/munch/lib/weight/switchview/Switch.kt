@@ -8,9 +8,12 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Checkable
-import com.munch.lib.extend.*
+import com.munch.lib.extend.SealedClassToStringByName
+import com.munch.lib.extend.ViewUpdateListener
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.icontext.getColorPrimary
+import com.munch.lib.extend.paddingHorizontal
+import com.munch.lib.extend.paddingVertical
 import com.munch.lib.graphics.Shape
 import com.munch.lib.weight.*
 
@@ -37,6 +40,8 @@ class Switch @JvmOverloads constructor(
         object Any : CheckType()
         object Click : CheckType()
         object Call : CheckType()
+
+        fun canFrom(type: CheckType) = this == type || this == Any
     }
 
     private val roundRectangle = Shape.RoundRectangle()
@@ -170,11 +175,14 @@ class Switch @JvmOverloads constructor(
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event ?: return super.onTouchEvent(event)
+        if (checkFrom != CheckType.Any && checkFrom != CheckType.Click) {
+            return false
+        }
         updateEvent(event)
         if (event.action == MotionEvent.ACTION_UP && isClick) {
             performClick()
         }
-        return super.onTouchEvent(event)
+        return true
     }
 
     override fun isChecked() = isCheck
@@ -191,7 +199,7 @@ class Switch @JvmOverloads constructor(
     }
 
     private fun setChecked(checked: Boolean, needAnim: Boolean, from: CheckType) {
-        if (checkFrom != CheckType.Any && checkFrom != from) {
+        if (!checkFrom.canFrom(from)) {
             return
         }
         // 动画中的调用会被丢弃

@@ -19,6 +19,7 @@ import com.munch.lib.weight.calendar.CalendarView
 import com.munch.lib.weight.color.ColorPlateWithTouch
 import com.munch.lib.weight.wheelview.WheelView
 import com.munch.project.one.databinding.ActivitySimpleViewBinding
+import kotlinx.coroutines.delay
 import java.util.*
 
 /**
@@ -100,6 +101,10 @@ class SimpleViewActivity : BaseFastActivity(), ActivityDispatch by supportDef() 
         val bind = ActivitySimpleViewBinding.inflate(layoutInflater)
         setContentView(bind.root)
         ViewColorHelper.fitTextColor(bind.text, true)
+        bind.viewSwitch.setOnCheck {
+            delay(Random().nextInt(1000) + 300L)
+            true
+        }
     }
 
 }

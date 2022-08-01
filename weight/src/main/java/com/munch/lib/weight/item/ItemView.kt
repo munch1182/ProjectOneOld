@@ -14,9 +14,10 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.children
-import com.munch.lib.extend.*
+import com.munch.lib.extend.UpdateListener
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.icontext.dp2Px
+import com.munch.lib.extend.lazy
 import com.munch.lib.weight.ITextView
 import com.munch.lib.weight.R
 import com.munch.lib.weight.TouchHelper

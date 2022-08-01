@@ -215,7 +215,12 @@
         <com.munch.lib.weight.switchview.LoadingSwitch
             android:id="@+id/view_switch"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content">
+
+            <com.munch.lib.weight.loading.LoadingView
+                android:layout_width="24dp"
+                android:layout_height="24dp" />
+        </com.munch.lib.weight.switchview.LoadingSwitch>
     </com.munch.lib.weight.item.ItemView>
 
 </LinearLayout>

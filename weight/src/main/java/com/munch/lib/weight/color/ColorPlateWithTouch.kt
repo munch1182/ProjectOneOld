@@ -53,9 +53,9 @@ open class ColorPlateWithTouch @JvmOverloads constructor(
         event ?: return super.onTouchEvent(event)
         if (event.action == MotionEvent.ACTION_DOWN) performClick()
         updateEvent(event) { it in circle }
-        val h = calculateHue()
+        /*val h = calculateHue()
         val s = calculateSaturation()
-        val c = Color.HSVToColor(floatArrayOf(h, s, 1f))
+        val c = Color.HSVToColor(floatArrayOf(h, s, 1f))*/
         invalidate()
         return true
     }
