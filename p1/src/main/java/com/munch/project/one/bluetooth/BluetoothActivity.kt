@@ -17,19 +17,22 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewbinding.ViewBinding
 import com.munch.lib.OnCancel
-import com.munch.lib.bluetooth.*
+import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.Connector
+import com.munch.lib.bluetooth.GattCallbackDispatcher
+import com.munch.lib.bluetooth.OnConnectHandler
 import com.munch.lib.extend.LinearLineItemDecoration
 import com.munch.lib.extend.bind
+import com.munch.lib.extend.lazy
 import com.munch.lib.fast.base.BaseFastActivity
+import com.munch.lib.fast.base.launch
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
 import com.munch.lib.log.log
 import com.munch.lib.notice.Notice
 import com.munch.lib.notice.OnSelect
 import com.munch.lib.notice.OnSelectOk
-import com.munch.lib.recyclerview.BaseBindRvAdapter
-import com.munch.lib.recyclerview.BindViewHolder
-import com.munch.lib.recyclerview.registerViewHolder
+import com.munch.lib.recyclerview.*
 import com.munch.lib.result.ExplainContactNotice
 import com.munch.lib.result.contact
 import com.munch.project.one.databinding.ActivityBluetoothBinding
@@ -47,7 +50,28 @@ import kotlin.coroutines.resume
 class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     private val bind by bind<ActivityBluetoothBinding>()
-    private val adapter = object : BaseBindRvAdapter<Dev>() {
+    private val adapter = object : BaseBindRvAdapter<Dev>(
+        adapterFun = differ(
+            { d1, d2 ->
+                if (d1 is Dev.Ble && d2 is Dev.Ble) {
+                    d1.ble.rssi == d2.ble.rssi
+                } else if (d1 is Dev.Record && d2 is Dev.Record) {
+                    d1.record == d2.record
+                } else {
+                    false
+                }
+            },
+            { d1, d2 ->
+                if (d1 is Dev.Ble && d2 is Dev.Ble) {
+                    d1.ble.mac == d2.ble.mac
+                } else if (d1 is Dev.Record && d2 is Dev.Record) {
+                    d1.record == d2.record
+                } else {
+                    false
+                }
+            },
+        )
+    ) {
 
         init {
             registerViewHolder<ItemBluetoothBinding>(Dev.TYPE_BLE)
@@ -66,16 +90,14 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 }
                 Dev.TYPE_RECORD -> {
                     val r = (bean as Dev.Record).record
-                    (holder.bind as ItemBluetoothRecordBinding).apply {
-                        btRecord.text = r
-                    }
+                    (holder.bind as ItemBluetoothRecordBinding).apply { btRecord.text = r }
                 }
             }
         }
 
     }
-    private val instance = BluetoothHelper.instance
     private val barText by lazy { TextView(this) }
+    private val vm by lazy { BluetoothVM() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,10 +111,31 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             adapter = this@BluetoothActivity.adapter
         }
 
-        val e = Dev.Ble(BluetoothDev("123455"))
-        adapter.add(e)
-        e.children.forEach { adapter.add(it as Dev.Record) }
-        adapter.add(Dev.Ble(BluetoothDev("12345335")))
+        barText.text = "start scan"
+
+        barText.setOnClickListener {
+            checkOrRequest { vm.dispatcher.dispatch(BleIntent.StartOrStopScan) }
+        }
+        adapter.setOnItemClickListener { _, _ ->
+            // TODO: expend
+            //adapter.expend(holder.bindingAdapterPosition)
+        }
+
+        launch {
+            vm.dispatcher.state.collect {
+                when (it) {
+                    is BleUIState.Data -> adapter.set(it.data)
+                    BleUIState.None -> adapter.set(null)
+                    BleUIState.StartScan -> barText.text = "stop scan"
+                    BleUIState.StopScan -> barText.text = "start scan"
+                }
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        vm.dispatcher.dispatch(BleIntent.Destroy)
     }
 
     private class TheHandler : OnConnectHandler {
@@ -185,7 +228,7 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
         }.contact(
-            { instance.isEnable },
+            { BluetoothHelper.instance.isEnable },
             { Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE) }
         ).contact(
             {

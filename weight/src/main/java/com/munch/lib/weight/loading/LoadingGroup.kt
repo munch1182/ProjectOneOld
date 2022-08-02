@@ -5,7 +5,10 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
-import com.munch.lib.extend.*
+import com.munch.lib.extend.SealedClassToStringByName
+import com.munch.lib.extend.layoutCenter
+import com.munch.lib.extend.paddingHorizontal
+import com.munch.lib.extend.paddingVertical
 import com.munch.lib.weight.IColorView
 import com.munch.lib.weight.R
 import kotlinx.coroutines.*

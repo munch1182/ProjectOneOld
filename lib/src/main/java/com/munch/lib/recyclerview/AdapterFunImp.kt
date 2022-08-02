@@ -35,11 +35,11 @@ sealed class AdapterFunImp<D>(
         this.adapter = adapter
     }
 
-    class Default<D>(
+    open class Default<D>(
         mainHandler: Handler = ThreadHelper.mainHandler
     ) : AdapterFunImp<D>(mainHandler) {
 
-        private val list = mutableListOf<D>()
+        protected open val list = mutableListOf<D>()
 
         override val itemSize: Int
             get() = list.size
@@ -168,7 +168,7 @@ sealed class AdapterFunImp<D>(
         private val callback: DiffUtil.ItemCallback<D>,
         mainHandler: Handler = ThreadHelper.mainHandler,
         private val runnable: Runnable? = null
-    ) : AdapterFunImp<D>(mainHandler) {
+    ) : Default<D>(mainHandler) {
 
         private var differ: AsyncListDiffer<D>? = null
 
@@ -180,7 +180,7 @@ sealed class AdapterFunImp<D>(
         override val itemSize: Int
             get() = list.size
 
-        private val list: MutableList<D>
+        override val list: MutableList<D>
             get() = differ?.currentList ?: mutableListOf()
 
         override fun set(newData: List<D>?) {
@@ -192,85 +192,5 @@ sealed class AdapterFunImp<D>(
                 differ?.submitList(newData, runnable)
             }
         }
-
-        override fun add(index: Int, element: D) =
-            set(ArrayList(list).apply { add(index, element) })
-
-        override fun add(index: Int, elements: Collection<D>) =
-            set(ArrayList(list).apply { addAll(index, elements) })
-
-        override fun remove(element: D) {
-            val pos = list.indexOf(element)
-            if (pos == -1) {
-                return
-            }
-            set(ArrayList(list).apply { remove(element) })
-        }
-
-        override fun remove(startIndex: Int, size: Int) {
-            val list = ArrayList(list)
-            val endIndex = startIndex + size
-            if (endIndex <= list.size) {
-                list.removeAll(list.subList(startIndex, endIndex).toSet())
-                set(list)
-            }
-        }
-
-        override fun remove(element: Collection<D?>) {
-            val newData = ArrayList(list)
-            element.forEach {
-                getIndex(it ?: return@forEach) ?: return@forEach
-                newData.remove(it)
-            }
-            set(newData)
-        }
-
-        override fun update(index: Int, element: D, payload: Any?) {
-            val size = list.size
-            if (index in 0 until size) {
-                set(ArrayList(list).apply { set(index, element) })
-            }
-        }
-
-        override fun update(start: Int, end: Int, payload: Any?) {
-            val adapter = adapter ?: return
-            adapter.notifyItemRangeChanged(start, end - start, payload)
-        }
-
-        override fun update(startIndex: Int, elements: Collection<D>, payload: Any?) {
-            val size = list.size
-            val updateCount = elements.size
-            //如果更改的数据在原有数据范围内
-            if ((startIndex + updateCount) in 0 until size) {
-                val newData = ArrayList(list)
-                elements.forEachIndexed { index, d -> list[startIndex + index] = d }
-                set(newData)
-            }
-        }
-
-        override fun add(element: D) = add(list.size, element)
-        override fun add(elements: Collection<D>) = add(list.size, elements)
-        override fun remove(index: Int) = remove(index, 1)
-
-        override fun updateOrThrow(index: Int, element: D, payload: Any?) {
-            if (list.size <= index) {
-                throw IndexOutOfBoundsException()
-            }
-            update(index, element)
-        }
-
-        override fun updateOrThrow(startIndex: Int, elements: Collection<D>, payload: Any?) {
-            val size = list.size
-            val updateCount = elements.size
-            //如果更改的数据在原有数据范围内
-            if ((startIndex + updateCount) >= size) {
-                throw IndexOutOfBoundsException()
-            }
-            update(startIndex, elements)
-        }
-
-        override fun get(index: Int) = if (list.size <= index) null else list[index]
-        override fun getIndex(element: D): Int? = list.indexOf(element).takeIf { it != -1 }
-        override fun contains(element: D): Boolean = list.contains(element)
     }
 }

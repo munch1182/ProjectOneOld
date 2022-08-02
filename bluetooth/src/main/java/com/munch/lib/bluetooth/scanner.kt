@@ -295,11 +295,13 @@ internal class BleScanner(
                     throw IllegalStateException("scan state repeat: $value")
                 }
                 field = value
-                _isScanningData.postValue(field)
-                log.log { "curr isScanning: $_isScanning." }
-                if (field) {
+                _isScanningData.postValue(value)
+                log.log { "curr isScanning: $value." }
+                if (value) {
+                    registeredScanListener?.onStart()
                     scanListener?.onStart()
                 } else {
+                    registeredScanListener?.onComplete()
                     scanListener?.onComplete()
                 }
             }
@@ -375,6 +377,9 @@ internal class BleScanner(
             return true
         }
         log.log { "scanner STOP SCAN." }
+
+        registeredScanListener?.onComplete()
+        scanListener?.onComplete()
 
         scanner?.stopScan(callback)
 

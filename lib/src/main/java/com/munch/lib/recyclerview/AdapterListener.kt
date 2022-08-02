@@ -13,17 +13,17 @@ interface OnItemClickListener<VH : BaseViewHolder> : View.OnClickListener,
     @Suppress("UNCHECKED_CAST")
     override fun onClick(v: View?) {
         val holder = v?.getTag(R.id.id_tag) as? VH? ?: return
-        onClick(v, holder.bindingAdapterPosition, holder)
+        onClick(v, holder)
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun onLongClick(v: View?): Boolean {
         val holder = v?.getTag(R.id.id_tag) as? VH? ?: return false
-        return onLongClick(v, holder.bindingAdapterPosition, holder)
+        return onLongClick(v, holder)
     }
 
-    fun onClick(v: View?, pos: Int, holder: VH) {}
-    fun onLongClick(v: View?, pos: Int, holder: VH): Boolean = false
+    fun onClick(v: View?, holder: VH) {}
+    fun onLongClick(v: View?, holder: VH): Boolean = false
 }
 
 interface AdapterClickListener<VH : BaseViewHolder> {

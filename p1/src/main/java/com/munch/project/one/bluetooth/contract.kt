@@ -1,21 +1,23 @@
 package com.munch.project.one.bluetooth
 
 import com.munch.lib.bluetooth.BluetoothDev
-import com.munch.lib.extend.times
+import com.munch.lib.extend.SealedClassToStringByName
 import com.munch.lib.recyclerview.ItemNode
-import kotlin.random.Random
 
 
-internal sealed class BleIntent {
+internal sealed class BleIntent : SealedClassToStringByName() {
 
-    object Refresh : BleIntent()
-    object Request : BleIntent()
-
+    object StartOrStopScan : BleIntent()
+    object Destroy : BleIntent()
 }
 
-internal sealed class BleUIState {
+internal sealed class BleUIState : SealedClassToStringByName() {
 
     class Data(val data: List<Dev>) : BleUIState()
+    object StartScan : BleUIState()
+    object StopScan : BleUIState()
+
+    object None : BleUIState()
 }
 
 internal sealed class Dev {
@@ -28,8 +30,7 @@ internal sealed class Dev {
     class Ble(val ble: BluetoothDev) : Dev(), ItemNode {
         override fun getItemType(pos: Int) = TYPE_BLE
         override var isExpand: Boolean = false
-        override val children: List<ItemNode> =
-            MutableList(Random.nextInt(4) + 2) { Record(it.toString() * 5) }
+        override val children: List<ItemNode> = mutableListOf()
     }
 
     class Record(val record: String) : Dev(), ItemNode {

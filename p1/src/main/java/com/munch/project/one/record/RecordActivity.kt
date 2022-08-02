@@ -56,8 +56,8 @@ class RecordActivity : BaseFastActivity(),
             }
         }
 
-        adapter.setOnItemClickListener { _, pos, _ ->
-            val get = adapter.get(pos)
+        adapter.setOnItemClickListener { _, holder ->
+            val get = adapter.get(holder.bindingAdapterPosition)
             AlertDialog.Builder(this)
                 .setMessage("${get?.log}\n${get?.thread}")
                 .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog?.cancel() }

@@ -102,8 +102,8 @@ inline fun Activity.fvClassRv(target: List<KClass<*>>) =
 
             override fun onViewAdd() {
                 super.onViewAdd()
-                adapter.setOnItemClickListener { _, pos, _ ->
-                    target.getOrNull(pos)?.let {
+                adapter.setOnItemClickListener { _, holder ->
+                    target.getOrNull(holder.bindingAdapterPosition)?.let {
                         try {
                             startActivity(Intent(this@fvClassRv, it.java))
                         } catch (e: Exception) {

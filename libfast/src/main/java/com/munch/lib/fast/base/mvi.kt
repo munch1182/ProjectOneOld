@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.munch.lib.extend.lazy
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 
 interface StateEventDispatcher<STATE, EVENT> {
     val state: StateFlow<STATE>
-    suspend fun dispatch(event: EVENT)
+    fun dispatch(event: EVENT)
 }
 
 interface MutableStateEventDispatcher<STATE, EVENT> : StateEventDispatcher<STATE, EVENT> {
@@ -24,7 +25,7 @@ interface MutableStateEventDispatcher<STATE, EVENT> : StateEventDispatcher<STATE
     val event: SharedFlow<EVENT>
 
     fun update(action: STATE)
-    override suspend fun dispatch(event: EVENT)
+    override fun dispatch(event: EVENT)
 }
 
 class MutableStateEventDispatcherImp<STATE, EVENT>(
@@ -37,12 +38,12 @@ class MutableStateEventDispatcherImp<STATE, EVENT>(
     private val _event = MutableSharedFlow<EVENT>()
     override val event: SharedFlow<EVENT> = _event
 
-    override suspend fun dispatch(event: EVENT) {
-        _event.emit(event)
+    override fun dispatch(event: EVENT) {
+        scope.launch(Dispatchers.Default) { _event.emit(event) }
     }
 
     override fun update(action: STATE) {
-        scope.launch { _state.emit(action) }
+        scope.launch(Dispatchers.Default) { _state.emit(action) }
     }
 }
 

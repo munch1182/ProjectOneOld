@@ -89,7 +89,7 @@ class BluetoothHelper private constructor(
     }
 
     override fun stop(): Boolean {
-        if (isScanning.value == true) {
+        if (isScanningNow) {
             return scanner.stop()
         }
         cache.values.forEach { it.stop() }
