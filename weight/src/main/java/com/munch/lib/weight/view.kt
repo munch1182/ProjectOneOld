@@ -37,9 +37,9 @@ interface ViewHelper {
         val height = if (widthMode != View.MeasureSpec.EXACTLY) {
             view.context.dp2Px(hDefaultDp).toInt()
         } else {
-            View.MeasureSpec.getSize(widthMeasureSpec)
+            View.MeasureSpec.getSize(heightMeasureSpec)
         }
-        return width + view.paddingHorizontal() to height + view.paddingVertical()
+        return (width + view.paddingHorizontal()) to (height + view.paddingVertical())
     }
 
     fun updateViewRect(view: View, w: Int, h: Int) {

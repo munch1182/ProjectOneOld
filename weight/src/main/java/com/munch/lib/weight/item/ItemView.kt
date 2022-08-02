@@ -18,6 +18,8 @@ import com.munch.lib.extend.UpdateListener
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.icontext.dp2Px
 import com.munch.lib.extend.lazy
+import com.munch.lib.extend.paddingHorizontal
+import com.munch.lib.extend.paddingVertical
 import com.munch.lib.weight.ITextView
 import com.munch.lib.weight.R
 import com.munch.lib.weight.TouchHelper
@@ -231,11 +233,11 @@ open class ItemView @JvmOverloads constructor(
             measureChild(
                 textIcon,
                 MeasureSpec.makeMeasureSpec(
-                    titleIconWidth.toInt() + paddingStart + paddingEnd,
+                    titleIconWidth.toInt() + paddingHorizontal(),
                     MeasureSpec.EXACTLY
                 ),
                 MeasureSpec.makeMeasureSpec(
-                    titleIconHeight.toInt() + paddingStart + paddingEnd,
+                    titleIconHeight.toInt() + paddingVertical(),
                     MeasureSpec.EXACTLY
                 ),
             )
@@ -245,16 +247,16 @@ open class ItemView @JvmOverloads constructor(
         findChild()?.let {
             measureChild(
                 it,
-                MeasureSpec.makeMeasureSpec(w, MeasureSpec.UNSPECIFIED),
-                MeasureSpec.makeMeasureSpec(maxH.toInt(), MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(w, MeasureSpec.AT_MOST),
+                MeasureSpec.makeMeasureSpec(h, MeasureSpec.AT_MOST),
             )
             maxW += it.measuredWidth
             maxH = max(it.measuredHeight.toFloat(), maxH)
         }
         maxW += b.textIconMarginStart + b.textIconMarginEnd + b.titleIconMarginStart + b.titleIconMarginEnd
 
-        maxW += paddingLeft + paddingRight
-        maxH += paddingTop + paddingBottom
+        maxW += paddingHorizontal()
+        maxH += paddingVertical()
 
         setMeasuredDimension(max(maxW.toInt(), w), min(maxH.toInt(), h))
     }

@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
+import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -19,6 +20,9 @@ import android.widget.CompoundButton
 import android.widget.EditText
 import androidx.core.view.children
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.OnIndexListener
@@ -286,3 +290,57 @@ inline fun Sequence<CompoundButton>.checkOnly(
     noinline onIndex: OnIndexListener?
 ) = toList().checkOnly(checkIndex, onIndex)
 //</editor-fold>
+
+abstract class LifecycleOwnerView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    defStyleRes: Int = 0
+) : View(context, attrs, defStyleAttr, defStyleRes), LifecycleOwner {
+
+    private val mLifecycleRegistry = LifecycleRegistry(this)
+
+    init {
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    }
+
+    override fun getLifecycle() = mLifecycleRegistry
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    }
+
+    override fun onDetachedFromWindow() {
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        super.onDetachedFromWindow()
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    }
+}
+
+abstract class LifecycleOwnerViewGroup @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    defStyleRes: Int = 0
+) : ViewGroup(context, attrs, defStyleAttr, defStyleRes), LifecycleOwner {
+
+    private val mLifecycleRegistry = LifecycleRegistry(this)
+
+    init {
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    }
+
+    override fun getLifecycle() = mLifecycleRegistry
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    }
+
+    override fun onDetachedFromWindow() {
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        super.onDetachedFromWindow()
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    }
+}

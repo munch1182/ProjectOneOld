@@ -101,10 +101,10 @@ class SimpleViewActivity : BaseFastActivity(), ActivityDispatch by supportDef() 
         val bind = ActivitySimpleViewBinding.inflate(layoutInflater)
         setContentView(bind.root)
         ViewColorHelper.fitTextColor(bind.text, true)
-        bind.viewSwitch.setOnCheck {
-            delay(Random().nextInt(1000) + 300L)
-            true
-        }
+
+        bind.viewSwitch
+            .setOnLoadComplete { bind.vSwitch.toggle() }
+            .setOnClickListener { bind.viewSwitch.load { delay(300L + Random().nextInt(300)) } }
     }
 
 }

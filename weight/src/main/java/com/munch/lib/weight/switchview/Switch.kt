@@ -8,6 +8,8 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Checkable
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.munch.lib.extend.SealedClassToStringByName
 import com.munch.lib.extend.ViewUpdateListener
 import com.munch.lib.extend.icontext.IContext
@@ -47,9 +49,16 @@ class Switch @JvmOverloads constructor(
     private val roundRectangle = Shape.RoundRectangle()
     private val circle = Shape.Circle()
     private val circlePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private var isCheck = false
+    private var isCheckValue = false
+        set(value) {
+            field = value
+            _checkLiveData.postValue(value)
+        }
     private val move = Move()
     private var onCheckListener: OnCheckListener? = null
+
+    private val _checkLiveData = MutableLiveData(isCheckValue)
+    val checkLiveData: LiveData<Boolean> = _checkLiveData
 
     var checkFrom: CheckType = CheckType.Any
     var direction: Direction = Direction.Left2Right
@@ -63,9 +72,9 @@ class Switch @JvmOverloads constructor(
     var uncheckCenterColor = Color.WHITE
 
     private val nowBgColor: Int
-        get() = if (isCheck) checkBgColor else uncheckBgColor
+        get() = if (isCheckValue) checkBgColor else uncheckBgColor
     private val nowCenterColor: Int
-        get() = if (isCheck) checkCenterColor else uncheckCenterColor
+        get() = if (isCheckValue) checkCenterColor else uncheckCenterColor
 
     init {
         paint.style = Paint.Style.FILL
@@ -88,7 +97,7 @@ class Switch @JvmOverloads constructor(
             uncheckBgColor = getColor(R.styleable.Switch_switch_uncheckBgColor, uncheckBgColor)
             uncheckCenterColor =
                 getColor(R.styleable.Switch_switch_uncheckCenterColor, uncheckCenterColor)
-            isCheck = getBoolean(R.styleable.Switch_android_checked, false)
+            isCheckValue = getBoolean(R.styleable.Switch_android_checked, false)
             move.speed = getFloat(R.styleable.Switch_switch_speed, move.speed)
             if (0f <= move.speed || move.speed >= 1f) {
                 move.speed = 0.1f
@@ -185,7 +194,7 @@ class Switch @JvmOverloads constructor(
         return true
     }
 
-    override fun isChecked() = isCheck
+    override fun isChecked() = isCheckValue
     override fun toggle() {
         isChecked = !isChecked
     }
@@ -203,8 +212,8 @@ class Switch @JvmOverloads constructor(
             return
         }
         // 动画中的调用会被丢弃
-        if (move.isAnim || isCheck == checked) return
-        isCheck = checked
+        if (move.isAnim || isCheckValue == checked) return
+        isCheckValue = checked
         move.performUpdate(needAnim)
         invalidate()
     }

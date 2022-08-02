@@ -13,6 +13,7 @@ import com.munch.lib.weight.IColorView
 import com.munch.lib.weight.R
 import com.munch.lib.weight.ViewHelper
 import com.munch.lib.weight.ViewHelperDefault
+import kotlin.math.max
 
 class LoadingView @JvmOverloads constructor(
     context: Context,
@@ -51,7 +52,7 @@ class LoadingView @JvmOverloads constructor(
     //旋转速度
     var speed = 80L
     var shapeAlpha = 0.12f
-    var minShapeAlpha = 0.25f
+    var minShapeAlpha = 0.3f
 
     private var degrees = -(360f / shapeCount)
     private val shapeColor = getShapeColor()
@@ -72,9 +73,8 @@ class LoadingView @JvmOverloads constructor(
         val b = Color.blue(mainColor)
         val min = (minShapeAlpha * 255).toInt()
         return MutableList(shapeCount) {
-            var a = (255 * (1 - it * shapeAlpha)).toInt()
-            if (a < min) a = min
-            Color.argb(a, r, g, b)
+            val a = (255 * (1 - it * shapeAlpha)).toInt()
+            Color.argb(max(a, min), r, g, b)
         }
     }
 

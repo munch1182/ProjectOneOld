@@ -159,28 +159,11 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
-        app:item_text="***"
         app:item_textIcon="@drawable/ic_next_24"
         app:item_textIcon_marginStart="16dp"
         app:item_title="用户信息"
         app:item_titleIcon="@drawable/ic_user"
         app:item_titleIcon_marginEnd="16dp"
-        app:item_title_textSize="16sp"
-        tools:ignore="HardcodedText" />
-
-    <View style="@style/StyleLineSplit" />
-
-    <com.munch.lib.weight.item.ItemView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorWhite"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?attr/selectableItemBackground"
-        app:item_textIcon="@drawable/ic_next_24"
-        app:item_textSize="12sp"
-        app:item_title="我的收藏"
-        app:item_titleIcon="@drawable/ic_favorite"
         app:item_title_textSize="16sp"
         tools:ignore="HardcodedText" />
 
@@ -206,21 +189,42 @@
         android:clickable="true"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackground"
+        app:item_text="共10篇"
+        app:item_textIcon="@drawable/ic_next_24"
+        app:item_textSize="12sp"
+        app:item_title="我的收藏"
+        app:item_titleIcon="@drawable/ic_favorite"
+        app:item_title_textSize="16sp"
+        tools:ignore="HardcodedText" />
+
+    <View style="@style/StyleLineSplit" />
+
+    <com.munch.lib.weight.item.ItemView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
         app:item_textColor="@color/colorTextGray"
         app:item_title="自动收藏"
         app:item_titleIcon="@drawable/ic_note"
         app:item_title_textSize="16sp"
         tools:ignore="HardcodedText">
 
-        <com.munch.lib.weight.switchview.LoadingSwitch
+        <com.munch.lib.weight.loading.LoadingGroup
             android:id="@+id/view_switch"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:lg_initializeState="child">
 
-            <com.munch.lib.weight.loading.LoadingView
-                android:layout_width="24dp"
-                android:layout_height="24dp" />
-        </com.munch.lib.weight.switchview.LoadingSwitch>
+            <com.munch.lib.weight.switchview.Switch
+                android:id="@+id/v_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:switch_checkFrom="call" />
+        </com.munch.lib.weight.loading.LoadingGroup>
     </com.munch.lib.weight.item.ItemView>
+
 
 </LinearLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LoadingGroup">
+        <attr name="lg_initializeState">
+            <flag name="loading" value="1" />
+            <flag name="child" value="0" />
+        </attr>
+        <attr name="lg_loading_width" format="dimension" />
+        <attr name="lg_loading_height" format="dimension" />
+    </declare-styleable>
+</resources>
