@@ -15,7 +15,7 @@ ext {
             ACTIVITY_VERSION  : "1.4.0",
             FRAGMENT_VERSION  : "1.4.1",
             ROOM_VERSION      : "2.4.2",
-            GLIDE_VERSION     : "4.13.1",
+            GLIDE_VERSION     : "4.13.2",
             RETROFIT_VERSION  : "2.9.0",
 
             LIFECYCLE_VERSION : "2.4.0",

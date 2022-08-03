@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
-import androidx.core.view.isVisible
 import com.munch.lib.extend.UpdateListener
 import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.lazy
@@ -26,7 +25,7 @@ class Shape @JvmOverloads constructor(
         var topRightRadius: Float = 0f
         var bottomLeftRadius: Float = 0f
         var bottomRightRadius: Float = 0f
-        var color: Int = Color.WHITE
+        var color: Int = Color.TRANSPARENT
         var strokeColor: Int = Color.WHITE
         var strokeAlpha: Int = 0
         var strokeWidth: Float = 0f
@@ -119,13 +118,25 @@ class Shape @JvmOverloads constructor(
     }
 
     override fun setColor(color: Int) {
-        update { this.color = color }
+        update {
+            if (b.color != Color.TRANSPARENT) {
+                this.color = color
+            }
+            if (b.strokeWidth > 0f) {
+                this.strokeColor = color
+            }
+        }
     }
 
     private fun updateViewBackground() {
         val v = getView() ?: return
         updateDrawable()
         v.background = drawable
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        updateViewBackground()
     }
 
     override fun updateDrawable(): GradientDrawable {
@@ -166,15 +177,5 @@ class Shape @JvmOverloads constructor(
         }
         drawable.state = b.state
         return drawable
-    }
-
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        if (isVisible) updateViewBackground()
-    }
-
-    override fun setBackground(background: Drawable?) {
-        super.setBackground(background)
-        updateViewBackground()
     }
 }

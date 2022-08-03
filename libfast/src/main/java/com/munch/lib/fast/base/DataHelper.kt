@@ -1,5 +1,6 @@
 package com.munch.lib.fast.base
 
+import com.munch.lib.extend.catch
 import com.munch.lib.fast.helper.MMKVHelper
 import com.munch.lib.helper.data.DataFun
 
@@ -18,6 +19,6 @@ object DataHelper : DataFun<String> by MMKVHelper.default() {
 
     val startUp: Class<*>?
         get() = get<String>(KEY_START_UP, null)
-            ?.let { Class.forName(it) }
+            ?.let { catch { Class.forName(it) } }
     //</editor-fold>
 }

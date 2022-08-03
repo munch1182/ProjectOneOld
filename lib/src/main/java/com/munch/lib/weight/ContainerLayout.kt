@@ -4,8 +4,10 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Space
 import androidx.core.view.children
 import androidx.core.view.isVisible
+import com.munch.lib.log.log
 
 open class ContainerLayout @JvmOverloads constructor(
     context: Context,
@@ -20,7 +22,8 @@ open class ContainerLayout @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val child = getChild()
         if (child == null) {
-            setMeasuredDimension(0, 0)
+            setMeasuredDimension(1, 1)
+            visibility = View.INVISIBLE
         } else {
             measureChild(child, widthMeasureSpec, heightMeasureSpec)
             setMeasuredDimension(child.measuredWidth, child.measuredHeight)

@@ -118,11 +118,20 @@ fun Context.getIdsArray(@ArrayRes arrayId: Int): IntArray {
 }
 
 fun Context.putStr2Clip(content: CharSequence): Boolean {
-    val cm =
-        getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return false
+    val cm = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return false
     val mClipData = ClipData.newPlainText(content, content)
     cm.setPrimaryClip(mClipData)
     return true
+}
+
+/**
+ * 获取剪切板内容
+ *
+ * 注意: 只有在输入控件有焦点时才有用
+ */
+fun Context.getClipStr(): String? {
+    val cm = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return null
+    return catch { cm.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString() }
 }
 
 fun Context.shareText(content: CharSequence) {

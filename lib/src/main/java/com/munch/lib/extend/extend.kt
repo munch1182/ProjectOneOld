@@ -8,12 +8,9 @@ import android.view.ViewGroup
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.viewbinding.ViewBinding
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -131,6 +128,9 @@ fun <T> Type.findParameterized(target: Class<in T>): Class<T>? {
         else -> return null
     }
 }
+
+inline fun <T> runBlockingSuspendCancellableCoroutine(crossinline block: (CancellableContinuation<T>) -> Unit): T? =
+    runBlocking { kotlinx.coroutines.suspendCancellableCoroutine(block) }
 
 suspend inline fun <T> suspendCancellableCoroutine(
     timeout: Long,
