@@ -18,6 +18,8 @@ dependencies {
     kapt deps['glideCompiler']
     implementation deps['retrofit']
     implementation deps['retrofitGson']
+    implementation deps['okhttp']
+    implementation deps['okhttpInterceptor']
 
     releaseImplementation lib['weight']
     releaseImplementation lib['libfast']

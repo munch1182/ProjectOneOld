@@ -1,4 +1,4 @@
-package com.munch.project.one.web
+package com.munch.project.one.net
 
 import android.graphics.Color
 import android.os.Bundle
@@ -10,6 +10,7 @@ import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.helper.ViewColorHelper
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
+import com.munch.lib.log.log
 import com.munch.project.one.databinding.ActivityWebBinding
 
 class WebActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
@@ -39,5 +40,6 @@ class WebActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
     }
 
     private fun analyzeInput(s: String) {
+        log(s)
     }
 }

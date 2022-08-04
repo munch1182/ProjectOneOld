@@ -9,9 +9,9 @@ import com.munch.lib.fast.view.fvClassRv
 import com.munch.project.one.about.AboutActivity
 import com.munch.project.one.bluetooth.BluetoothActivity
 import com.munch.project.one.file.FileActivity
-import com.munch.project.one.web.WebActivity
 import com.munch.project.one.log.LogActivity
 import com.munch.project.one.net.NetActivity
+import com.munch.project.one.net.WebActivity
 import com.munch.project.one.record.RecordActivity
 import com.munch.project.one.result.ResultActivity
 import com.munch.project.one.skin.SkinActivity

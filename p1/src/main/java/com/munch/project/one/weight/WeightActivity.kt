@@ -9,7 +9,6 @@ import com.munch.lib.extend.dp2Px
 import com.munch.lib.extend.newWWLp
 import com.munch.lib.extend.toDateStr
 import com.munch.lib.fast.base.BaseFastActivity
-import com.munch.lib.fast.helper.ViewColorHelper
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.fvClassRv
 import com.munch.lib.fast.view.supportDef
