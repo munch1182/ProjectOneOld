@@ -2,6 +2,7 @@ package com.munch.lib.recyclerview
 
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.extend.ViewCreator
 
@@ -14,7 +15,7 @@ import com.munch.lib.extend.ViewCreator
  */
 abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
     private val provider: VHProvider,
-    private val adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
+    private val adapterFun: IAdapterFun<D> = AdapterFunImp2(),
     private val clickHelper: AdapterClickHandler<VH> = AdapterListenerHelper(),
 ) : RecyclerView.Adapter<VH>(),
     VHProvider by provider,
@@ -23,13 +24,13 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
 
     constructor(
         @LayoutRes res: Int = 0,
-        adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
+        adapterFun: IAdapterFun<D> = AdapterFunImp2(),
         clickHelper: AdapterClickHandler<VH> = AdapterListenerHelper()
     ) : this(SimpleVHProvider(res), adapterFun, clickHelper)
 
     constructor(
         viewCreator: ViewCreator,
-        adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
+        adapterFun: IAdapterFun<D> = AdapterFunImp2(),
         clickHelper: AdapterClickHandler<VH> = AdapterListenerHelper()
     ) : this(SimpleVHProvider(viewCreator), adapterFun, clickHelper)
 

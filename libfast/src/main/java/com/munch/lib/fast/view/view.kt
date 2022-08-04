@@ -84,7 +84,7 @@ inline fun <D, B : ViewBinding> Activity.fvHelperBindRv(
  */
 inline fun Activity.fvLinesRv(
     str: List<Pair<String, String>>,
-    funImp: AdapterFunImp<Pair<String, String>> = AdapterFunImp.Default()
+    funImp: IAdapterFun<Pair<String, String>> = AdapterFunImp2()
 ) = fv<FVLinesRvView> { FVLinesRvView(this, str, funImp) }
 
 /**
@@ -204,7 +204,7 @@ open class FVLineRvView(context: Context, str: List<String>) :
 class FVLinesRvView(
     context: Context,
     str: List<Pair<String, String>>,
-    funImp: AdapterFunImp<Pair<String, String>> = AdapterFunImp.Default()
+    funImp: IAdapterFun<Pair<String, String>> = AdapterFunImp2()
 ) : FVRecyclerHelperView<Pair<String, String>, BaseViewHolder>(
     context,
     AdapterHelper(object : RVAdapter<Pair<String, String>>({ ctx ->

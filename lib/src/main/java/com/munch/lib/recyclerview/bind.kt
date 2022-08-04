@@ -14,7 +14,7 @@ import com.munch.lib.extend.lazy
 open class BindViewHolder<B : ViewBinding>(open val bind: B) : BaseViewHolder(bind.root)
 
 abstract class BindRVAdapter<D, VB : ViewBinding>(
-    adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
+    adapterFun: IAdapterFun<D> = AdapterFunImp2(),
     clickHelper: AdapterClickHandler<BindViewHolder<VB>> = AdapterListenerHelper(),
 ) : BaseRecyclerViewAdapter<D, BindViewHolder<VB>>(
     provider = DefaultVHProvider(),
@@ -36,7 +36,7 @@ abstract class BindRVAdapter<D, VB : ViewBinding>(
 }
 
 abstract class BaseBindRvAdapter<D>(
-    adapterFun: AdapterFunImp<D> = AdapterFunImp.Default(),
+    adapterFun: IAdapterFun<D> = AdapterFunImp2(),
     clickHelper: AdapterClickHandler<BindViewHolder<ViewBinding>> = AdapterListenerHelper(),
 ) : BaseRecyclerViewAdapter<D, BindViewHolder<ViewBinding>>(0, adapterFun, clickHelper)
 

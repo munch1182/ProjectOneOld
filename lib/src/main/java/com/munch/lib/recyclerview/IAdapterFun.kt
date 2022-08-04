@@ -6,7 +6,7 @@ package com.munch.lib.recyclerview
  *
  * Create by munch1182 on 2021/12/6 16:24.
  */
-interface IAdapterFun<D> {
+interface IAdapterFun<D> : AdapterProvider {
 
     val itemSize: Int
 
@@ -79,12 +79,4 @@ interface IAdapterFun<D> {
     fun get(index: Int): D?
     fun getIndex(element: D): Int?
     fun contains(element: D): Boolean
-}
-
-interface DataHandler<D> {
-    fun handle(data: MutableList<D>): MutableList<D> {
-        return data.filter { handle(it) != null }.toMutableList()
-    }
-
-    fun handle(data: D): D?
 }
