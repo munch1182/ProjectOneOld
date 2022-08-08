@@ -15,6 +15,7 @@ import com.munch.lib.fast.view.supportDef
 import com.munch.lib.log.log
 import com.munch.lib.weight.calendar.CalendarHeaderView
 import com.munch.lib.weight.calendar.CalendarView
+import com.munch.lib.weight.chart.PointChartView
 import com.munch.lib.weight.color.ColorPlateWithTouch
 import com.munch.lib.weight.wheelview.WheelView
 import com.munch.project.one.databinding.ActivitySimpleViewBinding
@@ -33,7 +34,8 @@ class WeightActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             CalendarActivity::class,
             WheelActivity::class,
             SimpleViewActivity::class,
-            RecyclerViewHeaderActivity::class
+            RecyclerViewHeaderActivity::class,
+            ChartViewActivity::class
         )
     )
 
@@ -105,4 +107,11 @@ class SimpleViewActivity : BaseFastActivity(), ActivityDispatch by supportDef() 
             .setOnClickListener { bind.viewSwitch.load { delay(300L + Random().nextInt(300)) } }
     }
 
+}
+
+class ChartViewActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(PointChartView(this).apply { setPadding(dp2Px(16f).toInt()) })
+    }
 }

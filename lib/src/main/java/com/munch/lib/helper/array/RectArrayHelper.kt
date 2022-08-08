@@ -104,6 +104,7 @@ class PointFArrayHelper : SpecialFloatArrayHelper(2), Iterable<PointF> {
 
         override fun hasNext() = elementLine < size
 
+        // 注意使用的pointF是缓存
         override fun next(): PointF {
             val index = elementLine
             pointF.set(getX(index), getY(index))
