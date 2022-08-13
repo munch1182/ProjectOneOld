@@ -21,14 +21,11 @@ import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.Connector
 import com.munch.lib.bluetooth.GattCallbackDispatcher
 import com.munch.lib.bluetooth.OnConnectHandler
-import com.munch.lib.extend.LinearLineItemDecoration
-import com.munch.lib.extend.bind
-import com.munch.lib.extend.lazy
+import com.munch.lib.extend.*
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.base.launch
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
-import com.munch.lib.log.log
 import com.munch.lib.notice.Notice
 import com.munch.lib.notice.OnSelect
 import com.munch.lib.notice.OnSelectOk
@@ -50,52 +47,6 @@ import kotlin.coroutines.resume
 class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     private val bind by bind<ActivityBluetoothBinding>()
-    private val adapter = object : BaseBindRvAdapter<Dev>(
-        adapterFun = differ(
-            { d1, d2 ->
-                if (d1 is Dev.Ble && d2 is Dev.Ble) {
-                    d1.ble.rssi == d2.ble.rssi
-                } else if (d1 is Dev.Record && d2 is Dev.Record) {
-                    d1.record == d2.record
-                } else {
-                    false
-                }
-            },
-            { d1, d2 ->
-                if (d1 is Dev.Ble && d2 is Dev.Ble) {
-                    d1.ble.mac == d2.ble.mac
-                } else if (d1 is Dev.Record && d2 is Dev.Record) {
-                    d1.record == d2.record
-                } else {
-                    false
-                }
-            },
-        )
-    ) {
-
-        init {
-            registerViewHolder<ItemBluetoothBinding>(Dev.TYPE_BLE)
-                .registerViewHolder<ItemBluetoothRecordBinding>(Dev.TYPE_RECORD)
-        }
-
-        override fun onBind(holder: BindViewHolder<ViewBinding>, bean: Dev) {
-            when (holder.itemViewType) {
-                Dev.TYPE_BLE -> {
-                    val ble = (bean as Dev.Ble).ble
-                    (holder.bind as ItemBluetoothBinding).apply {
-                        btDevMac.text = ble.mac
-                        btDevName.text = ble.name?.takeIf { it.isNotEmpty() } ?: "N/A"
-                        btDevRssi.text = "${ble.rssi}dbm"
-                    }
-                }
-                Dev.TYPE_RECORD -> {
-                    val r = (bean as Dev.Record).record
-                    (holder.bind as ItemBluetoothRecordBinding).apply { btRecord.text = r }
-                }
-            }
-        }
-
-    }
     private val barText by lazy { TextView(this) }
     private val vm by lazy { BluetoothVM() }
 
@@ -104,11 +55,12 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
         addRight(barText)
 
+        val devAdapter = DevAdapter()
         bind.btRv.apply {
             val lm = LinearLayoutManager(this@BluetoothActivity)
             layoutManager = lm
             addItemDecoration(LinearLineItemDecoration(lm))
-            adapter = this@BluetoothActivity.adapter
+            adapter = devAdapter
         }
 
         barText.text = "start scan"
@@ -116,16 +68,29 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         barText.setOnClickListener {
             checkOrRequest { vm.dispatcher.dispatch(BleIntent.StartOrStopScan) }
         }
-        adapter.setOnItemClickListener { _, _ ->
-            // TODO: expend
-            //adapter.expend(holder.bindingAdapterPosition)
+        devAdapter.setOnItemClickListener {
+            vm.dispatcher.dispatch(BleIntent.StopScan)
+            when (it.itemViewType) {
+                Dev.TYPE_BLE -> devAdapter.toggle(it.bindingAdapterPosition)
+                Dev.TYPE_RECORD -> {}
+            }
+        }
+        devAdapter.setOnItemLongClickListener {
+            when (it.itemViewType) {
+                Dev.TYPE_BLE -> {
+                    //devAdapter.collapseAll()
+                    //devAdapter.expand(it.bindingAdapterPosition)
+                }
+                Dev.TYPE_RECORD -> {}
+            }
+            true
         }
 
         launch {
             vm.dispatcher.state.collect {
                 when (it) {
-                    is BleUIState.Data -> adapter.set(it.data)
-                    BleUIState.None -> adapter.set(null)
+                    is BleUIState.Data -> devAdapter.set(it.data)
+                    BleUIState.None -> devAdapter.set(null)
                     BleUIState.StartScan -> barText.text = "stop scan"
                     BleUIState.StopScan -> barText.text = "start scan"
                 }
@@ -178,20 +143,17 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                         dispatcher.getService(UUID.fromString("00001812-0000-1000-8000-00805f9b34fb"))
 
                     if (hidService == null) {
-                        log(11)
                         c.resume(false)
                         return@runBlocking
                     }
                     val protocolMode =
                         hidService.getCharacteristic(UUID.fromString("00002a4e-0000-1000-8000-00805f9b34fb"))
                     if (protocolMode == null) {
-                        log(22)
                         c.resume(false)
                         return@runBlocking
                     }
                     val characteristic = dispatcher.readCharacteristic(protocolMode, timeout)
                     if (characteristic == null) {
-                        log(33)
                         c.resume(false)
                         return@runBlocking
                     }
@@ -204,7 +166,6 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                         requestMtu = dispatcher.requestMtu(mtu, timeout)
                     }
                     if (requestMtu == null) {
-                        log(44)
                         c.resume(false)
                         return@runBlocking
                     }
@@ -309,5 +270,55 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
         override val isShowing: Boolean
             get() = dialog?.isShowing ?: false
+    }
+
+    private class DevAdapter : BaseBindRvAdapter<Dev>(
+        differ({ d1, d2 -> d1.onContentSame(d2) }, { d1, d2 -> d1.onItemSame(d2) })
+    ), IExpendFun<Dev> {
+
+        private val sb = StringBuilder()
+
+        init {
+            registerViewHolder<ItemBluetoothBinding>(Dev.TYPE_BLE)
+                .registerViewHolder<ItemBluetoothRecordBinding>(Dev.TYPE_RECORD)
+        }
+
+        override fun onBind(holder: BindViewHolder<ViewBinding>, bean: Dev) {
+            when (holder.itemViewType) {
+                Dev.TYPE_BLE -> {
+                    val ble = (bean as Dev.Ble).ble
+                    (holder.bind as ItemBluetoothBinding).apply {
+                        btDevMac.text = ble.mac
+                        btDevName.text = ble.name?.takeIf { it.isNotEmpty() } ?: "N/A"
+                        btDevRssi.text = "${ble.rssi}dbm"
+                    }
+                }
+                Dev.TYPE_RECORD -> {
+                    val r = fmt((bean as Dev.Record).record)
+                    (holder.bind as ItemBluetoothRecordBinding).apply { btRecord.text = r }
+                }
+            }
+        }
+
+        private fun fmt(record: ByteArray?): String {
+            record ?: return ""
+            sb.clear()
+            /*sb.append(record.toHexStr()).append("\n")*/
+            var index = 0
+            while (index < record.size) {
+                if (index > 0) {
+                    sb.append("\n")
+                }
+                val size = record[index].toInt()
+                if (size == 0) {
+                    sb.append("0x00 ~")
+                    break
+                }
+                sb.append(record.sub(index + 1, index + 1 + size).toHexStr())
+                index += size + 1
+            }
+            return sb.toString()
+        }
+
     }
 }

@@ -34,8 +34,8 @@ class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             adapter.bind(this)
             addItemDecoration(LinearLineItemDecoration(lm))
         }
-        adapter.setOnItemClickListener { _, holder ->
-            val pos = holder.bindingAdapterPosition
+        adapter.setOnItemClickListener { h ->
+            val pos = h.bindingAdapterPosition
             if (resultAdapter.isSelectedMode) {
                 resultAdapter.get(pos)?.let {
                     it.isSelected = !it.isSelected
@@ -48,7 +48,7 @@ class ResultActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 }
             }
         }
-        adapter.setOnItemLongClickListener { _, _ -> showBtn(resultAdapter.toggle()) }
+        adapter.setOnItemLongClickListener { showBtn(resultAdapter.toggle()) }
         adapter.showRefresh()
         bind.resultSure.setOnClickListener {
             vm.dispatch(ResultIntent.Request)

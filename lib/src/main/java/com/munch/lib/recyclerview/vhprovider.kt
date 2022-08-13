@@ -59,8 +59,7 @@ interface ItemType {
 }
 
 interface ItemNode : ItemType {
-    val children: List<ItemNode>
+    val children: List<ItemNode>?
         get() = listOf()
-    val isExpand: Boolean
-        get() = false
+    var isExpand: Boolean
 }

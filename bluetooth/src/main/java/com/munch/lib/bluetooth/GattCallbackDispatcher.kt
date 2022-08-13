@@ -78,7 +78,7 @@ open class GattCallbackDispatcher(private val log: Logger) : BluetoothGattCallba
             log.log { "[${mac(gatt)}] services had discovered: ${g.services.size}." }
             return gatt
         }
-        val serviceGatt = suspendCancellableCoroutine<BluetoothGatt?>(timeout) {
+        val serviceGatt = suspendCancellableCoroutine(timeout) {
             _onServiceDiscover = { isSuccess, gatt -> it.resume(if (isSuccess) gatt else null) }
             val dis = runBlocking(Dispatchers.Main) {
                 g.discoverServices()

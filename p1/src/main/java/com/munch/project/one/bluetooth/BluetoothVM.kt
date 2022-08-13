@@ -22,6 +22,7 @@ internal class BluetoothVM : ViewModel() {
             dis.event.collectLatest {
                 when (it) {
                     BleIntent.StartOrStopScan -> scan()
+                    BleIntent.StopScan -> ble.stop()
                     BleIntent.Destroy -> ble.stop()
                 }
             }

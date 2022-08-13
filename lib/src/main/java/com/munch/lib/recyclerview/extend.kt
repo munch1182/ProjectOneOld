@@ -3,7 +3,6 @@ package com.munch.lib.recyclerview
 import android.os.Handler
 import android.view.View
 import androidx.annotation.LayoutRes
-import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.munch.lib.extend.ViewCreator
 import com.munch.lib.helper.ThreadHelper
@@ -13,7 +12,7 @@ import com.munch.lib.helper.ThreadHelper
  */
 
 fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnItemClickListener(
-    onClick: ((v: View?, holder: VH) -> Unit)?
+    onClick: ((holder: VH) -> Unit)?
 ) {
     if (onClick == null) {
         setOnItemClickListener(null)
@@ -21,14 +20,14 @@ fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnItemClickListen
         setOnItemClickListener(object : OnItemClickListener<VH> {
             override fun onClick(v: View?, holder: VH) {
                 super.onClick(v, holder)
-                onClick.invoke(v, holder)
+                onClick.invoke(holder)
             }
         })
     }
 }
 
 fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnItemLongClickListener(
-    onLongClick: ((v: View?, holder: VH) -> Boolean)?
+    onLongClick: ((holder: VH) -> Boolean)?
 ) {
     if (onLongClick == null) {
         setOnItemLongClickListener(null)
@@ -36,36 +35,37 @@ fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnItemLongClickLi
         setOnItemLongClickListener(object : OnItemClickListener<VH> {
             @Suppress("UNCHECKED_CAST")
             override fun onLongClick(v: View?, holder: VH): Boolean {
-                return onLongClick.invoke(v, holder)
+                return onLongClick.invoke(holder)
             }
         })
     }
 }
 
 fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnViewClickListener(
-    onClick: ((v: View?, holder: VH) -> Unit), vararg ids: Int
+    onClick: ((holder: VH) -> Unit), vararg ids: Int
 ) {
     setOnViewClickListener(object : OnItemClickListener<VH> {
         @Suppress("UNCHECKED_CAST")
         override fun onClick(v: View?, holder: VH) {
-            onClick.invoke(v, holder)
+            super.onClick(v, holder)
+            onClick.invoke(holder)
         }
     }, *ids)
 }
 
 fun <D, VH : BaseViewHolder> BaseRecyclerViewAdapter<D, VH>.setOnViewLongClickListener(
-    onLongClick: ((v: View?, holder: VH) -> Boolean), vararg ids: Int
+    onLongClick: ((holder: VH) -> Boolean), vararg ids: Int
 ) {
     setOnViewLongClickListener(object : OnItemClickListener<VH> {
         @Suppress("UNCHECKED_CAST")
         override fun onLongClick(v: View?, holder: VH): Boolean {
-            return onLongClick.invoke(v, holder)
+            return onLongClick.invoke(holder)
         }
     }, *ids)
 }
 
 fun <D, VH : BaseViewHolder> AdapterHelper<D, VH>.setOnItemClickListener(
-    onClick: ((v: View?, holder: VH) -> Unit)?
+    onClick: ((holder: VH) -> Unit)?
 ) {
     if (onClick == null) {
         setOnItemClickListener(null)
@@ -73,14 +73,14 @@ fun <D, VH : BaseViewHolder> AdapterHelper<D, VH>.setOnItemClickListener(
         setOnItemClickListener(object : OnItemClickListener<VH> {
             override fun onClick(v: View?, holder: VH) {
                 super.onClick(v, holder)
-                onClick.invoke(v, holder)
+                onClick.invoke(holder)
             }
         })
     }
 }
 
 fun <D, VH : BaseViewHolder> AdapterHelper<D, VH>.setOnItemLongClickListener(
-    onLongClick: ((v: View?, holder: VH) -> Boolean)?
+    onLongClick: ((holder: VH) -> Boolean)?
 ) {
     if (onLongClick == null) {
         setOnItemLongClickListener(null)
@@ -88,30 +88,30 @@ fun <D, VH : BaseViewHolder> AdapterHelper<D, VH>.setOnItemLongClickListener(
         setOnItemLongClickListener(object : OnItemClickListener<VH> {
             @Suppress("UNCHECKED_CAST")
             override fun onLongClick(v: View?, holder: VH): Boolean {
-                return onLongClick.invoke(v, holder)
+                return onLongClick.invoke(holder)
             }
         })
     }
 }
 
 fun <D, VH : BaseViewHolder> AdapterHelper<D, VH>.setOnViewClickListener(
-    onClick: ((v: View?, holder: VH) -> Unit), vararg ids: Int
+    onClick: ((holder: VH) -> Unit), vararg ids: Int
 ) {
     setOnViewClickListener(object : OnItemClickListener<VH> {
         @Suppress("UNCHECKED_CAST")
         override fun onClick(v: View?, holder: VH) {
-            onClick.invoke(v, holder)
+            onClick.invoke(holder)
         }
     }, *ids)
 }
 
 fun <D, VH : BaseViewHolder> AdapterHelper<D, VH>.setOnViewLongClickListener(
-    onLongClick: ((v: View?, holder: VH) -> Boolean), vararg ids: Int
+    onLongClick: ((holder: VH) -> Boolean), vararg ids: Int
 ) {
     setOnViewLongClickListener(object : OnItemClickListener<VH> {
         @Suppress("UNCHECKED_CAST")
         override fun onLongClick(v: View?, holder: VH): Boolean {
-            return onLongClick.invoke(v, holder)
+            return onLongClick.invoke(holder)
         }
     }, *ids)
 }
@@ -155,10 +155,6 @@ abstract class SimpleCallback<T : Any> : DiffUtil.ItemCallback<T>() {
         }
     }, handler)
 }*/
-
-fun <D> DifferProvider<D>.registerDiffer(callback: DiffUtil.ItemCallback<D>) {
-    registerDiffer { AsyncListDiffer(it, callback) }
-}
 
 fun <D : Any> differ(
     content: (o: D, n: D) -> Boolean, item: (((o: D, n: D) -> Boolean)?) = null,

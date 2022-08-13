@@ -80,3 +80,32 @@ interface IAdapterFun<D> : AdapterProvider {
     fun getIndex(element: D): Int?
     fun contains(element: D): Boolean
 }
+
+interface IExpendFun<D : ItemNode> : IAdapterFun<D> {
+
+    @Suppress("UNCHECKED_CAST")
+    fun expand(pos: Int) {
+        val a = get(pos) ?: return
+        if (!a.isExpand) {
+            a.children?.let {
+                add(pos + 1, it as Collection<D>)
+                a.isExpand = true
+            }
+        }
+    }
+
+    fun collapse(pos: Int) {
+        val a = get(pos) ?: return
+        if (a.isExpand) {
+            a.children?.let {
+                remove(pos + 1, it.size)
+                a.isExpand = false
+            }
+        }
+    }
+
+    fun toggle(pos: Int) {
+        val a = get(pos) ?: return
+        if (a.isExpand) collapse(pos) else expand(pos)
+    }
+}

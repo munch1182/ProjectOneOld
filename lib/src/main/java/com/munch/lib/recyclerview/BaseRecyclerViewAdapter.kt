@@ -2,7 +2,6 @@ package com.munch.lib.recyclerview
 
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.extend.ViewCreator
 
@@ -40,8 +39,10 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    protected open fun <VH> provideVH(parent: ViewGroup, viewType: Int) =
-        vhCreator.get(viewType).onCreateVH(parent) as VH
+    protected open fun <VH : Any> provideVH(parent: ViewGroup, viewType: Int): VH {
+        return vhCreator.get(viewType).onCreateVH(parent) as VH
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         provideVH<VH>(parent, viewType)

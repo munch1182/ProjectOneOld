@@ -1,10 +1,12 @@
 package com.munch.lib.weight.chart
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.util.AttributeSet
 import com.munch.lib.extend.paddingHorizontal
-import com.munch.lib.log.log
 
 /**
  * 绘制坐标轴
@@ -88,9 +90,6 @@ class PointChartView @JvmOverloads constructor(
 
         override fun draw(canvas: Canvas, rectF: RectF) {
             val lines = convertPoint(rectF)
-            lines.forEachIndexed { index, fl ->
-                log(index, fl)
-            }
             canvas.drawLines(lines, paint)
         }
 

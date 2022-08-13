@@ -10,6 +10,14 @@ import com.munch.lib.helper.ThreadHelper
 import com.munch.lib.recyclerview.AdapterFunImp.Default
 import com.munch.lib.recyclerview.AdapterFunImp.Differ
 
+interface DifferProvider<D> {
+    fun registerDiffer(callback: DiffUtil.ItemCallback<D>): DifferProvider<D>
+}
+
+interface AdapterProvider {
+    fun bindAdapter(adapter: BaseRecyclerViewAdapter<*, *>)
+}
+
 /**
  * 因为[Default]/[Differ]的实现中都有实际Adapter方法调用的线程判断
  * （[Default]直接依赖[Default.mainHandler]实现,而[Differ]是依赖[AsyncListDiffer.mUpdateCallback]来实现）
@@ -22,6 +30,10 @@ sealed class AdapterFunImp<D>(
 ) : IAdapterFun<D> {
 
     protected var adapter: BaseRecyclerViewAdapter<*, *>? = null
+    internal open val queryList: MutableList<D>
+        get() = mutableListOf()
+    internal open val updateList: MutableList<D>
+        get() = mutableListOf()
 
     protected fun impInMain(imp: () -> Unit) {
         if (Thread.currentThread().isMain()) {
@@ -39,23 +51,27 @@ sealed class AdapterFunImp<D>(
         mainHandler: Handler = ThreadHelper.mainHandler
     ) : AdapterFunImp<D>(mainHandler) {
 
-        protected open val list = mutableListOf<D>()
+        private val list = mutableListOf<D>()
+        override val queryList: MutableList<D>
+            get() = list
+        override val updateList: MutableList<D>
+            get() = list
 
         override val itemSize: Int
-            get() = list.size
+            get() = queryList.size
 
         @SuppressLint("NotifyDataSetChanged")
         override fun set(newData: List<D>?) {
-            val size = list.size
-            list.clear()
+            val size = itemSize
+            updateList.clear()
             if (newData != null) {
-                list.addAll(newData)
+                updateList.addAll(newData)
             }
             val adapter = adapter ?: return
-            val newSize = list.size
+            val newSize = itemSize
             impInMain {
                 when {
-                    size == 0 -> adapter.notifyItemRangeInserted(0, list.size)
+                    size == 0 -> adapter.notifyItemRangeInserted(0, itemSize)
                     newSize == 0 -> adapter.notifyItemRangeRemoved(0, size)
                     else -> adapter.notifyDataSetChanged()
                 }
@@ -63,43 +79,43 @@ sealed class AdapterFunImp<D>(
         }
 
         override fun add(index: Int, element: D) {
-            if (index in 0..list.size) {
-                list.add(index, element)
+            if (index in 0..itemSize) {
+                updateList.add(index, element)
                 val adapter = adapter ?: return
                 impInMain { adapter.notifyItemInserted(index) }
             }
         }
 
         override fun add(index: Int, elements: Collection<D>) {
-            if (index in 0..list.size) {
+            if (index in 0..itemSize) {
                 val size = elements.size
-                list.addAll(index, elements)
+                updateList.addAll(index, elements)
                 val adapter = adapter ?: return
                 impInMain { adapter.notifyItemRangeInserted(index, size) }
             }
         }
 
         override fun remove(element: D) {
-            val pos = list.indexOf(element)
+            val pos = queryList.indexOf(element)
             if (pos == -1) {
                 return
             }
-            list.remove(element)
+            updateList.remove(element)
             val adapter = adapter ?: return
             impInMain { adapter.notifyItemRemoved(pos) }
         }
 
         override fun remove(startIndex: Int, size: Int) {
             val endIndex = startIndex + size
-            if (endIndex <= list.size) {
-                list.removeAll(list.subList(startIndex, endIndex))
+            if (endIndex <= itemSize) {
+                updateList.removeAll(updateList.subList(startIndex, endIndex))
                 val adapter = adapter ?: return
                 impInMain { adapter.notifyItemRangeRemoved(startIndex, size) }
             }
         }
 
         override fun remove(element: Collection<D?>) {
-            list.removeAll(element.toSet())
+            updateList.removeAll(element.toSet())
             element.forEach {
                 val index = getIndex(it ?: return@forEach) ?: return@forEach
                 val adapter = adapter ?: return@forEach
@@ -108,9 +124,9 @@ sealed class AdapterFunImp<D>(
         }
 
         override fun update(index: Int, element: D, payload: Any?) {
-            val size = list.size
+            val size = itemSize
             if (index in 0 until size) {
-                list[index] = element
+                queryList[index] = element
                 val adapter = adapter ?: return
                 impInMain { adapter.notifyItemChanged(index, payload) }
             }
@@ -122,11 +138,11 @@ sealed class AdapterFunImp<D>(
         }
 
         override fun update(startIndex: Int, elements: Collection<D>, payload: Any?) {
-            val size = list.size
+            val size = itemSize
             val updateCount = elements.size
             //如果更改的数据在原有数据范围内
             if ((startIndex + updateCount) in 0 until size) {
-                elements.forEachIndexed { index, d -> list[startIndex + index] = d }
+                elements.forEachIndexed { index, d -> queryList[startIndex + index] = d }
                 val adapter = adapter ?: return
                 impInMain {
                     adapter.notifyItemRangeChanged(startIndex, updateCount, payload)
@@ -134,19 +150,19 @@ sealed class AdapterFunImp<D>(
             }
         }
 
-        override fun add(element: D) = add(list.size, element)
-        override fun add(elements: Collection<D>) = add(list.size, elements)
+        override fun add(element: D) = add(itemSize, element)
+        override fun add(elements: Collection<D>) = add(itemSize, elements)
         override fun remove(index: Int) = remove(index, 1)
 
         override fun updateOrThrow(index: Int, element: D, payload: Any?) {
-            if (list.size <= index) {
+            if (itemSize <= index) {
                 throw IndexOutOfBoundsException()
             }
             update(index, element, payload)
         }
 
         override fun updateOrThrow(startIndex: Int, elements: Collection<D>, payload: Any?) {
-            val size = list.size
+            val size = itemSize
             val updateCount = elements.size
             //如果更改的数据在原有数据范围内
             if ((startIndex + updateCount) >= size) {
@@ -155,9 +171,9 @@ sealed class AdapterFunImp<D>(
             update(startIndex, elements, payload)
         }
 
-        override fun get(index: Int) = if (list.size <= index) null else list[index]
-        override fun getIndex(element: D): Int? = list.indexOf(element).takeIf { it != -1 }
-        override fun contains(element: D): Boolean = list.contains(element)
+        override fun get(index: Int) = if (itemSize <= index) null else queryList[index]
+        override fun getIndex(element: D): Int? = queryList.indexOf(element).takeIf { it != -1 }
+        override fun contains(element: D): Boolean = queryList.contains(element)
     }
 
     /**
@@ -177,182 +193,169 @@ sealed class AdapterFunImp<D>(
             differ = AsyncListDiffer(adapter, callback)
         }
 
-        override val itemSize: Int
-            get() = list.size
-
-        override val list: MutableList<D>
+        override val queryList: MutableList<D>
             get() = differ?.currentList ?: mutableListOf()
+
+        override val updateList: MutableList<D>
+            get() = differ?.currentList?.let { ArrayList(it) } ?: mutableListOf()
 
         override fun set(newData: List<D>?) {
             differ ?: throw IllegalArgumentException()
-            if (list.isEmpty() || newData == null || newData.isEmpty()) {
+            if (queryList.isEmpty() || newData == null || newData.isEmpty()) {
                 impInMain { differ?.submitList(newData, runnable) }
             } else {
                 //此方法在newData和data为null时会直接在当前线程回调，否则会在子线程中计算，在主线程中回调
                 differ?.submitList(newData, runnable)
             }
         }
+
+
+        override fun add(index: Int, element: D) {
+            if (index in 0..itemSize) {
+                set(updateList.apply { add(index, element) })
+            }
+        }
+
+        override fun add(index: Int, elements: Collection<D>) {
+            if (index in 0..itemSize) {
+                set(updateList.apply { addAll(index, elements) })
+            }
+        }
+
+        override fun remove(element: D) {
+            val pos = queryList.indexOf(element)
+            if (pos == -1) return
+            set(updateList.apply { remove(element) })
+        }
+
+        override fun remove(startIndex: Int, size: Int) {
+            val endIndex = startIndex + size
+            if (endIndex <= itemSize) {
+                val l = updateList
+                set(l.apply { removeAll(l.subList(startIndex, endIndex)) })
+            }
+        }
+
+        override fun remove(element: Collection<D?>) {
+            set(updateList.apply { removeAll(element.toSet()) })
+        }
+
+        override fun update(index: Int, element: D, payload: Any?) {
+            val size = itemSize
+            if (index in 0 until size) {
+                set(queryList.apply { this[index] = element })
+            }
+        }
+
+
+        override fun update(startIndex: Int, elements: Collection<D>, payload: Any?) {
+            val size = itemSize
+            val updateCount = elements.size
+            //如果更改的数据在原有数据范围内
+            if ((startIndex + updateCount) in 0 until size) {
+                val l = queryList
+                elements.forEachIndexed { index, d -> l[startIndex + index] = d }
+                set(l)
+            }
+        }
+
+        override fun add(element: D) = add(itemSize, element)
+        override fun add(elements: Collection<D>) = add(itemSize, elements)
+        override fun remove(index: Int) = remove(index, 1)
+        override fun updateOrThrow(index: Int, element: D, payload: Any?) {
+            if (itemSize <= index) {
+                throw IndexOutOfBoundsException()
+            }
+            update(index, element, payload)
+        }
+
+        override fun updateOrThrow(startIndex: Int, elements: Collection<D>, payload: Any?) {
+            val size = itemSize
+            val updateCount = elements.size
+            //如果更改的数据在原有数据范围内
+            if ((startIndex + updateCount) >= size) {
+                throw IndexOutOfBoundsException()
+            }
+            update(startIndex, elements, payload)
+        }
+
+        override fun get(index: Int) = if (itemSize <= index) null else queryList[index]
+        override fun getIndex(element: D): Int? = queryList.indexOf(element).takeIf { it != -1 }
+        override fun contains(element: D): Boolean = queryList.contains(element)
     }
-}
-
-interface DifferProvider<D> {
-    fun registerDiffer(differ: (adapter: BaseRecyclerViewAdapter<*, *>) -> AsyncListDiffer<D>): DifferProvider<D>
-}
-
-interface AdapterProvider {
-    fun bindAdapter(adapter: BaseRecyclerViewAdapter<*, *>)
 }
 
 open class AdapterFunImp2<D>(
     protected open val mainHandler: Handler = Handler(Looper.getMainLooper())
 ) : IAdapterFun<D>, DifferProvider<D> {
 
-    private val _list = mutableListOf<D>()
-    protected open val list: MutableList<D>
-        get() = differ?.currentList ?: _list
-    private var _differ: ((adapter: BaseRecyclerViewAdapter<*, *>) -> AsyncListDiffer<D>)? = null
-
-    protected open var differ: AsyncListDiffer<D>? = null
-
     override val itemSize: Int
-        get() = list.size
+        get() = imp.itemSize
 
-    protected var adapter: BaseRecyclerViewAdapter<*, *>? = null
+    private val defImp by lazy { Default<D>(mainHandler) }
+    private var diffImp: Differ<D>? = null
 
-    protected open fun impInMain(imp: () -> Unit) {
-        if (Thread.currentThread().isMain()) {
-            imp.invoke()
-        } else {
-            mainHandler.post(imp)
-        }
-    }
+    protected open val imp: AdapterFunImp<D>
+        get() = diffImp ?: defImp
 
-    override fun registerDiffer(differ: (adapter: BaseRecyclerViewAdapter<*, *>) -> AsyncListDiffer<D>): AdapterFunImp2<D> {
-        _differ = differ
+    override fun registerDiffer(callback: DiffUtil.ItemCallback<D>): DifferProvider<D> {
+        diffImp = Differ(callback, mainHandler)
         return this
     }
 
     override fun bindAdapter(adapter: BaseRecyclerViewAdapter<*, *>) {
-        this.adapter = adapter
-        differ = _differ?.invoke(adapter)
+        imp.bindAdapter(adapter)
     }
 
     override fun set(newData: List<D>?) {
-        differ?.let { setByDiffer(newData) } ?: setByDefault(newData)
-    }
-
-    private fun setByDiffer(newData: List<D>?) {
-        differ ?: throw IllegalArgumentException()
-        if (list.isEmpty() || newData == null || newData.isEmpty()) {
-            impInMain { differ?.submitList(newData) }
-        } else {
-            //此方法在newData和data为null时会直接在当前线程回调，否则会在子线程中计算，在主线程中回调
-            differ?.submitList(newData)
-        }
-    }
-
-    private fun setByDefault(newData: List<D>?) {
-        val size = list.size
-        list.clear()
-        if (newData != null) {
-            list.addAll(newData)
-        }
-        val adapter = adapter ?: return
-        val newSize = list.size
-        impInMain {
-            when {
-                size == 0 -> adapter.notifyItemRangeInserted(0, list.size)
-                newSize == 0 -> adapter.notifyItemRangeRemoved(0, size)
-                else -> adapter.notifyDataSetChanged()
-            }
-        }
+        imp.set(newData)
     }
 
     override fun add(index: Int, element: D) {
-        if (index in 0..list.size) {
-            list.add(index, element)
-            val adapter = adapter ?: return
-            impInMain { adapter.notifyItemInserted(index) }
-        }
+        imp.add(index, element)
     }
 
     override fun add(index: Int, elements: Collection<D>) {
-        if (index in 0..list.size) {
-            val size = elements.size
-            list.addAll(index, elements)
-            val adapter = adapter ?: return
-            impInMain { adapter.notifyItemRangeInserted(index, size) }
-        }
+        imp.add(index, elements)
     }
 
     override fun remove(element: D) {
-        val pos = list.indexOf(element)
-        if (pos == -1) {
-            return
-        }
-        list.remove(element)
-        val adapter = adapter ?: return
-        impInMain { adapter.notifyItemRemoved(pos) }
+        imp.remove(element)
     }
 
     override fun remove(startIndex: Int, size: Int) {
-        val endIndex = startIndex + size
-        if (endIndex <= list.size) {
-            list.removeAll(list.subList(startIndex, endIndex))
-            val adapter = adapter ?: return
-            impInMain { adapter.notifyItemRangeRemoved(startIndex, size) }
-        }
+        imp.remove(startIndex, size)
     }
 
     override fun remove(element: Collection<D?>) {
-        list.removeAll(element.toSet())
-        element.forEach {
-            val index = getIndex(it ?: return@forEach) ?: return@forEach
-            val adapter = adapter ?: return@forEach
-            impInMain { adapter.notifyItemRemoved(index) }
-        }
+        imp.remove(element)
     }
 
     override fun update(index: Int, element: D, payload: Any?) {
-        val size = list.size
-        if (index in 0 until size) {
-            list[index] = element
-            val adapter = adapter ?: return
-            impInMain { adapter.notifyItemChanged(index, payload) }
-        }
+        imp.update(index, element, payload)
     }
 
     override fun update(start: Int, end: Int, payload: Any?) {
-        val adapter = adapter ?: return
-        adapter.notifyItemRangeChanged(start, end - start, payload)
+        imp.update(start, end, payload)
     }
 
     override fun update(startIndex: Int, elements: Collection<D>, payload: Any?) {
-        val size = list.size
-        val updateCount = elements.size
-        //如果更改的数据在原有数据范围内
-        if ((startIndex + updateCount) in 0 until size) {
-            elements.forEachIndexed { index, d -> list[startIndex + index] = d }
-            val adapter = adapter ?: return
-            impInMain {
-                adapter.notifyItemRangeChanged(startIndex, updateCount, payload)
-            }
-        }
+        imp.update(startIndex, elements, payload)
     }
 
-    override fun add(element: D) = add(list.size, element)
-    override fun add(elements: Collection<D>) = add(list.size, elements)
+    override fun add(element: D) = add(itemSize, element)
+    override fun add(elements: Collection<D>) = add(itemSize, elements)
     override fun remove(index: Int) = remove(index, 1)
 
     override fun updateOrThrow(index: Int, element: D, payload: Any?) {
-        if (list.size <= index) {
+        if (itemSize <= index) {
             throw IndexOutOfBoundsException()
         }
         update(index, element, payload)
     }
 
     override fun updateOrThrow(startIndex: Int, elements: Collection<D>, payload: Any?) {
-        val size = list.size
+        val size = itemSize
         val updateCount = elements.size
         //如果更改的数据在原有数据范围内
         if ((startIndex + updateCount) >= size) {
@@ -361,7 +364,7 @@ open class AdapterFunImp2<D>(
         update(startIndex, elements, payload)
     }
 
-    override fun get(index: Int) = if (list.size <= index) null else list[index]
-    override fun getIndex(element: D): Int? = list.indexOf(element).takeIf { it != -1 }
-    override fun contains(element: D): Boolean = list.contains(element)
+    override fun get(index: Int) = if (itemSize <= index) null else imp.queryList[index]
+    override fun getIndex(element: D): Int? = imp.queryList.indexOf(element).takeIf { it != -1 }
+    override fun contains(element: D): Boolean = imp.queryList.contains(element)
 }
