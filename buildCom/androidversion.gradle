@@ -14,15 +14,15 @@ ext {
             COMPOSE_VERSION   : "1.1.0-beta01",
             ACTIVITY_VERSION  : "1.4.0",
             FRAGMENT_VERSION  : "1.4.1",
-            ROOM_VERSION      : "2.4.2",
-            GLIDE_VERSION     : "4.13.1",
+            ROOM_VERSION      : "2.4.3",
+            GLIDE_VERSION     : "4.13.2",
             RETROFIT_VERSION  : "2.9.0",
 
             LIFECYCLE_VERSION : "2.4.0",
             WORK_VERSION      : "2.7.1",
             PAGING_VERSION    : "3.1.0",
-            OKHTTP_VERSION    : "4.9.3",
-            HILT_CORE_VERSION : "2.41",
+            OKHTTP_VERSION    : "4.10.0",
+            HILT_CORE_VERSION : "2.43.2",
 
             LIB_VERSION       : "0.3.7"
     ]
@@ -147,7 +147,7 @@ ext {
             aRouterRegister   : "com.alibaba:arouter-register:1.0.2",
 
             /*https://github.com/Tencent/MMKV/blob/master/README_CN.md*/
-            mmkv              : "com.tencent:mmkv-static:1.2.12"
+            mmkv              : "com.tencent:mmkv-static:1.2.14"
     ]
 
     lib = [
