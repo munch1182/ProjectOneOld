@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.view.View
 import androidx.annotation.*
+import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import com.munch.lib.UnSupportException
 import com.munch.lib.extend.*
@@ -59,6 +60,9 @@ inline fun IContext.shareUri(uri: Uri) = ctx.shareUri(uri)
 inline fun IContext.getNameVersion() = ctx.getNameVersion()
 inline fun IContext.isScreenOn() = ctx.isScreenOn()
 inline fun IContext.getScreenSize(full: Boolean = false) = ctx.getScreenSize(full)
+inline fun IContext.getLocales() = ctx.getLocales()
+inline fun IContext.getLocale() = ctx.getLocale()
+inline fun IContext.getLanguage() = ctx.getLanguage()
 
 @ColorInt
 fun IContext.getColorPrimary(@ColorInt defValue: Int = Color.WHITE) = ctx.getColorPrimary(defValue)

@@ -23,6 +23,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import androidx.core.os.ConfigurationCompat
 import kotlin.reflect.KClass
 
 /**
@@ -38,6 +39,12 @@ inline fun Context.startActivity(target: KClass<out Activity>, bundle: Bundle) =
     })
 
 inline fun Context.getColorCompat(@ColorRes color: Int) = ContextCompat.getColor(this, color)
+
+inline fun Context.getLocales() = ConfigurationCompat.getLocales(resources.configuration)
+
+inline fun Context.getLocale() = getLocales().get(0)
+
+inline fun Context.getLanguage() = getLocale().language
 
 fun Context.getDimenById(name: String): Int? {
     val id = resources.getIdentifier(name, "dimen", "android")

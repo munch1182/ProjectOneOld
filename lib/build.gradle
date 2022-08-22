@@ -5,6 +5,12 @@ plugins {
 apply from: '../buildCom/commonbuildktx.gradle'
 apply from: '../buildCom/publish.gradle'
 
+android {
+    buildFeatures {
+        viewBinding true
+    }
+}
+
 dependencies {
 
     api deps['appcompat']
