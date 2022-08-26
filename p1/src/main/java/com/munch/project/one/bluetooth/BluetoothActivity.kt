@@ -4,8 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothGatt
-import android.bluetooth.BluetoothGattCharacteristic
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -14,31 +12,19 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewbinding.ViewBinding
 import com.munch.lib.OnCancel
 import com.munch.lib.bluetooth.BluetoothHelper
-import com.munch.lib.bluetooth.Connector
-import com.munch.lib.bluetooth.GattCallbackDispatcher
-import com.munch.lib.bluetooth.OnConnectHandler
-import com.munch.lib.extend.*
+import com.munch.lib.extend.bind
+import com.munch.lib.extend.lazy
 import com.munch.lib.fast.base.BaseFastActivity
-import com.munch.lib.fast.base.launch
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
 import com.munch.lib.notice.Notice
 import com.munch.lib.notice.OnSelect
 import com.munch.lib.notice.OnSelectOk
-import com.munch.lib.recyclerview.*
 import com.munch.lib.result.ExplainContactNotice
 import com.munch.lib.result.contact
 import com.munch.project.one.databinding.ActivityBluetoothBinding
-import com.munch.project.one.databinding.ItemBluetoothBinding
-import com.munch.project.one.databinding.ItemBluetoothRecordBinding
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
-import java.util.*
-import kotlin.coroutines.resume
 
 /**
  * Created by munch1182 on 2022/5/18 21:20.
@@ -48,62 +34,20 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     private val bind by bind<ActivityBluetoothBinding>()
     private val barText by lazy { TextView(this) }
-    private val vm by lazy { BluetoothVM() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         addRight(barText)
 
-        val devAdapter = DevAdapter()
-        bind.btRv.apply {
-            val lm = LinearLayoutManager(this@BluetoothActivity)
-            layoutManager = lm
-            addItemDecoration(LinearLineItemDecoration(lm))
-            adapter = devAdapter
+        checkOrRequest {
+            BluetoothHelper.instance.startScan()
         }
 
-        barText.text = "start scan"
-
-        barText.setOnClickListener {
-            checkOrRequest { vm.dispatcher.dispatch(BleIntent.StartOrStopScan) }
-        }
-        devAdapter.setOnItemClickListener {
-            vm.dispatcher.dispatch(BleIntent.StopScan)
-            when (it.itemViewType) {
-                Dev.TYPE_BLE -> devAdapter.toggle(it.bindingAdapterPosition)
-                Dev.TYPE_RECORD -> {}
-            }
-        }
-        devAdapter.setOnItemLongClickListener {
-            when (it.itemViewType) {
-                Dev.TYPE_BLE -> {
-                    //devAdapter.collapseAll()
-                    //devAdapter.expand(it.bindingAdapterPosition)
-                }
-                Dev.TYPE_RECORD -> {}
-            }
-            true
-        }
-
-        launch {
-            vm.dispatcher.state.collect {
-                when (it) {
-                    is BleUIState.Data -> devAdapter.set(it.data)
-                    BleUIState.None -> devAdapter.set(null)
-                    BleUIState.StartScan -> barText.text = "stop scan"
-                    BleUIState.StopScan -> barText.text = "start scan"
-                }
-            }
-        }
     }
 
-    override fun onStop() {
-        super.onStop()
-        vm.dispatcher.dispatch(BleIntent.Destroy)
-    }
 
-    private class TheHandler : OnConnectHandler {
+    /*private class TheHandler : OnConnectHandler {
         override suspend fun onConnect(
             connector: Connector,
             gatt: BluetoothGatt,
@@ -173,7 +117,7 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 }
             }
         }
-    }
+    }*/
 
     private fun checkOrRequest(grant: () -> Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -189,7 +133,7 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
         }.contact(
-            { BluetoothHelper.instance.isEnable },
+            { /*BluetoothHelper.instance.isEnable*/true },
             { Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE) }
         ).contact(
             {
@@ -270,55 +214,5 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
         override val isShowing: Boolean
             get() = dialog?.isShowing ?: false
-    }
-
-    private class DevAdapter : BaseBindRvAdapter<Dev>(
-        differ({ d1, d2 -> d1.onContentSame(d2) }, { d1, d2 -> d1.onItemSame(d2) })
-    ), IExpendFun<Dev> {
-
-        private val sb = StringBuilder()
-
-        init {
-            registerViewHolder<ItemBluetoothBinding>(Dev.TYPE_BLE)
-                .registerViewHolder<ItemBluetoothRecordBinding>(Dev.TYPE_RECORD)
-        }
-
-        override fun onBind(holder: BindViewHolder<ViewBinding>, bean: Dev) {
-            when (holder.itemViewType) {
-                Dev.TYPE_BLE -> {
-                    val ble = (bean as Dev.Ble).ble
-                    (holder.bind as ItemBluetoothBinding).apply {
-                        btDevMac.text = ble.mac
-                        btDevName.text = ble.name?.takeIf { it.isNotEmpty() } ?: "N/A"
-                        btDevRssi.text = "${ble.rssi}dbm"
-                    }
-                }
-                Dev.TYPE_RECORD -> {
-                    val r = fmt((bean as Dev.Record).record)
-                    (holder.bind as ItemBluetoothRecordBinding).apply { btRecord.text = r }
-                }
-            }
-        }
-
-        private fun fmt(record: ByteArray?): String {
-            record ?: return ""
-            sb.clear()
-            /*sb.append(record.toHexStr()).append("\n")*/
-            var index = 0
-            while (index < record.size) {
-                if (index > 0) {
-                    sb.append("\n")
-                }
-                val size = record[index].toInt()
-                if (size == 0) {
-                    sb.append("0x00 ~")
-                    break
-                }
-                sb.append(record.sub(index + 1, index + 1 + size).toHexStr())
-                index += size + 1
-            }
-            return sb.toString()
-        }
-
     }
 }

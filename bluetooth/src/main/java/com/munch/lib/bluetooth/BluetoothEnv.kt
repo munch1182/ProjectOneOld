@@ -1,99 +1,103 @@
 package com.munch.lib.bluetooth
 
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
-import android.bluetooth.BluetoothProfile
+import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
-import com.munch.lib.Destroyable
 import com.munch.lib.OnReceive
+import com.munch.lib.extend.SealedClassToString
+import com.munch.lib.extend.SealedClassToStringByName
+import com.munch.lib.extend.catch
 import com.munch.lib.helper.ARSHelper
 import com.munch.lib.helper.IARSHelper
 import com.munch.lib.log.Logger
 import com.munch.lib.receiver.ReceiverHelper
 
-/**
- * Create by munch1182 on 2022/5/18 14:42.
- */
+sealed class StateNotify : SealedClassToString by SealedClassToStringByName() {
+    object StateOn : StateNotify()
+    object StateOff : StateNotify()
+    object Bonded : StateNotify()
+    object Bonding : StateNotify()
+    object BondNone : StateNotify()
+}
+
+fun interface OnStateChangeListener {
+    fun onStateChange(mac: String?, state: StateNotify)
+}
+
 interface IBluetoothManager {
     val bm: BluetoothManager?
     val adapter: BluetoothAdapter?
 }
 
-interface IBluetoothState : IARSHelper<OnStateChangeListener> {
+interface IBluetoothState {
     val isSupportBle: Boolean
     val isEnable: Boolean
     val pairedDevs: Set<BluetoothDevice>?
     val connectGattDevs: List<BluetoothDevice>?
+
+    fun addStateChangeListener(listener: OnStateChangeListener)
+    fun removeStateChangeListener(listener: OnStateChangeListener)
 }
 
-sealed class StateNotify {
+object BluetoothEnv : ContextWrapper(null),
+    IBluetoothManager, IBluetoothState {
 
-    object StateOn : StateNotify() {
-        override fun toString() = "CONNECTED"
-    }
-
-    object StateOff : StateNotify() {
-        override fun toString() = "DISCONNECTED"
-    }
-
-    object Bonded : StateNotify() {
-        override fun toString() = "BONDED"
-    }
-
-    object Bonding : StateNotify() {
-        override fun toString() = "BONDING"
-    }
-
-    object BondNone : StateNotify() {
-        override fun toString() = "BOND NONE"
-    }
-}
-
-fun interface OnStateChangeListener {
+    private val stateNotify = ARSHelper<OnStateChangeListener>()
+    private val receiver by lazy { BluetoothReceiver(this, stateNotify) }
 
     /**
-     * @param state
+     * 在使用参数之前, 必须调用此方法
      */
-    fun onStateChange(state: StateNotify, mac: String?)
-}
-
-class BluetoothWrapper(context: Context) :
-    ARSHelper<OnStateChangeListener>(), IBluetoothManager, IBluetoothState, Destroyable {
-
-    override val bm by lazy { (context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager) }
-    private val receiver = BluetoothReceiver(context, this)
-    override val adapter: BluetoothAdapter?
-        get() = bm?.adapter
-
-    override val isSupportBle: Boolean =
-        context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)
-    override val isEnable: Boolean
-        get() {
-            return adapter
-                ?.let { it.isEnabled || it.state == BluetoothAdapter.STATE_TURNING_ON }
-                ?: false
-        }
-    override val pairedDevs: Set<BluetoothDevice>?
-        @SuppressLint("MissingPermission")
-        get() = adapter?.bondedDevices
-    override val connectGattDevs: List<BluetoothDevice>?
-        @SuppressLint("MissingPermission")
-        get() = bm?.getConnectedDevices(BluetoothProfile.GATT)
-    private val log: Logger
-        get() = BluetoothHelper.log
-
-    init {
-        //log.log { "broadcast register." }
-        receiver.register()
+    fun init(app: Context): BluetoothEnv {
+        attachBaseContext(app)
+        catch { receiver.register() }
+        return this
     }
 
+    override val bm by lazy { (getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager) }
+    override val adapter by lazy { bm?.adapter }
+
+    override val isSupportBle by lazy { packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) }
+
+    override val isEnable: Boolean
+        get() = adapter?.isEnabled ?: false
+
+    override val pairedDevs: Set<BluetoothDevice>?
+        get() = adapter?.bondedDevices
+
+    override val connectGattDevs: List<BluetoothDevice>?
+        get() = null
+
+    private var _scan: ScanSettings? = null
+
+    val scanSetting: ScanSettings
+        get() = _scan ?: ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+            .setMatchMode(ScanSettings.MATCH_MODE_STICKY)
+            .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES).build()
+
+    fun setBleScanSetting(scan: ScanSettings? = null) {
+        _scan = scan
+    }
+
+    override fun addStateChangeListener(listener: OnStateChangeListener) {
+        stateNotify.add(listener)
+    }
+
+    override fun removeStateChangeListener(listener: OnStateChangeListener) {
+        stateNotify.remove(listener)
+    }
+
+    /**
+     * 蓝牙广播监听
+     */
     class BluetoothReceiver(
         context: Context,
-        private val wrapper: BluetoothWrapper,
+        private val notify: IARSHelper<OnStateChangeListener>
     ) : ReceiverHelper<OnReceive<Intent>>(
         context, arrayOf(
             BluetoothDevice.ACTION_ACL_CONNECTED,
@@ -106,7 +110,7 @@ class BluetoothWrapper(context: Context) :
     ) {
 
         private val log: Logger
-            get() = BluetoothHelper.log
+            get() = BluetoothHelper.instance.log
 
         override fun handleAction(context: Context, action: String, intent: Intent) {
             val mac =
@@ -173,14 +177,8 @@ class BluetoothWrapper(context: Context) :
                 else -> return
             }
 
-            wrapper.notifyUpdate { it.onStateChange(state, mac) }
+            notify.notifyUpdate { it.onStateChange(mac, state) }
         }
 
     }
-
-    override fun destroy() {
-        receiver.unregister()
-        log.log { "broadcast unregister." }
-    }
-
 }
