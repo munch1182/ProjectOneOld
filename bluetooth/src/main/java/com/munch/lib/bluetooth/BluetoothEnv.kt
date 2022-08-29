@@ -73,15 +73,17 @@ object BluetoothEnv : ContextWrapper(null),
     override val connectGattDevs: List<BluetoothDevice>?
         get() = null
 
-    private var _scan: ScanSettings? = null
+    private var scanSettings: ScanSettings? = null
 
-    val scanSetting: ScanSettings
-        get() = _scan ?: ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+    val bleScanSetting: ScanSettings
+        get() = scanSettings ?: ScanSettings.Builder()
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .setMatchMode(ScanSettings.MATCH_MODE_STICKY)
-            .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES).build()
+            .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+            .build()
 
     fun setBleScanSetting(scan: ScanSettings? = null) {
-        _scan = scan
+        scanSettings = scan
     }
 
     override fun addStateChangeListener(listener: OnStateChangeListener) {

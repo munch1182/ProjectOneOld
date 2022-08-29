@@ -4,12 +4,18 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
 import com.munch.lib.OnReceive
 import com.munch.lib.extend.catch
 import com.munch.lib.helper.ARSHelper
+import com.munch.lib.log.Logger
 import com.munch.lib.receiver.ReceiverHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 fun interface OnDeviceFilter {
 
@@ -85,33 +91,50 @@ class ScannerImp(private val env: BluetoothEnv) : Scanner {
     }
 }
 
-class LEScanner(private val env: BluetoothEnv) : Scanner, ARSHelper<OnDeviceScanListener?>() {
-    private val log = BluetoothHelper.instance.log
+class LEScanner(
+    private val env: BluetoothEnv,
+) : Scanner, CoroutineScope, ARSHelper<OnDeviceScanListener?>() {
+
+    private val log: Logger = BluetoothHelper.instance.log
 
     override fun setScanType(type: BluetoothType): Scanner {
         throw IllegalStateException()
     }
 
     override fun startScan(filter: OnDeviceFilter, listener: OnDeviceScanListener?) {
-        log.log { "start LE SCAN." }
-        env.adapter?.bluetoothLeScanner?.startScan(null, env.scanSetting, object : ScanCallback() {
+        val scanner = env.adapter?.bluetoothLeScanner
+        if (scanner == null) {
+            log.log { "error as null scanner." }
+            return
+        }
+        val setting = env.bleScanSetting
+        log.log { "start LE SCAN(${setting.fmt()})." }
+        scanner.startScan(null, setting, object : ScanCallback() {
             override fun onScanFailed(errorCode: Int) {
                 super.onScanFailed(errorCode)
-                listener?.onDeviceScanComplete()
-                notifyUpdate { it?.onDeviceScanComplete() }
+                launch {
+                    log.log { "SCAN fail: $errorCode." }
+                    listener?.onDeviceScanComplete()
+                    notifyUpdate { it?.onDeviceScanComplete() }
+                }
             }
 
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 val dev = BluetoothScanDev(result ?: return)
-                if (!filter.isDeviceNeedFilter(dev)) {
-                    listener?.onDeviceScanned(dev)
-                    notifyUpdate { it?.onDeviceScanned(dev) }
+                BluetoothHelper.instance.launch {
+                    val isFilter = filter.isDeviceNeedFilter(dev)
+                    log.log { "SCANNED: ${if (isFilter) "$dev Filtered" else "$dev"}." }
+                    if (!isFilter) {
+                        delay(800L)
+                        listener?.onDeviceScanned(dev)
+                        notifyUpdate { it?.onDeviceScanned(dev) }
+                    }
                 }
             }
 
             override fun onBatchScanResults(results: MutableList<ScanResult>?) {
                 super.onBatchScanResults(results)
-                results?.forEach { onScanResult(0, it) }
+                launch { results?.forEach { onScanResult(0, it) } }
             }
 
         })
@@ -128,9 +151,42 @@ class LEScanner(private val env: BluetoothEnv) : Scanner, ARSHelper<OnDeviceScan
     override fun removeDeviceScanListener(listener: OnDeviceScanListener) {
         remove(listener)
     }
+
+    private fun ScanSettings.fmt(): String {
+        val scamMode = when (scanMode) {
+            ScanSettings.SCAN_MODE_BALANCED -> "BALANCED"
+            ScanSettings.SCAN_MODE_LOW_LATENCY -> "LOW_LATENCY"
+            ScanSettings.SCAN_MODE_LOW_POWER -> "LOW_POWER"
+            ScanSettings.SCAN_MODE_OPPORTUNISTIC -> "OPPORTUNISTIC"
+            else -> scanMode.toString()
+        }
+        val callbackType = when (callbackType) {
+            ScanSettings.CALLBACK_TYPE_ALL_MATCHES -> "ALL_MATCHES"
+            ScanSettings.CALLBACK_TYPE_FIRST_MATCH -> "FIRST_MATCH"
+            ScanSettings.CALLBACK_TYPE_MATCH_LOST -> "MATCH_LOST"
+            else -> callbackType.toString()
+        }
+        val matchMode = catch {
+            val method = ScanSettings::class.java.getDeclaredField("mMatchMode")
+            method.isAccessible = true
+            when (val m = method.get(this)) {
+                ScanSettings.MATCH_MODE_STICKY -> "STICKY"
+                ScanSettings.MATCH_MODE_AGGRESSIVE -> "AGGRESSIVE"
+                else -> m?.toString()
+            }
+        }
+        return "ModeScan: $scamMode,${matchMode?.let { " ModeMatch: $matchMode," } ?: ""} TypeCallback: $callbackType, TypeScanResult: $scanResultType, delayMillis: $reportDelayMillis, phy: $phy"
+    }
+
+    override val coroutineContext: CoroutineContext
+        get() = BluetoothHelper.instance
 }
 
-class CLASSICScanner(private val env: BluetoothEnv) : Scanner, ARSHelper<OnDeviceScanListener?>() {
+class CLASSICScanner(
+    private val env: BluetoothEnv,
+    override val coroutineContext: CoroutineContext = BluetoothHelper.instance,
+    private val log: Logger = BluetoothHelper.instance.log
+) : Scanner, CoroutineScope, ARSHelper<OnDeviceScanListener?>() {
 
     private var receiver: BLUEReceiver? = null
 
@@ -142,7 +198,7 @@ class CLASSICScanner(private val env: BluetoothEnv) : Scanner, ARSHelper<OnDevic
         if (receiver != null) {
             throw IllegalStateException("must stop after scan.")
         }
-        receiver = BLUEReceiver(env, listener)
+        receiver = BLUEReceiver(env, listener, log)
         catch { receiver?.register() }
         env.adapter?.startDiscovery()
     }
@@ -161,7 +217,11 @@ class CLASSICScanner(private val env: BluetoothEnv) : Scanner, ARSHelper<OnDevic
         remove(listener)
     }
 
-    class BLUEReceiver(context: Context, private val listener: OnDeviceScanListener?) :
+    class BLUEReceiver(
+        context: Context,
+        private val listener: OnDeviceScanListener?,
+        private val log: Logger
+    ) :
         ReceiverHelper<OnReceive<BluetoothDev>>(
             context,
             arrayOf(
@@ -170,8 +230,6 @@ class CLASSICScanner(private val env: BluetoothEnv) : Scanner, ARSHelper<OnDevic
                 BluetoothAdapter.ACTION_DISCOVERY_STARTED
             )
         ) {
-
-        private val log = BluetoothHelper.instance.log
 
         override fun handleAction(context: Context, action: String, intent: Intent) {
 

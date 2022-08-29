@@ -57,6 +57,7 @@ object ViewColorHelper {
         fitStatusColor(activity)
         val view = activity.findViewById<FrameLayout>(Window.ID_ANDROID_CONTENT)
         fitTextColor(view)
+        onUpdate?.invoke()
     }
 
     private fun fitStatusColor(activity: BaseFastActivity) {
@@ -75,7 +76,6 @@ object ViewColorHelper {
             fitTextColor(customView, false)
         }
         activity.bar.colorStatusBar(c).setTextColorBlack(needBlack)
-        onUpdate?.invoke()
     }
 
     fun fitTextColor(view: View?, fitTextColor: Boolean = false) {

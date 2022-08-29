@@ -84,6 +84,10 @@ open class BluetoothDev(
 
     override val coroutineContext: CoroutineContext
         get() = helper + job
+
+    override fun toString(): String {
+        return "BluetoothScanDev(${mac})"
+    }
 }
 
 class BluetoothScanDev(
@@ -96,5 +100,10 @@ class BluetoothScanDev(
         scan: ScanResult,
         type: BluetoothType = BluetoothType.UNKNOWN,
     ) : this(scan.device, type, scan.rssi)
+
+    override fun toString(): String {
+        return "Dev(${device.address} ${rssi}dBm)"
+    }
+
 
 }

@@ -7,16 +7,19 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Color
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.widget.TextView
 import com.munch.lib.OnCancel
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.extend.bind
 import com.munch.lib.extend.lazy
 import com.munch.lib.fast.base.BaseFastActivity
+import com.munch.lib.fast.helper.ViewColorHelper
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
 import com.munch.lib.notice.Notice
@@ -24,6 +27,7 @@ import com.munch.lib.notice.OnSelect
 import com.munch.lib.notice.OnSelectOk
 import com.munch.lib.result.ExplainContactNotice
 import com.munch.lib.result.contact
+import com.munch.project.one.R
 import com.munch.project.one.databinding.ActivityBluetoothBinding
 
 /**
@@ -40,84 +44,22 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
         addRight(barText)
 
-        checkOrRequest {
-            BluetoothHelper.instance.startScan()
+        if (!BluetoothHelper.instance.isSupportBle) {
+            bind.typeLe.visibility = View.GONE
+            bind.btType.check(R.id.type_classic)
+        }
+
+        ViewColorHelper.onUpdate {
+            bind.typeLe.setTextColor(Color.BLACK)
+            bind.typeClassic.setTextColor(Color.BLACK)
+        }
+        bind.btn.setOnClickListener {
+            checkOrRequest {
+                BluetoothHelper.instance.startScan()
+            }
         }
 
     }
-
-
-    /*private class TheHandler : OnConnectHandler {
-        override suspend fun onConnect(
-            connector: Connector,
-            gatt: BluetoothGatt,
-            timeout: Long,
-            dispatcher: GattCallbackDispatcher
-        ): Boolean {
-            return suspendCancellableCoroutine { c ->
-                runBlocking {
-                    var g = dispatcher.discoverService(timeout)
-                    var index = 5
-                    while (g == null && index > 0) {
-                        index--
-                        g = dispatcher.discoverService(timeout)
-                    }
-
-                    if (g == null) {
-                        c.resume(false)
-                        return@runBlocking
-                    }
-
-                    dispatcher.gatt?.services?.forEach {
-                        it.characteristics.forEach { c ->
-                            val b =
-                                (c.properties and BluetoothGattCharacteristic.PROPERTY_NOTIFY) == BluetoothGattCharacteristic.PROPERTY_NOTIFY
-                            val b1 =
-                                (c.properties and BluetoothGattCharacteristic.PROPERTY_INDICATE) == BluetoothGattCharacteristic.PROPERTY_INDICATE
-
-                            val b2 =
-                                (c.properties and BluetoothGattCharacteristic.PERMISSION_WRITE) == BluetoothGattCharacteristic.PERMISSION_WRITE
-                            if (b || b1 || b2) {
-                                dispatcher.setCharacteristicNotification(c, true)
-                            }
-                        }
-                    }
-
-                    val hidService =
-                        dispatcher.getService(UUID.fromString("00001812-0000-1000-8000-00805f9b34fb"))
-
-                    if (hidService == null) {
-                        c.resume(false)
-                        return@runBlocking
-                    }
-                    val protocolMode =
-                        hidService.getCharacteristic(UUID.fromString("00002a4e-0000-1000-8000-00805f9b34fb"))
-                    if (protocolMode == null) {
-                        c.resume(false)
-                        return@runBlocking
-                    }
-                    val characteristic = dispatcher.readCharacteristic(protocolMode, timeout)
-                    if (characteristic == null) {
-                        c.resume(false)
-                        return@runBlocking
-                    }
-
-                    val mtu = 247
-                    index = 5
-                    var requestMtu = dispatcher.requestMtu(mtu, timeout)
-                    while (requestMtu != mtu && index > 0) {
-                        index--
-                        requestMtu = dispatcher.requestMtu(mtu, timeout)
-                    }
-                    if (requestMtu == null) {
-                        c.resume(false)
-                        return@runBlocking
-                    }
-                    c.resume(true)
-                }
-            }
-        }
-    }*/
 
     private fun checkOrRequest(grant: () -> Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -133,7 +75,7 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
         }.contact(
-            { /*BluetoothHelper.instance.isEnable*/true },
+            { BluetoothHelper.instance.isEnable },
             { Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE) }
         ).contact(
             {

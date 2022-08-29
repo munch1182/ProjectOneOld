@@ -1,10 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     tools:context=".bluetooth.BluetoothActivity"
     tools:ignore="HardcodedText">
+
+    <RadioGroup
+        android:id="@+id/bt_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/type_le"
+        android:orientation="horizontal"
+        android:padding="@dimen/dimenDef">
+
+        <RadioButton
+            android:id="@+id/type_le"
+            style="@style/App.Fast.TextView.Normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LE" />
+
+        <RadioButton
+            android:id="@+id/type_classic"
+            style="@style/App.Fast.TextView.Normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimenDef"
+            android:text="CLASSIC" />
+    </RadioGroup>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimenDef"
+        android:layout_marginEnd="@dimen/dimenDef"
+        android:text="SCAN" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/bt_rv"
@@ -13,4 +46,4 @@
         android:background="@color/colorWhite"
         tools:listitem="@layout/item_bluetooth" />
 
-</androidx.core.widget.NestedScrollView>
+</LinearLayout>
