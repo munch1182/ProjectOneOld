@@ -7,18 +7,15 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
-import androidx.lifecycle.LiveData
 import com.munch.lib.OnReceive
 import com.munch.lib.extend.catch
 import com.munch.lib.extend.lockWith
 import com.munch.lib.helper.ARSHelper
 import com.munch.lib.log.Logger
 import com.munch.lib.receiver.ReceiverHelper
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlin.coroutines.CoroutineContext
 
 fun interface OnDeviceFilter {
 
@@ -58,7 +55,6 @@ interface Scanner {
     fun stopScan()
 
     val isScanning: Boolean
-    val scanning: LiveData<Boolean>
 
     fun addDeviceScanListener(listener: OnDeviceScanListener)
     fun removeDeviceScanListener(listener: OnDeviceScanListener)
@@ -79,8 +75,6 @@ class DispatchScanner(private val env: BluetoothEnv) : Scanner {
 
     override val isScanning: Boolean
         get() = scanner.isScanning
-    override val scanning: LiveData<Boolean>
-        get() = scanner.scanning
 
     override fun startScan(filter: OnDeviceFilter, listener: OnDeviceScanListener?) {
         scanner.startScan(filter, listener)
@@ -101,15 +95,23 @@ class DispatchScanner(private val env: BluetoothEnv) : Scanner {
 
 class LEScanner(
     private val env: BluetoothEnv,
-    private val log: Logger = BluetoothHelper.instance.log
-) : Scanner, CoroutineScope, LiveData<Boolean>() {
+) : Scanner, BluetoothFun {
 
     private val lock = Mutex()
     private var _isScanning = false
-        get() = lock.lockWith { field }
-        set(value) = lock.lockWith {
+        get() = lock.lockWith(coroutineContext) { field }
+        set(value) = lock.lockWith(coroutineContext) {
+            val old = field
             field = value
-            postValue(value)
+            log.log { "SCAN state change: $old -> $value." }
+            if (value) {
+                notify.notifyUpdate { it?.onDeviceScanStart() }
+                autoListener?.onDeviceScanStart()
+            } else {
+                notify.notifyUpdate { it?.onDeviceScanComplete() }
+                autoListener?.onDeviceScanComplete()
+                autoListener = null
+            }
         }
 
     override fun setScanType(type: BluetoothType): Scanner {
@@ -118,10 +120,45 @@ class LEScanner(
 
     override val isScanning: Boolean
         get() = _isScanning
-    override val scanning: LiveData<Boolean>
-        get() = this
 
-    private val notify = ARSHelper<OnDeviceScanListener?>()
+    private val notify by lazy { ARSHelper<OnDeviceScanListener?>() }
+    private var autoListener: OnDeviceScanListener? = null
+    private var filter: OnDeviceFilter? = null
+
+    private val callback = object : ScanCallback() {
+        override fun onScanFailed(errorCode: Int) {
+            super.onScanFailed(errorCode)
+            launch {
+                if (!_isScanning) return@launch
+                _isScanning = false
+                log.log { "SCAN fail: $errorCode." }
+            }
+        }
+
+        override fun onScanResult(callbackType: Int, result: ScanResult?) {
+            val dev = BluetoothScanDev(result ?: return)
+            launch {
+                // 手动停止接收后不再接收结果
+                if (!_isScanning) return@launch
+                val isFilter = filter?.isDeviceNeedFilter(dev) ?: false
+                log.log { "SCANNED: ${if (isFilter) "$dev Filtered" else "$dev"}." }
+                if (!isFilter) {
+                    delay(800L)
+                    notify.notifyUpdate { it?.onDeviceScanned(dev) }
+                    autoListener?.onDeviceScanned(dev)
+                }
+            }
+        }
+
+        override fun onBatchScanResults(results: MutableList<ScanResult>?) {
+            super.onBatchScanResults(results)
+            launch {
+                if (!_isScanning) return@launch
+                results?.forEach { onScanResult(0, it) }
+            }
+        }
+
+    }
 
     override fun startScan(filter: OnDeviceFilter, listener: OnDeviceScanListener?) {
         val scanner = env.adapter?.bluetoothLeScanner
@@ -133,49 +170,32 @@ class LEScanner(
             log.log { "call startScan() but is Scanning." }
             return
         }
+        autoListener = listener
+        this.filter = filter
         val setting = env.bleScanSetting
-        _isScanning = true
+
         log.log { "start LE SCAN(${setting.fmt()})." }
-        scanner.startScan(null, setting, object : ScanCallback() {
-            override fun onScanFailed(errorCode: Int) {
-                super.onScanFailed(errorCode)
-                launch {
-                    if (!_isScanning) return@launch
-                    _isScanning = false
-                    log.log { "SCAN fail: $errorCode." }
-                    listener?.onDeviceScanComplete()
-                    notify.notifyUpdate { it?.onDeviceScanComplete() }
-                }
-            }
+        _isScanning = true
 
-            override fun onScanResult(callbackType: Int, result: ScanResult?) {
-                val dev = BluetoothScanDev(result ?: return)
-                launch {
-                    if (!_isScanning) return@launch
-                    val isFilter = filter.isDeviceNeedFilter(dev)
-                    log.log { "SCANNED: ${if (isFilter) "$dev Filtered" else "$dev"}." }
-                    if (!isFilter) {
-                        delay(800L)
-                        listener?.onDeviceScanned(dev)
-                        notify.notifyUpdate { it?.onDeviceScanned(dev) }
-                    }
-                }
-            }
-
-            override fun onBatchScanResults(results: MutableList<ScanResult>?) {
-                super.onBatchScanResults(results)
-                launch {
-                    if (!_isScanning) return@launch
-                    results?.forEach { onScanResult(0, it) }
-                }
-            }
-
-        })
+        scanner.startScan(null, setting, callback)
     }
 
     override fun stopScan() {
+        val scanner = env.adapter?.bluetoothLeScanner
+        if (scanner == null) {
+            log.log { "error as null scanner." }
+            return
+        }
+        if (!_isScanning) {
+            log.log { "call stopScan() but is not Scanning." }
+            return
+        }
+        log.log { "stop LE SCAN." }
+        //先停止接收
         _isScanning = false
+        scanner.stopScan(callback)
         notify.notifyUpdate { it?.onDeviceScanComplete() }
+        autoListener?.onDeviceScanComplete()
     }
 
     override fun addDeviceScanListener(listener: OnDeviceScanListener) {
@@ -211,25 +231,18 @@ class LEScanner(
         }
         return "ModeScan: $scamMode,${matchMode?.let { " ModeMatch: $matchMode," } ?: ""} TypeCallback: $callbackType, TypeScanResult: $scanResultType, delayMillis: $reportDelayMillis, phy: $phy"
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = BluetoothHelper.instance
 }
 
 class CLASSICScanner(
     private val env: BluetoothEnv,
-    override val coroutineContext: CoroutineContext = BluetoothHelper.instance,
-    private val log: Logger = BluetoothHelper.instance.log
-) : Scanner, CoroutineScope, ARSHelper<OnDeviceScanListener?>() {
+) : Scanner, BluetoothFun, ARSHelper<OnDeviceScanListener?>() {
 
     private val lock = Mutex()
     private var _isScanning = false
-        get() = lock.lockWith(BluetoothHelper.instance) { field }
-        set(value) = lock.lockWith(BluetoothHelper.instance) { field = value }
+        get() = lock.lockWith { field }
+        set(value) = lock.lockWith { field = value }
     override val isScanning: Boolean
         get() = _isScanning
-    override val scanning: LiveData<Boolean>
-        get() = TODO("Not yet implemented")
 
     private var receiver: BLUEReceiver? = null
 
@@ -265,15 +278,14 @@ class CLASSICScanner(
         context: Context,
         private val listener: OnDeviceScanListener?,
         private val log: Logger
-    ) :
-        ReceiverHelper<OnReceive<BluetoothDev>>(
-            context,
-            arrayOf(
-                BluetoothDevice.ACTION_FOUND,
-                BluetoothAdapter.ACTION_DISCOVERY_FINISHED,
-                BluetoothAdapter.ACTION_DISCOVERY_STARTED
-            )
-        ) {
+    ) : ReceiverHelper<OnReceive<BluetoothDev>>(
+        context,
+        arrayOf(
+            BluetoothDevice.ACTION_FOUND,
+            BluetoothAdapter.ACTION_DISCOVERY_FINISHED,
+            BluetoothAdapter.ACTION_DISCOVERY_STARTED
+        )
+    ) {
 
         override fun handleAction(context: Context, action: String, intent: Intent) {
 

@@ -13,17 +13,14 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
-import android.widget.TextView
-import com.munch.lib.AppHelper
 import com.munch.lib.OnCancel
 import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.observeScan
 import com.munch.lib.extend.bind
-import com.munch.lib.extend.lazy
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.helper.ViewColorHelper
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
-import com.munch.lib.log.log
 import com.munch.lib.notice.Notice
 import com.munch.lib.notice.OnSelect
 import com.munch.lib.notice.OnSelectOk
@@ -39,14 +36,11 @@ import com.munch.project.one.databinding.ActivityBluetoothBinding
 class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
 
     private val bind by bind<ActivityBluetoothBinding>()
-    private val barText by lazy { TextView(this) }
 
-    private val helper by lazy { BluetoothHelper.getInstance(AppHelper.app) }
+    private val helper = BluetoothHelper.init()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        addRight(barText)
 
         if (!helper.isSupportBle) {
             bind.typeLe.visibility = View.GONE
@@ -58,19 +52,9 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             bind.typeClassic.setTextColor(Color.BLACK)
         }
         bind.btn.setOnClickListener {
-            checkOrRequest {
-                if (helper.isScanning) {
-                    helper.stopScan()
-                } else {
-                    helper.startScan()
-                }
-            }
+            checkOrRequest { if (helper.isScanning) helper.stopScan() else helper.startScan() }
         }
-        log(11)
-        helper.scanning.observe(this) {
-            log(it)
-            bind.btn.text = if (it) "stop scan" else "start scan"
-        }
+        helper.observeScan(this) { bind.btn.text = if (it) "stop scan" else "start scan" }
     }
 
     private fun checkOrRequest(grant: () -> Unit) {

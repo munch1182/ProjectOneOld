@@ -3,11 +3,25 @@
 package com.munch.lib.bluetooth
 
 import android.bluetooth.BluetoothDevice
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import com.munch.lib.OnChangeListener
 import com.munch.lib.extend.suspendCancellableCoroutine
+import com.munch.lib.log.Logger
+import kotlinx.coroutines.CoroutineScope
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 
-private inline fun helperInstance() = BluetoothHelper.instance
+private inline fun helperInstance() = BluetoothHelper
 
+interface BluetoothFun : CoroutineScope {
+
+    val log: Logger
+        get() = BluetoothHelper.log
+
+    override val coroutineContext: CoroutineContext
+        get() = BluetoothHelper
+}
 
 class DeviceFindFilter(private val mac: String) : OnDeviceFilter {
     override fun isDeviceNeedFilter(dev: IBluetoothDev): Boolean {
@@ -25,6 +39,51 @@ fun Scanner.addDeviceScannedListener(listener: OnDeviceScannedListener) {
             listener.onDeviceScanned(dev)
         }
     })
+}
+
+/**
+ * addDeviceScanListener/removeDeviceScanListener -> observe, onResume/onPause
+ */
+fun Scanner.observeScan(owner: LifecycleOwner, listener: OnDeviceScanListener) {
+    owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+        override fun onResume(owner: LifecycleOwner) {
+            super.onResume(owner)
+            addDeviceScanListener(listener)
+        }
+
+        override fun onPause(owner: LifecycleOwner) {
+            super.onPause(owner)
+            removeDeviceScanListener(listener)
+        }
+
+        override fun onDestroy(owner: LifecycleOwner) {
+            super.onDestroy(owner)
+            owner.lifecycle.removeObserver(this)
+        }
+    })
+}
+
+/**
+ * OnDeviceScanListener -> bool(isScanning), onResume/onPause
+ *
+ * @see observeScan
+ */
+fun Scanner.observeScan(owner: LifecycleOwner, onUpdate: OnChangeListener<Boolean>) {
+    val listener = object : OnDeviceScanListener {
+        override fun onDeviceScanned(dev: BluetoothScanDev) {
+        }
+
+        override fun onDeviceScanStart() {
+            super.onDeviceScanStart()
+            onUpdate.invoke(true)
+        }
+
+        override fun onDeviceScanComplete() {
+            super.onDeviceScanComplete()
+            onUpdate.invoke(false)
+        }
+    }
+    observeScan(owner, listener)
 }
 
 inline fun BluetoothDevice.toDev() = BluetoothDev(this)
@@ -63,7 +122,7 @@ suspend fun IBluetoothState.createBond(
     timeout: Long = BluetoothHelper.TIMEOUT_DEF
 ) = suspendCancellableCoroutine(helperInstance(), timeout) {
     val listener = object : OnStateChangeListener {
-        override fun onStateChange(mac: String?, state: StateNotify) {
+        override fun onStateChange(state: StateNotify, mac: String?) {
             if (dev.address == mac) {
                 if (state != StateNotify.Bonding) {
                     removeStateChangeListener(this)
@@ -84,3 +143,21 @@ suspend fun IBluetoothState.createBond(
         it.resume(false)
     }
 } ?: false
+
+/**
+ * addStateChangeListener/removeStateChangeListener => observe, onCreate/onDestroy
+ */
+fun IBluetoothState.observeState(owner: LifecycleOwner, listener: OnStateChangeListener) {
+    owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+        override fun onCreate(owner: LifecycleOwner) {
+            super.onCreate(owner)
+            this@observeState.addStateChangeListener(listener)
+        }
+
+        override fun onDestroy(owner: LifecycleOwner) {
+            super.onDestroy(owner)
+            this@observeState.removeStateChangeListener(listener)
+            owner.lifecycle.removeObserver(this)
+        }
+    })
+}

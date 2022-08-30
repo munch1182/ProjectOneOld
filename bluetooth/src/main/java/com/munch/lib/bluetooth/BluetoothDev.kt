@@ -3,7 +3,6 @@ package com.munch.lib.bluetooth
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import com.munch.lib.extend.SealedClassToStringByName
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
@@ -36,11 +35,11 @@ interface IBluetoothDev {
 open class BluetoothDev(
     override val mac: String,
     var type: BluetoothType = BluetoothType.UNKNOWN
-) : IBluetoothDev, CoroutineScope {
+) : IBluetoothDev, BluetoothFun {
 
     private var device: BluetoothDevice? = null
     private val helper: BluetoothHelper
-        get() = BluetoothHelper.instance
+        get() = BluetoothHelper
     private val job = SupervisorJob()
 
     constructor(
