@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.TextView
+import com.munch.lib.AppHelper
 import com.munch.lib.OnCancel
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.extend.bind
@@ -22,6 +23,7 @@ import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.helper.ViewColorHelper
 import com.munch.lib.fast.view.ActivityDispatch
 import com.munch.lib.fast.view.supportDef
+import com.munch.lib.log.log
 import com.munch.lib.notice.Notice
 import com.munch.lib.notice.OnSelect
 import com.munch.lib.notice.OnSelectOk
@@ -39,12 +41,14 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
     private val bind by bind<ActivityBluetoothBinding>()
     private val barText by lazy { TextView(this) }
 
+    private val helper by lazy { BluetoothHelper.getInstance(AppHelper.app) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         addRight(barText)
 
-        if (!BluetoothHelper.instance.isSupportBle) {
+        if (!helper.isSupportBle) {
             bind.typeLe.visibility = View.GONE
             bind.btType.check(R.id.type_classic)
         }
@@ -55,10 +59,18 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         }
         bind.btn.setOnClickListener {
             checkOrRequest {
-                BluetoothHelper.instance.startScan()
+                if (helper.isScanning) {
+                    helper.stopScan()
+                } else {
+                    helper.startScan()
+                }
             }
         }
-
+        log(11)
+        helper.scanning.observe(this) {
+            log(it)
+            bind.btn.text = if (it) "stop scan" else "start scan"
+        }
     }
 
     private fun checkOrRequest(grant: () -> Unit) {
@@ -75,7 +87,7 @@ class BluetoothActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
         }.contact(
-            { BluetoothHelper.instance.isEnable },
+            { helper.isEnable },
             { Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE) }
         ).contact(
             {

@@ -14,12 +14,7 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.children
-import com.munch.lib.extend.UpdateListener
-import com.munch.lib.extend.icontext.IContext
-import com.munch.lib.extend.icontext.dp2Px
-import com.munch.lib.extend.lazy
-import com.munch.lib.extend.paddingHorizontal
-import com.munch.lib.extend.paddingVertical
+import com.munch.lib.extend.*
 import com.munch.lib.weight.ITextView
 import com.munch.lib.weight.R
 import com.munch.lib.weight.TouchHelper
@@ -32,7 +27,7 @@ open class ItemView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
-) : ViewGroup(context, attrs, defStyleAttr, defStyleRes), IContext, ITextView,
+) : ViewGroup(context, attrs, defStyleAttr, defStyleRes), ITextView,
     TouchHelper by TouchHelperDefault, UpdateListener<ItemView.Builder> {
 
     class Builder {
@@ -94,8 +89,8 @@ open class ItemView @JvmOverloads constructor(
                 getDimension(R.styleable.ItemView_item_titleIcon_height, b.titleIconHeight)
             b.titleIconMargin =
                 getDimension(R.styleable.ItemView_item_titleIcon_margin, -1f)
-            val titleMarginWidth = if (b.titleIconMargin == -1f) dp2Px(16f) else b.titleIconMargin
-            val titleMarginHeight = if (b.titleIconMargin == -1f) dp2Px(8f) else b.titleIconMargin
+            val titleMarginWidth = if (b.titleIconMargin == -1f) context.dp2Px(16f) else b.titleIconMargin
+            val titleMarginHeight = if (b.titleIconMargin == -1f) context.dp2Px(8f) else b.titleIconMargin
             b.titleIconMarginStart =
                 getDimension(R.styleable.ItemView_item_titleIcon_marginStart, titleMarginWidth)
             b.titleIconMarginEnd =
@@ -118,8 +113,8 @@ open class ItemView @JvmOverloads constructor(
                 getDimension(R.styleable.ItemView_item_textIcon_height, b.textIconHeight)
             b.textIconMargin =
                 getDimension(R.styleable.ItemView_item_textIcon_margin, -1f)
-            val textMarginWidth = if (b.textIconMargin == -1f) dp2Px(16f) else b.textIconMargin
-            val textMarginHeight = if (b.textIconMargin == -1f) dp2Px(8f) else b.textIconMargin
+            val textMarginWidth = if (b.textIconMargin == -1f) context.dp2Px(16f) else b.textIconMargin
+            val textMarginHeight = if (b.textIconMargin == -1f) context.dp2Px(8f) else b.textIconMargin
             b.textIconMarginStart =
                 getDimension(R.styleable.ItemView_item_textIcon_marginStart, textMarginWidth)
             b.textIconMarginEnd =

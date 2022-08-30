@@ -3,7 +3,6 @@ package com.munch.lib.fast
 import android.app.Application
 import android.content.Context
 import com.munch.lib.AppHelper
-import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.fast.helper.MMKVHelper
 import com.munch.lib.fast.measure.MeasureHelper
 import com.munch.lib.helper.ActivityHelper
@@ -14,7 +13,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Create by munch1182 on 2022/4/15 21:20.
  */
-open class BaseApp : Application(), IContext {
+open class BaseApp : Application() {
 
     override fun attachBaseContext(base: Context?) {
         MeasureHelper.start(MeasureHelper.KEY_LAUNCHER)

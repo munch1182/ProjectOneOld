@@ -6,8 +6,11 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import android.os.SystemClock
+import com.munch.lib.Destroyable
 import com.munch.lib.helper.ThreadHelper
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.Callable
 import java.util.concurrent.Future
 import kotlin.coroutines.CoroutineContext
@@ -83,12 +86,17 @@ open class ThreadHandler private constructor(loop: Looper) : Handler(loop) {
 
     val thread: HandlerThread
         get() = looper.thread as HandlerThread
+
+
+    fun quit() {
+        looper.quit()
+    }
 }
 
 /**
  * @see kotlinx.coroutines.android.HandlerContext
  */
-open class HandlerDispatcher(name: String) : CoroutineDispatcher() {
+open class HandlerDispatcher(name: String) : CoroutineDispatcher(), Destroyable {
 
     open val handler = ThreadHandler(name)
 
@@ -113,6 +121,10 @@ open class HandlerDispatcher(name: String) : CoroutineDispatcher() {
         other is HandlerDispatcher && other.handler === handler
 
     override fun hashCode(): Int = System.identityHashCode(handler)
+
+    override fun destroy() {
+        handler.quit()
+    }
 }
 
 class ContextScope(job: Job, context: CoroutineContext) : CoroutineScope, Job by job {
@@ -121,4 +133,11 @@ class ContextScope(job: Job, context: CoroutineContext) : CoroutineScope, Job by
     // CoroutineScope is used intentionally for user-friendly representation
     override fun toString(): String = "CoroutineScope(coroutineContext=$coroutineContext)"
 }
+
+inline fun <T> Mutex.lockWith(
+    context: CoroutineContext = Dispatchers.Unconfined,
+    owner: Any? = null,
+    noinline action: () -> T
+) = runBlocking(context) { withLock(owner, action) }
+
 

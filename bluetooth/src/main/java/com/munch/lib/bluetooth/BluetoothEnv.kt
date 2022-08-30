@@ -54,7 +54,7 @@ object BluetoothEnv : ContextWrapper(null),
      * 在使用参数之前, 必须调用此方法
      */
     fun init(app: Context): BluetoothEnv {
-        attachBaseContext(app)
+        if (baseContext == null) attachBaseContext(app)
         catch { receiver.register() }
         return this
     }

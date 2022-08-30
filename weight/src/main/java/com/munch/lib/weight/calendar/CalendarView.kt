@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.extend.*
-import com.munch.lib.extend.icontext.IContext
 import java.util.*
 
 /**
@@ -16,7 +15,7 @@ class CalendarView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     styleDef: Int = 0,
-) : RecyclerView(context, attrs, styleDef), IContext {
+) : RecyclerView(context, attrs, styleDef) {
 
     private val calendarNow = Calendar.getInstance()
     private val calendarStart = Calendar.getInstance().apply {
@@ -29,7 +28,7 @@ class CalendarView @JvmOverloads constructor(
     private var onDayChose: OnDayChoseListener? = null
 
     init {
-        val lm = LinearLayoutManager(ctx)
+        val lm = LinearLayoutManager(context)
         layoutManager = lm
         adapter = monthAdapter
         lm.scrollToPosition(monthAdapter.currIndex)
@@ -59,9 +58,6 @@ class CalendarView @JvmOverloads constructor(
         monthAdapter.notifyItemChanged(diff - 1, calendar)
         monthAdapter.notifyItemChanged(diff + 1, calendar)
     }
-
-    override val ctx: Context
-        get() = context
 
     inner class MonthAdapter(private val count: Int = 100) : RecyclerView.Adapter<MonthVH>() {
 

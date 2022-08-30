@@ -1,8 +1,8 @@
 package com.munch.lib
 
 import android.app.Application
-import android.content.Context
-import com.munch.lib.extend.icontext.IContext
+import android.content.ContextWrapper
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,10 +15,11 @@ import kotlin.coroutines.CoroutineContext
  *
  * Create by munch1182 on 2022/3/30 19:15.
  */
-object AppHelper : CoroutineScope, IContext {
+object AppHelper : ContextWrapper(null), CoroutineScope {
 
     private var application: Application? = null
     private var job = SupervisorJob().apply { cancel() }
+    private val name = CoroutineName("App")
 
     val appNullable: Application?
         get() = application
@@ -28,12 +29,10 @@ object AppHelper : CoroutineScope, IContext {
 
     fun init(application: Application) {
         AppHelper.application = application
+        if (baseContext == null) attachBaseContext(application)
         job = SupervisorJob()
     }
 
-    override val ctx: Context
-        get() = app
-
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + job
+        get() = Dispatchers.Default + job + name
 }

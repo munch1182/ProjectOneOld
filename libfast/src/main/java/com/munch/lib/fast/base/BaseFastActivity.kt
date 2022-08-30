@@ -17,7 +17,6 @@ import com.munch.lib.AppHelper
 import com.munch.lib.DBRecord
 import com.munch.lib.extend.getColorPrimary
 import com.munch.lib.extend.getSelectableItemBackgroundBorderless
-import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.inflate
 import com.munch.lib.extend.inflateParent
 import com.munch.lib.fast.helper.ViewColorHelper
@@ -31,10 +30,13 @@ import java.lang.reflect.Method
 /**
  * Created by munch1182 on 2022/4/15 23:04.
  */
-open class BaseFastActivity : DispatcherActivity(), IContext {
+open class BaseFastActivity : DispatcherActivity() {
 
     private var measured = false
     open val bar by lazy { BarHelper(this) }
+
+    protected val ctx: Context
+        get() = this
 
     val activityParams by lazy { ArrayMap<String, Any>() }
 
@@ -127,7 +129,7 @@ open class BaseFastActivity : DispatcherActivity(), IContext {
     }
 }
 
-open class BindBottomSheetDialogFragment : BottomSheetDialogFragment(), IContext {
+open class BindBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     var viewBinding: ViewBinding? = null
         private set
@@ -156,7 +158,4 @@ open class BindBottomSheetDialogFragment : BottomSheetDialogFragment(), IContext
         super.onDestroyView()
         viewBinding = null
     }
-
-    override val ctx: Context
-        get() = requireContext()
 }

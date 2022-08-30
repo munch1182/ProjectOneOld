@@ -3,6 +3,7 @@ package com.munch.lib.bluetooth
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import com.munch.lib.AppHelper
+import com.munch.lib.extend.HandlerDispatcher
 import com.munch.lib.extend.SingletonHolder
 import com.munch.lib.log.LogStyle
 import com.munch.lib.log.Logger
@@ -12,8 +13,8 @@ import kotlin.coroutines.CoroutineContext
 class BluetoothHelper(
     context: Context,
     env: BluetoothEnv = BluetoothEnv.init(context.applicationContext),
-    scanner: Scanner = ScannerImp(env)
-) : CoroutineDispatcher(),
+    scanner: Scanner = DispatchScanner(env)
+) : HandlerDispatcher("bluetooth"),
     CoroutineScope,
     Scanner by scanner,
     IBluetoothManager by env,
@@ -24,7 +25,7 @@ class BluetoothHelper(
         const val TIMEOUT_DEF = 30 * 1000L
 
         val instance: BluetoothHelper
-            get() = BluetoothHelper.getInstance(AppHelper.app)
+            get() = BluetoothHelper.getInstance(AppHelper)
     }
 
     internal val log = Logger("bluetooth", style = LogStyle.THREAD)
@@ -38,10 +39,10 @@ class BluetoothHelper(
     private val jobAndName = job + CoroutineName("BluetoothHelper")
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Default + jobAndName
+        get() = jobAndName + this
 
-    override fun dispatch(context: CoroutineContext, block: Runnable) {
-        launch(context, block = { block.run() })
+    override fun destroy() {
+        super.destroy()
+        job.cancel()
     }
-
 }

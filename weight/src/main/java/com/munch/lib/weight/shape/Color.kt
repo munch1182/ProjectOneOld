@@ -8,15 +8,13 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
-import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.weight.*
 
 class Color @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : ContainerLayout(context, attrs, defStyleAttr), FunctionalView, ITextView, IDrawableView,
-    IContext {
+) : ContainerLayout(context, attrs, defStyleAttr), FunctionalView, ITextView, IDrawableView {
 
     private var state = intArrayOf()
     private var color = -1

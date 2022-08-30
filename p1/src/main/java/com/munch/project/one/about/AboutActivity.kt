@@ -1,11 +1,7 @@
 package com.munch.project.one.about
 
 import android.os.Bundle
-import com.munch.lib.extend.bind
-import com.munch.lib.extend.getLanguage
-import com.munch.lib.extend.getLocales
-import com.munch.lib.extend.icontext.putStr2Clip
-import com.munch.lib.extend.shareText
+import com.munch.lib.extend.*
 import com.munch.lib.fast.base.BaseFastActivity
 import com.munch.lib.fast.base.PhoneHelper
 import com.munch.lib.fast.view.ActivityDispatch

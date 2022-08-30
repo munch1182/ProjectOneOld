@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import com.munch.lib.extend.UpdateListener
-import com.munch.lib.extend.icontext.IContext
 import com.munch.lib.extend.lazy
 import com.munch.lib.weight.*
 
@@ -14,8 +13,7 @@ class Shape @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : ContainerLayout(context, attrs, defStyleAttr), FunctionalView,
-    IDrawableView, IColorView,
-    UpdateListener<Shape.Builder>, IContext {
+    IDrawableView, IColorView, UpdateListener<Shape.Builder> {
 
     class Builder {
         var shape: Int = 0

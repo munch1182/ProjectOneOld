@@ -10,12 +10,7 @@ import android.view.View
 import android.widget.Checkable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.munch.lib.extend.SealedClassToStringByName
-import com.munch.lib.extend.ViewUpdateListener
-import com.munch.lib.extend.icontext.IContext
-import com.munch.lib.extend.icontext.getColorPrimary
-import com.munch.lib.extend.paddingHorizontal
-import com.munch.lib.extend.paddingVertical
+import com.munch.lib.extend.*
 import com.munch.lib.graphics.Shape
 import com.munch.lib.weight.*
 
@@ -26,7 +21,7 @@ class Switch @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : View(context, attrs, defStyleAttr, defStyleRes),
     ViewHelper by ViewHelperDefault, TouchHelper by TouchHelperDefault,
-    Checkable, IContext, IColorView, ViewUpdateListener<Switch> {
+    Checkable, IColorView, ViewUpdateListener<Switch> {
 
     companion object {
         private const val WIDTH_DEF = 40f
@@ -66,7 +61,7 @@ class Switch @JvmOverloads constructor(
     //中心圆心与圆角矩形的间距
     var checkPadding = 4f
 
-    var checkBgColor = getColorPrimary()
+    var checkBgColor = context.getColorPrimary()
     var checkCenterColor = Color.WHITE
     var uncheckBgColor = Color.parseColor("#e8e8ea")
     var uncheckCenterColor = Color.WHITE
