@@ -1,49 +1,204 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:background="@color/colorBg"
     tools:context=".bluetooth.BluetoothActivity"
     tools:ignore="HardcodedText">
 
-    <RadioGroup
-        android:id="@+id/bt_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:checkedButton="@id/type_le"
-        android:orientation="horizontal"
-        android:padding="@dimen/dimenDef">
-
-        <RadioButton
-            android:id="@+id/type_le"
-            style="@style/App.Fast.TextView.Normal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="LE" />
-
-        <RadioButton
-            android:id="@+id/type_classic"
-            style="@style/App.Fast.TextView.Normal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/dimenDef"
-            android:text="CLASSIC" />
-    </RadioGroup>
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btn"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dimenDef"
-        android:layout_marginEnd="@dimen/dimenDef"
-        android:text="SCAN" />
+        android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/bt_rv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorWhite"
-        tools:listitem="@layout/item_bluetooth" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/dimenDef">
 
-</LinearLayout>
+            <TextView
+                android:id="@+id/bt_title_type"
+                style="@style/App.Fast.TextView.Normal.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="80dp"
+                android:paddingTop="@dimen/dimenDefSmall"
+                android:paddingBottom="@dimen/dimenDefSmall"
+                android:text="TYPE:"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <RadioGroup
+                android:id="@+id/bt_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dimenDefSmall"
+                android:checkedButton="@id/type_le"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="@id/bt_title_type"
+                app:layout_constraintStart_toEndOf="@id/bt_title_type"
+                app:layout_constraintTop_toTopOf="@id/bt_title_type">
+
+                <RadioButton
+                    android:id="@+id/type_le"
+                    style="@style/App.Fast.TextView.Normal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LE" />
+
+                <RadioButton
+                    android:id="@+id/type_classic"
+                    style="@style/App.Fast.TextView.Normal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dimenDef"
+                    android:text="CLASSIC" />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/bt_title_timeout"
+                style="@style/App.Fast.TextView.Normal.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="80dp"
+                android:paddingTop="@dimen/dimenDefSmall"
+                android:paddingBottom="@dimen/dimenDefSmall"
+                android:text="TIMEOUT:"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/bt_title_type" />
+
+            <TextView
+                android:id="@+id/bt_timeout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dimenDefSmall"
+                android:text="1000ms"
+                app:layout_constraintBottom_toBottomOf="@id/bt_title_timeout"
+                app:layout_constraintStart_toEndOf="@id/bt_title_timeout"
+                app:layout_constraintTop_toTopOf="@id/bt_title_timeout" />
+
+            <TextView
+                android:id="@+id/bt_title_key_name"
+                style="@style/App.Fast.TextView.Normal.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="80dp"
+                android:paddingTop="@dimen/dimenDefSmall"
+                android:paddingBottom="@dimen/dimenDefSmall"
+                android:text="NAME:"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/bt_title_timeout" />
+
+            <com.munch.lib.weight.shape.Shape
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginStart="@dimen/dimenDefSmall"
+                android:radius="4dp"
+                android:strokeWidth="2"
+                android:strokeColor="?colorPrimary"
+                app:layout_constraintBottom_toBottomOf="@id/bt_title_key_name"
+                app:layout_constraintStart_toEndOf="@id/bt_title_key_name"
+                app:layout_constraintTop_toTopOf="@id/bt_title_key_name">
+
+                <EditText
+                    android:id="@+id/bt_key_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorWhite"
+                    android:minWidth="200dp"
+                    android:paddingStart="@dimen/dimenDefSmall"
+                    android:paddingEnd="@dimen/dimenDefSmall"
+                    android:textSize="14sp"
+                    tools:ignore="Autofill,LabelFor,TextFields" />
+            </com.munch.lib.weight.shape.Shape>
+
+            <TextView
+                android:id="@+id/bt_title_key_mac"
+                style="@style/App.Fast.TextView.Normal.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="80dp"
+                android:paddingTop="@dimen/dimenDefSmall"
+                android:paddingBottom="@dimen/dimenDefSmall"
+                android:text="MAC:"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/bt_title_key_name" />
+
+            <com.munch.lib.weight.shape.Shape
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dimenDefSmall"
+                android:radius="4dp"
+                android:strokeWidth="2"
+                android:strokeColor="?colorPrimary"
+                app:layout_constraintBottom_toBottomOf="@id/bt_title_key_mac"
+                app:layout_constraintStart_toEndOf="@id/bt_title_key_mac"
+                app:layout_constraintTop_toTopOf="@id/bt_title_key_mac">
+
+                <EditText
+                    android:id="@+id/bt_key_mac"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:background="@color/colorWhite"
+                    android:minWidth="200dp"
+                    android:paddingStart="@dimen/dimenDefSmall"
+                    android:paddingEnd="@dimen/dimenDefSmall"
+                    android:textSize="14sp"
+                    tools:ignore="Autofill,LabelFor,TextFields" />
+            </com.munch.lib.weight.shape.Shape>
+
+            <TextView
+                android:id="@+id/bt_title_rssi"
+                style="@style/App.Fast.TextView.Normal.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="80dp"
+                android:paddingTop="@dimen/dimenDefSmall"
+                android:paddingBottom="@dimen/dimenDefSmall"
+                android:text="RSSI:"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/bt_title_key_mac" />
+
+            <CheckBox
+                android:id="@+id/bt_once"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:minHeight="0dp"
+                android:text="show dev only once"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bt_title_rssi" />
+
+            <CheckBox
+                android:id="@+id/bt_no_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:text="show dev without name"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bt_once" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/bt_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SCAN"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bt_no_name" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/bt_rv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite"
+            tools:listitem="@layout/item_bluetooth" />
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

@@ -35,7 +35,7 @@ interface IBluetoothDev {
 open class BluetoothDev(
     override val mac: String,
     var type: BluetoothType = BluetoothType.UNKNOWN
-) : IBluetoothDev, BluetoothFun {
+) : IBluetoothDev, BluetoothHelperFun {
 
     private var device: BluetoothDevice? = null
     private val helper: BluetoothHelper
@@ -81,11 +81,26 @@ open class BluetoothDev(
         return helper.createBond(dev)
     }
 
+    override fun hashCode(): Int {
+        return mac.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as BluetoothDev
+
+        if (mac != other.mac) return false
+
+        return true
+    }
+
     override val coroutineContext: CoroutineContext
         get() = helper + job
 
     override fun toString(): String {
-        return "BluetoothScanDev(${mac})"
+        return "BluetoothScanDev($type ${mac})"
     }
 }
 
@@ -101,8 +116,6 @@ class BluetoothScanDev(
     ) : this(scan.device, type, scan.rssi)
 
     override fun toString(): String {
-        return "Dev(${device.address} ${rssi}dBm)"
+        return "Dev($type ${device.address} ${rssi}dBm)"
     }
-
-
 }

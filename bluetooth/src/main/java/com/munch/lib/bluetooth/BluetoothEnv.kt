@@ -43,7 +43,16 @@ interface IBluetoothState {
     fun removeStateChangeListener(listener: OnStateChangeListener)
 }
 
-object BluetoothEnv : ContextWrapper(null), IBluetoothManager, IBluetoothState {
+interface IBluetoothEnv : IBluetoothManager, IBluetoothState {
+
+    //提供一个context给所有bluetooth相关使用
+    val context: Context
+
+    //用于le扫描的设置
+    val bleScanSetting: ScanSettings
+}
+
+object BluetoothEnv : ContextWrapper(null), IBluetoothEnv {
 
     private val stateNotify = ARSHelper<OnStateChangeListener>()
     private val receiver by lazy { BluetoothReceiver(this, stateNotify) }
@@ -58,6 +67,9 @@ object BluetoothEnv : ContextWrapper(null), IBluetoothManager, IBluetoothState {
         }
         return this
     }
+
+    override val context: Context
+        get() = this
 
     override val bm by lazy { (getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager) }
     override val adapter by lazy { bm?.adapter }
@@ -75,7 +87,7 @@ object BluetoothEnv : ContextWrapper(null), IBluetoothManager, IBluetoothState {
 
     private var scanSettings: ScanSettings? = null
 
-    val bleScanSetting: ScanSettings
+    override val bleScanSetting: ScanSettings
         get() = scanSettings ?: ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .setMatchMode(ScanSettings.MATCH_MODE_STICKY)
@@ -109,7 +121,7 @@ object BluetoothEnv : ContextWrapper(null), IBluetoothManager, IBluetoothState {
             BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED,
             BluetoothAdapter.ACTION_STATE_CHANGED,
         )
-    ), BluetoothFun {
+    ), BluetoothHelperFun {
 
         override fun handleAction(context: Context, action: String, intent: Intent) {
             launch {

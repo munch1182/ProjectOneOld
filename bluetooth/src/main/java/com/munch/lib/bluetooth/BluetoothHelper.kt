@@ -17,13 +17,15 @@ import kotlin.coroutines.CoroutineContext
 object BluetoothHelper :
     HandlerDispatcher("BluetoothHandler"),
     CoroutineScope,
-    Scanner by DispatchScanner(BluetoothEnv),
-    IBluetoothManager by BluetoothEnv,
-    IBluetoothState by BluetoothEnv {
+    Scanner by DispatchScanner,
+    IBluetoothEnv by BluetoothEnv {
 
     const val TIMEOUT_DEF = 30 * 1000L
     internal val log = Logger("bluetooth", style = LogStyle.THREAD)
 
+    /**
+     * 使用前需要调用
+     */
     fun init(app: Context = AppHelper): BluetoothHelper {
         BluetoothEnv.init(app)
         return this
@@ -32,6 +34,18 @@ object BluetoothHelper :
     fun setBleScanSetting(scan: ScanSettings? = null): BluetoothHelper {
         BluetoothEnv.setBleScanSetting(scan)
         return this
+    }
+
+    fun startLeScan(
+        filter: OnDeviceFilter = OnDeviceNoneFilter, listener: OnDeviceScanListener? = null
+    ) {
+        setScanType(BluetoothType.LE).startScan(filter, listener)
+    }
+
+    fun startClassicScan(
+        filter: OnDeviceFilter = OnDeviceNoneFilter, listener: OnDeviceScanListener? = null
+    ) {
+        setScanType(BluetoothType.CLASSIC).startScan(filter, listener)
     }
 
     private val job = SupervisorJob()

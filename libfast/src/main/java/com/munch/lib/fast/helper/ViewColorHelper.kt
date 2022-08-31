@@ -40,6 +40,11 @@ object ViewColorHelper {
         return activity.activityParams[PARAMS_KEY] as? Int
     }
 
+    @ColorInt
+    fun getColor(): Int? {
+        return color
+    }
+
     fun onUpdate(onUpdate: OnUpdate): ViewColorHelper {
         this.onUpdate = onUpdate
         return this

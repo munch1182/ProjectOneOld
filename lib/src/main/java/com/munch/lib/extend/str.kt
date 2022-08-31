@@ -6,7 +6,7 @@ import android.text.SpannableString
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.RelativeSizeSpan
-import androidx.annotation.ColorRes
+import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import java.util.regex.Pattern
 import kotlin.math.min
@@ -51,13 +51,32 @@ fun CharSequence.split(count: Int, start: Int = 0): Array<CharSequence> {
     }
 }
 
-fun CharSequence.color(@ColorRes color: Int, start: Int = 0, end: Int = length) =
+/**
+ * 将[this]中的部分文字[str]的颜色改为[color]
+ *
+ * 只会更改找到的第一个位置的文字
+ *
+ * @param ignoreCase 无视大小写
+ */
+fun CharSequence.color(
+    str: String?,
+    @ColorInt color: Int,
+    ignoreCase: Boolean = true
+): CharSequence {
+    val target = (if (ignoreCase) str?.lowercase() else str) ?: return this
+    val src = if (ignoreCase) this.toString().lowercase() else this
+    val start = src.indexOf(target)
+    if (start == -1) return this
+    return color(color, start, start + target.length)
+}
+
+fun CharSequence.color(@ColorInt color: Int, start: Int = 0, end: Int = length) =
     SpannableString(this).color(color, start, end)
 
 fun CharSequence.size(size: Int, dip: Boolean = true, start: Int = 0, end: Int = length) =
     SpannableString(this).size(size, dip, start, end)
 
-inline fun SpannableString.color(@ColorRes color: Int, start: Int = 0, end: Int = length) = apply {
+inline fun SpannableString.color(@ColorInt color: Int, start: Int = 0, end: Int = length) = apply {
     setSpan(ForegroundColorSpan(color), start, end, SpannableString.SPAN_INCLUSIVE_EXCLUSIVE)
 }
 
