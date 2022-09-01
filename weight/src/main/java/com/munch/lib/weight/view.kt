@@ -107,3 +107,16 @@ object TouchHelperDefault : TouchHelper {
     override val tmpPoint: PointF = PointF()
     override val offset: Float = 25f
 }
+
+sealed class ViewItemLayout : SealedClassToStringByName() {
+
+    /**
+     * 根据item的大小自动计算view的宽高
+     */
+    object ViewByItem : ViewItemLayout()
+
+    /**
+     * 根据view的宽高自动计算item的宽高
+     */
+    object ItemByView : ViewItemLayout()
+}

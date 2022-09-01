@@ -18,6 +18,11 @@ class RectF(l: Float, t: Float, r: Float, b: Float) : RectF(l, t, r, b) {
 
     constructor() : this(0f, 0f, 0f, 0f)
 
+    val centerX: Float
+        get() = (left + right) / 2f
+    val centerY: Float
+        get() = (top + bottom) / 2f
+
     private var saveRect: RectF? = null
 
     /**

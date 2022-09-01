@@ -72,6 +72,9 @@ inline fun Paint.measureTextBounds(text: String, bound: Rect = Rect()): Rect {
     return bound
 }
 
+inline fun Paint.getLineHeight() = fontMetrics.let { it.bottom - it.top + it.leading }
+inline fun Paint.getStrHeight() = fontMetrics.let { it.descent - it.ascent }
+
 /**
  * 获取该列表文字的最大宽度和高度
  */

@@ -17,7 +17,7 @@ import com.munch.lib.weight.calendar.CalendarHeaderView
 import com.munch.lib.weight.calendar.CalendarView
 import com.munch.lib.weight.chart.PointChartView
 import com.munch.lib.weight.color.ColorPlateWithTouch
-import com.munch.lib.weight.wheelview.WheelView
+import com.munch.lib.weight.wheelview.ItemWheelView
 import com.munch.project.one.databinding.ActivitySimpleViewBinding
 import kotlinx.coroutines.delay
 import java.util.*
@@ -59,7 +59,9 @@ class WheelActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         super.onCreate(savedInstanceState)
         setContentView(FrameLayout(ctx).apply {
             addView(
-                WheelView(ctx),
+                ItemWheelView(ctx).apply {
+                    set(arrayOf("星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期天"))
+                },
                 newWWLp().apply { setPadding(dp2Px(16f).toInt()) })
         })
     }
