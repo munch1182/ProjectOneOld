@@ -8,7 +8,6 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import com.munch.lib.extend.lazy
 import com.munch.lib.graphics.Shape
-import com.munch.lib.weight.TouchHelper
 import com.munch.lib.weight.TouchHelperDefault
 
 open class ColorPlateWithTouch @JvmOverloads constructor(
@@ -16,11 +15,12 @@ open class ColorPlateWithTouch @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
-) : ColorPlateOnly(context, attrs, defStyleAttr, defStyleRes), TouchHelper by TouchHelperDefault {
+) : ColorPlateOnly(context, attrs, defStyleAttr, defStyleRes) {
 
     protected open val touchBarHeight = 6f
     protected open val touchBarRadius = 32f
     protected open val circle = Shape.Circle()
+    protected open val touchHelper = TouchHelperDefault()
 
     protected open val touchPaint by lazy {
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -33,7 +33,7 @@ open class ColorPlateWithTouch @JvmOverloads constructor(
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         val radius = rectView.width() / 2f
-        movePoint.set(radius, radius)
+        touchHelper.movePoint.set(radius, radius)
         circle.x = paddingLeft.toFloat()
         circle.y = paddingTop.toFloat()
         circle.radius = radius
@@ -42,7 +42,7 @@ open class ColorPlateWithTouch @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas ?: return
-        canvas.drawCircle(movePoint.x, movePoint.y, touchBarRadius, touchPaint)
+        canvas.drawCircle(touchHelper.movePoint.x, touchHelper.movePoint.y, touchBarRadius, touchPaint)
     }
 
     override fun performClick(): Boolean {
@@ -52,7 +52,7 @@ open class ColorPlateWithTouch @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event ?: return super.onTouchEvent(event)
         if (event.action == MotionEvent.ACTION_DOWN) performClick()
-        updateEvent(event) { it in circle }
+        touchHelper.updateEvent(event) { it in circle }
         /*val h = calculateHue()
         val s = calculateSaturation()
         val c = Color.HSVToColor(floatArrayOf(h, s, 1f))*/

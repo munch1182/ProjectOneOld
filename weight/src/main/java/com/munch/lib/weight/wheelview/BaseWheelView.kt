@@ -6,11 +6,13 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import com.munch.lib.extend.drawTextInCenter
-import com.munch.lib.graphics.RectF
 import com.munch.lib.extend.lazy
 import com.munch.lib.extend.paddingVertical
+import com.munch.lib.graphics.RectF
+import com.munch.lib.weight.TouchHelperDefault
 
 /**
  * Create by munch1182 on 2022/5/23 16:41.
@@ -24,6 +26,7 @@ abstract class BaseWheelView @JvmOverloads constructor(
 
     //处理item显示的文字
     protected abstract val item: OnItemListener
+    protected open val touchHelper = TouchHelperDefault()
 
     //要显示的item条数
     open var showItemCount = 5
@@ -91,7 +94,14 @@ abstract class BaseWheelView @JvmOverloads constructor(
                 canvas.drawTextInCenter(str!!, x, y, paint)
             }
         }
+    }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        event ?: return super.onTouchEvent(event)
+        /*touchHelper.updateEvent(event) {
+            false
+        }*/
+        return true
     }
 
     interface OnItemListener {

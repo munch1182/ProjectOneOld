@@ -20,7 +20,7 @@ class Switch @JvmOverloads constructor(
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
 ) : View(context, attrs, defStyleAttr, defStyleRes),
-    ViewHelper by ViewHelperDefault, TouchHelper by TouchHelperDefault,
+    ViewHelper by ViewHelperDefault,
     Checkable, IColorView, ViewUpdateListener<Switch> {
 
     companion object {
@@ -41,6 +41,7 @@ class Switch @JvmOverloads constructor(
         fun canFrom(type: CheckType) = this == type || this == Any
     }
 
+    private val touchHelper = TouchHelperDefault()
     private val roundRectangle = Shape.RoundRectangle()
     private val circle = Shape.Circle()
     private val circlePaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -182,8 +183,8 @@ class Switch @JvmOverloads constructor(
         if (checkFrom != CheckType.Any && checkFrom != CheckType.Click) {
             return false
         }
-        updateEvent(event)
-        if (event.action == MotionEvent.ACTION_UP && isClick) {
+        touchHelper.updateEvent(event)
+        if (event.action == MotionEvent.ACTION_UP && touchHelper.isClick) {
             performClick()
         }
         return true

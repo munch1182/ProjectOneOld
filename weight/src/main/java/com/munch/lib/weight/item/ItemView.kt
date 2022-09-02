@@ -17,7 +17,6 @@ import androidx.core.view.children
 import com.munch.lib.extend.*
 import com.munch.lib.weight.ITextView
 import com.munch.lib.weight.R
-import com.munch.lib.weight.TouchHelper
 import com.munch.lib.weight.TouchHelperDefault
 import kotlin.math.max
 import kotlin.math.min
@@ -28,7 +27,7 @@ open class ItemView @JvmOverloads constructor(
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr, defStyleRes), ITextView,
-    TouchHelper by TouchHelperDefault, UpdateListener<ItemView.Builder> {
+    UpdateListener<ItemView.Builder> {
 
     class Builder {
 
@@ -64,6 +63,7 @@ open class ItemView @JvmOverloads constructor(
         var textStyle = titleStyle
     }
 
+    protected open val touchHelper = TouchHelperDefault()
     protected open val idTag = com.munch.lib.R.id.id_tag
     protected open val b = Builder()
     protected open val titleIcon by lazy {
@@ -89,8 +89,10 @@ open class ItemView @JvmOverloads constructor(
                 getDimension(R.styleable.ItemView_item_titleIcon_height, b.titleIconHeight)
             b.titleIconMargin =
                 getDimension(R.styleable.ItemView_item_titleIcon_margin, -1f)
-            val titleMarginWidth = if (b.titleIconMargin == -1f) context.dp2Px(16f) else b.titleIconMargin
-            val titleMarginHeight = if (b.titleIconMargin == -1f) context.dp2Px(8f) else b.titleIconMargin
+            val titleMarginWidth =
+                if (b.titleIconMargin == -1f) context.dp2Px(16f) else b.titleIconMargin
+            val titleMarginHeight =
+                if (b.titleIconMargin == -1f) context.dp2Px(8f) else b.titleIconMargin
             b.titleIconMarginStart =
                 getDimension(R.styleable.ItemView_item_titleIcon_marginStart, titleMarginWidth)
             b.titleIconMarginEnd =
@@ -113,8 +115,10 @@ open class ItemView @JvmOverloads constructor(
                 getDimension(R.styleable.ItemView_item_textIcon_height, b.textIconHeight)
             b.textIconMargin =
                 getDimension(R.styleable.ItemView_item_textIcon_margin, -1f)
-            val textMarginWidth = if (b.textIconMargin == -1f) context.dp2Px(16f) else b.textIconMargin
-            val textMarginHeight = if (b.textIconMargin == -1f) context.dp2Px(8f) else b.textIconMargin
+            val textMarginWidth =
+                if (b.textIconMargin == -1f) context.dp2Px(16f) else b.textIconMargin
+            val textMarginHeight =
+                if (b.textIconMargin == -1f) context.dp2Px(8f) else b.textIconMargin
             b.textIconMarginStart =
                 getDimension(R.styleable.ItemView_item_textIcon_marginStart, textMarginWidth)
             b.textIconMarginEnd =
@@ -313,8 +317,8 @@ open class ItemView @JvmOverloads constructor(
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event ?: return super.onTouchEvent(event)
-        updateEvent(event)
-        if (event.action == MotionEvent.ACTION_UP && isClick) {
+        touchHelper.updateEvent(event)
+        if (event.action == MotionEvent.ACTION_UP && touchHelper.isClick) {
             performClick()
         }
         return super.onTouchEvent(event)

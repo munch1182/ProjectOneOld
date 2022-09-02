@@ -1,10 +1,8 @@
 package com.munch.lib.weight.wheelview
 
 import android.content.Context
-import android.graphics.Rect
 import android.util.AttributeSet
 import com.munch.lib.extend.getLineHeight
-import com.munch.lib.extend.measureTextBounds
 
 class ItemWheelView @JvmOverloads constructor(
     context: Context,

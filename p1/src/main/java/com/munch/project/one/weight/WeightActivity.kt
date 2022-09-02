@@ -63,6 +63,7 @@ class WheelActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
             addView(
                 ItemWheelView(ctx).apply {
                     set(arrayOf("星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期天"))
+                    select(2)
                 },
                 newWWLp().apply { setPadding(dp2Px(16f).toInt()) })
         })

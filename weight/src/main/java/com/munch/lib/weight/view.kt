@@ -101,7 +101,7 @@ interface TouchHelper {
         get() = tmpPoint.isInOffset(downPoint, offset)
 }
 
-object TouchHelperDefault : TouchHelper {
+class TouchHelperDefault : TouchHelper {
     override val downPoint: PointF = PointF()
     override val movePoint: PointF = PointF()
     override val tmpPoint: PointF = PointF()
