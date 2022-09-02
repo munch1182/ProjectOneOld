@@ -51,7 +51,7 @@ class ItemWheelView @JvmOverloads constructor(
             return data[index]
         }
 
-        override fun onIndexValid(index: Int): Boolean {
+        override fun isIndexValid(index: Int): Boolean {
             return index in data.indices
         }
 

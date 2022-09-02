@@ -2,7 +2,6 @@ package com.munch.lib.weight.wheelview
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
 import android.util.AttributeSet
@@ -16,6 +15,9 @@ import com.munch.lib.weight.TouchHelperDefault
 import kotlin.math.absoluteValue
 
 /**
+ * todo 可以通过设置的方式动画更改选中 [moveTo]
+ * todo 可以设置方向
+ *
  * Create by munch1182 on 2022/5/23 16:41.
  */
 abstract class BaseWheelView @JvmOverloads constructor(
@@ -60,6 +62,15 @@ abstract class BaseWheelView @JvmOverloads constructor(
 
     fun setOnItemSelectListener(listener: OnItemSelectListener) {
         this.itemSelect = listener
+    }
+
+    fun next() = moveTo(item.currIndex + 1)
+
+    fun previous() = moveTo(item.currIndex - 1)
+
+    fun moveTo(index: Int) {
+        if (!item.isIndexValid(index)) return
+
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -145,11 +156,11 @@ abstract class BaseWheelView @JvmOverloads constructor(
         //当前偏移对应的字符
         fun offset(off: Int): String? {
             val i = currIndex + off
-            return if (onIndexValid(i)) onItem(i) else null
+            return if (isIndexValid(i)) onItem(i) else null
         }
 
         //判断索引是否有效
-        fun onIndexValid(index: Int): Boolean
+        fun isIndexValid(index: Int): Boolean
     }
 
     fun interface OnItemSelectListener {
