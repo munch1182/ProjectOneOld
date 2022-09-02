@@ -62,6 +62,7 @@
         <activity android:name=".weight.SimpleViewActivity" />
         <activity android:name=".net.WebActivity" />
         <activity android:name=".weight.ChartViewActivity" />
+        <activity android:name=".weight.TextViewActivity" />
 
         <service
             android:name="com.munch.lib.helper.NotificationServiceHelper"

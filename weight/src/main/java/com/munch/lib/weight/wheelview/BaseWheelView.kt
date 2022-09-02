@@ -2,6 +2,7 @@ package com.munch.lib.weight.wheelview
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
 import android.util.AttributeSet
@@ -64,6 +65,8 @@ abstract class BaseWheelView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas ?: return
+
+        canvas.drawColor(Color.BLUE)
 
         val x = center.x
         var y: Float

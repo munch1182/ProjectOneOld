@@ -17,6 +17,7 @@ import com.munch.lib.weight.calendar.CalendarHeaderView
 import com.munch.lib.weight.calendar.CalendarView
 import com.munch.lib.weight.chart.PointChartView
 import com.munch.lib.weight.color.ColorPlateWithTouch
+import com.munch.lib.weight.text.TextElementView
 import com.munch.lib.weight.wheelview.ItemWheelView
 import com.munch.project.one.databinding.ActivitySimpleViewBinding
 import kotlinx.coroutines.delay
@@ -31,6 +32,7 @@ class WeightActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
         listOf(
             ColorPlateActivity::class,
             GestureActivity::class,
+            TextViewActivity::class,
             CalendarActivity::class,
             WheelActivity::class,
             SimpleViewActivity::class,
@@ -115,5 +117,12 @@ class ChartViewActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(PointChartView(this).apply { setPadding(dp2Px(16f).toInt()) })
+    }
+}
+
+class TextViewActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(TextElementView(this).apply { setPadding(dp2Px(16f).toInt()) })
     }
 }

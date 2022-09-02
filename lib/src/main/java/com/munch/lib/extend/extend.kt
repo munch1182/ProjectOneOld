@@ -30,8 +30,7 @@ fun destroy() {
     exitProcess(1)
 }
 
-inline fun <T> lazy(noinline initializer: () -> T): Lazy<T> =
-    lazy(LazyThreadSafetyMode.NONE, initializer)
+inline fun <T> lazy(noinline initializer: () -> T) = lazy(LazyThreadSafetyMode.NONE, initializer)
 
 inline fun <T> lazySync(noinline initializer: () -> T): Lazy<T> =
     lazy(LazyThreadSafetyMode.SYNCHRONIZED, initializer)
@@ -129,18 +128,18 @@ fun <T> Type.findParameterized(target: Class<in T>): Class<T>? {
     }
 }
 
-inline fun <T> runBlockingSuspendCancellableCoroutine(crossinline block: (CancellableContinuation<T>) -> Unit): T? =
-    runBlocking { kotlinx.coroutines.suspendCancellableCoroutine(block) }
+inline fun <T> runBlockingSuspendCancellableCoroutine(crossinline block: (CancellableContinuation<T>) -> Unit): T =
+    runBlocking { suspendCancellableCoroutine(block) }
 
 suspend inline fun <T> suspendCancellableCoroutine(
     timeout: Long,
     crossinline block: (CancellableContinuation<T>) -> Unit
-): T? = withTimeoutOrNull(timeout) { kotlinx.coroutines.suspendCancellableCoroutine(block) }
+): T? = withTimeoutOrNull(timeout) { suspendCancellableCoroutine(block) }
 
 suspend inline fun <T> suspendCancellableCoroutine(
     dispatcher: CoroutineDispatcher,
     crossinline block: (CancellableContinuation<T>) -> Unit
-): T? = withContext(dispatcher) { kotlinx.coroutines.suspendCancellableCoroutine(block) }
+): T? = withContext(dispatcher) { suspendCancellableCoroutine(block) }
 
 suspend inline fun <T> suspendCancellableCoroutine(
     dispatcher: CoroutineDispatcher,
