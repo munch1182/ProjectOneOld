@@ -67,15 +67,7 @@ interface TouchHelper {
         if (limit != null && !limit.invoke(tmpPoint)) {
             return
         }
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                downPoint.set(tmpPoint)
-                movePoint.set(tmpPoint)
-            }
-            MotionEvent.ACTION_MOVE -> {
-                movePoint.set(tmpPoint)
-            }
-        }
+        updateEvent(event)
     }
 
     fun updateEvent(event: MotionEvent) {
@@ -99,6 +91,12 @@ interface TouchHelper {
 
     val isClick: Boolean
         get() = tmpPoint.isInOffset(downPoint, offset)
+
+    val moveX: Float
+        get() = downPoint.x - movePoint.x
+
+    val moveY: Float
+        get() = downPoint.y - movePoint.y
 }
 
 class TouchHelperDefault : TouchHelper {

@@ -13,6 +13,7 @@ import com.munch.lib.extend.lazy
 import com.munch.lib.extend.paddingVertical
 import com.munch.lib.graphics.RectF
 import com.munch.lib.weight.TouchHelperDefault
+import kotlin.math.absoluteValue
 
 /**
  * Create by munch1182 on 2022/5/23 16:41.
@@ -27,6 +28,7 @@ abstract class BaseWheelView @JvmOverloads constructor(
     //处理item显示的文字
     protected abstract val item: OnItemListener
     protected open val touchHelper = TouchHelperDefault()
+    protected open var itemSelect: OnItemSelectListener? = null
 
     //要显示的item条数
     open var showItemCount = 5
@@ -42,6 +44,10 @@ abstract class BaseWheelView @JvmOverloads constructor(
 
     protected open val halfItemCount: Int
         get() = showItemCount / 2
+
+    //要绘制的半边的item数量, 需要多绘制1个
+    protected open val drawItemCount: Int
+        get() = halfItemCount + 1
     protected open val paint by lazy {
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
             textSize = this@BaseWheelView.textSize
@@ -51,6 +57,10 @@ abstract class BaseWheelView @JvmOverloads constructor(
     //正中心的点, 即正中心item文字的中心点
     protected open val center by lazy { PointF() }
     protected open val centerRect by lazy { RectF() }
+
+    fun setOnItemSelectListener(listener: OnItemSelectListener) {
+        this.itemSelect = listener
+    }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         center.set(w / 2f, h / 2f)
@@ -69,44 +79,65 @@ abstract class BaseWheelView @JvmOverloads constructor(
         super.onDraw(canvas)
         canvas ?: return
 
-        canvas.drawColor(Color.BLUE)
+        //canvas.drawColor(Color.WHITE)
+
+        val itemH = centerRect.height()
+        if (touchHelper.moveY.absoluteValue > itemH) {
+            if (touchHelper.moveY < 0) {
+                item.currIndex -= 1
+                itemSelect?.onItemSelect(item.currIndex, item.curr)
+            } else {
+                item.currIndex += 1
+                itemSelect?.onItemSelect(item.currIndex, item.curr)
+            }
+            touchHelper.downPoint.set(touchHelper.movePoint)
+        }
 
         val x = center.x
+        val centerY = center.y - touchHelper.moveY
         var y: Float
         var str: String?
-        val itemH = centerRect.height()
-        kotlin.run top@{
-            repeat(halfItemCount) {
-                y = center.y - (it + 1) * itemH
+
+        run top@{
+            repeat(drawItemCount) {
+                y = centerY - (it + 1) * itemH
                 str = item.offset(-(it + 1)) ?: return@top
                 canvas.drawTextInCenter(str!!, x, y, paint)
             }
         }
-        kotlin.run curr@{
-            y = center.y
-            str = item.offset(0) ?: return@curr
+        run curr@{
+            y = centerY
+            str = item.curr ?: return@curr
             canvas.drawTextInCenter(str!!, x, y, paint)
         }
-        kotlin.run bottom@{
-            repeat(halfItemCount) {
-                y = center.y + (it + 1) * itemH
+        run bottom@{
+            repeat(drawItemCount) {
+                y = centerY + (it + 1) * itemH
                 str = item.offset((it + 1)) ?: return@bottom
                 canvas.drawTextInCenter(str!!, x, y, paint)
             }
         }
     }
 
+    override fun performClick(): Boolean {
+        return super.performClick()
+    }
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        event ?: return super.onTouchEvent(event)
-        /*touchHelper.updateEvent(event) {
-            false
-        }*/
+        event ?: return false
+        touchHelper.updateEvent(event)
+        if (touchHelper.moveY != 0f) {
+            invalidate()
+        }
         return true
     }
 
     interface OnItemListener {
         // 当前选中的索引
         var currIndex: Int
+
+        val curr: String?
+            get() = offset(0)
 
         //当前索引对于的字符
         fun onItem(index: Int): String
@@ -119,5 +150,9 @@ abstract class BaseWheelView @JvmOverloads constructor(
 
         //判断索引是否有效
         fun onIndexValid(index: Int): Boolean
+    }
+
+    fun interface OnItemSelectListener {
+        fun onItemSelect(index: Int, item: String?)
     }
 }

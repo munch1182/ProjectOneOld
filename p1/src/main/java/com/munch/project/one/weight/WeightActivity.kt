@@ -2,6 +2,7 @@ package com.munch.project.one.weight
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.view.setPadding
@@ -64,8 +65,14 @@ class WheelActivity : BaseFastActivity(), ActivityDispatch by supportDef() {
                 ItemWheelView(ctx).apply {
                     set(arrayOf("星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期天"))
                     select(2)
+                    setOnItemSelectListener { i, str ->
+                        log(i, str)
+                    }
                 },
-                newWWLp().apply { setPadding(dp2Px(16f).toInt()) })
+                FrameLayout.LayoutParams(newWWLp()).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL
+                    setPadding(dp2Px(16f).toInt())
+                })
         })
     }
 }
