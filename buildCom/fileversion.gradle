@@ -1,0 +1,27 @@
+def versionFile = '../buildCom/version.txt'
+
+// 使用: project.ext.autoVersion
+// 每次同步/运行都会增加一个小版本号
+// 生成的版本文件的位置在[versionFile]
+ext {
+    autoVersion = "0.0.0"
+}
+
+task updateVersion() {
+    try {
+        def f = file(versionFile)
+        def str = f.exists() ? f.text.toString() : "0.1.0"
+
+        def split = str.split("\\.")
+        def v = Integer.parseInt(split[2]).intValue()
+        v += 1
+        def newStr = split[0] + "." + split[1] + "." + v
+        f.write(newStr)
+
+        project.ext.autoVersion = newStr
+        println("> autoversion: UPDATE VERSION: " + str + " -> " + autoVersion)
+
+    } catch (Exception e) {
+        e.printStackTrace()
+    }
+}

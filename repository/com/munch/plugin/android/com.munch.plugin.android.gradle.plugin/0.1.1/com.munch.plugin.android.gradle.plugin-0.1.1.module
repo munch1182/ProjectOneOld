@@ -1,0 +1,124 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.munch.plugin.android",
+    "module": "com.munch.plugin.android.gradle.plugin",
+    "version": "0.1.1",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.3.3"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk8",
+          "version": {
+            "requires": "1.7.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "com.munch.plugin.android.gradle.plugin-0.1.1.jar",
+          "url": "com.munch.plugin.android.gradle.plugin-0.1.1.jar",
+          "size": 17507,
+          "sha512": "d369ba11f96c5812f218ad097eef2c9629d44effac848a3c8ecb592023c7041246e394f90bc52f217f6d893b3b6422242eb7ce148a2fd60f3a41ab8637ffd6e6",
+          "sha256": "c5e012bc59bf05b8dc12d655ed38620b7a7877085d7e2e649279c28ecfbfa033",
+          "sha1": "e7721f06ba811d6548f27e8728fd133affafa3b4",
+          "md5": "c07aeab06e752a336fe082a65347cd8c"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "com.android.tools.build",
+          "module": "gradle",
+          "version": {
+            "requires": "7.2.2"
+          }
+        },
+        {
+          "group": "org.ow2.asm",
+          "module": "asm",
+          "version": {
+            "requires": "9.3"
+          }
+        },
+        {
+          "group": "org.ow2.asm",
+          "module": "asm-commons",
+          "version": {
+            "requires": "9.3"
+          }
+        },
+        {
+          "group": "org.ow2.asm",
+          "module": "asm-analysis",
+          "version": {
+            "requires": "9.3"
+          }
+        },
+        {
+          "group": "org.ow2.asm",
+          "module": "asm-util",
+          "version": {
+            "requires": "9.3"
+          }
+        },
+        {
+          "group": "org.ow2.asm",
+          "module": "asm-tree",
+          "version": {
+            "requires": "9.3"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib-jdk8",
+          "version": {
+            "requires": "1.7.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "com.munch.plugin.android.gradle.plugin-0.1.1.jar",
+          "url": "com.munch.plugin.android.gradle.plugin-0.1.1.jar",
+          "size": 17507,
+          "sha512": "d369ba11f96c5812f218ad097eef2c9629d44effac848a3c8ecb592023c7041246e394f90bc52f217f6d893b3b6422242eb7ce148a2fd60f3a41ab8637ffd6e6",
+          "sha256": "c5e012bc59bf05b8dc12d655ed38620b7a7877085d7e2e649279c28ecfbfa033",
+          "sha1": "e7721f06ba811d6548f27e8728fd133affafa3b4",
+          "md5": "c07aeab06e752a336fe082a65347cd8c"
+        }
+      ]
+    }
+  ]
+}
