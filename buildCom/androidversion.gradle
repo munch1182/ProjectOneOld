@@ -2,12 +2,28 @@
 // 1. module/Gradle: Tasks-help-dependencies
 // 2. ./gradlew (名称):dependencies
 
+// 处理依赖不一致的版本的问题:
+// 1. 某些库内依赖第三方库的不一致的版本,可以通过主动引入该库的高版本来统一版本依赖
+// 2. 强制指定依赖的版本
+//  project=> build.gradle
+//  allprojects {
+//      configurations.all {
+//          resolutionStrategy.force "androidx.activity:activity:${Ver['ACTIVITY_VERSION']}"
+//          ...
+//      }
+//  }
+
 // 不使用buildSrc的原因是：1. 依赖并不会经常性更改，2. buildSrc会添加固定版本的kotlin依赖，与使用的版本可能会不一致
+
+
+//
+// 修改版本时, 需要注意同步修改commonbuild.gradle中的强制依赖版本
+//
 ext {
     Ver = [
-            compileSdk        : 31,
+            compileSdk        : 32,
             minSdk            : 23,
-            targetSdk         : 31,
+            targetSdk         : 32,
             defaultVersionCode: 1,
             defaultVersionName: "1.0",
 
@@ -32,15 +48,15 @@ ext {
 
             //https://developer.android.google.cn/jetpack/androidx/versions?hl:zh_cn
             /*https://developer.android.google.cn/jetpack/androidx/releases/activity?hl:zh_cn*/
-            appcompat         : "androidx.appcompat:appcompat:1.4.1",
+            appcompat         : "androidx.appcompat:appcompat:1.5.0",
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/core*/
-            coreKtx           : "androidx.core:core-ktx:1.7.0",
+            coreKtx           : "androidx.core:core-ktx:1.8.0",
 
             /*https://github.com/material-components/material-components-android*/
             /*https://maven.google.com/web/index.html*/
             //include
-            material          : "com.google.android.material:material:1.5.0",
+            material          : "com.google.android.material:material:1.6.0",
 
             //compose
             composeUi         : "androidx.compose.ui:ui:${Ver['COMPOSE_VERSION']}",
@@ -114,7 +130,7 @@ ext {
             okhttpInterceptor : "com.squareup.okhttp3:logging-interceptor:${Ver['OKHTTP_VERSION']}",
 
             /*https://github.com/square/leakcanary*/
-            leakcanary        : "com.squareup.leakcanary:leakcanary-android:2.8.1",
+            leakcanary        : "com.squareup.leakcanary:leakcanary-android:2.9.1",
 
             /*https://github.com/square/retrofit*/
             /*https://github.com/square/retrofit/tree/master/retrofit-converters/gson*/

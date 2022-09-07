@@ -3,9 +3,9 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        mavenLocal()
         maven { url uri('repotemp') }
         maven { url uri('repository') }
+        mavenLocal()
         maven { url "https://jitpack.io" }
     }
 }
@@ -14,13 +14,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        mavenLocal()
         maven { url uri('repotemp') }
         maven { url uri('repository') }
+        mavenLocal()
         maven { url "https://jitpack.io" }
     }
 }
 
 rootProject.name = "Project"
 include ':app'
-include ':android'
