@@ -1,8 +1,8 @@
-package com.munch.template.android
+package com.munch.project.one
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.munch.template.android.databinding.ActivityMainBinding
+import com.munch.project.one.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 

@@ -138,6 +138,8 @@ dependencies {
     // 主动引入, 处理appcompat导致引入其余版本的问题
     implementation "androidx.arch.core:core-runtime:2.1.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0"
+    implementation "androidx.customview:customview:1.1.0"
+    implementation "androidx.drawerlayout:drawerlayout:1.1.1"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.4.0'

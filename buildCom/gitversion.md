@@ -21,6 +21,7 @@ git rev-list --count HEAD
 ```
 git describe --tags --dirty="-test"
 ```
+
 此指令只能在至少有一个tag的前提下使用，会返回       
 `<距离当前最近的tag>-<该tag后的提交次数>-g<最新提交的前7位HASH值>-<如果该版本未提交，则会添加后缀-test>`
 的固定格式      

@@ -21,5 +21,10 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Project"
+rootProject.name = "one"
 include ':app'
+include ':libjava'
+include ':libandroid'
+include ':libbluetooth'
+include ':libweight'
+include ':libfast'

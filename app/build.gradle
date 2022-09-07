@@ -4,10 +4,42 @@ plugins {
 }
 apply from: '../buildCom/commonbuildktx.gradle'
 
+android {
+    applicationVariants.all { variant -> setupModuleApk(variant) }
+}
+
 dependencies {
 
     implementation deps['material']
 
-    implementation lib['lib']
-    debugImplementation lib['libfast']
+    implementation project(':libfast')
+    implementation project(':libweight')
+    implementation project(':libbluetooth')
+}
+
+private static def setupModuleApk(variant) {
+    if (variant == null) {
+        return
+    }
+    def applicationId = [variant.applicationId, variant.buildType.applicationIdSuffix].findAll().join()
+    def date = getTime()
+    variant.outputs.each { output ->
+        // 正式版下设置versionCode，参见gitVersion.gradle
+        // 正式版更改输出app文件名
+        if (!variant.getBuildType().isDebuggable()) {
+            // 文件名前缀 + 渠道名
+            def startName = applicationId
+            def flavorName = variant.flavorName
+            if (flavorName != null && flavorName != "") {
+                startName += "_$flavorName"
+            }
+            // 文件名后缀
+            def endName = "_${variant.versionName}_${date}.apk"
+            output.outputFileName = startName + endName
+        }
+    }
+}
+
+private static def getTime() {
+    return new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("GMT+08"))
 }
