@@ -45,6 +45,7 @@ class PluginAndroid : Plugin<Project> {
 
                 Config.enable = e.getEnable().get()
                 Config.log = e.getLog().get()
+                e.getPackName().orNull?.let { Config.packName = it }
                 log("> Read Plugin Android Config :${Config}")
             }
         }

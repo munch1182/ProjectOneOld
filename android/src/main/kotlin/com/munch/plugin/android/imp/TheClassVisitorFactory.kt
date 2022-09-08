@@ -16,7 +16,7 @@ abstract class TheClassVisitorFactory : AsmClassVisitorFactory<InstrumentationPa
         classContext: ClassContext,
         nextClassVisitor: ClassVisitor
     ): ClassVisitor {
-        val api = instrumentationContext.apiVersion.getOrElse(Opcodes.ASM8)
+        val api = instrumentationContext.apiVersion.getOrElse(Opcodes.ASM9)
 
         if (Config.log) {
             log("> createClassVisitor: ${api.api()}, ${classContext.currentClassData.fmt()}")
@@ -27,7 +27,7 @@ abstract class TheClassVisitorFactory : AsmClassVisitorFactory<InstrumentationPa
     override fun isInstrumentable(classData: ClassData): Boolean {
         //判断类是否需要createClassVisitor
         val ok = classData.className.let {
-            it.contains("com.munch")
+            it.startsWith(Config.packName)
                     && !it.contains("R$")
                     && !it.endsWith(".R")
         }
@@ -89,7 +89,7 @@ private fun Int.access(): String {
         this.has(Opcodes.ACC_PUBLIC) -> sb.append("public")
         this.has(Opcodes.ACC_PRIVATE) -> sb.append("private")
         this.has(Opcodes.ACC_PROTECTED) -> sb.append("protected")
-        else -> toString()
+        else -> sb.append(toString())
     }
     if (this.has(Opcodes.ACC_SYNCHRONIZED)) {
         sb.append(" ")

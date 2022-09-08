@@ -2,6 +2,7 @@ plugins {
     //https://docs.gradle.org/nightly/userguide/custom_plugins.html#sec:custom_plugins_standalone_project
     id 'java-gradle-plugin'
     id 'org.jetbrains.kotlin.jvm'
+    //https://docs.gradle.org/current/userguide/publishing_maven.html
     id 'maven-publish'
 }
 
@@ -18,38 +19,47 @@ java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
+
 apply from: '../buildCom/fileversion.gradle'
+
+// 生成插件: publishReleasePublicationToMavenRepository
 
 gradlePlugin {
     plugins {
-        //自定义名称,
-        // taskName -> publishing/publish+名称+PluginMarkerMavenPublicationToMaven+Local/Repository
+        //https://docs.gradle.org/current/userguide/custom_plugins.html#sec:custom_plugins_standalone_project
         taskPluginAndroid {
-            //插件名
-            //默认地址: [插件名]:[插件名+gradle.plugin]:版本号
-            //默认地址可以不先引入
-            //目前无法以此方式生成jar文件
-            id = "com.munch.plugin.android"
-            version = project.ext.autoVersion
-            implementationClass = "com.munch.plugin.android.PluginAndroid"
+            id = 'com.munch.plugin.android'
+            implementationClass = 'com.munch.plugin.android.PluginAndroid'
         }
     }
 }
+
 publishing {
     publications {
         // 执行 publishReleasePublicationToMavenRepository
         release(MavenPublication) {
+            //插件名
+            //默认地址: [插件名]:[插件名+gradle.plugin]:版本号
+            //默认地址则可以不引入, 此种方式必须声明版本号
 
             //与插件ID相同的groupId以及加上后缀的artifactId符合默认插件地址的形式
             groupId = "com.munch.plugin.android"
             artifactId = "com.munch.plugin.android.gradle.plugin"
+            // from '../buildCom/fileversion.gradle'
             version = project.ext.autoVersion
 
             from components.java
         }
     }
+    // 生成~ToMavenRepository任务
+    // 可以供maven所有的任务使用
     repositories {
         //maven { url uri('../repository') }
         maven { url uri('../repotemp') }
     }
+}
+
+java {
+    //withJavadocJar()
+    withSourcesJar()
 }

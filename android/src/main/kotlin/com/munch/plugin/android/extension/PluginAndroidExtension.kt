@@ -7,6 +7,8 @@ abstract class PluginAndroidExtension {
 
     abstract fun getLog(): Property<Boolean>
 
+    abstract fun getPackName(): Property<String>
+
     fun initDefault() {
         getEnable().set(true)
         getLog().set(false)

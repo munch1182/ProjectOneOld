@@ -2,16 +2,11 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     // 注意, 会优先使用缓存, 所以必要时仍需要更改版本号, (删除repo文件并不能删除缓存)
-    id 'com.munch.plugin.android' version "0.1.1+"
+    //id 'com.munch.plugin.android' version "0.1.1"
 }
 apply from: '../buildCom/commonbuildktx.gradle'
 
 dependencies {
 
     implementation deps['material']
-}
-
-pluginAndroid {
-    enable = false
-    log = true
 }
