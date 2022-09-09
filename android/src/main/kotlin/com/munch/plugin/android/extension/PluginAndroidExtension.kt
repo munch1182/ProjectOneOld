@@ -7,10 +7,10 @@ abstract class PluginAndroidExtension {
 
     abstract fun getLog(): Property<Boolean>
 
-    abstract fun getPackName(): Property<String>
+    abstract fun getTagCost(): Property<String>
+    abstract fun getTagCall(): Property<String>
 
-    fun initDefault() {
-        getEnable().set(true)
-        getLog().set(false)
-    }
+    abstract fun getMinTime(): Property<Long>
+
+    abstract fun getPackName(): Property<Array<String>>
 }

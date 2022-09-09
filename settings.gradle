@@ -21,6 +21,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Project"
+rootProject.name = "ProjectTwo"
 include ':app'
 include ':android'
+include ':annotation'

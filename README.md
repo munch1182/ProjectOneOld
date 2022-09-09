@@ -4,6 +4,21 @@
 ---
 # P2
 
+## TODO
+- [ ] 使用插件即自动依赖声明
+- [x] 方法耗时测量
+    - [x] 基本实现
+    - [ ] 将输出方法交由App实现(ksp)
+    - [ ] 测量的注解可以放在类上
+    - [ ] 耗时判断
+- [x] 方法调用顺序 (ASM不会访问其父类的方法, 即只会访问类下显示方法)
+    - [x] 方法调用
+    - [ ] 输出方法栈
+    - [ ] 方法的注解可以放在类上 
+- [ ] 运行日志生成
+    - 关键参数, 关键方法
+    - 日志压缩加密
+
 ## GRADLE插件开发
 
 时间 : 2022.9.8 
@@ -99,16 +114,6 @@ gradle版本: 7.3.3
     }
    ```
     此种使用会自动依赖`[pluginName]:[pluginName].gradle.plugin:[version]`的项目, 所以无需添加依赖地址. 
-
-## TODO
-- [ ] 方法耗时测量
-- [ ] 方法调用顺序
-- [ ] 运行日志生成
-    - 关键参数, 关键方法
-    - 日志压缩加密
-
-
-- 都能以注解+配置两种方式进行设置
 
 相关链接:
 [gradle官网使用独立项目作为插件](https://docs.gradle.org/current/userguide/custom_plugins.html#sec:custom_plugins_standalone_project)

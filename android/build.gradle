@@ -13,11 +13,12 @@ dependencies {
     implementation 'org.ow2.asm:asm-analysis:9.3'
     implementation 'org.ow2.asm:asm-util:9.3'
     implementation 'org.ow2.asm:asm-tree:9.3'
+    implementation project(':annotation')
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 apply from: '../buildCom/fileversion.gradle'

@@ -35,17 +35,19 @@ class PluginAndroid : Plugin<Project> {
 
     private fun readConfig(p: Project) {
         //p.plugins.apply()
-        val pluginExtension = p.extensions.create(TAG, PluginAndroidExtension::class.java)
-        pluginExtension.initDefault()
+        /*val pluginExtension = */p.extensions.create(TAG, PluginAndroidExtension::class.java)
 
         p.afterEvaluate {
             catch {
                 val e: PluginAndroidExtension =
                     it.extensions.findByName(TAG) as PluginAndroidExtension
 
-                Config.enable = e.getEnable().get()
-                Config.log = e.getLog().get()
+                e.getEnable().orNull?.let { Config.enable = it }
+                e.getLog().orNull?.let { Config.log = it }
                 e.getPackName().orNull?.let { Config.packName = it }
+                e.getTagCost().orNull?.let { Config.tagCost = it }
+                e.getMinTime().orNull?.let { Config.minTime = it }
+                e.getTagCall().orNull?.let { Config.tagCall = it }
                 log("> Read Plugin Android Config :${Config}")
             }
         }
