@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.munch.lib.android.R
+import com.munch.lib.android.extend.toOrNull
 
 /**
  * 处理RecyclerViewAdapter除了item布局和显示之外的其它逻辑
@@ -14,8 +15,7 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
     protected open val vhProvider: VHProvider<VH>?,
     protected open val dataHelper: AdapterFunHelper<D> = SimpleAdapterFun(),
     protected open val eventHelper: AdapterEventHelper<VH> = ClickHelper()
-) :
-    RecyclerView.Adapter<VH>(),
+) : RecyclerView.Adapter<VH>(),
     AdapterDataFun<D> by dataHelper,
     AdapterEvent<VH> by eventHelper {
 
@@ -52,7 +52,7 @@ open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     open fun <V : View> get(viewId: Int): V? = itemView.findViewById(viewId)
 
     @Suppress("unchecked_cast")
-    open fun <VH : BaseViewHolder> get(): VH? = itemView.getTag(R.id.id_vh) as? VH
+    open fun <VH : BaseViewHolder> get(): VH? = itemView.getTag(R.id.id_vh).toOrNull()
 }
 
 /**

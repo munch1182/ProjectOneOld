@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--引用错误可尝试重启as-->
+
+    <style name="App.Fast" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="android:statusBarColor">@color/colorTran</item>
+        <!--Theme所有attr必须使用-->
+        <item name="fastAttrText">@style/App.Fast.Text</item>
+        <item name="fastAttrTextTitle">@style/App.Fast.Text.Title</item>
+        <item name="colorBg">@color/colorBg</item>
+        <item name="android:windowBackground">@color/colorBg</item>
+    </style>
+
+    <attr name="colorBg" format="reference" />
+    <attr name="fastAttrText" format="reference" />
+    <attr name="fastAttrTextTitle" format="reference" />
+
+    <style name="App.Fast.Text">
+        <item name="android:textSize">@dimen/spDefNormal</item>
+        <item name="android:textColor">@color/colorTextDef</item>
+    </style>
+
+    <style name="App.Fast.Text.Title">
+        <item name="android:textSize">18sp</item>
+    </style>
+</resources>

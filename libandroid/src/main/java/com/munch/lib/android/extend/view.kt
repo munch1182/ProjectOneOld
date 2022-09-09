@@ -1,0 +1,85 @@
+package com.munch.lib.android.extend
+
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.drawable.ColorDrawable
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+
+/**
+ * 获取一个新的(WRAP_CONTENT,WRAP_CONTENT)的LayoutParams
+ */
+val newWWLP: ViewGroup.LayoutParams
+    get() = ViewGroup.LayoutParams(
+        ViewGroup.LayoutParams.WRAP_CONTENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    )
+
+/**
+ * 获取一个新的(MATCH_PARENT,WRAP_CONTENT)的LayoutParams
+ */
+val newMWLP: ViewGroup.LayoutParams
+    get() = ViewGroup.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    )
+
+/**
+ * 设置View的点击效果, 会替换背景和顶部的Drawable
+ */
+fun View.clickEffect(color: Int = Color.WHITE) {
+    background = ColorDrawable(color)
+    foreground = getSelectableItemBackground()
+}
+
+/**
+ * 一个使用颜色线分割的RecyclerView.ItemDecoration
+ */
+class LinearLineItemDecoration(
+    private val lineHeight: Float = 1.5f,
+    lineColor: Int = Color.parseColor("#f4f4f4")
+) : RecyclerView.ItemDecoration() {
+
+    private var lm: LinearLayoutManager? = null
+
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        strokeWidth = lineHeight
+        color = lineColor
+    }
+
+    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+        super.onDrawOver(c, parent, state)
+        if (lm == null) {
+            lm = parent.layoutManager?.to()
+        }
+        lm?.apply {
+            val fp = findFirstVisibleItemPosition()
+                .takeIf { it != RecyclerView.NO_POSITION }
+                ?: return
+            val ep = findLastVisibleItemPosition()
+                .takeIf { it != RecyclerView.NO_POSITION }
+                ?: return
+
+            val l = parent.left.toFloat()
+            val r = parent.right.toFloat()
+            var y: Float
+            for (i in fp..ep) {
+                findViewByPosition(i)?.let {
+                    y = it.top.toFloat()
+                    c.drawLine(l, y, r, y, paint)
+                }
+            }
+            if (fp == 0) {
+                y = parent.top.toFloat() + lineHeight
+                c.drawLine(l, y, r, y, paint)
+            }
+            if (ep == itemCount - 1) {
+                y = parent.bottom.toFloat() - lineHeight
+                c.drawLine(l, y, r, y, paint)
+            }
+        }
+    }
+}

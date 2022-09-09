@@ -1,7 +1,32 @@
 package com.munch.lib.android.extend
 
+import android.os.Handler
+import android.os.Looper
 import kotlinx.coroutines.CoroutineScope
 import kotlin.coroutines.CoroutineContext
+
+
+/**
+ * 当前是否是主线程
+ */
+inline val isMainThread: Boolean
+    get() = Thread.currentThread().let { Looper.getMainLooper().thread.id == it.id }
+
+/**
+ * 提供一个全局性的主线程Handler
+ */
+val main by lazy { Handler(Looper.getMainLooper()) }
+
+/**
+ * 保证在主线程执行[doAny]
+ */
+fun runInMain(doAny: () -> Unit) {
+    if (isMainThread) {
+        doAny.invoke()
+    } else {
+        main.post(doAny)
+    }
+}
 
 /**
  * 合并[CoroutineScope]和[CoroutineContext]
@@ -22,3 +47,4 @@ interface ScopeContext : CoroutineScope, CoroutineContext {
         return coroutineContext.minusKey(key)
     }
 }
+

@@ -1,15 +1,23 @@
 package com.munch.project.one
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.munch.project.one.databinding.ActivityMainBinding
+import com.munch.lib.fast.view.fvRvTv
+import com.munch.project.one.base.BaseActivity
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
+
+    private val bind by fvRvTv(
+        arrayOf(
+            RecyclerViewActivity::class,
+            PhoneInfoActivity::class
+        )
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val vb = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(vb.root)
+        bind.init()
     }
+
+    override val showHome: Boolean = false
 
 }

@@ -6,28 +6,15 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
 /**
- * 获取当前线程名
- */
-inline val threadName: String
-    get() = Thread.currentThread().name
-
-/**
- * 获取当前线程ID
- */
-inline val threadId: Long
-    get() = Thread.currentThread().id
-
-/**
  * 寻找[Type]上继承自[target]泛型的类
  *
  * 如果找不到, 则返回null
  */
-@Suppress("UNCHECKED_CAST")
 fun <T> Type.findParameterized(target: Class<in T>): Class<T>? {
     when (this) {
         is ParameterizedType -> {
             val c = actualTypeArguments.find { it is Class<*> && target.isAssignableFrom(it) }
-            if (c != null) return c as Class<T>
+            if (c != null) return c.to()
             val type = this.rawType
             if (type == Any::class.java) return null
             return type.findParameterized(target)
@@ -40,7 +27,33 @@ fun <T> Type.findParameterized(target: Class<in T>): Class<T>? {
     }
 }
 
-inline fun <T> lazy(noinline initializer: () -> T) = lazy(LazyThreadSafetyMode.NONE, initializer)
+/**
+ * 使用非同步的lazy
+ */
+inline fun <T> lazy(noinline initializer: () -> T): Lazy<T> =
+    lazy(LazyThreadSafetyMode.NONE, initializer)
 
-inline fun <T> lazySync(noinline initializer: () -> T): Lazy<T> =
-    lazy(LazyThreadSafetyMode.SYNCHRONIZED, initializer)
+/**
+ * 将错误转为null
+ */
+inline fun <T> catch(block: () -> T): T? {
+    return try {
+        block.invoke()
+    } catch (e: Exception) {
+        null
+    }
+}
+
+//<editor-fold desc="to">
+/**
+ * 将调用对象转为[T], 避免写as+[]的写法
+ */
+@Suppress("UNCHECKED_CAST")
+inline fun <T> Any.to(): T = this as T
+
+/**
+ * 将调用对象转为[T], 避免写as+[]的写法
+ */
+@Suppress("UNCHECKED_CAST")
+inline fun <T> Any.toOrNull(): T? = this as? T
+//</editor-fold>

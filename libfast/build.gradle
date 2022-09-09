@@ -7,4 +7,8 @@ apply from: '../buildCom/commonbuildktx.gradle'
 
 dependencies {
     api(project(':libandroid'))
+
+    api deps['material']
+    api deps['activityKtx']
+    api deps['fragmentKtx']
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="dimenDef">16dp</dimen>
+    <dimen name="dimenDefSmall">8dp</dimen>
+
+    <!--系统默认字体大小-->
+    <dimen name="spDef">14sp</dimen>
+    <dimen name="spDefNormal">16sp</dimen>
+    <dimen name="spDefDesc">12sp</dimen>
+
+    <color name="colorTextDef">#000</color>
+    <color name="colorTextWhite">#fff</color>
+    <color name="colorTextGray">#8f8f8f</color>
+
+    <color name="colorGray">#f4f4f4</color>
+    <color name="colorWhite">#fff</color>
+
+    <color name="colorBg">@color/colorGray</color>
+    <color name="colorTran">#00000000</color>
+</resources>
