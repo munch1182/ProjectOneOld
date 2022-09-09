@@ -21,7 +21,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "one"
+rootProject.name = "ProjectOne"
 include ':app'
 include ':libjava'
 include ':libandroid'
