@@ -15,6 +15,8 @@ dependencies {
     implementation project(':libfast')
     implementation project(':libweight')
     implementation project(':libbluetooth')
+
+    //implementation "io.github.cymchad:BaseRecyclerViewAdapterHelper:4.0.0-beta02"
 }
 
 private static def setupModuleApk(variant) {
