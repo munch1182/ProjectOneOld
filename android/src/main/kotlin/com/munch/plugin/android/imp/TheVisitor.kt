@@ -9,7 +9,6 @@ import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
 import org.objectweb.asm.commons.AdviceAdapter
 
-
 class TheMethodVisitor(
     api: Int,
     methodVisitor: MethodVisitor,
@@ -21,16 +20,28 @@ class TheMethodVisitor(
 
     private val task = mutableListOf<ASMTask>()
 
+    companion object {
+        private const val DESCRIPTOR_CALLER = "Lcom/munch/plugin/annotation/Caller;"
+        private const val DESCRIPTOR_MEASURE = "Lcom/munch/plugin/annotation/Measure;"
+    }
+
     override fun visitAnnotation(descriptor: String?, visible: Boolean): AnnotationVisitor {
         when (descriptor) {
-            "Lcom/munch/plugin/annotation/Caller;" -> add(CallAsmTask())
-            "Lcom/munch/plugin/annotation/Measure;" -> add(MeasureAsmTask())
+            DESCRIPTOR_CALLER -> add(CallAsmTask())
+            DESCRIPTOR_MEASURE -> add(MeasureAsmTask())
         }
         return super.visitAnnotation(descriptor, visible)
     }
 
     override fun onMethodEnter() {
         super.onMethodEnter()
+        // 如果方法没有做声明但是类做了声明, 则补充添加
+        classData.classAnnotations.forEach {
+            when (it) {
+                "com.munch.plugin.annotation.Measure" -> add(MeasureAsmTask())
+                "com.munch.plugin.annotation.Caller" -> add(CallAsmTask())
+            }
+        }
         if (task.isNotEmpty()) {
             task.forEach { it.executeEnter(mv, this) }
         }
@@ -44,6 +55,10 @@ class TheMethodVisitor(
     }
 
     private fun add(task: ASMTask) {
+        // 后加的相同任务无效
+        if (this.task.find { it.key == task.key } != null) {
+            return
+        }
         this.task.add(task)
         this.task.sortByDescending { it.order }
     }
@@ -51,6 +66,9 @@ class TheMethodVisitor(
 
 interface ASMTask {
     val order: Int
+    val key: String
+        get() = this::class.java.simpleName
+
     fun executeEnter(mv: MethodVisitor, adapter: TheMethodVisitor)
     fun executeExit(mv: MethodVisitor, adapter: TheMethodVisitor)
 }
@@ -154,7 +172,6 @@ class CallAsmTask : ASMTask {
     override val order: Int = 0
     private val tag = Config.tagCall
     override fun executeEnter(mv: MethodVisitor, adapter: TheMethodVisitor) {
-
         mv.visitLdcInsn(tag)
         mv.visitLdcInsn("${adapter.classData.className}.${adapter.name} called.")
         mv.visitMethodInsn(

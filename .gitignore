@@ -8,5 +8,5 @@
 .externalNativeBuild
 .cxx
 local.properties
-./repotemp
+repotemp
 ./buildCom/version.txt

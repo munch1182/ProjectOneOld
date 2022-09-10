@@ -4,7 +4,7 @@ object Config {
 
     var enable = true
 
-    var log = false
+    var logDebug = false
 
     var tagCost = "cost-loglog"
     var tagCall = "call-loglog"
@@ -14,6 +14,6 @@ object Config {
     var packName = arrayOf("com.munch")
 
     override fun toString(): String {
-        return "Config(enable=$enable, log=$log, tagCost=$tagCost, tagMeasure=$tagCall, minTime=$minTime, packName=${packName.joinToString()})"
+        return "Config(enable=$enable, logDebug=$logDebug, tagCost=$tagCost, tagMeasure=$tagCall, minTime=$minTime, packName=${packName.joinToString()})"
     }
 }

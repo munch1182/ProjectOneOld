@@ -43,7 +43,7 @@ class PluginAndroid : Plugin<Project> {
                     it.extensions.findByName(TAG) as PluginAndroidExtension
 
                 e.getEnable().orNull?.let { Config.enable = it }
-                e.getLog().orNull?.let { Config.log = it }
+                e.getLogDebug().orNull?.let { Config.logDebug = it }
                 e.getPackName().orNull?.let { Config.packName = it }
                 e.getTagCost().orNull?.let { Config.tagCost = it }
                 e.getMinTime().orNull?.let { Config.minTime = it }

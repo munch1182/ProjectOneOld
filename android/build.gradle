@@ -25,11 +25,14 @@ apply from: '../buildCom/fileversion.gradle'
 
 // 生成插件: publishReleasePublicationToMavenRepository
 
+group 'com.munch.plugin'
+
 gradlePlugin {
     plugins {
         //https://docs.gradle.org/current/userguide/custom_plugins.html#sec:custom_plugins_standalone_project
         taskPluginAndroid {
             id = 'com.munch.plugin.android'
+            version = project.ext.autoVersion
             implementationClass = 'com.munch.plugin.android.PluginAndroid'
         }
     }
