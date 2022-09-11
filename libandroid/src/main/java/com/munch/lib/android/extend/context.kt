@@ -47,12 +47,14 @@ fun String.asId2GetDimen(): Int? {
 /**
  * 获取状态栏高度
  */
-inline fun getStatusBarHeight() = "status_bar_height".asId2GetDimen()
+inline val statusBarHeight: Int
+    get() = "status_bar_height".asId2GetDimen() ?: 0
 
 /**
  * 获取导航栏高度
  */
-inline fun getNavigationBarHeight() = "navigation_bar_height".asId2GetDimen()
+inline val navigationBarHeight: Int
+    get() = "navigation_bar_height".asId2GetDimen() ?: 0
 
 /**
  * 从主题中获取属性值

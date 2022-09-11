@@ -113,11 +113,7 @@ inline fun Activity.fvSvTv() = fv<FastSvTv> { FastSvTv(this) }
  */
 open class FastSvTv(override val context: Context) : FastView {
     private val text by lazy { newTextView.invoke(context).to<TextView>() }
-    private val view by lazy {
-        ScrollView(context).apply {
-            addView(text, newMWLP)
-        }
-    }
+    private val view by lazy { ScrollView(context).apply { addView(text) } }
     override val contentView: View
         get() = view
 
