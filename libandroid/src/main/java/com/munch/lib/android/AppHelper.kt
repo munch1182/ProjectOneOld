@@ -3,7 +3,9 @@ package com.munch.lib.android
 import android.app.Application
 import android.view.ContextThemeWrapper
 import com.munch.lib.android.extend.ScopeContext
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -17,10 +19,14 @@ object AppHelper : ContextThemeWrapper(), ScopeContext {
 
     private val appJob = SupervisorJob()
     private val appJobName = CoroutineName("App")
+    private lateinit var app: Application
 
     internal fun init(context: Application) {
         attachBaseContext(context)
+        app = context
     }
 
     override val coroutineContext: CoroutineContext = appJob + appJobName + Dispatchers.Default
+
+    fun toApp(): Application = app
 }

@@ -36,6 +36,25 @@ fun View.clickEffect(color: Int = Color.WHITE) {
 }
 
 /**
+ * 双击回调
+ * 两次点击之间间隔必须小于[doubleTime]
+ *
+ * 因为占用了点击事件, 所以不能再设计点击事件, 否则会被覆盖
+ */
+fun View.setDoubleClickListener(doubleTime: Long = 500L, l: View.OnClickListener?) {
+    setOnClickListener(object : View.OnClickListener {
+        private var lastClick = 0L
+        override fun onClick(v: View?) {
+            val now = System.currentTimeMillis()
+            if (now - lastClick < doubleTime) {
+                l?.onClick(v)
+            }
+            lastClick = now
+        }
+    })
+}
+
+/**
  * 一个使用颜色线分割的RecyclerView.ItemDecoration
  */
 class LinearLineItemDecoration(
