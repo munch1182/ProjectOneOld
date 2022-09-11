@@ -5,6 +5,7 @@ package com.munch.lib.fast.view
 import android.app.Activity
 import android.content.Context
 import android.view.View
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -101,3 +102,34 @@ open class FastRvTv(override val context: Context, private val data: Array<Strin
 }
 //</editor-fold>
 
+//<editor-fold desc="tv">
+/**
+ * 返回一个[FastSvTv]
+ */
+inline fun Activity.fvSvTv() = fv<FastSvTv> { FastSvTv(this) }
+
+/**
+ * 一个ScrollView其中由text组成
+ */
+open class FastSvTv(override val context: Context) : FastView {
+    private val text by lazy { newTextView.invoke(context).to<TextView>() }
+    private val view by lazy {
+        ScrollView(context).apply {
+            addView(text, newMWLP)
+        }
+    }
+    override val contentView: View
+        get() = view
+
+    override fun onCreate() {
+    }
+
+    fun set(str: CharSequence) {
+        text.text = str
+    }
+
+    fun append(str: CharSequence) {
+        text.text = "${text.text}$str"
+    }
+}
+//</editor-fold>
