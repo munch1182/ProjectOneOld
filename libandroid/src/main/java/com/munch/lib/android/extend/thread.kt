@@ -2,7 +2,10 @@ package com.munch.lib.android.extend
 
 import android.os.Handler
 import android.os.Looper
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
 import kotlin.coroutines.CoroutineContext
 
 
@@ -47,4 +50,9 @@ interface ScopeContext : CoroutineScope, CoroutineContext {
         return coroutineContext.minusKey(key)
     }
 }
+
+suspend inline fun <T> suspendCancellableCoroutine(
+    timeout: Long,
+    crossinline block: (CancellableContinuation<T>) -> Unit
+): T? = withTimeout(timeout) { suspendCancellableCoroutine(block) }
 

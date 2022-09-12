@@ -15,9 +15,14 @@ typealias ViewCreator = (Context) -> View
 /**
  * 用于收到更新的通知
  */
-typealias Update = () -> Unit
+typealias Notify = () -> Unit
 
 /**
  * 用于收到有参数的更新
  */
 typealias Receive<T> = (T) -> Unit
+
+/**
+ * 用于收到更新的通知
+ */
+typealias Update<T> = (T) -> Unit
