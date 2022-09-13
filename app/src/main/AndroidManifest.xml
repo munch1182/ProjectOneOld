@@ -25,6 +25,7 @@
         </activity>
         <activity android:name=".RecyclerViewActivity" />
         <activity android:name=".PhoneInfoActivity" />
+        <activity android:name=".dialog.DialogActivity" />
     </application>
 
 </manifest>

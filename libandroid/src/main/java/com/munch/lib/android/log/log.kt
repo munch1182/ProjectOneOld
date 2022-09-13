@@ -15,7 +15,14 @@ import org.json.JSONObject
  * 如果要包装自己的log方法, 不能直接调用此方法, 应该调用自定义Logger, 否则无法正确找到调用栈中的方法
  */
 fun log(vararg any: Any?) {
-    L.log(*any)
+    L.log(
+        when {
+            any.isEmpty() -> ""
+            any.size == 1 -> LoggerFMT.any2Str(any[0])
+            any.size > 1 -> LoggerFMT.any2Str(any).removeSurrounding("[", "]")
+            else -> LoggerFMT.any2Str(any)
+        }
+    )
 }
 
 // 全局的日志输出
@@ -61,15 +68,8 @@ open class Logger(
      *  2. 当[any]为多个JsonString是, JsonString会自动换行但是JsonString之间没有换行 -> 多个Json分开传
      *  3. 协程中调用方法时, 方法不能定位到准确的位置 -> 协程的唤醒机制
      */
-    fun log(vararg any: Any?) {
-        val log = fmtSepOrMultiStr(
-            when {
-                any.isEmpty() -> ""
-                any.size == 1 -> LoggerFMT.any2Str(any[0])
-                any.size > 1 -> LoggerFMT.any2Str(any).removeSurrounding("[", "]")
-                else -> LoggerFMT.any2Str(any)
-            }
-        )
+    fun log(msg: String) {
+        val log = fmtSepOrMultiStr(msg)
         val info = collectInfo()
 
         if (log.size == 1) {
@@ -118,6 +118,8 @@ open class Logger(
      * 2. 将换行符分成多段文字
      */
     private fun fmtSepOrMultiStr(any: String): Array<String> {
+        if (any.length < 100) return arrayOf(any) // 日常小数据无需判断
+
         val array = mutableListOf<String>()
         any.split(LoggerFMT.LINE_SEPARATOR).forEach {
             var index = 0

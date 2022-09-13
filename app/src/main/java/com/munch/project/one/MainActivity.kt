@@ -6,6 +6,7 @@ import com.munch.lib.fast.view.fvRvTv
 import com.munch.plugin.annotation.Measure
 import com.munch.project.one.base.BaseActivity
 import com.munch.project.one.base.dispatchDef
+import com.munch.project.one.dialog.DialogActivity
 
 @Measure
 class MainActivity : BaseActivity(), ActivityDispatch by dispatchDef(false) {
@@ -14,6 +15,7 @@ class MainActivity : BaseActivity(), ActivityDispatch by dispatchDef(false) {
         arrayOf(
             RecyclerViewActivity::class,
             PhoneInfoActivity::class,
+            DialogActivity::class,
         )
     )
 
