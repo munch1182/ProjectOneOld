@@ -1,6 +1,6 @@
 @file:Suppress("NOTHING_TO_INLINE", "UNCHECKED_CAST")
 
-package com.munch.lib.fast.view
+package com.munch.lib.fast.view.fastview
 
 import android.app.Activity
 import android.content.Context

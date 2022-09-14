@@ -22,11 +22,22 @@ object AppHelper : ContextThemeWrapper(), ScopeContext {
 
     private val appJob = SupervisorJob()
     private val appJobName = CoroutineName("App")
-    private lateinit var app: Application
+    private lateinit var application: Application
 
     internal fun init(context: Application) {
         attachBaseContext(context)
-        app = context
+        registerConfigurationChanged(context)
+        application = context
+    }
+
+    override val coroutineContext: CoroutineContext = appJob + appJobName + Dispatchers.Default
+
+    fun to() = application
+
+    /**
+     * 注册[Application.onConfigurationChanged]的回调
+     */
+    private fun registerConfigurationChanged(context: Application) {
         context.registerComponentCallbacks(object : ComponentCallbacks {
             override fun onConfigurationChanged(p0: Configuration) {
                 InfoHelper.updateWhenChange()
@@ -36,8 +47,4 @@ object AppHelper : ContextThemeWrapper(), ScopeContext {
             }
         })
     }
-
-    override val coroutineContext: CoroutineContext = appJob + appJobName + Dispatchers.Default
-
-    fun toApp(): Application = app
 }

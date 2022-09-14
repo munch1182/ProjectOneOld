@@ -4,7 +4,7 @@
     package="com.munch.project.one">
 
     <application
-        android:name=".App"
+        android:name="com.munch.lib.fast.view.FastApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_rules"
         android:fullBackupContent="@xml/backup_scheme"

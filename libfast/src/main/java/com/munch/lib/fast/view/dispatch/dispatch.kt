@@ -1,4 +1,4 @@
-package com.munch.lib.fast.view
+package com.munch.lib.fast.view.dispatch
 
 import android.os.Bundle
 import android.view.Menu

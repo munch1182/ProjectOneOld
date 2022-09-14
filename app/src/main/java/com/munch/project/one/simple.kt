@@ -2,8 +2,8 @@ package com.munch.project.one
 
 import android.os.Bundle
 import com.munch.lib.android.helper.InfoHelper
-import com.munch.lib.fast.view.ActivityDispatch
-import com.munch.lib.fast.view.fvSvTv
+import com.munch.lib.fast.view.dispatch.ActivityDispatch
+import com.munch.lib.fast.view.fastview.fvSvTv
 import com.munch.project.one.base.BaseActivity
 import com.munch.project.one.base.dispatchDef
 

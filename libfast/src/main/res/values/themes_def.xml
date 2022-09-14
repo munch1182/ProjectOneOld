@@ -24,4 +24,19 @@
     <style name="App.Fast.Text.Title">
         <item name="android:textSize">18sp</item>
     </style>
+
+    <style name="App.Fast.Dialog" parent="Theme.MaterialComponents.Dialog.Alert">
+        <item name="android:background">@color/colorTran</item>
+        <item name="android:windowBackground">@color/colorTran</item>
+        <item name="android:windowFrame">@null</item>
+    </style>
+
+    <!--内容背景透明的BottomSheetDialog-->
+    <style name="App.Fast.Dialog.Bottom" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/StyleDialogBottomSheet</item>
+    </style>
+
+    <style name="StyleDialogBottomSheet" parent="Theme.MaterialComponents.BottomSheetDialog">
+        <item name="android:windowBackground">@color/colorTran</item>
+    </style>
 </resources>

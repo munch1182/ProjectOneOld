@@ -65,46 +65,11 @@ object InfoHelper {
     val appVersionName: String
         get() = versionInfo.second
 
-    private val screenInfo: Size by lazy {
-        AppHelper.getSystemService(Context.WINDOW_SERVICE)
-            .to<WindowManager>().let { wm ->
-                if (VERSION.SDK_INT >= VERSION_CODES.R) {
-                    wm.currentWindowMetrics.bounds.let {
-                        Size(it.width(), it.height())
-                    }
-                } else {
-                    DisplayMetrics().let {
-                        @Suppress("DEPRECATION")
-                        wm.defaultDisplay.getRealMetrics(it)
-                        Size(it.widthPixels, it.heightPixels)
-                    }
-                }
-            }
-    }
-
-    private val windowInfo: Size by lazy {
-        AppHelper.getSystemService(Context.WINDOW_SERVICE)
-            .to<WindowManager>().let { wm ->
-                if (VERSION.SDK_INT >= VERSION_CODES.R) {
-                    wm.currentWindowMetrics.let {
-                        val mask =
-                            WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout()
-                        val insets = it.windowInsets.getInsetsIgnoringVisibility(mask)
-                        val bd = it.bounds
-                        Size(
-                            (bd.width() - insets.right - insets.left),
-                            (bd.height() - insets.top - insets.bottom)
-                        )
-                    }
-                } else {
-                    DisplayMetrics().let {
-                        @Suppress("DEPRECATION")
-                        wm.defaultDisplay.getMetrics(it)
-                        Size(it.widthPixels, it.heightPixels)
-                    }
-                }
-            }
-    }
+    /**
+     * 横竖切换时参数会更改
+     */
+    private var screenInfo: Size = getScreenInfo()
+    private var windowInfo: Size = getWindowInfo()
 
     val screenWidth: Int
         get() = screenInfo.width
@@ -136,7 +101,8 @@ object InfoHelper {
 
     val phoneDesc by lazy { "$brand  $model  $phomeVersion  android$phoneAndroidVersion  version$phoneAndroidVersionCode  ${abis.joinToString()}" }
 
-    val windowDesc by lazy { "${screenWidth}x${screenHeight} status($statusBarHeight) nav($navigationBarHeight) density(${density}) scaledDensity($scaledDensity)" }
+    val windowDesc: String
+        get() = "${screenWidth}x${screenHeight} status($statusBarHeight) nav($navigationBarHeight) density(${density}) scaledDensity($scaledDensity)"
 
     val appDesc by lazy { "$appVersionName $appVersionCode" }
 
@@ -146,5 +112,44 @@ object InfoHelper {
     internal fun updateWhenChange() {
         loc = ConfigurationCompat.getLocales(AppHelper.resources.configuration).get(0)
             ?: Locale.getDefault()
+        screenInfo = getScreenInfo()
+        windowInfo = getWindowInfo()
     }
+
+    private fun getScreenInfo() = AppHelper.getSystemService(Context.WINDOW_SERVICE)
+        .to<WindowManager>().let { wm ->
+            if (VERSION.SDK_INT >= VERSION_CODES.R) {
+                wm.currentWindowMetrics.bounds.let {
+                    Size(it.width(), it.height())
+                }
+            } else {
+                DisplayMetrics().let {
+                    @Suppress("DEPRECATION")
+                    wm.defaultDisplay.getRealMetrics(it)
+                    Size(it.widthPixels, it.heightPixels)
+                }
+            }
+        }
+
+    private fun getWindowInfo() = AppHelper.getSystemService(Context.WINDOW_SERVICE)
+        .to<WindowManager>().let { wm ->
+            if (VERSION.SDK_INT >= VERSION_CODES.R) {
+                wm.currentWindowMetrics.let {
+                    val mask =
+                        WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout()
+                    val insets = it.windowInsets.getInsetsIgnoringVisibility(mask)
+                    val bd = it.bounds
+                    Size(
+                        (bd.width() - insets.right - insets.left),
+                        (bd.height() - insets.top - insets.bottom)
+                    )
+                }
+            } else {
+                DisplayMetrics().let {
+                    @Suppress("DEPRECATION")
+                    wm.defaultDisplay.getMetrics(it)
+                    Size(it.widthPixels, it.heightPixels)
+                }
+            }
+        }
 }

@@ -15,23 +15,36 @@ import java.lang.ref.WeakReference
  *
  * 对于需要当前Activity对象的方法, 当当前Activity为null时, 可在下一次更新Activity时再执行
  */
-class ActivityStackHelper<ACT : Activity> : LiveData<ACT?>() {
+open class ActivityStackHelper<ACT : Activity> : LiveData<ACT?>() {
 
     private var actRef: WeakReference<ACT?>? = null
         set(value) {
             field = value
             postValue(value?.get())
         }
+    protected open var isRegister = false
 
     override fun onActive() {
         super.onActive()
-        AppHelper.toApp().registerActivityLifecycleCallbacks(callback)
+        register()
     }
 
     override fun onInactive() {
         super.onInactive()
-        AppHelper.toApp().unregisterActivityLifecycleCallbacks(callback)
+        unregister()
+    }
+
+    fun register() {
+        if (isRegister) return
+        isRegister = true
+        AppHelper.to().registerActivityLifecycleCallbacks(callback)
+    }
+
+    fun unregister() {
+        if (!isRegister) return
+        AppHelper.to().unregisterActivityLifecycleCallbacks(callback)
         clear()
+        isRegister = false
     }
 
     private val callback = object : Application.ActivityLifecycleCallbacks {
@@ -59,11 +72,11 @@ class ActivityStackHelper<ACT : Activity> : LiveData<ACT?>() {
         }
     }
 
-    private fun add(act: Activity?) {
+    protected open fun add(act: Activity?) {
         act?.toOrNull<ACT>()?.let { actRef = WeakReference(it) }
     }
 
-    private fun clear() {
+    protected open fun clear() {
         actRef?.clear()
         actRef = null
     }

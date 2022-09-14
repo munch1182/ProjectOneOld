@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_top_radius_8_white"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/configTitle"
+        style="@style/App.Fast.Text.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dimenDef"
+        tools:text="1231231" />
+
+    <CheckBox
+        android:id="@+id/configJumpAuto"
+        style="@style/App.Fast.Text.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dimenDef"
+        android:padding="@dimen/dimenDef"
+        android:text="默认跳转到此页"
+        tools:ignore="HardcodedText" />
+
+</LinearLayout>
