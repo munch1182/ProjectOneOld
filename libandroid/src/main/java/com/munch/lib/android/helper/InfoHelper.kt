@@ -7,11 +7,13 @@ import android.util.DisplayMetrics
 import android.util.Size
 import android.view.WindowInsets
 import android.view.WindowManager
+import androidx.core.os.ConfigurationCompat
 import com.munch.lib.android.AppHelper
 import com.munch.lib.android.extend.lazy
 import com.munch.lib.android.extend.navigationBarHeight
 import com.munch.lib.android.extend.statusBarHeight
 import com.munch.lib.android.extend.to
+import java.util.*
 
 object InfoHelper {
 
@@ -121,9 +123,28 @@ object InfoHelper {
     val scaledDensity: Float
         get() = AppHelper.resources.displayMetrics.scaledDensity
 
+    private var loc: Locale =
+        ConfigurationCompat.getLocales(AppHelper.resources.configuration).get(0)
+            ?: Locale.getDefault()
+
+    // 获取当前的location
+    val location: Locale
+        get() = loc
+
+    val language: String
+        get() = loc.language
+
     val phoneDesc by lazy { "$brand  $model  $phomeVersion  android$phoneAndroidVersion  version$phoneAndroidVersionCode  ${abis.joinToString()}" }
 
     val windowDesc by lazy { "${screenWidth}x${screenHeight} status($statusBarHeight) nav($navigationBarHeight) density(${density}) scaledDensity($scaledDensity)" }
 
     val appDesc by lazy { "$appVersionName $appVersionCode" }
+
+    /**
+     * 当某些情况下(如配置更改)需要更新缓存时, 调用此方法
+     */
+    internal fun updateWhenChange() {
+        loc = ConfigurationCompat.getLocales(AppHelper.resources.configuration).get(0)
+            ?: Locale.getDefault()
+    }
 }

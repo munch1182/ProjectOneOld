@@ -93,5 +93,5 @@ fun getSelectableItemBackgroundBorderless(): Drawable? {
  *  在Activity中弹出TOAST
  */
 inline fun toast(any: Any?) {
-    any?.let { runInMain { Toast.makeText(AppHelper, it.toString(), Toast.LENGTH_SHORT).show() } }
+    any?.let { impInMain { Toast.makeText(AppHelper, it.toString(), Toast.LENGTH_SHORT).show() } }
 }

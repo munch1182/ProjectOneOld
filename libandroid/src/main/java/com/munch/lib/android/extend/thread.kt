@@ -2,10 +2,8 @@ package com.munch.lib.android.extend
 
 import android.os.Handler
 import android.os.Looper
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withTimeout
+import com.munch.lib.android.AppHelper
+import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 
@@ -23,11 +21,11 @@ val main by lazy { Handler(Looper.getMainLooper()) }
 /**
  * 保证在主线程执行[doAny]
  */
-fun runInMain(doAny: () -> Unit) {
+fun impInMain(doAny: () -> Unit) {
     if (isMainThread) {
         doAny.invoke()
     } else {
-        main.post(doAny)
+        AppHelper.launch(Dispatchers.Main) { doAny.invoke() }
     }
 }
 

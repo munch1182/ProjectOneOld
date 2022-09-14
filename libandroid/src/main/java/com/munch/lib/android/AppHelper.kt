@@ -1,8 +1,11 @@
 package com.munch.lib.android
 
 import android.app.Application
+import android.content.ComponentCallbacks
+import android.content.res.Configuration
 import android.view.ContextThemeWrapper
 import com.munch.lib.android.extend.ScopeContext
+import com.munch.lib.android.helper.InfoHelper
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,6 +27,14 @@ object AppHelper : ContextThemeWrapper(), ScopeContext {
     internal fun init(context: Application) {
         attachBaseContext(context)
         app = context
+        context.registerComponentCallbacks(object : ComponentCallbacks {
+            override fun onConfigurationChanged(p0: Configuration) {
+                InfoHelper.updateWhenChange()
+            }
+
+            override fun onLowMemory() {
+            }
+        })
     }
 
     override val coroutineContext: CoroutineContext = appJob + appJobName + Dispatchers.Default

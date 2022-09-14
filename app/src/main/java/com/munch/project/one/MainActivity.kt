@@ -12,11 +12,9 @@ import com.munch.project.one.dialog.DialogActivity
 class MainActivity : BaseActivity(), ActivityDispatch by dispatchDef(false) {
 
     private val bind by fvRvTv(
-        arrayOf(
-            RecyclerViewActivity::class,
-            PhoneInfoActivity::class,
-            DialogActivity::class,
-        )
+        RecyclerViewActivity::class,
+        PhoneInfoActivity::class,
+        DialogActivity::class
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

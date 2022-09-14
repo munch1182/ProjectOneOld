@@ -64,12 +64,12 @@ private val newTextView: ViewCreator
 /**
  * 返回一个[FastRvTv]
  */
-inline fun Activity.fvRvTv(str: Array<String>) = fv<FastRvTv> { FastRvTv(this, str) }
+inline fun Activity.fvRvTv(vararg str: String) = fv<FastRvTv> { FastRvTv(this, str) }
 
 /**
  * 返回一个[FastRvTv], 其显示为[Activity]类的simpleName, 且其item点击时跳转到该[Activity]
  */
-inline fun Activity.fvRvTv(clazz: Array<KClass<out Activity>>) = fv<FastRvTv> {
+inline fun Activity.fvRvTv(vararg clazz: KClass<out Activity>) = fv<FastRvTv> {
     FastRvTv(
         this,
         clazz.map { it.simpleName!!.replace("Activity", "") }.toTypedArray()
@@ -81,7 +81,7 @@ inline fun Activity.fvRvTv(clazz: Array<KClass<out Activity>>) = fv<FastRvTv> {
 /**
  * item由[newTextView]组成的仅供显示[data]的Rv视图
  */
-open class FastRvTv(override val context: Context, private val data: Array<String>) : FastView {
+open class FastRvTv(override val context: Context, private val data: Array<out String>) : FastView {
     protected open val rv by lazy { RecyclerView(context).apply { layoutParams = newMWLP } }
     override val contentView: View
         get() = rv
