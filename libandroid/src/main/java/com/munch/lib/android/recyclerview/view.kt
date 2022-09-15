@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.viewbinding.ViewBinding
-import com.munch.lib.android.function.ViewCreator
+import com.munch.lib.android.define.ViewCreator
 import java.lang.reflect.Method
 
 class SingleLayoutVHProvider<VH : BaseViewHolder>(@LayoutRes private val layoutId: Int) :

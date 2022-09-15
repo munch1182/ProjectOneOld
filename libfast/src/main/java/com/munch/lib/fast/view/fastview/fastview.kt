@@ -10,8 +10,8 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.munch.lib.android.define.ViewCreator
 import com.munch.lib.android.extend.*
-import com.munch.lib.android.function.ViewCreator
 import com.munch.lib.android.recyclerview.BaseViewHolder
 import com.munch.lib.android.recyclerview.OnItemClickListener
 import com.munch.lib.android.recyclerview.SimpleViewAdapter

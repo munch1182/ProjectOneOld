@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.munch.lib.android.dialog.DialogManager
+import com.munch.lib.android.dialog.IDialog
 import com.munch.lib.android.extend.to
 import java.lang.reflect.Method
 
@@ -48,4 +50,22 @@ open class BindBottomSheetDialogFragment : BottomSheetDialogFragment() {
 fun BottomSheetDialogFragment.show() {
     ActivityHelper.curr?.let { show(it.supportFragmentManager, null) }
 }
+
+open class BottomSheetDialogWrapper(private val f: BottomSheetDialogFragment) : IDialog {
+    override fun show() {
+        f.show()
+    }
+
+    override fun cancel() {
+        f.activity?.onBackPressed()
+    }
+
+    override fun getLifecycle() = f.lifecycle
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun BottomSheetDialogFragment.toDialog(): IDialog = BottomSheetDialogWrapper(this)
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun BottomSheetDialogFragment.offer(m: DialogManager) = m.add(this.toDialog())
 

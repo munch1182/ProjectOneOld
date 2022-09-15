@@ -13,12 +13,12 @@ interface DialogManager {
     /**
      * 添加一个dialog到队列中
      */
-    fun add(dialog: ComponentDialog): DialogManager
+    fun add(dialog: IDialog): DialogManager
 
     /**
      * 在一个dialog未显示之前, 将其从队列中移除
      */
-    fun remove(dialog: ComponentDialog): DialogManager
+    fun remove(dialog: IDialog): DialogManager
 
     /**
      * 显示队列中的第一个dialog
@@ -57,8 +57,8 @@ interface DialogManager {
  */
 class DialogManagerImp : DialogManager {
 
-    private val queue: Queue<ComponentDialog> = LinkedList()
-    private var curr: ComponentDialog? = null
+    private val queue: Queue<IDialog> = LinkedList()
+    private var curr: IDialog? = null
     private var pause = false
 
     private val life = object : DefaultLifecycleObserver {
@@ -74,12 +74,12 @@ class DialogManagerImp : DialogManager {
         }
     }
 
-    override fun add(dialog: ComponentDialog): DialogManagerImp {
+    override fun add(dialog: IDialog): DialogManagerImp {
         queue.add(dialog)
         return this
     }
 
-    override fun remove(dialog: ComponentDialog): DialogManagerImp {
+    override fun remove(dialog: IDialog): DialogManagerImp {
         queue.remove(dialog)
         return this
     }
@@ -115,13 +115,25 @@ class DialogManagerImp : DialogManager {
         get() = queue.size
 }
 
-fun ComponentDialog.offer(m: DialogManager): DialogManager {
-    m.add(this)
-    return m
-}
+//<editor-fold desc="extend">
+/**
+ * 将[ComponentDialog]加入到[DialogManager]队列中, 由队列管理显示
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun ComponentDialog.offer(m: DialogManager) = m.add(this.toDialog())
 
+/**
+ * 将[IDialog]加入到[DialogManager]队列中, 由队列管理显示
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun IDialog.offer(m: DialogManager) = m.add(this)
+
+/**
+ * 将[androidx.appcompat.app.AlertDialog]加入到[DialogManager]队列中, 由队列管理显示
+ */
 @Suppress("NOTHING_TO_INLINE")
 inline fun androidx.appcompat.app.AlertDialog.Builder.offer(m: DialogManager): DialogManager {
     impInMain { create().offer(m) }
     return m
 }
+//</editor-fold>

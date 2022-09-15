@@ -2,7 +2,7 @@ package com.munch.lib.android.helper
 
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.munch.lib.android.function.Update
+import com.munch.lib.android.define.Update
 import java.util.*
 
 /**

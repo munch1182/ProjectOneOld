@@ -4,9 +4,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.viewbinding.ViewBinding
+import com.munch.lib.android.define.ViewCreator
 import com.munch.lib.android.extend.findParameterized
 import com.munch.lib.android.extend.lazy
-import com.munch.lib.android.function.ViewCreator
 import com.munch.lib.android.recyclerview.BaseBindViewHolder as BBVH
 
 /**

@@ -1,4 +1,4 @@
-package com.munch.lib.android.function
+package com.munch.lib.android.define
 
 import android.content.Context
 import android.view.View
