@@ -29,6 +29,14 @@ fun impInMain(doAny: () -> Unit) {
     }
 }
 
+fun <T> getInMain(doAny: () -> T): T {
+    return if (isMainThread) {
+        doAny.invoke()
+    } else {
+        runBlocking(Dispatchers.Main) { doAny.invoke() }
+    }
+}
+
 /**
  * 合并[CoroutineScope]和[CoroutineContext]
  *

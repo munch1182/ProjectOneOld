@@ -3,7 +3,6 @@ package com.munch.lib.android.result
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -13,10 +12,8 @@ import com.munch.lib.android.dialog.ChoseDialog
 import com.munch.lib.android.dialog.DialogManager
 import com.munch.lib.android.dialog.IDialog
 import com.munch.lib.android.dialog.showThenReturnChose
-import com.munch.lib.android.extend.SealedClassToStringByName
-import com.munch.lib.android.extend.isDenied
-import com.munch.lib.android.extend.isGranted
-import com.munch.lib.android.extend.to
+import com.munch.lib.android.extend.*
+import com.munch.lib.android.log.Logger
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -33,9 +30,11 @@ class ResultHelper private constructor(private val fm: FragmentManager) {
         get() {
             val frag = fm.findFragmentByTag(TAG_RESULT_FRAGMENT)?.to<ResultFragment>()
             if (frag != null) return frag
-            return ResultFragment().also {
-                fm.beginTransaction().add(it, TAG_RESULT_FRAGMENT)
-                    .commitNowAllowingStateLoss()
+            return getInMain {
+                ResultFragment().also {
+                    fm.beginTransaction().add(it, TAG_RESULT_FRAGMENT)
+                        .commitNowAllowingStateLoss()
+                }
             }
         }
 
@@ -81,7 +80,7 @@ sealed class ExplainTime : SealedClassToStringByName() {
 }
 
 //<editor-fold desc="permission">
-typealias PermissionDialog = (Context, ExplainTime, Map<String, Boolean>) -> ChoseDialog?
+typealias PermissionDialog = (Context, ExplainTime, Array<String>) -> ChoseDialog?
 
 /**
  * 请求权限, 并回调请求结果
@@ -90,6 +89,8 @@ class PermissionResult(
     private val permission: Array<String>,
     private val requester: ResultRequester
 ) {
+
+    private val log = Logger("permission")
 
     /**
      * 存放待请求权限的权限
@@ -130,41 +131,138 @@ class PermissionResult(
         return this
     }
 
-    fun judgeDialog2Execute(listener: PermissionResultListener) {
+    fun request(listener: PermissionResultListener) {
         AppHelper.launch {
-            handle()
-            listener.onPermissionResult(!result.containsValue(false), result)
+
+            catch {
+                handle()
+            }
+
+            request.clear()
+            denied.clear()
+            result.clear()
+
+            // 所有流程重新判断一次权限
+            permission.forEach { result[it] = it.isGranted() }
+            val isGrantAll = !result.containsValue(false)
+            log.log("permission request result: ${if (isGrantAll) "grantAll" else fmt(result)}.")
+            listener.onPermissionResult(isGrantAll, result)
         }
     }
 
     private suspend fun handle() {
         result.clear()
-        clearAll()
+        request.clear()
+        denied.clear()
 
-        request.addAll(permission) // 将所有权限加入待处理列表
+        permission.forEach {
+            result[it] = it.isGranted()
+        } // 第一次权限判断, 注意此时可能未被授予的权限都被永久拒绝了, 则会先显示Before再直接显示ForDeniedForever
+        request.addAll(result.filter { !it.value }.keys.toTypedArray()) // 用于申请未被授予的权限
 
-        judgeDialog2Execute(ExplainTime.Before) { requester.permission(request.toTypedArray()) } // 第一次请求 (将永久拒绝的放入denied中, 将未被永久拒绝的放入request中)
-
-        if (request.isNotEmpty()) { // 处理未被永久拒绝的权限
-            judgeDialog2Execute(ExplainTime.ForDenied) { requester.permission(request.toTypedArray()) } // 将未被永久拒绝的下一次再请求, 放入request中并且请求
-            this.request.forEach { this.result[it] = false } // 第二次请求仍被拒绝的不再请求, 直接当作被拒绝
-        }
-
-        if (denied.isNotEmpty()) { // 处理被永久拒绝的权限
-            judgeDialog2Execute(ExplainTime.ForDeniedForever) { // 如果允许
-                ResultHelper.with(act).intent(Intent(Settings.ACTION_SETTINGS)).start() // 则跳转设置界面
+        if (request.isNotEmpty()) { // 如果有未被授予的权限
+            val dialogBefore = pd?.invoke(act, ExplainTime.Before, request.toTypedArray())
+            if (dialogBefore != null) {
+                log.log("permission explain dialog: Before.")
             }
-            this.request.forEach { this.result[it] = false } // 第二次请求仍被拒绝的不再请求, 直接当中被拒绝
-        }
+            val choseForBefore = dialogBefore?.showThenReturnChose()?.isChoseNext ?: true
+            if (choseForBefore) { // 如果显示了dialog, 并且选择了确认; 或者没有显示dialog
 
-        // 处理结果
-        this.result.clear()
-        request.forEach { this.result[it] = it.isGranted() }
+                log.log("request permission: ${fmt(request)}.")
+
+                val isGrantAllFroAll = requester.permission(request.toTypedArray()) // 第一次请求权限
+
+                if (!isGrantAllFroAll) { // 如果有未被授予的权限
+                    val newAll = request.new
+                    request.clear()
+
+                    newAll.forEach {
+                        if (it.isGranted()) { // 已经取得的权限放入结果中
+                            result[it] = true
+                        } else if (it.isDenied(act)) {
+                            denied.add(it) // 被永久拒绝的权限, 放入denied
+                        } else {
+                            request.add(it) // 未被永久拒绝的权限, 放入request
+                        }
+                    }
+
+                    if (request.isNotEmpty()) {  // 如果有未被永久拒绝的权限
+                        val dialogDenied =
+                            pd?.invoke(act, ExplainTime.ForDenied, request.toTypedArray())
+                        if (dialogDenied != null) {
+                            log.log("permission explain dialog: ForDenied.")
+                        }
+                        val chose = dialogDenied?.showThenReturnChose()?.isChoseNext ?: false
+
+                        if (chose) { // 如果显示了dialog并且选择了确认
+
+                            log.log("request permission: ${fmt(request)}.")
+
+                            val isGrantAllForDenied =
+                                requester.permission(request.toTypedArray()) // 第二次请求未被永久拒绝的权限
+
+                            if (isGrantAllForDenied) {
+                                request.forEach { result[it] = true }
+                            } else {
+                                val newDenied = request.new
+                                request.clear()
+
+                                newDenied.forEach {
+                                    if (it.isGranted()) { // 已经取得的权限放入结果中
+                                        result[it] = true
+                                    } else if (it.isDenied(act)) {
+                                        denied.add(it) // 被永久拒绝的权限, 放入denied
+                                    } else {
+                                        request.add(it) // 未被永久拒绝的权限, 放入request
+                                    }
+                                }
+                            }
+
+                            if (request.isNotEmpty()) { //如果两次请求仍有未被完全拒绝的权限, 则直接放入永久拒绝
+                                denied.addAll(request)
+                                request.clear()
+                            }
+                        } else {
+                            log.log("${if (dialogDenied != null) "chose cancel" else "no explain"}. do nothing for denied.")
+                        }
+                    }
+
+                    if (denied.isNotEmpty()) {
+                        request.clear()
+                        request.addAll(denied)
+                        val dialogDeniedForever =
+                            pd?.invoke(act, ExplainTime.ForDeniedForever, request.toTypedArray())
+                        if (dialogDeniedForever != null) {
+                            log.log("permission explain dialog: ForDeniedForever.")
+                        }
+
+                        val chose = dialogDeniedForever?.showThenReturnChose()?.isChoseNext ?: false
+
+                        if (chose) { // 如果显示了dialog并且选择了确认
+                            log.log("start ACTION_SETTINGS for deniedForever.")
+                            ResultHelper.with(act).intent(setting).start()
+                        } else {
+                            log.log("${if (dialogDeniedForever != null) "chose cancel" else "no explain"}. do nothing for deniedForever.")
+                        }
+                    }
+                }
+            } else {
+                log.log("permission request: denied.")
+            }
+        }
     }
 
-    private suspend fun judgeDialog2Execute(time: ExplainTime, execute: suspend () -> Boolean) {
-        val dialog = pd?.invoke(act, time, result)?.showThenReturnChose() // 如果能显示弹窗, 则显示并返回结果
-        if (dialog == null || dialog.isChoseNext) {  // 未设置对应的Dialog或者选择了请求
+    private fun fmt(m: Map<String, Boolean>) = m.keys.joinToString { "${it.fmt()}:${m[it]}" }
+
+    private fun fmt(p: MutableList<String>) =
+        p.joinToString { it.fmt() }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun String.fmt() = removePrefix("android.permission.")
+
+    private suspend fun judgeDialog2Execute(dialog: ChoseDialog?, execute: suspend () -> Boolean) {
+        val chose = dialog?.showThenReturnChose() // 如果能显示弹窗, 则显示并返回结果
+        if (chose == null || chose.isChoseNext) {  // 未设置对应的Dialog或者选择了请求
             val result = execute.invoke() // 请求所有权限
             if (!result) { // 如果权限未全部获取, 则处理第一次请求结果
                 val list = ArrayList(request)
@@ -181,12 +279,6 @@ class PermissionResult(
                 }
             }
         }
-    }
-
-
-    private fun clearAll() {
-        request.clear()
-        denied.clear()
     }
 
 }
@@ -270,7 +362,7 @@ class JudgeIntentResult(
 /**
  * 使用一个无UI的Fragment代理当前真正的UI来请求权限, 以汇集请求和结果
  */
-private class ResultFragment : Fragment(), ResultRequester {
+class ResultFragment : Fragment(), ResultRequester {
 
     private var resultListener: IntentResultListener? = null
     private var permissionListener: PermissionResultListener? = null
@@ -332,11 +424,11 @@ fun interface JudgeIntentResultSimpleListener {
 
 //<editor-fold desc="extend">
 fun PermissionResult.start(listener: PermissionResultSimpleListener) {
-    judgeDialog2Execute { isGrandAll, _ -> listener.onPermission(isGrandAll) }
+    request { isGrantAll, _ -> listener.onPermission(isGrantAll) }
 }
 
 suspend fun PermissionResult.start(): Boolean = suspendCancellableCoroutine {
-    judgeDialog2Execute { isGrantAll, _ -> it.resume(isGrantAll) }
+    request { isGrantAll, _ -> it.resume(isGrantAll) }
 }
 
 fun IntentResult.start(c: Int = Activity.RESULT_OK, listener: IntentResultSimpleListener) {

@@ -2,6 +2,10 @@
 
 package com.munch.lib.android.extend
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import com.munch.lib.android.AppHelper
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
@@ -40,6 +44,7 @@ inline fun <T> catch(block: () -> T): T? {
     return try {
         block.invoke()
     } catch (e: Exception) {
+        e.printStackTrace()
         null
     }
 }
@@ -57,3 +62,9 @@ inline fun <T> Any.to(): T = this as T
 @Suppress("UNCHECKED_CAST")
 inline fun <T> Any.toOrNull(): T? = this as? T
 //</editor-fold>
+
+val setting: Intent
+    get() = Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.parse("package:${AppHelper.packageName}")
+    )

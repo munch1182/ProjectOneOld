@@ -12,3 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 inline fun <T> MutableLiveData<T>.immutable(): LiveData<T> = this
 inline fun <T> MutableSharedFlow<T>.immutable(): SharedFlow<T> = this
 inline fun <T> MutableStateFlow<T>.immutable(): StateFlow<T> = this
+
+inline val <T> MutableList<T>.new: MutableList<T>
+    get() = ArrayList(this)
