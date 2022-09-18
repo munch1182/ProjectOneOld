@@ -17,7 +17,8 @@ class MainActivity : BaseActivity(), ActivityDispatch by SupportActionBar(false)
     private val bind by fvRvTv(
         RecyclerViewActivity::class,
         PhoneInfoActivity::class,
-        DialogActivity::class
+        DialogActivity::class,
+        TestActivity::class
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -2,6 +2,7 @@
 
 package com.munch.lib.android.extend
 
+import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -12,9 +13,15 @@ import com.munch.lib.android.AppHelper
 //<editor-fold desc="convert">
 /**
  * dp转为px
+ *
+ *  实际与[Context.dp2Px]计算的值是一致的, 只是有些情况下不能使用这个, 比如xml预览时
  */
 inline fun Number.dp2Px(): Float {
     return (this.toFloat() * AppHelper.resources.displayMetrics.density + 0.5f * if (this.toInt() >= 0) 1f else -1f)
+}
+
+inline fun Context.dp2Px(dp: Float): Float {
+    return (dp * resources.displayMetrics.density + 0.5f * if (dp.toInt() >= 0) 1f else -1f)
 }
 
 /**
@@ -27,6 +34,11 @@ inline fun Number.dp2Px2Int() = dp2Px().toInt()
  */
 inline fun Number.sp2Px(): Float {
     return this.toFloat() * AppHelper.resources.displayMetrics.scaledDensity + 0.5f
+}
+
+
+inline fun Context.sp2Px(sp: Float): Float {
+    return sp * resources.displayMetrics.scaledDensity + 0.5f
 }
 
 /**

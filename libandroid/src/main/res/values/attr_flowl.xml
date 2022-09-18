@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FlowLayout">
+        <attr name="android:gravity" />
+        <attr name="flow_itemSpace" format="dimension" />
+        <attr name="flow_lineSpace" format="dimension" />
+        <attr name="flow_maxCountInLine" format="integer" />
+        <attr name="flow_style" format="enum">
+            <enum name="packed" value="1" />
+            <enum name="spread" value="0" />
+        </attr>
+    </declare-styleable>
+</resources>

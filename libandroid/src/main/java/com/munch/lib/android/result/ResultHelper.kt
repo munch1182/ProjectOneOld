@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package com.munch.lib.android.result
 
 import android.app.Activity
@@ -451,4 +453,19 @@ suspend fun ResultRequester.permission(permission: Array<String>): Boolean =
     suspendCancellableCoroutine {
         start4Permission(permission) { isGrantAll, _ -> it.resume(isGrantAll) }
     }
+
+inline fun FragmentActivity.with(vararg permission: String) =
+    ResultHelper.with(this).permission(*permission)
+
+inline fun Fragment.with(vararg permission: String) =
+    ResultHelper.with(this).permission(*permission)
+
+inline fun FragmentActivity.with(intent: Intent) = ResultHelper.with(this).intent(intent)
+inline fun Fragment.with(intent: Intent) = ResultHelper.with(this).intent(intent)
+
+inline fun FragmentActivity.with(noinline judge: IntentJudge) =
+    ResultHelper.with(this).judge(judge)
+
+inline fun Fragment.with(noinline judge: IntentJudge) =
+    ResultHelper.with(this).judge(judge)
 //</editor-fold>

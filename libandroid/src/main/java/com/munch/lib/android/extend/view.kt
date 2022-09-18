@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,12 +28,26 @@ val newMWLP: ViewGroup.LayoutParams
         ViewGroup.LayoutParams.WRAP_CONTENT
     )
 
+val View.paddingHorizontal: Int
+    get() = paddingLeft + paddingRight
+
+val View.paddingVertical: Int
+    get() = paddingTop + paddingBottom
+
 /**
  * 设置View的点击效果, 会替换背景和顶部的Drawable
  */
 fun View.clickEffect(color: Int = Color.WHITE) {
     background = ColorDrawable(color)
     foreground = getSelectableItemBackground()
+}
+
+fun Int.hasGravity(gravity: Int): Boolean {
+    return when (gravity) {
+        Gravity.START, Gravity.END, Gravity.CENTER_HORIZONTAL -> this and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK == gravity
+        Gravity.TOP, Gravity.BOTTOM, Gravity.CENTER_VERTICAL -> this and Gravity.VERTICAL_GRAVITY_MASK == gravity
+        else -> false
+    }
 }
 
 /**
