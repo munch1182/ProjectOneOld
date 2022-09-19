@@ -1,8 +1,9 @@
 package com.munch.lib.fast.view.dispatch
 
-import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 
 /**
@@ -58,8 +59,18 @@ interface ActivityDispatch {
 
 open class DispatcherActivity : AppCompatActivity(), ActivityDispatch {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        getActivityDispatcher().onCreateActivity(this)
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+        getActivityDispatcher().onCreateActivity(this)
+    }
+
+    override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
+        super.setContentView(view, params)
         getActivityDispatcher().onCreateActivity(this)
     }
 

@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
@@ -144,8 +145,10 @@ open class FastFvBtn(override val context: Context, private val text: Array<out 
     override val contentView: View
         get() = view
     private var click: ((Int) -> Unit)? = null
+    private var click2: ((String) -> Unit)? = null
     private val viewClick = View.OnClickListener {
         click?.invoke(it.tag.to())
+        click2?.invoke(it.to<TextView>().text.toString())
     }
 
     override fun onCreate() {
@@ -165,6 +168,43 @@ open class FastFvBtn(override val context: Context, private val text: Array<out 
                     setOnClickListener(viewClick)
                 })
             }
+        }
+    }
+
+    fun click(click: ((Int) -> Unit)) {
+        this.click = click
+    }
+
+    fun clickByStr(click: (String) -> Unit) {
+        this.click2 = click
+    }
+}
+//</editor-fold>
+
+//<editor-fold desc="ll">
+inline fun Activity.fvLlBtn(vararg text: String) = fv { FastFvBtn(this, text) }
+
+open class FastLlBtn(override val context: Context, private val text: Array<out String>) :
+    FastView {
+
+    private val view by lazy { LinearLayout(context) }
+    override val contentView: View
+        get() = view
+    private var click: ((Int) -> Unit)? = null
+    private val viewClick = View.OnClickListener {
+        click?.invoke(it.tag.to())
+    }
+
+    override fun onCreate() {
+        val dp16 = 16.dp2Px2Int()
+        view.orientation = LinearLayout.VERTICAL
+        view.setPadding(dp16)
+        text.forEachIndexed { index, s ->
+            view.addView(Button(context).apply {
+                text = s
+                tag = index
+                setOnClickListener(viewClick)
+            })
         }
     }
 

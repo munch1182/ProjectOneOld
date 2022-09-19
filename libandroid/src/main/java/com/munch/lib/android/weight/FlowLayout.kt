@@ -68,9 +68,18 @@ class FlowLayout @JvmOverloads constructor(
         var spaceLeft = maxW // 重设剩余宽度
         curr.nextLine()
 
+        var lastIsSign = false
+
         children.forEach {
 
             val isSign = it is Sign
+
+            lastIsSign = if (isSign) { // 只判断一次
+                if (lastIsSign) return@forEach // 相邻多个Sign
+                true
+            } else {
+                false
+            }
             if (it.isGone && !isSign) return@forEach
 
             if (!isSign) measureChild(it, widthMeasureSpec, heightMeasureSpec)
@@ -78,7 +87,7 @@ class FlowLayout @JvmOverloads constructor(
             val childW = it.measuredWidth
             val childH = it.measuredHeight
 
-            if (it is Sign // 如果这个view仅是换行标记
+            if (isSign // 如果这个view仅是换行标记
                 || (maxCountInLine > 0 && curr.viewCount >= maxCountInLine) // 超过限定的数量
                 || ((childW + itemSpace) > spaceLeft  // 剩余宽度不够(如果不是第一个, 则其实际占用需要加上itemSpace)
                         && curr.viewCount > 0) // 且不是行第一个view(如果是此行第一个, 不管实际宽度都必须放下)
@@ -93,7 +102,7 @@ class FlowLayout @JvmOverloads constructor(
                 curr.nextLine()
                 spaceLeft = maxW // 重设最大宽度
             }
-            if (it is Sign) {
+            if (isSign) {
                 return@forEach
             }
 

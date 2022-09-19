@@ -98,6 +98,13 @@ fun View.setDoubleClickListener(doubleTime: Long = 500L, l: View.OnClickListener
     })
 }
 
+fun View.addPadding(p: Int = 0, l: Int = p, t: Int = p, r: Int = p, b: Int = p) {
+    setPadding(paddingStart + l, paddingTop + t, paddingEnd + r, paddingBottom + b)
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun View.addPadding(padding: Int) = addPadding(p = padding)
+
 /**
  * 一个使用颜色线分割的RecyclerView.ItemDecoration
  */

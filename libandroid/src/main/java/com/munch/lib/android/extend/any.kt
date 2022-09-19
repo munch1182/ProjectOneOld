@@ -60,7 +60,7 @@ inline fun <T> Any.to(): T = this as T
  * 将调用对象转为[T], 避免写as+[]的写法
  */
 @Suppress("UNCHECKED_CAST")
-inline fun <T> Any.toOrNull(): T? = this as? T
+inline fun <T> Any.toOrNull(): T? = this as? T?
 //</editor-fold>
 
 val setting: Intent
