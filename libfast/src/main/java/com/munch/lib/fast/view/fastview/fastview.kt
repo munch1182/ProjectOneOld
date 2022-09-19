@@ -5,9 +5,11 @@ package com.munch.lib.fast.view.fastview
 import android.app.Activity
 import android.content.Context
 import android.view.View
+import android.widget.Button
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.view.setPadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.android.define.ViewCreator
@@ -15,6 +17,8 @@ import com.munch.lib.android.extend.*
 import com.munch.lib.android.recyclerview.BaseViewHolder
 import com.munch.lib.android.recyclerview.OnItemClickListener
 import com.munch.lib.android.recyclerview.SimpleViewAdapter
+import com.munch.lib.android.weight.FlowLayout
+import com.munch.lib.android.weight.Sign
 import com.munch.lib.fast.R
 import kotlin.reflect.KClass
 
@@ -35,12 +39,12 @@ interface FastView {
     }
 }
 
-fun <V : FastView> Activity.fv(creator: () -> FastView): Lazy<V> {
+fun <V : FastView> Activity.fv(creator: () -> V): Lazy<V> {
     return lazy {
         creator.invoke().apply {
             setContentView(contentView)
             onCreate()
-        } as V
+        }
     }
 }
 
@@ -64,7 +68,7 @@ private val newTextView: ViewCreator
 /**
  * 返回一个[FastRvTv]
  */
-inline fun Activity.fvRvTv(vararg str: String) = fv<FastRvTv> { FastRvTv(this, str) }
+inline fun Activity.fvRvTv(vararg str: String) = fv { FastRvTv(this, str) }
 
 /**
  * 返回一个[FastRvTv], 其显示为[Activity]类的simpleName, 且其item点击时跳转到该[Activity]
@@ -106,7 +110,7 @@ open class FastRvTv(override val context: Context, private val data: Array<out S
 /**
  * 返回一个[FastSvTv]
  */
-inline fun Activity.fvSvTv() = fv<FastSvTv> { FastSvTv(this) }
+inline fun Activity.fvSvTv() = fv { FastSvTv(this) }
 
 /**
  * 一个ScrollView其中由text组成
@@ -126,6 +130,46 @@ open class FastSvTv(override val context: Context) : FastView {
 
     fun append(str: CharSequence) {
         text.text = "${text.text}$str"
+    }
+}
+//</editor-fold>
+
+//<editor-fold desc="flow">
+inline fun Activity.fvFvBtn(vararg text: String) = fv { FastFvBtn(this, text) }
+
+open class FastFvBtn(override val context: Context, private val text: Array<out String>) :
+    FastView {
+
+    private val view by lazy { FlowLayout(context) }
+    override val contentView: View
+        get() = view
+    private var click: ((Int) -> Unit)? = null
+    private val viewClick = View.OnClickListener {
+        click?.invoke(it.tag.to())
+    }
+
+    override fun onCreate() {
+        val dp16 = 16.dp2Px2Int()
+        view.setPadding(dp16)
+        view.update {
+            itemSpace = dp16
+            lineSpace = dp16
+        }
+        text.forEachIndexed { index, s ->
+            if (s.isEmpty()) {
+                view.addView(Sign(context))
+            } else {
+                view.addView(Button(context).apply {
+                    text = s
+                    tag = index
+                    setOnClickListener(viewClick)
+                })
+            }
+        }
+    }
+
+    fun click(click: ((Int) -> Unit)) {
+        this.click = click
     }
 }
 //</editor-fold>

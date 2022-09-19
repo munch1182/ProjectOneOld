@@ -7,9 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.children
 import androidx.core.view.isGone
 import com.munch.lib.android.R
-import com.munch.lib.android.extend.dp2Px
-import com.munch.lib.android.extend.paddingHorizontal
-import com.munch.lib.android.extend.paddingVertical
+import com.munch.lib.android.extend.*
 import com.munch.lib.android.helper.array.SpecialArrayHelper
 import kotlin.math.max
 import kotlin.math.min
@@ -31,8 +29,8 @@ class FlowLayout @JvmOverloads constructor(
     private val layoutInfo = LineInfoArrayHelper()
     private val curr = LineInfo()
 
-    var itemSpace = 0 // view之间的间隔
-    var lineSpace = 0 // 行之间的间隔
+    var itemSpace = 0 // view之间的间隔(左右两边的view不会加上间隔)
+    var lineSpace = 0 // 行之间的间隔(上下两边的view不会加上间隔)
     var maxCountInLine = 0 // 一行允许排列的最大子view个数, 超过这个数将自动换行, 如果为0则不限
 
     /**
@@ -75,12 +73,10 @@ class FlowLayout @JvmOverloads constructor(
             val isSign = it is Sign
             if (it.isGone && !isSign) return@forEach
 
-            if (!isSign) {
-                measureChild(it, widthMeasureSpec, heightMeasureSpec)
-            }
+            if (!isSign) measureChild(it, widthMeasureSpec, heightMeasureSpec)
 
-            val childW = if (isSign) 0 else it.measuredWidth
-            val childH = if (isSign) 0 else it.measuredHeight
+            val childW = it.measuredWidth
+            val childH = it.measuredHeight
 
             if (it is Sign // 如果这个view仅是换行标记
                 || (maxCountInLine > 0 && curr.viewCount >= maxCountInLine) // 超过限定的数量
@@ -131,44 +127,79 @@ class FlowLayout @JvmOverloads constructor(
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
 
         var level = 0
-        var widthLeft: Int
         curr.nextLine() // 清除数据
-        val maxW = width
 
-        var left = 0
-        var top = paddingTop
+        var left: Int
+        var top: Int
         var right = 0
-        var bottom = 0
+        var bottom: Int
 
-        var viewSpace = 0
-        var count = 0
+        var count = 0 // 当前行的view的数量
+        var viewIndexInLine = 0 // 当前view在行中的位置
+        var lineTop = 0 // 该行的订单
+        var lineHeight = 0 // 该行的高度
+        var layoutItemSpace = itemSpace // itemSpace, 当CENTER_HORIZONTAL时此值会被替换
 
+        val clipPadding = clipToPadding // 是否裁剪padding
+        val horizontalGravity = gravity.getHorizontalGravity()
+        val verticalGravity = gravity.getVerticalGravity()
 
         children.forEach {
 
             if (it.isGone) return@forEach
 
-            val w = it.measuredWidth
-            val h = it.measuredHeight
+            val vw = it.measuredWidth
+            val vh = it.measuredHeight
 
 
-            if (count <= 0) { // 如果本行无剩余view, 或者是第一个
+            if (count <= 0) { // 如果本行无剩余view, 或者是第一个 // 所以此方法第一次即调用
 
                 layoutInfo.get(level++, curr) // 读取下一行信息
                 count = curr.viewCount
+                viewIndexInLine = 0
+                lineHeight = curr.lineHeight
+                lineTop = paddingTop + curr.top  // 重置位置
+                lineTop += if (viewIndexInLine == 0) 0 else lineSpace //首行不加入lineSpace
 
-                // 测量时依据的是最大宽度, 但设置宽度时为使用宽度, 因此要重新计算剩余宽度
-                widthLeft = maxW - paddingHorizontal - curr.widthUsed
-
-                // TODO:  111
-            } else {
-                left = right + viewSpace // 下一个view的left为上一个view的right+space
+                when (horizontalGravity) {
+                    Gravity.END -> {
+                        layoutItemSpace = itemSpace
+                        val spaceLeft = width - paddingHorizontal - curr.widthUsed
+                        right = paddingLeft + spaceLeft // 起始点整体后移
+                        right -= layoutItemSpace // 因为第一个view是没有itemSpace的, 这里补齐计算, 先减后加
+                    }
+                    Gravity.CENTER_HORIZONTAL -> {
+                        var spaceLeft =
+                            r - l - (curr.widthUsed - (curr.viewCount - 1) * itemSpace) // 因为计算widthUsed时有加上itemSpace, 此处要减去
+                        if (clipPadding) { // 如果不能延伸到padding, 则还需要减去padding
+                            spaceLeft -= paddingHorizontal
+                        }
+                        layoutItemSpace = spaceLeft / (curr.viewCount + 1) // 第一个也要加入等分
+                        // 如果不能延伸到padding,起始点还需要加上paddingLeft, 否则为0, 让left去加上layoutItemSpace
+                        right = if (clipPadding) paddingLeft else 0
+                    }
+                    else -> {
+                        layoutItemSpace = itemSpace
+                        right = paddingLeft - layoutItemSpace // 第一个view是没有itemSpace的, 这里补齐计算, 先减后加
+                    }
+                }
             }
 
-            right = left + w + viewSpace
-            bottom = top + h
+            left = right + layoutItemSpace// 下一个view的left为上一个view的right+space
+            right = left + vw
+
+            top = when (verticalGravity) {
+                Gravity.BOTTOM -> lineTop + lineHeight - vh // 移动top位置
+                Gravity.CENTER_VERTICAL -> {
+                    val half = (lineHeight - vh) / 2
+                    lineTop + half
+                }
+                else -> lineTop
+            }
+            bottom = top + vh
 
             it.layout(left, top, right, bottom)
+            viewIndexInLine++
             count--
         }
     }

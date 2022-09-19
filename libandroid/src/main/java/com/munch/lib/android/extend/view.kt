@@ -42,6 +42,10 @@ fun View.clickEffect(color: Int = Color.WHITE) {
     foreground = getSelectableItemBackground()
 }
 
+//<editor-fold desc="gravity">
+/**
+ * 当前int值是否包含[gravity], 注意:并不是所有的[Gravity]都支持
+ */
 fun Int.hasGravity(gravity: Int): Boolean {
     return when (gravity) {
         Gravity.START, Gravity.END, Gravity.CENTER_HORIZONTAL -> this and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK == gravity
@@ -49,6 +53,31 @@ fun Int.hasGravity(gravity: Int): Boolean {
         else -> false
     }
 }
+
+/**
+ * 返回当前int值所包含的水平方向的[Gravity], 否则会返回Gravity.NO_GRAVITY
+ */
+fun Int.getHorizontalGravity(): Int {
+    return when {
+        hasGravity(Gravity.START) -> Gravity.START
+        hasGravity(Gravity.END) -> Gravity.END
+        hasGravity(Gravity.CENTER_HORIZONTAL) -> Gravity.CENTER_HORIZONTAL
+        else -> Gravity.NO_GRAVITY
+    }
+}
+
+/**
+ * 返回当前int值所包含的垂直方向的[Gravity], 否则会返回Gravity.NO_GRAVITY
+ */
+fun Int.getVerticalGravity(): Int {
+    return when {
+        hasGravity(Gravity.TOP) -> Gravity.TOP
+        hasGravity(Gravity.BOTTOM) -> Gravity.BOTTOM
+        hasGravity(Gravity.CENTER_VERTICAL) -> Gravity.CENTER_VERTICAL
+        else -> Gravity.NO_GRAVITY
+    }
+}
+//</editor-fold>
 
 /**
  * 双击回调
