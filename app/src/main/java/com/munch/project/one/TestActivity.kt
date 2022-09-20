@@ -12,7 +12,6 @@ import com.munch.project.one.base.dispatchDef
 class TestActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
 
     private fun click0() {
-
     }
 
     //<editor-fold desc="1">

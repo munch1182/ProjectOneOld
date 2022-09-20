@@ -2,6 +2,7 @@ package com.munch.lib.android.dialog
 
 import android.content.Context
 import androidx.activity.ComponentDialog
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
 /**
@@ -14,8 +15,38 @@ interface IDialog : LifecycleOwner {
     fun show()
 
     fun cancel()
+
+    fun setLifecycleListener(l: DialogLifecycleListener?): IDialog {
+        lifecycle.addObserver(Lifecycle2Listener(l))
+        return this
+    }
 }
 
+interface DialogLifecycleListener {
+    fun onShow() {}
+    fun onCancel() {}
+}
+
+/**
+ * 将[DefaultLifecycleObserver]转为[DialogLifecycleListener]
+ */
+class Lifecycle2Listener(private val l: DialogLifecycleListener?) : DefaultLifecycleObserver {
+
+    override fun onResume(owner: LifecycleOwner) {
+        super.onResume(owner)
+        l?.onShow()
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        super.onPause(owner)
+        l?.onCancel()
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        super.onDestroy(owner)
+        owner.lifecycle.removeObserver(this)
+    }
+}
 /**
  * 用于创建一个Dialog
  */

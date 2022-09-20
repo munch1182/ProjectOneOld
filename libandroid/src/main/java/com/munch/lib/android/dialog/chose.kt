@@ -1,6 +1,5 @@
 package com.munch.lib.android.dialog
 
-import androidx.activity.ComponentDialog
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -31,18 +30,18 @@ interface IDialogChose {
     /**
      * 是否选择了确认
      */
-    val isChoseNext: Boolean
+    val isChoseOk: Boolean
 }
 
 sealed class DialogChose : IDialogChose {
 
-    object Next : DialogChose()
+    object Ok : DialogChose()
     object Cancel : DialogChose()
 
     override val isChoseCancel: Boolean
         get() = this == Cancel
-    override val isChoseNext: Boolean
-        get() = this == Next
+    override val isChoseOk: Boolean
+        get() = this == Ok
 }
 
 //<editor-fold desc="extend">
@@ -71,15 +70,15 @@ abstract class ChoseDialogWrapper : ChoseDialog {
     override val chose: IDialogChose?
         get() = finChose
 
-    fun choseNext() {
-        finChose = DialogChose.Next
+    fun choseOk() {
+        finChose = DialogChose.Ok
     }
 
     fun choseCancel() {
         finChose = DialogChose.Cancel
     }
 
-    protected abstract fun crateDialog(): ComponentDialog
+    protected abstract fun crateDialog(): IDialog
 
     override fun show() {
         dialog.show()
@@ -90,7 +89,6 @@ abstract class ChoseDialogWrapper : ChoseDialog {
     }
 
     override fun getLifecycle(): Lifecycle = dialog.lifecycle
-
 }
 //</editor-fold>
 

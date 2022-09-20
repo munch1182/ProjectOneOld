@@ -7,7 +7,7 @@ import java.util.*
 /**
  * 将时间(毫秒值)格式化成字符串
  */
-fun Long.fmt2Date(pattern: String = "yyyy/MM/dd HH:mm") = Date(this).fmt(pattern)
+fun Long.fmt(pattern: String = "yyyy/MM/dd HH:mm") = Date(this).fmt(pattern)
 
 /**
  * 将日期格式化成字符串

@@ -51,20 +51,23 @@ fun BottomSheetDialogFragment.show() {
     ActivityHelper.curr?.let { show(it.supportFragmentManager, null) }
 }
 
-open class BottomSheetDialogWrapper(private val f: BottomSheetDialogFragment) : IDialog {
+abstract class BottomSheetDialogWrapper : IDialog {
+    protected abstract val f: BottomSheetDialogFragment
     override fun show() {
         f.show()
     }
 
     override fun cancel() {
-        f.activity?.onBackPressed()
+        f.dismiss()
     }
 
     override fun getLifecycle() = f.lifecycle
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun BottomSheetDialogFragment.toDialog(): IDialog = BottomSheetDialogWrapper(this)
+inline fun BottomSheetDialogFragment.toDialog(): IDialog = object : BottomSheetDialogWrapper() {
+    override val f: BottomSheetDialogFragment = this@toDialog
+}
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun BottomSheetDialogFragment.offer(m: DialogManager) = m.add(this.toDialog())

@@ -167,7 +167,7 @@ class PermissionResult(
             if (dialogBefore != null) {
                 log.log("permission explain dialog: Before.")
             }
-            val choseForBefore = dialogBefore?.showThenReturnChose()?.isChoseNext ?: true
+            val choseForBefore = dialogBefore?.showThenReturnChose()?.isChoseOk ?: true
             if (choseForBefore) { // 如果显示了dialog, 并且选择了确认; 或者没有显示dialog
 
                 log.log("request permission: ${fmt(request)}.")
@@ -194,7 +194,7 @@ class PermissionResult(
                         if (dialogDenied != null) {
                             log.log("permission explain dialog: ForDenied.")
                         }
-                        val chose = dialogDenied?.showThenReturnChose()?.isChoseNext ?: false
+                        val chose = dialogDenied?.showThenReturnChose()?.isChoseOk ?: false
 
                         if (chose) { // 如果显示了dialog并且选择了确认
 
@@ -238,7 +238,7 @@ class PermissionResult(
                             log.log("permission explain dialog: ForDeniedForever.")
                         }
 
-                        val chose = dialogDeniedForever?.showThenReturnChose()?.isChoseNext ?: false
+                        val chose = dialogDeniedForever?.showThenReturnChose()?.isChoseOk ?: false
 
                         if (chose) { // 如果显示了dialog并且选择了确认
                             log.log("start ACTION_SETTINGS for deniedForever.")
@@ -264,7 +264,7 @@ class PermissionResult(
 
     private suspend fun judgeDialog2Execute(dialog: ChoseDialog?, execute: suspend () -> Boolean) {
         val chose = dialog?.showThenReturnChose() // 如果能显示弹窗, 则显示并返回结果
-        if (chose == null || chose.isChoseNext) {  // 未设置对应的Dialog或者选择了请求
+        if (chose == null || chose.isChoseOk) {  // 未设置对应的Dialog或者选择了请求
             val result = execute.invoke() // 请求所有权限
             if (!result) { // 如果权限未全部获取, 则处理第一次请求结果
                 val list = ArrayList(request)
@@ -343,7 +343,7 @@ class JudgeIntentResult(
         }
         AppHelper.launch {
             val chose = id?.invoke(requester.ctx)?.showThenReturnChose() // 显示dialog并返回选择结果
-            if (chose == null || chose.isChoseNext) { // 如果未设置Dialog, 或者设置并选择了下一步
+            if (chose == null || chose.isChoseOk) { // 如果未设置Dialog, 或者设置并选择了下一步
                 requester.start4Result(i) { resultCode, intent -> // 跳转intent界面并返回结果
                     listener.onJudgeIntentResult(
                         judge.invoke(requester.ctx), resultCode, intent
