@@ -1,23 +1,20 @@
 package com.munch.project.one.dialog
 
 import android.os.Bundle
-import com.munch.lib.android.dialog.DialogManager
-import com.munch.lib.android.dialog.DialogManagerImp
+import com.munch.lib.android.dialog.DefaultDialogManager
+import com.munch.lib.android.dialog.IDialogManager
 import com.munch.lib.android.extend.fmt
-import com.munch.lib.android.log.log
-import com.munch.lib.fast.view.dialog.BottomDialog
 import com.munch.lib.fast.view.dialog.DialogHelper
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
-import com.munch.lib.fast.view.fastview.fvLlBtn
+import com.munch.lib.fast.view.fastview.fvFvBtn
 import com.munch.project.one.base.BaseActivity
 import com.munch.project.one.base.dispatchDef
-import com.munch.project.one.databinding.DialogBottonTestBinding
 
 class DialogActivity : BaseActivity(),
     ActivityDispatch by dispatchDef(),
-    DialogManager by DialogManagerImp() {
+    IDialogManager by DefaultDialogManager() {
 
-    private val bind by fvLlBtn("message", "message2", "", "bottom")
+    private val bind by fvFvBtn("message", "message2", "", "bottom")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,22 +28,24 @@ class DialogActivity : BaseActivity(),
     }
 
     private fun bottom() {
-        DialogHelper.bottom<DialogBottonTestBinding> { tst.text = "12312" }
-            .title("title")
-            .onCancel<BottomDialog> { log(it.chose) }
+        DialogHelper.bottom()
+            .title("Title")
+            .content("curr: ${System.currentTimeMillis().fmt()}")
+            .ok()
+            .cancel()
             .show()
     }
 
     private fun message2() {
         DialogHelper
-            .message("现在是: ${System.currentTimeMillis().fmt()}")
+            .message("curr: ${System.currentTimeMillis().fmt()}")
             .show()
     }
 
     private fun message() {
         DialogHelper.message()
-            .title("当前时间")
-            .message("现在是: ${System.currentTimeMillis().fmt()}")
+            .title("Title")
+            .message("curr: ${System.currentTimeMillis().fmt()}")
             .show()
     }
 

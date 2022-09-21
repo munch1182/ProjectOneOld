@@ -160,8 +160,23 @@ class LinearLineItemDecoration(
 
 /**
  * 给[target]提供一个VB
- * 构建的VB可使用[set]来使用, 并且VB构建的View会通过[ViewProvider.setView]传递给[target]
- * 通过[set]方法, 调用对象会返回[target]
+ * 构建的VB可使用[set]来使用并通过[vb]来获取, 而VB构建的View会通过[ViewProvider.setView]传递给[target]
+ * 通过[set]方法, 调用对象又会返回[target]
+ *
+ * 即可以通过给对象[target]创建一个方法返回一个[ViewBindViewHelper]的实现对象, 并将[VB]设置给[TARGET], 然后再链式返回到[TARGET]
+ *
+ * class A {
+ *
+ *  fun <VB:ViewBinding> bind() = object : ViewBindViewHelper<VB, A>(this, context) {}
+ *
+ *  fun other(){}
+ *
+ *  override fun setView(view: View) {}
+ *
+ * }
+ *
+ * // 使用:
+ * val a = A().bind<VB>.set{}.other()
  */
 abstract class ViewBindViewHelper<VB : ViewBinding, TARGET : ViewProvider>(
     private val target: TARGET,
@@ -181,8 +196,8 @@ abstract class ViewBindViewHelper<VB : ViewBinding, TARGET : ViewProvider>(
     }
 
     fun set(set: (VB.() -> Unit)?): TARGET {
-        set?.invoke(vb)
         create()
+        set?.invoke(vb)
         return target
     }
 }

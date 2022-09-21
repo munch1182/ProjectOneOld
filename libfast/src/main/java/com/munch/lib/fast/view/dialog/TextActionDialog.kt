@@ -1,60 +1,58 @@
 package com.munch.lib.fast.view.dialog
 
 import android.content.Context
-import android.view.Gravity
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.view.setPadding
+import com.munch.lib.android.AppHelper
 import com.munch.lib.android.dialog.ChoseDialogWrapper
 import com.munch.lib.android.extend.clickEffect
 import com.munch.lib.android.extend.dp2Px2Int
-import com.munch.lib.android.extend.newMWLP
-import com.munch.lib.android.extend.newWWLP
 import com.munch.lib.fast.R
-import com.munch.lib.fast.view.base.ActivityHelper
 
 /**
  * 使用[ActionDialogHelper]来收集设置的[DialogAction], 并最后在[crateDialog]中由[helper]对所有的[DialogAction]进行布局并返回最终的布局view
  *
  * 此类是通用的[DialogActionKey]组成, 布局方式由构造传入
  *
+ * @see ActionDialogHelper
+ * @see DialogAction
+ *
  * Create by munch1182 on 2022/9/20 11:48.
  */
-abstract class ActionDialog(
+abstract class TextActionDialog(
     customViewCreator: DialogViewCreator<DialogActionKey> = DefaultDialogViewCreator()
 ) : ChoseDialogWrapper() {
 
     protected open val helper = ActionDialogHelper(customViewCreator)
-    protected open val context = ActivityHelper.curr!!
+    protected abstract val context: Context
 
-    open fun message(s: String): ActionDialog {
+    open fun message(s: String): TextActionDialog {
         helper.add(DialogActionContent(context, s))
         return this
     }
 
-    open fun title(s: String): ActionDialog {
+    open fun title(s: String): TextActionDialog {
         helper.add(DialogActionTitle(context, s))
         return this
     }
 
-    open fun cancel(cancel: String): ActionDialog {
+    open fun cancel(cancel: String = AppHelper.getString(android.R.string.cancel)): TextActionDialog {
         helper.add(
             DialogActionCancel(context, cancel)
                 .setOnClickListener {
                     choseCancel()
-                    cancel()
+                    dismiss()
                 }
         )
         return this
     }
 
-    open fun ok(ok: String): ActionDialog {
+    open fun ok(ok: String = AppHelper.getString(android.R.string.ok)): TextActionDialog {
         helper.add(
             DialogActionOk(context, ok)
                 .setOnClickListener {
                     choseOk()
-                    cancel()
+                    dismiss()
                 }
         )
         return this

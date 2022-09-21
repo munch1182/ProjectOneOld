@@ -17,16 +17,17 @@ sealed class DialogActionKey : SealedClassToStringByName(), IDialogActionKey {
 }
 
 interface DialogAction<KEY : IDialogActionKey> {
-    val key: KEY
-    val view: View // action的view
-    fun setOnClickListener(l: View.OnClickListener): DialogAction<KEY> {// action点击事件
+    val key: KEY // 用于标记当前的Action在布局中所属的结构
+    val view: View // action的view, 可以考虑在view中设置好间距, 也可以将间距放在布局时再考虑
+    fun setOnClickListener(l: View.OnClickListener?): DialogAction<KEY> { // action点击事件
         view.setOnClickListener(l)
         return this
     }
 }
 
 /**
- * 通过传递的[DialogAction], 自行布局并返回最后显示的view
+ * 对[DialogAction]进行布局
+ * 已经设置的[DialogAction]在[map]中, 需要自行布局并返回最后显示的view
  */
 fun interface DialogViewCreator<KEY : IDialogActionKey> {
     fun create(context: Context, map: Map<KEY, DialogAction<KEY>?>): View

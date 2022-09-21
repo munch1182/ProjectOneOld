@@ -1,12 +1,9 @@
 package com.munch.lib.android.dialog
 
-import android.content.Context
-import androidx.activity.ComponentDialog
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.android.extend.impInMain
 import com.munch.lib.android.extend.to
-import kotlinx.coroutines.runBlocking
 
 /**
  * 统一Dialog的逻辑
@@ -17,15 +14,21 @@ interface IDialog : LifecycleOwner {
 
     fun show()
 
-    fun cancel()
+    fun dismiss()
 
+    /**
+     * 当dialog显示时的回调
+     */
     fun <DIALOG : IDialog> onShow(l: DialogShowListener<DIALOG>?): IDialog {
         impInMain { lifecycle.addObserver(Lifecycle2Listener(this.to(), show = l, null)) }
         return this
     }
 
-    fun <DIALOG : IDialog> onCancel(l: DialogCancelListener<DIALOG>?): IDialog {
-        impInMain { lifecycle.addObserver(Lifecycle2Listener(this.to(), null, cancel = l)) }
+    /**
+     * 当dialog取消显示后的回调
+     */
+    fun <DIALOG : IDialog> onDismiss(l: DialogDismissListener<DIALOG>?): IDialog {
+        impInMain { lifecycle.addObserver(Lifecycle2Listener(this.to(), null, dismiss = l)) }
         return this
     }
 }
@@ -34,17 +37,17 @@ fun interface DialogShowListener<DIALOG : IDialog> {
     fun onShow(dialog: DIALOG)
 }
 
-fun interface DialogCancelListener<DIALOG : IDialog> {
-    fun onCancel(dialog: DIALOG)
+fun interface DialogDismissListener<DIALOG : IDialog> {
+    fun onDismiss(dialog: DIALOG)
 }
 
 /**
- * 将[DefaultLifecycleObserver]转为[DialogShowListener]或者[DialogCancelListener]
+ * 将[DefaultLifecycleObserver]转为[DialogShowListener]或者[DialogDismissListener]
  */
 class Lifecycle2Listener<DIALOG : IDialog>(
     private val dialog: DIALOG,
     private val show: DialogShowListener<DIALOG>?,
-    private val cancel: DialogCancelListener<DIALOG>?
+    private val dismiss: DialogDismissListener<DIALOG>?
 ) : DefaultLifecycleObserver {
 
     override fun onResume(owner: LifecycleOwner) {
@@ -54,7 +57,7 @@ class Lifecycle2Listener<DIALOG : IDialog>(
 
     override fun onPause(owner: LifecycleOwner) {
         super.onPause(owner)
-        cancel?.onCancel(dialog)
+        dismiss?.onDismiss(dialog)
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
@@ -62,30 +65,3 @@ class Lifecycle2Listener<DIALOG : IDialog>(
         owner.lifecycle.removeObserver(this)
     }
 }
-/**
- * 用于创建一个Dialog
- */
-typealias DialogCreator = (Context) -> IDialog
-
-//<editor-fold desc="extend">
-/**
- * 将[ComponentDialog]包装为[IDialog]
- */
-open class DialogWrapper(private val dialog: ComponentDialog) : IDialog {
-    override fun show() {
-        dialog.show()
-    }
-
-    override fun cancel() {
-        dialog.cancel()
-    }
-
-    override fun getLifecycle() = dialog.lifecycle
-}
-
-/**
- * 将[ComponentDialog]转为[IDialog]
- */
-@Suppress("NOTHING_TO_INLINE")
-inline fun ComponentDialog.toDialog(): IDialog = DialogWrapper(this)
-//</editor-fold>

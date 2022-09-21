@@ -11,8 +11,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.munch.lib.android.AppHelper
 import com.munch.lib.android.dialog.ChoseDialog
-import com.munch.lib.android.dialog.DialogManager
 import com.munch.lib.android.dialog.IDialog
+import com.munch.lib.android.dialog.IDialogManager
 import com.munch.lib.android.dialog.showThenReturnChose
 import com.munch.lib.android.extend.*
 import com.munch.lib.android.log.Logger
@@ -120,7 +120,7 @@ class PermissionResult(
     /**
      * todo 处理当前页面已有的Dialog和权限请求的dialog的顺序
      */
-    fun attach(dm: DialogManager): PermissionResult {
+    fun attach(dm: IDialogManager): PermissionResult {
         return this
     }
 

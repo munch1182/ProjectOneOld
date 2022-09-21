@@ -182,17 +182,19 @@ open class FastFvBtn(override val context: Context, private val text: Array<out 
 //</editor-fold>
 
 //<editor-fold desc="ll">
-inline fun Activity.fvLlBtn(vararg text: String) = fv { FastFvBtn(this, text) }
+inline fun Activity.fvLLBtn(vararg text: String) = fv { FastLLBtn(this, text) }
 
-open class FastLlBtn(override val context: Context, private val text: Array<out String>) :
+open class FastLLBtn(override val context: Context, private val text: Array<out String>) :
     FastView {
 
     private val view by lazy { LinearLayout(context) }
     override val contentView: View
         get() = view
     private var click: ((Int) -> Unit)? = null
+    private var click2: ((String) -> Unit)? = null
     private val viewClick = View.OnClickListener {
         click?.invoke(it.tag.to())
+        click2?.invoke(it.to<TextView>().text.toString())
     }
 
     override fun onCreate() {
@@ -210,6 +212,10 @@ open class FastLlBtn(override val context: Context, private val text: Array<out 
 
     fun click(click: ((Int) -> Unit)) {
         this.click = click
+    }
+
+    fun clickByStr(click: (String) -> Unit) {
+        this.click2 = click
     }
 }
 //</editor-fold>
