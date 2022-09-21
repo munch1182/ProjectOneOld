@@ -3,10 +3,13 @@
 package com.munch.lib.android.extend
 
 import android.graphics.Color
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -46,4 +49,16 @@ fun @receiver:ColorInt Int.colorSaturation(saturation: Float): Int {
 fun newRandomColor(): Int {
     val r = java.util.Random()
     return Color.rgb(r.nextInt(256), r.nextInt(256), r.nextInt(256))
+}
+
+fun <VB : ViewBinding> Class<VB>.inflate(
+    inflater: LayoutInflater,
+    group: ViewGroup? = null,
+    boolean: Boolean = false
+): VB? {
+    return catch {
+        getDeclaredMethod(
+            "inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.java
+        ).invoke(null, inflater, group, boolean)?.to()
+    }
 }

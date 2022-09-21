@@ -1,14 +1,18 @@
 package com.munch.lib.android.extend
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
+import com.munch.lib.android.define.ViewProvider
 
 /**
  * 获取一个新的(WRAP_CONTENT,WRAP_CONTENT)的LayoutParams
@@ -151,5 +155,34 @@ class LinearLineItemDecoration(
                 c.drawLine(l, y, r, y, paint)
             }
         }
+    }
+}
+
+/**
+ * 给[target]提供一个VB
+ * 构建的VB可使用[set]来使用, 并且VB构建的View会通过[ViewProvider.setView]传递给[target]
+ * 通过[set]方法, 调用对象会返回[target]
+ */
+abstract class ViewBindViewHelper<VB : ViewBinding, TARGET : ViewProvider>(
+    private val target: TARGET,
+    context: Context,
+    group: ViewGroup? = null,
+    attach: Boolean = false
+) {
+
+    val vb: VB by lazy {
+        this.javaClass.findParameterized(ViewBinding::class.java)
+            ?.inflate(LayoutInflater.from(context), group, attach)!!.to()
+    }
+
+    fun create(): TARGET {
+        target.setView(vb.root)
+        return target
+    }
+
+    fun set(set: (VB.() -> Unit)?): TARGET {
+        set?.invoke(vb)
+        create()
+        return target
     }
 }

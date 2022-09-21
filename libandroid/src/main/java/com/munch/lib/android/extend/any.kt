@@ -10,7 +10,7 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
 /**
- * 寻找[Type]上继承自[target]泛型的类
+ * 寻找[Type]上继承自[target]泛型的类, 如果是当前类的泛型, 则需要继承才能找到
  *
  * 如果找不到, 则返回null
  */

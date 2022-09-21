@@ -26,3 +26,10 @@ typealias Receive<T> = (T) -> Unit
  * 用于收到更新的通知
  */
 typealias Update<T> = (T) -> Unit
+
+/**
+ * 交由外部传递一个view
+ */
+fun interface ViewProvider {
+    fun setView(view: View)
+}
