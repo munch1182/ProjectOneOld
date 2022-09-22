@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name="com.munch.lib.fast.view.FastApp"
@@ -27,10 +28,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RecyclerViewActivity" />
-        <activity android:name=".PhoneInfoActivity" />
+        <activity android:name=".simple.RecyclerViewActivity" />
+        <activity android:name=".simple.PhoneInfoActivity" />
         <activity android:name=".dialog.DialogActivity" />
         <activity android:name=".TestActivity" />
+        <activity
+            android:name=".simple.StatusBarActivity"
+            android:theme="@style/Theme.ProjectOne.NoTitle" />
     </application>
 
 </manifest>

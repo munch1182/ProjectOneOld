@@ -14,6 +14,7 @@ sealed class DialogActionKey : SealedClassToStringByName(), IDialogActionKey {
     object Content : DialogActionKey()
     object Ok : DialogActionKey()
     object Cancel : DialogActionKey()
+    object Background : DialogActionKey()
 }
 
 interface DialogAction<KEY : IDialogActionKey> {

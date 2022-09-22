@@ -1,9 +1,10 @@
-package com.munch.project.one
+package com.munch.project.one.simple
 
 import android.os.Bundle
 import com.munch.lib.android.helper.InfoHelper
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
 import com.munch.lib.fast.view.fastview.fvSvTv
+import com.munch.project.one.BuildConfig
 import com.munch.project.one.base.BaseActivity
 import com.munch.project.one.base.dispatchDef
 

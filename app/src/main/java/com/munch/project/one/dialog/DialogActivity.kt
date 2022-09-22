@@ -14,7 +14,7 @@ class DialogActivity : BaseActivity(),
     ActivityDispatch by dispatchDef(),
     IDialogManager by DefaultDialogManager() {
 
-    private val bind by fvFvBtn("message", "message2", "", "bottom")
+    private val bind by fvFvBtn("message", "message2", "", "bottom", "bottom2")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,8 +23,12 @@ class DialogActivity : BaseActivity(),
                 "message" -> message()
                 "message2" -> message2()
                 "bottom" -> bottom()
+                "bottom2" -> bottom2()
             }
         }
+    }
+
+    private fun bottom2() {
     }
 
     private fun bottom() {

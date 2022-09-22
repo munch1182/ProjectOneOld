@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -37,6 +38,64 @@ val View.paddingHorizontal: Int
 
 val View.paddingVertical: Int
     get() = paddingTop + paddingBottom
+
+fun View.margin(
+    margin: Int = 0,
+    horizontal: Int = margin,
+    vertical: Int = margin,
+    l: Int = horizontal,
+    t: Int = vertical,
+    r: Int = horizontal,
+    b: Int = vertical,
+): View {
+    val lp = layoutParams ?: newWWLP
+    val marginLp = if (lp !is ViewGroup.MarginLayoutParams) {
+        ViewGroup.MarginLayoutParams(lp)
+    } else {
+        lp
+    }
+    marginLp.setMargins(l, t, r, b)
+    return this
+}
+
+fun View.padding(
+    padding: Int = 0,
+    horizontal: Int = padding,
+    vertical: Int = padding,
+    l: Int = horizontal,
+    t: Int = vertical,
+    r: Int = horizontal,
+    b: Int = vertical,
+): View {
+    setPadding(l, t, r, b)
+    return this
+}
+
+/**
+ * 生成一个圆角的Drawable
+ *
+ * @param color Drawable颜色
+ * @param tl TopLeftRadius
+ * @param tr BottomRightRadius
+ * @param bl BottomLeftRadius
+ * @param br BottomRightRadius
+ * @param strokeWidth 边框宽度
+ * @param strokeColor 边框颜色
+ */
+fun newCornerDrawable(
+    tl: Float = 0f,
+    tr: Float = 0f,
+    bl: Float = 0f,
+    br: Float = 0f,
+    color: Int = Color.WHITE,
+    strokeWidth: Int = 0,
+    strokeColor: Int = Color.WHITE
+) = GradientDrawable().apply {
+    val f = floatArrayOf(tl, tl, tr, tr, bl, bl, br, br)
+    cornerRadii = f
+    setColor(color)
+    setStroke(strokeWidth, strokeColor)
+}
 
 /**
  * 设置View的点击效果, 会替换背景和顶部的Drawable
@@ -102,7 +161,11 @@ fun View.setDoubleClickListener(doubleTime: Long = 500L, l: View.OnClickListener
     })
 }
 
-fun View.addPadding(p: Int = 0, l: Int = p, t: Int = p, r: Int = p, b: Int = p) {
+fun View.addPadding(
+    p: Int = 0,
+    horizontal: Int = p, vertical: Int = p,
+    l: Int = horizontal, t: Int = vertical, r: Int = horizontal, b: Int = vertical
+) {
     setPadding(paddingStart + l, paddingTop + t, paddingEnd + r, paddingBottom + b)
 }
 

@@ -11,4 +11,12 @@ dependencies {
     api deps['material']
     api deps['activityKtx']
     api deps['fragmentKtx']
+
+    api deps['glide']
+    api deps['glideIntegration']
+
+    api deps['okhttp']
+    
+    api deps['retrofit']
+    api deps['retrofitGson']
 }

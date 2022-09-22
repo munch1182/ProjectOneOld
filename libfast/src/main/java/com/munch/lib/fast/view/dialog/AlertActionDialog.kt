@@ -3,6 +3,7 @@ package com.munch.lib.fast.view.dialog
 import android.content.Context
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.setPadding
@@ -11,6 +12,7 @@ import com.munch.lib.android.dialog.toDialog
 import com.munch.lib.android.extend.dp2Px2Int
 import com.munch.lib.android.extend.newMWLP
 import com.munch.lib.android.extend.newWWLP
+import com.munch.lib.android.extend.to
 import com.munch.lib.fast.view.base.ActivityHelper
 
 /**
@@ -45,8 +47,9 @@ class DefaultDialogViewCreator : DialogViewCreator<DialogActionKey> {
         map: Map<DialogActionKey, DialogAction<DialogActionKey>?>
     ): View {
         val dp16 = 16.dp2Px2Int()
-        val container = LinearLayout(context)
-        container.orientation = LinearLayout.VERTICAL
+        val container =
+            map[DialogActionKey.Background]?.view?.to<ViewGroup>()
+                ?: LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
         map[DialogActionKey.Title]?.let {
             container.addView(it.view.apply { setPadding(dp16) }, newMWLP)
         }

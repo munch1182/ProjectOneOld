@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.LinearLayout
+import androidx.annotation.ColorInt
 import androidx.fragment.app.DialogFragment
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -54,6 +56,21 @@ class BottomActionDialog(customViewCreator: DialogViewCreator<DialogActionKey> =
         return this
     }
 
+    fun background(@ColorInt color: Int): BottomActionDialog {
+        return background(LinearLayout(curr).apply {
+            setBackgroundColor(color)
+            orientation = LinearLayout.VERTICAL
+        })
+    }
+
+    fun background(view: View): BottomActionDialog {
+        helper.add(object : DialogAction<DialogActionKey> {
+            override val key: DialogActionKey = DialogActionKey.Background
+            override val view: View = view
+        })
+        return this
+    }
+
     override fun show() {
         // 背景为透明, 如果需要圆角需要自行布局实现
         setStyle(DialogFragment.STYLE_NORMAL, R.style.App_Fast_Dialog_Bottom)
@@ -61,7 +78,6 @@ class BottomActionDialog(customViewCreator: DialogViewCreator<DialogActionKey> =
         // 必须要在Activity有效时显示
         ActivityHelper.curr?.let { show(it.supportFragmentManager, null) }
     }
-
 
     override val chose: IDialogChose?
         get() = finChose
