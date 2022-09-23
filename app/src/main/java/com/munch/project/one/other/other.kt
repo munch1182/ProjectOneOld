@@ -25,7 +25,7 @@ import java.io.InputStream
 class OkhttpGlideModule : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         super.registerComponents(context, glide, registry)
-        registry.append(
+        registry.replace(
             GlideUrl::class.java,
             InputStream::class.java,
             OkHttpUrlLoader.Factory(NetHelper.client)

@@ -20,9 +20,11 @@ object DialogHelper {
     /**
      * 从底部弹出dialog
      */
-    fun bottom() = BottomActionDialog().background(LinearLayout(ActivityHelper.curr!!).apply {
-        orientation = LinearLayout.VERTICAL
-        val dp8 = 8.dp2Px()
-        background = newCornerDrawable(tl = dp8, tr = dp8)
-    })
+    fun bottom() = BottomAction2Dialog()
+        .background(
+            LinearLayout(ActivityHelper.curr!!).apply {
+                orientation = LinearLayout.VERTICAL
+                val dp8 = 8.dp2Px()
+                background = newCornerDrawable(tl = dp8, tr = dp8)
+            })
 }

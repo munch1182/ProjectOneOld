@@ -2,6 +2,7 @@ package com.munch.lib.android.helper
 
 
 import android.app.Activity
+import android.graphics.Color
 import android.os.Build
 import android.view.View
 import android.view.WindowInsets
@@ -53,7 +54,7 @@ class BarHelper(activity: Activity) {
      *
      * 当状态栏颜色与底下空间颜色一致时，就表现为透明状态栏
      */
-    fun colorStatusBar(@ColorInt color: Int): BarHelper {
+    fun colorStatusBar(@ColorInt color: Int = Color.TRANSPARENT): BarHelper {
         window.run {
             clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)

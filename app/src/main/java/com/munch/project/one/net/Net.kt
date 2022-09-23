@@ -14,8 +14,8 @@ object NetHelper {
 
     val client = OkHttpClient
         .Builder()
-        .addInterceptor(HttpLoggingInterceptor { log.log(it) }.apply {
-            setLevel(HttpLoggingInterceptor.Level.BODY)
-        })
+        .addInterceptor(
+            HttpLoggingInterceptor { log.log(it) }.apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
+        )
         .build()
 }

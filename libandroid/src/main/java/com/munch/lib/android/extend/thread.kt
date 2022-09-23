@@ -38,6 +38,13 @@ fun <T> getInMain(doAny: () -> T): T {
 }
 
 /**
+ * 方法最终在主线程中执行, 但是会先进入子线程, 以避免阻塞当前方法
+ */
+fun thread2UI(doAny: () -> Unit) {
+    AppHelper.launch { launch(Dispatchers.Main) { doAny.invoke() } }
+}
+
+/**
  * 合并[CoroutineScope]和[CoroutineContext]
  *
  * 可用于一些使用特殊线程的单例类, 否则使用[CoroutineScope]即可

@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -43,12 +44,12 @@ fun @receiver:ColorInt Int.colorSaturation(saturation: Float): Int {
 }
 
 /**
- * 返回一个随机颜色, 不带透明度
+ * 返回一个随机颜色, 透明度为[alpha]
  */
 @ColorInt
-fun newRandomColor(): Int {
+fun newRandomColor(@FloatRange(from = 0.0, to = 1.0) alpha: Float = 1f): Int {
     val r = java.util.Random()
-    return Color.rgb(r.nextInt(256), r.nextInt(256), r.nextInt(256))
+    return Color.argb((255f * alpha).toInt(), r.nextInt(256), r.nextInt(256), r.nextInt(256))
 }
 
 fun <VB : ViewBinding> Class<VB>.inflate(
