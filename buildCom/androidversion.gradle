@@ -107,6 +107,8 @@ ext {
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/room*/
             /*https://developer.android.google.cn/kotlin/ktx?hl:zh_cn#room*/
+            // ksp
+            /*https://kotlinlang.org/docs/ksp-quickstart.html#use-your-own-processor-in-a-project*/
             room              : "androidx.room:room-runtime:${Ver['ROOM_VERSION']}",
             roomCompiler      : "androidx.room:room-compiler:${Ver['ROOM_VERSION']}",
             roomKtx           : "androidx.room:room-ktx:${Ver['ROOM_VERSION']}",
