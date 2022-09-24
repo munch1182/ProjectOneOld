@@ -38,8 +38,10 @@ class SimpleViewAdapter<D>(vr: ViewCreator, private val bind: (BaseViewHolder, D
  *
  * 因为使用了泛型来进行反射, 所以必须继承着使用
  */
-abstract class SimpleBaseBindAdapter<D, VB : ViewBinding, VH : BBVH<VB>> :
-    BaseRecyclerViewAdapter<D, VH>(null) {
+abstract class SimpleBaseBindAdapter<D, VB : ViewBinding, VH : BBVH<VB>>(
+    dataHelper: AdapterFunHelper<D> = SimpleAdapterFun(),
+    eventHelper: AdapterEventHelper<VH> = ClickHelper()
+) : BaseRecyclerViewAdapter<D, VH>(null, dataHelper, eventHelper) {
 
     private val method by lazy {
         this.javaClass.findParameterized(ViewBinding::class.java)

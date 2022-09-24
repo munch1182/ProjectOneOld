@@ -36,7 +36,7 @@ ext {
 
             LIFECYCLE_VERSION : "2.4.0",
             WORK_VERSION      : "2.7.1",
-            PAGING_VERSION    : "3.1.0",
+            PAGING_VERSION    : "3.1.1",
             OKHTTP_VERSION    : "4.10.0",
             HILT_CORE_VERSION : "2.43.2",
 

@@ -30,6 +30,18 @@ open class Logger(
     private var type: Log = Log.Debug
     private var l: OnLogListener? = null
 
+    companion object {
+
+        private var l: OnLogPrintListener? = null
+
+        /**
+         * 设置一个全局的log监听
+         */
+        fun setLogListener(l: OnLogPrintListener?) {
+            this.l = l
+        }
+    }
+
     fun setType(type: Log): Logger {
         this.type = type
         return this
@@ -77,6 +89,9 @@ open class Logger(
             log.forEach { print(it) }
             info?.let { print("---(${it})") }
         }
+
+        // 回调全局监听
+        Logger.l?.onLog(tag, msg)
     }
 
     private fun print(msg: String) {
@@ -140,6 +155,10 @@ open class Logger(
      */
     fun interface OnLogListener {
         fun onLog(log: String)
+    }
+
+    fun interface OnLogPrintListener {
+        fun onLog(tag: String, content: String)
     }
 }
 

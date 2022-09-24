@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.munch.lib.android.weight.FlowLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:ignore="HardcodedText"
+    tools:padding="@dimen/dimenDef">
+
+    <Button
+        android:id="@+id/rvType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="curr type: DEFAULT" />
+
+    <com.munch.lib.android.weight.Sign
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/rvSet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="set data" />
+
+    <com.munch.lib.android.weight.Sign
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/rvAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="add one" />
+
+    <Button
+        android:id="@+id/rvAddMore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="add more" />
+
+    <com.munch.lib.android.weight.Sign
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/rvClear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="clear" />
+</com.munch.lib.android.weight.FlowLayout>

@@ -22,4 +22,3 @@ class PhoneInfoActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
     }
 }
 
-class RecyclerViewActivity : BaseActivity(), ActivityDispatch by dispatchDef()

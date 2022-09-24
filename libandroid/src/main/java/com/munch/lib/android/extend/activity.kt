@@ -4,9 +4,11 @@ package com.munch.lib.android.extend
 
 import android.app.Activity
 import android.content.Intent
-import android.view.LayoutInflater
 import android.view.Window
 import android.widget.FrameLayout
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import kotlin.reflect.KClass
 
@@ -27,9 +29,13 @@ inline val Activity.ctx: Activity
  */
 inline fun <reified VB : ViewBinding> Activity.bind(): Lazy<VB> {
     return lazy {
-        VB::class.java
-            .getDeclaredMethod("inflate", LayoutInflater::class.java)
-            .invoke(null, layoutInflater)!!.to<VB>().also { setContentView(it.root) }
+        VB::class.java.inflate(layoutInflater)!!.to<VB>().also { setContentView(it.root) }
+    }
+}
+
+inline fun <reified VM : ViewModel> ComponentActivity.get(): Lazy<VM> {
+    return lazy {
+        ViewModelProvider(this, this.defaultViewModelProviderFactory)[VM::class.java]
     }
 }
 

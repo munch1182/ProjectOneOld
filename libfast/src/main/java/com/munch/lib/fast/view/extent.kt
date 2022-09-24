@@ -3,11 +3,15 @@ package com.munch.lib.fast.view
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.munch.lib.android.extend.catch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
+import java.nio.charset.Charset
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.math.abs
+import kotlin.random.Random
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun LifecycleOwner.launch(
@@ -25,4 +29,17 @@ inline fun Fragment.launch(
     noinline block: suspend CoroutineScope.() -> Unit
 ) {
     viewLifecycleOwner.launch(context, start, block)
+}
+
+fun newRandomWord(): String {
+    val heightPos = 176 + abs(Random.nextInt(39))
+    val lowPos = 161 + abs(Random.nextInt(93))
+    return catch {
+        String(byteArrayOf(heightPos.toByte(), lowPos.toByte()), Charset.forName("GBK"))
+    } ?: ""
+}
+
+fun newRandomString(len: Int = 5, sb: StringBuilder = StringBuilder()): String {
+    repeat(len) { sb.append(newRandomWord()) }
+    return sb.toString()
 }

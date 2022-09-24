@@ -1,9 +1,18 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    // ksp
+    /*https://kotlinlang.org/docs/ksp-quickstart.html#use-your-own-processor-in-a-project*/
+    id 'com.google.devtools.ksp' version '1.7.10-1.0.6'
 }
 
 apply from: '../buildCom/commonbuildktx.gradle'
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas".toString())
+    arg("room.incremental", "true")
+    arg("room.expandProjection", "true")
+}
 
 dependencies {
     api(project(':libandroid'))
@@ -16,7 +25,11 @@ dependencies {
     api deps['glideIntegration']
 
     api deps['okhttp']
-    
+
     api deps['retrofit']
     api deps['retrofitGson']
+
+    implementation deps['room']
+    implementation deps['roomKtx']
+    ksp deps['roomCompiler']
 }

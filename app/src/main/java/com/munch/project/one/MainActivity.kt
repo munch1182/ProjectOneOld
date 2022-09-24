@@ -11,8 +11,8 @@ import com.munch.lib.fast.view.fastview.fvRvTv
 import com.munch.plugin.annotation.Measure
 import com.munch.project.one.base.BaseActivity
 import com.munch.project.one.dialog.DialogActivity
+import com.munch.project.one.recyclerview.RecyclerViewActivity
 import com.munch.project.one.simple.PhoneInfoActivity
-import com.munch.project.one.simple.RecyclerViewActivity
 import com.munch.project.one.simple.StatusBarActivity
 
 @Measure

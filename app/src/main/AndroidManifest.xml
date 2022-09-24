@@ -28,7 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".simple.RecyclerViewActivity" />
+        <activity android:name=".recyclerview.RecyclerViewActivity" />
         <activity android:name=".simple.PhoneInfoActivity" />
         <activity android:name=".dialog.DialogActivity" />
         <activity android:name=".TestActivity" />
