@@ -10,6 +10,9 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.annotation.ColorInt
+import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -33,6 +36,7 @@ val newMWLP: ViewGroup.LayoutParams
         ViewGroup.LayoutParams.WRAP_CONTENT
     )
 
+//<editor-fold desc="margin+padding">
 val View.paddingHorizontal: Int
     get() = paddingLeft + paddingRight
 
@@ -70,6 +74,15 @@ fun View.padding(
     setPadding(l, t, r, b)
     return this
 }
+
+fun View.addPadding(
+    p: Int = 0,
+    horizontal: Int = p, vertical: Int = p,
+    l: Int = horizontal, t: Int = vertical, r: Int = horizontal, b: Int = vertical
+) {
+    setPadding(paddingStart + l, paddingTop + t, paddingEnd + r, paddingBottom + b)
+}
+//</editor-fold>
 
 /**
  * 生成一个圆角的Drawable
@@ -161,16 +174,9 @@ fun View.setDoubleClickListener(doubleTime: Long = 500L, l: View.OnClickListener
     })
 }
 
-fun View.addPadding(
-    p: Int = 0,
-    horizontal: Int = p, vertical: Int = p,
-    l: Int = horizontal, t: Int = vertical, r: Int = horizontal, b: Int = vertical
-) {
-    setPadding(paddingStart + l, paddingTop + t, paddingEnd + r, paddingBottom + b)
-}
-
 @Suppress("NOTHING_TO_INLINE")
-inline fun View.addPadding(padding: Int) = addPadding(p = padding)
+inline fun ViewGroup.inflate(@LayoutRes resId: Int) =
+    LayoutInflater.from(context).inflate(resId, this, false)
 
 /**
  * 一个使用颜色线分割的RecyclerView.ItemDecoration
@@ -222,11 +228,36 @@ class LinearLineItemDecoration(
 }
 
 /**
+ * 通过泛型[VB]和反射来获取[View]对象和[VB]对象
+ *
+ * 注意: 只提供了[View]对象, 并没有设置到任何地方
+ *
+ * 只能继承着使用:
+ *
+ * val bind = object : ViewBindViewHelper<AnyViewBind>(Context) {}.vb
+ */
+abstract class ViewBindViewHelper<VB : ViewBinding>(
+    inflater: LayoutInflater,
+    group: ViewGroup? = null,
+    attach: Boolean = false
+) {
+
+    constructor(
+        context: Context, group: ViewGroup? = null, attach: Boolean = false
+    ) : this(LayoutInflater.from(context), group, attach)
+
+    val vb: VB by lazy {
+        this.javaClass.findParameterized(ViewBinding::class.java)
+            ?.inflate(inflater, group, attach)!!.to()
+    }
+}
+
+/**
  * 给[target]提供一个VB
  * 构建的VB可使用[set]来使用并通过[vb]来获取, 而VB构建的View会通过[ViewProvider.setView]传递给[target]
  * 通过[set]方法, 调用对象又会返回[target]
  *
- * 即可以通过给对象[target]创建一个方法返回一个[ViewBindViewHelper]的实现对象, 并将[VB]设置给[TARGET], 然后再链式返回到[TARGET]
+ * 即可以通过给对象[target]创建一个方法返回一个[ViewBindTargetHelper]的实现对象, 并将[VB]设置给[TARGET], 然后再链式返回到[TARGET]
  *
  * class A {
  *
@@ -241,17 +272,12 @@ class LinearLineItemDecoration(
  * // 使用:
  * val a = A().bind<VB>.set{}.other()
  */
-abstract class ViewBindViewHelper<VB : ViewBinding, TARGET : ViewProvider>(
+abstract class ViewBindTargetHelper<VB : ViewBinding, TARGET : ViewProvider>(
     private val target: TARGET,
     context: Context,
     group: ViewGroup? = null,
     attach: Boolean = false
-) {
-
-    val vb: VB by lazy {
-        this.javaClass.findParameterized(ViewBinding::class.java)
-            ?.inflate(LayoutInflater.from(context), group, attach)!!.to()
-    }
+) : ViewBindViewHelper<VB>(context, group, attach) {
 
     fun create(): TARGET {
         target.setView(vb.root)
@@ -264,3 +290,19 @@ abstract class ViewBindViewHelper<VB : ViewBinding, TARGET : ViewProvider>(
         return target
     }
 }
+
+/**
+ * 返回View的ID, 如果不存在, 则返回空
+ */
+fun View.idStr(prefix: String = "id:", suffix: String = ""): String =
+    catch { resources.getResourceEntryName(id) }?.let { "$prefix${it}$suffix" } ?: ""
+
+/**
+ * 给TextView的部分文字设置颜色
+ */
+fun TextView.color(@ColorInt color: Int, start: Int = 0, end: Int = this.text?.length ?: 0) {
+    val str = text?.toString() ?: return
+    text = str.color(color, start, end)
+}
+
+fun View.removeFromParent(): View = apply { parent?.toOrNull<ViewGroup>()?.removeView(this) }

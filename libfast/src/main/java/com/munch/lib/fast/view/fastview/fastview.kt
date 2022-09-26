@@ -15,9 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.android.define.ViewCreator
 import com.munch.lib.android.extend.*
-import com.munch.lib.android.recyclerview.BaseViewHolder
 import com.munch.lib.android.recyclerview.OnItemClickListener
+import com.munch.lib.android.recyclerview.SimpleVH
 import com.munch.lib.android.recyclerview.SimpleViewAdapter
+import com.munch.lib.android.recyclerview.pos
 import com.munch.lib.android.weight.FlowLayout
 import com.munch.lib.android.weight.Sign
 import com.munch.lib.fast.R
@@ -101,7 +102,7 @@ open class FastRvTv(override val context: Context, private val data: Array<out S
         adapter.set(data.toMutableList())
     }
 
-    open fun setOnItemClick(l: OnItemClickListener<BaseViewHolder>?) {
+    open fun setOnItemClick(l: OnItemClickListener<SimpleVH>?) {
         adapter.setOnItemClick(l)
     }
 }

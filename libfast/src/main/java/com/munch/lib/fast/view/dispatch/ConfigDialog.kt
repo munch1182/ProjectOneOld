@@ -1,5 +1,6 @@
 package com.munch.lib.fast.view.dispatch
 
+import android.content.Context
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import com.munch.lib.android.dialog.IDialog
 import com.munch.lib.android.extend.*
+import com.munch.lib.android.log.log
 import com.munch.lib.fast.view.DataHelper
 import com.munch.lib.fast.view.dialog.DialogHelper
 
@@ -61,27 +63,32 @@ open class SupportConfigDialog : IConfigDialog {
     override val dispatchers: MutableList<ActivityDispatch> = mutableListOf()
 }
 
-abstract class SupportBindConfigDialog<VB : ViewBinding> : IConfigDialog {
+abstract class SupportBindConfigDialog : IConfigDialog {
 
     open lateinit var activity: ComponentActivity
+    open var contentView: View? = null
 
-    inline fun <reified VM : ViewModel> get(): Lazy<VM> {
+    protected inline fun <reified VM : ViewModel> get(): Lazy<VM> {
         return lazy {
             ViewModelProvider(activity, activity.defaultViewModelProviderFactory)[VM::class.java]
+        }
+    }
+
+    protected inline fun <reified VB : ViewBinding> bind(): Lazy<VB> {
+        return lazy {
+            VB::class.java.inflate(LayoutInflater.from(activity))!!.to<VB>()
+                .also { contentView = it.root }
         }
     }
 
     override fun onCreateActivity(activity: AppCompatActivity) {
         super.onCreateActivity(activity)
         this.activity = activity
+        onCreate(activity)
     }
 
-    override fun newMoreContent(activity: AppCompatActivity): View? {
-        return this::class.java.findParameterized<VB>(ViewBinding::class.java)
-            ?.inflate(LayoutInflater.from(activity))
-            ?.apply { onCreate(this) }
-            ?.root
-    }
+    override fun newMoreContent(activity: AppCompatActivity): View? =
+        contentView?.removeFromParent() // 因为Activity的ActivityDispatch一直持有VB对象会导致View不会重建
 
-    abstract fun onCreate(bind: VB)
+    abstract fun onCreate(context: Context)
 }

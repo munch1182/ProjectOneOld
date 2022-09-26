@@ -17,9 +17,8 @@ class SimpleAdapterFun<D> : AdapterFunHelper<D> {
     override fun set(data: Collection<D>?) {
         val size = getItemCount()
         list.clear()
-        if (data == null) {
-            adapter.notifyItemRangeRemoved(0, size)
-        } else {
+        adapter.notifyItemRangeRemoved(0, size)
+        if (data != null) {
             add(data)
         }
     }

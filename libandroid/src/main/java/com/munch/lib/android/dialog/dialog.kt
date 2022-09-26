@@ -19,17 +19,17 @@ interface IDialog : LifecycleOwner {
     /**
      * 当dialog显示时的回调
      */
-    fun <DIALOG : IDialog> onShow(l: DialogShowListener<DIALOG>?): IDialog {
+    fun <DIALOG : IDialog> onShow(l: DialogShowListener<DIALOG>?): DIALOG {
         impInMain { lifecycle.addObserver(Lifecycle2Listener(this.to(), show = l, null)) }
-        return this
+        return this.to()
     }
 
     /**
      * 当dialog取消显示后的回调
      */
-    fun <DIALOG : IDialog> onDismiss(l: DialogDismissListener<DIALOG>?): IDialog {
+    fun <DIALOG : IDialog> onDismiss(l: DialogDismissListener<DIALOG>?): DIALOG {
         impInMain { lifecycle.addObserver(Lifecycle2Listener(this.to(), null, dismiss = l)) }
-        return this
+        return this.to()
     }
 }
 

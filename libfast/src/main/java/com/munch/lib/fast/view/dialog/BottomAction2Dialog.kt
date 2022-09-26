@@ -11,7 +11,7 @@ import com.munch.lib.android.define.ViewProvider
 import com.munch.lib.android.dialog.ChoseDialogWrapper
 import com.munch.lib.android.dialog.IDialog
 import com.munch.lib.android.dialog.toDialog
-import com.munch.lib.android.extend.ViewBindViewHelper
+import com.munch.lib.android.extend.ViewBindTargetHelper
 import com.munch.lib.fast.R
 import com.munch.lib.fast.view.base.ActivityHelper
 
@@ -92,6 +92,6 @@ class BottomAction2Dialog(customViewCreator: DialogViewCreator<DialogActionKey> 
         context: Context = ActivityHelper.curr!!,
         noinline set: (VB.() -> Unit)? = null
     ): BottomAction2Dialog {
-        return object : ViewBindViewHelper<VB, BottomAction2Dialog>(this, context) {}.set(set)
+        return object : ViewBindTargetHelper<VB, BottomAction2Dialog>(this, context) {}.set(set)
     }
 }

@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.util.keyIterator
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder as BaseViewHolder
 import com.munch.lib.android.R
 
 class ClickHelper<VH : BaseViewHolder> : AdapterEventHelper<VH>,
@@ -22,11 +23,14 @@ class ClickHelper<VH : BaseViewHolder> : AdapterEventHelper<VH>,
         vh.itemView.setTag(tagVH, vh)
         itemClick?.let { vh.itemView.setOnClickListener(this) }
         itemLongClick?.let { vh.itemView.setOnLongClickListener(this) }
-    }
-
-    override fun onBind(vh: VH) {
         viewClick?.keyIterator()?.forEach { vh.get<View>(it)?.setOnClickListener(this) }
         viewLongClick?.keyIterator()?.forEach { vh.get<View>(it)?.setOnLongClickListener(this) }
+    }
+
+    private fun <V : View> BaseViewHolder.get(viewId: Int): V? = itemView.findViewById(viewId)
+
+    override fun onBind(vh: VH) {
+        vh.itemView.setTag(tagVH, vh)
     }
 
     override fun onClick(view: View?) {

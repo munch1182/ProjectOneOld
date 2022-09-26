@@ -1,11 +1,15 @@
 package com.munch.lib.android.recyclerview
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import androidx.recyclerview.widget.RecyclerView.ViewHolder as BaseViewHolder
 import com.munch.lib.android.define.ViewCreator
 import com.munch.lib.android.extend.findParameterized
+import com.munch.lib.android.extend.inflate
 import com.munch.lib.android.extend.lazy
 import com.munch.lib.android.recyclerview.BaseBindViewHolder as BBVH
 
@@ -17,20 +21,19 @@ import com.munch.lib.android.recyclerview.BaseBindViewHolder as BBVH
  * [SimpleBaseBindAdapter]: 继承并实现并声明VB即可实现Adapter
  */
 
-abstract class SimpleBaseAdapter<D, VH : BaseViewHolder>(@LayoutRes resId: Int) :
-    BaseRecyclerViewAdapter<D, VH>(SingleLayoutVHProvider(resId))
+open class SimpleVH(view: View) : RecyclerView.ViewHolder(view)
 
-class SimpleAdapter<D>(@LayoutRes resId: Int, private val bind: (BaseViewHolder, D) -> Unit) :
-    SimpleBaseAdapter<D, BaseViewHolder>(resId) {
-    override fun onBind(holder: BaseViewHolder, bean: D) = bind.invoke(holder, bean)
+class SimpleAdapter<D>(@LayoutRes resId: Int, private val bind: (SimpleVH, D) -> Unit) :
+    BaseRecyclerViewAdapter<D, SimpleVH>({ parent, _ -> SimpleVH(parent.inflate(resId)) }) {
+    override fun onBind(holder: SimpleVH, bean: D) = bind.invoke(holder, bean)
 }
 
-abstract class SimpleBaseViewAdapter<D, VH : BaseViewHolder>(vr: ViewCreator) :
-    BaseRecyclerViewAdapter<D, VH>(SingleViewVHProvider(vr))
+abstract class SimpleBaseViewAdapter<D>(vr: ViewCreator) :
+    BaseRecyclerViewAdapter<D, SimpleVH>({ parent, _ -> SimpleVH(vr.invoke(parent.context)) })
 
 class SimpleViewAdapter<D>(vr: ViewCreator, private val bind: (BaseViewHolder, D) -> Unit) :
-    SimpleBaseViewAdapter<D, BaseViewHolder>(vr) {
-    override fun onBind(holder: BaseViewHolder, bean: D) = bind.invoke(holder, bean)
+    SimpleBaseViewAdapter<D>(vr) {
+    override fun onBind(holder: SimpleVH, bean: D) = bind.invoke(holder, bean)
 }
 
 /**

@@ -28,7 +28,7 @@
         android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/rvAdd"
+        android:id="@+id/rvAddOne"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="add one" />
@@ -48,4 +48,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="clear" />
+
+    <com.munch.lib.android.weight.Sign
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/rvAddAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="add" />
 </com.munch.lib.android.weight.FlowLayout>

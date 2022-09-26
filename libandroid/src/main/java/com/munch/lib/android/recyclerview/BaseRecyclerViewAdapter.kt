@@ -5,8 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import com.munch.lib.android.R
-import com.munch.lib.android.extend.toOrNull
+import androidx.recyclerview.widget.RecyclerView.ViewHolder as BaseViewHolder
 
 /**
  * 处理RecyclerViewAdapter除了item布局和显示之外的其它逻辑
@@ -41,19 +40,6 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
 }
 
 //<editor-fold desc="VH">
-/**
- * 基类VH
- */
-open class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-
-    val pos: Int
-        get() = bindingAdapterPosition
-
-    open fun <V : View> get(viewId: Int): V? = itemView.findViewById(viewId)
-
-    @Suppress("unchecked_cast")
-    open fun <VH : BaseViewHolder> get(): VH? = itemView.getTag(R.id.id_vh).toOrNull()
-}
 
 /**
  * bindVH
@@ -65,7 +51,7 @@ open class BaseBindViewHolder<VB : ViewBinding>(open val bind: VB) : BaseViewHol
 /**
  * 将ViewHolder的创建交由外部去实现
  */
-interface VHProvider<VH : BaseViewHolder> {
+fun interface VHProvider<VH : BaseViewHolder> {
 
     fun provideVH(parent: ViewGroup, viewType: Int): VH
 }
@@ -75,7 +61,7 @@ interface VHProvider<VH : BaseViewHolder> {
 /**
  * 用于给其它需要adapter对象的类提供adapter
  */
-interface AdapterProvider {
+fun interface AdapterProvider {
     fun bindAdapter(adapter: BaseRecyclerViewAdapter<*, *>)
 }
 
@@ -131,6 +117,12 @@ interface AdapterDataFun<D> {
  * 使用AdapterDataFun by AdapterFunImp的方式可以实现AdapterDataFun并?隐藏AdapterProvider
  */
 interface AdapterFunHelper<D> : AdapterDataFun<D>, AdapterProvider
+
+/**
+ * 简写方法, 如果这个返回又需要更改, 只需要更改这里
+ */
+inline val BaseViewHolder.pos: Int
+    get() = bindingAdapterPosition
 //</editor-fold>
 
 //<editor-fold desc="click">

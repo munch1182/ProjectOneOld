@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
  * 其余的生命周期可以在onCreate中使用Lifecycle获取
  *
  * 可用于Activity固定设置的分发
+ *
+ * 注意: [dispatchers]会一直持有对应对象
  */
 interface ActivityDispatch {
 
