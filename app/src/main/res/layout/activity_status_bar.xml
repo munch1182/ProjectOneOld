@@ -82,11 +82,27 @@
                 android:layout_height="wrap_content" />
 
             <Button
-                android:id="@+id/navigationColor"
+                android:id="@+id/barNavigationColor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="color" />
 
+            <com.munch.lib.android.weight.Sign
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/barWallpaper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="next" />
+
+            <TextView
+                android:id="@+id/barWallpaperName"
+                android:layout_width="wrap_content"
+                android:layout_height="46dp"
+                android:gravity="center_vertical"
+                tools:text="123" />
         </com.munch.lib.android.weight.FlowLayout>
     </androidx.core.widget.NestedScrollView>
 

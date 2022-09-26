@@ -2,9 +2,7 @@ package com.munch.project.one.simple
 
 import android.graphics.Color
 import android.os.Bundle
-import com.munch.lib.android.extend.bind
-import com.munch.lib.android.extend.lazy
-import com.munch.lib.android.extend.newRandomColor
+import com.munch.lib.android.extend.*
 import com.munch.lib.android.helper.BarHelper
 import com.munch.lib.fast.view.dialog.DialogHelper
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
@@ -37,7 +35,8 @@ class StatusBarActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
             barExtend.setOnClickListener { extendBar() }
             barColor.setOnClickListener { colorBar() }
             barDialog.setOnClickListener { dialog() }
-            navigationColor.setOnClickListener { extendNavigation() }
+            barNavigationColor.setOnClickListener { extendNavigation() }
+            barWallpaper.setOnClickListener { nextWallpaper() }
         }
 
         launch(Dispatchers.IO) {
@@ -49,6 +48,29 @@ class StatusBarActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
                 files?.get(index)
             }
             bind.barImage.load(f)
+        }
+    }
+
+    private fun nextWallpaper() {
+        launch {
+            if (!BiYing.curr.exists()) {
+                bind.barWallpaperName.text = "None"
+            } else {
+                catch {
+                    val tag = (bind.barWallpaperName.tag?.toOrNull<Int>() ?: -1) + 1
+                    val files = BiYing.curr.parentFile?.listFiles()
+                    if (files == null) {
+                        bind.barWallpaperName.text = "None"
+                        return@launch
+                    }
+                    val index = if (tag >= files.size) 0 else tag
+                    files.getOrNull(index)?.let {
+                        bind.barWallpaperName.tag = index
+                        bind.barWallpaperName.text = it.name
+                        bind.barImage.load(it)
+                    }
+                }
+            }
         }
     }
 
