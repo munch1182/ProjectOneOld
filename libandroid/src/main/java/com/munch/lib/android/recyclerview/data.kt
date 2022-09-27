@@ -70,6 +70,9 @@ fun interface DifferProvider<D> {
     fun provideDiffer(adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>): AsyncListDiffer<D>?
 }
 
+/**
+ * 使用了AsyncListDiffer的实现
+ */
 class DifferAdapterFun<D>(
     private var differProvider: DifferProvider<D>? = null
 ) : AdapterFunHelper<D> {

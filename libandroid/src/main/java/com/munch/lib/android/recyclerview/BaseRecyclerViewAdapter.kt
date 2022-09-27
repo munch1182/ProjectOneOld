@@ -9,6 +9,10 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder as BaseViewHolder
 
 /**
  * 处理RecyclerViewAdapter除了item布局和显示之外的其它逻辑
+ *
+ * 默认仅供单类型的Item使用
+ *
+ * 多布局使用[BaseMultiRecyclerViewAdapter]
  */
 abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
     protected open val vhProvider: VHProvider<VH>?,
@@ -24,9 +28,11 @@ abstract class BaseRecyclerViewAdapter<D, VH : BaseViewHolder>(
     }
 
     @Suppress("unchecked_cast")
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        vhProvider?.provideVH(parent, viewType)?.apply { eventHelper.onCreate(this) }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        return vhProvider?.provideVH(parent)
+            ?.apply { eventHelper.onCreate(this) } // 重写此方法要加上此实现
             ?: throw NullPointerException("must provider item view")
+    }
 
     @Suppress("unchecked_cast")
     override fun onBindViewHolder(holder: VH, position: Int) {
@@ -53,7 +59,7 @@ open class BaseBindViewHolder<VB : ViewBinding>(open val bind: VB) : BaseViewHol
  */
 fun interface VHProvider<VH : BaseViewHolder> {
 
-    fun provideVH(parent: ViewGroup, viewType: Int): VH
+    fun provideVH(parent: ViewGroup): VH
 }
 //</editor-fold>
 
@@ -121,7 +127,7 @@ interface AdapterFunHelper<D> : AdapterDataFun<D>, AdapterProvider
 /**
  * 简写方法, 如果这个返回又需要更改, 只需要更改这里
  */
-inline val BaseViewHolder.pos: Int
+inline val RecyclerView.ViewHolder.pos: Int
     get() = bindingAdapterPosition
 //</editor-fold>
 

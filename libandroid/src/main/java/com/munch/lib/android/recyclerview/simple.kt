@@ -15,41 +15,54 @@ import com.munch.lib.android.recyclerview.BaseBindViewHolder as BBVH
 
 /**
  * 将需要实现的参数作为参数传入,其余的使用默认参数, 方便最快的实现
- *
- * [SimpleAdapter]: 传入LayoutRes即可实现Adapter
- * [SimpleViewAdapter]: 传入View即可实现Adapter
- * [SimpleBaseBindAdapter]: 继承并实现并声明VB即可实现Adapter
  */
 
-open class SimpleVH(view: View) : RecyclerView.ViewHolder(view)
+/**
+ * [RecyclerView.ViewHolder]的一个默认实现, 无其它添加实现
+ */
+class SimpleVH(view: View) : RecyclerView.ViewHolder(view)
 
+/**
+ * 默认实现为[SimpleVH]
+ */
+abstract class BaseSingleViewAdapter<D>(
+    vhProvider: VHProvider<SimpleVH>?,
+    dataHelper: AdapterFunHelper<D> = SimpleAdapterFun(),
+    eventHelper: AdapterEventHelper<SimpleVH> = ClickHelper()
+) : BaseRecyclerViewAdapter<D, SimpleVH>(vhProvider, dataHelper, eventHelper)
+
+/**
+ * 简单Adapter, 可直接调用而不需要继承
+ *
+ * @param resId 布局作为item的view
+ * @param bind 将需要继承的实现作为参数传入
+ */
 class SimpleAdapter<D>(@LayoutRes resId: Int, private val bind: (SimpleVH, D) -> Unit) :
-    BaseRecyclerViewAdapter<D, SimpleVH>({ parent, _ -> SimpleVH(parent.inflate(resId)) }) {
-    override fun onBind(holder: SimpleVH, bean: D) = bind.invoke(holder, bean)
-}
-
-abstract class SimpleBaseViewAdapter<D>(
-    vr: ViewCreator,
-    dataHelper: AdapterFunHelper<D> = SimpleAdapterFun()
-) : BaseRecyclerViewAdapter<D, SimpleVH>(
-    { parent, _ -> SimpleVH(vr.invoke(parent.context)) },
-    dataHelper
-)
-
-class SimpleViewAdapter<D>(vr: ViewCreator, private val bind: (BaseViewHolder, D) -> Unit) :
-    SimpleBaseViewAdapter<D>(vr) {
+    BaseSingleViewAdapter<D>({ SimpleVH(it.inflate(resId)) }) {
     override fun onBind(holder: SimpleVH, bean: D) = bind.invoke(holder, bean)
 }
 
 /**
- * 使用了反射来获取ItemView
+ * 简单Adapter, 可直接调用而不需要继承
  *
+ * @param vr 创建的view作为item的view
+ * @param bind 将需要继承的实现作为参数传入
+ */
+class SimpleViewAdapter<D>(vr: ViewCreator, private val bind: (BaseViewHolder, D) -> Unit) :
+    BaseSingleViewAdapter<D>({ SimpleVH(vr.invoke(it.context)) }) {
+    override fun onBind(holder: SimpleVH, bean: D) = bind.invoke(holder, bean)
+}
+
+/**
+ * 使用泛型[VB]来获取itemView, 其ViewHolder为[BBVH]
+ *
+ * 使用了反射来获取ItemView
  * 因为使用了泛型来进行反射, 所以必须继承着使用
  */
-abstract class SimpleBaseBindAdapter<D, VB : ViewBinding, VH : BBVH<VB>>(
+abstract class SimpleBaseBindAdapter<D, VB : ViewBinding>(
     dataHelper: AdapterFunHelper<D> = SimpleAdapterFun(),
-    eventHelper: AdapterEventHelper<VH> = ClickHelper()
-) : BaseRecyclerViewAdapter<D, VH>(null, dataHelper, eventHelper) {
+    eventHelper: AdapterEventHelper<BBVH<VB>> = ClickHelper()
+) : BaseRecyclerViewAdapter<D, BBVH<VB>>(null, dataHelper, eventHelper) {
 
     private val method by lazy {
         this.javaClass.findParameterized(ViewBinding::class.java)
@@ -60,13 +73,15 @@ abstract class SimpleBaseBindAdapter<D, VB : ViewBinding, VH : BBVH<VB>>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BBVH<VB> {
         val view = method?.invoke(null, LayoutInflater.from(parent.context), parent, false) as VB
-        return (BBVH(view) as VH).apply { eventHelper.onCreate(this) }
+        return BBVH(view).apply { eventHelper.onCreate(this) }
     }
 }
 
-/**
- * 必须继承着使用
- */
-abstract class SimpleBindAdapter<D, VB : ViewBinding> : SimpleBaseBindAdapter<D, VB, BBVH<VB>>()
+abstract class BaseMultiViewAdapter<D : Any>(
+    dataHelper: AdapterFunHelper<D> = SimpleAdapterFun(),
+    eventHelper: AdapterEventHelper<SimpleVH> = ClickHelper()
+) : BaseMultiRecyclerViewAdapter<D, SimpleVH>(
+    dataHelper = dataHelper, eventHelper = eventHelper
+)

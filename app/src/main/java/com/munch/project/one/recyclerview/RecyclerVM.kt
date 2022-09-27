@@ -30,7 +30,10 @@ class RecyclerVM : ViewModel() {
                 when (it) {
                     Intent.NextType -> post(State.NextType)
                     Intent.Clear -> operate { set(null) }
-                    Intent.NewData -> operate { set(repo.newRandomList()) }
+                    is Intent.NewData -> operate {
+                        repo.setDataType(it.type)
+                        set(repo.newRandomList())
+                    }
                     is Intent.Remove -> operate { remove(it.index) }
                     Intent.RemoveRange -> operate {
                         val count = getItemCount()

@@ -1,18 +1,19 @@
 package com.munch.project.one.recyclerview
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.android.AppHelper
 import com.munch.lib.android.dialog.IDialog
-import com.munch.lib.android.extend.*
-import com.munch.lib.android.recyclerview.*
-import com.munch.lib.fast.R
+import com.munch.lib.android.extend.LinearLineItemDecoration
+import com.munch.lib.android.extend.get
+import com.munch.lib.android.extend.to
+import com.munch.lib.android.extend.toast
+import com.munch.lib.android.recyclerview.BaseRecyclerViewAdapter
+import com.munch.lib.android.recyclerview.pos
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
 import com.munch.lib.fast.view.dispatch.SupportBindConfigDialog
 import com.munch.project.one.base.BaseActivity
@@ -44,68 +45,40 @@ class RecyclerViewActivity : BaseActivity(), ActivityDispatch by dispatchDef(Con
                 State.NextType -> {
                     vm.dispatch(Intent.Clear)
                     rv.adapter = changeAdapterType(rv)
-                    vm.dispatch(Intent.NewData)
+                    vm.dispatch(Intent.NewData(getType(rv)))
                 }
             }
         }
 
-        vm.dispatch(Intent.NewData)
+        vm.dispatch(Intent.NewData(getType(rv)))
     }
 
-    private fun changeAdapterType(rv: RecyclerView): ShowAdapter {
+    private fun getType(rv: RecyclerView): Int {
+        return when (rv.adapter) {
+            null -> Intent.TYPE_NORMAL
+            is NormalAdapter -> Intent.TYPE_NORMAL
+            is MultiAdapter -> Intent.TYPE_MULTI
+            else -> Intent.TYPE_NORMAL
+        }
+    }
+
+    private fun changeAdapterType(rv: RecyclerView): RecyclerView.Adapter<*> {
         val lm = rv.layoutManager!!.to<LinearLayoutManager>()
         val scroller = TopScroller(lm) // 完全移动到页面上方
 
-        val showAdapter = when (rv.adapter) {
-            null -> NormalAdapter(scroller)
-            is NormalAdapter -> DiffAdapter(scroller)
-            is DiffAdapter -> NormalAdapter(scroller)
-            else -> NormalAdapter(scroller)
-        }
+        val showAdapter: BaseRecyclerViewAdapter<RecyclerData, RecyclerView.ViewHolder> =
+            when (rv.adapter) {
+                null -> NormalAdapter(scroller).to()
+                is NormalAdapter -> DiffAdapter(scroller).to()
+                is DiffAdapter -> MultiAdapter(scroller).to()
+                is MultiAdapter -> NormalAdapter(scroller).to()
+                else -> MultiAdapter(scroller).to()
+            }
         showAdapter.setOnItemClick { vm.dispatch(Intent.Update(it.pos)) }
             .setOnItemLongClick { vm.dispatch(Intent.Remove(it.pos)) } // 这里统一交给VM处理
         toast("curr: ${showAdapter::class.java.simpleName}")
         return showAdapter
     }
-
-    abstract class ShowAdapter(
-        private val scroller: LinearSmoothScroller,
-        dataHelper: AdapterFunHelper<RecyclerData>
-    ) : SimpleBaseViewAdapter<RecyclerData>({
-        TextView(it, null, R.attr.fastAttrText).apply {
-            layoutParams = newMWLP
-            padding(horizontal = 16.dp2Px2Int(), vertical = 8.dp2Px2Int())
-            clickEffect()
-        }
-    }, dataHelper), RecyclerAdapterDataFun {
-
-        override fun onBind(holder: SimpleVH, bean: RecyclerData) {
-            holder.itemView.to<TextView>().text = if (holder.pos == bean.id) {
-                "${holder.pos}: ${bean.data}"
-            } else {
-                val it = "${holder.pos}(${bean.id}): ${bean.data}"
-                val first = it.indexOfFirst { c -> c == '(' }
-                val end = it.indexOfFirst { c -> c == ')' }
-                it.color(Color.RED, first, end)
-            }
-        }
-
-        override fun remove(index: Int) {
-            super<SimpleBaseViewAdapter>.remove(index)
-            // 因为UI绑定了holder的pos, 所以需要强制更新, 实际使用时不需要, 未强制刷新点击时获取的pos也是正确的
-            notifyItemRangeChanged(index, itemCount)
-        }
-
-        override fun moveTo(index: Int) {
-            scroller.targetPosition = index
-        }
-    }
-
-    private class NormalAdapter(scroller: LinearSmoothScroller) :
-        ShowAdapter(scroller, SimpleAdapterFun())
-
-    private class DiffAdapter(scroller: LinearSmoothScroller) :
-        ShowAdapter(scroller, DifferAdapterFun(differ({ data.hashCode() })))
 
     private class ConfigRecyclerView : SupportBindConfigDialog() {
 
@@ -119,7 +92,7 @@ class RecyclerViewActivity : BaseActivity(), ActivityDispatch by dispatchDef(Con
 
         override fun onCreate(context: Context) {
             bind.rvType.setOnClickListener { vm.dispatch(Intent.NextType) }
-            bind.rvSet.setOnClickListener { vm.dispatch(Intent.NewData) }
+            bind.rvSet.setOnClickListener { vm.dispatch(Intent.NewData(Intent.TYPE_SAME)) }
             bind.rvAddOne.setOnClickListener { vm.dispatch(Intent.AddOne) }
             bind.rvAddMore.setOnClickListener { vm.dispatch(Intent.AddList) }
             bind.rvClear.setOnClickListener { vm.dispatch(Intent.Clear) }

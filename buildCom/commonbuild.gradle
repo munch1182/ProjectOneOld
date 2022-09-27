@@ -135,9 +135,10 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation deps['appcompat']
-    // 主动引入, 处理appcompat导致引入其余版本的问题
+    // 主动引入, 处理默认引入其余版本导致引入库的不同版本的问题
     implementation "androidx.arch.core:core-runtime:2.1.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0"
+    implementation "androidx.lifecycle:lifecycle-livedata:2.5.0"
     implementation "androidx.customview:customview:1.1.0"
     implementation "androidx.drawerlayout:drawerlayout:1.1.1"
     implementation 'androidx.fragment:fragment:1.4.1'
