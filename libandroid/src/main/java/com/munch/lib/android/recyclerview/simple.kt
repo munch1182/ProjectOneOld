@@ -6,11 +6,11 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import androidx.recyclerview.widget.RecyclerView.ViewHolder as BaseViewHolder
 import com.munch.lib.android.define.ViewCreator
 import com.munch.lib.android.extend.findParameterized
 import com.munch.lib.android.extend.inflate
 import com.munch.lib.android.extend.lazy
+import androidx.recyclerview.widget.RecyclerView.ViewHolder as BaseViewHolder
 import com.munch.lib.android.recyclerview.BaseBindViewHolder as BBVH
 
 /**
@@ -28,8 +28,13 @@ class SimpleAdapter<D>(@LayoutRes resId: Int, private val bind: (SimpleVH, D) ->
     override fun onBind(holder: SimpleVH, bean: D) = bind.invoke(holder, bean)
 }
 
-abstract class SimpleBaseViewAdapter<D>(vr: ViewCreator) :
-    BaseRecyclerViewAdapter<D, SimpleVH>({ parent, _ -> SimpleVH(vr.invoke(parent.context)) })
+abstract class SimpleBaseViewAdapter<D>(
+    vr: ViewCreator,
+    dataHelper: AdapterFunHelper<D> = SimpleAdapterFun()
+) : BaseRecyclerViewAdapter<D, SimpleVH>(
+    { parent, _ -> SimpleVH(vr.invoke(parent.context)) },
+    dataHelper
+)
 
 class SimpleViewAdapter<D>(vr: ViewCreator, private val bind: (BaseViewHolder, D) -> Unit) :
     SimpleBaseViewAdapter<D>(vr) {

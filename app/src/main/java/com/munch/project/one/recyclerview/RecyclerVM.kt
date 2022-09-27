@@ -1,9 +1,9 @@
 package com.munch.project.one.recyclerview
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.munch.lib.android.extend.immutable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -19,7 +19,7 @@ import com.munch.project.one.recyclerview.RecyclerState as State
 class RecyclerVM : ViewModel() {
 
     private val _state: MutableLiveData<State> = MutableLiveData()
-    val state = _state.immutable()
+    val state: LiveData<State> = _state
     private val _intent = MutableSharedFlow<Intent>()
     private val repo = RecyclerRepo
 
@@ -28,17 +28,28 @@ class RecyclerVM : ViewModel() {
             _intent.collect {
                 // 极简写法, 直接在VM中使用来自View的对象方法
                 when (it) {
+                    Intent.NextType -> post(State.NextType)
                     Intent.Clear -> operate { set(null) }
                     Intent.NewData -> operate { set(repo.newRandomList()) }
                     is Intent.Remove -> operate { remove(it.index) }
+                    Intent.RemoveRange -> operate {
+                        val count = getItemCount()
+                        if (count == 0) return@operate
+                        var start = Random.nextInt(count)
+                        if (start == count) start = 0
+                        remove(start, count - start)
+                    }
                     Intent.AddList -> operate {
-                        val index = Random.nextInt(getItemCount())
-                        add(index, repo.newRandomList(getItemCount()))
+                        val count = getItemCount()
+                        if (count == 0) return@operate
+                        val index = Random.nextInt(count)
+                        add(index, repo.newRandomList(count))
                         moveTo(index)
                     }
                     Intent.AddOne -> operate {
-                        val index = Random.nextInt(getItemCount())
-                        add(index, repo.newRandomData(getItemCount()))
+                        val count = getItemCount()
+                        val index = if (count == 0) 0 else Random.nextInt(count)
+                        add(index, repo.newRandomData(count))
                         moveTo(index)
                     }
                     is Intent.Update -> operate {
@@ -46,6 +57,7 @@ class RecyclerVM : ViewModel() {
                         update(it.index, repo.newRandomData(oldId))
                     }
                     is Intent.AddAdd -> addWhenHighFrequency()
+
                 }
             }
         }
@@ -65,13 +77,14 @@ class RecyclerVM : ViewModel() {
             launch(Dispatchers.Default) {
                 repeat(Random.nextInt(10) * 20 + 10) {
                     // 随机延迟10~260 ms, 但是不会并发
-                    delay(10L + (Random.nextInt(50)) * 5)
+                    delay(10L + (Random.nextInt(50)) * 10)
                     channel.send(repo.newRandomData(it))
                 }
                 channel.close()
             }
 
             for (i in channel) {
+                delay(500L) // 可以用这种方法避免UI拥挤
                 operate { add(0, i) }
             }
         }

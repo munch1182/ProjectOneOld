@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import com.munch.lib.android.dialog.IDialog
 import com.munch.lib.android.extend.*
-import com.munch.lib.android.log.log
 import com.munch.lib.fast.view.DataHelper
 import com.munch.lib.fast.view.dialog.DialogHelper
 

@@ -11,9 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.munch.lib.android.AppHelper
 import com.munch.lib.android.dialog.IDialog
 import com.munch.lib.android.extend.*
-import com.munch.lib.android.recyclerview.SimpleBaseViewAdapter
-import com.munch.lib.android.recyclerview.SimpleVH
-import com.munch.lib.android.recyclerview.pos
+import com.munch.lib.android.recyclerview.*
 import com.munch.lib.fast.R
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
 import com.munch.lib.fast.view.dispatch.SupportBindConfigDialog
@@ -33,32 +31,53 @@ class RecyclerViewActivity : BaseActivity(), ActivityDispatch by dispatchDef(Con
         setContentView(rv)
 
         val lm = LinearLayoutManager(this)
-        val scroller = TopScroller(lm) // 完全移动到页面上方
+
+
         rv.layoutManager = lm
         rv.addItemDecoration(LinearLineItemDecoration())
-        val showAdapter = ShowAdapter(scroller)
-        rv.adapter = showAdapter
+        rv.adapter = changeAdapterType(rv)
 
-        showAdapter.setOnItemClick { vm.dispatch(Intent.Update(it.pos)) }
-            .setOnItemLongClick { vm.dispatch(Intent.Remove(it.pos)) } // 这里统一交给VM处理
 
         vm.state.observe(this) {
             when (it) {
-                is State.Operate -> it.op.invoke(showAdapter)
+                is State.Operate -> it.op.invoke(rv.adapter!!.to())
+                State.NextType -> {
+                    vm.dispatch(Intent.Clear)
+                    rv.adapter = changeAdapterType(rv)
+                    vm.dispatch(Intent.NewData)
+                }
             }
         }
 
         vm.dispatch(Intent.NewData)
     }
 
-    private class ShowAdapter(private val scroller: LinearSmoothScroller) :
-        SimpleBaseViewAdapter<RecyclerData>({
-            TextView(it, null, R.attr.fastAttrText).apply {
-                layoutParams = newMWLP
-                padding(horizontal = 16.dp2Px2Int(), vertical = 8.dp2Px2Int())
-                clickEffect()
-            }
-        }), RecyclerAdapterDataFun {
+    private fun changeAdapterType(rv: RecyclerView): ShowAdapter {
+        val lm = rv.layoutManager!!.to<LinearLayoutManager>()
+        val scroller = TopScroller(lm) // 完全移动到页面上方
+
+        val showAdapter = when (rv.adapter) {
+            null -> NormalAdapter(scroller)
+            is NormalAdapter -> DiffAdapter(scroller)
+            is DiffAdapter -> NormalAdapter(scroller)
+            else -> NormalAdapter(scroller)
+        }
+        showAdapter.setOnItemClick { vm.dispatch(Intent.Update(it.pos)) }
+            .setOnItemLongClick { vm.dispatch(Intent.Remove(it.pos)) } // 这里统一交给VM处理
+        toast("curr: ${showAdapter::class.java.simpleName}")
+        return showAdapter
+    }
+
+    abstract class ShowAdapter(
+        private val scroller: LinearSmoothScroller,
+        dataHelper: AdapterFunHelper<RecyclerData>
+    ) : SimpleBaseViewAdapter<RecyclerData>({
+        TextView(it, null, R.attr.fastAttrText).apply {
+            layoutParams = newMWLP
+            padding(horizontal = 16.dp2Px2Int(), vertical = 8.dp2Px2Int())
+            clickEffect()
+        }
+    }, dataHelper), RecyclerAdapterDataFun {
 
         override fun onBind(holder: SimpleVH, bean: RecyclerData) {
             holder.itemView.to<TextView>().text = if (holder.pos == bean.id) {
@@ -82,6 +101,12 @@ class RecyclerViewActivity : BaseActivity(), ActivityDispatch by dispatchDef(Con
         }
     }
 
+    private class NormalAdapter(scroller: LinearSmoothScroller) :
+        ShowAdapter(scroller, SimpleAdapterFun())
+
+    private class DiffAdapter(scroller: LinearSmoothScroller) :
+        ShowAdapter(scroller, DifferAdapterFun(differ({ data.hashCode() })))
+
     private class ConfigRecyclerView : SupportBindConfigDialog() {
 
         private val bind by bind<ConfigRecyclerviewBinding>()
@@ -93,10 +118,12 @@ class RecyclerViewActivity : BaseActivity(), ActivityDispatch by dispatchDef(Con
         }
 
         override fun onCreate(context: Context) {
+            bind.rvType.setOnClickListener { vm.dispatch(Intent.NextType) }
             bind.rvSet.setOnClickListener { vm.dispatch(Intent.NewData) }
             bind.rvAddOne.setOnClickListener { vm.dispatch(Intent.AddOne) }
             bind.rvAddMore.setOnClickListener { vm.dispatch(Intent.AddList) }
             bind.rvClear.setOnClickListener { vm.dispatch(Intent.Clear) }
+            bind.rvRemoveRange.setOnClickListener { vm.dispatch(Intent.RemoveRange) }
             bind.rvAddAdd.setOnClickListener {
                 vm.dispatch(Intent.AddAdd)
                 this.dialog?.dismiss()

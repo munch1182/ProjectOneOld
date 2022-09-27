@@ -5,8 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.util.keyIterator
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder as BaseViewHolder
 import com.munch.lib.android.R
+import androidx.recyclerview.widget.RecyclerView.ViewHolder as BaseViewHolder
 
 class ClickHelper<VH : BaseViewHolder> : AdapterEventHelper<VH>,
     View.OnClickListener,

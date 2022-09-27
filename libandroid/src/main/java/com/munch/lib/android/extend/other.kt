@@ -10,6 +10,7 @@ import androidx.annotation.FloatRange
 import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.DiffUtil
 import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,3 +64,31 @@ fun <VB : ViewBinding> Class<VB>.inflate(
         ).invoke(null, inflater, group, boolean)?.to()
     }
 }
+
+fun <D : Any> differ(
+    content: D.() -> Int,
+    same: D.() -> Int = { hashCode() }
+): DiffUtil.ItemCallback<D> =
+    object : DiffUtil.ItemCallback<D>() {
+        override fun areItemsTheSame(oldItem: D, newItem: D): Boolean {
+            return same.invoke(oldItem) == same.invoke(newItem)
+        }
+
+        override fun areContentsTheSame(oldItem: D, newItem: D): Boolean {
+            return content.invoke(oldItem) == content.invoke(newItem)
+        }
+    }
+
+fun <D : Any> differSame(
+    content: (D, D) -> Boolean,
+    same: (D, D) -> Boolean
+): DiffUtil.ItemCallback<D> =
+    object : DiffUtil.ItemCallback<D>() {
+        override fun areItemsTheSame(oldItem: D, newItem: D): Boolean {
+            return same.invoke(oldItem, newItem)
+        }
+
+        override fun areContentsTheSame(oldItem: D, newItem: D): Boolean {
+            return content.invoke(oldItem, newItem)
+        }
+    }

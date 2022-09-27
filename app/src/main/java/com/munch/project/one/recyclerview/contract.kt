@@ -7,11 +7,12 @@ import com.munch.lib.android.recyclerview.AdapterDataFun
  * Create by munch1182 on 2022/9/24 14:32.
  */
 sealed class RecyclerIntent : SealedClassToStringByName() {
-
+    object NextType : RecyclerIntent()
     object NewData : RecyclerIntent() // 设置一个新的数据
     object AddOne : RecyclerIntent() // 添加一个数据
     object AddList : RecyclerIntent() // 添加一组数据
     object Clear : RecyclerIntent() // 清除数据
+    object RemoveRange : RecyclerIntent() // 删除一段数据
     class Remove(var index: Int) : RecyclerIntent() // 移除该位置的数据
     class Update(var index: Int) : RecyclerIntent() // 更新该位置的数据
 
@@ -23,6 +24,8 @@ sealed class RecyclerState : SealedClassToStringByName() {
 
     // 让vm直接操作AdapterFunHelper
     class Operate(val op: RecyclerAdapterDataFun.() -> Unit) : RecyclerState()
+
+    object NextType : RecyclerState() // 更换Adapter的类型
 }
 
 data class RecyclerData(
