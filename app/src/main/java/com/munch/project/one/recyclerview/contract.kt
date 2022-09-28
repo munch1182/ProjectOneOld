@@ -2,18 +2,21 @@ package com.munch.project.one.recyclerview
 
 import com.munch.lib.android.extend.SealedClassToStringByName
 import com.munch.lib.android.recyclerview.AdapterDataFun
+import com.munch.lib.android.recyclerview.BaseNode
 
 /**
  * Create by munch1182 on 2022/9/24 14:32.
  */
 sealed class RecyclerIntent : SealedClassToStringByName() {
-    companion object{
+    companion object {
         const val TYPE_NORMAL = 1
         const val TYPE_MULTI = 2
         const val TYPE_NODE = 3
+
         // 表示数据类型与上一个一致
         const val TYPE_SAME = 4
     }
+
     object NextType : RecyclerIntent()
     class NewData(val type: Int) : RecyclerIntent() // 设置一个新的数据
     object AddOne : RecyclerIntent() // 添加一个数据
@@ -38,7 +41,7 @@ sealed class RecyclerState : SealedClassToStringByName() {
 open class RecyclerData(
     val id: Int, // 生成时的ID, 根据item数量
     val data: String, // 显示的内容
-) {
+) : BaseNode {
     override fun hashCode() = id
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -47,6 +50,8 @@ open class RecyclerData(
         if (id != other.id) return false
         return true
     }
+
+    override fun childNode(): MutableList<BaseNode>? = null
 }
 
 interface RecyclerAdapterDataFun : AdapterDataFun<RecyclerData> { // 拓展一个方法, 用于传递数据

@@ -14,7 +14,7 @@ import com.munch.lib.android.extend.to
  * Create by munch1182 on 2022/9/27 14:52.
  */
 abstract class BaseMultiRecyclerViewAdapter<D : Any, VH : RecyclerView.ViewHolder>(
-    protected open val multiItem: SparseArray<IRecyclerMultiItem<D, VH>> = SparseArray<IRecyclerMultiItem<D, VH>>(),
+    protected open val multiItem: SparseArray<IRecyclerItem<D, VH>> = SparseArray<IRecyclerItem<D, VH>>(),
     protected open val multiDataType: ArrayMap<Class<out Any>, Int> = ArrayMap<Class<out Any>, Int>(),
     dataHelper: AdapterFunHelper<D> = SimpleAdapterFun(),
     eventHelper: AdapterEventHelper<VH> = ClickHelper()
@@ -28,7 +28,7 @@ abstract class BaseMultiRecyclerViewAdapter<D : Any, VH : RecyclerView.ViewHolde
         type: Int = multiItem.size(),
         noinline onBind: ((vh: VH, bean: ITEM) -> Unit)? = null
     ): BaseMultiRecyclerViewAdapter<D, VH> {
-        val item = object : RecyclerMultiItem<D, VH>(type, vhProvider) {
+        val item = object : RecyclerItem<D, VH>(type, vhProvider) {
             override fun onBind(holder: VH, bean: D) {
                 onBind?.invoke(holder, bean.to())
             }
@@ -39,10 +39,10 @@ abstract class BaseMultiRecyclerViewAdapter<D : Any, VH : RecyclerView.ViewHolde
     }
 
     /**
-     * 直接添加一个[IRecyclerMultiItem]对象
+     * 直接添加一个[IRecyclerItem]对象
      */
     protected inline fun <reified ITEM_D : D, ITEM_VH : VH> addItem(
-        item: IRecyclerMultiItem<ITEM_D, ITEM_VH>
+        item: IRecyclerItem<ITEM_D, ITEM_VH>
     ): BaseMultiRecyclerViewAdapter<D, VH> {
         multiItem.put(item.type, item.to())
         multiDataType[ITEM_D::class.java] = item.type
@@ -69,12 +69,12 @@ abstract class BaseMultiRecyclerViewAdapter<D : Any, VH : RecyclerView.ViewHolde
  *
  * 此处的[D]、[VH]为该item的实际类型, 但应该是[BaseMultiRecyclerViewAdapter]的泛型的子类或者实现
  */
-interface IRecyclerMultiItem<D, VH : RecyclerView.ViewHolder> {
+interface IRecyclerItem<D, VH : RecyclerView.ViewHolder> {
     val type: Int
     val vhProvider: VHProvider<VH>
     fun onBind(holder: VH, bean: D)
 }
 
-abstract class RecyclerMultiItem<D, VH : RecyclerView.ViewHolder>(
+abstract class RecyclerItem<D, VH : RecyclerView.ViewHolder>(
     override val type: Int, override val vhProvider: VHProvider<VH>
-) : IRecyclerMultiItem<D, VH>
+) : IRecyclerItem<D, VH>

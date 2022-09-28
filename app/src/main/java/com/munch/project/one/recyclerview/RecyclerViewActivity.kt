@@ -12,7 +12,9 @@ import com.munch.lib.android.extend.LinearLineItemDecoration
 import com.munch.lib.android.extend.get
 import com.munch.lib.android.extend.to
 import com.munch.lib.android.extend.toast
+import com.munch.lib.android.recyclerview.BaseNodeRecyclerViewAdapter
 import com.munch.lib.android.recyclerview.BaseRecyclerViewAdapter
+import com.munch.lib.android.recyclerview.INodeFunHelper
 import com.munch.lib.android.recyclerview.pos
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
 import com.munch.lib.fast.view.dispatch.SupportBindConfigDialog
@@ -50,6 +52,7 @@ class RecyclerViewActivity : BaseActivity(), ActivityDispatch by dispatchDef(Con
             }
         }
 
+        vm.dispatch(Intent.NewData(Intent.TYPE_MULTI))
         vm.dispatch(Intent.NewData(getType(rv)))
     }
 
@@ -57,27 +60,39 @@ class RecyclerViewActivity : BaseActivity(), ActivityDispatch by dispatchDef(Con
         return when (rv.adapter) {
             null -> Intent.TYPE_NORMAL
             is NormalAdapter -> Intent.TYPE_NORMAL
+            is DiffAdapter -> Intent.TYPE_NORMAL
             is MultiAdapter -> Intent.TYPE_MULTI
-            else -> Intent.TYPE_NORMAL
+            is NodeAdapter -> Intent.TYPE_NODE
+            else -> throw IllegalStateException()
         }
     }
 
     private fun changeAdapterType(rv: RecyclerView): RecyclerView.Adapter<*> {
         val lm = rv.layoutManager!!.to<LinearLayoutManager>()
-        val scroller = TopScroller(lm) // 完全移动到页面上方
+        val scroller = FirstScroller(lm) // 将item移动到第一个显示的位置
 
-        val showAdapter: BaseRecyclerViewAdapter<RecyclerData, RecyclerView.ViewHolder> =
+        val adapter: BaseRecyclerViewAdapter<RecyclerData, RecyclerView.ViewHolder> =
             when (rv.adapter) {
                 null -> NormalAdapter(scroller).to()
                 is NormalAdapter -> DiffAdapter(scroller).to()
                 is DiffAdapter -> MultiAdapter(scroller).to()
-                is MultiAdapter -> NormalAdapter(scroller).to()
+                is MultiAdapter -> NodeAdapter(scroller).to()
+                is NodeAdapter -> NormalAdapter(scroller).to()
                 else -> MultiAdapter(scroller).to()
             }
-        showAdapter.setOnItemClick { vm.dispatch(Intent.Update(it.pos)) }
-            .setOnItemLongClick { vm.dispatch(Intent.Remove(it.pos)) } // 这里统一交给VM处理
-        toast("curr: ${showAdapter::class.java.simpleName}")
-        return showAdapter
+        if (adapter is BaseNodeRecyclerViewAdapter) {
+            adapter.setOnItemClick {
+                when (it.itemViewType) {
+                    NodeAdapter.TYPE_TITLE -> adapter.to<INodeFunHelper<*>>().toggle(it.pos)
+                    else -> toast("select: ${it.pos}")
+                }
+            }
+        } else {
+            adapter.setOnItemClick { vm.dispatch(Intent.Update(it.pos)) } // 这里统一交给VM处理
+        }
+        adapter.setOnItemLongClick { vm.dispatch(Intent.Remove(it.pos)) }
+        toast("curr: ${adapter::class.java.simpleName}")
+        return adapter
     }
 
     private class ConfigRecyclerView : SupportBindConfigDialog() {
@@ -104,7 +119,7 @@ class RecyclerViewActivity : BaseActivity(), ActivityDispatch by dispatchDef(Con
         }
     }
 
-    private class TopScroller(private val lm: RecyclerView.LayoutManager) :
+    private class FirstScroller(private val lm: RecyclerView.LayoutManager) :
         LinearSmoothScroller(AppHelper) {
         override fun getVerticalSnapPreference() = SNAP_TO_START
         override fun setTargetPosition(targetPosition: Int) {

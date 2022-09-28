@@ -1,6 +1,5 @@
 package com.munch.lib.android.recyclerview
 
-import android.annotation.SuppressLint
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +16,8 @@ class SimpleAdapterFun<D> : AdapterFunHelper<D> {
     override fun bindAdapter(adapter: BaseRecyclerViewAdapter<*, *>) {
         this.adapter = adapter
     }
+
+    override fun getData(): List<D> = list
 
     override fun set(data: Collection<D>?) {
         val size = getItemCount()
@@ -49,11 +50,10 @@ class SimpleAdapterFun<D> : AdapterFunHelper<D> {
         adapter.notifyItemRangeRemoved(from, size)
     }
 
-    // 是否能更新, list对象没有更改
-    @SuppressLint("NotifyDataSetChanged")
     override fun remove(data: Collection<D>) {
+        val first = find(data.firstOrNull() ?: return) ?: return
         list.removeAll(data)
-        adapter.notifyDataSetChanged()
+        adapter.notifyItemRangeRemoved(first, data.size)
     }
 
     override fun update(index: Int, data: D) {
@@ -64,6 +64,7 @@ class SimpleAdapterFun<D> : AdapterFunHelper<D> {
     override fun get(index: Int) = list[index]
 
     override fun find(data: D): Int? = list.indexOf(data).takeIf { it != -1 }
+
 }
 
 fun interface DifferProvider<D> {
@@ -86,6 +87,10 @@ class DifferAdapterFun<D>(
         get() = differ?.currentList
     private val newData: MutableList<D>
         get() = curr?.toMutableList() ?: mutableListOf()
+
+    override fun getData(): List<D> {
+        return curr ?: emptyList()
+    }
 
     override fun bindAdapter(adapter: BaseRecyclerViewAdapter<*, *>) {
         this.adapter = adapter

@@ -85,3 +85,8 @@ abstract class BaseMultiViewAdapter<D : Any>(
 ) : BaseMultiRecyclerViewAdapter<D, SimpleVH>(
     dataHelper = dataHelper, eventHelper = eventHelper
 )
+
+abstract class BaseNodeViewAdapter<D : BaseNode>(
+    dataHelper: AdapterFunHelper<D> = SimpleAdapterFun(),
+    eventHelper: AdapterEventHelper<SimpleVH> = ClickHelper()
+) : BaseNodeRecyclerViewAdapter<D, SimpleVH>(dataHelper, eventHelper)

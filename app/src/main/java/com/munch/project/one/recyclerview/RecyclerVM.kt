@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.munch.lib.android.extend.to
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -56,7 +57,7 @@ class RecyclerVM : ViewModel() {
                         moveTo(index)
                     }
                     is Intent.Update -> operate {
-                        val oldId = get(it.index).id
+                        val oldId = get(it.index).to<RecyclerData>().id
                         update(it.index, repo.newRandomData(oldId))
                     }
                     is Intent.AddAdd -> addWhenHighFrequency()

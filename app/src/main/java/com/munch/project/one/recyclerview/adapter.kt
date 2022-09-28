@@ -57,15 +57,72 @@ class DiffAdapter(scroller: LinearSmoothScroller) :
 //</editor-fold>
 
 //<editor-fold desc="multiView">
-class RecyclerDataTitle(id: Int, title: String) : RecyclerData(id, title) {
+class RecyclerDataTitle(id: Int, title: String) : RecyclerData(id, title), BaseExpendNode {
+    override var isExpanded: Boolean = false
+    private val child = mutableListOf<BaseNode>()
+
     val title: String
         get() = data
+
+    override fun childNode(): MutableList<BaseNode> = child
+
+    fun setChild(child: List<BaseNode>) {
+        this.child.clear()
+        this.child.addAll(child)
+    }
 }
 
-class RecyclerDataBlank(id: Int) : RecyclerData(id, "")
+class RecyclerDataBlank(id: Int) : RecyclerData(id, ""), BaseNode
 class RecyclerDataContent(id: Int, content: String) : RecyclerData(id, content) {
     val content: String
         get() = data
+}
+
+private class TitleProvider : RecyclerItem<RecyclerDataTitle, SimpleVH>(NodeAdapter.TYPE_TITLE, {
+    SimpleVH(TextView(it.context, null, R.attr.fastAttrTextTitle).apply {
+        layoutParams = newMWLP
+        padding(horizontal = 16.dp2Px2Int(), vertical = 8.dp2Px2Int())
+        textSize = 22f
+        typeface = Typeface.DEFAULT_BOLD
+        clickEffect()
+    })
+}) {
+    override fun onBind(holder: SimpleVH, bean: RecyclerDataTitle) {
+        val view = holder.itemView.to<TextView>()
+        if (bean.childNode().isEmpty()) {
+            view.text = bean.title
+        } else {
+            val sign = if (bean.isExpanded) "\uD83D\uDC46" else "\uD83D\uDC47"
+            view.text = "${bean.id}(${holder.pos}) ${bean.title} $sign"
+        }
+    }
+
+}
+
+private class BlankProvider : RecyclerItem<RecyclerDataBlank, SimpleVH>(NodeAdapter.TYPE_BLANK, {
+    SimpleVH(TextView(it.context).apply {
+        val dp16 = 16.dp2Px2Int()
+        layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp16)
+        padding(horizontal = 16.dp2Px2Int(), vertical = 8.dp2Px2Int())
+        clickEffect()
+    })
+}) {
+    override fun onBind(holder: SimpleVH, bean: RecyclerDataBlank) {
+    }
+}
+
+private class ContentProvider :
+    RecyclerItem<RecyclerDataContent, SimpleVH>(NodeAdapter.TYPE_CONTENT, {
+        SimpleVH(TextView(it.context, null, R.attr.fastAttrText).apply {
+            layoutParams = newMWLP
+            padding(horizontal = 16.dp2Px2Int(), vertical = 8.dp2Px2Int())
+            clickEffect()
+        })
+    }) {
+    override fun onBind(holder: SimpleVH, bean: RecyclerDataContent) {
+        holder.itemView.to<TextView>().text = "${bean.id}(${holder.pos}) ${bean.content}"
+    }
+
 }
 
 class MultiAdapter(private val scroller: LinearSmoothScroller) :
@@ -81,44 +138,25 @@ class MultiAdapter(private val scroller: LinearSmoothScroller) :
         scroller.targetPosition = index
     }
 
-    private class TitleProvider : RecyclerMultiItem<RecyclerDataTitle, SimpleVH>(1, {
-        SimpleVH(TextView(it.context, null, R.attr.fastAttrTextTitle).apply {
-            layoutParams = newMWLP
-            padding(horizontal = 16.dp2Px2Int(), vertical = 8.dp2Px2Int())
-            textSize = 22f
-            typeface = Typeface.DEFAULT_BOLD
-            clickEffect()
-        })
-    }) {
-        override fun onBind(holder: SimpleVH, bean: RecyclerDataTitle) {
-            holder.itemView.to<TextView>().text = bean.title
-        }
-
-    }
-
-    private class BlankProvider : RecyclerMultiItem<RecyclerDataBlank, SimpleVH>(2, {
-        SimpleVH(TextView(it.context).apply {
-            val dp16 = 16.dp2Px2Int()
-            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp16)
-            padding(horizontal = 16.dp2Px2Int(), vertical = 8.dp2Px2Int())
-            clickEffect()
-        })
-    }) {
-        override fun onBind(holder: SimpleVH, bean: RecyclerDataBlank) {
-        }
-    }
-
-    private class ContentProvider : RecyclerMultiItem<RecyclerDataContent, SimpleVH>(3, {
-        SimpleVH(TextView(it.context, null, R.attr.fastAttrText).apply {
-            layoutParams = newMWLP
-            padding(horizontal = 16.dp2Px2Int(), vertical = 8.dp2Px2Int())
-            clickEffect()
-        })
-    }) {
-        override fun onBind(holder: SimpleVH, bean: RecyclerDataContent) {
-            holder.itemView.to<TextView>().text = bean.content
-        }
-
-    }
 }
 //</editor-fold>
+
+class NodeAdapter(private val scroller: LinearSmoothScroller) :
+    BaseNodeViewAdapter<RecyclerData>(), ShowAdapter {
+
+    companion object {
+        const val TYPE_TITLE = 1
+        const val TYPE_BLANK = 2
+        const val TYPE_CONTENT = 3
+    }
+
+    init {
+        addItem(TitleProvider())
+        addItem(BlankProvider())
+        addItem(ContentProvider())
+    }
+
+    override fun moveTo(index: Int) {
+        scroller.targetPosition = index
+    }
+}

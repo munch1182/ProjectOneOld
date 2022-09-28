@@ -79,6 +79,8 @@ fun interface AdapterProvider {
  */
 interface AdapterDataFun<D> {
 
+    fun getData(): List<D>
+
     fun getItemCount(): Int
 
     fun set(data: Collection<D>?)
@@ -93,8 +95,8 @@ interface AdapterDataFun<D> {
     //<editor-fold desc="remove">
     fun remove(index: Int) // 移除指定位置的数据
     fun remove(data: D) = find(data)?.let { remove(it) }  // 移除该数据
-    fun remove(from: Int, size: Int) // 从from开始,包括from,移除共size个数据
-    fun remove(data: Collection<D>) // 移除这些数据
+    fun remove(data: Collection<D>)  // 移除这些数据, 不能移除非连续的数据, 如果非连续, 设置新数据
+    fun remove(from: Int, size: Int)  // 从from开始,包括from,移除共size个数据
     //</editor-fold>
 
     //<editor-fold desc="update">
