@@ -3,6 +3,7 @@ package com.munch.project.one.dialog
 import android.os.Bundle
 import com.munch.lib.android.dialog.DefaultDialogManager
 import com.munch.lib.android.dialog.IDialogManager
+import com.munch.lib.android.dialog.offer
 import com.munch.lib.android.extend.fmt
 import com.munch.lib.fast.view.dialog.DialogHelper
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
@@ -14,7 +15,11 @@ class DialogActivity : BaseActivity(),
     ActivityDispatch by dispatchDef(),
     IDialogManager by DefaultDialogManager() {
 
-    private val bind by fvFvBtn("message", "message2", "", "bottom", "bottom2")
+    private val bind by fvFvBtn(
+        "message", "message2", "",
+        "bottom", "bottom2", "",
+        "offer"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,8 +29,16 @@ class DialogActivity : BaseActivity(),
                 "message2" -> message2()
                 "bottom" -> bottom()
                 "bottom2" -> bottom2()
+                "offer" -> offer()
             }
         }
+    }
+
+    private fun offer() {
+        message()
+        bottom()
+        bottom2()
+        message()
     }
 
     private fun bottom2() {
@@ -37,12 +50,14 @@ class DialogActivity : BaseActivity(),
             .content("curr: ${System.currentTimeMillis().fmt()}")
             .ok()
             .cancel()
+            .offer(this)
             .show()
     }
 
     private fun message2() {
         DialogHelper
             .message("curr: ${System.currentTimeMillis().fmt()}")
+            .offer(this)
             .show()
     }
 
@@ -50,6 +65,7 @@ class DialogActivity : BaseActivity(),
         DialogHelper.message()
             .title("Title")
             .message("curr: ${System.currentTimeMillis().fmt()}")
+            .offer(this)
             .show()
     }
 

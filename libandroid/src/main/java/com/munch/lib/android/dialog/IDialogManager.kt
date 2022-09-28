@@ -4,6 +4,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.android.AppHelper
 import com.munch.lib.android.extend.impInMain
+import com.munch.lib.android.log.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
@@ -88,6 +89,7 @@ abstract class DialogManagerByQueue : IDialogManager {
  */
 class DefaultDialogManager : DialogManagerByQueue() {
 
+    private val log = Logger.only("dialog")
     private var curr: IDialog? = null // 当前正在显示的dialog, 当其取消显示时, 此值为null
 
     private val life2Next = object : DefaultLifecycleObserver {
@@ -96,7 +98,8 @@ class DefaultDialogManager : DialogManagerByQueue() {
             curr?.lifecycle?.removeObserver(this)
             curr = null
             AppHelper.launch {
-                delay(100L)
+                log.log("dialog onStop, left: ${queue.size}, next.")
+                delay(200L)
                 show()
             }
         }
@@ -107,23 +110,33 @@ class DefaultDialogManager : DialogManagerByQueue() {
             super.onStop(owner)
             curr?.lifecycle?.removeObserver(this)
             curr = null
+            log.log("dialog onStop, left: ${queue.size}, stop as pause.")
         }
     }
 
     override fun show() {
+        if (curr != null) {
+            log.log("show called but dialog is showing.")
+            return
+        }
         if (curr == null && !queue.isEmpty()) {
             curr = queue.poll()
         }
-        curr?.let {
+        if (curr != null) {
             impInMain {
+                log.log("show dialog.")
                 //添加生命周期回调, 触发下一个dialog
-                it.lifecycle.addObserver(life2Next)
-                it.show()
+                curr?.lifecycle?.addObserver(life2Next)
+                curr?.show()
             }
+        } else {
+            log.log("no dialog. complete.")
         }
+
     }
 
     override fun dismiss() {
+        log.log("dismiss dialog.")
         curr?.dismiss()
     }
 
@@ -136,9 +149,25 @@ class DefaultDialogManager : DialogManagerByQueue() {
      */
     override fun pause(): DefaultDialogManager {
         impInMain {
+            log.log("pause dialog loop.")
             curr?.lifecycle?.removeObserver(life2Next)
             curr?.lifecycle?.addObserver(life2Null)
         }
         return this
+    }
+
+    override fun add(dialog: IDialog): IDialogManager {
+        log.log("add one dialog.")
+        return super.add(dialog)
+    }
+
+    override fun remove(dialog: IDialog): IDialogManager {
+        log.log("remove one dialog.")
+        return super.remove(dialog)
+    }
+
+    override fun clear() {
+        log.log("clear dialog.")
+        super.clear()
     }
 }

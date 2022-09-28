@@ -32,6 +32,9 @@ open class Logger(
 
     companion object {
 
+        fun onlyThread(tag: String) = Logger(tag, LogInfo.Thread)
+        fun only(tag: String) = Logger(tag, LogInfo.None)
+
         private var l: OnLogPrintListener? = null
 
         /**
