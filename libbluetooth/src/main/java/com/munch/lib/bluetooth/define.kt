@@ -107,17 +107,6 @@ interface IBluetoothScanner : IBluetoothManager {
     fun stopScan()
 
     /**
-     * 通过扫描的方法寻找设备, 则同步返回该对象, 如果未找到, 同步返回null
-     *
-     * 通过此方法会调用扫描程序, 但不会更改[isScanning]的状态
-     *
-     * 此方法的回调合并到扫描的其它回调中, 并在最晚结束的回调结束后关闭蓝牙扫描
-     *
-     * @param timeout 超时时间
-     */
-    suspend fun find(mac: String, timeout: Long = 15000L): IBluetoothDev?
-
-    /**
      * 添加蓝牙扫描回调
      *
      * 注意: [find]方法不会触发回调

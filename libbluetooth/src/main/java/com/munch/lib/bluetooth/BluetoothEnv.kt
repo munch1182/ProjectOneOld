@@ -1,7 +1,5 @@
 package com.munch.lib.bluetooth
 
-import android.bluetooth.BluetoothAdapter as ADAPTER
-import android.bluetooth.BluetoothDevice as DEV
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
@@ -12,6 +10,8 @@ import com.munch.lib.android.extend.toOrNull
 import com.munch.lib.android.helper.ARSHelper
 import com.munch.lib.android.helper.ReceiverHelper
 import kotlinx.coroutines.launch
+import android.bluetooth.BluetoothAdapter as ADAPTER
+import android.bluetooth.BluetoothDevice as DEV
 
 /**
  * Create by munch1182 on 2022/9/29 9:30.
@@ -97,6 +97,7 @@ object BluetoothEnv : IBluetoothManager, IBluetoothState {
             }
         }
 
+        //<editor-fold desc="format">
         private fun Int.connectStateFmt(): String {
             return when (this) {
                 ADAPTER.STATE_DISCONNECTED -> "DISCONNECTED"
@@ -130,6 +131,7 @@ object BluetoothEnv : IBluetoothManager, IBluetoothState {
             return replace("android.bluetooth.device.action.", "")
                 .replace("android.bluetooth.adapter.action.", "")
         }
+        //</editor-fold>
 
     }
 

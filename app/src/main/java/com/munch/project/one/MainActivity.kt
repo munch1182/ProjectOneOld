@@ -10,6 +10,7 @@ import com.munch.lib.fast.view.dispatch.SupportActionBar
 import com.munch.lib.fast.view.fastview.fvRvTv
 import com.munch.plugin.annotation.Measure
 import com.munch.project.one.base.BaseActivity
+import com.munch.project.one.bluetooth.BluetoothActivity
 import com.munch.project.one.dialog.DialogActivity
 import com.munch.project.one.recyclerview.RecyclerViewActivity
 import com.munch.project.one.simple.PhoneInfoActivity
@@ -20,6 +21,7 @@ class MainActivity : BaseActivity(), ActivityDispatch by SupportActionBar(false)
 
     private val bind by fvRvTv(
         TestActivity::class,
+        BluetoothActivity::class,
         DialogActivity::class,
         StatusBarActivity::class,
         PhoneInfoActivity::class,

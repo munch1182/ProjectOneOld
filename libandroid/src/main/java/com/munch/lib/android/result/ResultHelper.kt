@@ -56,7 +56,16 @@ class ResultHelper private constructor(private val fm: FragmentManager) {
      * 常用于需要跳转页面去开启权限的操作
      */
     fun judge(judge: IntentJudge) = JudgeIntentResult(judge, fragment)
+
+    /**
+     * 顺序添加和执行Result
+     */
+    fun then(vararg permission: String) = CombinedResult(permission(*permission), this)
+    fun then(intent: Intent) = CombinedResult(intent(intent), this)
+    fun then(judge: IntentJudge, intent: Intent) = CombinedResult(judge(judge).intent(intent), this)
 }
+
+interface IResult
 
 interface ResultRequester {
     val ctx: Context
@@ -90,7 +99,7 @@ typealias PermissionDialog = (Context, ExplainTime, Array<String>) -> ChoseDialo
 class PermissionResult(
     private val permission: Array<String>,
     private val requester: ResultRequester
-) {
+) : IResult {
 
     private val log = Logger("permission")
 
@@ -261,28 +270,6 @@ class PermissionResult(
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun String.fmt() = removePrefix("android.permission.")
-
-    private suspend fun judgeDialog2Execute(dialog: ChoseDialog?, execute: suspend () -> Boolean) {
-        val chose = dialog?.showThenReturnChose() // 如果能显示弹窗, 则显示并返回结果
-        if (chose == null || chose.isChoseOk) {  // 未设置对应的Dialog或者选择了请求
-            val result = execute.invoke() // 请求所有权限
-            if (!result) { // 如果权限未全部获取, 则处理第一次请求结果
-                val list = ArrayList(request)
-                denied.clear()
-                request.clear()
-                list.forEach {
-                    if (it.isGranted()) {
-                        this.result[it] = true // 已拥有的权限记录在result中
-                    } else if (it.isDenied(act)) {
-                        this.denied.add(it) // 已被永久拒绝的权限放入denied中
-                    } else {
-                        this.request.add(it) // 未被永久拒绝的下一次再请求, 放入request中
-                    }
-                }
-            }
-        }
-    }
-
 }
 //</editor-fold>
 
@@ -290,7 +277,7 @@ class PermissionResult(
 /**
  * 请求一个intent, 并回调结果
  */
-class IntentResult(private val intent: Intent, private val requester: ResultRequester) {
+class IntentResult(private val intent: Intent, private val requester: ResultRequester) : IResult {
 
     fun startForResult(listener: IntentResultListener) {
         requester.start4Result(intent, listener)
@@ -313,8 +300,8 @@ typealias IntentDialog = (Context) -> ChoseDialog?
  */
 class JudgeIntentResult(
     private val judge: IntentJudge,
-    private val requester: ResultRequester
-) {
+    private var requester: ResultRequester
+) : IResult {
 
     private var intent: Intent? = null
     private var id: IntentDialog? = null
@@ -359,6 +346,42 @@ class JudgeIntentResult(
     }
 }
 //</editor-fold>
+
+/**
+ * 联合请求结果,任一个结果不为true都会停止执行并返回false
+ */
+class CombinedResult(result: IResult, private val helper: ResultHelper) {
+
+    private val results = mutableListOf(result)
+
+    private fun then(result: IResult): CombinedResult {
+        results.add(result)
+        return this
+    }
+
+    fun then(vararg permission: String) = then(helper.permission(*permission))
+    fun then(intent: Intent) = then(helper.intent(intent))
+    fun then(judge: IntentJudge, intent: Intent) = then(helper.judge(judge).intent(intent))
+
+    fun start(l: ContactResultListener) {
+        AppHelper.launch {
+            var isAllOk = true
+            kotlin.run stop@{
+                results.forEach {
+                    when (it) {
+                        is PermissionResult -> isAllOk = it.start()
+                        is JudgeIntentResult -> isAllOk = it.start()
+                        is IntentResult -> isAllOk = it.start()
+                    }
+                    if (!isAllOk) {
+                        return@stop
+                    }
+                }
+            }
+            l.isAllOk(isAllOk)
+        }
+    }
+}
 
 //<editor-fold desc="fargment">
 /**
@@ -422,6 +445,10 @@ fun interface JudgeIntentResultListener {
 fun interface JudgeIntentResultSimpleListener {
     fun onJudgeResult(judgeResult: Boolean)
 }
+
+fun interface ContactResultListener {
+    fun isAllOk(ok: Boolean)
+}
 //</editor-fold>
 
 //<editor-fold desc="extend">
@@ -468,4 +495,19 @@ inline fun FragmentActivity.with(noinline judge: IntentJudge) =
 
 inline fun Fragment.with(noinline judge: IntentJudge) =
     ResultHelper.with(this).judge(judge)
+
+inline fun FragmentActivity.then(vararg permission: String) =
+    ResultHelper.with(this).then(*permission)
+
+inline fun Fragment.then(vararg permission: String) = ResultHelper.with(this).then(*permission)
+
+inline fun FragmentActivity.then(intent: Intent) = ResultHelper.with(this).then(intent)
+inline fun Fragment.then(intent: Intent) = ResultHelper.with(this).then(intent)
+
+inline fun FragmentActivity.then(noinline judge: IntentJudge, intent: Intent) =
+    ResultHelper.with(this).then(judge, intent)
+
+inline fun Fragment.then(noinline judge: IntentJudge, intent: Intent) =
+    ResultHelper.with(this).then(judge, intent)
+
 //</editor-fold>

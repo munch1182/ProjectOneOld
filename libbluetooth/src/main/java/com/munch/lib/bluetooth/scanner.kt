@@ -8,8 +8,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import com.munch.lib.android.extend.suspendCancellableCoroutine
-import kotlin.Exception
 
 /**
  * Create by munch1182 on 2022/9/29 16:20.
@@ -20,9 +18,6 @@ abstract class BaseBluetoothScanner : ARSHelper<OnBluetoothDevScannedListener?>(
     protected open val log = BluetoothHelper.log
 
     private val lock4Scanning = Mutex()
-    private val lock4FindDev = Mutex()
-
-    protected open val from = From()
 
     /**
      * 是否正在扫描的真实状态
@@ -34,21 +29,24 @@ abstract class BaseBluetoothScanner : ARSHelper<OnBluetoothDevScannedListener?>(
                 val last = field
                 field = value
                 log.log("Scan state change: $last -> $field")
+                update {
+                    if (it is OnBluetoothDevScanListener) {
+                        if (value) {
+                            it.onScanStart()
+                        } else {
+                            it.onScanStop()
+                        }
+                    }
+                }
             }
         }
 
-    /**
-     * 为了寻找设备的扫描的回调
-     */
-    protected open var scanCallback4FindDev: OnBluetoothDevScannedListener? = null
-        get() = runBlocking { lock4FindDev.withLock { field } }
-        set(value) = runBlocking { lock4FindDev.withLock { field = value } }
 
     /**
      * 当前蓝牙扫描器是否正在扫描中
      */
     override val isScanning: Boolean
-        get() = scanning && from.isFromCALL() // 当正在扫描但是是因为寻找设备时, 此方法返回false
+        get() = scanning
 
     /**
      * 一个设备后调后, 延时[delayTime]后再发送下一个设备, 如果为0则不延时
@@ -80,57 +78,6 @@ abstract class BaseBluetoothScanner : ARSHelper<OnBluetoothDevScannedListener?>(
     override fun removeScanListener(l: OnBluetoothDevScannedListener?) {
         remove(l)
     }
-
-    override suspend fun find(mac: String, timeout: Long): IBluetoothDev? {
-        try {
-            suspendCancellableCoroutine<IBluetoothDev>(timeout) {
-                scanCallback4FindDev = OnBluetoothDevScannedListener {
-
-                }
-            }
-
-        } catch (e: Exception) {
-
-        } finally {
-
-        }
-        return null
-    }
-
-    //<editor-fold desc="处理find引起的扫描中的问题">
-    class From {
-        companion object {
-            const val VALUE_FROM_CALL = 1
-            const val VALUE_FROM_FIND = 2
-            const val VALUE_FROM_BOTH = VALUE_FROM_CALL + VALUE_FROM_FIND
-        }
-
-        private val lock = Mutex()
-        private var value = 0
-            get() = runBlocking { lock.withLock { field } }
-            set(value) = runBlocking { lock.withLock { field = value } }
-
-        fun fromFIND() {
-            value += VALUE_FROM_FIND
-        }
-
-        fun fromCALL() {
-            value += VALUE_FROM_CALL
-        }
-
-        fun completeFIND() {
-            value -= VALUE_FROM_FIND
-        }
-
-        fun completeCALL() {
-            value -= VALUE_FROM_CALL
-        }
-
-        fun isFromFIND() = value == VALUE_FROM_FIND || value == VALUE_FROM_BOTH
-        fun isFromCALL() = value == VALUE_FROM_CALL || value == VALUE_FROM_BOTH
-    }
-
-    //</editor-fold>
 }
 
 /**
@@ -173,6 +120,7 @@ object BluetoothLeScanner : BaseBluetoothScanner(), CoroutineScope by BluetoothH
         .setMatchMode(ScanSettings.MATCH_MODE_STICKY)
         .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
         .build()
+
     private var set: ScanSettings? = null
         get() = field ?: defSet
 
@@ -184,40 +132,36 @@ object BluetoothLeScanner : BaseBluetoothScanner(), CoroutineScope by BluetoothH
 
     override fun startScan() {
         if (isScanning) {
+            log.log("call start scan but scanning.")
             return
         }
-        from.fromCALL()
-        realStartScan()
-    }
 
-    override fun stopScan() {
-        if (!isScanning) {
-            return
-        }
-        from.completeCALL()
-        if (!from.isFromFIND()) { // 如果此时还有find任务未完成, 实际不需要停止扫描
-            realStopScan()
-        }
-    }
+        // 更改状态
+        scanning = true
 
-    private fun realStartScan() {
-        val set = ScanSettings.Builder().build()
         val newChannel = Channel<IBluetoothDev>()
         channel = newChannel
+
         adapter?.bluetoothLeScanner?.startScan(null, set, callback)
 
         launch(Dispatchers.Default) {
             for (dev in newChannel) {
+                if (filter?.isDevNeedFiltered(dev) == true) {
+                    continue
+                }
                 if (delayTime > 0) delay(delayTime)
                 update { it?.onDevScanned(dev) }
             }
         }
     }
 
-    private fun realStopScan() {
-        adapter?.bluetoothLeScanner?.stopScan(callback)
+    override fun stopScan() {
+        if (!isScanning) {
+            return
+        }
         channel?.close()
         channel = null
+        adapter?.bluetoothLeScanner?.stopScan(callback)
     }
 }
 
