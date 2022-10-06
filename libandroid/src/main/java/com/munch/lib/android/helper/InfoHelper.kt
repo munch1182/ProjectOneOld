@@ -1,5 +1,6 @@
 package com.munch.lib.android.helper
 
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build.*
@@ -101,8 +102,9 @@ object InfoHelper {
 
     val phoneDesc by lazy { "$brand  $model  $phomeVersion  android$phoneAndroidVersion  version$phoneAndroidVersionCode  ${abis.joinToString()}" }
 
-    val windowDesc: String
-        get() = "${screenWidth}x${screenHeight} status($statusBarHeight) nav($navigationBarHeight) density(${density}) scaledDensity($scaledDensity)"
+    fun windowDesc(activity: Activity): String {
+        return "${screenWidth}x${screenHeight} status(${activity.statusBarHeight}) nav(${activity.navigationBarHeight}) density(${density}) scaledDensity($scaledDensity)"
+    }
 
     val appDesc by lazy { "$appVersionName $appVersionCode" }
 

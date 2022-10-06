@@ -35,7 +35,6 @@
                 android:id="@+id/barTb"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
-                android:layout_marginTop="24dp"
                 app:layout_collapseMode="pin"
                 app:titleTextColor="@color/colorWhite" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -72,7 +71,29 @@
                 android:layout_height="wrap_content" />
 
             <Button
+                android:id="@+id/barLight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="light" />
+
+            <Button
+                android:id="@+id/barDark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="dark" />
+
+            <com.munch.lib.android.weight.Sign
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
                 android:id="@+id/barDialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="dialog" />
+
+            <Button
+                android:id="@+id/barDialogInput"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="dialog" />
@@ -82,10 +103,10 @@
                 android:layout_height="wrap_content" />
 
             <Button
-                android:id="@+id/barNavigationColor"
+                android:id="@+id/barFull"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="color" />
+                android:text="full" />
 
             <com.munch.lib.android.weight.Sign
                 android:layout_width="wrap_content"

@@ -17,7 +17,7 @@ class PhoneInfoActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
         bind.set(
             "${InfoHelper.phoneDesc}\n\n" +
                     "${InfoHelper.appDesc} ${BuildConfig.BUILD_TIME}\n\n" +
-                    InfoHelper.windowDesc.replace(" ", "\n")
+                    InfoHelper.windowDesc(this).replace(" ", "\n")
         )
     }
 }

@@ -37,9 +37,17 @@ inline fun ComponentDialog.toDialog(): IDialog = DialogWrapper(this)
  * 显示[ChoseDialog]
  * 并当[ChoseDialog]消失时, 返回其选择的结果
  */
-suspend fun ChoseDialog.showThenReturnChose(): IDialogChose? = suspendCancellableCoroutine {
-    impInMain { onDismiss<ChoseDialog> { d -> it.resume(d.chose) }.show() }
-}
+suspend fun ChoseDialog.showThenReturnChose(dm: IDialogManager? = null): IDialogChose? =
+    suspendCancellableCoroutine {
+        impInMain {
+            val dialog = onDismiss<ChoseDialog> { d -> it.resume(d.chose) }
+            if (dm != null) {
+                dm.add(dialog).show()
+            } else {
+                dialog.show()
+            }
+        }
+    }
 
 abstract class ChoseDialogWrapper : ChoseDialog {
 

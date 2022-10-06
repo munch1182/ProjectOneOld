@@ -91,7 +91,7 @@ sealed class ExplainTime : SealedClassToStringByName() {
 }
 
 //<editor-fold desc="permission">
-typealias PermissionDialog = (Context, ExplainTime, Array<String>) -> ChoseDialog?
+typealias PermissionDialogCreator = (Context, ExplainTime, Array<String>) -> ChoseDialog?
 
 /**
  * 请求权限, 并回调请求结果
@@ -116,7 +116,7 @@ class PermissionResult(
     /**
      * 权限请求Dialog
      */
-    private var pd: PermissionDialog? = null
+    private var pd: PermissionDialogCreator? = null
 
     /**
      * 权限结果
@@ -126,28 +126,22 @@ class PermissionResult(
     private val act: FragmentActivity
         get() = requester.ctx.to()
 
-    /**
-     * todo 处理当前页面已有的Dialog和权限请求的dialog的顺序
-     */
-    fun attach(dm: IDialogManager): PermissionResult {
-        return this
-    }
+    private var dm: IDialogManager? = null
 
     /**
      * 设置Dialog创建的回调
      * 当[ExplainTime]时, 会调用此方法来生成Dialog, 如果返回的[IDialog]不为null, 则会显示该[dialog]
      */
-    fun setDialog(dialog: PermissionDialog): PermissionResult {
-        pd = dialog
+    fun setDialog(dm: IDialogManager? = null, dialog: PermissionDialogCreator): PermissionResult {
+        this.dm = dm
+        this.pd = dialog
         return this
     }
 
     fun request(listener: PermissionResultListener) {
         AppHelper.launch {
 
-            catch {
-                handle()
-            }
+            catch { handle() }
 
             request.clear()
             denied.clear()
@@ -166,9 +160,9 @@ class PermissionResult(
         request.clear()
         denied.clear()
 
-        permission.forEach {
-            result[it] = it.isGranted()
-        } // 第一次权限判断, 注意此时可能未被授予的权限都被永久拒绝了, 则会先显示Before再直接显示ForDeniedForever
+        // 第一次权限判断, 注意此时可能未被授予的权限都被永久拒绝了, 则会先显示Before再直接显示ForDeniedForever
+        permission.forEach { result[it] = it.isGranted() }
+
         request.addAll(result.filter { !it.value }.keys.toTypedArray()) // 用于申请未被授予的权限
 
         if (request.isNotEmpty()) { // 如果有未被授予的权限
@@ -176,7 +170,7 @@ class PermissionResult(
             if (dialogBefore != null) {
                 log.log("permission explain dialog: Before.")
             }
-            val choseForBefore = dialogBefore?.showThenReturnChose()?.isChoseOk ?: true
+            val choseForBefore = dialogBefore?.showThenReturnChose(dm)?.isChoseOk ?: true
             if (choseForBefore) { // 如果显示了dialog, 并且选择了确认; 或者没有显示dialog
 
                 log.log("request permission: ${fmt(request)}.")
@@ -203,7 +197,7 @@ class PermissionResult(
                         if (dialogDenied != null) {
                             log.log("permission explain dialog: ForDenied.")
                         }
-                        val chose = dialogDenied?.showThenReturnChose()?.isChoseOk ?: false
+                        val chose = dialogDenied?.showThenReturnChose(dm)?.isChoseOk ?: false
 
                         if (chose) { // 如果显示了dialog并且选择了确认
 
@@ -247,7 +241,7 @@ class PermissionResult(
                             log.log("permission explain dialog: ForDeniedForever.")
                         }
 
-                        val chose = dialogDeniedForever?.showThenReturnChose()?.isChoseOk ?: false
+                        val chose = dialogDeniedForever?.showThenReturnChose(dm)?.isChoseOk ?: false
 
                         if (chose) { // 如果显示了dialog并且选择了确认
                             log.log("start ACTION_SETTINGS for deniedForever.")
@@ -287,7 +281,7 @@ class IntentResult(private val intent: Intent, private val requester: ResultRequ
 
 //<editor-fold desc="judge">
 typealias IntentJudge = (Context) -> Boolean
-typealias IntentDialog = (Context) -> ChoseDialog?
+typealias IntentDialogCreator = (Context) -> ChoseDialog?
 
 /**
  * 先进行一次[judge]判断
@@ -304,15 +298,17 @@ class JudgeIntentResult(
 ) : IResult {
 
     private var intent: Intent? = null
-    private var id: IntentDialog? = null
+    private var dialog: IntentDialogCreator? = null
+    private var dm: IDialogManager? = null
 
     /**
-     * 当第一次判断失败时,会调用[id],
+     * 当第一次判断失败时,会调用[dialog],
      * 如果返回为null, 则会直接回调
      * 如果返回不为null, 则显示[ChoseDialog], 如果[ChoseDialog]中选择了取消, 则会直接回调, 否则会使用[intent]
      */
-    fun setDialog(dialog: IntentDialog): JudgeIntentResult {
-        id = dialog
+    fun setDialog(dm: IDialogManager? = null, dialog: IntentDialogCreator): JudgeIntentResult {
+        this.dm = dm
+        this.dialog = dialog
         return this
     }
 
@@ -323,23 +319,25 @@ class JudgeIntentResult(
 
     fun startForResult(listener: JudgeIntentResultListener) {
         val firstJudge = judge.invoke(AppHelper)
-        val i = intent
-        if (firstJudge || i == null) {
+        if (firstJudge) {
             listener.onJudgeIntentResult(true, Activity.RESULT_OK, null)
             return
         }
+        val i = intent
+        if (i == null) {
+            listener.onJudgeIntentResult(false, Activity.RESULT_CANCELED, null)
+            return
+        }
         AppHelper.launch {
-            val chose = id?.invoke(requester.ctx)?.showThenReturnChose() // 显示dialog并返回选择结果
+            val chose = dialog?.invoke(requester.ctx)?.showThenReturnChose(dm) // 显示dialog并返回选择结果
             if (chose == null || chose.isChoseOk) { // 如果未设置Dialog, 或者设置并选择了下一步
                 requester.start4Result(i) { resultCode, intent -> // 跳转intent界面并返回结果
-                    listener.onJudgeIntentResult(
-                        judge.invoke(requester.ctx), resultCode, intent
-                    )
+                    val secondResult = judge.invoke(requester.ctx)
+                    listener.onJudgeIntentResult(secondResult, resultCode, intent)
                 }
             } else { // 未设置或者未选择下一步, 直接回调当前结果
-                listener.onJudgeIntentResult(
-                    judge.invoke(requester.ctx), Activity.RESULT_CANCELED, null
-                )
+                val secondResult = judge.invoke(requester.ctx)
+                listener.onJudgeIntentResult(secondResult, Activity.RESULT_CANCELED, null)
             }
 
         }
@@ -403,6 +401,7 @@ class ResultFragment : Fragment(), ResultRequester {
     private val permission =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
             permissionListener?.onPermissionResult(!it.containsValue(false), it)
+            permissionListener = null
         }
 
     override fun start4Result(intent: Intent, listener: IntentResultListener) {

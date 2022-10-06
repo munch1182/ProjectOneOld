@@ -59,6 +59,7 @@ fun View.margin(
         lp
     }
     marginLp.setMargins(l, t, r, b)
+    layoutParams = lp
     return this
 }
 
@@ -115,7 +116,7 @@ fun newCornerDrawable(
  */
 fun View.clickEffect(color: Int = Color.WHITE) {
     background = ColorDrawable(color)
-    foreground = getSelectableItemBackground()
+    foreground = context.getSelectableItemBackground()
 }
 
 //<editor-fold desc="gravity">

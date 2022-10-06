@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.munch.plugin.android'
-    id 'kotlin-kapt'
+    // id 'kotlin-kapt'
     // ksp
     /*https://kotlinlang.org/docs/ksp-quickstart.html#use-your-own-processor-in-a-project*/
     id 'com.google.devtools.ksp' version '1.7.10-1.0.6'
@@ -27,7 +27,7 @@ dependencies {
 
     implementation deps['glide']
     implementation deps['glideIntegration']
-    kapt deps['glideCompiler']
+    ksp deps['glideKsp']
 
     implementation deps['okhttpInterceptor']
 

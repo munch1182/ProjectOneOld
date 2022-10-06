@@ -2,6 +2,7 @@ package com.munch.project.one.simple
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.ViewGroup.MarginLayoutParams
 import com.munch.lib.android.extend.*
 import com.munch.lib.android.helper.BarHelper
 import com.munch.lib.fast.view.dialog.DialogHelper
@@ -28,14 +29,19 @@ class StatusBarActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(bind.barTb)
-        bar.extendStatusBar().colorStatusBar()
+        extendBar()
+
         supportActionBar?.apply { setDisplayHomeAsUpEnabled(true) }
         bind.barTb.navigationIcon?.setTint(Color.WHITE)
+
         bind.apply {
             barExtend.setOnClickListener { extendBar() }
             barColor.setOnClickListener { colorBar() }
+            barLight.setOnClickListener { bar.controlLightMode(true) }
+            barDark.setOnClickListener { bar.controlLightMode(false) }
             barDialog.setOnClickListener { dialog() }
-            barNavigationColor.setOnClickListener { extendNavigation() }
+            barDialogInput.setOnClickListener { dialogInput() }
+            barFull.setOnClickListener { full() }
             barWallpaper.setOnClickListener { nextWallpaper() }
         }
 
@@ -49,6 +55,7 @@ class StatusBarActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
             }
             bind.barImage.load(f)
         }
+
     }
 
     private fun nextWallpaper() {
@@ -74,10 +81,6 @@ class StatusBarActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
         }
     }
 
-    private fun extendNavigation() {
-        bar.colorNavigation(newRandomColor())
-    }
-
     private fun dialog() {
         DialogHelper.bottom()
             .title("BottomDialog")
@@ -86,12 +89,42 @@ class StatusBarActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
             .show()
     }
 
+    private fun dialogInput() {
+        /*window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+        val inputView = AppCompatEditText(this)
+        inputView.setBackgroundColor(newRandomColor())
+        val lp = FrameLayout.LayoutParams(100, 300)
+        lp.gravity = Gravity.BOTTOM
+        inputView.layoutParams = lp
+        contentView.addView(inputView)
+        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { _, insets ->
+            log(insets.getInsets(Type.ime()), insets.getInsets(Type.statusBars()))
+            insets
+        }
+        WindowCompat.getInsetsController(window, inputView).show(Type.ime())*/
+    }
+
     private fun colorBar() {
         bar.colorStatusBar(newRandomColor(0.5f))
     }
 
+    private fun full() {
+        val array = IntArray(4)
+        bind.barImage.getLocationInWindow(array)
+        bar.controlFullScreen(array[1] > 0)
+    }
+
     private fun extendBar() {
-        bar.extendStatusBar(!bar.isExtendStatusBar)
+        val lp = bind.barTb.layoutParams.toOrNull<MarginLayoutParams>()
+        val extend = (lp?.topMargin ?: -1) == 0
+        bar.extendContent2StatusBar(extend)
+        if (extend) {
+            bind.barTb.margin(t = statusBarHeightFromId)
+            bar.colorStatusBar(Color.TRANSPARENT)
+        } else {
+            bind.barTb.margin(t = 0)
+            bar.colorStatusBar(getColorPrimary())
+        }
     }
 
 }

@@ -2,12 +2,16 @@
 
 package com.munch.lib.android.extend
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.widget.Toast
 import androidx.annotation.ColorInt
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat.Type
+import androidx.fragment.app.Fragment
 import com.munch.lib.android.AppHelper
 
 //<editor-fold desc="convert">
@@ -59,7 +63,16 @@ fun String.asId2GetDimen(): Int? {
 /**
  * 获取状态栏高度
  */
-inline val statusBarHeight: Int
+inline val Activity.statusBarHeight: Int
+    get() = ViewCompat.getRootWindowInsets(contentView)?.getInsets(Type.statusBars())?.top ?: 0
+inline val Fragment.statusBarHeight: Int
+    get() = requireActivity().statusBarHeight
+
+
+/**
+ * 获取状态栏高度
+ */
+inline val statusBarHeightFromId: Int
     get() = "status_bar_height".asId2GetDimen() ?: 0
 
 /**
@@ -69,10 +82,19 @@ inline val navigationBarHeight: Int
     get() = "navigation_bar_height".asId2GetDimen() ?: 0
 
 /**
+ * 获取导航栏高度
+ */
+inline val Activity.navigationBarHeight: Int
+    get() = ViewCompat.getRootWindowInsets(contentView)?.getInsets(Type.navigationBars())?.bottom
+        ?: 0
+inline val Fragment.navigationBarHeight: Int
+    get() = requireActivity().navigationBarHeight
+
+/**
  * 从主题中获取属性值
  */
-fun <T> getAttrArrayFromTheme(attrId: Int, get: TypedArray.() -> T): T {
-    val typedArray = AppHelper.obtainStyledAttributes(intArrayOf(attrId))
+fun <T> Context.getAttrArrayFromTheme(attrId: Int, get: TypedArray.() -> T): T {
+    val typedArray = obtainStyledAttributes(intArrayOf(attrId))
     val value = get.invoke(typedArray)
     typedArray.recycle()
     return value
@@ -82,21 +104,21 @@ fun <T> getAttrArrayFromTheme(attrId: Int, get: TypedArray.() -> T): T {
  * 获取android.R.attr.colorPrimary当前被设置的颜色值
  */
 @ColorInt
-fun getColorPrimary(@ColorInt defValue: Int = Color.WHITE): Int {
+fun Context.getColorPrimary(@ColorInt defValue: Int = Color.WHITE): Int {
     return getAttrArrayFromTheme(android.R.attr.colorPrimary) { getColor(0, defValue) }
 }
 
 /**
  * 获取android.R.attr.selectableItemBackground的Drawable对象
  */
-fun getSelectableItemBackground(): Drawable? {
+fun Context.getSelectableItemBackground(): Drawable? {
     return getAttrArrayFromTheme(android.R.attr.selectableItemBackground) { getDrawable(0) }
 }
 
 /**
  * 获取android.R.attr.selectableItemBackgroundBorderless的Drawable对象
  */
-fun getSelectableItemBackgroundBorderless(): Drawable? {
+fun Context.getSelectableItemBackgroundBorderless(): Drawable? {
     return getAttrArrayFromTheme(android.R.attr.selectableItemBackgroundBorderless) { getDrawable(0) }
 }
 //</editor-fold>

@@ -47,7 +47,7 @@ object ImageHelper {
             setImageDrawable(null)
             return
         }
-        val request = GlideApp.with(this).let {
+        val request = Glide.with(this).let {
             when (any) {
                 is String -> it.load(any)
                 is File -> it.load(any)
@@ -65,7 +65,7 @@ object ImageHelper {
      * 将[url]的图片下载到文件并返回
      */
     suspend fun down(url: String): File? = suspendCancellableCoroutine {
-        GlideApp.with(AppHelper)
+        Glide.with(AppHelper)
             .downloadOnly()
             .load(url)
             .listener(object : RequestListener<File> {
