@@ -10,14 +10,13 @@
         android:id="@+id/bluetoothFilter"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@color/red"
-        app:layout_behavior="com.munch.project.one.other.FilterBehavior" />
+        android:background="@color/red" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/bluetoothRv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorWhite"
+        app:layout_behavior="com.munch.project.one.other.HeaderBehavior"
         tools:listitem="@layout/item_bluetooth" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
