@@ -59,13 +59,19 @@
         app:layout_constraintEnd_toEndOf="@id/bluetoothDbm"
         tools:text="BONDED" />
 
+    <Space
+        android:id="@+id/bluetoothSpace"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dimenDef"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bluetoothIcon" />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:layout_margin="@dimen/dimenDef"
         android:background="@color/colorGray"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bluetoothIcon"
-        app:layout_goneMarginBottom="@dimen/dimenDef" />
+        app:layout_constraintTop_toBottomOf="@id/bluetoothSpace" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

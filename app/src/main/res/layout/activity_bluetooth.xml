@@ -3,20 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     tools:context=".bluetooth.BluetoothActivity">
 
-    <View
+    <TextView
         android:id="@+id/bluetoothFilter"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@color/red" />
+        android:background="@color/red"
+        android:gravity="center"
+        android:text="123123"
+        android:textColor="@color/colorWhite"
+        app:layout_behavior=".other.ScrollingViewBehavior$HeaderBehavior"
+        tools:ignore="HardcodedText" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/bluetoothRv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_behavior="com.munch.project.one.other.HeaderBehavior"
+        android:background="@color/colorWhite"
+        app:layout_behavior=".other.ScrollingViewBehavior"
         tools:listitem="@layout/item_bluetooth" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

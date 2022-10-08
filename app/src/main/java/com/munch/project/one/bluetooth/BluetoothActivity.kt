@@ -52,7 +52,7 @@ class BluetoothActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
         /*BluetoothLeScanner.set(this) { impInMain { bluetoothAdapter.add(it.to<BluetoothDev>()) } }
         withPermission { BluetoothLeScanner.startScan() }*/
 
-        bluetoothAdapter.set(MutableList(100) {
+        bluetoothAdapter.set(MutableList(30) {
             BluetoothDev("$it$it:$it$it:$it$it:$it$it:$it$it:$it$it")
         })
     }
