@@ -6,14 +6,11 @@
     android:layout_height="match_parent"
     tools:context=".bluetooth.BluetoothActivity">
 
-    <TextView
+    <com.munch.project.one.bluetooth.BluetoothFilterView
         android:id="@+id/bluetoothFilter"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@color/red"
-        android:gravity="center"
-        android:text="123123"
-        android:textColor="@color/black"
+        android:layout_height="wrap_content"
+        android:translationZ="3dp"
         app:layout_behavior="@string/ScrollingFloatViewFloatBehavior"
         tools:ignore="HardcodedText" />
 

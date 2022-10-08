@@ -11,6 +11,8 @@ import com.munch.lib.fast.view.findFirst
 import kotlin.math.absoluteValue
 
 /**
+ * todo 需要更改 floadtView 的高度, 避免被遮挡
+ *
  * Create by munch1182 on 2022/10/8 15:22.
  */
 class ScrollingFloatViewBehavior(context: Context, set: AttributeSet) :
