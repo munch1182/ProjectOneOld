@@ -17,4 +17,11 @@
 
     <color name="colorBg">@color/colorGray</color>
     <color name="colorTran">#00000000</color>
+
+    <string name="ScrollingViewBehavior" translatable="false">com.munch.lib.fast.view.view.ScrollingViewBehavior</string>
+    <string name="ScrollingViewHeaderBehavior" translatable="false">com.munch.lib.fast.view.view.ScrollingViewBehavior$HeaderBehavior</string>
+
+    <string name="ScrollingFloatViewBehavior" translatable="false">com.munch.lib.fast.view.view.ScrollingFloatViewBehavior</string>
+    <string name="ScrollingFloatViewFloatBehavior" translatable="false">com.munch.lib.fast.view.view.ScrollingFloatViewBehavior$FloatViewBehavior</string>
+
 </resources>

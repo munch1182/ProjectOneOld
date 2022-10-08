@@ -1,4 +1,4 @@
-package com.munch.project.one.other
+package com.munch.lib.fast.view.view
 
 import android.content.Context
 import android.util.AttributeSet
@@ -6,8 +6,7 @@ import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ScrollingView
 import androidx.core.view.ViewCompat
-import androidx.core.view.children
-import com.munch.lib.android.extend.toOrNull
+import com.munch.lib.fast.view.findFirst
 import kotlin.math.absoluteValue
 
 /**
@@ -18,22 +17,16 @@ class ScrollingViewBehavior(context: Context, set: AttributeSet) :
     CoordinatorLayout.Behavior<View>(context, set) {
 
     companion object {
-        private fun findHeader(parent: CoordinatorLayout, child: View): View? {
-            return parent.children.firstOrNull {
-                it != child && it.layoutParams.toOrNull<CoordinatorLayout.LayoutParams>()?.behavior is HeaderBehavior
-            }
+        private fun findHeader(parent: CoordinatorLayout): View? {
+            return parent.findFirst<HeaderBehavior>()
         }
 
-        private fun findFooter(parent: CoordinatorLayout, child: View): View? {
-            return parent.children.firstOrNull {
-                it != child && it.layoutParams.toOrNull<CoordinatorLayout.LayoutParams>()?.behavior is FooterBehavior
-            }
+        private fun findFooter(parent: CoordinatorLayout): View? {
+            return parent.findFirst<FooterBehavior>()
         }
 
-        private fun findScroll(parent: CoordinatorLayout, child: View): View? {
-            return parent.children.firstOrNull {
-                it != child && it.layoutParams.toOrNull<CoordinatorLayout.LayoutParams>()?.behavior is ScrollingViewBehavior && it is ScrollingView
-            }
+        private fun findScroll(parent: CoordinatorLayout): View? {
+            return parent.findFirst<ScrollingViewBehavior>().takeIf { it is ScrollingView }
         }
     }
 
@@ -45,9 +38,11 @@ class ScrollingViewBehavior(context: Context, set: AttributeSet) :
         child: View,
         layoutDirection: Int
     ): Boolean {
+
         parent.onLayoutChild(child, layoutDirection)
-        val header = findHeader(parent, child)
-        val footer = findFooter(parent, child)
+
+        val header = findHeader(parent)
+        val footer = findFooter(parent)
         headerHeight = header?.measuredHeight ?: 0
         footerHeight = footer?.measuredHeight ?: 0
         ViewCompat.offsetTopAndBottom(child, headerHeight) // 移动初始显示, 不遮挡header
@@ -183,8 +178,8 @@ class ScrollingViewBehavior(context: Context, set: AttributeSet) :
         ): Boolean {
             parent.onLayoutChild(child, layoutDirection)
 
-            val header = findHeader(parent, child)
-            val scroll = findScroll(parent, child)
+            val header = findHeader(parent)
+            val scroll = findScroll(parent)
             val height = (header?.measuredHeight ?: 0) + (scroll?.measuredHeight ?: 0)
 
             ViewCompat.offsetTopAndBottom(child, height)

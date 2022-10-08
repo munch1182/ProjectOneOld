@@ -1,9 +1,13 @@
 package com.munch.lib.fast.view
 
+import android.view.View
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.munch.lib.android.extend.catch
+import com.munch.lib.android.extend.toOrNull
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
@@ -42,4 +46,10 @@ fun newRandomWord(): String {
 fun newRandomString(len: Int = 5, sb: StringBuilder = StringBuilder()): String {
     repeat(len) { sb.append(newRandomWord()) }
     return sb.toString()
+}
+
+inline fun <reified BEHAVIOR : CoordinatorLayout.Behavior<View>> CoordinatorLayout.findFirst(): View? {
+    return children.firstOrNull {
+        it.layoutParams.toOrNull<CoordinatorLayout.LayoutParams>()?.behavior is BEHAVIOR
+    }
 }
