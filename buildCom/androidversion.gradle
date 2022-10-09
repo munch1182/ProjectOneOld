@@ -31,12 +31,12 @@ ext {
             ACTIVITY_VERSION  : "1.4.0",
             FRAGMENT_VERSION  : "1.4.1",
             ROOM_VERSION      : "2.4.3",
-            GLIDE_VERSION     : "4.13.2",
+            GLIDE_VERSION     : "4.14.1",
             RETROFIT_VERSION  : "2.9.0",
 
             LIFECYCLE_VERSION : "2.4.0",
             WORK_VERSION      : "2.7.1",
-            PAGING_VERSION    : "3.1.0",
+            PAGING_VERSION    : "3.1.1",
             OKHTTP_VERSION    : "4.10.0",
             HILT_CORE_VERSION : "2.43.2",
 
@@ -107,6 +107,8 @@ ext {
 
             /*https://developer.android.google.cn/jetpack/androidx/releases/room*/
             /*https://developer.android.google.cn/kotlin/ktx?hl:zh_cn#room*/
+            // ksp
+            /*https://kotlinlang.org/docs/ksp-quickstart.html#use-your-own-processor-in-a-project*/
             room              : "androidx.room:room-runtime:${Ver['ROOM_VERSION']}",
             roomCompiler      : "androidx.room:room-compiler:${Ver['ROOM_VERSION']}",
             roomKtx           : "androidx.room:room-ktx:${Ver['ROOM_VERSION']}",
@@ -122,6 +124,7 @@ ext {
             /*https://github.com/bumptech/glide*/
             glide             : "com.github.bumptech.glide:glide:${Ver['GLIDE_VERSION']}",
             glideCompiler     : "com.github.bumptech.glide:compiler:${Ver['GLIDE_VERSION']}",
+            glideKsp          : "com.github.bumptech.glide:ksp:${Ver['GLIDE_VERSION']}",
             glideIntegration  : "com.github.bumptech.glide:okhttp3-integration:${Ver['GLIDE_VERSION']}",
 
             /*https://github.com/square/okhttp*/
