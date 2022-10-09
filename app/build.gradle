@@ -40,6 +40,8 @@ dependencies {
     implementation deps['workKtx']
 
     implementation deps['paging']
+
+    implementation "androidx.startup:startup-runtime:1.1.1"
 }
 
 pluginAndroid {
