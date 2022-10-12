@@ -1,10 +1,10 @@
 package com.munch.lib.weight
 
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
-import com.munch.lib.android.log.log
 
 /**
  * Create by munch1182 on 2022/10/8 17:11.
@@ -17,7 +17,14 @@ class DrawableTextView @JvmOverloads constructor(
 
     companion object {
         private const val UNSET_WH = -1
+        private val START = Direction(0)
+        private val TOP = Direction(1)
+        private val END = Direction(2)
+        private val BOTTOM = Direction(3)
     }
+
+    @JvmInline
+    private value class Direction(val level: Int)
 
     /**
      * 根据left/top/right/bottom依次存储对于drawable的宽高
@@ -44,15 +51,43 @@ class DrawableTextView @JvmOverloads constructor(
                     }
                 }
             }
+            setWHS(
+                this, START,
+                R.styleable.DrawableTextView_dtv_drawableStartWidth,
+                R.styleable.DrawableTextView_dtv_drawableStartHeight
+            )
+            setWHS(
+                this, TOP,
+                R.styleable.DrawableTextView_dtv_drawableTopWidth,
+                R.styleable.DrawableTextView_dtv_drawableTopHeight
+            )
+            setWHS(
+                this, END,
+                R.styleable.DrawableTextView_dtv_drawableEndWidth,
+                R.styleable.DrawableTextView_dtv_drawableEndHeight
+            )
+            setWHS(
+                this, BOTTOM,
+                R.styleable.DrawableTextView_dtv_drawableBottomWidth,
+                R.styleable.DrawableTextView_dtv_drawableBottomHeight
+            )
         }.recycle()
         // 因此需要再次手动调用一次设置一次宽高
-        val drawables = compoundDrawables // 不包含drawStart和drawEnd, 因此不能使用这两个设置
+        val drawables = compoundDrawablesRelative // 包含drawStart和drawEnd, 不支持drawLeft和drawRight
         setCompoundDrawables(drawables[0], drawables[1], drawables[2], drawables[3])
     }
 
-    /**
-     *  解析drawLeft等相关方法会调用[setCompoundDrawablesWithIntrinsicBounds], 然后调用此方法, 所以在此处覆盖宽高设置
-     */
+    private fun setWHS(type: TypedArray, direction: Direction, widthId: Int, heightId: Int) {
+        val with = type.getDimensionPixelOffset(widthId, UNSET_WH)
+        val height = type.getDimensionPixelOffset(heightId, UNSET_WH)
+        if (with != UNSET_WH) {
+            whs?.set(direction.level * 2, with)
+        }
+        if (height != UNSET_WH) {
+            whs?.set(direction.level * 2 + 1, height)
+        }
+    }
+
     override fun setCompoundDrawables(
         left: Drawable?,
         top: Drawable?,
@@ -60,25 +95,22 @@ class DrawableTextView @JvmOverloads constructor(
         bottom: Drawable?
     ) {
         if (whs != null) {
-            setWHByWHS(left, 0)
-            setWHByWHS(top, 1)
-            setWHByWHS(right, 2)
-            setWHByWHS(bottom, 3)
+            setWHByWHS(left, START)
+            setWHByWHS(top, TOP)
+            setWHByWHS(right, END)
+            setWHByWHS(bottom, BOTTOM)
         }
         super.setCompoundDrawables(left, top, right, bottom)
     }
 
-    private fun setWHByWHS(drawable: Drawable?, index: Int) {
+    private fun setWHByWHS(drawable: Drawable?, direction: Direction) {
         val whs = this.whs ?: return
-        try {
-            drawable?.let {
-                val w = if (whs[index * 2] == UNSET_WH) it.intrinsicWidth else whs[index * 2]
-                val h =
-                    if (whs[index * 2 + 1] == UNSET_WH) it.intrinsicWidth else whs[index * 2 + 1]
-                it.setBounds(0, 0, w, h)
-            }
-        } catch (e: Exception) {
-            log(e)
+        drawable?.let {
+            val index4W = direction.level * 2
+            val index4H = index4W + 1
+            val w = if (whs[index4W] == UNSET_WH) it.intrinsicWidth else whs[index4W]
+            val h = if (whs[index4H] == UNSET_WH) it.intrinsicHeight else whs[index4H]
+            it.setBounds(0, 0, w, h)
         }
     }
 }

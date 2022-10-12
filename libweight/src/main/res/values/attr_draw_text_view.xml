@@ -3,5 +3,13 @@
     <declare-styleable name="DrawableTextView">
         <attr name="dtv_drawableWidth" format="dimension" />
         <attr name="dtv_drawableHeight" format="dimension" />
+        <attr name="dtv_drawableStartWidth" format="dimension" />
+        <attr name="dtv_drawableStartHeight" format="dimension" />
+        <attr name="dtv_drawableTopWidth" format="dimension" />
+        <attr name="dtv_drawableTopHeight" format="dimension" />
+        <attr name="dtv_drawableEndWidth" format="dimension" />
+        <attr name="dtv_drawableEndHeight" format="dimension" />
+        <attr name="dtv_drawableBottomWidth" format="dimension" />
+        <attr name="dtv_drawableBottomHeight" format="dimension" />
     </declare-styleable>
 </resources>

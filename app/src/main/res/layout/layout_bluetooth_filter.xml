@@ -5,22 +5,64 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    tools:context="com.munch.project.one.bluetooth.BluetoothFilterView"
     tools:parentTag="android.widget.LinearLayout">
 
     <com.munch.lib.weight.DrawableTextView
+        android:id="@+id/btFilterDesc"
         style="@style/App.Fast.Text.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorWhite"
-        android:drawableRight="@drawable/selector_arrow_by_selected"
+        android:drawableEnd="@drawable/selector_arrow_by_selected"
+        android:drawablePadding="@dimen/dimenDef"
         android:ellipsize="end"
         android:maxLines="1"
         android:padding="@dimen/dimenDef"
-        android:paddingEnd="@dimen/dimenDefSmall"
         android:text="No filter"
         app:dtv_drawableHeight="24dp"
         app:dtv_drawableWidth="24dp"
-        tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry"
+        tools:ignore="HardcodedText"
         tools:text="123123, 12313, 123123, 123123, 123213, 123123, 123123, 12313" />
 
+    <LinearLayout
+        android:id="@+id/btFilterFilters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/btFilterNameContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxBackgroundColor="@color/colorWhite"
+            app:endIconDrawable="@drawable/ic_del"
+            app:endIconMode="clear_text">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/btFilterName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="通过设备名称来过滤"
+                tools:ignore="HardcodedText" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/btFilterMacContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxBackgroundColor="@color/colorWhite"
+            app:endIconDrawable="@drawable/ic_del"
+            app:endIconMode="clear_text">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/btFilterMac"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="通过设备地址来过滤"
+                tools:ignore="HardcodedText" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
 </merge>
