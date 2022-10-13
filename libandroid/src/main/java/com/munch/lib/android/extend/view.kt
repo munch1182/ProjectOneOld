@@ -6,6 +6,8 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.text.InputFilter
+import android.text.Spanned
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +19,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.munch.lib.android.define.ViewProvider
+import java.util.regex.Pattern
+
 
 /**
  * 获取一个新的(WRAP_CONTENT,WRAP_CONTENT)的LayoutParams
@@ -228,6 +232,16 @@ class LinearLineItemDecoration(
     }
 }
 
+inline fun <reified VB : ViewBinding> ViewGroup.bind(merge: Boolean = true): Lazy<VB> {
+    return lazy {
+        if (merge) {
+            catch { VB::class.java.inflateByMerge(LayoutInflater.from(context), this)!!.to() }!!
+        } else {
+            catch { VB::class.java.inflate(LayoutInflater.from(context), this)!!.to() }!!
+        }
+    }
+}
+
 /**
  * 通过泛型[VB]和反射来获取[View]对象和[VB]对象
  *
@@ -307,3 +321,22 @@ fun TextView.color(@ColorInt color: Int, start: Int = 0, end: Int = this.text?.l
 }
 
 fun View.removeFromParent(): View = apply { parent?.toOrNull<ViewGroup>()?.removeView(this) }
+
+class CharAndNumberInputCharFilter : InputCharFilter("^[a-zA-Z0-9]")
+
+open class InputCharFilter(private val regex: String) : InputFilter {
+
+    override fun filter(
+        source: CharSequence?,
+        start: Int,
+        end: Int,
+        dest: Spanned?,
+        dstart: Int,
+        dend: Int
+    ): CharSequence? {
+        source ?: return null
+        val matcher = Pattern.compile(regex).matcher(source)
+        if (!matcher.matches()) return ""
+        return null
+    }
+}

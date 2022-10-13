@@ -17,6 +17,7 @@
         android:drawableEnd="@drawable/selector_arrow_by_selected"
         android:drawablePadding="@dimen/dimenDef"
         android:ellipsize="end"
+        android:foreground="?android:attr/selectableItemBackground"
         android:maxLines="1"
         android:padding="@dimen/dimenDef"
         android:text="No filter"
@@ -32,6 +33,11 @@
         android:orientation="vertical"
         android:visibility="gone"
         tools:visibility="visible">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#c0c0c0" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/btFilterNameContainer"
@@ -62,7 +68,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="通过设备地址来过滤"
+                android:inputType="textNoSuggestions"
+                android:maxEms="17"
+                android:maxLength="17"
+                android:maxLines="1"
+                android:singleLine="true"
                 tools:ignore="HardcodedText" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.appcompat.widget.AppCompatSeekBar
+            android:id="@+id/btFilterSeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite"
+            android:padding="@dimen/dimenDef" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#c0c0c0" />
     </LinearLayout>
 </merge>

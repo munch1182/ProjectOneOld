@@ -7,9 +7,14 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.os.IBinder
+import android.view.View
+import android.view.Window
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat.Type
 import androidx.fragment.app.Fragment
 import com.munch.lib.android.AppHelper
@@ -129,3 +134,25 @@ fun Context.getSelectableItemBackgroundBorderless(): Drawable? {
 inline fun toast(any: Any?) {
     any?.let { impInMain { Toast.makeText(AppHelper, it.toString(), Toast.LENGTH_SHORT).show() } }
 }
+
+//<editor-fold desc="ime">
+inline fun View.hideIme() {
+    val im = AppHelper.getSystemService(Context.INPUT_METHOD_SERVICE).to<InputMethodManager>()
+    im.hideSoftInputFromWindow(windowToken, 0)
+}
+
+inline fun Activity.hideIme() =
+    WindowCompat.getInsetsController(window, window.decorView).hide(Type.ime())
+
+inline fun Fragment.hideIme() = requireActivity().hideIme()
+
+inline fun View.showIme() {
+    val im = AppHelper.getSystemService(Context.INPUT_METHOD_SERVICE).to<InputMethodManager>()
+    im.showSoftInput(this, 0)
+}
+
+inline fun Activity.showIme() =
+    WindowCompat.getInsetsController(window, window.decorView).show(Type.ime())
+
+inline fun Fragment.showIme() = requireActivity().showIme()
+//</editor-fold>

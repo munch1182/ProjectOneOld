@@ -65,6 +65,17 @@ fun <VB : ViewBinding> Class<VB>.inflate(
     }
 }
 
+fun <VB : ViewBinding> Class<VB>.inflateByMerge(
+    inflater: LayoutInflater,
+    group: ViewGroup? = null
+): VB? {
+    return catch {
+        getDeclaredMethod(
+            "inflate", LayoutInflater::class.java, ViewGroup::class.java
+        ).invoke(null, inflater, group)?.to()
+    }
+}
+
 fun <D : Any> differ(
     content: D.() -> Int,
     same: D.() -> Int = { hashCode() }
