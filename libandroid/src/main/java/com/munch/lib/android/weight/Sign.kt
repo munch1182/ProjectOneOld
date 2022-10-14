@@ -17,5 +17,10 @@ class Sign @JvmOverloads constructor(
 
     init {
         visibility = GONE
+        setWillNotDraw(true)
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        setMeasuredDimension(0, 0)
     }
 }

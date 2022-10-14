@@ -40,6 +40,7 @@
             android:name=".simple.StatusBarActivity"
             android:theme="@style/Theme.ProjectOne.NoTitle" />
         <activity android:name=".bluetooth.BluetoothActivity" />
+        <activity android:name=".file.FileActivity" />
     </application>
 
 </manifest>

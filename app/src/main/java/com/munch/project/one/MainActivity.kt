@@ -12,6 +12,7 @@ import com.munch.plugin.annotation.Measure
 import com.munch.project.one.base.BaseActivity
 import com.munch.project.one.bluetooth.BluetoothActivity
 import com.munch.project.one.dialog.DialogActivity
+import com.munch.project.one.file.FileActivity
 import com.munch.project.one.recyclerview.RecyclerViewActivity
 import com.munch.project.one.simple.PhoneInfoActivity
 import com.munch.project.one.simple.StatusBarActivity
@@ -24,6 +25,7 @@ class MainActivity : BaseActivity(), ActivityDispatch by SupportActionBar(false)
         BluetoothActivity::class,
         DialogActivity::class,
         StatusBarActivity::class,
+        FileActivity::class,
         PhoneInfoActivity::class,
         RecyclerViewActivity::class,
     )

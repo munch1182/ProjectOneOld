@@ -44,6 +44,7 @@ fun newRandomWord(): String {
 }
 
 fun newRandomString(len: Int = 5, sb: StringBuilder = StringBuilder()): String {
+    sb.clear()
     repeat(len) { sb.append(newRandomWord()) }
     return sb.toString()
 }

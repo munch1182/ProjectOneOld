@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/dimenDef"
+    tools:context=".file.FileActivity">
+
+    <Button
+        android:id="@+id/fileGenerate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="generate"
+        tools:ignore="HardcodedText" />
+
+    <com.munch.lib.android.weight.Sign
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/fileWrite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="write"
+        tools:ignore="HardcodedText" />
+
+    <com.munch.lib.android.weight.Sign
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/fileRead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="read"
+        tools:ignore="HardcodedText" />
+
+    <com.munch.lib.android.weight.Sign
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/fileDesc"
+        style="@style/App.Fast.Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/dimenDef"
+        android:textSize="12sp"
+        tools:text="12313" />
+
+    <TextView
+        android:id="@+id/fileContent"
+        style="@style/App.Fast.Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="5"
+        android:paddingTop="@dimen/dimenDef"
+        android:paddingBottom="@dimen/dimenDef"
+        tools:text="123123android:layout_width=wrap_contentandroid:layout_height=wrap_contentandroid:ellipsize=middle123123android:layout_width=wrap_contentandroid:layout_height=wrap_contentandroid:ellipsize=middle123123android:layout_width=wrap_contentandroid:layout_height=wrap_contentandroid:ellipsize=middle123123android:layout_width=wrap_contentandroid:layout_height=wrap_contentandroid:ellipsize=middle123123android:layout_width=wrap_contentandroid:layout_height=wrap_contentandroid:ellipsize=middle" />
+
+    <TextView
+        android:id="@+id/fileContentFromFile"
+        style="@style/App.Fast.Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="5"
+        android:paddingTop="@dimen/dimenDef"
+        android:paddingBottom="@dimen/dimenDef"
+        tools:text="123123android:layout_width=wrap_contentandroid:layout_height=wrap_contentandroid:ellipsize=middle123123android:layout_width=wrap_contentandroid:layout_height=wrap_contentandroid:ellipsize=middle123123android:layout_width=wrap_contentandroid:layout_height=wrap_contentandroid:ellipsize=middle123123android:layout_width=wrap_contentandroid:layout_height=wrap_contentandroid:ellipsize=middle123123android:layout_width=wrap_contentandroid:layout_height=wrap_contentandroid:ellipsize=middle" />
+
+</LinearLayout>
