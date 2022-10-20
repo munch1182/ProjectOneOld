@@ -13,6 +13,7 @@ import com.munch.project.one.base.BaseActivity
 import com.munch.project.one.bluetooth.BluetoothActivity
 import com.munch.project.one.dialog.DialogActivity
 import com.munch.project.one.file.FileActivity
+import com.munch.project.one.notify.NotifyActivity
 import com.munch.project.one.recyclerview.RecyclerViewActivity
 import com.munch.project.one.simple.PhoneInfoActivity
 import com.munch.project.one.simple.StatusBarActivity
@@ -23,6 +24,7 @@ class MainActivity : BaseActivity(), ActivityDispatch by SupportActionBar(false)
     private val bind by fvRvTv(
         TestActivity::class,
         BluetoothActivity::class,
+        NotifyActivity::class,
         DialogActivity::class,
         StatusBarActivity::class,
         FileActivity::class,

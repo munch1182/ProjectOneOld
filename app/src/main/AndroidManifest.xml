@@ -41,6 +41,8 @@
             android:theme="@style/Theme.ProjectOne.NoTitle" />
         <activity android:name=".bluetooth.BluetoothActivity" />
         <activity android:name=".file.FileActivity" />
+        <activity android:name=".notify.NotifyActivity" />
+        <service android:name=".notify.NotifyActivity$NotifyTestService" />
     </application>
 
 </manifest>
