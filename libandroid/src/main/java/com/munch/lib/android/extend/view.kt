@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.text.InputFilter
+import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -322,9 +323,7 @@ fun TextView.color(@ColorInt color: Int, start: Int = 0, end: Int = this.text?.l
 
 fun View.removeFromParent(): View = apply { parent?.toOrNull<ViewGroup>()?.removeView(this) }
 
-class CharAndNumberInputCharFilter : InputCharFilter("^[a-zA-Z0-9]")
-
-open class InputCharFilter(private val regex: String) : InputFilter {
+open class InputPatternFilter(private val regex: String) : InputFilter {
 
     override fun filter(
         source: CharSequence?,
@@ -334,9 +333,21 @@ open class InputCharFilter(private val regex: String) : InputFilter {
         dstart: Int,
         dend: Int
     ): CharSequence? {
-        source ?: return null
-        val matcher = Pattern.compile(regex).matcher(source)
-        if (!matcher.matches()) return ""
-        return null
+        var modification: SpannableStringBuilder? = null
+        var modoff = 0
+        for (i in start until end) {
+            val c = source?.get(i) ?: continue
+            if (Pattern.matches(regex, c.toString())) {
+                modoff++
+            } else {
+                if (modification == null) {
+                    modification = SpannableStringBuilder(source, start, end)
+                    modoff = i - start
+                }
+                modification.delete(modoff, modoff + 1)
+            }
+        }
+        return modification
     }
+
 }

@@ -81,7 +81,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorWhite"
-            android:padding="@dimen/dimenDef" />
+            android:padding="@dimen/dimenDef"
+            android:progress="100" />
 
         <View
             android:layout_width="match_parent"

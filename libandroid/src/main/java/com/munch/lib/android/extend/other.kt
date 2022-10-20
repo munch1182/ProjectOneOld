@@ -2,7 +2,9 @@
 
 package com.munch.lib.android.extend
 
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.media.Image
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
@@ -103,3 +105,22 @@ fun <D : Any> differSame(
             return content.invoke(oldItem, newItem)
         }
     }
+
+/**
+ * 将[Image]对象转为[Bitmap]
+ *
+ * 该方法未调用[Image.close]
+ *
+ * 该方法只适用于[Image.getFormat]为JPEG格式
+ */
+fun Image.toBitmap(): Bitmap {
+    val first = planes.first()
+    val pixelStride = first.pixelStride
+    val rowStride = first.rowStride
+    val rowPadding = rowStride - pixelStride * width
+    val newWidth = width + rowPadding / pixelStride // 内存对齐
+
+    val bitmap = Bitmap.createBitmap(newWidth, height, Bitmap.Config.ARGB_8888)
+    bitmap.copyPixelsFromBuffer(first.buffer)
+    return bitmap
+}

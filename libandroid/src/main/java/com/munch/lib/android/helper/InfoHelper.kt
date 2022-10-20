@@ -88,6 +88,8 @@ object InfoHelper {
         get() = AppHelper.resources.displayMetrics.density
     val scaledDensity: Float
         get() = AppHelper.resources.displayMetrics.scaledDensity
+    val dpi: Int
+        get() = AppHelper.resources.displayMetrics.densityDpi
 
     private var loc: Locale =
         ConfigurationCompat.getLocales(AppHelper.resources.configuration).get(0)
