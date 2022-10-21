@@ -317,6 +317,8 @@ class JudgeIntentResult(
         return this
     }
 
+    fun intent(action: String) = intent(Intent(action))
+
     fun startForResult(listener: JudgeIntentResultListener) {
         val firstJudge = judge.invoke(AppHelper)
         if (firstJudge) {
