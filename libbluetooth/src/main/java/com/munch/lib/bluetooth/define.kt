@@ -3,6 +3,7 @@ package com.munch.lib.bluetooth
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
+import android.util.SparseArray
 import com.munch.lib.android.extend.SealedClassToStringByName
 import com.munch.lib.android.log.Logger
 import kotlinx.coroutines.CoroutineScope
@@ -84,7 +85,7 @@ interface IBluetoothState {
  *
  * 注意: 蓝牙扫描活动是唯一的, 不允许同时进行多个扫描
  */
-interface IBluetoothScanner : IBluetoothManager {
+interface IBluetoothScanner {
 
     /**
      * 当前是否正在扫描
@@ -99,7 +100,7 @@ interface IBluetoothScanner : IBluetoothManager {
     /**
      * 开始扫描设备, 会更改[isScanning]的状态
      */
-    fun startScan()
+    fun startScan(timeout: Long = 30 * 1000L)
 
     /**
      * 停止扫描, 会更改[isScanning]的状态
@@ -210,6 +211,53 @@ fun interface OnBluetoothDevFilter {
      * true则不被过滤, false则被过滤掉
      */
     fun isDevNeedFiltered(dev: IBluetoothDev): Boolean
+}
+
+/**
+ * 将多个[OnBluetoothDevFilter]组合成一个
+ */
+class BluetoothDevFilterContainer(vararg filters: OnBluetoothDevFilter) : OnBluetoothDevFilter {
+
+    private val list = mutableListOf(*filters)
+
+    fun add(filter: OnBluetoothDevFilter): BluetoothDevFilterContainer {
+        list.add(filter)
+        return this
+    }
+
+    override fun isDevNeedFiltered(dev: IBluetoothDev): Boolean {
+        list.forEach {
+            if (it.isDevNeedFiltered(dev)) return true
+        }
+        return false
+    }
+
+}
+
+/**
+ * 过滤掉没有名字的设备
+ */
+class BluetoothDevNoNameFilter : OnBluetoothDevFilter {
+    override fun isDevNeedFiltered(dev: IBluetoothDev): Boolean {
+        if (dev is BluetoothDev && dev.name.isNullOrBlank()) {
+            return true
+        }
+        return false
+    }
+}
+
+/**
+ * 扫描到的设备只返回第一次, 后续再扫描到不再返回
+ */
+class BluetoothDevFirstFilter : OnBluetoothDevFilter {
+    private val map = SparseArray<String>()
+    override fun isDevNeedFiltered(dev: IBluetoothDev): Boolean {
+        if (map.contains(dev.mac.hashCode())) {
+            return true
+        }
+        map.put(dev.mac.hashCode(), dev.mac)
+        return false
+    }
 }
 
 /**

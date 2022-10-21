@@ -3,6 +3,7 @@ package com.munch.lib.bluetooth
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import com.munch.lib.android.extend.to
 import com.munch.lib.android.helper.ARSHelper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -130,7 +131,7 @@ object BluetoothLeScanner : BaseBluetoothScanner(), CoroutineScope by BluetoothH
         return this
     }
 
-    override fun startScan() {
+    override fun startScan(timeout: Long) {
         if (isScanning) {
             log.log("call start scan but scanning.")
             return
@@ -142,16 +143,21 @@ object BluetoothLeScanner : BaseBluetoothScanner(), CoroutineScope by BluetoothH
         val newChannel = Channel<IBluetoothDev>()
         channel = newChannel
 
+        log.log("start LE scan.")
         adapter?.bluetoothLeScanner?.startScan(null, set, callback)
 
         launch(Dispatchers.Default) {
-            for (dev in newChannel) {
-                if (filter?.isDevNeedFiltered(dev) == true) {
-                    continue
+            withTimeout(timeout) {
+                for (dev in newChannel) {
+                    if (filter?.isDevNeedFiltered(dev) == true) {
+                        continue
+                    }
+                    if (delayTime > 0) delay(delayTime)
+                    log.log("receive dev: $dev.")
+                    update { it?.onDevScanned(dev) }
                 }
-                if (delayTime > 0) delay(delayTime)
-                update { it?.onDevScanned(dev) }
             }
+            stopScan()
         }
     }
 
@@ -169,9 +175,102 @@ object BluetoothLeScanner : BaseBluetoothScanner(), CoroutineScope by BluetoothH
  * 经典蓝牙扫描
  */
 object BluetoothClassicScanner : BaseBluetoothScanner() {
-    override fun startScan() {
+    override fun startScan(timeout: Long) {
     }
 
     override fun stopScan() {
     }
+}
+
+/**
+ * 给[BluetoothHelper]暴露的Scanner相关方法
+ */
+interface IBluetoothHelperScanner : IBluetoothScanner {
+
+    fun config(config: Builder.() -> Unit): IBluetoothHelperScanner
+
+    class Builder {
+        internal var type: BluetoothType = BluetoothType.LE
+        internal var filter: OnBluetoothDevFilter? = null
+        internal var delayTime = 0L
+
+        fun type(type: BluetoothType): Builder {
+            this.type = type
+            return this
+        }
+
+        fun filter(vararg filter: OnBluetoothDevFilter): Builder {
+            this.filter = if (filter.size == 1) {
+                filter.first()
+            } else if (filter.size > 1) {
+                BluetoothDevFilterContainer(*filter)
+            } else {
+                null
+            }
+            return this
+        }
+
+        fun setDelayTime(time: Long): Builder {
+            this.delayTime = time
+            return this
+        }
+
+        fun build(): Builder {
+            return this
+        }
+    }
+}
+
+/**
+ * 用于切换和管理两种类型的Scanner
+ */
+object BluetoothHelperScanner : IBluetoothHelperScanner {
+
+    private val config = IBluetoothHelperScanner.Builder()
+        .type(BluetoothType.LE)
+        .filter(BluetoothDevNoNameFilter(), BluetoothDevFirstFilter())
+    private var scanner: IBluetoothScanner = getScanner()
+
+    private fun getScanner(): IBluetoothScanner {
+        return when (config.type) {
+            BluetoothType.CLASSIC -> BluetoothClassicScanner
+            BluetoothType.LE -> BluetoothLeScanner
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+    override fun config(config: IBluetoothHelperScanner.Builder.() -> Unit): IBluetoothHelperScanner {
+        config.invoke(this.config)
+        scanner = getScanner()
+        this.config.filter?.let { setScanFilter(it) }
+        if (scanner is BaseBluetoothScanner) {
+            scanner.to<BaseBluetoothScanner>().setDelayTime(this.config.delayTime)
+        }
+        return this
+    }
+
+    override val isScanning: Boolean
+        get() = scanner.isScanning
+
+    override fun setScanFilter(filter: OnBluetoothDevFilter?): IBluetoothScanner {
+        scanner.setScanFilter(filter)
+        return this
+    }
+
+    override fun startScan(timeout: Long) {
+        scanner.startScan(timeout)
+    }
+
+    override fun stopScan() {
+        scanner.stopScan()
+    }
+
+    override fun addScanListener(l: OnBluetoothDevScannedListener?) {
+        scanner.addScanListener(l)
+    }
+
+    override fun removeScanListener(l: OnBluetoothDevScannedListener?) {
+        scanner.removeScanListener(l)
+    }
+
 }

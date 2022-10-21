@@ -6,21 +6,23 @@ import android.content.Intent
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.munch.lib.android.extend.bind
-import com.munch.lib.android.extend.ctx
-import com.munch.lib.android.extend.to
-import com.munch.lib.android.extend.toast
+import com.munch.lib.android.extend.*
 import com.munch.lib.android.recyclerview.BaseBindViewHolder
 import com.munch.lib.android.recyclerview.SimpleBaseBindAdapter
 import com.munch.lib.android.result.then
 import com.munch.lib.bluetooth.BluetoothDev
 import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.set
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
 import com.munch.project.one.base.BaseActivity
 import com.munch.project.one.base.dispatchDef
 import com.munch.project.one.databinding.ActivityBluetoothBinding
 import com.munch.project.one.databinding.ItemBluetoothBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Create by munch1182 on 2022/9/30 10:09.
@@ -42,19 +44,19 @@ class BluetoothActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
                     bean: BluetoothDev
                 ) {
                     holder.bind.apply {
-                        bluetoothTitle.text = "N/A"
+                        bluetoothTitle.text = bean.name
                         bluetoothMac.text = bean.mac
                     }
                 }
             }
         bind.bluetoothRv.adapter = bluetoothAdapter
 
-        /*BluetoothLeScanner.set(this) { impInMain { bluetoothAdapter.add(it.to<BluetoothDev>()) } }
-        withPermission { BluetoothLeScanner.startScan() }*/
+        BluetoothHelper.set(this) { impInMain { bluetoothAdapter.add(it.to<BluetoothDev>()) } }
 
-        bluetoothAdapter.set(MutableList(30) {
-            BluetoothDev("$it$it:$it$it:$it$it:$it$it:$it$it:$it$it")
-        })
+        lifecycleScope.launch(Dispatchers.Default) {
+            delay(1000L)
+            withPermission { BluetoothHelper.startScan() }
+        }
     }
 
     private fun withPermission(function: () -> Unit) {

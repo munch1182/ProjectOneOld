@@ -12,7 +12,8 @@ import kotlin.coroutines.CoroutineContext
  */
 object BluetoothHelper : ScopeContext,
     IBluetoothManager by BluetoothEnv,
-    IBluetoothState by BluetoothEnv {
+    IBluetoothState by BluetoothEnv,
+    IBluetoothHelperScanner by BluetoothHelperScanner {
 
     internal val log = Logger("bluetooth")
 
