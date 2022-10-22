@@ -3,7 +3,7 @@ package com.munch.lib.bluetooth
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
-import com.munch.lib.android.extend.to
+import com.munch.lib.android.extend.catch
 import com.munch.lib.android.helper.ARSHelper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -14,9 +14,9 @@ import kotlinx.coroutines.sync.withLock
  * Create by munch1182 on 2022/9/29 16:20.
  */
 abstract class BaseBluetoothScanner : ARSHelper<OnBluetoothDevScannedListener?>(),
-    IBluetoothScanner, IBluetoothManager by BluetoothEnv {
-
-    protected open val log = BluetoothHelper.log
+    IBluetoothScanner,
+    IBluetoothManager by BluetoothEnv,
+    IBluetoothHelperEnv by BluetoothHelperEnv {
 
     private val lock4Scanning = Mutex()
 
@@ -27,16 +27,18 @@ abstract class BaseBluetoothScanner : ARSHelper<OnBluetoothDevScannedListener?>(
         get() = runBlocking { lock4Scanning.withLock { field } }
         set(value) = runBlocking {
             lock4Scanning.withLock {
+                if (field == value) return@withLock
                 val last = field
                 field = value
-                log.log("Scan state change: $last -> $field")
-                update {
-                    if (it is OnBluetoothDevScanListener) {
-                        if (value) {
-                            it.onScanStart()
-                        } else {
-                            it.onScanStop()
-                        }
+                log.log("Scan state: $last -> $field.")
+            }
+            // 不能在锁内, 因为可以会被外部调用scanning而导致死锁
+            update {
+                if (it is OnBluetoothDevScanListener) {
+                    if (value) {
+                        it.onScanStart()
+                    } else {
+                        it.onScanStop()
                     }
                 }
             }
@@ -52,7 +54,7 @@ abstract class BaseBluetoothScanner : ARSHelper<OnBluetoothDevScannedListener?>(
     /**
      * 一个设备后调后, 延时[delayTime]后再发送下一个设备, 如果为0则不延时
      */
-    protected open var delayTime = 300L
+    protected open var delayTime = 500L
 
     /**
      * 扫描设备时的过滤器
@@ -67,7 +69,7 @@ abstract class BaseBluetoothScanner : ARSHelper<OnBluetoothDevScannedListener?>(
         return this
     }
 
-    override fun setScanFilter(filter: OnBluetoothDevFilter?): IBluetoothScanner {
+    fun setScanFilter(filter: OnBluetoothDevFilter?): IBluetoothScanner {
         this.filter = filter
         return this
     }
@@ -84,15 +86,15 @@ abstract class BaseBluetoothScanner : ARSHelper<OnBluetoothDevScannedListener?>(
 /**
  *  LE蓝牙扫描
  */
-object BluetoothLeScanner : BaseBluetoothScanner(), CoroutineScope by BluetoothHelper {
+object BluetoothLeScanner : BaseBluetoothScanner() {
 
-    private var channel: Channel<IBluetoothDev>? = null // 使用channel平缓发送发现设备
+    private var channel: Channel<BluetoothDev>? = null // 使用channel平缓发送发现设备
 
     private val callback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
             result ?: return
-            launch { channel?.send(BluetoothScanDev(result)) }
+            launch { catch { channel?.send(BluetoothScanDev(result)) } }
         }
 
         override fun onScanFailed(errorCode: Int) {
@@ -103,7 +105,7 @@ object BluetoothLeScanner : BaseBluetoothScanner(), CoroutineScope by BluetoothH
 
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
             super.onBatchScanResults(results)
-            launch { results?.forEach { channel?.send(BluetoothScanDev(it)) } }
+            launch { catch { results?.forEach { channel?.send(BluetoothScanDev(it)) } } }
         }
 
         private fun Int.fmt(): String {
@@ -140,23 +142,24 @@ object BluetoothLeScanner : BaseBluetoothScanner(), CoroutineScope by BluetoothH
         // 更改状态
         scanning = true
 
-        val newChannel = Channel<IBluetoothDev>()
+        val newChannel = Channel<BluetoothDev>()
         channel = newChannel
 
-        log.log("start LE scan.")
+        log.log("start LE scan with timeout: $timeout ms.")
         adapter?.bluetoothLeScanner?.startScan(null, set, callback)
 
         launch(Dispatchers.Default) {
-            withTimeout(timeout) {
+            withTimeoutOrNull(timeout) {
                 for (dev in newChannel) {
                     if (filter?.isDevNeedFiltered(dev) == true) {
                         continue
                     }
                     if (delayTime > 0) delay(delayTime)
-                    log.log("receive dev: $dev.")
+                    // log.log("scanned: $dev.")
                     update { it?.onDevScanned(dev) }
                 }
             }
+            log.log("timeout to call stop LE scan.")
             stopScan()
         }
     }
@@ -167,7 +170,11 @@ object BluetoothLeScanner : BaseBluetoothScanner(), CoroutineScope by BluetoothH
         }
         channel?.close()
         channel = null
+
+        log.log("stop LE scan.")
         adapter?.bluetoothLeScanner?.stopScan(callback)
+
+        scanning = false
     }
 }
 
@@ -183,11 +190,16 @@ object BluetoothClassicScanner : BaseBluetoothScanner() {
 }
 
 /**
- * 给[BluetoothHelper]暴露的Scanner相关方法
+ * 给[BluetoothHelper]提供的Scanner相关方法
  */
 interface IBluetoothHelperScanner : IBluetoothScanner {
 
-    fun config(config: Builder.() -> Unit): IBluetoothHelperScanner
+    fun configScan(config: Builder.() -> Unit): IBluetoothHelperScanner
+
+    fun stopThenStartScan(timeout: Long = 30 * 1000L) {
+        stopScan()
+        startScan(timeout)
+    }
 
     class Builder {
         internal var type: BluetoothType = BluetoothType.LE
@@ -210,12 +222,13 @@ interface IBluetoothHelperScanner : IBluetoothScanner {
             return this
         }
 
-        fun setDelayTime(time: Long): Builder {
-            this.delayTime = time
+        fun noFilter(): Builder {
+            filter()
             return this
         }
 
-        fun build(): Builder {
+        fun setDelayTime(time: Long): Builder {
+            this.delayTime = time
             return this
         }
     }
@@ -229,9 +242,13 @@ object BluetoothHelperScanner : IBluetoothHelperScanner {
     private val config = IBluetoothHelperScanner.Builder()
         .type(BluetoothType.LE)
         .filter(BluetoothDevNoNameFilter(), BluetoothDevFirstFilter())
-    private var scanner: IBluetoothScanner = getScanner()
 
-    private fun getScanner(): IBluetoothScanner {
+    private var impScanner: IBluetoothScanner? = null
+
+    private val scanner: IBluetoothScanner
+        get() = impScanner ?: updateImpScanner()
+
+    private fun getImpScanner(): IBluetoothScanner {
         return when (config.type) {
             BluetoothType.CLASSIC -> BluetoothClassicScanner
             BluetoothType.LE -> BluetoothLeScanner
@@ -239,23 +256,24 @@ object BluetoothHelperScanner : IBluetoothHelperScanner {
         }
     }
 
-    override fun config(config: IBluetoothHelperScanner.Builder.() -> Unit): IBluetoothHelperScanner {
+    override fun configScan(config: IBluetoothHelperScanner.Builder.() -> Unit): IBluetoothHelperScanner {
         config.invoke(this.config)
-        scanner = getScanner()
-        this.config.filter?.let { setScanFilter(it) }
-        if (scanner is BaseBluetoothScanner) {
-            scanner.to<BaseBluetoothScanner>().setDelayTime(this.config.delayTime)
-        }
+        updateImpScanner()
         return this
+    }
+
+    private fun updateImpScanner(): IBluetoothScanner {
+        impScanner = getImpScanner()
+        val scanner = impScanner
+        if (scanner is BaseBluetoothScanner) {
+            this.config.filter?.let { scanner.setScanFilter(it) }
+            scanner.setDelayTime(this.config.delayTime)
+        }
+        return impScanner!!
     }
 
     override val isScanning: Boolean
         get() = scanner.isScanning
-
-    override fun setScanFilter(filter: OnBluetoothDevFilter?): IBluetoothScanner {
-        scanner.setScanFilter(filter)
-        return this
-    }
 
     override fun startScan(timeout: Long) {
         scanner.startScan(timeout)

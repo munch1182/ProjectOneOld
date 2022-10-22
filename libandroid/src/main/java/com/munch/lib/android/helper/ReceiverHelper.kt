@@ -16,13 +16,13 @@ abstract class ReceiverHelper<T>(private val actions: Array<String>) : ARSHelper
     protected val content: Context = AppHelper
     protected open var receiver: BroadcastReceiver? = null
 
-    fun register() {
+    open fun register() {
         if (receiver != null) throw IllegalStateException("")
         receiver = Receiver()
         content.registerReceiver(receiver!!, createIntentFilter())
     }
 
-    fun unregister() {
+    open fun unregister() {
         receiver ?: return
         content.unregisterReceiver(receiver)
         clear()

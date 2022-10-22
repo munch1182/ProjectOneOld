@@ -6,7 +6,10 @@ import android.bluetooth.BluetoothManager
 import android.util.SparseArray
 import com.munch.lib.android.extend.SealedClassToStringByName
 import com.munch.lib.android.log.Logger
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -17,6 +20,8 @@ import kotlin.coroutines.CoroutineContext
  */
 interface IBluetoothDev {
     val mac: String
+
+    fun canConnect(): Boolean
 }
 
 /**
@@ -95,8 +100,6 @@ interface IBluetoothScanner {
      */
     val isScanning: Boolean
 
-    fun setScanFilter(filter: OnBluetoothDevFilter?): IBluetoothScanner
-
     /**
      * 开始扫描设备, 会更改[isScanning]的状态
      */
@@ -147,19 +150,40 @@ interface IBluetoothConnector {
     fun removeConnectListener(l: OnBluetoothDevConnectResultListener?)
 }
 
-//<editor-fold desc="imp">
 /**
- * 提供蓝牙相关的通用方法
+ * 提供蓝牙相关的通用方法和环境
  */
-internal interface IBluetoothFun : CoroutineScope {
+interface IBluetoothHelperEnv : CoroutineScope {
 
+    /**
+     * 提供一个[BluetoothHelper]及其相关类的统一输出对象
+     *
+     * 这个可以交由外部使用, 以保存统一的日志位置
+     */
     val log: Logger
-        get() = BluetoothHelper.log
 
+    /**
+     * 提供一个[BluetoothHelper]及其相关类的统一上下文
+     */
     override val coroutineContext: CoroutineContext
-        get() = BluetoothHelper
+}
+
+/**
+ * 提供一个唯一的对象供所有需要的相关类使用
+ * 因为大多相关类先于[BluetoothHelper]初始化, 所以不能直接使用[BluetoothHelper]对象作为[IBluetoothHelperEnv]
+ */
+object BluetoothHelperEnv : IBluetoothHelperEnv {
+
+    override val log: Logger = Logger.only("bluetooth")
+
+    private val appJob = SupervisorJob()
+    private val appJobName = CoroutineName("bluetooth")
+
+    override val coroutineContext: CoroutineContext = appJob + appJobName + Dispatchers.Default
 
 }
+
+//<editor-fold desc="imp">
 
 /**
  * 系统蓝牙的状态变更通知
@@ -178,17 +202,17 @@ sealed class BluetoothStateNotify : SealedClassToStringByName() {
     /**
      * 蓝牙绑定成功的通知
      */
-    object Bonded : BluetoothStateNotify()
+    class Bonded(val mac: String?) : BluetoothStateNotify()
 
     /**
      * 蓝牙绑定中的通知
      */
-    object Bonding : BluetoothStateNotify()
+    class Bonding(val mac: String?) : BluetoothStateNotify()
 
     /**
      * 蓝牙绑定失败的通知
      */
-    object BondFail : BluetoothStateNotify()
+    class BondFail(val mac: String?) : BluetoothStateNotify()
 }
 
 /**
@@ -210,7 +234,7 @@ fun interface OnBluetoothDevFilter {
      *
      * true则不被过滤, false则被过滤掉
      */
-    fun isDevNeedFiltered(dev: IBluetoothDev): Boolean
+    fun isDevNeedFiltered(dev: BluetoothDev): Boolean
 }
 
 /**
@@ -225,10 +249,8 @@ class BluetoothDevFilterContainer(vararg filters: OnBluetoothDevFilter) : OnBlue
         return this
     }
 
-    override fun isDevNeedFiltered(dev: IBluetoothDev): Boolean {
-        list.forEach {
-            if (it.isDevNeedFiltered(dev)) return true
-        }
+    override fun isDevNeedFiltered(dev: BluetoothDev): Boolean {
+        list.forEach { if (it.isDevNeedFiltered(dev)) return true }
         return false
     }
 
@@ -238,8 +260,8 @@ class BluetoothDevFilterContainer(vararg filters: OnBluetoothDevFilter) : OnBlue
  * 过滤掉没有名字的设备
  */
 class BluetoothDevNoNameFilter : OnBluetoothDevFilter {
-    override fun isDevNeedFiltered(dev: IBluetoothDev): Boolean {
-        if (dev is BluetoothDev && dev.name.isNullOrBlank()) {
+    override fun isDevNeedFiltered(dev: BluetoothDev): Boolean {
+        if (dev.name.isNullOrBlank()) {
             return true
         }
         return false
@@ -251,8 +273,8 @@ class BluetoothDevNoNameFilter : OnBluetoothDevFilter {
  */
 class BluetoothDevFirstFilter : OnBluetoothDevFilter {
     private val map = SparseArray<String>()
-    override fun isDevNeedFiltered(dev: IBluetoothDev): Boolean {
-        if (map.contains(dev.mac.hashCode())) {
+    override fun isDevNeedFiltered(dev: BluetoothDev): Boolean {
+        if (map.indexOfKey(dev.mac.hashCode()) > -1) {
             return true
         }
         map.put(dev.mac.hashCode(), dev.mac)
@@ -264,7 +286,7 @@ class BluetoothDevFirstFilter : OnBluetoothDevFilter {
  * 为了寻找特定[mac]地址的设备, 过滤掉其它所有的设备
  */
 class BluetoothDevFindFilter(private val mac: String) : OnBluetoothDevFilter {
-    override fun isDevNeedFiltered(dev: IBluetoothDev): Boolean {
+    override fun isDevNeedFiltered(dev: BluetoothDev): Boolean {
         return dev.mac != mac
     }
 
@@ -277,7 +299,7 @@ fun interface OnBluetoothDevScannedListener {
     /**
      * 当扫描到一个设备的回调
      */
-    fun onDevScanned(dev: IBluetoothDev)
+    fun onDevScanned(dev: BluetoothDev)
 }
 
 /**

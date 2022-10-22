@@ -26,6 +26,7 @@ class App : FastApp() {
         val request =
             PeriodicWorkRequestBuilder<BiYingWork>(1, TimeUnit.DAYS)
                 .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30L, TimeUnit.SECONDS)
                 .build()
         WorkManager.getInstance(this)
             .enqueueUniquePeriodicWork( // 使用唯一任务避免启动应用后可能出现堆积的任务多次执行

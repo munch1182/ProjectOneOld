@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".bluetooth.BluetoothActivity">
 
-    <com.munch.project.one.bluetooth.BluetoothFilterView
-        android:id="@+id/bluetoothFilter"
+    <TextView
+        style="@style/App.Fast.Text.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:translationZ="3dp"
-        app:layout_behavior="@string/ScrollingFloatViewFloatBehavior"
+        android:background="@color/colorWhite"
+        android:padding="@dimen/dimenDef"
+        android:text="No filter"
         tools:ignore="HardcodedText" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/colorBg" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/bluetoothRv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_behavior="@string/ScrollingFloatViewBehavior"
         tools:listitem="@layout/item_bluetooth" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

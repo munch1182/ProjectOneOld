@@ -3,12 +3,13 @@ package com.munch.lib.android.recyclerview
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.munch.lib.android.extend.impInMain
 import com.munch.lib.android.extend.to
 
 /**
  * 默认实现, 不考虑线程
  */
-class SimpleAdapterFun<D> : AdapterFunHelper<D> {
+open class SimpleAdapterFun<D> : AdapterFunHelper<D> {
 
     private val list = mutableListOf<D>()
     private lateinit var adapter: BaseRecyclerViewAdapter<*, *>
@@ -64,7 +65,36 @@ class SimpleAdapterFun<D> : AdapterFunHelper<D> {
     override fun get(index: Int) = list[index]
 
     override fun find(data: D): Int? = list.indexOf(data).takeIf { it != -1 }
+}
 
+class ThreadAdapterFun<D> : SimpleAdapterFun<D>() {
+    override fun set(data: Collection<D>?) {
+        impInMain { super.set(data) }
+    }
+
+    override fun add(index: Int, data: D) {
+        impInMain { super.add(index, data) }
+    }
+
+    override fun add(index: Int, data: Collection<D>) {
+        impInMain { super.add(index, data) }
+    }
+
+    override fun remove(index: Int) {
+        impInMain { super.remove(index) }
+    }
+
+    override fun remove(from: Int, size: Int) {
+        impInMain { super.remove(from, size) }
+    }
+
+    override fun remove(data: Collection<D>) {
+        impInMain { super.remove(data) }
+    }
+
+    override fun update(index: Int, data: D) {
+        impInMain { super.update(index, data) }
+    }
 }
 
 fun interface DifferProvider<D> {
@@ -74,7 +104,7 @@ fun interface DifferProvider<D> {
 /**
  * 使用了AsyncListDiffer的实现
  */
-class DifferAdapterFun<D>(
+open class DifferAdapterFun<D>(
     private var differProvider: DifferProvider<D>? = null
 ) : AdapterFunHelper<D> {
 
@@ -130,6 +160,39 @@ class DifferAdapterFun<D>(
     override fun get(index: Int): D = curr?.get(index)!!
 
     override fun find(data: D): Int? = curr?.indexOf(data)
+}
 
+class ThreadDifferAdapterFun<D>(
+    differProvider: DifferProvider<D>? = null
+) : DifferAdapterFun<D>(differProvider) {
 
+    constructor(callback: DiffUtil.ItemCallback<D>) : this({ AsyncListDiffer<D>(it, callback) })
+
+    override fun set(data: Collection<D>?) {
+        impInMain { super.set(data) }
+    }
+
+    override fun add(index: Int, data: D) {
+        impInMain { super.add(index, data) }
+    }
+
+    override fun add(index: Int, data: Collection<D>) {
+        impInMain { super.add(index, data) }
+    }
+
+    override fun remove(index: Int) {
+        impInMain { super.remove(index) }
+    }
+
+    override fun remove(from: Int, size: Int) {
+        impInMain { super.remove(from, size) }
+    }
+
+    override fun remove(data: Collection<D>) {
+        impInMain { super.remove(data) }
+    }
+
+    override fun update(index: Int, data: D) {
+        impInMain { super.update(index, data) }
+    }
 }

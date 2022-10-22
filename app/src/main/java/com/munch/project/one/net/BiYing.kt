@@ -75,15 +75,17 @@ class BiYingWork(context: Context, parameter: WorkerParameters) :
             val url = NetHelper.img.wallpaper().url/*?.replaceFirst("1920x1080", size)*/
             if (url == null) {
                 log.log("fail to request and finish work.")
+                return Result.retry()
             } else {
                 log.log("success to request, save wallpaper to file.")
                 val save = catch { ImageHelper.down(url)?.copyTo(currFile, true) }
                 log.log("save file ${if (save != null) "success" else "fail"}.")
             }
+            log.log("work complete.")
+            return Result.success()
         } else {
             log.log("wallpaper file exit, ignore network.")
+            return Result.success()
         }
-        log.log("work complete.")
-        return Result.success()
     }
 }

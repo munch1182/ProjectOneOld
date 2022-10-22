@@ -29,6 +29,7 @@ open class Logger(
     private var tag: String = logTag?.let { "$it-loglog" } ?: "loglog"
     private var type: Log = Log.Debug
     private var l: OnLogListener? = null
+    private var enable = true
 
     companion object {
 
@@ -43,6 +44,11 @@ open class Logger(
         fun setLogListener(l: OnLogPrintListener?) {
             this.l = l
         }
+    }
+
+    fun enable(enable: Boolean): Logger {
+        this.enable = enable
+        return this
     }
 
     fun setType(type: Log): Logger {
@@ -77,6 +83,7 @@ open class Logger(
      *  3. 协程中调用方法时, 方法不能定位到准确的位置 -> 协程的唤醒机制
      */
     fun log(vararg any: Any?) {
+        if (!enable) return
         val msg = when {
             any.isEmpty() -> ""
             any.size == 1 -> LoggerFMT.any2Str(any[0])

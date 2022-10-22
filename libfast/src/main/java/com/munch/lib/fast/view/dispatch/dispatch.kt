@@ -1,6 +1,5 @@
 package com.munch.lib.fast.view.dispatch
 
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -21,24 +20,6 @@ interface ActivityDispatch {
 
     fun onCreateActivity(activity: AppCompatActivity) {
         dispatchers?.forEach { it.onCreateActivity(activity) }
-    }
-
-    fun onOptionsItemSelected(activity: AppCompatActivity, item: MenuItem): Boolean {
-        dispatchers?.forEach {
-            if (it.onOptionsItemSelected(activity, item)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    fun onCreateOptionsMenu(activity: AppCompatActivity, menu: Menu): Boolean {
-        dispatchers?.forEach {
-            if (!it.onCreateOptionsMenu(activity, menu)) {
-                return true
-            }
-        }
-        return true
     }
 
     fun getActivityDispatcher() = this
@@ -76,17 +57,16 @@ open class DispatcherActivity : AppCompatActivity(), ActivityDispatch {
         getActivityDispatcher().onCreateActivity(this)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return getActivityDispatcher().onOptionsItemSelected(this, item)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        getActivityDispatcher().onCreateOptionsMenu(this, menu)
-        return super<AppCompatActivity>.onCreateOptionsMenu(menu)
-    }
-
     override fun onDestroy() {
         super<AppCompatActivity>.onDestroy()
         getActivityDispatcher().onDestroy(this)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            onBackPressed()
+            return true
+        }
+        return super.onContextItemSelected(item)
     }
 }

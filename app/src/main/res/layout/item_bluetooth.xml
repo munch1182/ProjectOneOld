@@ -3,18 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/colorWhite">
 
     <ImageView
         android:id="@+id/bluetoothIcon"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginStart="@dimen/dimenDef"
         android:layout_marginTop="@dimen/dimenDef"
+        android:src="@drawable/ic_bluetooth"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription"
-        tools:src="@tools:sample/avatars" />
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/bluetoothTitle"
@@ -27,6 +28,7 @@
         android:maxLines="1"
         android:singleLine="true"
         android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/bluetoothMac"
         app:layout_constraintStart_toEndOf="@id/bluetoothIcon"
         app:layout_constraintTop_toTopOf="@id/bluetoothIcon"
         tools:text="BLUETOOTH WATCH123123123112323123" />
@@ -36,8 +38,10 @@
         style="@style/App.Fast.Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="@id/bluetoothIcon"
         app:layout_constraintStart_toStartOf="@id/bluetoothTitle"
+        app:layout_constraintTop_toBottomOf="@id/bluetoothTitle"
         tools:text="02:00:00:00:00:00" />
 
     <TextView

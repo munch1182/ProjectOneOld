@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import com.munch.lib.android.AppHelper
 import com.munch.lib.android.extend.lazy
 import com.munch.lib.android.extend.toOrNull
-import com.munch.lib.android.helper.ARSHelper
 import com.munch.lib.android.helper.ReceiverHelper
 import kotlinx.coroutines.launch
 import android.bluetooth.BluetoothAdapter as ADAPTER
@@ -29,18 +28,18 @@ object BluetoothEnv : IBluetoothManager, IBluetoothState {
         get() = adapter?.isEnabled ?: false
     override val pairedDevs: Set<DEV>?
         get() = adapter?.bondedDevices
-    private val stateNotify = ARSHelper<OnBluetoothStateNotifyListener?>()
+    private val receiver = BluetoothReceiver()
 
     override fun addStateChangeListener(l: OnBluetoothStateNotifyListener?) {
-        stateNotify.add(l)
+        receiver.add(l)
     }
 
     override fun removeStateChangeListener(l: OnBluetoothStateNotifyListener?) {
-        stateNotify.remove(l)
+        receiver.remove(l)
     }
 
     init {
-        BluetoothReceiver().register()
+        receiver.register()
     }
 
     /**
@@ -55,17 +54,17 @@ object BluetoothEnv : IBluetoothManager, IBluetoothState {
             ADAPTER.ACTION_CONNECTION_STATE_CHANGED,
             ADAPTER.ACTION_STATE_CHANGED,
         )
-    ), IBluetoothFun {
+    ), IBluetoothHelperEnv by BluetoothHelperEnv {
 
         override fun dispatchAction(context: Context, action: String, intent: Intent) {
             launch {
                 val mac = intent.getParcelableExtra<DEV>(DEV.EXTRA_DEVICE)?.address
-                val actionStr = action.simpleAction()
+                /*val actionStr = action.simpleAction()
                 if (mac != null) {
                     log.log("[$mac] broadcast receive action: $actionStr.")
                 } else {
                     log.log("broadcast receive action: $actionStr.")
-                }
+                }*/
                 val notify: BluetoothStateNotify = when (action) {
                     ADAPTER.ACTION_CONNECTION_STATE_CHANGED -> {
                         val state = intent.getIntExtra(ADAPTER.EXTRA_CONNECTION_STATE, -1)
@@ -76,9 +75,9 @@ object BluetoothEnv : IBluetoothManager, IBluetoothState {
                         val state = intent.getIntExtra(DEV.EXTRA_BOND_STATE, -1)
                         log.log("[$mac] bond state change: ${state.bondStateFmt()}.")
                         when (state) {
-                            DEV.BOND_NONE -> BluetoothStateNotify.BondFail
-                            DEV.BOND_BONDING -> BluetoothStateNotify.Bonding
-                            DEV.BOND_BONDED -> BluetoothStateNotify.Bonded
+                            DEV.BOND_NONE -> BluetoothStateNotify.BondFail(mac)
+                            DEV.BOND_BONDING -> BluetoothStateNotify.Bonding(mac)
+                            DEV.BOND_BONDED -> BluetoothStateNotify.Bonded(mac)
                             else -> return@launch
                         }
                     }
