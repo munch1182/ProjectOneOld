@@ -6,7 +6,6 @@ import android.content.Intent
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.munch.lib.android.extend.*
 import com.munch.lib.android.recyclerview.BaseBindViewHolder
@@ -16,14 +15,12 @@ import com.munch.lib.android.result.then
 import com.munch.lib.bluetooth.BluetoothDev
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.BluetoothScanDev
+import com.munch.lib.fast.view.dialog.DialogHelper
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
 import com.munch.project.one.base.BaseActivity
 import com.munch.project.one.base.dispatchDef
 import com.munch.project.one.databinding.ActivityBluetoothBinding
 import com.munch.project.one.databinding.ItemBluetoothBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  * Create by munch1182 on 2022/9/30 10:09.
@@ -46,9 +43,11 @@ class BluetoothActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
                 is BluetoothState.ScannedDevs -> bluetoothAdapter.set(it.data)
             }
         }
-        lifecycleScope.launch(Dispatchers.Default) {
-            delay(3000L)
-            withPermission { vm.dispatch(BluetoothIntent.StartScan) }
+        bind.bluetoothFilter.setOnClickListener {
+            //withPermission { vm.dispatch(BluetoothIntent.ToggleScan) }
+            DialogHelper.bottom()
+                .content(BluetoothFilterView(this))
+                .show()
         }
     }
 

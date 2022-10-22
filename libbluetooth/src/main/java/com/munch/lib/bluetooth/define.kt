@@ -238,15 +238,37 @@ fun interface OnBluetoothDevFilter {
 }
 
 /**
+ * 拓展过滤, 使其能感知扫描开始和结束, 以进行初始化和结束
+ */
+interface OnBluetoothDevLifeFilter : OnBluetoothDevFilter {
+
+    fun onStart()
+    fun onStop()
+}
+
+/**
  * 将多个[OnBluetoothDevFilter]组合成一个
  */
-class BluetoothDevFilterContainer(vararg filters: OnBluetoothDevFilter) : OnBluetoothDevFilter {
+class BluetoothDevFilterContainer(vararg filters: OnBluetoothDevFilter) : OnBluetoothDevLifeFilter {
 
     private val list = mutableListOf(*filters)
 
     fun add(filter: OnBluetoothDevFilter): BluetoothDevFilterContainer {
         list.add(filter)
         return this
+    }
+
+    fun remove(filter: OnBluetoothDevFilter): BluetoothDevFilterContainer {
+        list.remove(filter)
+        return this
+    }
+
+    override fun onStart() {
+        list.filterIsInstance<OnBluetoothDevLifeFilter>().forEach { it.onStart() }
+    }
+
+    override fun onStop() {
+        list.filterIsInstance<OnBluetoothDevLifeFilter>().forEach { it.onStop() }
     }
 
     override fun isDevNeedFiltered(dev: BluetoothDev): Boolean {
@@ -271,7 +293,7 @@ class BluetoothDevNoNameFilter : OnBluetoothDevFilter {
 /**
  * 扫描到的设备只返回第一次, 后续再扫描到不再返回
  */
-class BluetoothDevFirstFilter : OnBluetoothDevFilter {
+class BluetoothDevFirstFilter : OnBluetoothDevLifeFilter {
     private val map = SparseArray<String>()
     override fun isDevNeedFiltered(dev: BluetoothDev): Boolean {
         if (map.indexOfKey(dev.mac.hashCode()) > -1) {
@@ -279,6 +301,13 @@ class BluetoothDevFirstFilter : OnBluetoothDevFilter {
         }
         map.put(dev.mac.hashCode(), dev.mac)
         return false
+    }
+
+    override fun onStart() {
+    }
+
+    override fun onStop() {
+        map.clear()
     }
 }
 

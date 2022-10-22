@@ -23,7 +23,7 @@
         <item name="android:textColor">@color/colorTextDef</item>
     </style>
 
-    <style name="App.Fast.Text.Button" parent="Widget.AppCompat.Button" />
+    <style name="App.Fast.Text.Button" parent="Widget.MaterialComponents.Button.TextButton" />
 
     <style name="App.Fast.Text.Title">
         <item name="android:textSize">18sp</item>

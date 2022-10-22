@@ -4,6 +4,8 @@ import android.os.Handler
 import android.os.Looper
 import com.munch.lib.android.AppHelper
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
 
 
@@ -68,4 +70,30 @@ suspend inline fun <T> suspendCancellableCoroutine(
     timeout: Long,
     crossinline block: (CancellableContinuation<T>) -> Unit
 ): T? = withTimeout(timeout) { suspendCancellableCoroutine(block) }
+
+class UpdateJob {
+
+    private val lock = Mutex()
+
+    var curr: Job? = null
+        private set(value) = runBlocking { lock.withLock { field = value } }
+        get() = runBlocking { lock.withLock { field } }
+
+    fun new(): Job {
+        curr = SupervisorJob()
+        return curr!!
+    }
+
+    fun cancelAndNew(): Job {
+        cancel()
+        return new()
+    }
+
+    fun cancel() {
+        curr?.cancel()
+        curr = null
+    }
+
+    fun isCancel() = curr == null
+}
 

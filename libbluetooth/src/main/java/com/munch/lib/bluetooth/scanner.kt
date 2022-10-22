@@ -53,8 +53,10 @@ abstract class BaseBluetoothScanner : ARSHelper<OnBluetoothDevScannedListener?>(
 
     /**
      * 一个设备后调后, 延时[delayTime]后再发送下一个设备, 如果为0则不延时
+     *
+     * 更建议在接收时自行处理, 因为此处只能一个个设备的更新
      */
-    protected open var delayTime = 500L
+    protected open var delayTime = 0L
 
     /**
      * 扫描设备时的过滤器
@@ -89,6 +91,7 @@ abstract class BaseBluetoothScanner : ARSHelper<OnBluetoothDevScannedListener?>(
 object BluetoothLeScanner : BaseBluetoothScanner() {
 
     private var channel: Channel<BluetoothDev>? = null // 使用channel平缓发送发现设备
+    private var channelJob: Job? = null
 
     private val callback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
@@ -142,24 +145,31 @@ object BluetoothLeScanner : BaseBluetoothScanner() {
         // 更改状态
         scanning = true
 
+        if (filter is OnBluetoothDevLifeFilter) {
+            (filter as OnBluetoothDevLifeFilter?)?.onStart()
+        }
+
         val newChannel = Channel<BluetoothDev>()
         channel = newChannel
 
         log.log("start LE scan with timeout: $timeout ms.")
         adapter?.bluetoothLeScanner?.startScan(null, set, callback)
 
-        launch(Dispatchers.Default) {
+        val job = SupervisorJob()
+        channelJob = job
+        launch(Dispatchers.Default + job) {
             withTimeoutOrNull(timeout) {
                 for (dev in newChannel) {
                     if (filter?.isDevNeedFiltered(dev) == true) {
                         continue
                     }
-                    if (delayTime > 0) delay(delayTime)
+                    if (delayTime > 0) delay(delayTime) // 更建议在接收的时候自行平缓
                     // log.log("scanned: $dev.")
                     update { it?.onDevScanned(dev) }
                 }
             }
             log.log("timeout to call stop LE scan.")
+            channelJob = null
             stopScan()
         }
     }
@@ -168,6 +178,13 @@ object BluetoothLeScanner : BaseBluetoothScanner() {
         if (!isScanning) {
             return
         }
+
+        if (filter is OnBluetoothDevLifeFilter) {
+            (filter as OnBluetoothDevLifeFilter?)?.onStop()
+        }
+
+        channelJob?.cancel()
+        channelJob = null
         channel?.close()
         channel = null
 
@@ -204,7 +221,7 @@ interface IBluetoothHelperScanner : IBluetoothScanner {
     class Builder {
         internal var type: BluetoothType = BluetoothType.LE
         internal var filter: OnBluetoothDevFilter? = null
-        internal var delayTime = 0L
+        internal var delayTime = 100L
 
         fun type(type: BluetoothType): Builder {
             this.type = type
@@ -222,10 +239,7 @@ interface IBluetoothHelperScanner : IBluetoothScanner {
             return this
         }
 
-        fun noFilter(): Builder {
-            filter()
-            return this
-        }
+        fun noFilter() = filter()
 
         fun setDelayTime(time: Long): Builder {
             this.delayTime = time

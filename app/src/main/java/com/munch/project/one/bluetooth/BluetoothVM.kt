@@ -18,6 +18,14 @@ class BluetoothVM : ContractVM<BluetoothIntent, BluetoothState>() {
         when (it) {
             BluetoothIntent.StopScan -> BluetoothHelper.stopScan()
             BluetoothIntent.StartScan -> BluetoothHelper.stopThenStartScan()
+            BluetoothIntent.ToggleScan -> {
+                if (BluetoothHelper.isScanning) {
+                    BluetoothHelper.stopScan()
+                } else {
+                    post(BluetoothState.ScannedDevs(listOf()))
+                    BluetoothHelper.startScan()
+                }
+            }
         }
     }
 

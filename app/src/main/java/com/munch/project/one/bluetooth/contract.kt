@@ -10,6 +10,8 @@ sealed class BluetoothIntent : SealedClassToStringByName() {
 
     object StartScan : BluetoothIntent()
     object StopScan : BluetoothIntent()
+
+    object ToggleScan : BluetoothIntent()
 }
 
 sealed class BluetoothState : SealedClassToStringByName() {
