@@ -6,7 +6,11 @@ import android.content.Intent
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
+import androidx.core.view.get
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.munch.lib.android.dialog.DefaultDialogManager
+import com.munch.lib.android.dialog.IDialogManager
+import com.munch.lib.android.dialog.offer
 import com.munch.lib.android.extend.*
 import com.munch.lib.android.recyclerview.BaseBindViewHolder
 import com.munch.lib.android.recyclerview.DifferAdapterFun
@@ -25,7 +29,9 @@ import com.munch.project.one.databinding.ItemBluetoothBinding
 /**
  * Create by munch1182 on 2022/9/30 10:09.
  */
-class BluetoothActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
+class BluetoothActivity : BaseActivity(),
+    ActivityDispatch by dispatchDef(),
+    IDialogManager by DefaultDialogManager() {
 
     private val bind by bind<ActivityBluetoothBinding>()
     private val vm by get<BluetoothVM>()
@@ -38,17 +44,18 @@ class BluetoothActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
 
         vm.state.observe(this) {
             when (it) {
-                is BluetoothState.IsScan -> {
-                }
+                is BluetoothState.IsScan ->
+                    menu?.get(0)?.title = if (it.isScan) "STOP SCANNING" else "SCAN"
                 is BluetoothState.ScannedDevs -> bluetoothAdapter.set(it.data)
             }
         }
         bind.bluetoothFilter.setOnClickListener {
-            //withPermission { vm.dispatch(BluetoothIntent.ToggleScan) }
             DialogHelper.bottom()
                 .content(BluetoothFilterView(this))
+                .offer(this)
                 .show()
         }
+        addItem("SCAN") { withPermission { vm.dispatch(BluetoothIntent.ToggleScan) } }
     }
 
     private class BluetoothAdapter :

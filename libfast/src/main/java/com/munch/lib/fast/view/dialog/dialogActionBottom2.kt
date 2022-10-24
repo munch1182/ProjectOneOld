@@ -16,7 +16,7 @@ import com.munch.lib.fast.view.base.ActivityHelper
  * 使用[BottomSheetDialog]实现IDialog和ChoseDialogWrapper
  */
 class BottomAction2Dialog(customViewCreator: DialogViewCreator<DialogActionKey> = DefaultDialogViewCreator()) :
-    IDialog, ChoseDialogWrapper(), ViewProvider {
+    IDialog, ChoseDialogWrapper(), ViewProvider, DialogUnique {
 
     internal val curr = ActivityHelper.curr!!
     internal val helper = ActionDialogHelper(customViewCreator)

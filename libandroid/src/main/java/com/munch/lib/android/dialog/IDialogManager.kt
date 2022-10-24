@@ -4,6 +4,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.android.AppHelper
 import com.munch.lib.android.extend.impInMain
+import com.munch.lib.android.extend.to
 import com.munch.lib.android.log.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -64,6 +65,15 @@ interface IDialogManager {
     }
 }
 
+/**
+ * 如果[isUnique]返回true, 在添加一个该类的Dialog之后, 到该Dialog被取消之前, 添加该类型Dialog的动作会被忽略
+ *
+ * 该接口需要手动添加到实现的Dialog上
+ */
+interface DialogUnique {
+    fun isUnique(): Boolean = true
+}
+
 abstract class DialogManagerByQueue : IDialogManager {
     protected open val queue: Queue<IDialog> = LinkedList()
     override fun add(dialog: IDialog): IDialogManager {
@@ -92,10 +102,18 @@ class DefaultDialogManager : DialogManagerByQueue() {
     private val log = Logger.only("dialog")
     private var curr: IDialog? = null // 当前正在显示的dialog, 当其取消显示时, 此值为null
 
+    private var addDialogForUnique: MutableList<Class<DialogUnique>>? = null
+
     private val life2Next = object : DefaultLifecycleObserver {
         override fun onStop(owner: LifecycleOwner) {
             super.onStop(owner)
-            curr?.lifecycle?.removeObserver(this)
+            val dialog = curr
+            if (dialog != null) {
+                dialog.lifecycle.removeObserver(this)
+                if (dialog is DialogUnique && dialog.isUnique()) {
+                    addDialogForUnique?.remove(dialog.javaClass)
+                }
+            }
             curr = null
             AppHelper.launch {
                 log.log("dialog onStop, left: ${queue.size}, next.")
@@ -115,11 +133,12 @@ class DefaultDialogManager : DialogManagerByQueue() {
     }
 
     override fun show() {
+        // enuqe
         if (curr != null) {
             log.log("show called but dialog is showing.")
             return
         }
-        if (curr == null && !queue.isEmpty()) {
+        if (!queue.isEmpty()) {
             curr = queue.poll()
         }
         if (curr != null) {
@@ -157,6 +176,20 @@ class DefaultDialogManager : DialogManagerByQueue() {
     }
 
     override fun add(dialog: IDialog): IDialogManager {
+        if (dialog is DialogUnique && dialog.isUnique()) {
+            if (addDialogForUnique == null) {
+                addDialogForUnique = mutableListOf()
+            }
+            val unique = addDialogForUnique
+            val clazz: Class<DialogUnique> = (dialog.to<DialogUnique>()).javaClass
+            if (unique != null) {
+                if (unique.contains(clazz)) {
+                    log.log("repeat add DialogUnique, ignore.")
+                    return this
+                }
+                unique.add(clazz)
+            }
+        }
         log.log("add one dialog.")
         return super.add(dialog)
     }
