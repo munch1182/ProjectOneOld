@@ -1,15 +1,15 @@
-package com.munch.lib.fast.view
+package com.munch.lib.fast.view.data
 
 import android.app.Activity
 import com.munch.lib.android.extend.to
 import com.munch.lib.android.helper.data.SPHelper
 import kotlin.reflect.KClass
 
-object DataHelper : SPHelper("libFast") {
+object FirstPageHelper : SPHelper("libFirst") {
 
     private const val KEY_FIRST_PAGE = "KEY_FIRST_PAGE"
 
-    fun setFirstPage(target: KClass<out Activity>?) {
+    suspend fun set(target: KClass<out Activity>?) {
         if (target == null) {
             remove(KEY_FIRST_PAGE)
         } else {
@@ -17,6 +17,7 @@ object DataHelper : SPHelper("libFast") {
         }
     }
 
-    val firstPage: Class<in Activity>?
-        get() = get<String>(KEY_FIRST_PAGE, null)?.let { Class.forName(it) }?.to()
+    suspend fun get(): Class<in Activity>? {
+        return get(KEY_FIRST_PAGE, "")?.takeIf { it.isNotBlank() }?.let { Class.forName(it) }?.to()
+    }
 }

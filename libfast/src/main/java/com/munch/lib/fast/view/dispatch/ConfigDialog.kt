@@ -15,9 +15,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import com.munch.lib.android.dialog.IDialog
 import com.munch.lib.android.extend.*
-import com.munch.lib.fast.view.DataHelper
+import com.munch.lib.android.log.log
+import com.munch.lib.fast.view.data.FirstPageHelper
 import com.munch.lib.fast.view.dialog.DialogHelper
 import com.munch.lib.fast.view.dialog.titleStr
+import com.munch.lib.fast.view.launch
+import kotlinx.coroutines.Dispatchers
 
 interface IConfigDialog : ActivityDispatch {
 
@@ -44,13 +47,18 @@ interface IConfigDialog : ActivityDispatch {
                 gravity = Gravity.CENTER_VERTICAL
                 clickEffect()
 
-                isChecked =
-                    DataHelper.firstPage?.canonicalName == activity::class.java.canonicalName
+                activity.launch(Dispatchers.IO) {
+                    isChecked =
+                        FirstPageHelper.get()?.canonicalName == activity::class.java.canonicalName
+                }
 
                 text = "默认跳转到此页"
 
                 setOnCheckedChangeListener { _, isChecked ->
-                    DataHelper.setFirstPage(if (isChecked) activity::class else null)
+                    activity.launch(Dispatchers.IO) {
+                        FirstPageHelper.set(if (isChecked) activity::class else null)
+                        log(FirstPageHelper.get())
+                    }
                 }
             })
         }

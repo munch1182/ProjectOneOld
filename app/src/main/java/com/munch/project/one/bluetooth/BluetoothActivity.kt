@@ -20,11 +20,14 @@ import com.munch.lib.bluetooth.BluetoothDev
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.BluetoothScanDev
 import com.munch.lib.fast.view.dialog.DialogHelper
+import com.munch.lib.fast.view.dialog.view
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
 import com.munch.project.one.base.BaseActivity
 import com.munch.project.one.base.dispatchDef
 import com.munch.project.one.databinding.ActivityBluetoothBinding
 import com.munch.project.one.databinding.ItemBluetoothBinding
+import com.munch.project.one.bluetooth.BluetoothIntent as INTENT
+import com.munch.project.one.bluetooth.BluetoothState as STATE
 
 /**
  * Create by munch1182 on 2022/9/30 10:09.
@@ -44,18 +47,22 @@ class BluetoothActivity : BaseActivity(),
 
         vm.state.observe(this) {
             when (it) {
-                is BluetoothState.IsScan ->
+                is STATE.IsScan ->
                     menu?.get(0)?.title = if (it.isScan) "STOP SCANNING" else "SCAN"
-                is BluetoothState.ScannedDevs -> bluetoothAdapter.set(it.data)
+                is STATE.ScannedDevs -> bluetoothAdapter.set(it.data)
             }
         }
         bind.bluetoothFilter.setOnClickListener {
             DialogHelper.bottom()
-                .content(BluetoothFilterView(this))
+                .view(BluetoothFilterView(this))
+                .onShowAnd {
+
+                }
+                .onDismiss { vm.dispatch(INTENT.Filter(BluetoothFilter.from(get()))) }
                 .offer(this)
                 .show()
         }
-        addItem("SCAN") { withPermission { vm.dispatch(BluetoothIntent.ToggleScan) } }
+        addItem("SCAN") { withPermission { vm.dispatch(INTENT.ToggleScan) } }
     }
 
     private class BluetoothAdapter :

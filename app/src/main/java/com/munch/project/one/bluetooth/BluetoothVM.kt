@@ -1,12 +1,17 @@
 package com.munch.project.one.bluetooth
 
+import androidx.lifecycle.MutableLiveData
 import com.munch.lib.android.extend.ContractVM
+import com.munch.lib.android.extend.immutable
 import com.munch.lib.bluetooth.*
 
 /**
  * Create by munch1182 on 2022/10/22 11:52.
  */
 class BluetoothVM : ContractVM<BluetoothIntent, BluetoothState>() {
+
+    private val _filter = MutableLiveData(BluetoothFilter())
+    val filter = _filter.immutable()
 
     init {
         BluetoothHelper.configScan { filter(BluetoothDevNoNameFilter()) }
@@ -26,7 +31,16 @@ class BluetoothVM : ContractVM<BluetoothIntent, BluetoothState>() {
                     BluetoothHelper.startScan()
                 }
             }
+            is BluetoothIntent.Filter -> {
+                val f = it.f
+                saveFilter(f)
+                _filter.postValue(f)
+            }
         }
+    }
+
+    private fun saveFilter(f: BluetoothFilter) {
+
     }
 
 }

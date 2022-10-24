@@ -61,6 +61,8 @@ class BluetoothFilterView @JvmOverloads constructor(
         bind.btFilterReset.setOnClickListener { set(Filter()) }
     }
 
+    fun get() = filter.copy()
+
     fun set(filter: Filter) {
         if (this.filter.rssi != filter.rssi) {
             bind.btFilterSeek.setProgress(filter.rssi.absoluteValue, true)
@@ -71,7 +73,7 @@ class BluetoothFilterView @JvmOverloads constructor(
         if (this.filter.name != filter.name) {
             bind.btFilterName.setText("")
         }
-        if (this.filter.noName != filter.noName){
+        if (this.filter.noName != filter.noName) {
             bind.btFilterNoName.isChecked = filter.noName
         }
         bind.btFilterNameContainer.clearFocus()
@@ -96,7 +98,7 @@ class BluetoothFilterView @JvmOverloads constructor(
         var mac: String? = null,
         var rssi: Int = -100,
         var noName: Boolean = true
-    ) {
+    ) : Cloneable {
 
         fun update(filter: Filter) {
             if (filter.name != null) this.name = filter.name

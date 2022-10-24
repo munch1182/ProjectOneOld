@@ -4,10 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import com.munch.lib.android.extend.catch
 import com.munch.lib.android.extend.ctx
-import com.munch.lib.fast.view.DataHelper
+import com.munch.lib.fast.view.data.FirstPageHelper
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
 import com.munch.lib.fast.view.dispatch.SupportActionBar
 import com.munch.lib.fast.view.fastview.fvRvTv
+import com.munch.lib.fast.view.launch
 import com.munch.plugin.annotation.Measure
 import com.munch.project.one.base.BaseActivity
 import com.munch.project.one.bluetooth.BluetoothActivity
@@ -17,6 +18,7 @@ import com.munch.project.one.notify.NotifyActivity
 import com.munch.project.one.recyclerview.RecyclerViewActivity
 import com.munch.project.one.simple.PhoneInfoActivity
 import com.munch.project.one.simple.StatusBarActivity
+import kotlinx.coroutines.Dispatchers
 
 @Measure
 class MainActivity : BaseActivity(), ActivityDispatch by SupportActionBar(false) {
@@ -35,7 +37,9 @@ class MainActivity : BaseActivity(), ActivityDispatch by SupportActionBar(false)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         bind.init()
-        catch { DataHelper.firstPage?.let { startActivity(Intent(ctx, it)) } }
+        launch(Dispatchers.IO) {
+            catch { FirstPageHelper.get()?.let { startActivity(Intent(ctx, it)) } }
+        }
     }
 }
 

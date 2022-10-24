@@ -18,12 +18,12 @@ interface DataFunHelper<KEY> {
      *
      * @param value 其是否能为null需要实现时自行差异化处理
      */
-    fun put(key: KEY, value: Any?)
+    suspend fun put(key: KEY, value: Any?)
 
     /**
      * 删掉[key]及其值
      */
-    fun remove(key: KEY): Boolean
+    suspend fun remove(key: KEY): Boolean
 
     /**
      * 获取[key]的值，如果值不存在，则返回[defValue]
@@ -32,19 +32,19 @@ interface DataFunHelper<KEY> {
      *
      * @see hasKey
      */
-    fun <T> get(key: KEY, defValue: T? = null): T?
+    suspend fun <T> get(key: KEY, defValue: T? = null): T?
 
     /**
      * 清除所有key
      */
-    fun clear()
+    suspend fun clear()
 
     /**
      * 判断是否已经存过[key]
      */
-    fun hasKey(key: KEY): Boolean
+    suspend fun hasKey(key: KEY): Boolean
 
-    fun toMap(): Map<KEY, Any?>? = null
+    suspend fun toMap(): Map<KEY, Any?>? = null
 }
 
 /**
@@ -52,7 +52,11 @@ interface DataFunHelper<KEY> {
  *
  * @see update
  */
-fun <KEY> DataFunHelper<KEY>.update(key: KEY, updateValue: Any?, defValue: Any? = updateValue) {
+suspend fun <KEY> DataFunHelper<KEY>.update(
+    key: KEY,
+    updateValue: Any?,
+    defValue: Any? = updateValue
+) {
     if (hasKey(key)) {
         put(key, updateValue)
     } else {
@@ -68,7 +72,11 @@ fun <KEY> DataFunHelper<KEY>.update(key: KEY, updateValue: Any?, defValue: Any? 
  *
  * @see plus
  */
-fun <KEY> DataFunHelper<KEY>.update(key: KEY, update: (Any?) -> Any?, defValue: Any? = null) {
+suspend fun <KEY> DataFunHelper<KEY>.update(
+    key: KEY,
+    update: (Any?) -> Any?,
+    defValue: Any? = null
+) {
     put(key, update.invoke(get(key, defValue)))
 }
 
@@ -77,7 +85,7 @@ fun <KEY> DataFunHelper<KEY>.update(key: KEY, update: (Any?) -> Any?, defValue: 
  *
  * 默认实现是循环存储，如果有更高效方法的应自行实现
  */
-fun <KEY> DataFunHelper<KEY>.put(vararg pair: Pair<KEY, Any?>) {
+suspend fun <KEY> DataFunHelper<KEY>.put(vararg pair: Pair<KEY, Any?>) {
     pair.forEach { put(it.first, it.second) }
 }
 
@@ -86,7 +94,7 @@ fun <KEY> DataFunHelper<KEY>.put(vararg pair: Pair<KEY, Any?>) {
  *
  * 如果[key]的值和[defValue]都为null，则会抛出异常
  */
-fun <KEY, T : Number> DataFunHelper<KEY>.plus(key: KEY, plusValue: T, defValue: T? = null) {
+suspend fun <KEY, T : Number> DataFunHelper<KEY>.plus(key: KEY, plusValue: T, defValue: T? = null) {
     update(key, {
         when (it) {
             is Byte -> it + plusValue.toByte()
@@ -105,7 +113,11 @@ fun <KEY, T : Number> DataFunHelper<KEY>.plus(key: KEY, plusValue: T, defValue: 
  *
  * 如果[key]的值和[defValue]都为null，则会抛出异常
  */
-fun <KEY, T : Number> DataFunHelper<KEY>.times(key: KEY, multiValue: T, defValue: T? = null) {
+suspend fun <KEY, T : Number> DataFunHelper<KEY>.times(
+    key: KEY,
+    multiValue: T,
+    defValue: T? = null
+) {
     update(key, {
         when (it) {
             is Byte -> it * multiValue.toByte()
@@ -124,7 +136,7 @@ fun <KEY, T : Number> DataFunHelper<KEY>.times(key: KEY, multiValue: T, defValue
  *
  * 如果[key]的值和[defValue]都为null，则会抛出异常
  */
-fun <KEY> DataFunHelper<KEY>.toggle(key: KEY, defValue: Boolean? = null) {
+suspend fun <KEY> DataFunHelper<KEY>.toggle(key: KEY, defValue: Boolean? = null) {
     update(key, {
         if (it !is Boolean) {
             throw UnsupportedOperationException()

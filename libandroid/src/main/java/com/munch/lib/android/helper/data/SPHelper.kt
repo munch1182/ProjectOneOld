@@ -11,17 +11,17 @@ open class SPHelper(private val sp: SharedPreferences) : DataFunHelper<String> {
 
     object Default : SPHelper("SPHelper")
 
-    override fun put(key: String, value: Any?) {
-        sp.edit().apply { putVal(key, value, this) }.apply()
+    override suspend fun put(key: String, value: Any?) {
+        sp.edit().apply { putVal(key, value, this) }.commit()
     }
 
-    override fun remove(key: String): Boolean {
-        sp.edit().remove(key).apply()
+    override suspend fun remove(key: String): Boolean {
+        sp.edit().remove(key).commit()
         return true
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: String, defValue: T?): T? {
+    override suspend fun <T> get(key: String, defValue: T?): T? {
         if (!hasKey(key)) return null
         val obj: Any? = when (defValue) {
             is String? -> sp.getString(key, defValue?.toOrNull())
@@ -35,11 +35,11 @@ open class SPHelper(private val sp: SharedPreferences) : DataFunHelper<String> {
         return obj as? T? ?: defValue
     }
 
-    override fun clear() {
-        sp.edit().clear().apply()
+    override suspend fun clear() {
+        sp.edit().clear().commit()
     }
 
-    override fun hasKey(key: String) = sp.contains(key)
+    override suspend fun hasKey(key: String) = sp.contains(key)
 
     private fun putVal(key: String, any: Any?, edit: SharedPreferences.Editor) {
         @Suppress("UNCHECKED_CAST")
@@ -54,5 +54,5 @@ open class SPHelper(private val sp: SharedPreferences) : DataFunHelper<String> {
         }
     }
 
-    override fun toMap(): MutableMap<String, *> = sp.all
+    override suspend fun toMap(): MutableMap<String, *> = sp.all
 }
