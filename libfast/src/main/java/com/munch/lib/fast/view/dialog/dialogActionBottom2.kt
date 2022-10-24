@@ -6,11 +6,8 @@ import android.widget.LinearLayout
 import androidx.annotation.ColorInt
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.munch.lib.android.AppHelper
 import com.munch.lib.android.define.ViewProvider
-import com.munch.lib.android.dialog.ChoseDialogWrapper
-import com.munch.lib.android.dialog.IDialog
-import com.munch.lib.android.dialog.toDialog
+import com.munch.lib.android.dialog.*
 import com.munch.lib.android.extend.ViewBindTargetHelper
 import com.munch.lib.fast.R
 import com.munch.lib.fast.view.base.ActivityHelper
@@ -21,15 +18,14 @@ import com.munch.lib.fast.view.base.ActivityHelper
 class BottomAction2Dialog(customViewCreator: DialogViewCreator<DialogActionKey> = DefaultDialogViewCreator()) :
     IDialog, ChoseDialogWrapper(), ViewProvider {
 
-    private val curr = ActivityHelper.curr!!
-    private val helper = ActionDialogHelper(customViewCreator)
+    internal val curr = ActivityHelper.curr!!
+    internal val helper = ActionDialogHelper(customViewCreator)
 
     override fun crateDialog(): IDialog {
         return BottomSheetDialog(curr, R.style.App_Fast_Dialog_Bottom)
             .apply { setContentView(helper.getContentView(curr)) }
             .toDialog()
     }
-
 
     override fun setView(view: View) {
         helper.add(object : DialogAction<DialogActionKey> {
@@ -40,11 +36,6 @@ class BottomAction2Dialog(customViewCreator: DialogViewCreator<DialogActionKey> 
 
     fun content(view: View): BottomAction2Dialog {
         setView(view)
-        return this
-    }
-
-    fun content(string: String): BottomAction2Dialog {
-        helper.add(DialogActionContent(curr, string))
         return this
     }
 
@@ -63,29 +54,12 @@ class BottomAction2Dialog(customViewCreator: DialogViewCreator<DialogActionKey> 
         return this
     }
 
-    fun title(s: String): BottomAction2Dialog {
-        helper.add(DialogActionTitle(curr, s))
-        return this
+    fun choseOk() {
+        choseOkOpt()
     }
 
-    fun cancel(cancel: String = AppHelper.getString(android.R.string.cancel)): BottomAction2Dialog {
-        helper.add(
-            DialogActionCancel(curr, cancel).setOnClickListener {
-                choseCancel()
-                dismiss()
-            }
-        )
-        return this
-    }
-
-    fun ok(ok: String = AppHelper.getString(android.R.string.ok)): BottomAction2Dialog {
-        helper.add(
-            DialogActionOk(curr, ok).setOnClickListener {
-                choseOk()
-                dismiss()
-            }
-        )
-        return this
+    fun choseCancel() {
+        choseCancelOpt()
     }
 
     inline fun <reified VB : ViewBinding> bind(
@@ -93,5 +67,15 @@ class BottomAction2Dialog(customViewCreator: DialogViewCreator<DialogActionKey> 
         noinline set: (VB.() -> Unit)? = null
     ): BottomAction2Dialog {
         return object : ViewBindTargetHelper<VB, BottomAction2Dialog>(this, context) {}.set(set)
+    }
+
+    fun onTheShow(l: DialogShowListener<BottomAction2Dialog>?): BottomAction2Dialog {
+        onShow(l)
+        return this
+    }
+
+    fun onTheDismiss(l: DialogDismissListener<BottomAction2Dialog>?): BottomAction2Dialog {
+        onDismiss(l)
+        return this
     }
 }

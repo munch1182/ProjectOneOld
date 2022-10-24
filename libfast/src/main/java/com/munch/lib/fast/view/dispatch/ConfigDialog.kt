@@ -17,6 +17,7 @@ import com.munch.lib.android.dialog.IDialog
 import com.munch.lib.android.extend.*
 import com.munch.lib.fast.view.DataHelper
 import com.munch.lib.fast.view.dialog.DialogHelper
+import com.munch.lib.fast.view.dialog.titleStr
 
 interface IConfigDialog : ActivityDispatch {
 
@@ -31,7 +32,7 @@ interface IConfigDialog : ActivityDispatch {
     fun onCreateDialog(activity: AppCompatActivity): IDialog =
         DialogHelper.bottom()
             .content(newContent(activity))
-            .title(activity::class.java.simpleName.replace("Activity", ""))
+            .titleStr(activity::class.java.simpleName.replace("Activity", ""))
 
     fun newContent(activity: AppCompatActivity): View {
         return LinearLayout(activity).apply {

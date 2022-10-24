@@ -40,7 +40,7 @@ abstract class TextActionDialog(
         helper.add(
             DialogActionCancel(context, cancel)
                 .setOnClickListener {
-                    choseCancel()
+                    choseCancelOpt()
                     dismiss()
                 }
         )
@@ -51,7 +51,7 @@ abstract class TextActionDialog(
         helper.add(
             DialogActionOk(context, ok)
                 .setOnClickListener {
-                    choseOk()
+                    choseOkOpt()
                     dismiss()
                 }
         )

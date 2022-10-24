@@ -6,6 +6,9 @@ import android.view.ViewGroup.MarginLayoutParams
 import com.munch.lib.android.extend.*
 import com.munch.lib.android.helper.BarHelper
 import com.munch.lib.fast.view.dialog.DialogHelper
+import com.munch.lib.fast.view.dialog.cancelStr
+import com.munch.lib.fast.view.dialog.contentStr
+import com.munch.lib.fast.view.dialog.titleStr
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
 import com.munch.lib.fast.view.launch
 import com.munch.plugin.annotation.Measure
@@ -83,9 +86,9 @@ class StatusBarActivity : BaseActivity(), ActivityDispatch by dispatchDef() {
 
     private fun dialog() {
         DialogHelper.bottom()
-            .title("BottomDialog")
-            .content("dialog from bottom")
-            .cancel()
+            .titleStr("BottomDialog")
+            .contentStr("dialog from bottom")
+            .cancelStr()
             .show()
     }
 

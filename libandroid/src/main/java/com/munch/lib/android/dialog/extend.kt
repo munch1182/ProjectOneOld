@@ -57,11 +57,11 @@ abstract class ChoseDialogWrapper : ChoseDialog {
     override val chose: IDialogChose?
         get() = finChose
 
-    protected fun choseOk() {
+    protected fun choseOkOpt() {
         finChose = DialogChose.Ok
     }
 
-    protected fun choseCancel() {
+    protected fun choseCancelOpt() {
         finChose = DialogChose.Cancel
     }
 

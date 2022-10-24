@@ -5,8 +5,14 @@ import android.view.View
 import com.munch.lib.android.extend.SealedClassToStringByName
 
 /**
+ * ActionDialog使用时分为两部分:
+ * 1. contentView的结构, 即[DialogActionKey]
+ * 2. contentView的布局, 即[DialogViewCreator]
+ * 在布局方向一致时, 即可增删结构快速形成细节不同的dialog
+ *
  * Create by munch1182 on 2022/9/20 11:30.
  */
+
 interface IDialogActionKey
 
 sealed class DialogActionKey : SealedClassToStringByName(), IDialogActionKey {
