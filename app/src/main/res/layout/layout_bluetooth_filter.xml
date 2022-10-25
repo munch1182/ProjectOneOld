@@ -38,7 +38,8 @@
             android:id="@+id/btFilterName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="通过设备名称来过滤"
+            android:hint="Filter by name"
+            android:imeOptions="actionNext"
             tools:ignore="HardcodedText" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -54,7 +55,8 @@
             android:id="@+id/btFilterMac"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="通过设备地址来过滤"
+            android:hint="Filter by mac"
+            android:imeOptions="actionNext"
             android:maxEms="17"
             android:maxLength="17"
             android:maxLines="1"
@@ -75,42 +77,37 @@
         android:layout_height="1dp"
         android:background="#c0c0c0" />
 
-    <androidx.appcompat.widget.AppCompatCheckBox
-        android:id="@+id/btFilterNoName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dimenDefSmall"
-        android:layout_marginEnd="@dimen/dimenDefSmall"
-        android:background="@color/colorWhite"
-        android:checked="true"
-        android:text="忽略没有名称的设备"
-        tools:ignore="HardcodedText" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#c0c0c0" />
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorWhite"
-        android:gravity="end"
         android:padding="@dimen/dimenDefSmall">
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/btFilterNoName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimenDefSmall"
+            android:layout_marginEnd="@dimen/dimenDefSmall"
+            android:background="@color/colorWhite"
+            android:checked="true"
+            android:text="Ignore no name"
+            tools:ignore="HardcodedText" />
 
         <Button
             android:id="@+id/btFilterReset"
             style="@style/App.Fast.Text.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
             android:text="reset"
             tools:ignore="HardcodedText" />
 
-        <Button
-            style="@style/App.Fast.Text.Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="history"
-            tools:ignore="HardcodedText" />
-    </LinearLayout>
+    </FrameLayout>
 </merge>

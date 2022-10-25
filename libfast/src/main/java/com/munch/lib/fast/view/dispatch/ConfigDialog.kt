@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import com.munch.lib.android.dialog.IDialog
 import com.munch.lib.android.extend.*
-import com.munch.lib.android.log.log
 import com.munch.lib.fast.view.data.FirstPageHelper
 import com.munch.lib.fast.view.dialog.DialogHelper
 import com.munch.lib.fast.view.dialog.titleStr
@@ -55,10 +54,7 @@ interface IConfigDialog : ActivityDispatch {
                 text = "默认跳转到此页"
 
                 setOnCheckedChangeListener { _, isChecked ->
-                    activity.launch(Dispatchers.IO) {
-                        FirstPageHelper.set(if (isChecked) activity::class else null)
-                        log(FirstPageHelper.get())
-                    }
+                    activity.launch(Dispatchers.IO) { FirstPageHelper.set(if (isChecked) activity::class else null) }
                 }
             })
         }

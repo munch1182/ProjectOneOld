@@ -26,7 +26,7 @@ class BluetoothFilterView @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, styleDef) {
 
     private val bind by bind<LayoutBluetoothFilterBinding>()
-    private val filter = Filter()
+    private val filter = Filter.def()
 
     init {
         orientation = VERTICAL
@@ -51,30 +51,36 @@ class BluetoothFilterView @JvmOverloads constructor(
             override fun onStopTrackingTouch(p0: SeekBar?) {
             }
         })
-        bind.btFilterName.addTextChangedListener(beforeTextChanged = { _, _, _, _ ->
-            bind.btFilterDesc.ellipsize = TextUtils.TruncateAt.END
-        }, afterTextChanged = { updateDesc(Filter(name = bind.btFilterName.text.toString())) })
+        bind.btFilterName.addTextChangedListener(
+            beforeTextChanged = { _, _, _, _ ->
+                bind.btFilterDesc.ellipsize = TextUtils.TruncateAt.END
+            },
+            afterTextChanged = {
+                updateDesc(Filter(name = bind.btFilterName.text.toString()))
+            })
         InputMacHelper(bind.btFilterMac).set {
             bind.btFilterDesc.ellipsize = TextUtils.TruncateAt.END
             updateDesc(it)
         }
         bind.btFilterReset.setOnClickListener { set(Filter()) }
+        bind.btFilterNoName.setOnCheckedChangeListener { _, isChecked -> updateDesc(Filter(noName = isChecked)) }
     }
 
     fun get() = filter.copy()
 
     fun set(filter: Filter) {
-        if (this.filter.rssi != filter.rssi) {
-            bind.btFilterSeek.setProgress(filter.rssi.absoluteValue, true)
+        if (filter.rssi == null || this.filter.rssi != filter.rssi) {
+            bind.btFilterSeek.setProgress(filter.rssi?.absoluteValue ?: 100, true)
         }
         if (this.filter.mac != filter.mac) {
-            bind.btFilterMac.setText("")
+            bind.btFilterMac.setText(filter.mac)
         }
         if (this.filter.name != filter.name) {
-            bind.btFilterName.setText("")
+            bind.btFilterName.setText(filter.name)
         }
-        if (this.filter.noName != filter.noName) {
-            bind.btFilterNoName.isChecked = filter.noName
+        val noName = filter.noName ?: true
+        if (noName != this.filter.noName) {
+            bind.btFilterNoName.isChecked = noName
         }
         bind.btFilterNameContainer.clearFocus()
         bind.btFilterMacContainer.clearFocus()
@@ -96,42 +102,53 @@ class BluetoothFilterView @JvmOverloads constructor(
     data class Filter(
         var name: String? = null,
         var mac: String? = null,
-        var rssi: Int = -100,
-        var noName: Boolean = true
+        var rssi: Int? = null, // 因为更新某一项是只会传该值, 所以不能有默认值
+        var noName: Boolean? = null
     ) : Cloneable {
 
-        fun update(filter: Filter) {
-            if (filter.name != null) this.name = filter.name
-            if (filter.mac != null) this.mac = filter.mac
-            if (filter.rssi != rssi) this.rssi = filter.rssi
-            if (filter.noName != noName) this.noName = filter.noName
+        companion object {
+            fun def() = Filter(rssi = -100, noName = true)
+        }
+
+        fun update(f: Filter) {
+            if (f.name != null && f.name != name) {
+                name = f.name
+            }
+            if (f.mac != null && f.mac != mac) {
+                mac = f.mac
+            }
+            if (f.rssi != null && f.rssi != rssi) {
+                rssi = f.rssi
+            }
+            if (f.noName != null && f.noName != noName) {
+                noName = f.noName
+            }
         }
 
         override fun toString(): String {
+            val comma = ", "
             val sb = StringBuilder()
+            var needPreComma = false
             if (!name.isNullOrBlank()) {
                 sb.append(name)
+                needPreComma = true
             }
             if (!mac.isNullOrBlank()) {
-                if (sb.isNotEmpty()) {
-                    sb.append(", ")
-                }
+                if (needPreComma) sb.append(comma)
                 sb.append(mac)
+                needPreComma = true
             }
-            if (rssi != -100 && rssi != 0) {
-                if (sb.isNotEmpty()) {
-                    sb.append(", ")
-                }
-                sb.append(rssi).append(" dBm")
+            if (rssi != null && rssi != -100) {
+                if (needPreComma) sb.append(comma)
+                sb.append("$rssi dBm")
+                needPreComma = true
             }
-            if (!noName) {
-                if (sb.isNotEmpty()) {
-                    sb.append(", ")
-                }
-                sb.append("Allow No Name")
+            if (noName != null && noName == false) {
+                if (needPreComma) sb.append(comma)
+                sb.append("No Name")
             }
             if (sb.isEmpty()) {
-                return "No filter"
+                return "No Filter"
             }
             return sb.toString()
         }

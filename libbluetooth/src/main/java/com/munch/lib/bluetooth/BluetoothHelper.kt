@@ -15,4 +15,13 @@ object BluetoothHelper : ScopeContext,
     IBluetoothHelperEnv by BluetoothHelperEnv,
     IBluetoothManager by BluetoothEnv,
     IBluetoothState by BluetoothEnv,
-    IBluetoothHelperScanner by BluetoothHelperScanner
+    IBluetoothHelperScanner by BluetoothHelperScanner {
+
+    init {
+        addStateChangeListener { state, _ ->
+            if (state == BluetoothStateNotify.StateOff) {
+                stopScan()
+            }
+        }
+    }
+}

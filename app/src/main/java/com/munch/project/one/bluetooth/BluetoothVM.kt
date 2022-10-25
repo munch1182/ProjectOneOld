@@ -1,46 +1,79 @@
 package com.munch.project.one.bluetooth
 
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import com.munch.lib.android.extend.ContractVM
-import com.munch.lib.android.extend.immutable
 import com.munch.lib.bluetooth.*
+import com.munch.lib.fast.view.data.DataHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import com.munch.project.one.bluetooth.BluetoothState as STATE
+import com.munch.project.one.bluetooth.BluetoothIntent as INTENT
 
 /**
  * Create by munch1182 on 2022/10/22 11:52.
  */
-class BluetoothVM : ContractVM<BluetoothIntent, BluetoothState>() {
+class BluetoothVM : ContractVM<INTENT, STATE>() {
 
-    private val _filter = MutableLiveData(BluetoothFilter())
-    val filter = _filter.immutable()
+    private lateinit var currFilter: BluetoothFilter
 
     init {
-        BluetoothHelper.configScan { filter(BluetoothDevNoNameFilter()) }
-        BluetoothHelper.watchScan(this) { post(BluetoothState.IsScan(it)) }
-        BluetoothHelper.setDevsScan(this) { post(BluetoothState.ScannedDevs(it)) }
+        BluetoothHelper.watchScan(this) { post(STATE.IsScan(it)) }
+        BluetoothHelper.setDevsScan(this) { post(STATE.ScannedDevs(it)) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val filter = BluetoothFilterHelper.get()
+            currFilter = filter
+            updateFilter(filter)
+            post(STATE.FilterUpdate(filter))
+        }
     }
 
-    override suspend fun onCollect(it: BluetoothIntent) {
+    override suspend fun onCollect(it: INTENT) {
         when (it) {
-            BluetoothIntent.StopScan -> BluetoothHelper.stopScan()
-            BluetoothIntent.StartScan -> BluetoothHelper.stopThenStartScan()
-            BluetoothIntent.ToggleScan -> {
+            INTENT.StopScan -> BluetoothHelper.stopScan()
+            INTENT.StartScan -> BluetoothHelper.stopThenStartScan()
+            INTENT.ToggleScan -> {
                 if (BluetoothHelper.isScanning) {
                     BluetoothHelper.stopScan()
                 } else {
-                    post(BluetoothState.ScannedDevs(listOf()))
+                    post(STATE.ScannedDevs(listOf()))
                     BluetoothHelper.startScan()
                 }
             }
-            is BluetoothIntent.Filter -> {
+            is INTENT.UpdateFilter -> {
                 val f = it.f
+                if (f == currFilter) {
+                    return
+                }
+                if (BluetoothHelper.isScanning) { // 扫描中更改filter, 重新扫描
+                    post(STATE.ScannedDevs(listOf()))
+                    BluetoothHelper.stopThenStartScan()
+                }
+                updateFilter(f)
                 saveFilter(f)
-                _filter.postValue(f)
+                post(STATE.FilterUpdate(it.f))
             }
         }
     }
 
-    private fun saveFilter(f: BluetoothFilter) {
-
+    private fun updateFilter(f: BluetoothFilter) {
+        BluetoothHelper.configScan { f.to()?.let { filter(it) } ?: noFilter() }
     }
 
+    private fun saveFilter(f: BluetoothFilter) {
+        viewModelScope.launch(Dispatchers.IO) { BluetoothFilterHelper.save(f) }
+    }
+
+    object BluetoothFilterHelper : DataHelper() {
+        private const val KEY_BLUETOOTH_FILTER = "KEY_BLUETOOTH_FILTER"
+
+        suspend fun save(f: BluetoothFilter) {
+            put(KEY_BLUETOOTH_FILTER, Gson().toJson(f))
+        }
+
+        suspend fun get() =
+            get(KEY_BLUETOOTH_FILTER, "{}")
+                ?.let { Gson().fromJson(it, BluetoothFilter::class.java) }
+                ?: BluetoothFilter()
+    }
 }

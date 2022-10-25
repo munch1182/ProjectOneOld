@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.absoluteValue
 
 /**
  * Create by munch1182 on 2022/9/29 14:59.
@@ -225,6 +226,7 @@ fun interface OnBluetoothStateNotifyListener {
     fun onStateNotify(state: BluetoothStateNotify, mac: String?)
 }
 
+//<editor-fold desc="filter">
 /**
  * 对蓝牙结果进行过滤
  */
@@ -318,8 +320,30 @@ class BluetoothDevFindFilter(private val mac: String) : OnBluetoothDevFilter {
     override fun isDevNeedFiltered(dev: BluetoothDev): Boolean {
         return dev.mac != mac
     }
-
 }
+
+class BluetoothDevNameFindFilter(private val name: String) : OnBluetoothDevFilter {
+    override fun isDevNeedFiltered(dev: BluetoothDev): Boolean {
+        return !(dev.name?.contains(name, true) ?: false)
+    }
+}
+
+class BluetoothDevMacFindFilter(private val mac: String) : OnBluetoothDevFilter {
+    override fun isDevNeedFiltered(dev: BluetoothDev): Boolean {
+        return !dev.mac.contains(mac, true)
+    }
+}
+
+class BluetoothDevRssiFindFilter(private val rssi: Int) : OnBluetoothDevFilter {
+    override fun isDevNeedFiltered(dev: BluetoothDev): Boolean {
+        if (dev is BluetoothScanDev) {
+            return dev.rssi.absoluteValue > rssi.absoluteValue
+        }
+        return true
+    }
+}
+
+//</editor-fold>
 
 /**
  * 蓝牙扫描结果回调

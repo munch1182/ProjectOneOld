@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.munch.lib.android.define.Notify
 import com.munch.lib.android.helper.ILifecycle
 import com.munch.lib.android.helper.MutableLifecycle
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
@@ -42,7 +43,7 @@ abstract class ContractVM<INTENT, STATE> : LifeVM() {
     private val _intent = MutableSharedFlow<INTENT>()
 
     init {
-        viewModelScope.launch { _intent.collect { onCollect(it) } }
+        viewModelScope.launch(Dispatchers.Default) { _intent.collect { onCollect(it) } }
     }
 
     protected abstract suspend fun onCollect(it: INTENT)

@@ -38,6 +38,7 @@ class BluetoothActivity : BaseActivity(),
 
     private val bind by bind<ActivityBluetoothBinding>()
     private val vm by get<BluetoothVM>()
+    private val view by lazy { BluetoothFilterView(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,15 +51,17 @@ class BluetoothActivity : BaseActivity(),
                 is STATE.IsScan ->
                     menu?.get(0)?.title = if (it.isScan) "STOP SCANNING" else "SCAN"
                 is STATE.ScannedDevs -> bluetoothAdapter.set(it.data)
+                is STATE.FilterUpdate -> {
+                    val filter = it.f.toViewFilter()
+                    this.view.set(filter)
+                    bind.bluetoothFilter.text = filter.toString()
+                }
             }
         }
         bind.bluetoothFilter.setOnClickListener {
             DialogHelper.bottom()
-                .view(BluetoothFilterView(this))
-                .onShowAnd {
-
-                }
-                .onDismiss { vm.dispatch(INTENT.Filter(BluetoothFilter.from(get()))) }
+                .view(view.apply { removeFromParent() })
+                .onDismiss { vm.dispatch(INTENT.UpdateFilter(BluetoothFilter.from(get()))) }
                 .offer(this)
                 .show()
         }

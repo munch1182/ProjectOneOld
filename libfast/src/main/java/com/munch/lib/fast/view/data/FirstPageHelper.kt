@@ -5,7 +5,9 @@ import com.munch.lib.android.extend.to
 import com.munch.lib.android.helper.data.SPHelper
 import kotlin.reflect.KClass
 
-object FirstPageHelper : SPHelper("libFirst") {
+open class DataHelper(name: String = "libFast") : SPHelper(name)
+
+object FirstPageHelper : DataHelper() {
 
     private const val KEY_FIRST_PAGE = "KEY_FIRST_PAGE"
 
