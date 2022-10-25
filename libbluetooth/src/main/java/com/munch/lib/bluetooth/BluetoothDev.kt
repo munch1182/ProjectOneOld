@@ -37,6 +37,7 @@ class BluetoothScanDev(private val scan: ScanResult) :
 
     val rssiStr = "${rssi}dBm"
 
+    //https://www.bluetooth.com/specifications/assigned-numbers/
     val rawRecord = scan.scanRecord?.bytes
 
     fun getRecords(): List<Record> {
