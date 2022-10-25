@@ -278,6 +278,16 @@ class BluetoothDevFilterContainer(vararg filters: OnBluetoothDevFilter) : OnBlue
         return false
     }
 
+    override fun toString(): String {
+        val sb = StringBuilder()
+        var first = true
+        list.forEach {
+            if (!first) sb.append(", ")
+            first = false
+            sb.append(it::class.java.simpleName)
+        }
+        return "BluetoothDevFilterContainer($sb)"
+    }
 }
 
 /**

@@ -3,6 +3,7 @@ package com.munch.project.one.bluetooth
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.munch.lib.android.extend.ContractVM
+import com.munch.lib.android.log.log
 import com.munch.lib.bluetooth.*
 import com.munch.lib.fast.view.data.DataHelper
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +43,7 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
             }
             is INTENT.UpdateFilter -> {
                 val f = it.f
+                log(f, currFilter)
                 if (f == currFilter) {
                     return
                 }
@@ -57,6 +59,7 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
     }
 
     private fun updateFilter(f: BluetoothFilter) {
+        log(f.to())
         BluetoothHelper.configScan { f.to()?.let { filter(it) } ?: noFilter() }
     }
 

@@ -280,7 +280,7 @@ object BluetoothHelperScanner : IBluetoothHelperScanner {
         impScanner = getImpScanner()
         val scanner = impScanner
         if (scanner is BaseBluetoothScanner) {
-            this.config.filter?.let { scanner.setScanFilter(it) }
+            scanner.setScanFilter(this.config.filter)
             scanner.setDelayTime(this.config.delayTime)
         }
         return impScanner!!
