@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/btRecordItemType"
+        style="@style/App.Fast.Text.Title"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        tools:text="0A" />
+
+    <TextView
+        android:id="@+id/btRecordItemValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="12312312312123123120s1312a1231d1231231231a1231231a123123a1231231ae123121a" />
+
+</LinearLayout>

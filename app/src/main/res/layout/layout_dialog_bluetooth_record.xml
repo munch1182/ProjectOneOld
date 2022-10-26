@@ -12,7 +12,7 @@
         style="@style/App.Fast.Text.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="@dimen/dimenDef"
+        android:padding="@dimen/dimenDefSmall"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,25 +24,26 @@
         style="@style/App.Fast.Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/dimenDef"
-        android:paddingEnd="@dimen/dimenDef"
+        android:background="?selectableItemBackground"
+        android:padding="@dimen/dimenDefSmall"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="0x1231231231231231231231231231231123ASAD123SDA11DAS1ASD11D1S2SD1" />
 
-    <GridLayout
+    <LinearLayout
         android:id="@+id/btRecordRawDetails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/dimenDef" />
+        android:orientation="vertical"
+        android:padding="@dimen/dimenDefSmall" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="end"
-        android:padding="@dimen/dimenDef">
+        android:padding="@dimen/dimenDefSmall">
 
         <Button
             android:id="@+id/btConnect"

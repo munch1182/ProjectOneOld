@@ -3,13 +3,13 @@
 package com.munch.lib.android.extend
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.os.IBinder
 import android.view.View
-import android.view.Window
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.ColorInt
@@ -156,3 +156,36 @@ inline fun Activity.showIme() =
 
 inline fun Fragment.showIme() = requireActivity().showIme()
 //</editor-fold>
+
+/**
+ * 有些手机有剪切板权限
+ */
+fun copy2Clip(text: String): Boolean {
+    val cm = AppHelper.getSystemService(Context.CLIPBOARD_SERVICE)
+        ?.toOrNull<ClipboardManager>()
+        ?: return false
+    val clip = ClipData.newPlainText("text", text)
+    cm.setPrimaryClip(clip)
+    return true
+}
+
+/**
+ * 有些手机需要有焦点才能获取
+ */
+fun getClip(): List<String>? {
+    val cm = AppHelper.getSystemService(Context.CLIPBOARD_SERVICE)
+        ?.toOrNull<ClipboardManager>()
+        ?: return null
+    if (!cm.hasPrimaryClip()) {
+        return null
+    }
+    return catch {
+        val clips = cm.primaryClip ?: return@catch null
+        val count = clips.itemCount
+        val list = ArrayList<String>(count)
+        for (i in 0 until count) {
+            list.add(clips.getItemAt(i).coerceToHtmlText(AppHelper))
+        }
+        return@catch list
+    }
+}

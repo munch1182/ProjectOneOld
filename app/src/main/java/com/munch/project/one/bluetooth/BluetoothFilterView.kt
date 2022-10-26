@@ -148,7 +148,7 @@ class BluetoothFilterView @JvmOverloads constructor(
                 sb.append("No Name")
             }
             if (sb.isEmpty()) {
-                return "No Filter"
+                return "No filter"
             }
             return sb.toString()
         }

@@ -70,7 +70,6 @@ fun CharSequence.split(count: Int, start: Int = 0): Array<CharSequence> {
     }
 }
 
-
 //<editor-fold desc="SpannableString">
 /**
  * 将[this]中的部分文字[str]的颜色改为[color]
@@ -125,3 +124,17 @@ inline fun SpannableString.size(
     setSpan(RelativeSizeSpan(multiple), start, end, SpannableString.SPAN_INCLUSIVE_EXCLUSIVE)
 }
 //</editor-fold>
+
+/**
+ * 将该字符串前面补齐[len]长度的字符
+ */
+fun String.completion(len: Int, prefix: Char): String {
+    val str = toString()
+    if (str.length < len) {
+        val sb = StringBuilder()
+        repeat(len - str.length) { sb.append(prefix) }
+        sb.append(str)
+        return sb.toString()
+    }
+    return str
+}
