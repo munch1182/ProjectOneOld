@@ -21,6 +21,8 @@ class BottomAction2Dialog(customViewCreator: DialogViewCreator<DialogActionKey> 
     internal val curr = ActivityHelper.curr!!
     internal val helper = ActionDialogHelper(customViewCreator)
 
+    override val uniqueTag: String? = javaClass.canonicalName
+
     override fun crateDialog(): IDialog {
         return BottomSheetDialog(curr, R.style.App_Fast_Dialog_Bottom)
             .apply { setContentView(helper.getContentView(curr)) }

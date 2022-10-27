@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.setPadding
+import com.munch.lib.android.dialog.DialogUnique
 import com.munch.lib.android.dialog.IDialog
 import com.munch.lib.android.dialog.toDialog
 import com.munch.lib.android.extend.dp2Px2Int
@@ -20,22 +21,29 @@ import com.munch.lib.fast.view.base.ActivityHelper
  */
 
 /**
- * 仅显示提醒的dialog, 使用的是[AlertDialog], 且必定会调用[ok]
+ * 使用的是[AlertDialog], 且必定会调用[okStr]
  */
-class MessageDialog : TextActionDialog() {
+class MessageDialog : TextActionDialog(), DialogUnique {
 
     override val context: Context = ActivityHelper.curr!! // 必须在Activity显示后未关闭前创建和显示dialog
 
-    override fun cancel(cancel: String) = ok(cancel)
-
     override fun crateDialog(): IDialog {
         if (DialogActionKey.Ok !in helper) {
-            ok(context.getString(android.R.string.ok))
+            okStr(context.getString(android.R.string.ok))
         }
         return AlertDialog.Builder(context)
             .setView(helper.getContentView(context))
             .create().toDialog()
     }
+
+    override val uniqueTag: String?
+        get() {
+            val action = helper.get(DialogActionKey.Content)
+            if (action is DialogActionContent) {
+                return action.str
+            }
+            return null
+        }
 }
 
 /**

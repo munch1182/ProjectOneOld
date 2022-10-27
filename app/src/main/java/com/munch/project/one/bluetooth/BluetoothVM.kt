@@ -18,6 +18,10 @@ import com.munch.project.one.bluetooth.BluetoothState as STATE
  */
 class BluetoothVM : ContractVM<INTENT, STATE>() {
 
+    companion object {
+        const val SHARE_NAME = "bluetooth"
+    }
+
     private lateinit var currFilter: BluetoothFilter
 
     init {
@@ -56,6 +60,9 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
                 updateFilter(f)
                 saveFilter(f)
                 post(STATE.FilterUpdate(it.f))
+            }
+            is INTENT.Connect -> {
+
             }
         }
     }

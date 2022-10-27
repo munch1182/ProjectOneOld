@@ -59,5 +59,7 @@ open class ActionDialogHelper<KEY : IDialogActionKey>(private var customViewCrea
 
     fun getContentView(context: Context) = customViewCreator.create(context, map)
 
+    fun get(key: KEY): DialogAction<KEY>? = map[key]
+
     operator fun contains(key: KEY): Boolean = map.containsKey(key)
 }

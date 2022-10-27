@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.core.view.get
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.munch.lib.android.dialog.ChoseDialog
 import com.munch.lib.android.dialog.DefaultDialogManager
 import com.munch.lib.android.dialog.IDialogManager
 import com.munch.lib.android.dialog.offer
@@ -40,7 +41,7 @@ class BluetoothActivity : BaseActivity(),
     IDialogManager by DefaultDialogManager() {
 
     private val bind by bind<ActivityBluetoothBinding>()
-    private val vm by get<BluetoothVM>()
+    private val vm by get<BluetoothVM>(BluetoothVM.SHARE_NAME)
     private val view by lazy { BluetoothFilterView(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,6 +75,18 @@ class BluetoothActivity : BaseActivity(),
             vm.dispatch(INTENT.StopScan)
             val dev = bluetoothAdapter.get(it.pos)
             showScanRecordDialog(dev)
+        }.setOnItemClick {
+            vm.dispatch(INTENT.StopScan)
+            val dev = bluetoothAdapter.get(it.pos)
+            DialogHelper.message("将要连接\n${dev.name}(${dev.mac})")
+                .okStr()
+                .cancelStr()
+                .onDismiss<ChoseDialog> { d ->
+                    vm.dispatch(INTENT.Connect(dev.mac))
+                    if (d.isChoseOk) startActivity<BluetoothConnectActivity>()
+                }
+                .offer(this)
+                .show()
         }
     }
 

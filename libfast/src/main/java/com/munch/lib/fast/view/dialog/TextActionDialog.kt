@@ -1,6 +1,7 @@
 package com.munch.lib.fast.view.dialog
 
 import android.content.Context
+import android.graphics.Color
 import android.view.View
 import android.widget.TextView
 import com.munch.lib.android.AppHelper
@@ -36,9 +37,12 @@ abstract class TextActionDialog(
         return this
     }
 
-    open fun cancel(cancel: String = AppHelper.getString(android.R.string.cancel)): TextActionDialog {
+    open fun cancelStr(
+        cancel: String = AppHelper.getString(android.R.string.cancel),
+        color: Int = Color.BLACK
+    ): TextActionDialog {
         helper.add(
-            DialogActionCancel(context, cancel)
+            DialogActionCancel(context, cancel, color)
                 .setOnClickListener {
                     choseCancelOpt()
                     dismiss()
@@ -47,9 +51,12 @@ abstract class TextActionDialog(
         return this
     }
 
-    open fun ok(ok: String = AppHelper.getString(android.R.string.ok)): TextActionDialog {
+    open fun okStr(
+        ok: String = AppHelper.getString(android.R.string.ok),
+        color: Int = Color.BLACK
+    ): TextActionDialog {
         helper.add(
-            DialogActionOk(context, ok)
+            DialogActionOk(context, ok, color)
                 .setOnClickListener {
                     choseOkOpt()
                     dismiss()
@@ -63,7 +70,7 @@ abstract class TextActionDialog(
 /**
  * 默认的由TextView组成的[DialogActionKey.Content]
  */
-class DialogActionContent(context: Context, str: String) : DialogAction<DialogActionKey> {
+class DialogActionContent(context: Context, val str: String) : DialogAction<DialogActionKey> {
     override val key: DialogActionKey = DialogActionKey.Content
     override val view: View = TextView(context, null, R.attr.fastAttrText).apply { text = str }
 }
@@ -79,12 +86,14 @@ class DialogActionTitle(context: Context, str: String) : DialogAction<DialogActi
 /**
  * 默认的由TextView组成的[DialogActionKey.Ok]
  */
-class DialogActionOk(context: Context, str: String) : DialogAction<DialogActionKey> {
+class DialogActionOk(context: Context, str: String, color: Int = Color.BLACK) :
+    DialogAction<DialogActionKey> {
     override val key: DialogActionKey = DialogActionKey.Ok
     override val view: View = TextView(context, null, R.attr.fastAttrTextTitle).apply {
         val dp16 = 16.dp2Px2Int()
         setPadding(dp16, dp16 / 2, dp16, dp16 / 2)
         clickEffect()
+        setTextColor(color)
         text = str
     }
 }
@@ -92,12 +101,14 @@ class DialogActionOk(context: Context, str: String) : DialogAction<DialogActionK
 /**
  * 默认的由TextView组成的[DialogActionKey.Cancel]
  */
-class DialogActionCancel(context: Context, str: String) : DialogAction<DialogActionKey> {
+class DialogActionCancel(context: Context, str: String, color: Int = Color.BLACK) :
+    DialogAction<DialogActionKey> {
     override val key: DialogActionKey = DialogActionKey.Cancel
     override val view: View = TextView(context, null, R.attr.fastAttrTextTitle).apply {
         val dp16 = 16.dp2Px2Int()
         setPadding(dp16, dp16 / 2, dp16, dp16 / 2)
         clickEffect()
+        setTextColor(color)
         text = str
     }
 }

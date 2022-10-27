@@ -5,7 +5,7 @@ import com.munch.lib.android.extend.SealedClassToStringByName
 /**
  * 给需要选择类的dialog提供选择的获取
  */
-interface ChoseDialog : IDialog {
+interface ChoseDialog : IDialog, IDialogChose {
 
     /**
      * 用户对当前Dialog的选项所做的选择
@@ -13,6 +13,16 @@ interface ChoseDialog : IDialog {
      * 只有当Dialog取消显示时才有值
      */
     val chose: IDialogChose?
+
+    override val isChoseCancel: Boolean
+        get() = chose?.isChoseCancel ?: false
+
+    override val isChoseOk: Boolean
+        get() = chose?.isChoseOk ?: false
+
+    override val isChoseOther: Any?
+        get() = chose?.isChoseOther
+
 }
 
 interface IDialogChose {

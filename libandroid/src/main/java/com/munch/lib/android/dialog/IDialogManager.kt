@@ -4,7 +4,6 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.android.AppHelper
 import com.munch.lib.android.extend.impInMain
-import com.munch.lib.android.extend.to
 import com.munch.lib.android.log.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -66,12 +65,13 @@ interface IDialogManager {
 }
 
 /**
- * 如果[isUnique]返回true, 在添加一个该类的Dialog之后, 到该Dialog被取消之前, 添加该类型Dialog的动作会被忽略
+ * 如果[uniqueTag]不为null, 在添加一个返回该参数的Dialog之后, 到该Dialog被取消之前, 添加返回该参数的Dialog的动作会被忽略
  *
  * 该接口需要手动添加到实现的Dialog上
  */
 interface DialogUnique {
-    fun isUnique(): Boolean = true
+    val uniqueTag: String?
+        get() = null
 }
 
 abstract class DialogManagerByQueue : IDialogManager {
@@ -102,7 +102,7 @@ class DefaultDialogManager : DialogManagerByQueue() {
     private val log = Logger.only("dialog")
     private var curr: IDialog? = null // 当前正在显示的dialog, 当其取消显示时, 此值为null
 
-    private var addDialogForUnique: MutableList<Class<DialogUnique>>? = null
+    private var addDialogForUnique: MutableList<String>? = null
 
     private val life2Next = object : DefaultLifecycleObserver {
         override fun onStop(owner: LifecycleOwner) {
@@ -110,8 +110,8 @@ class DefaultDialogManager : DialogManagerByQueue() {
             val dialog = curr
             if (dialog != null) {
                 dialog.lifecycle.removeObserver(this)
-                if (dialog is DialogUnique && dialog.isUnique()) {
-                    addDialogForUnique?.remove(dialog.javaClass)
+                if (dialog is DialogUnique && dialog.uniqueTag != null) {
+                    addDialogForUnique?.remove(dialog.uniqueTag)
                 }
             }
             curr = null
@@ -176,18 +176,18 @@ class DefaultDialogManager : DialogManagerByQueue() {
     }
 
     override fun add(dialog: IDialog): IDialogManager {
-        if (dialog is DialogUnique && dialog.isUnique()) {
+        if (dialog is DialogUnique && dialog.uniqueTag != null) {
             if (addDialogForUnique == null) {
                 addDialogForUnique = mutableListOf()
             }
             val unique = addDialogForUnique
-            val clazz: Class<DialogUnique> = (dialog.to<DialogUnique>()).javaClass
-            if (unique != null) {
-                if (unique.contains(clazz)) {
+            val tag = dialog.uniqueTag
+            if (unique != null && tag != null) {
+                if (unique.contains(tag)) {
                     log.log("repeat add DialogUnique, ignore.")
                     return this
                 }
-                unique.add(clazz)
+                unique.add(tag)
             }
         }
         log.log("add one dialog.")

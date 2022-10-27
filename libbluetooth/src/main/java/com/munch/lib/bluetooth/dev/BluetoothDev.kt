@@ -3,6 +3,8 @@ package com.munch.lib.bluetooth.dev
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import com.munch.lib.android.extend.toHexStr
+import com.munch.lib.bluetooth.connect.BluetoothConnector
+import com.munch.lib.bluetooth.connect.IBluetoothConnector
 
 /**
  * Create by munch1182 on 2022/9/29 15:47.
@@ -10,10 +12,8 @@ import com.munch.lib.android.extend.toHexStr
 open class BluetoothDev(
     override val mac: String,
     var name: String?,
-    private var dev: BluetoothDevice? = null
-) : IBluetoothDev {
-
-    fun canConnect() = dev != null
+    dev: BluetoothDevice? = null
+) : IBluetoothDev, IBluetoothConnector by BluetoothConnector(mac, dev) {
 
     override fun toString() = mac
     override fun equals(other: Any?): Boolean {
