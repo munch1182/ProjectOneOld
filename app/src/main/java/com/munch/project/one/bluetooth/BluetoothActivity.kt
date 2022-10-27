@@ -17,9 +17,9 @@ import com.munch.lib.android.recyclerview.DifferAdapterFun
 import com.munch.lib.android.recyclerview.SimpleBaseBindAdapter
 import com.munch.lib.android.recyclerview.pos
 import com.munch.lib.android.result.then
-import com.munch.lib.bluetooth.BluetoothDev
 import com.munch.lib.bluetooth.BluetoothHelper
-import com.munch.lib.bluetooth.BluetoothScanDev
+import com.munch.lib.bluetooth.dev.BluetoothDev
+import com.munch.lib.bluetooth.dev.BluetoothScanDev
 import com.munch.lib.fast.view.dialog.DialogHelper
 import com.munch.lib.fast.view.dialog.view
 import com.munch.lib.fast.view.dispatch.ActivityDispatch

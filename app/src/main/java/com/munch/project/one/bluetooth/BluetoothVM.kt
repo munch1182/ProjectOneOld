@@ -3,13 +3,15 @@ package com.munch.project.one.bluetooth
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.munch.lib.android.extend.ContractVM
-import com.munch.lib.android.log.log
-import com.munch.lib.bluetooth.*
+import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.helper.stopThenStartScan
+import com.munch.lib.bluetooth.helper.watchDevsScan
+import com.munch.lib.bluetooth.helper.watchScan
 import com.munch.lib.fast.view.data.DataHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import com.munch.project.one.bluetooth.BluetoothState as STATE
 import com.munch.project.one.bluetooth.BluetoothIntent as INTENT
+import com.munch.project.one.bluetooth.BluetoothState as STATE
 
 /**
  * Create by munch1182 on 2022/10/22 11:52.
@@ -20,7 +22,7 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
 
     init {
         BluetoothHelper.watchScan(this) { post(STATE.IsScan(it)) }
-        BluetoothHelper.setDevsScan(this) { post(STATE.ScannedDevs(it)) }
+        BluetoothHelper.watchDevsScan(this) { post(STATE.ScannedDevs(it)) }
         viewModelScope.launch(Dispatchers.IO) {
             val filter = BluetoothFilterHelper.get()
             currFilter = filter
@@ -32,24 +34,24 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
     override suspend fun onCollect(it: INTENT) {
         when (it) {
             INTENT.StopScan -> BluetoothHelper.stopScan()
-            INTENT.StartScan -> BluetoothHelper.stopThenStartScan()
+            INTENT.StartScan -> {
+                post(STATE.ScannedDevs(listOf()))
+                BluetoothHelper.stopThenStartScan()
+            }
             INTENT.ToggleScan -> {
                 if (BluetoothHelper.isScanning) {
-                    BluetoothHelper.stopScan()
+                    onCollect(INTENT.StopScan)
                 } else {
-                    post(STATE.ScannedDevs(listOf()))
-                    BluetoothHelper.startScan()
+                    onCollect(INTENT.StartScan)
                 }
             }
             is INTENT.UpdateFilter -> {
                 val f = it.f
-                log(f, currFilter)
                 if (f == currFilter) {
                     return
                 }
                 if (BluetoothHelper.isScanning) { // 扫描中更改filter, 重新扫描
-                    post(STATE.ScannedDevs(listOf()))
-                    BluetoothHelper.stopThenStartScan()
+                    onCollect(INTENT.StartScan)
                 }
                 updateFilter(f)
                 saveFilter(f)
@@ -59,8 +61,7 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
     }
 
     private fun updateFilter(f: BluetoothFilter) {
-        log(f.to())
-        BluetoothHelper.configScan { f.to()?.let { filter(it) } ?: noFilter() }
+        BluetoothHelper.configDefaultScan { filter(f.to()) }
     }
 
     private fun saveFilter(f: BluetoothFilter) {
