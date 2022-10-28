@@ -1,6 +1,7 @@
 package com.munch.lib.bluetooth.scan
 
 import com.munch.lib.bluetooth.dev.BluetoothScanDev
+import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 
 /**
  * Create by munch1182 on 2022/10/26 16:28.
@@ -11,7 +12,7 @@ interface IBluetoothScanner {
      * 表示当前扫描器的扫描状态
      */
     val isScanning: Boolean
-    fun startScan(timeout: Long = 30 * 1000L)
+    fun startScan(timeout: Long = BluetoothHelperConfig.builder.defaultTimeout)
     fun stopScan()
 }
 

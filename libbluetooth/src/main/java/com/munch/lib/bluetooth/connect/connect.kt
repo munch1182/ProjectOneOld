@@ -1,22 +1,36 @@
 package com.munch.lib.bluetooth.connect
 
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
 import com.munch.lib.android.extend.SealedClassToStringByName
+import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 
 /**
  * Create by munch1182 on 2022/10/27 17:50.
  */
 
-interface IBluetoothConnector {
-    val state: BluetoothConnectState
+interface IBluetoothConnectState {
 
     /**
-     * 在[timeout]内是否连接成功
+     * 当前设备的连接状态
+     */
+    val connectState: BluetoothConnectState
+
+    /**
+     * 添加连接状态回调
+     */
+    fun addConnectListener(l: OnBluetoothConnectStateListener)
+    fun removeConnectListener(l: OnBluetoothConnectStateListener)
+}
+
+interface IBluetoothConnectFun {
+    /**
+     * 在[timeout]内的连接结果, 仅限此次连接, 当连接成功后的状态变化与此无关
      *
      * @param timeout 连接超时时间, 该时间只对系统连接时间限制, 当系统连接后, 自定义操作不再限制超时时间, 或者说, 需要自行限定超时时间
      * @return 此次连接结果
      */
-    suspend fun connect(timeout: Long = 30 * 1000L): BluetoothConnectResult
+    suspend fun connect(timeout: Long = BluetoothHelperConfig.builder.defaultTimeout): BluetoothConnectResult
 
     /**
      * @param removeBond 是否需要移除系统的绑定
@@ -24,18 +38,100 @@ interface IBluetoothConnector {
      * @return 当[removeBond]为true时, 该结果返回是否解除成功, 否则固定返回true
      */
     suspend fun disconnect(removeBond: Boolean): Boolean
+}
 
-    fun addConnectListener(l: OnBluetoothConnectListener)
-    fun removeConnectListener(l: OnBluetoothConnectListener)
+interface IBluetoothConnector : IBluetoothConnectState, IBluetoothConnectFun
+
+/**
+ * 提供连接相关的操作
+ */
+interface IBluetoothHelperConnector {
+
+    /**
+     * 设置通用的连接设置
+     */
+    fun configConnect(build: BluetoothHelperConnector.Builder.() -> Unit)
 }
 
 /**
- * 提供原生的与蓝牙设备相关的操作对象
+ * 提供名字
  */
-interface IBluetoothDevManager {
-    val dev: BluetoothDevice?
+interface BluetoothHelperConnector {
+    class Builder {
+        internal var transport: Int = BluetoothDevice.TRANSPORT_AUTO
+        internal var phy: Int = BluetoothDevice.PHY_LE_1M_MASK
+        internal var judge: IBluetoothConnectJudge? = null
+
+        /**
+         * 连接时的参数
+         */
+        fun transport(transport: Int): Builder {
+            this.transport = transport
+            return this
+        }
+
+        /**
+         * 连接时的参数
+         */
+        fun phy(phy: Int): Builder {
+            this.phy = phy
+            return this
+        }
+
+        /**
+         * 连接流程的处理
+         *
+         * @see IBluetoothConnectJudge
+         */
+        fun judge(vararg judge: IBluetoothConnectJudge): Builder {
+            if (judge.isEmpty()) {
+                this.judge = null
+            } else if (judge.size == 1) {
+                this.judge = judge.first()
+            } else {
+                this.judge = BluetoothConnectJudgeContainer(*judge)
+            }
+            return this
+        }
+    }
 }
 
+/**
+ * 当本库执行完系统连接并连接成功后, 会回调此接口用以执行传入的自定义操作
+ * 如果自定义操作返回连接成功, 则本库会视为连接成功并回调连接成功
+ * 否则, 会方法此自定义的连接结果并视作连接失败, 并自动断开连接
+ */
+interface IBluetoothConnectJudge {
+    suspend fun onJudge(gatt: BluetoothGattHelper): BluetoothConnectResult
+}
+
+class BluetoothConnectJudgeContainer(vararg judges: IBluetoothConnectJudge) :
+    IBluetoothConnectJudge {
+    private val list = mutableListOf(*judges)
+
+    fun add(judge: IBluetoothConnectJudge): BluetoothConnectJudgeContainer {
+        list.add(judge)
+        return this
+    }
+
+    fun remove(judge: IBluetoothConnectJudge): BluetoothConnectJudgeContainer {
+        list.remove(judge)
+        return this
+    }
+
+    override suspend fun onJudge(gatt: BluetoothGattHelper): BluetoothConnectResult {
+        list.forEach {
+            val judge = it.onJudge(gatt)
+            if (!judge.isSuccess) return judge
+        }
+        return BluetoothConnectResult.Success
+    }
+
+}
+
+/**
+ * 连接结果
+ */
 sealed class BluetoothConnectResult : SealedClassToStringByName() {
     object Success : BluetoothConnectResult() {
         override fun toString() = "BluetoothConnectSuccess"
@@ -49,11 +145,14 @@ sealed class BluetoothConnectResult : SealedClassToStringByName() {
         get() = this is Success
 }
 
+/**
+ * 连接状态
+ */
 sealed class BluetoothConnectState : SealedClassToStringByName() {
     /**
      * 未连接
      */
-    object Disconnect : BluetoothConnectState()
+    object Disconnected : BluetoothConnectState()
 
     /**
      * 连接中
@@ -67,27 +166,53 @@ sealed class BluetoothConnectState : SealedClassToStringByName() {
      */
     object Connected : BluetoothConnectState()
 
+    object Disconnecting : BluetoothConnectState()
+
     val isConnected: Boolean
         get() = this is Connected
     val isConnecting: Boolean
         get() = this is Connecting
-    val isDisconnect: Boolean
-        get() = this is Disconnect
+    val isDisconnected: Boolean
+        get() = this is Disconnected
+    val isDisconnecting: Boolean
+        get() = this is Disconnecting
+
+    companion object {
+        fun from(state: Int): BluetoothConnectState {
+            return when (state) {
+                BluetoothGatt.STATE_CONNECTED -> Connected
+                BluetoothGatt.STATE_DISCONNECTED -> Disconnected
+                BluetoothGatt.STATE_CONNECTING -> Connecting
+                BluetoothGatt.STATE_DISCONNECTING -> Disconnecting
+                else -> Disconnected
+            }
+        }
+    }
 }
 
-fun interface OnBluetoothConnectListener {
-    fun onConnect(isSuccess: Boolean)
+/**
+ * 连接状态回调
+ */
+fun interface OnBluetoothConnectStateListener {
+    fun onConnectState(last: BluetoothConnectState, state: BluetoothConnectState)
 }
 
+/**
+ * 连接结果失败的原因, 使用接口用于自定义拓展
+ */
 interface IBluetoothConnectFailReason {
     val code: Int
 }
 
+/**
+ * 默认的连接失败的原因
+ */
 sealed class BluetoothConnectFailReason : SealedClassToStringByName(), IBluetoothConnectFailReason {
-    object MacInvalid : BluetoothConnectFailReason()
-    object NotFindDev : BluetoothConnectFailReason()
-    object ConnectTimeout : BluetoothConnectFailReason()
-    class SysErr(private val sysErrCode: Int) : BluetoothConnectFailReason() {
+    object MacInvalid : BluetoothConnectFailReason() // 该mac地址无效
+    object NotFindDev : BluetoothConnectFailReason() // 连接前未扫描到该设备
+    object ConnectTimeout : BluetoothConnectFailReason() // 连接超时
+    object ConnectedButConnect : BluetoothConnectFailReason() // 已连接仍调用连接
+    class SysErr(private val sysErrCode: Int) : BluetoothConnectFailReason() { // 系统回调错误
         override val code: Int
             get() = sysErrCode
 

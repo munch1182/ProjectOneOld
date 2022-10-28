@@ -3,10 +3,10 @@ package com.munch.lib.bluetooth.dev
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import com.munch.lib.android.extend.toHexStr
-import com.munch.lib.bluetooth.connect.BluetoothConnectState
-import com.munch.lib.bluetooth.connect.BluetoothConnector
-import com.munch.lib.bluetooth.connect.IBluetoothConnector
-import com.munch.lib.bluetooth.connect.OnBluetoothConnectListener
+import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.connect.*
+import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
+import com.munch.lib.bluetooth.helper.find
 
 /**
  * Create by munch1182 on 2022/9/29 15:47.
@@ -17,24 +17,39 @@ open class BluetoothDev(
     dev: BluetoothDevice? = null
 ) : IBluetoothDev, IBluetoothConnector {
 
-    private val connector by lazy { BluetoothConnector(mac, dev) }
+    constructor(dev: BluetoothDevice) : this(dev.address, dev.name, dev)
+
+    private val connector by lazy { BluetoothConnector(mac) }
+
+    val gattHelper: BluetoothGattHelper?
+        get() = connector.gattHelper
 
     var dev: BluetoothDevice? = dev
         private set
 
-    override val state: BluetoothConnectState
-        get() = connector.state
+    override val connectState: BluetoothConnectState
+        get() = connector.connectState
 
-    override suspend fun connect(timeout: Long) = connector.connect(timeout)
-
-    override suspend fun disconnect(removeBond: Boolean) = connector.disconnect(removeBond)
-
-    override fun addConnectListener(l: OnBluetoothConnectListener) {
-        connector.addConnectListener(l)
+    suspend fun find(timeout: Long = BluetoothHelperConfig.builder.defaultTimeout): BluetoothDev? {
+        if (dev != null) return this
+        dev = BluetoothHelper.find(mac, timeout)
+        return if (dev == null) null else this
     }
 
-    override fun removeConnectListener(l: OnBluetoothConnectListener) {
-        connector.removeConnectListener(l)
+    suspend fun removeBond(): Boolean {
+        return false
+    }
+
+    override suspend fun connect(timeout: Long) = connector.connect(this, timeout)
+
+    override suspend fun disconnect(removeBond: Boolean) = connector.disconnect(this, removeBond)
+
+    override fun addConnectListener(l: OnBluetoothConnectStateListener) {
+        connector.add(l)
+    }
+
+    override fun removeConnectListener(l: OnBluetoothConnectStateListener) {
+        connector.remove(l)
     }
 
     override fun toString() = mac
@@ -55,8 +70,7 @@ open class BluetoothDev(
 /**
  * 扫描到的类, 附带蓝牙广播数据
  */
-class BluetoothScanDev(scan: ScanResult) :
-    BluetoothDev(scan.device.address, scan.device.name, scan.device) {
+class BluetoothScanDev(scan: ScanResult) : BluetoothDev(scan.device) {
 
     val rssi = scan.rssi
 

@@ -65,8 +65,12 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
             }
             is INTENT.Connect -> {
                 BluetoothHelper.launch(Dispatchers.Default) {
-                    val connect = BluetoothDev(it.mac).connect()
-                    log(connect)
+                    BluetoothHelper.configConnect {
+                        judge()
+                    }
+                    val dev = BluetoothDev(it.mac)
+                    val connect = dev.connect()
+                    log(connect, dev.connectState)
                 }
             }
         }

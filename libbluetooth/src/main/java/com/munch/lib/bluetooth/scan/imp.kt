@@ -11,10 +11,7 @@ import com.munch.lib.bluetooth.dev.BluetoothScanDev
 import com.munch.lib.bluetooth.env.BluetoothEnv
 import com.munch.lib.bluetooth.env.IBluetoothManager
 import com.munch.lib.bluetooth.env.IBluetoothState
-import com.munch.lib.bluetooth.helper.BluetoothHelperEnv
-import com.munch.lib.bluetooth.helper.BluetoothOnOff
-import com.munch.lib.bluetooth.helper.IBluetoothHelperEnv
-import com.munch.lib.bluetooth.helper.onOff2Notify
+import com.munch.lib.bluetooth.helper.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -73,7 +70,9 @@ internal abstract class BluetoothStateScanner :
     }
 
     override fun log(content: String) {
-        log.log("DEV SCANNER: $content")
+        if (BluetoothHelperConfig.builder.enableLogDevScan) {
+            log.log("DEV SCANNER: $content")
+        }
     }
 
     override val isScanning: Boolean
@@ -183,7 +182,9 @@ internal object BluetoothLeDevScanner :
     }
 
     override fun log(content: String) {
-        log.log("DEV SCANNER: $content")
+        if (BluetoothHelperConfig.builder.enableLog) {
+            log.log("DEV SCANNER: $content")
+        }
     }
 }
 

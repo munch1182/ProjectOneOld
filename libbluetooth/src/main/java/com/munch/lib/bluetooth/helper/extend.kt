@@ -1,10 +1,10 @@
 package com.munch.lib.bluetooth.helper
 
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanSettings
 import com.munch.lib.android.extend.UpdateJob
 import com.munch.lib.android.helper.ILifecycle
 import com.munch.lib.bluetooth.BluetoothHelper
-import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.dev.BluetoothScanDev
 import com.munch.lib.bluetooth.env.BluetoothNotify
 import com.munch.lib.bluetooth.env.IBluetoothState
@@ -69,11 +69,11 @@ fun IBluetoothHelperScanner.newScanBuilder() = BluetoothHelperScanner.Builder()
  */
 suspend fun IBluetoothHelperScanner.find(
     mac: String,
-    timeout: Long = 30 * 1000L
-): BluetoothDev? = suspendCancellableCoroutine {
+    timeout: Long = BluetoothHelperConfig.builder.defaultTimeout
+): BluetoothDevice? = suspendCancellableCoroutine {
     val device = BluetoothHelper.pairedDevs?.find { dev -> dev.address == mac }
     if (device != null) {
-        it.resume(BluetoothDev(mac, device.name, device))
+        it.resume(device)
     } else {
         newScanBuilder()
             .filter(BluetoothDevFindFilter(mac), BluetoothDevFirstFilter())
@@ -83,8 +83,8 @@ suspend fun IBluetoothHelperScanner.find(
                     scanner: IBluetoothScanner,
                     dev: BluetoothScanDev
                 ) {
+                    if (it.isActive) it.resume(dev.dev)
                     scanner.stopScan()
-                    if (it.isActive) it.resume(dev)
                 }
 
                 override fun onScanStop() {

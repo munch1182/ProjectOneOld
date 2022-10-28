@@ -1,13 +1,12 @@
 package com.munch.lib.bluetooth
 
 import com.munch.lib.android.extend.ScopeContext
+import com.munch.lib.bluetooth.connect.BluetoothHelperConnectorConfig
+import com.munch.lib.bluetooth.connect.IBluetoothHelperConnector
 import com.munch.lib.bluetooth.env.BluetoothEnv
 import com.munch.lib.bluetooth.env.IBluetoothManager
 import com.munch.lib.bluetooth.env.IBluetoothState
-import com.munch.lib.bluetooth.helper.BluetoothHelperEnv
-import com.munch.lib.bluetooth.helper.BluetoothHelperImpScanner
-import com.munch.lib.bluetooth.helper.IBluetoothHelperEnv
-import com.munch.lib.bluetooth.helper.IBluetoothHelperScanner
+import com.munch.lib.bluetooth.helper.*
 
 /**
  * 给蓝牙相关提供环境对象、更改监听、扫描、连接和数据发送相关功能
@@ -18,4 +17,6 @@ object BluetoothHelper : ScopeContext,
     IBluetoothHelperEnv by BluetoothHelperEnv,
     IBluetoothManager by BluetoothEnv,
     IBluetoothState by BluetoothEnv,
-    IBluetoothHelperScanner by BluetoothHelperImpScanner()
+    IBluetoothHelperScanner by BluetoothHelperImpScanner(),
+    IBluetoothHelperConnector by BluetoothHelperConnectorConfig,
+    IBluetoothHelperConfig by BluetoothHelperConfig

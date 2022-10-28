@@ -119,11 +119,14 @@ internal class BluetoothImpScanner(
         channelJob = null
         channel = null
 
-        setOnceListener = null // setOnceListener会被自动移除,
 
         log("stop ${config.type} scan.")
 
         scanning = false // 先更改此scanning的值, 避免stopScan重复调用
+        if (setOnceListener is OnBluetoothDevScanLifecycleListener) {
+            (setOnceListener as OnBluetoothDevScanLifecycleListener).onScanStop()
+        }
+        setOnceListener = null // setOnceListener会被自动移除,
 
         scanner.stopScan() // 实际调用关闭扫描
 
@@ -143,7 +146,9 @@ internal class BluetoothImpScanner(
     }
 
     override fun log(content: String) {
-        log.log("SCANNER #$id: $content")
+        if (BluetoothHelperConfig.builder.enableLog) {
+            log.log("SCANNER #$id: $content")
+        }
     }
 }
 

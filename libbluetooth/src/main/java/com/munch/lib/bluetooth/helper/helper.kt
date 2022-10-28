@@ -33,7 +33,9 @@ internal interface IBluetoothHelperEnv : CoroutineScope {
      * 可以自行实现以添加统一前缀或者后缀
      */
     fun log(content: String) {
-        log.log(content)
+        if (BluetoothHelperConfig.builder.enableLog) {
+            log.log(content)
+        }
     }
 
     /**
@@ -177,3 +179,44 @@ class BluetoothDevFilterContainer(vararg filters: OnBluetoothDevFilter) :
 
 }
 //</editor-fold>
+
+interface IBluetoothHelperConfig {
+
+    fun config(config: Builder.() -> Unit)
+
+    class Builder {
+        // 是否输出日志
+        internal var enableLog = true
+
+        // 是否输出设备扫描的日志
+        internal var enableLogDevScan = false
+            get() = if (!enableLog) false else field
+
+        // 默认的方法超时时间
+        internal var defaultTimeout = 30 * 1000L
+
+        fun enableLog(enable: Boolean): Builder {
+            this.enableLog = enable
+            return this
+        }
+
+        fun enableLogDevScan(enable: Boolean): Builder {
+            this.enableLogDevScan = enable
+            return this
+        }
+
+        fun defaultTimeout(timeout: Long): Builder {
+            this.defaultTimeout = timeout
+            return this
+        }
+    }
+}
+
+internal object BluetoothHelperConfig : IBluetoothHelperConfig {
+
+    internal val builder = IBluetoothHelperConfig.Builder()
+
+    override fun config(config: IBluetoothHelperConfig.Builder.() -> Unit) {
+        config.invoke(builder)
+    }
+}

@@ -99,7 +99,7 @@ abstract class DialogManagerByQueue : IDialogManager {
  */
 class DefaultDialogManager : DialogManagerByQueue() {
 
-    private val log = Logger.only("dialog")
+    private val log = Logger.only("dialog").enable(false)
     private var curr: IDialog? = null // 当前正在显示的dialog, 当其取消显示时, 此值为null
 
     private var addDialogForUnique: MutableList<String>? = null
