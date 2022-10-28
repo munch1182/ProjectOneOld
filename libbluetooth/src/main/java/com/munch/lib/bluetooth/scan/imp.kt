@@ -72,7 +72,7 @@ internal abstract class BluetoothStateScanner :
         log("Scan state: $last -> $curr.")
     }
 
-    protected open fun log(content: String) {
+    override fun log(content: String) {
         log.log("DEV SCANNER: $content")
     }
 

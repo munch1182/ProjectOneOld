@@ -30,6 +30,13 @@ internal interface IBluetoothHelperEnv : CoroutineScope {
     val log: Logger
 
     /**
+     * 可以自行实现以添加统一前缀或者后缀
+     */
+    fun log(content: String) {
+        log.log(content)
+    }
+
+    /**
      * 提供一个[BluetoothHelper]及其相关类的统一上下文
      */
     override val coroutineContext: CoroutineContext
@@ -41,7 +48,7 @@ internal interface IBluetoothHelperEnv : CoroutineScope {
  */
 internal object BluetoothHelperEnv : IBluetoothHelperEnv {
 
-    override val log: Logger = Logger.only("bluetooth")
+    override val log: Logger = Logger.onlyThread("bluetooth")
 
     private val appJob = SupervisorJob()
     private val appJobName = CoroutineName("bluetooth")

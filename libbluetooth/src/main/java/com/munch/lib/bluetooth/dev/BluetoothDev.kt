@@ -3,19 +3,42 @@ package com.munch.lib.bluetooth.dev
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import com.munch.lib.android.extend.toHexStr
+import com.munch.lib.bluetooth.connect.BluetoothConnectState
 import com.munch.lib.bluetooth.connect.BluetoothConnector
 import com.munch.lib.bluetooth.connect.IBluetoothConnector
+import com.munch.lib.bluetooth.connect.OnBluetoothConnectListener
 
 /**
  * Create by munch1182 on 2022/9/29 15:47.
  */
 open class BluetoothDev(
     override val mac: String,
-    var name: String?,
+    var name: String? = null,
     dev: BluetoothDevice? = null
-) : IBluetoothDev, IBluetoothConnector by BluetoothConnector(mac, dev) {
+) : IBluetoothDev, IBluetoothConnector {
+
+    private val connector by lazy { BluetoothConnector(mac, dev) }
+
+    var dev: BluetoothDevice? = dev
+        private set
+
+    override val state: BluetoothConnectState
+        get() = connector.state
+
+    override suspend fun connect(timeout: Long) = connector.connect(timeout)
+
+    override suspend fun disconnect(removeBond: Boolean) = connector.disconnect(removeBond)
+
+    override fun addConnectListener(l: OnBluetoothConnectListener) {
+        connector.addConnectListener(l)
+    }
+
+    override fun removeConnectListener(l: OnBluetoothConnectListener) {
+        connector.removeConnectListener(l)
+    }
 
     override fun toString() = mac
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

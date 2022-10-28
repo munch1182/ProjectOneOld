@@ -3,7 +3,9 @@ package com.munch.project.one.bluetooth
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.munch.lib.android.extend.ContractVM
+import com.munch.lib.android.log.log
 import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.helper.stopThenStartScan
 import com.munch.lib.bluetooth.helper.watchDevsScan
 import com.munch.lib.bluetooth.helper.watchScan
@@ -62,7 +64,10 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
                 post(STATE.FilterUpdate(it.f))
             }
             is INTENT.Connect -> {
-
+                BluetoothHelper.launch(Dispatchers.Default) {
+                    val connect = BluetoothDev(it.mac).connect()
+                    log(connect)
+                }
             }
         }
     }

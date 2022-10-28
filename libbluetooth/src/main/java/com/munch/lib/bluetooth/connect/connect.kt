@@ -1,6 +1,6 @@
 package com.munch.lib.bluetooth.connect
 
-import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothDevice
 import com.munch.lib.android.extend.SealedClassToStringByName
 
 /**
@@ -10,11 +10,43 @@ import com.munch.lib.android.extend.SealedClassToStringByName
 interface IBluetoothConnector {
     val state: BluetoothConnectState
 
-    fun connect(timeout: Long = 30 * 1000L)
-    fun disconnect()
+    /**
+     * 在[timeout]内是否连接成功
+     *
+     * @param timeout 连接超时时间, 该时间只对系统连接时间限制, 当系统连接后, 自定义操作不再限制超时时间, 或者说, 需要自行限定超时时间
+     * @return 此次连接结果
+     */
+    suspend fun connect(timeout: Long = 30 * 1000L): BluetoothConnectResult
+
+    /**
+     * @param removeBond 是否需要移除系统的绑定
+     *
+     * @return 当[removeBond]为true时, 该结果返回是否解除成功, 否则固定返回true
+     */
+    suspend fun disconnect(removeBond: Boolean): Boolean
 
     fun addConnectListener(l: OnBluetoothConnectListener)
     fun removeConnectListener(l: OnBluetoothConnectListener)
+}
+
+/**
+ * 提供原生的与蓝牙设备相关的操作对象
+ */
+interface IBluetoothDevManager {
+    val dev: BluetoothDevice?
+}
+
+sealed class BluetoothConnectResult : SealedClassToStringByName() {
+    object Success : BluetoothConnectResult() {
+        override fun toString() = "BluetoothConnectSuccess"
+    }
+
+    class Fail(val reason: IBluetoothConnectFailReason) : BluetoothConnectResult() {
+        override fun toString() = "BluetoothConnectFail($reason)"
+    }
+
+    val isSuccess: Boolean
+        get() = this is Success
 }
 
 sealed class BluetoothConnectState : SealedClassToStringByName() {
@@ -39,16 +71,31 @@ sealed class BluetoothConnectState : SealedClassToStringByName() {
         get() = this is Connected
     val isConnecting: Boolean
         get() = this is Connecting
+    val isDisconnect: Boolean
+        get() = this is Disconnect
 }
 
 fun interface OnBluetoothConnectListener {
-    fun onConnect(isSuccess: Boolean, connectHelper: BluetoothConnectHelper?)
+    fun onConnect(isSuccess: Boolean)
 }
 
-/**
- * 一个连接帮助类, 用以处理连接后的相关的操作
- * 该类只能在连接成功后生成, 且在断开连接后应该销毁对象
- */
-class BluetoothConnectHelper(
-    private val gatt: BluetoothGatt // gatt对象, 只有不为null才能构建BluetoothConnectHelper对象
-)
+interface IBluetoothConnectFailReason {
+    val code: Int
+}
+
+sealed class BluetoothConnectFailReason : SealedClassToStringByName(), IBluetoothConnectFailReason {
+    object MacInvalid : BluetoothConnectFailReason()
+    object NotFindDev : BluetoothConnectFailReason()
+    object ConnectTimeout : BluetoothConnectFailReason()
+    class SysErr(private val sysErrCode: Int) : BluetoothConnectFailReason() {
+        override val code: Int
+            get() = sysErrCode
+
+        override fun toString() = "SysErr($sysErrCode)"
+    }
+
+    fun to() = BluetoothConnectResult.Fail(this)
+
+    override val code: Int
+        get() = 999 // 自定义的code都是999, 否则则应该是系统返回的code
+}

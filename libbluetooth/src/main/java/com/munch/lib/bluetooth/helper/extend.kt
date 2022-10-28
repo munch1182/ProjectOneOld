@@ -4,6 +4,7 @@ import android.bluetooth.le.ScanSettings
 import com.munch.lib.android.extend.UpdateJob
 import com.munch.lib.android.helper.ILifecycle
 import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.dev.BluetoothScanDev
 import com.munch.lib.bluetooth.env.BluetoothNotify
 import com.munch.lib.bluetooth.env.IBluetoothState
@@ -61,6 +62,7 @@ fun IBluetoothHelperScanner.newScanBuilder() = BluetoothHelperScanner.Builder()
 /**
  * 通过扫描来寻找[mac]的设备, 如果在[timeout]时间内找到, 则返回该设备对象, 否则返回null
  *
+ * 此方法会先从已配对设置中查找, 如果找到, 则直接返回配对的设备, 返回的设备也带有dev对象, 但是没有广播数据
  * 此方法是通过一个新建的扫描器, 不会影响默认或者其它的扫描器
  *
  * 此方法会阻塞
@@ -68,21 +70,29 @@ fun IBluetoothHelperScanner.newScanBuilder() = BluetoothHelperScanner.Builder()
 suspend fun IBluetoothHelperScanner.find(
     mac: String,
     timeout: Long = 30 * 1000L
-): BluetoothScanDev? = suspendCancellableCoroutine {
-    newScanBuilder()
-        .filter(BluetoothDevFindFilter(mac), BluetoothDevFirstFilter())
-        .newScanner()
-        .setScanListener(object : OnBluetoothOwnerDevScanListener {
-            override fun onBluetoothDevScanned(scanner: IBluetoothScanner, dev: BluetoothScanDev) {
-                scanner.stopScan()
-                if (it.isActive) it.resume(dev)
-            }
+): BluetoothDev? = suspendCancellableCoroutine {
+    val device = BluetoothHelper.pairedDevs?.find { dev -> dev.address == mac }
+    if (device != null) {
+        it.resume(BluetoothDev(mac, device.name, device))
+    } else {
+        newScanBuilder()
+            .filter(BluetoothDevFindFilter(mac), BluetoothDevFirstFilter())
+            .newScanner()
+            .setScanListener(object : OnBluetoothOwnerDevScanListener {
+                override fun onBluetoothDevScanned(
+                    scanner: IBluetoothScanner,
+                    dev: BluetoothScanDev
+                ) {
+                    scanner.stopScan()
+                    if (it.isActive) it.resume(dev)
+                }
 
-            override fun onScanStop() {
-                super.onScanStop()
-                if (it.isActive) it.resume(null)
-            }
-        }).startScan(timeout)
+                override fun onScanStop() {
+                    super.onScanStop()
+                    if (it.isActive) it.resume(null)
+                }
+            }).startScan(timeout)
+    }
 }
 
 fun IBluetoothHelperScanner.stopThenStartScan(timeout: Long = 30 * 1000L) {
