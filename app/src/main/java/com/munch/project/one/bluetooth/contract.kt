@@ -28,17 +28,18 @@ data class BluetoothFilter(
     var name: String? = null,
     var mac: String? = null,
     var rssi: Int = -100,
-    var noName: Boolean = true
+    var noName: Boolean = true,
+    var isBle: Boolean = true,
 ) {
 
     companion object {
         fun from(f: BluetoothFilterView.Filter): BluetoothFilter {
-            return BluetoothFilter(f.name, f.mac, f.rssi ?: -100, f.noName ?: true)
+            return BluetoothFilter(f.name, f.mac, f.rssi ?: -100, f.noName ?: true, f.isBle ?: true)
         }
     }
 
     fun toViewFilter(): BluetoothFilterView.Filter {
-        return BluetoothFilterView.Filter(name, mac, rssi, noName)
+        return BluetoothFilterView.Filter(name, mac, rssi, noName, isBle)
     }
 
     fun to(): OnBluetoothDevFilter? {
@@ -69,6 +70,7 @@ data class BluetoothFilter(
         if (mac != other.mac) return false
         if (rssi != other.rssi) return false
         if (noName != other.noName) return false
+        if (isBle != other.isBle) return false
         return true
     }
 
@@ -77,6 +79,7 @@ data class BluetoothFilter(
         result = 31 * result + (mac?.hashCode() ?: 0)
         result = 31 * result + rssi
         result = 31 * result + noName.hashCode()
+        result = 31 * result + isBle.hashCode()
         return result
     }
 

@@ -23,14 +23,14 @@ import com.munch.lib.bluetooth.connect.BluetoothGattHelper.OnConnectStateChangeL
  * Create by munch1182 on 2022/10/27 18:02.
  */
 
-internal object BluetoothHelperConnectorConfig : IBluetoothHelperConnector {
+internal object BluetoothConnectorConfig : IBluetoothHelperConnector {
 
-    internal var builder = BluetoothHelperConnector.Builder()
+    internal var builder = BluetoothConnector.Builder()
 
     /**
      * 对默认连接进行设置
      */
-    override fun configConnect(build: BluetoothHelperConnector.Builder.() -> Unit) {
+    override fun configConnect(build: BluetoothConnector.Builder.() -> Unit) {
         build.invoke(builder)
     }
 }
@@ -38,7 +38,7 @@ internal object BluetoothHelperConnectorConfig : IBluetoothHelperConnector {
 /**
  * 处理连接动作以及状态维护
  */
-internal class BluetoothConnector(private val mac: String) :
+internal class BluetoothConnectImp(private val mac: String) :
     IBluetoothManager by BluetoothEnv,
     IBluetoothHelperEnv by BluetoothHelperEnv,
     ARSHelper<OnBluetoothConnectStateListener>(),
@@ -102,7 +102,7 @@ internal class BluetoothConnector(private val mac: String) :
                     stateListener = null // 不再接收结果
 
                     if (result.isSuccess) {
-                        val judge = BluetoothHelperConnectorConfig.builder.judge
+                        val judge = BluetoothConnectorConfig.builder.judge
 
                         log("connect result from system: $result")
 

@@ -13,6 +13,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.core.widget.addTextChangedListener
 import com.munch.lib.android.extend.InputPatternFilter
 import com.munch.lib.android.extend.bind
+import com.munch.project.one.R
 import com.munch.project.one.databinding.LayoutBluetoothFilterBinding
 import kotlin.math.absoluteValue
 
@@ -62,6 +63,9 @@ class BluetoothFilterView @JvmOverloads constructor(
             bind.btFilterDesc.ellipsize = TextUtils.TruncateAt.END
             updateDesc(it)
         }
+        bind.btFilterType.setOnCheckedChangeListener { _, checkedId ->
+            updateDesc(Filter(isBle = checkedId == R.id.btFilterTypeLe))
+        }
         bind.btFilterReset.setOnClickListener { set(Filter()) }
         bind.btFilterNoName.setOnCheckedChangeListener { _, isChecked -> updateDesc(Filter(noName = isChecked)) }
     }
@@ -82,6 +86,7 @@ class BluetoothFilterView @JvmOverloads constructor(
         if (noName != this.filter.noName) {
             bind.btFilterNoName.isChecked = noName
         }
+        bind.btFilterType.check(if (filter.isBle != false) R.id.btFilterTypeLe else R.id.btFilterTypeClassic)
         bind.btFilterNameContainer.clearFocus()
         bind.btFilterMacContainer.clearFocus()
         updateDesc(filter)
@@ -103,7 +108,8 @@ class BluetoothFilterView @JvmOverloads constructor(
         var name: String? = null,
         var mac: String? = null,
         var rssi: Int? = null, // 因为更新某一项是只会传该值, 所以不能有默认值
-        var noName: Boolean? = null
+        var noName: Boolean? = null,
+        var isBle: Boolean? = null
     ) : Cloneable {
 
         companion object {
@@ -123,13 +129,21 @@ class BluetoothFilterView @JvmOverloads constructor(
             if (f.noName != null && f.noName != noName) {
                 noName = f.noName
             }
+            if (f.isBle != null && f.isBle != isBle) {
+                isBle = f.isBle
+            }
         }
 
         override fun toString(): String {
             val comma = ", "
             val sb = StringBuilder()
             var needPreComma = false
+            if (isBle != null && isBle != true) {
+                sb.append("CLASSIC")
+                needPreComma = true
+            }
             if (!name.isNullOrBlank()) {
+                if (needPreComma) sb.append(comma)
                 sb.append(name)
                 needPreComma = true
             }

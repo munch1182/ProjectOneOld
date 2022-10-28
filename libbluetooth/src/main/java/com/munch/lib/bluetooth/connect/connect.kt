@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import com.munch.lib.android.extend.SealedClassToStringByName
 import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
+import java.util.*
 
 /**
  * Create by munch1182 on 2022/10/27 17:50.
@@ -50,14 +51,15 @@ interface IBluetoothHelperConnector {
     /**
      * 设置通用的连接设置
      */
-    fun configConnect(build: BluetoothHelperConnector.Builder.() -> Unit)
+    fun configConnect(build: BluetoothConnector.Builder.() -> Unit)
 }
 
 /**
  * 提供名字
  */
-interface BluetoothHelperConnector {
+interface BluetoothConnector {
     class Builder {
+        //<editor-fold desc="LE">
         internal var transport: Int = BluetoothDevice.TRANSPORT_AUTO
         internal var phy: Int = BluetoothDevice.PHY_LE_1M_MASK
         internal var judge: IBluetoothConnectJudge? = null
@@ -91,6 +93,20 @@ interface BluetoothHelperConnector {
             } else {
                 this.judge = BluetoothConnectJudgeContainer(*judge)
             }
+            return this
+        }
+        //</editor-fold>
+
+        internal var name: String = "p1"
+        internal var uuid = UUID.randomUUID()
+
+        fun name(name: String): Builder {
+            this.name = name
+            return this
+        }
+
+        fun uuid(uuid: UUID): Builder {
+            this.uuid = uuid
             return this
         }
     }

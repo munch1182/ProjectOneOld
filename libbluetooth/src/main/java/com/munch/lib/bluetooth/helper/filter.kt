@@ -72,6 +72,7 @@ class BluetoothDevMacFindFilter(private val mac: String) : OnBluetoothDevFilter 
  */
 class BluetoothDevRssiFindFilter(private val rssi: Int) : OnBluetoothDevFilter {
     override fun isNeedBeFilter(dev: BluetoothScanDev): Boolean {
+        if (dev.rssi == null) return false
         return dev.rssi.absoluteValue > rssi.absoluteValue
     }
 }

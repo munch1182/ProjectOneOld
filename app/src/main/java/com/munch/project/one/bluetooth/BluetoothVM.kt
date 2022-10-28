@@ -3,9 +3,8 @@ package com.munch.project.one.bluetooth
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.munch.lib.android.extend.ContractVM
-import com.munch.lib.android.log.log
 import com.munch.lib.bluetooth.BluetoothHelper
-import com.munch.lib.bluetooth.dev.BluetoothDev
+import com.munch.lib.bluetooth.dev.BluetoothType
 import com.munch.lib.bluetooth.helper.stopThenStartScan
 import com.munch.lib.bluetooth.helper.watchDevsScan
 import com.munch.lib.bluetooth.helper.watchScan
@@ -56,6 +55,7 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
                 if (f == currFilter) {
                     return
                 }
+                currFilter = f
                 if (BluetoothHelper.isScanning) { // 扫描中更改filter, 重新扫描
                     onCollect(INTENT.StartScan)
                 }
@@ -64,20 +64,15 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
                 post(STATE.FilterUpdate(it.f))
             }
             is INTENT.Connect -> {
-                BluetoothHelper.launch(Dispatchers.Default) {
-                    BluetoothHelper.configConnect {
-                        judge()
-                    }
-                    val dev = BluetoothDev(it.mac)
-                    val connect = dev.connect()
-                    log(connect, dev.connectState)
-                }
             }
         }
     }
 
     private fun updateFilter(f: BluetoothFilter) {
-        BluetoothHelper.configDefaultScan { filter(f.to()) }
+        BluetoothHelper.configDefaultScan {
+            type(if (f.isBle) BluetoothType.LE else BluetoothType.CLASSIC)
+            filter(f.to())
+        }
     }
 
     private fun saveFilter(f: BluetoothFilter) {

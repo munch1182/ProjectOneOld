@@ -19,7 +19,7 @@ open class BluetoothDev(
 
     constructor(dev: BluetoothDevice) : this(dev.address, dev.name, dev)
 
-    private val connector by lazy { BluetoothConnector(mac) }
+    private val connector by lazy { BluetoothConnectImp(mac) }
 
     val gattHelper: BluetoothGattHelper?
         get() = connector.gattHelper
@@ -70,13 +70,17 @@ open class BluetoothDev(
 /**
  * 扫描到的类, 附带蓝牙广播数据
  */
-class BluetoothScanDev(scan: ScanResult) : BluetoothDev(scan.device) {
+class BluetoothScanDev(
+    scan: ScanResult?, dev: BluetoothDevice, rssi: Int? = null
+) : BluetoothDev(dev) {
 
-    val rssi = scan.rssi
+    constructor(scan: ScanResult) : this(scan, scan.device, scan.rssi)
 
-    val rssiStr = "${rssi}dBm"
+    val rssi = scan?.rssi ?: rssi
 
-    val rawRecord = scan.scanRecord?.bytes
+    val rssiStr = rssi?.let { "${it}dBm" }
+
+    val rawRecord = scan?.scanRecord?.bytes
 
     fun getRecords(): List<Record> {
         val bytes = rawRecord ?: return emptyList()

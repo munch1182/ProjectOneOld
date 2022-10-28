@@ -1,13 +1,18 @@
 package com.munch.lib.bluetooth.scan
 
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.Context
+import android.content.Intent
 import com.munch.lib.android.extend.lazy
 import com.munch.lib.android.helper.ARSHelper
 import com.munch.lib.android.helper.ILifecycle
 import com.munch.lib.android.helper.MutableLifecycle
+import com.munch.lib.android.helper.ReceiverHelper
 import com.munch.lib.bluetooth.dev.BluetoothScanDev
+import com.munch.lib.bluetooth.dev.BluetoothType
 import com.munch.lib.bluetooth.env.BluetoothEnv
 import com.munch.lib.bluetooth.env.IBluetoothManager
 import com.munch.lib.bluetooth.env.IBluetoothState
@@ -80,19 +85,72 @@ internal abstract class BluetoothStateScanner :
 
 }
 
-/**
- * 表示设备的扫描状态, 其类唯一
- *
- * 如果有多个扫描活动, 此库的扫描状态从第一个开始的扫描活动到最后一个扫描活动停止时为true
- */
-internal object BluetoothLeDevScanner :
-    BluetoothStateScanner(), IBluetoothDevScanner,
+internal abstract class BluetoothDevScanner :
+    BluetoothStateScanner(),
+    IBluetoothDevScanner,
     IBluetoothManager by BluetoothEnv {
+
+    protected abstract val type: BluetoothType
+    protected abstract fun startDecScan()
+    protected abstract fun stopDecScan()
 
     /**
      * 用于标记当前进行的扫描活动, 新有一个扫描活动加1, 一个扫描活动停止时减1, 为0时表示无活动, 则停止扫描
      */
     private var startCount = AtomicInteger(0)
+
+    override fun startScan(timeout: Long) {
+        startCount.incrementAndGet() // 增加一次扫描计数
+        if (scanning) {
+            //log("call start scan but scanning.")
+            return
+        }
+
+        // 更改状态
+        this.scanning = true
+        log("start $type scan.")
+        startDecScan()
+    }
+
+    override fun stopScan() {
+        if (!this.scanning) return
+
+        val count = startCount.decrementAndGet() // 减少一次扫描计数
+        if (count > 0) { // 只有为0时即没有活动的扫描器, 则可以关闭
+            log("call stop LE scan, left count: $count.")
+            return
+        }
+
+        log("stop $type scan.")
+        stopDecScan()
+
+        this.scanning = false
+    }
+
+    override fun addScanListener(l: OnBluetoothDevScannedListener) {
+        add(l)
+    }
+
+    override fun removeScanListener(l: OnBluetoothDevScannedListener) {
+        remove(l)
+    }
+
+    override fun log(content: String) {
+        if (BluetoothHelperConfig.builder.enableLog) {
+            log.log("DEV SCANNER: $content")
+        }
+    }
+
+}
+
+/**
+ * 表示设备的扫描状态, 其类唯一
+ *
+ * 如果有多个扫描活动, 此库的扫描状态从第一个开始的扫描活动到最后一个扫描活动停止时为true
+ */
+internal object BluetoothLeDevScanner : BluetoothDevScanner() {
+
+    override val type: BluetoothType = BluetoothType.LE
 
     //<editor-fold desc="callback">
     private val callback = object : ScanCallback() {
@@ -143,64 +201,48 @@ internal object BluetoothLeDevScanner :
         return this
     }
 
-    override fun startScan(timeout: Long) {
-        startCount.incrementAndGet() // 增加一次扫描计数
-        if (scanning) {
-            //log("call start scan but scanning.")
-            return
-        }
-
-        // 更改状态
-        this.scanning = true
-
-        log("start LE scan.")
-
+    override fun startDecScan() {
         adapter?.bluetoothLeScanner?.startScan(null, set, callback)
     }
 
-    override fun stopScan() {
-        if (!this.scanning) return
-
-        val count = startCount.decrementAndGet() // 减少一次扫描计数
-        if (count > 0) { // 只有为0时即没有活动的扫描器, 则可以关闭
-            log("call stop LE scan, left count: $count.")
-            return
-        }
-
-        log("stop LE scan.")
+    override fun stopDecScan() {
         adapter?.bluetoothLeScanner?.stopScan(callback)
-
-        this.scanning = false
-    }
-
-    override fun addScanListener(l: OnBluetoothDevScannedListener) {
-        add(l)
-    }
-
-    override fun removeScanListener(l: OnBluetoothDevScannedListener) {
-        remove(l)
-    }
-
-    override fun log(content: String) {
-        if (BluetoothHelperConfig.builder.enableLog) {
-            log.log("DEV SCANNER: $content")
-        }
     }
 }
 
-internal object BluetoothClassicScanner : BluetoothStateScanner(), IBluetoothDevScanner {
+internal object BluetoothClassicScanner : BluetoothDevScanner() {
 
-    override fun startScan(timeout: Long) {
+    override val type: BluetoothType = BluetoothType.CLASSIC
+
+    private val receiver by lazy { BluetoothReceiver() }
+
+    override fun startDecScan() {
+        receiver.register()
+        adapter?.startDiscovery()
     }
 
-    override fun stopScan() {
+    override fun stopDecScan() {
+        adapter?.cancelDiscovery()
+        receiver.unregister()
     }
 
     override fun addScanListener(l: OnBluetoothDevScannedListener) {
-        add(l)
+        receiver.add(l)
     }
 
-    override fun removeScanListener(l: OnBluetoothDevScannedListener) {
-        remove(l)
+    override fun remove(t: OnBluetoothDevScannedListener) {
+        receiver.remove(t)
+    }
+
+    private class BluetoothReceiver : ReceiverHelper<OnBluetoothDevScannedListener>(
+        arrayOf(BluetoothDevice.ACTION_FOUND)
+    ) {
+        override fun dispatchAction(context: Context, action: String, intent: Intent) {
+            val sysDev = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                ?: return
+            val rssi = intent.getIntExtra(BluetoothDevice.EXTRA_RSSI, 0).takeIf { it != 0 }
+            val dev = BluetoothScanDev(null, sysDev, rssi)
+            update { it.onBluetoothDevScanned(dev) }
+        }
     }
 }

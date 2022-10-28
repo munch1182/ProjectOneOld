@@ -26,6 +26,37 @@
         android:layout_height="1dp"
         android:background="#c0c0c0" />
 
+    <RadioGroup
+        android:id="@+id/btFilterType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
+        android:checkedButton="@id/btFilterTypeLe"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/dimenDefSmall"
+        android:paddingEnd="@dimen/dimenDefSmall">
+
+        <RadioButton
+            android:id="@+id/btFilterTypeLe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LE"
+            tools:ignore="HardcodedText" />
+
+        <RadioButton
+            android:id="@+id/btFilterTypeClassic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimenDef"
+            android:text="CLASSIC"
+            tools:ignore="HardcodedText" />
+    </RadioGroup>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#c0c0c0" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/btFilterNameContainer"
         android:layout_width="match_parent"

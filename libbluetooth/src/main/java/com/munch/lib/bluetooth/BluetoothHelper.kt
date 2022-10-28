@@ -1,7 +1,7 @@
 package com.munch.lib.bluetooth
 
 import com.munch.lib.android.extend.ScopeContext
-import com.munch.lib.bluetooth.connect.BluetoothHelperConnectorConfig
+import com.munch.lib.bluetooth.connect.BluetoothConnectorConfig
 import com.munch.lib.bluetooth.connect.IBluetoothHelperConnector
 import com.munch.lib.bluetooth.env.BluetoothEnv
 import com.munch.lib.bluetooth.env.IBluetoothManager
@@ -18,5 +18,5 @@ object BluetoothHelper : ScopeContext,
     IBluetoothManager by BluetoothEnv,
     IBluetoothState by BluetoothEnv,
     IBluetoothHelperScanner by BluetoothHelperImpScanner(),
-    IBluetoothHelperConnector by BluetoothHelperConnectorConfig,
+    IBluetoothHelperConnector by BluetoothConnectorConfig,
     IBluetoothHelperConfig by BluetoothHelperConfig

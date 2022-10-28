@@ -99,7 +99,7 @@ class BluetoothActivity : BaseActivity(),
                 bluetoothTitle.text = bean.name ?: "N/A"
                 bluetoothMac.text = bean.mac
                 if (bean is BluetoothScanDev) {
-                    bluetoothDbm.text = bean.rssiStr
+                    bean.rssiStr?.let { bluetoothDbm.text = it }
                 }
             }
         }
