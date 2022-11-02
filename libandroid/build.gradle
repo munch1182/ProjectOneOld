@@ -6,7 +6,6 @@ plugins {
 apply from: '../buildCom/commonbuildktx.gradle'
 
 dependencies {
-    api(project(':libjava'))
     api deps['coroutines']
     api deps['recyclerview']
 

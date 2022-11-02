@@ -2,7 +2,7 @@ package com.munch.lib.bluetooth.helper
 
 import com.munch.lib.android.log.Logger
 import com.munch.lib.bluetooth.BluetoothHelper
-import com.munch.lib.bluetooth.dev.BluetoothScanDev
+import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.dev.BluetoothType
 import com.munch.lib.bluetooth.scan.IBluetoothDevScanner
 import com.munch.lib.bluetooth.scan.IBluetoothOnceScanner
@@ -145,7 +145,7 @@ fun interface OnBluetoothDevFilter {
      * 如果需要被过滤掉, 不回调到结果中, 返回true,
      * 否则返回false
      */
-    fun isNeedBeFilter(dev: BluetoothScanDev): Boolean
+    fun isNeedBeFilter(dev: BluetoothDev): Boolean
 }
 
 /**
@@ -162,7 +162,7 @@ interface OnBluetoothDevLifecycleFilter : OnBluetoothDevFilter {
 class BluetoothDevFilterContainer(vararg filters: OnBluetoothDevFilter) :
     OnBluetoothDevLifecycleFilter {
     private val list = mutableListOf(*filters)
-    override fun isNeedBeFilter(dev: BluetoothScanDev): Boolean {
+    override fun isNeedBeFilter(dev: BluetoothDev): Boolean {
         list.forEach { if (it.isNeedBeFilter(dev)) return true } // 任一过滤器需要过滤, 则返回true
         return false
     }

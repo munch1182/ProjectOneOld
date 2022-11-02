@@ -1,6 +1,6 @@
 package com.munch.lib.bluetooth.scan
 
-import com.munch.lib.bluetooth.dev.BluetoothScanDev
+import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 
 /**
@@ -37,11 +37,11 @@ interface IBluetoothOnceScanner : IBluetoothScanner, IBluetoothOnceScanListenerM
  * 设备扫描到的回调
  */
 fun interface OnBluetoothDevScannedListener {
-    fun onBluetoothDevScanned(dev: BluetoothScanDev)
+    fun onBluetoothDevScanned(dev: BluetoothDev)
 }
 
 fun interface OnBluetoothOwnerDevScannedListener {
-    fun onBluetoothDevScanned(scanner: IBluetoothScanner, dev: BluetoothScanDev)
+    fun onBluetoothDevScanned(scanner: IBluetoothScanner, dev: BluetoothDev)
 }
 
 interface OnBluetoothDevScanLifecycleListener {

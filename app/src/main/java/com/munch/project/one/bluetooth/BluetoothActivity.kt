@@ -20,7 +20,8 @@ import com.munch.lib.android.recyclerview.pos
 import com.munch.lib.android.result.then
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.dev.BluetoothDev
-import com.munch.lib.bluetooth.dev.BluetoothScanDev
+import com.munch.lib.bluetooth.dev.BluetoothLeDev
+import com.munch.lib.bluetooth.dev.BluetoothScannedDev
 import com.munch.lib.fast.view.dialog.DialogHelper
 import com.munch.lib.fast.view.dialog.view
 import com.munch.lib.fast.view.dispatch.ActivityDispatch
@@ -74,10 +75,12 @@ class BluetoothActivity : BaseActivity(),
         bluetoothAdapter.setOnItemLongClick {
             vm.dispatch(INTENT.StopScan)
             val dev = bluetoothAdapter.get(it.pos)
+            if (dev !is BluetoothScannedDev) return@setOnItemLongClick
             showScanRecordDialog(dev)
         }.setOnItemClick {
             vm.dispatch(INTENT.StopScan)
             val dev = bluetoothAdapter.get(it.pos)
+            if (dev !is BluetoothScannedDev) return@setOnItemClick
             DialogHelper.message("将要连接\n${dev.name}(${dev.mac})")
                 .okStr()
                 .cancelStr()
@@ -92,13 +95,13 @@ class BluetoothActivity : BaseActivity(),
 
     private class BluetoothAdapter :
         SimpleBaseBindAdapter<BluetoothDev, ItemBluetoothBinding>(
-            DifferAdapterFun(differ({ this.toOrNull<BluetoothScanDev>()?.rssi ?: hashCode() }))
+            DifferAdapterFun(differ({ this.toOrNull<BluetoothScannedDev>()?.rssi ?: hashCode() }))
         ) {
         override fun onBind(holder: BaseBindViewHolder<ItemBluetoothBinding>, bean: BluetoothDev) {
             holder.bind.apply {
-                bluetoothTitle.text = bean.name ?: "N/A"
-                bluetoothMac.text = bean.mac
-                if (bean is BluetoothScanDev) {
+                if (bean is BluetoothScannedDev) {
+                    bluetoothTitle.text = bean.name ?: "N/A"
+                    bluetoothMac.text = bean.mac
                     bean.rssiStr?.let { bluetoothDbm.text = it }
                 }
             }
@@ -124,13 +127,13 @@ class BluetoothActivity : BaseActivity(),
             }
     }
 
-    private fun showScanRecordDialog(dev: BluetoothDev) {
+    private fun showScanRecordDialog(dev: BluetoothScannedDev) {
         DialogHelper.bottom()
             .view<LayoutDialogBluetoothRecordBinding>(this)
             .onShow {
                 val str = "${dev.name ?: "N/A"}\n(${dev.mac})"
                 btRecordName.text = str.size(14, true, str.indexOf('('))
-                if (dev is BluetoothScanDev) {
+                if (dev is BluetoothLeDev) {
                     val rawStr = dev.rawRecord
                         ?.toHexStr("")
                         ?.uppercase()
@@ -141,7 +144,7 @@ class BluetoothActivity : BaseActivity(),
                         copy2Clip(rawStr)
                         toast("已复制到剪切板")
                     }
-                    dev.getRecords().forEach { r ->
+                    dev.records.forEach { r ->
                         val item = LayoutBluetoothRecordItemBinding.inflate(layoutInflater)
                         item.btRecordItemType.text = r.type.toHexStr().uppercase()
                         item.btRecordItemValue.text = r.value.toHexStr("").uppercase()

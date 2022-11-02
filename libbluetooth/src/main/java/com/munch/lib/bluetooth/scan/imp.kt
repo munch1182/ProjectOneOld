@@ -11,7 +11,8 @@ import com.munch.lib.android.helper.ARSHelper
 import com.munch.lib.android.helper.ILifecycle
 import com.munch.lib.android.helper.MutableLifecycle
 import com.munch.lib.android.helper.ReceiverHelper
-import com.munch.lib.bluetooth.dev.BluetoothScanDev
+import com.munch.lib.bluetooth.dev.BluetoothClassicDevice
+import com.munch.lib.bluetooth.dev.BluetoothLeDevice
 import com.munch.lib.bluetooth.dev.BluetoothType
 import com.munch.lib.bluetooth.env.BluetoothEnv
 import com.munch.lib.bluetooth.env.IBluetoothManager
@@ -161,7 +162,7 @@ internal object BluetoothLeDevScanner : BluetoothDevScanner() {
         }
 
         private fun sendDev(result: ScanResult) {
-            launch { update { it.onBluetoothDevScanned(BluetoothScanDev(result)) } }
+            launch { update { it.onBluetoothDevScanned(BluetoothLeDevice(result)) } }
         }
 
         override fun onScanFailed(errorCode: Int) {
@@ -235,13 +236,14 @@ internal object BluetoothClassicScanner : BluetoothDevScanner() {
     }
 
     private class BluetoothReceiver : ReceiverHelper<OnBluetoothDevScannedListener>(
-        arrayOf(BluetoothDevice.ACTION_FOUND)
+        arrayOf(BluetoothDevice.ACTION_FOUND, BluetoothDevice.ACTION_CLASS_CHANGED)
     ) {
         override fun dispatchAction(context: Context, action: String, intent: Intent) {
             val sysDev = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
                 ?: return
-            val rssi = intent.getIntExtra(BluetoothDevice.EXTRA_RSSI, 0).takeIf { it != 0 }
-            val dev = BluetoothScanDev(null, sysDev, rssi)
+            val rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, 0)
+                .toInt().takeIf { it != 0 }
+            val dev = BluetoothClassicDevice(sysDev, rssi)
             update { it.onBluetoothDevScanned(dev) }
         }
     }

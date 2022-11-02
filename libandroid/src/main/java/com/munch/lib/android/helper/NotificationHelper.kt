@@ -17,6 +17,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.FragmentActivity
 import com.munch.lib.android.AppHelper
 import com.munch.lib.android.extend.*
+import com.munch.lib.android.helper.NotificationHelper.NotificationListenerService
+import com.munch.lib.android.helper.NotificationHelper.notify
+import com.munch.lib.android.helper.NotificationHelper.withService
 import com.munch.lib.android.result.ResultHelper
 
 /**

@@ -5,7 +5,8 @@ import android.bluetooth.le.ScanSettings
 import com.munch.lib.android.extend.UpdateJob
 import com.munch.lib.android.helper.ILifecycle
 import com.munch.lib.bluetooth.BluetoothHelper
-import com.munch.lib.bluetooth.dev.BluetoothScanDev
+import com.munch.lib.bluetooth.dev.BluetoothDev
+import com.munch.lib.bluetooth.dev.BluetoothScannedDev
 import com.munch.lib.bluetooth.env.BluetoothNotify
 import com.munch.lib.bluetooth.env.IBluetoothState
 import com.munch.lib.bluetooth.env.OnBluetoothStateNotifyListener
@@ -26,7 +27,7 @@ import kotlin.coroutines.resume
  */
 fun IBluetoothHelperScanner.watchScan(life: ILifecycle, isScanning: (Boolean) -> Unit) {
     watchDevScan(life, object : OnBluetoothDevScanListener {
-        override fun onBluetoothDevScanned(dev: BluetoothScanDev) {
+        override fun onBluetoothDevScanned(dev: BluetoothDev) {
         }
 
         override fun onScanStart() {
@@ -81,9 +82,9 @@ suspend fun IBluetoothHelperScanner.find(
             .setScanListener(object : OnBluetoothOwnerDevScanListener {
                 override fun onBluetoothDevScanned(
                     scanner: IBluetoothScanner,
-                    dev: BluetoothScanDev
+                    dev: BluetoothDev
                 ) {
-                    if (it.isActive) it.resume(dev.dev)
+                    if (it.isActive && dev is BluetoothScannedDev) it.resume(dev.dev)
                     scanner.stopScan()
                 }
 
@@ -107,7 +108,7 @@ fun interface OnBluetoothDevsScannedListener {
     /**
      * 当扫描到一个设备的回调, 但返回的是扫描到的所有设备
      */
-    fun onDevScanned(dev: MutableList<BluetoothScanDev>)
+    fun onDevScanned(dev: MutableList<BluetoothDev>)
 }
 
 /**
@@ -116,7 +117,7 @@ fun interface OnBluetoothDevsScannedListener {
 class BluetoothDevsScannedListenerWrapper(private val devs: OnBluetoothDevsScannedListener) :
     OnBluetoothDevScanListener, IBluetoothHelperEnv by BluetoothHelperEnv {
 
-    private val map = linkedMapOf<String, BluetoothScanDev>()
+    private val map = linkedMapOf<String, BluetoothDev>()
 
     private var job = UpdateJob()
 
@@ -166,7 +167,7 @@ class BluetoothDevsScannedListenerWrapper(private val devs: OnBluetoothDevsScann
         lastScannedTime = 0L
     }
 
-    override fun onBluetoothDevScanned(dev: BluetoothScanDev) {
+    override fun onBluetoothDevScanned(dev: BluetoothDev) {
         map[dev.mac] = dev
         lastScannedTime = System.currentTimeMillis()
         if (job.isCancel()) { // 如果已经超时停止, 则由此处唤醒

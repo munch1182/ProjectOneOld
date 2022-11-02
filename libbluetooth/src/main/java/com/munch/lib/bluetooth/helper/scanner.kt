@@ -1,7 +1,7 @@
 package com.munch.lib.bluetooth.helper
 
 import com.munch.lib.android.extend.catch
-import com.munch.lib.bluetooth.dev.BluetoothScanDev
+import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.dev.BluetoothType
 import com.munch.lib.bluetooth.scan.*
 import kotlinx.coroutines.*
@@ -33,13 +33,13 @@ internal class BluetoothImpScanner(
     private var setOnceListener: OnBluetoothOwnerDevScannedListener? = null
 
     private var channelJob: Job? = null
-    private var channel: Channel<BluetoothScanDev>? = null
+    private var channel: Channel<BluetoothDev>? = null
 
     /**
      * 给scanner实际传递的回调, 通过回调过滤并分发到此类的回调中
      */
     private val finListener = object : OnBluetoothDevScanListener {
-        override fun onBluetoothDevScanned(dev: BluetoothScanDev) {
+        override fun onBluetoothDevScanned(dev: BluetoothDev) {
             launch { catch { channel?.send(dev) } }
         }
 
@@ -87,7 +87,7 @@ internal class BluetoothImpScanner(
         // 内部实现不能进行超时设置
         scanner.startScan(3 * 60 * 1000L) // 暂定时间, 如果设置错误, 该时间后也会自动关闭
 
-        val devChannel = Channel<BluetoothScanDev>()
+        val devChannel = Channel<BluetoothDev>()
         channel = devChannel
         val job = SupervisorJob()
         channelJob = job

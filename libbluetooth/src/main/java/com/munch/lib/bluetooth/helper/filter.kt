@@ -1,7 +1,8 @@
 package com.munch.lib.bluetooth.helper
 
 import android.util.SparseArray
-import com.munch.lib.bluetooth.dev.BluetoothScanDev
+import com.munch.lib.bluetooth.dev.BluetoothDev
+import com.munch.lib.bluetooth.dev.BluetoothScannedDev
 import kotlin.math.absoluteValue
 
 /**
@@ -12,13 +13,10 @@ import kotlin.math.absoluteValue
  * 过滤掉没有名字的设备
  */
 class BluetoothDevNoNameFilter : OnBluetoothDevFilter {
-    override fun isNeedBeFilter(dev: BluetoothScanDev): Boolean {
-        if (dev.name.isNullOrBlank()) {
-            return true
-        }
-        return false
+    override fun isNeedBeFilter(dev: BluetoothDev): Boolean {
+        if (dev !is BluetoothScannedDev) return true
+        return dev.name.isNullOrBlank()
     }
-
 }
 
 /**
@@ -26,7 +24,7 @@ class BluetoothDevNoNameFilter : OnBluetoothDevFilter {
  */
 class BluetoothDevFirstFilter : OnBluetoothDevLifecycleFilter {
     private val map = SparseArray<String>()
-    override fun isNeedBeFilter(dev: BluetoothScanDev): Boolean {
+    override fun isNeedBeFilter(dev: BluetoothDev): Boolean {
         if (map.indexOfKey(dev.mac.hashCode()) > -1) {
             return true
         }
@@ -44,7 +42,7 @@ class BluetoothDevFirstFilter : OnBluetoothDevLifecycleFilter {
  * 为了寻找特定[mac]地址的设备, 过滤掉其它所有的设备
  */
 class BluetoothDevFindFilter(private val mac: String) : OnBluetoothDevFilter {
-    override fun isNeedBeFilter(dev: BluetoothScanDev): Boolean {
+    override fun isNeedBeFilter(dev: BluetoothDev): Boolean {
         return dev.mac != mac
     }
 }
@@ -53,8 +51,11 @@ class BluetoothDevFindFilter(private val mac: String) : OnBluetoothDevFilter {
  * 过滤设备名称不包含[name]的所有设备
  */
 class BluetoothDevNameFindFilter(private val name: String) : OnBluetoothDevFilter {
-    override fun isNeedBeFilter(dev: BluetoothScanDev): Boolean {
-        return !(dev.name?.contains(name, true) ?: false)
+    override fun isNeedBeFilter(dev: BluetoothDev): Boolean {
+        if (dev is BluetoothScannedDev) {
+            return !(dev.name?.contains(name, true) ?: false)
+        }
+        return true
     }
 }
 
@@ -62,7 +63,7 @@ class BluetoothDevNameFindFilter(private val name: String) : OnBluetoothDevFilte
  * 过滤设备地址不包含[mac]的所有设备
  */
 class BluetoothDevMacFindFilter(private val mac: String) : OnBluetoothDevFilter {
-    override fun isNeedBeFilter(dev: BluetoothScanDev): Boolean {
+    override fun isNeedBeFilter(dev: BluetoothDev): Boolean {
         return !dev.mac.contains(mac, true)
     }
 }
@@ -71,9 +72,10 @@ class BluetoothDevMacFindFilter(private val mac: String) : OnBluetoothDevFilter 
  * 过滤信号值小于[rssi]的所有设备
  */
 class BluetoothDevRssiFindFilter(private val rssi: Int) : OnBluetoothDevFilter {
-    override fun isNeedBeFilter(dev: BluetoothScanDev): Boolean {
-        if (dev.rssi == null) return false
-        return dev.rssi.absoluteValue > rssi.absoluteValue
+    override fun isNeedBeFilter(dev: BluetoothDev): Boolean {
+        if (dev !is BluetoothScannedDev) return true
+        val devRssi = dev.rssi ?: return false
+        return devRssi.absoluteValue > rssi.absoluteValue
     }
 }
 
