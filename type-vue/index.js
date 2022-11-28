@@ -1,77 +1,26 @@
-const LIB_PREFIX = "lib-";
+import { EOL } from "os";
+import path from "path";
+import { cmd, fileCopy, fileDel, fileReplace, fileUpdateLine } from "../help.js";
 
-const fs = require('fs');
-const path = require('path');
-const shell = require('shelljs');
-const prompts = require('prompts');
-const { red, cyan, yellow } = require('kolorist');
-const { emptyDir } = require('../help');
-
-async function create(target, root, name) {
-
-    const libs = fs.readdirSync(root).filter(f => f.startsWith(LIB_PREFIX)).map(f => f.replace(LIB_PREFIX, "").replace(".js", ""));
-
-    const { lib } = await prompts([
-        {
-            type: 'multiselect',
-            name: 'lib',
-            message: cyan("select lib"),
-            choices: libs
-        }
-    ], {
-        onCancel: () => console.log(red("Cancel"))
-    })
-
-    const isOk = await createViteVue(target, name);
-    console.log(isOk);
-    if (!isOk) {
-        return
-    }
-
-    let index = 2;
-    for (const l of lib.map(i => libs[i])) {
-        console.log(cyan(`${index++}. create ${l}.`));
-
-        let jspath = path.join(root, `${LIB_PREFIX}${l}`)
-        let js = require(`${jspath}/index.js`);
-
-        // todo
-    }
-}
-
-async function createViteVue(dir, name) {
-    const projectDir = path.join(dir, name);
-    // 如果文件已存在
-    if (fs.existsSync(projectDir)) {
-        if (fs.lstatSync(projectDir).isDirectory()) {
-            if (fs.readdirSync(projectDir).length) {
-                const { sure } = await prompts({
-                    type: 'confirm',
-                    name: 'sure',
-                    message: yellow(`dir ${projectDir} is not empty, sure to del?`)
-                });
-                if (!sure) {
-                    return false;
-                }
-                console.log(red(`del dir ${projectDir}`));
-                emptyDir(projectDir);
+export default function (currDir, targetDir, name) {
+    const templateDir = path.join(currDir, 'template');
+    return [
+        cmd(`npm create vite@latest ${name} -- --template vue-ts`),
+        // 删除HelloWorld.vue
+        fileDel(path.join(targetDir, 'src', 'components', 'HelloWorld.vue')),
+        fileDel(path.join(targetDir, '.vscode')),
+        fileDel(path.join(targetDir, 'src', 'assets', 'vue.svg')),
+        // 更改其它设置
+        fileCopy(path.join(templateDir), path.join(targetDir)),
+        // 更改index.html的title
+        fileUpdateLine('update title', path.join(targetDir, 'index.html'), async (line, fos) => {
+            let str = line;
+            if (line.includes("<title>")) {
+                str = `    <title>${name}</title>`;
             }
-        } else { //如果已存在但却是文件(不带后缀才相同)
-            const { sure } = await prompts({
-                type: 'confirm',
-                name: 'sure',
-                message: yellow(`exists file it ${projectDir}, sure to del?`)
-            });
-            if (!sure) {
-                return false;
-            }
-            console.log(red(`del file ${projectDir}`));
-            emptyDir(projectDir);
-        }
-    }
-    console.log(cyan("1. create vite-vue-ts"));
-    const cmd = `npm create vite@latest ${name} -- --template vue-ts`;
-    return shell.exec(cmd).code == 0
+            fos.write(str);
+            fos.write(EOL);
+        }),
+        fileReplace(path.join(targetDir, `README.md`), `${name}`)
+    ]
 }
-
-module.exports = { create }

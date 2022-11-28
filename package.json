@@ -1,22 +1,26 @@
 {
-  "name": "project",
-  "version": "1.0.0",
+  "name": "create-munch-app",
+  "version": "0.1.2",
   "description": "project",
   "main": "index.js",
   "scripts": {
     "dev": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "create-munch-app": "index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/munch1182/Project.git"
   },
-  "author": "",
+  "author": "munch1182",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/munch1182/Project/issues"
   },
   "homepage": "https://github.com/munch1182/Project#readme",
+  "type": "module",
   "dependencies": {
     "enquirer": "^2.3.6",
     "kolorist": "^1.6.0",
