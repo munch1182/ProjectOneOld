@@ -15,18 +15,22 @@ import { fileNew } from "./help.js";
 const desc = (s) => cyan(s);
 const err = (s) => red(s);
 
-// [projectType] [projectName] --open
+// [projectType] [projectName] --open --pn npm
 const argv = minimist(process.argv.slice(2));
 
 /**
  * 源码文件夹根目录
  */
 const srcDir = path.resolve(fileURLToPath(import.meta.url), '../');
+const arg = { "pm": 'npm', 'projectName': '' };
 
 (async () => {
     let projectType = argv._[0];
     let projectName = argv._[1];
     let open = argv.open;
+    if (argv.pm) {
+        arg.pm = argv.pm;
+    }
 
     if (!projectType || !projectName || projectType == '/' || projectName == '/') {
         const TYPES = fs.readdirSync(srcDir).filter(f => f.startsWith(PREFIX_TYPE)).map(f => f.replace(PREFIX_TYPE, ''));
@@ -52,8 +56,11 @@ const srcDir = path.resolve(fileURLToPath(import.meta.url), '../');
     if (!projectType || !projectName) {
         return
     }
+
+    arg.projectName = projectName;
+
     // 要创建的项目文件夹
-    const projectDir = path.resolve(process.cwd(), projectName);
+    const projectDir = path.resolve(process.cwd(), arg.projectName);
     const tasks = [];
 
     // 确保目标文件夹可用
@@ -69,7 +76,7 @@ const srcDir = path.resolve(fileURLToPath(import.meta.url), '../');
     if (fs.existsSync(typeIndexJs)) {
         console.log(typeIndexJs);
         const typeIndex = await import(`file:///${typeIndexJs}`);
-        const typeTask = typeIndex.default(typeRootDir, projectDir, projectName);
+        const typeTask = typeIndex.default(typeRootDir, projectDir, arg);
         if (typeTask) {
             tasks.push(typeTask);
         }
@@ -96,7 +103,7 @@ const srcDir = path.resolve(fileURLToPath(import.meta.url), '../');
 
             if (fs.existsSync(libIndexJs)) {
                 const libIndex = await import(`file:///${libIndexJs}`);
-                const libTask = libIndex.default(libRootDir, projectDir, projectName);
+                const libTask = libIndex.default(libRootDir, projectDir, arg);
                 if (libTask) {
                     tasks.push(libTask);
                 }

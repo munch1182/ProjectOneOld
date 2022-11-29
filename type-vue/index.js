@@ -2,10 +2,11 @@ import { EOL } from "os";
 import path from "path";
 import { cmd, fileCopy, fileDel, fileReplace, fileUpdateLine } from "../help.js";
 
-export default function (currDir, targetDir, name) {
+export default function (currDir, targetDir, arg) {
+    const name = arg.projectName;
     const templateDir = path.join(currDir, 'template');
     return [
-        cmd(`npm create vite@latest ${name} -- --template vue-ts`),
+        cmd(`${arg.pm} create vite@latest ${name} -- --template vue-ts`),
         // 删除HelloWorld.vue
         fileDel(path.join(targetDir, 'src', 'components', 'HelloWorld.vue')),
         fileDel(path.join(targetDir, '.vscode')),

@@ -6,10 +6,10 @@ const MAIN_TS_SPLIT = 'mount(';
 const IMPORT_ROUTER_JUDGE = "import './style.css'";
 const IMPORT_ROUTER = "import router from './router'";
 
-export default function (currDir, targetDir) {
+export default function (currDir, targetDir, arg) {
     const templateDir = path.join(currDir, 'template');
     return [
-        cmd(`cd ${targetDir} && npm i vue-router@4`),
+        cmd(`cd ${targetDir} && ${arg.pm} i vue-router@4`),
         // 复制src
         fileCopy(path.join(templateDir), path.join(targetDir)),
         // 使用router.ts

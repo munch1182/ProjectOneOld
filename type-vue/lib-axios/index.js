@@ -1,7 +1,7 @@
 import { cmd } from "../../help.js";
 
-export default function (currDir, targetDir, name) {
+export default function (_, targetDir, arg) {
     return [
-        cmd(`cd ${targetDir} && npm install axios`),
+        cmd(`cd ${targetDir} && ${arg.pm} install axios`),
     ]
 }

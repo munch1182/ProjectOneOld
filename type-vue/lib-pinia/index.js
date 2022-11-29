@@ -6,9 +6,9 @@ const MAIN_TS_SPLIT = 'mount(';
 const IMPORT_PINIA_JUDGE = "import './style.css'";
 const IMPORT_PINIA = "import { createPinia } from 'pinia';";
 
-export default function (currDir, targetDir, name) {
+export default function (_, targetDir, arg) {
     return [
-        cmd(`cd ${targetDir} && npm install pinia`),
+        cmd(`cd ${targetDir} && ${arg.pm} install pinia`),
         fileUpdate('use pinia', path.join(targetDir, 'src', 'main.ts'), async (rl, fos) => {
             for await (const line of rl) {
                 let str = line
