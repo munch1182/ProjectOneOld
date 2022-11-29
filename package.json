@@ -1,6 +1,6 @@
 {
-  "name": "create-munch-app",
-  "version": "0.1.2",
+  "name": "create-munch",
+  "version": "0.1.3",
   "description": "project",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "create-munch-app": "index.js"
+    "create-munch": "index.js"
   },
   "repository": {
     "type": "git",

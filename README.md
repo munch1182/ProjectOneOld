@@ -1,6 +1,14 @@
-# create-munch-app
+# create-munch
 
-`npm create munch-app [type] [projectname] --open`
+```
+npm create munch [type] [projectname] --open
+```
 
-`npm create munch-app`
-`npm create munch-app vue new-project`
+
+```
+npm create munch
+```
+
+```
+npm create munch vue new-project
+```
