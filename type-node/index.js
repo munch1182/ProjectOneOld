@@ -35,6 +35,7 @@ export default async function (currDir, targetDir, arg) {
     return [
         cmd(`cd ${targetDir} && ${arg.pm} init -y`),
         fileCopy(path.join(templateDir, indexName), path.join(targetDir, indexName)),
+        fileCopy(path.join(templateDir, '.gitignore'), path.join(targetDir, '.gitignore')),
         fileJson(path.join(targetDir, 'package.json'), (any) => {
             user ? any.author = user : null;
             isTs ? null : any.type = `module`; //ts不能使用type module
