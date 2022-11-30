@@ -1,18 +1,18 @@
-# create-munch
+# @munch1182/create-app
 
 ```
-npm create munch [type] [projectname] --pm [npm] --open 
+npm create @munch1182/app [type] [projectname] --pm [npm] --open 
 ```
 
 
 ```
-npm create munch
-```
-
-```
-npm create munch --pm cnpm
+npm create @munch1182/app
 ```
 
 ```
-npm create munch vue new-project
+npm create @munch1182/app --pm cnpm
+```
+
+```
+npm create @munch1182/app vue new-project
 ```

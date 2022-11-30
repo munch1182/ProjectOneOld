@@ -1,20 +1,20 @@
 {
-  "name": "create-munch",
-  "version": "0.1.5",
-  "description": "project",
+  "name": "@munch1182/create-app",
+  "version": "0.1.2",
+  "description": "create app",
   "main": "index.js",
   "scripts": {
     "dev": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "create-munch": "index.js"
+    "create-munch-app": "index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/munch1182/Project.git"
   },
-  "author": "munch1182",
+  "author": "munch1182bot",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/munch1182/Project/issues"
