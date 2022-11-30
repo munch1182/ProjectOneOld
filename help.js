@@ -1,9 +1,13 @@
 import fs from 'fs';
+import { yellow, cyan, red } from 'kolorist';
 import path from 'path';
 import prompts from 'prompts';
 import readline from 'readline';
-import { yellow } from 'kolorist';
 import shell from "shelljs";
+
+export const desc = (s) => cyan(s);
+export const err = (s) => red(s);
+export const warn = (s) => yellow(s);
 
 /**
  * 删除文件或者文件夹
@@ -70,7 +74,7 @@ export function fileNew(f) {
                     {
                         type: 'confirm',
                         name: 'del',
-                        message: yellow(`${f} exists, sure to del?`),
+                        message: warn(`${f} exists, sure to del?`),
                     }
                 ], {
                     onCancel: () => console.log(err("cancel."))
@@ -138,7 +142,6 @@ export function fileUpdateLine(desc, file, lineback) {
     })
 }
 
-
 /**
  * @param {string} file 要更新的文件
  * @param {funtion: (readline.Interface, fs.WriteStream) -> ()} lineback 源文件和更改缓存文件回调 
@@ -173,6 +176,29 @@ export function fileReplace(file, content) {
         "desc": `update ${path.basename(file)}`,
         "exec": async () => {
             fs.writeFileSync(file, content);
+            return true;
+        }
+    }
+}
+
+/**
+ * 
+ * @param {string} file 要更新的文件
+ * @param {funtion: (any) -> any} callback 将文件转为json对象传入, 更改后再返回
+ * @returns 
+ */
+export function fileJson(file, callback) {
+    return {
+        "desc": `update json ${path.basename(file)}`,
+        "exec": async () => {
+            try {
+                const any = JSON.parse(fs.readFileSync(file));
+                const newany = JSON.stringify(await callback(any), null, 2);
+                empty(file);
+                fs.writeFileSync(file, newany);
+            } catch (_) {
+                console.log("error to read json file");
+            }
             return true;
         }
     }

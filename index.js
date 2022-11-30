@@ -5,15 +5,13 @@ const PREFIX_LIB = "lib-";
 
 import path from "path";
 import fs from "fs";
-import { cyan, red } from 'kolorist';
 import minimist from 'minimist';
 import prompts from 'prompts';
 import shell from "shelljs";
 import { fileURLToPath } from "url";
-import { fileNew } from "./help.js";
+import { fileNew, desc, err } from "./help.js";
 
-const desc = (s) => cyan(s);
-const err = (s) => red(s);
+
 
 // [projectType] [projectName] --open --pn npm
 const argv = minimist(process.argv.slice(2));
@@ -86,7 +84,7 @@ const arg = { "pm": 'npm', 'projectName': '' };
     // 选择lib
     const { libs } = await prompts([
         {
-            type: 'multiselect',
+            type: LIBS.length ? 'multiselect' : null,
             name: 'libs',
             message: desc('chose lib type:'),
             choices: LIBS
@@ -112,17 +110,19 @@ const arg = { "pm": 'npm', 'projectName': '' };
     }
 
     let index = 0;
-    for (const f of tasks) {
+    for await (const f of tasks) {
         index++;
         let j = 0;
-        for (const ff of f) {
-            console.log(desc(`${index}.${j++}: ${ff.desc}`));
-            const isOk = await ff.exec();
-            if (!isOk) {
-                return;
+        if (f) {
+            for await (const ff of f) {
+                console.log(desc(`${index}.${j++}: ${ff.desc}`));
+                const isOk = await ff.exec();
+                if (!isOk) {
+                    return;
+                }
             }
         }
-        console.log('');
+        console.log(''); // 换行
     }
 
     console.log("success");
