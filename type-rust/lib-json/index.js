@@ -1,7 +1,7 @@
 import { tomlDep } from "../tomlHelp.js";
 import path from "path";
 
-export default async function (_, targetDir, _) {
+export default async function (_, targetDir, _arg) {
     return [
         tomlDep(path.join(targetDir, 'Cargo.toml'),
             [
