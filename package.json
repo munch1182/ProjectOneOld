@@ -1,6 +1,6 @@
 {
   "name": "@munch1182/create-app",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "create app",
   "main": "index.js",
   "scripts": {
