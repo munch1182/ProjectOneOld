@@ -1,0 +1,5 @@
+temp
+logs
+*.log
+target
+Cargo.lock
