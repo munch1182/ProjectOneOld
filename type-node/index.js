@@ -14,16 +14,20 @@ export default async function (currDir, targetDir, arg) {
     // 因为ts是js的超集, 且使用ts时对项目本身无额外增加, ts-node也能编译js, 所以默认使用ts
     let isTs = true;
     if (!hsTsNode) {
-        const { install } = await prompts([
+        const response = await prompts([
             {
                 type: 'confirm',
                 name: 'install',
                 message: warn(`${arg.pm} i -g ts-node, sure?`),
             }
         ], {
-            onCancel: () => console.log(err("cancel."))
+            onCancel: () => { console.log(err("cancel.")); return false; }
         });
-        if (!install) {
+
+        if (response.install == undefined) { // cancel
+            return [];
+        }
+        if (!response.install) {
             isTs = false;
         }
     }

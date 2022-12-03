@@ -12,7 +12,6 @@ import { fileURLToPath } from "url";
 import { fileNew, desc, err } from "./help.js";
 
 
-
 // [projectType] [projectName] --open --pn npm
 const argv = minimist(process.argv.slice(2));
 
@@ -48,7 +47,8 @@ const arg = { "pm": 'npm', 'projectName': '' };
             onCancel: () => console.log(err("cancel."))
         });
         // select会被解析成number
-        projectType = TYPES[t]; projectName = n;
+        TYPES[t] ? projectType = TYPES[t] : null;
+        n ? projectName = n : null;
     }
 
     if (!projectType || !projectName) {
@@ -61,39 +61,46 @@ const arg = { "pm": 'npm', 'projectName': '' };
     const projectDir = path.resolve(process.cwd(), arg.projectName);
     const tasks = [];
 
-    // 确保目标文件夹可用
-    if (fs.existsSync(projectDir)) {
-        tasks.push([fileNew(projectDir)]);
-    }
 
     // type-根文件夹
     const typeRootDir = path.resolve(srcDir, `${PREFIX_TYPE}${projectType}`);
 
+    if (!fs.existsSync(typeRootDir)) {
+        console.log(err('unsupport type.'));
+        return;
+    }
+
     // 执行type/index.js
     const typeIndexJs = path.resolve(typeRootDir, 'index.js');
+    
     if (fs.existsSync(typeIndexJs)) {
-        console.log(typeIndexJs);
         const typeIndex = await import(`file:///${typeIndexJs}`);
-        const typeTask = typeIndex.default(typeRootDir, projectDir, arg);
-        if (typeTask) {
+        const typeTask = await typeIndex.default(typeRootDir, projectDir, arg);
+
+        if (typeTask && typeTask.length) {
             tasks.push(typeTask);
         }
     }
     // 执行lib/index.js
     const LIBS = fs.readdirSync(typeRootDir).filter(f => f.startsWith(PREFIX_LIB)).map(f => f.replace(PREFIX_LIB, ''));
-    // 选择lib
-    const { libs } = await prompts([
-        {
-            type: LIBS.length ? 'multiselect' : null,
-            name: 'libs',
-            message: desc('chose lib type:'),
-            choices: LIBS
-        }
-    ], {
-        onCancel: () => console.log(err("cancel."))
-    });
+    if (LIBS.length) {
+        // 选择lib
+        const response = await prompts([
+            {
+                type: 'multiselect',
+                name: 'libs',
+                message: desc('chose lib type:'),
+                choices: LIBS
+            }
+        ], {
+            onCancel: () => { console.log(err("cancel.")); return false; }
+        });
 
-    if (libs) {
+        const libs = response.libs;
+        if (!libs) { // cancel
+            return
+        }
+
         for (const index of libs) {
             const lib = LIBS[index];
             const libRootDir = path.resolve(typeRootDir, `${PREFIX_LIB}${lib}`);
@@ -101,12 +108,22 @@ const arg = { "pm": 'npm', 'projectName': '' };
 
             if (fs.existsSync(libIndexJs)) {
                 const libIndex = await import(`file:///${libIndexJs}`);
-                const libTask = libIndex.default(libRootDir, projectDir, arg);
-                if (libTask) {
+                const libTask = await libIndex.default(libRootDir, projectDir, arg);
+                if (libTask && libTask.length) {
                     tasks.push(libTask);
                 }
             }
         }
+    }
+
+    // 实际的执行方法都在type中, 如果没有值即不创建
+    if (!tasks.length) {
+        return
+    }
+
+    // 确保目标文件夹可用
+    if (fs.existsSync(projectDir)) {
+        tasks.unshift([fileNew(projectDir)]);
     }
 
     let index = 0;
@@ -125,7 +142,7 @@ const arg = { "pm": 'npm', 'projectName': '' };
         console.log(''); // 换行
     }
 
-    console.log("success");
+    console.log(desc("success"));
 
     if (open) {
         shell.exec(`code ${projectDir}`);

@@ -1,6 +1,6 @@
 {
   "name": "@munch1182/create-app",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "description": "create app",
   "main": "index.js",
   "scripts": {
@@ -22,6 +22,7 @@
   "homepage": "https://github.com/munch1182/Project#readme",
   "type": "module",
   "dependencies": {
+    "@ltd/j-toml": "^1.35.3",
     "enquirer": "^2.3.6",
     "kolorist": "^1.6.0",
     "minimist": "^1.2.7",

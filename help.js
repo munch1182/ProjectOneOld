@@ -191,14 +191,23 @@ export function fileJson(file, callback) {
     return {
         "desc": `update json ${path.basename(file)}`,
         "exec": async () => {
-            try {
-                const any = JSON.parse(fs.readFileSync(file));
-                const newany = JSON.stringify(await callback(any), null, 2);
-                empty(file);
-                fs.writeFileSync(file, newany);
-            } catch (_) {
-                console.log("error to read json file");
+            const ext = path.extname(file).toLowerCase();
+            const str = fs.readFileSync(file);
+            switch (ext) {
+                case 'toml': // todo 将其它格式统一成json处理在转回来
+                    return false;
+                default: // 默认作为json处理
+                    try {
+                        const any = JSON.parse(str);
+                        const newany = JSON.stringify(await callback(any), null, 2);
+                        empty(file);
+                        fs.writeFileSync(file, newany);
+                    } catch (_) {
+                        console.log("error to read json file");
+                    }
+                    break;
             }
+
             return true;
         }
     }
