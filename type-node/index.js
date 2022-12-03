@@ -2,7 +2,7 @@ import shell from "shelljs";
 import path from 'path';
 import fs from 'fs';
 import prompts from 'prompts';
-import { cmd, fileCopy, fileJson, err, warn } from "../help.js";
+import { cmd, fileCopy, fileReplace, fileJson, err, warn } from "../help.js";
 
 export default async function (currDir, targetDir, arg) {
     const hsTsNode = shell.which('ts-node')?.code == 0; // 是否已全局安装ts-node
@@ -35,11 +35,12 @@ export default async function (currDir, targetDir, arg) {
     if (!fs.existsSync(targetDir)) {
         fs.mkdirSync(targetDir, { recursive: true });
     }
+    const gitfile = fs.readFileSync(path.join(currDir, '_gitignore'));
     // 没有ts-node, 生成js项目, 有ts-node, 生成ts项目
     return [
         cmd(`cd ${targetDir} && ${arg.pm} init -y`),
         fileCopy(path.join(templateDir, indexName), path.join(targetDir, indexName)),
-        fileCopy(path.join(templateDir, '.gitignore'), path.join(targetDir, '.gitignore')),
+        fileReplace(path.join(targetDir, '.gitignore'), gitfile),
         fileJson(path.join(targetDir, 'package.json'), (any) => {
             user ? any.author = user : null;
             isTs ? null : any.type = `module`; //ts不能使用type module

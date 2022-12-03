@@ -1,12 +1,12 @@
 import path from "path";
-import { cmd, fileCopy } from "../help.js";
+import fs from "fs";
+import { cmd, fileReplace } from "../help.js";
 
 export default async function (currDir, targetDir, arg) {
     const name = arg.projectName;
-    const templateDir = path.join(currDir, 'template');
+    const gitfile = fs.readFileSync(path.join(currDir, '_gitignore'));
     return [
         cmd(`cargo init ${name}`), //当前是要创建项目的文件夹, 项目文件夹还未创建
-        // 更改其它设置
-        fileCopy(path.join(templateDir), path.join(targetDir)),
+        fileReplace(path.join(targetDir, '.gitignore'), gitfile), // npm不会打包.gitignore文件
     ]
 }
