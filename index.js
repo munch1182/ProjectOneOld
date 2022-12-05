@@ -1,8 +1,5 @@
 #! /usr/bin/env node
 
-const PREFIX_TYPE = "type-";
-const PREFIX_LIB = "lib-";
-
 import path from "path";
 import fs from "fs";
 import minimist from 'minimist';
@@ -21,49 +18,52 @@ const argv = minimist(process.argv.slice(2));
 const srcDir = path.resolve(fileURLToPath(import.meta.url), '../');
 const arg = { "pm": 'npm', 'projectName': '' };
 
+async function askTypeAndProject(projectType, projectName) {
+    return await prompts([
+        {
+            type: projectType ? null : 'select',
+            name: 't',
+            message: desc('chose project type:'),
+            choices: TYPES
+        }, {
+            type: projectName ? null : 'text',
+            name: 'n',
+            message: desc('input project name:'),
+            initial: 'ProjectNew'
+        }
+    ], {
+        onCancel: () => console.log(err("cancel."))
+    });
+}
+
 (async () => {
-    let projectType = argv._[0];
-    let projectName = argv._[1];
+    let pType = argv._[0];
+    let pName = argv._[1];
     let open = argv.open;
     if (argv.pm) {
         arg.pm = argv.pm;
     }
 
-    if (!projectType || !projectName || projectType == '/' || projectName == '/') {
+    if (!pType || !pName || pType == '/' || pName == '/') {
         const TYPES = fs.readdirSync(srcDir).filter(f => f.startsWith(PREFIX_TYPE)).map(f => f.replace(PREFIX_TYPE, ''));
-        const { t, n } = await prompts([
-            {
-                type: projectType ? null : 'select',
-                name: 't',
-                message: desc('chose project type:'),
-                choices: TYPES
-            }, {
-                type: projectName ? null : 'text',
-                name: 'n',
-                message: desc('input project name:'),
-                initial: 'ProjectNew'
-            }
-        ], {
-            onCancel: () => console.log(err("cancel."))
-        });
+        const { t, n } = askTypeAndProject(pType, pName);
         // select会被解析成number
-        TYPES[t] ? projectType = TYPES[t] : null;
-        n ? projectName = n : null;
+        TYPES[t] ? pType = TYPES[t] : null;
+        n ? pName = n : null;
     }
 
-    if (!projectType || !projectName) {
+    if (!pType || !pName) {
         return
     }
 
-    arg.projectName = projectName;
+    arg.projectName = pName;
 
     // 要创建的项目文件夹
     const projectDir = path.resolve(process.cwd(), arg.projectName);
     const tasks = [];
 
-
     // type-根文件夹
-    const typeRootDir = path.resolve(srcDir, `${PREFIX_TYPE}${projectType}`);
+    const typeRootDir = path.resolve(srcDir, `${PREFIX_TYPE}${pType}`);
 
     if (!fs.existsSync(typeRootDir)) {
         console.log(err('unsupport type.'));
@@ -72,7 +72,7 @@ const arg = { "pm": 'npm', 'projectName': '' };
 
     // 执行type/index.js
     const typeIndexJs = path.resolve(typeRootDir, 'index.js');
-    
+
     if (fs.existsSync(typeIndexJs)) {
         const typeIndex = await import(`file:///${typeIndexJs}`);
         const typeTask = await typeIndex.default(typeRootDir, projectDir, arg);
