@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { type } from "os";
 import * as path from "path";
 
 export class FileHelper {
@@ -38,10 +39,21 @@ export class FileHelper {
     }
 }
 
-export class JsProject {
+export interface Project {
+    // 项目路径
+    readonly dir: string;
+    // 类型名
+    readonly type: string;
+    /**
+     * @returns 项目的执行方法cmd
+     */
+    getRunCmd(): string | undefined
+}
+
+export class JsProject implements Project {
     /**
      * 传入一个文件夹和该文件夹下的文件, 判断该文件是否是在js项目中(js/ts): 只要有package.json文件存在的文件夹视为js项目
-     * 如果[file]未传值, 则从[dir]往文件夹内寻找一个js项目, 否则, 先寻找[file]所在文件夹及其内的文件夹, 再向外寻找直到[dir]为止
+     * 如果[file]未传值, 则从[dir]往文件夹内寻找一个js项目, 否则, 先寻找[file]所在文件夹, 再向外寻找直到[dir]为止, 不包括与[file]同级的文件夹
      * [dir]下如果有多个js项目, 如果传入[file], 则返回离[file]最近的项目, 否则返回第一个js项目
      * 
      * @param dir 文件夹, 只会判断该文件夹之内的内容, 且该路径必须存在
@@ -55,6 +67,7 @@ export class JsProject {
         return new JsProject(packagejson)
     }
 
+    readonly type: string = "js";
     // 项目路径
     readonly dir: string;
     // pkg路径
@@ -78,15 +91,19 @@ export class JsProject {
     }
 
     getRunCmd(): string | undefined {
-        return `cd ${this.dir} && ${this.command}`;
+        return `cd ${this.dir} && npm run ${this.command}`;
+    }
+
+    toString() {
+        return `{dir: ${this.dir}, isTs: ${this.isTs}, command: ${this.command}}`
     }
 }
 
-export class RustProject {
+export class RustProject implements Project {
 
     /**
      * 传入一个文件夹和该文件夹下的文件, 判断该文件是否是在rust项目中: 只要有Cargo.toml文件存在的文件夹视为js项目
-     * 如果[file]未传值, 则从[dir]往文件夹内寻找一个rust项目, 否则, 先寻找[file]所在文件夹及其内的文件夹, 再向外寻找直到[dir]为止
+     * 如果[file]未传值, 则从[dir]往文件夹内寻找一个rust项目, 否则, 先寻找[file]所在文件夹, 再向外寻找直到[dir]为止, 不包括与[file]同级的文件夹
      * [dir]下如果有多个rust项目, 如果传入[file], 则返回离[file]最近的项目, 否则返回第一个rust项目
      * 
      * @param dir 文件夹, 只会判断该文件夹之内的内容, 且该路径必须存在
@@ -100,6 +117,7 @@ export class RustProject {
         return new RustProject(cargotoml)
     }
 
+    readonly type: string = "rs";
     // 项目文件夹路径
     readonly dir: string
     // Cargo.toml文件路径
@@ -131,6 +149,10 @@ export class RustProject {
     getDefault(version: RustVersion): string {
         return `rustup default ${version}`
     }
+
+    toString() {
+        return `{dir: ${this.dir}}`
+    }
 }
 
 
@@ -145,7 +167,7 @@ export enum RustVersion {
  * 优先返回同级的文件而不是文件夹内的文件
  * 
  * @param dir 文件夹, 只会在该文件夹内寻找
- * @param file 当前文件, 如果该文件有值, 则会寻找该文件最近的目标文件, 否则从[dir]从上往下寻找\
+ * @param file 当前文件, 如果该文件有值, 则会寻找该文件最近的目标文件, 否则从[dir]从上往下寻找
  * @param name 目标文件名
  * @returns  如果找到, 返回该文件路径, 否则, 返回undefined
  */
