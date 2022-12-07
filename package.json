@@ -1,6 +1,6 @@
 {
   "name": "vscode-munch1182-runner",
-  "displayName": "vscode-project-runner",
+  "displayName": "Project Runner",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -84,7 +84,7 @@
       }
     ],
     "configuration": {
-      "title": "project-runner-config",
+      "title": "Project Runner",
       "properties": {
         "project-runner.filecmd": {
           "type": "object",

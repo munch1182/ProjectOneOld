@@ -100,11 +100,14 @@ export class JsProject implements Project {
         return `{dir: ${this.dir}, isTs: ${this.isTs}, command: ${this.command}}`
     }
 
-    convertCMD(cmd: string, _file?: string): string {
+    convertCMD(cmd: string, file?: string): string {
         let str = cmd;
         str = str.replace(/\$projectdir/g, this.dir)
         // packagename只指向项目文件的最后一个文件夹, 没有读取实际的项目名称
         str = str.replace(/\$packagename/g, this.name);
+        if (file) {
+            str = FileHelper.read(file).convertCMD(str);
+        }
         try {
             const reg = /\$js_scripts\[[\w]\]/g;
             const scripts = str.match(reg)?.[0];
@@ -163,9 +166,7 @@ export class RustProject implements Project {
         str = str.replace(/\$packagename/g, this.name);
         if (file) {
             const helper = FileHelper.read(file);
-            if (helper.filename) {
-                str = str.replace(/\$filenameWithoutExt/g, helper.filename);
-            }
+            str = helper.convertCMD(str);
             str = str.replace(/\$dir/g, helper.dir);
             const paths = path.normalize(helper.dir).split('\\');
             const index = paths.findIndex(f => f == "src");
@@ -186,9 +187,9 @@ export class RustProject implements Project {
      * @param version 切换版本 stable/nightly/beta
      * @returns 
      */
-    getDefault(version: RustVersion): string {
-        return `rustup default ${version}`;
-    }
+    // getDefault(version: RustVersion): string {
+    //     return `rustup default ${version}`;
+    // }
 
     toString() {
         return `{dir: ${this.dir}}`;
@@ -196,13 +197,15 @@ export class RustProject implements Project {
 }
 
 
-export enum RustVersion {
-    stable = "stable",
-    nightly = "nightly",
-    beta = "beta"
-}
+// export enum RustVersion {
+//     stable = "stable",
+//     nightly = "nightly",
+//     beta = "beta"
+// }
 
 /**
+ * @todo 跳过 node_modules和target文件夹
+ * 
  * 在文件夹内寻找一个特定的文件
  * 优先返回同级的文件而不是文件夹内的文件
  * 

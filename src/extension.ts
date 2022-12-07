@@ -61,12 +61,12 @@ class ExtensionRunner {
 		}
 		const config = this._config.get<any>("filecmd");
 		if (!config) {
-			vscode.window.showInformationMessage("no cmd");
+			vscode.window.showInformationMessage(`no command set`);
 			return;
 		}
 		const filecmd = config[`.${ext}`] as string;
 		if (!filecmd) {
-			vscode.window.showInformationMessage("no command");
+			vscode.window.showInformationMessage(`no command for .${ext}`);
 			return;
 		}
 		const cmd = helper.convertCMD(filecmd);
@@ -122,13 +122,13 @@ class ExtensionRunner {
 
 		let project = this._findProject(dir, f);
 		if (!project) {
-			vscode.window.showInformationMessage("unsupport project");
+			vscode.window.showInformationMessage("unsupport project type");
 			return;
 		}
 
 		const config = this._config.get<any>("projectcmd");
 		if (!config) {
-			vscode.window.showInformationMessage("no cmd");
+			vscode.window.showInformationMessage("no command set");
 			return;
 		}
 		let configCmd = config[project.type];
@@ -141,7 +141,7 @@ class ExtensionRunner {
 		}
 
 		if (!configCmd) {
-			vscode.window.showInformationMessage("no command");
+			vscode.window.showInformationMessage(`no command for ${project.type} ${subtype ? subtype : ""}`);
 			return;
 		}
 		const cmd = project.convertCMD(configCmd, uri.fsPath);

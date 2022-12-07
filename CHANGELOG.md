@@ -2,8 +2,7 @@
 
 All notable changes to the "vscode-runner" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [0.0.1] - 202-12-07
 
-## [Unreleased]
-
-- Initial release
+- Initial 
+`Run File`, `Run Project`, `Run Command`: `npm install`+`cargo test`+`cargo expand`
