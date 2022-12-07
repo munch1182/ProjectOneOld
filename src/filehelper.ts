@@ -42,12 +42,16 @@ export class FileHelper {
 export interface Project {
     // 项目路径
     readonly dir: string;
+    // 指项目路径的最后一个文件夹名称, 可能不是实际上的项目名称
+    readonly name: string;
     // 类型名
     readonly type: string;
+
     /**
-     * @returns 项目的执行方法cmd
+     * @param cmd 将命令中的变量转为实际的地址 
+     * @param file 可能牵涉到的文件
      */
-    getRunCmd(): string | undefined
+    convertCMD(cmd: string, file?: string): string;
 }
 
 export class JsProject implements Project {
@@ -70,32 +74,51 @@ export class JsProject implements Project {
     readonly type: string = "js";
     // 项目路径
     readonly dir: string;
+    readonly name: string;
     // pkg路径
-    readonly packagejson: string
+    readonly packagejson: string;
     // 是否是ts项目
-    readonly isTs: boolean
-    // scripts中的第一个命令
-    readonly command?: string
+    readonly isTs: boolean;
+    // scripts中的命令的名称的集合
+    readonly command?: string[];
 
     /**
      * @param packagejson 项目的package.json文件地址, 不会对其是否存在进行校验, 也不会对其内容进行校验
      */
     private constructor(packagejson: string) {
-        this.packagejson = packagejson
-        this.dir = path.dirname(packagejson)
+        this.packagejson = packagejson;
+        this.dir = path.dirname(packagejson);
+        this.name = path.basename(this.dir);
         const pack = JSON.parse(fs.readFileSync(packagejson).toString());
         // 只判断main文件是否是ts文件
         this.isTs = (pack.main as string).endsWith(".ts");
         // 只获取scripts第一个命令
-        this.command = Object.keys(pack.scripts)?.[0]
-    }
-
-    getRunCmd(): string | undefined {
-        return `cd ${this.dir} && npm run ${this.command}`;
+        this.command = Object.keys(pack.scripts);
     }
 
     toString() {
         return `{dir: ${this.dir}, isTs: ${this.isTs}, command: ${this.command}}`
+    }
+
+    convertCMD(cmd: string, _file?: string): string {
+        let str = cmd;
+        str = str.replace(/\$projectdir/g, this.dir)
+        // packagename只指向项目文件的最后一个文件夹, 没有读取实际的项目名称
+        str = str.replace(/\$packagename/g, this.name);
+        try {
+            const reg = /\$js_scripts\[[\w]\]/g;
+            const scripts = str.match(reg)?.[0];
+            if (scripts) {
+                const indexStr = scripts.substring(scripts.indexOf('[') + 1, scripts.indexOf(']'));
+                const index = Number.parseInt(indexStr);
+                const indexCMD = this.command?.[index];
+                if (indexCMD) {
+                    str = str.replace(reg, indexCMD);
+                }
+            }
+        } catch (_) {
+        }
+        return str;
     }
 }
 
@@ -119,26 +142,43 @@ export class RustProject implements Project {
 
     readonly type: string = "rs";
     // 项目文件夹路径
-    readonly dir: string
+    readonly dir: string;
+    readonly name: string;
     // Cargo.toml文件路径
-    readonly cargotoml: string
+    readonly cargotoml: string;
+    // 项目src文件夹路径
+    readonly src: string;
 
     private constructor(cargotoml: string) {
         this.cargotoml = cargotoml
         this.dir = path.dirname(cargotoml)
+        this.name = path.basename(this.dir);
+        this.src = path.join(this.dir, "src");
     }
 
-    getRunCmd(): string | undefined {
-        return `cd ${this.dir} && cargo run`;
-    }
+    convertCMD(cmd: string, file?: string): string {
+        let str = cmd;
+        str = str.replace(/\$projectdir/g, this.dir)
+        // packagename只指向项目文件的最后一个文件夹, 没有读取实际的项目名称
+        str = str.replace(/\$packagename/g, this.name);
+        if (file) {
+            const helper = FileHelper.read(file);
+            if (helper.filename) {
+                str = str.replace(/\$filenameWithoutExt/g, helper.filename);
+            }
+            str = str.replace(/\$dir/g, helper.dir);
+            const paths = path.normalize(helper.dir).split('\\');
+            const index = paths.findIndex(f => f == "src");
 
-    // 读取项目名称并截至到src文件夹为止, 并跳过lib.rs/mod.rs
-    getTestCmd(_file: string): string | undefined {
-        return undefined
-    }
-
-    getExpandCmd(file: string): string | undefined {
-        return `cargo expand ${file} > ${file}_expand.rs`
+            if (index != -1) {
+                const pkgs = paths.slice(index + 1);
+                if (helper.filename && helper.filename != "lib" && helper.filename != "mod" && helper.filename != "main") {
+                    pkgs.push(helper.filename);
+                }
+                str = str.replace(/\$rs_currpackage/g, pkgs.join("::"));
+            }
+        }
+        return str;
     }
 
     /**
@@ -147,11 +187,11 @@ export class RustProject implements Project {
      * @returns 
      */
     getDefault(version: RustVersion): string {
-        return `rustup default ${version}`
+        return `rustup default ${version}`;
     }
 
     toString() {
-        return `{dir: ${this.dir}}`
+        return `{dir: ${this.dir}}`;
     }
 }
 

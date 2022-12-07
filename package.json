@@ -12,7 +12,10 @@
   "activationEvents": [
     "onStartupFinished",
     "onCommand:munch1182-runner.runfile",
-    "onCommand:munch1182-runner.runproject"
+    "onCommand:munch1182-runner.runproject",
+    "onCommand:munch1182-runner.cargo-test",
+    "onCommand:munch1182-runner.cargo-expand",
+    "onCommand:munch1182-runner.npm-i"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -24,6 +27,18 @@
       {
         "command": "munch1182-runner.runproject",
         "title": "Run Project"
+      },
+      {
+        "command": "munch1182-runner.cargo-test",
+        "title": "cargo test"
+      },
+      {
+        "command": "munch1182-runner.cargo-expand",
+        "title": "cargo expand"
+      },
+      {
+        "command": "munch1182-runner.npm-i",
+        "title": "npm install"
       }
     ],
     "menus": {
@@ -37,9 +52,37 @@
           "command": "munch1182-runner.runproject",
           "group": "navigation",
           "when": "true"
+        },
+        {
+          "submenu": "munch1182-runner.other",
+          "group": "navigation@100",
+          "when": "true"
+        }
+      ],
+      "munch1182-runner.other": [
+        {
+          "command": "munch1182-runner.cargo-test",
+          "group": "munch1182-runner@2",
+          "when": "true"
+        },
+        {
+          "command": "munch1182-runner.cargo-expand",
+          "group": "munch1182-runner@3",
+          "when": "true"
+        },
+        {
+          "command": "munch1182-runner.npm-i",
+          "group": "munch1182-runner@1",
+          "when": "true"
         }
       ]
     },
+    "submenus": [
+      {
+        "id": "munch1182-runner.other",
+        "label": "Run Command"
+      }
+    ],
     "configuration": {
       "title": "project-runner-config",
       "properties": {
@@ -52,6 +95,21 @@
             ".java": "cd $dir && javac -encoding utf-8 $filename && java $filenameWithoutExt && del $filenameWithoutExt.class",
             ".kt": "cd $dir && kotlinc $filename -include-runtime -d $filenameWithoutExt.jar && java -jar $filenameWithoutExt.jar && del $filenameWithoutExt.jar",
             ".py": "cd $dir && python -u $filename"
+          },
+          "scope": "resource"
+        },
+        "project-runner.projectcmd": {
+          "type": "object",
+          "default": {
+            "js": {
+              "default": "cd $projectdir && npm run $js_scripts[0]",
+              "install": "cd $projectdir && npm i"
+            },
+            "rs": {
+              "default": "cd $projectdir && cargo run",
+              "test": "cd $projectdir && cargo test --package $packagename --bin $packagename -- $rs_currpackage::tests --nocapture",
+              "expand": "cd $projectdir && cargo expand $rs_currpackage > $dir/$filenameWithoutExt_expand.rs"
+            }
           },
           "scope": "resource"
         }

@@ -6,12 +6,24 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.onDidCloseTerminal(e => extension.onTerminalClose(e))
 	let runfile = vscode.commands.registerCommand('munch1182-runner.runfile', (uri: vscode.Uri) => extension.runFile(uri));
 	let runproject = vscode.commands.registerCommand('munch1182-runner.runproject', (uri: vscode.Uri) => extension.runProject(uri));
+	let cgtest = vscode.commands.registerCommand('munch1182-runner.cargo-test', (uri: vscode.Uri) => {
+		extension.runProjectFile(uri, "test");
+	});
+	let cgexpand = vscode.commands.registerCommand('munch1182-runner.cargo-expand', (uri: vscode.Uri) => {
+		extension.runProjectFile(uri, "expand");
+	});
+	let npmi = vscode.commands.registerCommand('munch1182-runner.npm-i', (uri: vscode.Uri) => {
+		extension.runProjectFile(uri, "install");
+	});
+
 	context.subscriptions.push(runfile);
 	context.subscriptions.push(runproject);
+	context.subscriptions.push(cgtest);
+	context.subscriptions.push(cgexpand);
+	context.subscriptions.push(npmi);
 }
 
 export function deactivate() { }
-
 
 class ExtensionRunner {
 
@@ -44,7 +56,7 @@ class ExtensionRunner {
 		const helper = FileHelper.read(uri.fsPath);
 		const ext = helper.ext;
 		if (!ext) {
-			vscode.window.showInformationMessage("unsupport file");
+			vscode.window.showInformationMessage("unsupport dir");
 			return;
 		}
 		const config = this._config.get<any>("filecmd");
@@ -54,21 +66,52 @@ class ExtensionRunner {
 		}
 		const filecmd = config[`.${ext}`] as string;
 		if (!filecmd) {
-			vscode.window.showInformationMessage("no cmd");
+			vscode.window.showInformationMessage("no command");
 			return;
 		}
 		const cmd = helper.convertCMD(filecmd);
+		this.runFileCMD(cmd);
+	}
+
+	runProject(uri: vscode.Uri) {
+		this.runProjectFile(uri);
+	}
+
+	private _findProject(dir: string, file: string | undefined): Project | undefined {
+		const js = JsProject.isJs(dir, file);
+		if (js) {
+			this._output.appendLine(`JS project: ${js}`);
+			return js;
+		}
+		const rs = RustProject.isRust(dir, file);
+		if (rs) {
+			this._output.appendLine(`RS project: ${rs}`);
+			return rs;
+		}
+		return undefined;
+	}
+
+	private runFileCMD(cmd: string) {
 		if (!this._file_terminal) {
 			this._file_terminal = vscode.window.createTerminal("project-runner");
 		}
-
 		this._output.appendLine(`execute: ${cmd}`);
-
 		this._file_terminal?.show(true);
 		this._file_terminal?.sendText(cmd, true);
 	}
 
-	runProject(uri: vscode.Uri) {
+	private runProjectCMD(project: Project, cmd: string) {
+		let terminal = this._project_terminal.get(project.dir);
+		if (!terminal) {
+			this._project_terminal.set(project.dir, vscode.window.createTerminal(`${project.name}-runner`));
+			terminal = this._project_terminal.get(project.dir);
+		}
+
+		terminal?.show(true);
+		terminal?.sendText(cmd);
+	}
+
+	runProjectFile(uri: vscode.Uri, subtype?: string) {
 		const folder = vscode.workspace.workspaceFolders?.find(f => uri.fsPath.includes(f.uri.fsPath));
 		if (!folder) {
 			vscode.window.showInformationMessage("not project");
@@ -82,33 +125,26 @@ class ExtensionRunner {
 			vscode.window.showInformationMessage("unsupport project");
 			return;
 		}
-		const cmd = project.getRunCmd();
-		if (!cmd) {
-			vscode.window.showInformationMessage("project donnot have cmd");
+
+		const config = this._config.get<any>("projectcmd");
+		if (!config) {
+			vscode.window.showInformationMessage("no cmd");
 			return;
 		}
-		this._output.appendLine(`project cmd: ${cmd}`);
-		let terminal = this._project_terminal.get(project.dir);
-		if (!terminal) {
-			this._project_terminal.set(project.dir, vscode.window.createTerminal(`project-runner-${project.type}`));
-			terminal = this._project_terminal.get(project.dir);
+		let configCmd = config[project.type];
+		if (typeof configCmd !== 'string') {
+			if (subtype) {
+				configCmd = configCmd[subtype];
+			} else {
+				configCmd = configCmd["default"]; // default默认名称
+			}
 		}
 
-		terminal?.show(true);
-		terminal?.sendText(cmd);
-	}
-
-	_findProject(dir: string, file: string | undefined): Project | undefined {
-		const js = JsProject.isJs(dir, file);
-		if (js) {
-			this._output.appendLine(`JS project: ${js}`);
-			return js;
+		if (!configCmd) {
+			vscode.window.showInformationMessage("no command");
+			return;
 		}
-		const rs = RustProject.isRust(dir, file);
-		if (rs) {
-			this._output.appendLine(`RS project: ${rs}`);
-			return rs;
-		}
-		return undefined;
+		const cmd = project.convertCMD(configCmd, uri.fsPath);
+		this.runProjectCMD(project, cmd);
 	}
 }
