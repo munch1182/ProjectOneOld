@@ -16,13 +16,16 @@
   },
   "author": "munch1182bot",
   "license": "MIT",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/munch1182/Project/issues"
   },
   "homepage": "https://github.com/munch1182/Project#readme",
-  "type": "module",
   "dependencies": {
     "@ltd/j-toml": "^1.35.3",
+    "@types/minimist": "^1.2.2",
+    "@types/prompts": "^2.4.2",
+    "@types/shelljs": "^0.8.11",
     "enquirer": "^2.3.6",
     "kolorist": "^1.6.0",
     "minimist": "^1.2.7",

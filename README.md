@@ -1,7 +1,7 @@
 # @munch1182/create-app
 
 ```
-npm create @munch1182/app [type] [projectname] --pm [npm] --open 
+npm create @munch1182/app [type] [projectname] --pm [npm] 
 ```
 
 
