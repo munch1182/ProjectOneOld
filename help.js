@@ -1,6 +1,5 @@
 import fs from 'fs';
 import { yellow, cyan, red } from 'kolorist';
-import { type } from 'os';
 import path from 'path';
 import shell from "shelljs";
 
@@ -62,7 +61,8 @@ function copyDir(src, dest) {
  */
 export function existfile(file) {
     if (!fs.existsSync(file)) {
-        if (path.basename(file) == ".gitignore" || path.extname(file)) {
+        const name = path.basename(file);
+        if (name === ".gitignore" || name === "_gitignore" || path.extname(file)) {
             fs.writeFileSync(file, "");
         } else {
             fs.mkdirSync(file);
@@ -73,8 +73,8 @@ export function existfile(file) {
 
 //////////////////// ////////////////////
 
-export const TYPE_CREATE = "create";
-export const TYPE_OPERATE = "operate";
+export const TYPE_CREATE = "create:";
+export const TYPE_OPERATE = "operate:";
 
 /**
  * @param {string} cmd 执行生成项目的命令, 一个type只会有一个命令
@@ -175,5 +175,24 @@ export function exe_copy(src, desc) {
         type: TYPE_OPERATE,
         desc: `update ${path.basename(desc)}`,
         exe: async () => copy(src, desc)
+    }
+}
+
+/**
+ * 将文件内容转为json并将返回的json再写入到文件中
+ * 
+ * @param {string} file 
+ * @param {(any)=>any} json 
+ * @returns 
+ */
+export function exe_json(file, json) {
+    return {
+        type: TYPE_OPERATE,
+        desc: `update ${path.basename(file)}`,
+        exe: async () => {
+            if (!fs.existsSync(file)) return;
+            const newjson = json(JSON.parse(fs.readFileSync(file).toString()));
+            fs.writeFileSync(file, JSON.stringify(newjson, null, 2));
+        }
     }
 }

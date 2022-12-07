@@ -6,6 +6,7 @@ import minimist from 'minimist';
 import prompts from 'prompts';
 import { fileURLToPath } from "url";
 import { err, desc, warn, TYPE_CREATE, empty } from "./help.js";
+import shelljs from "shelljs";
 
 const PREFIX_TYPE = "type-";
 const PREFIX_LIB = "lib-";
@@ -88,7 +89,8 @@ const arg = {
     await _indexDefault(arg.typeRoot, libindex++);
     const LIBS = _direnum(arg.typeRoot, PREFIX_LIB);
     if (LIBS) {
-        const libs = await _askLib(LIBS, pType, pName);
+        const libs = await _askLib(LIBS, arg);
+        if (!libs) return; // 此时只会是取消导致的
         for (const lib of libs) {
             arg.lib = lib;
             // lib-根文件夹
@@ -101,6 +103,22 @@ const arg = {
         console.log(desc(`${k} ${v.desc}`));
         await v.exe();
     })
+
+    console.log("");
+    console.log(desc("success"));
+    console.log("");
+
+    const result = await prompts({
+        type: 'confirm',
+        name: 'open',
+        message: desc('open project?'),
+    }, {
+        onCancel: () => console.log(err("cancel."))
+    })
+
+    if (result.open) {
+        shelljs.exec(`cd ${arg.targetDir} && code .`);
+    }
 })();
 
 
@@ -108,21 +126,31 @@ const arg = {
 /**
  * 
  * @param {string[]} LIBS 
- * @returns {Promise<string[]>}
+ * @returns {Promise<string[]|undefined>}
  */
-async function _askLib(LIBS) {
+async function _askLib(LIBS, arg) {
     const choices = LIBS.map(f => { return { title: f } });
+    // 如果有select文件, 则是单选, 否则, 是可选多选
+    const isSelect = fs.existsSync(path.join(arg.typeRoot, "select"));
     const result = await prompts([
         {
-            type: 'multiselect',
+            type: isSelect ? 'select' : 'multiselect',
             name: 'libs',
             message: desc('chose lib:'),
             choices: choices,
+            initial: isSelect ? 0 : undefined
         }
     ], {
         onCancel: () => console.log(err("cancel."))
     });
-    return result.libs.map(f => { return LIBS[f] });
+    if (result.libs == undefined) {
+        return undefined;
+    }
+    if (isSelect) {
+        return [LIBS[result.libs]];
+    } else {
+        return result.libs.map(f => { return LIBS[f] });
+    }
 }
 
 /**
@@ -140,10 +168,9 @@ async function _sureProjectCanCreate(project) {
             type: 'confirm',
             name: 'del',
             message: warn(descStr)
-        }
-        , {
-            onCancel: () => console.log(err("cancel."))
-        });
+        }, {
+        onCancel: () => console.log(err("cancel."))
+    });
     if (result.del) {
         empty(project);
     }
