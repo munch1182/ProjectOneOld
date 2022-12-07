@@ -1,6 +1,6 @@
 {
-  "name": "vscode-runner",
-  "displayName": "vscode-runner",
+  "name": "vscode-munch1182-runner",
+  "displayName": "vscode-project-runner",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -10,16 +10,53 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscode-runner.helloWorld"
+    "onStartupFinished",
+    "onCommand:munch1182-runner.runfile",
+    "onCommand:munch1182-runner.runproject"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vscode-runner.helloWorld",
-        "title": "Hello World"
+        "command": "munch1182-runner.runfile",
+        "title": "Run File"
+      },
+      {
+        "command": "munch1182-runner.runproject",
+        "title": "Run Project"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "munch1182-runner.runfile",
+          "group": "navigation",
+          "when": "true"
+        },
+        {
+          "command": "munch1182-runner.runproject",
+          "group": "navigation",
+          "when": "true"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "project-runner-config",
+      "properties": {
+        "project-runner.filecmd": {
+          "type": "object",
+          "default": {
+            ".js": "cd $dir && node $filename",
+            ".ts": "cd $dir && ts-node $filename",
+            ".rs": "cd $dir && rustc $filename && $filenameWithoutExt && del $filenameWithoutExt.exe && del $filenameWithoutExt.pdb",
+            ".java": "cd $dir && javac -encoding utf-8 $filename && java $filenameWithoutExt && del $filenameWithoutExt.class",
+            ".kt": "cd $dir && kotlinc $filename -include-runtime -d $filenameWithoutExt.jar && java -jar $filenameWithoutExt.jar && del $filenameWithoutExt.jar",
+            ".py": "cd $dir && python -u $filename"
+          },
+          "scope": "resource"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -30,16 +67,19 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.73.0",
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
+    "@types/vscode": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
+    "@vscode/test-electron": "^2.2.0",
     "eslint": "^8.28.0",
     "glob": "^8.0.3",
     "mocha": "^10.1.0",
-    "typescript": "^4.9.3",
-    "@vscode/test-electron": "^2.2.0"
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "node": "^19.2.0"
   }
 }
