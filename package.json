@@ -1,7 +1,10 @@
 {
   "name": "vscode-munch1182-runner",
   "displayName": "Project Runner",
+  "publisher": "munch1182",
   "description": "",
+  "author": "munch1182",
+  "repository": "https://github.com/munch1182/vscode-runner.git",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.73.0"
