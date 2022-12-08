@@ -169,13 +169,15 @@ export class RustProject implements Project {
             str = helper.convertCMD(str);
             str = str.replace(/\$dir/g, helper.dir);
             const paths = path.normalize(helper.dir).split('\\');
-            const index = paths.findIndex(f => f == "src");
+            const index = paths.findIndex(f => f == "src" || f == "tests");
 
             if (index != -1) {
                 const pkgs = paths.slice(index + 1);
                 if (helper.filename && helper.filename != "lib" && helper.filename != "mod" && helper.filename != "main") {
                     pkgs.push(helper.filename);
                 }
+                // 只对test的mod名为tests的有效
+                str = str.replace(/\$rs_currpackage_tests/g, pkgs.length > 0 ? pkgs.join("::") : "tests");
                 str = str.replace(/\$rs_currpackage/g, pkgs.join("::"));
             }
         }

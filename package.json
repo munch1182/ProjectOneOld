@@ -5,7 +5,7 @@
   "description": "",
   "author": "munch1182",
   "repository": "https://github.com/munch1182/vscode-runner.git",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.73.0"
   },
@@ -65,17 +65,17 @@
       "munch1182-runner.other": [
         {
           "command": "munch1182-runner.cargo-test",
-          "group": "munch1182-runner@2",
+          "group": "munch1182-runner@1",
           "when": "true"
         },
         {
           "command": "munch1182-runner.cargo-expand",
-          "group": "munch1182-runner@3",
+          "group": "munch1182-runner@2",
           "when": "true"
         },
         {
           "command": "munch1182-runner.npm-i",
-          "group": "munch1182-runner@1",
+          "group": "munch1182-runner@3",
           "when": "true"
         }
       ]
@@ -110,7 +110,8 @@
             },
             "rs": {
               "default": "cd $projectdir && cargo run",
-              "test": "cd $projectdir && cargo test --package $packagename --bin $packagename -- $rs_currpackage::tests --nocapture",
+              "test": "cd $projectdir && cargo test --package $packagename --bin $packagename -- $rs_currpackage_tests --nocapture",
+              "test_not_src": "cd $projectdir && cargo test",
               "expand": "cd $projectdir && cargo expand $rs_currpackage > $dir/$filenameWithoutExt_expand.rs"
             }
           },

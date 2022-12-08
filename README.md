@@ -11,7 +11,7 @@ add editor/context:
 - `Run Project`
 - `Run Command`
     - `npm install`
-    - `cargo test`
+    - `cargo test` // test mod/dir must be named tests
     - `cargo expand`
 
 ## setting

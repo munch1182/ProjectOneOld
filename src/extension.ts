@@ -7,7 +7,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let runfile = vscode.commands.registerCommand('munch1182-runner.runfile', (uri: vscode.Uri) => extension.runFile(uri));
 	let runproject = vscode.commands.registerCommand('munch1182-runner.runproject', (uri: vscode.Uri) => extension.runProject(uri));
 	let cgtest = vscode.commands.registerCommand('munch1182-runner.cargo-test', (uri: vscode.Uri) => {
-		extension.runProjectFile(uri, "test");
+		extension.runProjectFile(uri, !uri.fsPath.includes("src") ? "test_not_src" : "test");
 	});
 	let cgexpand = vscode.commands.registerCommand('munch1182-runner.cargo-expand', (uri: vscode.Uri) => {
 		extension.runProjectFile(uri, "expand");
