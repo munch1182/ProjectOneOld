@@ -127,7 +127,7 @@ export function exe_write(file, content, append) {
 export function exe_del(p) {
     return {
         type: TYPE_OPERATE,
-        desc: `del files`,
+        desc: "del files",
         exe: async () => {
             if (typeof p === 'string') {
                 empty(p);

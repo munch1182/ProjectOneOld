@@ -99,10 +99,10 @@ const arg = {
         }
     }
 
-    funs.forEach(async (v, k) => {
+    for (const [k, v] of funs) {
         console.log(desc(`${k} ${v.desc}`));
         await v.exe();
-    })
+    }
 
     console.log("");
     console.log(desc("success"));
@@ -112,8 +112,6 @@ const arg = {
         type: 'confirm',
         name: 'open',
         message: desc('open project?'),
-    }, {
-        onCancel: () => console.log(err("cancel."))
     })
 
     if (result.open) {

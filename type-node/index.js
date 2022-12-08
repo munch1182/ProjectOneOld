@@ -8,7 +8,11 @@ import shell from 'shelljs';
  * @returns {{ type:string, exe: () => Promise<ShellString> }[]}
  */
 export default async function (arg) {
-    const result = [helper.exe_createProject(`mkdir ${arg.targetDir} && cd ${arg.targetDir} && ${arg.pm} init -y`)]
+    const result = [
+        helper.exe_createProject(`mkdir ${arg.targetDir} && cd ${arg.targetDir} && ${arg.pm} init -y`),
+        // 写入gitignore
+        helper.exe_write(path.join(arg.targetDir, '.gitignore'), fs.readFileSync(path.join(arg.typeRoot, '_gitignore')).toString()),
+    ];
     const author = await _askAuthor(arg);
     if (author) {
         result.push(author);
