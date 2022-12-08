@@ -3,8 +3,8 @@
 use crate::{err, win::win_result};
 use std::{ffi::OsStr, ptr};
 use windows_sys::Win32::System::Registry::{
-    RegCloseKey, RegDeleteValueW, RegOpenKeyExW, RegQueryValueExW, RegSetValueExW, HKEY,
-    KEY_ALL_ACCESS, REG_SAM_FLAGS, REG_VALUE_TYPE,
+    RegCloseKey, RegCreateKeyExW, RegDeleteValueW, RegOpenKeyExW, RegQueryValueExW, RegSaveKeyExW,
+    RegSetValueExW, HKEY, REG_VALUE_TYPE,
 };
 
 type Result<T> = crate::Result<T>;
@@ -14,17 +14,17 @@ type Result<T> = crate::Result<T>;
 /// ```rust
 /// use liblib::win::{RegHelper, RegKEY};
 ///
-/// let key = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings";
 /// let helper = RegHelper::new(RegKEY::HKEY_CURRENT_USER);
-/// let netset = helper.open(key)?;
+/// let netset = helper.open("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings")?;
 ///
 /// let enable: u32 = netset.read("ProxyEnable")?.try_into()?;
 /// let proxyserver: String = netset.read("ProxyServer")?.try_into()?;
 ///
-/// assert!(netset.read("nulleky").is_err());
+/// assert!(netset.read("nullkey").is_err());
 ///
 /// # Ok::<(), std::io::Error>(())
 /// ```
+///
 #[derive(Debug)]
 pub struct RegHelper {
     hkey: HKEY,
@@ -52,16 +52,42 @@ impl RegHelper {
         Self { hkey }
     }
 
-    /// 打开一个项, 打开需要权限, 默认用于全部权限
+    /// 打开一个项, 打开需要权限, 默认使用用全部权限
     pub fn open<P: AsRef<OsStr>>(&self, path: P) -> Result<RegHelper> {
-        self.open_with(path, KEY_ALL_ACCESS)
+        self.open_with(path, RegFlag::KEY_ALL_ACCESS)
     }
 
     /// 打开一个项, 需要传入权限
-    pub fn open_with<P: AsRef<OsStr>>(&self, path: P, perms: REG_SAM_FLAGS) -> Result<RegHelper> {
+    pub fn open_with<P: AsRef<OsStr>>(&self, path: P, perms: RegFlag) -> Result<RegHelper> {
         let name = crate::str::to_u16(path);
         let mut newhkey = HKEY::default();
-        let status = unsafe { RegOpenKeyExW(self.hkey, name.as_ptr(), 0, perms, &mut newhkey) };
+        let status =
+            unsafe { RegOpenKeyExW(self.hkey, name.as_ptr(), 0, perms.into(), &mut newhkey) };
+        win_result(status as i32)?;
+        Ok(RegHelper::_new(newhkey))
+    }
+
+    /// 创建一个项, 并返回该对象, 默认使用用全部权限
+    pub fn create<P: AsRef<OsStr>>(&self, path: P) -> Result<RegHelper> {
+        self.create_with(path, RegFlag::KEY_ALL_ACCESS)
+    }
+
+    /// 创建一个项, 并返回该对象
+    pub fn create_with<P: AsRef<OsStr>>(&self, path: P, perms: RegFlag) -> Result<RegHelper> {
+        let mut newhkey = HKEY::default();
+        let status = unsafe {
+            RegCreateKeyExW(
+                self.hkey,
+                crate::str::to_u16(path.as_ref()).as_mut_ptr(),
+                0,
+                ptr::null_mut(),
+                windows_sys::Win32::System::Registry::REG_OPTION_NON_VOLATILE,
+                perms.into(),
+                ptr::null_mut(),
+                &mut newhkey,
+                ptr::null_mut(), // 成功返回的信息
+            )
+        };
         win_result(status as i32)?;
         Ok(RegHelper::_new(newhkey))
     }
@@ -89,7 +115,7 @@ impl RegHelper {
         Ok(RegValue { bytes, vtype })
     }
 
-    /// 设置和更改一个值的数据
+    /// 创建或者更改一个值的数据
     ///
     /// ```ignore
     /// let helper = RegHelper::new(RegKEY::HKEY_CURRENT_USER);
@@ -113,6 +139,18 @@ impl RegHelper {
     pub fn del<P: AsRef<OsStr>>(&self, key: P) -> Result<()> {
         let mut key = crate::str::to_u16(key);
         let status = unsafe { RegDeleteValueW(self.hkey, key.as_mut_ptr()) };
+        win_result(status as i32)?;
+        Ok(())
+    }
+
+    /// 将当前项的值和数据导出
+    ///
+    /// 可能需要管理员权限
+    pub fn export<F: AsRef<std::path::Path>>(&self, file: F) -> Result<()> {
+        let lpfile = crate::str::to_u16(file.as_ref()).as_mut_ptr();
+        let attr = ptr::null_mut();
+        let flags = windows_sys::Win32::System::Registry::REG_NO_COMPRESSION;
+        let status = unsafe { RegSaveKeyExW(self.hkey, lpfile, attr, flags) };
         win_result(status as i32)?;
         Ok(())
     }
@@ -206,12 +244,20 @@ reg_value_type!([
 macro_rules! reg_flags {
     ([$($v:ident),*]) => {
         /// 操作表权限参数
-        #[allow(non_camel_case_types)]
         #[derive(Debug,Clone,PartialEq)]
+        #[repr(u32)]
+        #[allow(non_camel_case_types)]
         pub enum RegFlag{
             $(  /// from windows_sys::Win32::System::Registry::KEY_*
-                $v = windows_sys::Win32::System::Registry::$v as isize
+                $v = windows_sys::Win32::System::Registry::$v
             ),*
+        }
+        impl Into<u32> for RegFlag {
+            fn into(self) -> u32 {
+                match(self){
+                    $(RegFlag::$v => return windows_sys::Win32::System::Registry::$v),*
+                }
+            }
         }
     };
 }
@@ -337,30 +383,37 @@ impl TryInto<u64> for RegValue {
     }
 }
 
-// #[test]
-// fn test_reg_set_del() -> crate::Result<()> {
-//     let helper = RegHelper::new(RegKEY::HKEY_CURRENT_USER);
-//     let netset = helper.open("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings")?;
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
 
-//     assert!(netset.read("KEY_test0").is_err());
-//     assert!(netset.read("KEY_test1").is_err());
-//     assert!(netset.read("KEY_test2").is_err());
+//     #[test]
+//     fn test_reg_set_del() -> crate::Result<()> {
+//         let helper = RegHelper::new(RegKEY::HKEY_CURRENT_USER);
+//         let n = helper.create("test_p")?;
+//         n.set("test_1", &"value_test_reg_1".into())?;
+//         n.export("a.reg")?;
 
-//     netset.set("KEY_test0", &RegValue::from("value_test_reg_1"))?;
-//     netset.set("KEY_test1", &RegValue::from(vec!["v_t_r_1", "v_t_r_2"]))?;
-//     netset.set("KEY_test2", &RegValue::from(1u32))?;
+//         // assert!(netset.read("KEY_test0").is_err());
+//         // assert!(netset.read("KEY_test1").is_err());
+//         // assert!(netset.read("KEY_test2").is_err());
 
-//     let test0: String = netset.read("KEY_test0")?.try_into()?;
-//     assert_eq!("value_test_reg_1", test0);
-//     assert!(netset.read("KEY_test1").is_ok());
-//     assert!(netset.read("KEY_test2").is_ok());
+//         // netset.set("KEY_test0", &RegValue::from("value_test_reg_1"))?;
+//         // netset.set("KEY_test1", &RegValue::from(vec!["v_t_r_1", "v_t_r_2"]))?;
+//         // netset.set("KEY_test2", &RegValue::from(1u32))?;
 
-//     netset.del("KEY_test0")?;
-//     netset.del("KEY_test1")?;
-//     netset.del("KEY_test2")?;
+//         // let test0: String = netset.read("KEY_test0")?.try_into()?;
+//         // assert_eq!("value_test_reg_1", test0);
+//         // assert!(netset.read("KEY_test1").is_ok());
+//         // assert!(netset.read("KEY_test2").is_ok());
 
-//     assert!(netset.read("KEY_test0").is_err());
-//     assert!(netset.read("KEY_test1").is_err());
-//     assert!(netset.read("KEY_test2").is_err());
-//     Ok(())
+//         // netset.del("KEY_test0")?;
+//         // netset.del("KEY_test1")?;
+//         // netset.del("KEY_test2")?;
+
+//         // assert!(netset.read("KEY_test0").is_err());
+//         // assert!(netset.read("KEY_test1").is_err());
+//         // assert!(netset.read("KEY_test2").is_err());
+//         Ok(())
+//     }
 // }

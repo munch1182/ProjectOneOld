@@ -1,0 +1,18 @@
+
+[package]
+name = 'derver_enum'
+version = '0.1.0'
+edition = '2021'
+autotests = false
+
+[lib]
+proc-macro = true
+
+[[test]]
+name = "tests"
+path = "tests/tests.rs"
+
+[dependencies]
+quote = '1.0'
+proc-macro2 = '1.0'
+syn = '1.0'
