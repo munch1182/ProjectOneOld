@@ -127,7 +127,14 @@ const arg = {
  * @returns {Promise<string[]|undefined>}
  */
 async function _askLib(LIBS, arg) {
-    const choices = LIBS.map(f => { return { title: f } });
+    const choices = LIBS.map(f => {
+        let descStr = undefined;
+        const descPath = path.join(arg.typeRoot, `${PREFIX_LIB}${f}`, "desc");
+        if (fs.existsSync(descPath)) {
+            descStr = fs.readFileSync(descPath, { encoding: 'utf-8' });
+        }
+        return { title: f, description: desc(descStr) }
+    });
     // 如果有select文件, 则是单选, 否则, 是可选多选
     const isSelect = fs.existsSync(path.join(arg.typeRoot, "select"));
     const result = await prompts([

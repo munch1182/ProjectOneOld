@@ -6,12 +6,11 @@ import fs from "fs";
  * @returns {{ type:string, exe: () => Promise<ShellString> }[]}
  */
 export default function (arg) {
-    console.log(path.join(arg.typeRoot, '_gitignore'));
     return [
         // 创建项目
         helper.exe_createProject(`${arg.pm} create vite@latest ${arg.projectName} -- --template vue-ts`),
         // 写入gitignore
-        helper.exe_write(path.join(arg.targetDir, '.gitignore'), fs.readFileSync(path.join(arg.typeRoot, '_gitignore')).toString()),
+        helper.exe_write(path.join(arg.targetDir, '.gitignore'), fs.readFileSync(path.join(arg.typeRoot, '_gitignore'), { encoding: 'utf-8' })),
         helper.exe_write(path.join(arg.targetDir, 'README.md'), `# ${arg.projectName}`),
         helper.exe_copy(path.join(arg.typeRoot, "template"), arg.targetDir),
         // 删除文件

@@ -191,7 +191,7 @@ export function exe_json(file, json) {
         desc: `update ${path.basename(file)}`,
         exe: async () => {
             if (!fs.existsSync(file)) return;
-            const newjson = json(JSON.parse(fs.readFileSync(file).toString()));
+            const newjson = json(JSON.parse(fs.readFileSync(file, { encoding: 'utf-8' })));
             fs.writeFileSync(file, JSON.stringify(newjson, null, 2));
         }
     }

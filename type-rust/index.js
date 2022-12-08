@@ -9,8 +9,8 @@ import fs from "fs";
  */
 export default function (arg) {
     return [
-        helper.exe_cmd(`cargo init ${arg.projectName}`),
+        helper.exe_createProject(`cargo new ${arg.projectName}`),
         // 写入gitignore
-        helper.exe_write(path.join(arg.targetDir, '.gitignore'), fs.readFileSync(path.join(arg.typeRoot, '_gitignore')).toString()),
+        helper.exe_write(path.join(arg.targetDir, '.gitignore'), fs.readFileSync(path.join(arg.typeRoot, '_gitignore'), { encoding: 'utf-8' })),
     ]
 }
