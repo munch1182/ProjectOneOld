@@ -5,6 +5,8 @@ import com.munch.lib.android.extend.toHexStr
 import com.munch.lib.bluetooth.connect.BluetoothGattHelper
 import com.munch.lib.bluetooth.helper.BluetoothHelperEnv
 import com.munch.lib.bluetooth.helper.IBluetoothHelperEnv
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -12,14 +14,29 @@ import kotlinx.coroutines.sync.withLock
  * Create by munch1182 on 2022/12/12 14:18.
  */
 internal class BluetoothDataHelper(private val gattHelper: BluetoothGattHelper) :
-    IBluetoothDataHandler, IBluetoothHelperEnv by BluetoothHelperEnv {
+    IBluetoothDataHandler, IBluetoothHelperEnv by BluetoothHelperEnv,
+    BluetoothGattHelper.OnBluetoothDataReceiver {
 
     private val sendLock = Mutex()
     private val mac = gattHelper.mac
+    private var channel = Channel<ByteArray>()
+    private var dataHandler: BluetoothDataReceiver? = null
 
     companion object {
         private const val SEP = ", "
         private const val TAG = "data"
+    }
+
+    override val receive: ReceiveChannel<ByteArray>
+        get() = channel
+
+    internal fun registerDataReceive() {
+
+        gattHelper.setDataReceiver(this)
+    }
+
+    internal fun close() {
+
     }
 
     override suspend fun send(pack: ByteArray): Boolean {
@@ -61,10 +78,14 @@ internal class BluetoothDataHelper(private val gattHelper: BluetoothGattHelper) 
     }
 
     override fun setDataReceiver(receiver: BluetoothDataReceiver) {
-        TODO("Not yet implemented")
+        this.dataHandler = receiver
     }
 
     private fun log(content: String) {
         log.log("[$TAG]: [${mac}]: $content")
+    }
+
+    override suspend fun onDataReceive(data: ByteArray) {
+        channel.send(this.dataHandler?.onDataReceived(data) ?: data)
     }
 }

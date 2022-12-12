@@ -7,6 +7,9 @@ import com.munch.lib.android.extend.to
 import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 import com.munch.lib.bluetooth.helper.BluetoothHelperEnv
 import com.munch.lib.bluetooth.helper.IBluetoothHelperEnv
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -193,11 +196,18 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
     private var _gatt: BluetoothGatt? = null
     private var curr = WaitResult()
     internal var writer: BluetoothGattCharacteristic? = null
+    private val receiveLock = Mutex()
+    private var receiver: OnBluetoothDataReceiver? = null
     var currMtu: Int = 24
         private set
 
     companion object {
         private const val TAG = "gatt"
+    }
+
+    internal fun setDataReceiver(receiver: OnBluetoothDataReceiver): BluetoothGattHelper {
+        this.receiver = receiver
+        return this
     }
 
     internal val callback by lazy {
@@ -224,6 +234,13 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
             ) {
                 super.onCharacteristicChanged(gatt, characteristic)
                 curr.notify("onCharacteristicChanged", null, characteristic)
+                receiver ?: return
+                // 回调过后放入channel中, 避免先后顺序不一致
+                launch {
+                    receiveLock.withLock {
+                        receiver?.onDataReceive(characteristic?.value ?: byteArrayOf())
+                    }
+                }
             }
 
             override fun onCharacteristicWrite(
@@ -384,5 +401,9 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
 
     fun interface OnConnectStateChangeListener {
         fun onConnectStateChange(status: Int, newState: Int)
+    }
+
+    fun interface OnBluetoothDataReceiver {
+        suspend fun onDataReceive(data: ByteArray)
     }
 }

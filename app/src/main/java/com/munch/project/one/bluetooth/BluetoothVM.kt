@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.munch.lib.android.extend.ContractVM
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.connect.*
+import com.munch.lib.bluetooth.data.BluetoothDataReceiver
 import com.munch.lib.bluetooth.dev.BluetoothType
 import com.munch.lib.bluetooth.helper.stopThenStartScan
 import com.munch.lib.bluetooth.helper.watchDevsScan
@@ -67,52 +68,12 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
             }
             is INTENT.Connect -> {
                 val dev = it.dev
-                val judge = BluetoothConnector.Builder().judge(object : IBluetoothConnectJudge {
-                    override suspend fun onJudge(gatt: BluetoothGattHelper): BluetoothConnectResult {
-                        if (!gatt.discoverServices()) {
-                            return BluetoothConnectFailReason.CustomErr(1).toReason()
-                        }
-                        val main =
-                            gatt.getService(UUID.fromString("461c5198-449c-449b-9fe5-6259dc3fcbed"))
-                        val writer =
-                            main?.getCharacteristic(UUID.fromString("461c0028-449c-449b-9fe5-6259dc3fcbed"))
-                        if (writer != null) {
-                            gatt.setDataWriter(writer)
-                        }
-                        if (main == null || writer == null) {
-                            return BluetoothConnectFailReason.CustomErr(3).toReason()
-                        }
-                        if (gatt.requestMtu(247) != 247) {
-                            return BluetoothConnectFailReason.CustomErr(2).toReason()
-                        }
-                        return BluetoothConnectResult.Success
-                    }
-                })
+                val judge = BluetoothConnector.Builder().judge(YFWatch)
                 if (!dev.connect(judge).isSuccess) {
                     return
                 }
-                dev.send(
-                    byteArrayOf(
-                        0x89.toByte(),
-                        0x56,
-                        0x12,
-                        0x00,
-                        0x01,
-                        0x00,
-                        0x00,
-                        0x00,
-                        0x23,
-                        0x3B,
-                        0x01,
-                        0x00,
-                        0x00,
-                        0x00,
-                        0x4B,
-                        0xB7.toByte(),
-                        0xB5.toByte(),
-                        0x3A
-                    )
-                )
+                dev.setDataReceiver(YFWatch)
+                dev.send(testPack())
             }
         }
     }
@@ -139,5 +100,48 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
             get(KEY_BLUETOOTH_FILTER, "{}")
                 ?.let { Gson().fromJson(it, BluetoothFilter::class.java) }
                 ?: BluetoothFilter()
+    }
+
+    private fun testPack() = byteArrayOf(
+        0x89.toByte(),
+        0x56,
+        0x12,
+        0x00,
+        0x01,
+        0x00,
+        0x00,
+        0x00,
+        0x23,
+        0x3B,
+        0x01,
+        0x00,
+        0x00,
+        0x00,
+        0x4B,
+        0xB7.toByte(),
+        0xB5.toByte(),
+        0x3A
+    )
+
+    private object YFWatch : IBluetoothConnectJudge, BluetoothDataReceiver {
+        override suspend fun onJudge(gatt: BluetoothGattHelper): BluetoothConnectResult {
+            if (!gatt.discoverServices()) {
+                return BluetoothConnectFailReason.CustomErr(1).toReason()
+            }
+            val main =
+                gatt.getService(UUID.fromString("461c5198-449c-449b-9fe5-6259dc3fcbed"))
+            val writer =
+                main?.getCharacteristic(UUID.fromString("461c0028-449c-449b-9fe5-6259dc3fcbed"))
+            if (writer != null) {
+                gatt.setDataWriter(writer)
+            }
+            if (main == null || writer == null) {
+                return BluetoothConnectFailReason.CustomErr(3).toReason()
+            }
+            if (gatt.requestMtu(247) != 247) {
+                return BluetoothConnectFailReason.CustomErr(2).toReason()
+            }
+            return BluetoothConnectResult.Success
+        }
     }
 }
