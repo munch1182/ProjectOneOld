@@ -164,11 +164,11 @@ class BluetoothConnectJudgeContainer(vararg judges: IBluetoothConnectJudge) :
  */
 sealed class BluetoothConnectResult : SealedClassToStringByName() {
     object Success : BluetoothConnectResult() {
-        override fun toString() = "BluetoothConnectSuccess"
+        override fun toString() = "ConnectSuccess"
     }
 
     class Fail(val reason: IBluetoothConnectFailReason) : BluetoothConnectResult() {
-        override fun toString() = "BluetoothConnectFail($reason)"
+        override fun toString() = "ConnectFail($reason)"
     }
 
     val isSuccess: Boolean

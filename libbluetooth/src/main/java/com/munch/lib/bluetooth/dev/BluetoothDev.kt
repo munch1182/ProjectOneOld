@@ -3,8 +3,12 @@ package com.munch.lib.bluetooth.dev
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
 import com.munch.lib.bluetooth.connect.BluetoothClassicConnectImp
+import com.munch.lib.bluetooth.connect.BluetoothGattHelper
 import com.munch.lib.bluetooth.connect.BluetoothLeConnectImp
 import com.munch.lib.bluetooth.connect.IBluetoothConnector
+import com.munch.lib.bluetooth.data.BluetoothDataHelper
+import com.munch.lib.bluetooth.data.BluetoothDataReceiver
+import com.munch.lib.bluetooth.data.IBluetoothDataHandler
 
 /**
  * Create by munch1182 on 2022/9/29 15:47.
@@ -12,7 +16,7 @@ import com.munch.lib.bluetooth.connect.IBluetoothConnector
 abstract class BluetoothDev internal constructor(
     override val mac: String,
     val type: BluetoothType = BluetoothType.UNKNOWN
-) : IBluetoothDev, IBluetoothConnector {
+) : IBluetoothDev, IBluetoothConnector, IBluetoothDataHandler {
 
     internal constructor(dev: BluetoothDevice) : this(dev.address, BluetoothType.from(dev))
 
@@ -42,9 +46,12 @@ abstract class BluetoothScannedDev(val dev: BluetoothDevice) : BluetoothDev(dev)
 }
 
 internal class BluetoothLeDevice(
-    dev: BluetoothDevice, private val scan: ScanResult?
+    dev: BluetoothDevice,
+    private val scan: ScanResult?,
+    private val gattHelper: BluetoothGattHelper = BluetoothGattHelper(dev)
 ) : BluetoothScannedDev(dev), BluetoothLeDev,
-    IBluetoothConnector by BluetoothLeConnectImp(dev) {
+    IBluetoothConnector by BluetoothLeConnectImp(dev, gattHelper),
+    IBluetoothDataHandler by BluetoothDataHelper(gattHelper) {
 
     constructor(scan: ScanResult) : this(scan.device, scan)
 
@@ -57,4 +64,11 @@ internal class BluetoothLeDevice(
 }
 
 class BluetoothClassicDevice(dev: BluetoothDevice, rssi: Int?) : BluetoothScannedDev(dev),
-    IBluetoothConnector by BluetoothClassicConnectImp(dev)
+    IBluetoothConnector by BluetoothClassicConnectImp(dev) {
+    override suspend fun send(pack: ByteArray): Boolean {
+        return false
+    }
+
+    override fun setDataReceiver(receiver: BluetoothDataReceiver) {
+    }
+}

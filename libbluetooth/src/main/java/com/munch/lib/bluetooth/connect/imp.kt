@@ -67,12 +67,16 @@ internal abstract class BluetoothConnectImp(protected val dev: BluetoothDevice) 
 
 }
 
-internal class BluetoothLeConnectImp(dev: BluetoothDevice) : BluetoothConnectImp(dev),
+internal class BluetoothLeConnectImp(
+    dev: BluetoothDevice,
+    private val gattHelper: BluetoothGattHelper
+) : BluetoothConnectImp(dev),
     BluetoothGattHelper.OnConnectStateChangeListener {
 
-    private val gattHelper by lazy {
-        BluetoothGattHelper(dev).setConnectStateListener(this)
+    init {
+        gattHelper.setConnectStateListener(this)
     }
+
     private var _gatt: BluetoothGatt? = null
     private var _onConnect: BluetoothGattHelper.OnConnectStateChangeListener? = null
 
@@ -81,40 +85,38 @@ internal class BluetoothLeConnectImp(dev: BluetoothDevice) : BluetoothConnectImp
         config: BluetoothConnector.Builder?
     ): BluetoothConnectResult {
         val b = config ?: BluetoothConnectorConfig.builder
-        val result = com.munch.lib.android.extend.suspendCancellableCoroutine(timeout) {
+        var result = com.munch.lib.android.extend.suspendCancellableCoroutine(timeout) {
             _onConnect = BluetoothGattHelper.OnConnectStateChangeListener { status, newState ->
                 when (newState) {
                     BluetoothProfile.STATE_CONNECTED -> {
                         _onConnect = null
-                        log.log("$dev connect gatt: Success.")
-                        it.resume(BluetoothConnectResult.Success)
+                        log.log("$dev: connect gatt: Success.")
+                        if (it.isActive) it.resume(BluetoothConnectResult.Success)
                     }
                     BluetoothProfile.STATE_DISCONNECTED -> {
                         _onConnect = null
-                        log.log("connect gatt: fail.")
+                        log.log("$dev: connect gatt: fail.")
                         val reason = BluetoothConnectFailReason.SysErr(status).toReason()
-                        it.resume(reason)
+                        if (it.isActive) it.resume(reason)
                     }
                     else -> {
                         //wait
                     }
                 }
             }
-            log.log("$dev start CONNECT gatt.")
+            log.log("$dev: start CONNECT gatt.")
             _gatt = dev.connectGatt(
                 null, false,
                 gattHelper.callback, b.transport, b.phy
             )
         } ?: timeoutDisconnect()
+        log.log("$dev: connect result: $result.")
         val judge = b.judge
-        if (result == BluetoothConnectResult.Success && judge != null) {
-            log.log("$dev start custom JUDGE.")
-            val judgeResult = judge.onJudge(gattHelper)
-            log.log("$dev onJudge: $judgeResult.")
-            return judgeResult
+        if (result.isSuccess && judge != null) {
+            log.log("$dev: start custom JUDGE.")
+            result = judge.onJudge(gattHelper)
+            log.log("$dev: onJudge: $result.")
         }
-
-        log.log("$dev connect result: $result.")
         return result
     }
 
@@ -125,7 +127,7 @@ internal class BluetoothLeConnectImp(dev: BluetoothDevice) : BluetoothConnectImp
 
     override suspend fun disconnect(removeBond: Boolean): Boolean {
         if (_gatt != null) {
-            log.log("$dev start DISCONNECT gatt.")
+            log.log("$dev: start DISCONNECT gatt.")
             _gatt?.disconnect()
             var index = 5
             while (index > 0) {
@@ -156,6 +158,4 @@ internal class BluetoothClassicConnectImp(dev: BluetoothDevice) : BluetoothConne
     override suspend fun disconnect(removeBond: Boolean): Boolean {
         TODO("Not yet implemented")
     }
-
-
 }

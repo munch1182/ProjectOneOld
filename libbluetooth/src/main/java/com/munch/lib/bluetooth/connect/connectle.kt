@@ -7,6 +7,7 @@ import com.munch.lib.android.extend.to
 import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 import com.munch.lib.bluetooth.helper.BluetoothHelperEnv
 import com.munch.lib.bluetooth.helper.IBluetoothHelperEnv
+import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -145,10 +146,13 @@ internal fun BluetoothGattCharacteristic?.str() =
 class BluetoothGattHelper(sysDev: BluetoothDevice) :
     IBluetoothHelperEnv by BluetoothHelperEnv {
 
-    private val mac = sysDev.address
+    internal val mac = sysDev.address
     private var l: OnConnectStateChangeListener? = null
     private var _gatt: BluetoothGatt? = null
     private var curr = WaitResult()
+    internal var writer: BluetoothGattCharacteristic? = null
+    var currMtu: Int = 24
+        private set
 
     internal val callback by lazy {
         object : BluetoothGattBaseCallback(mac) {
@@ -175,6 +179,15 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
                 super.onCharacteristicChanged(gatt, characteristic)
                 curr.notify("onCharacteristicChanged", null, characteristic)
             }
+
+            override fun onCharacteristicWrite(
+                gatt: BluetoothGatt?,
+                characteristic: BluetoothGattCharacteristic?,
+                status: Int
+            ) {
+                super.onCharacteristicWrite(gatt, characteristic, status)
+                curr.notify("onCharacteristicWrite", null, status == BluetoothGatt.GATT_SUCCESS)
+            }
         }
     }
 
@@ -198,6 +211,18 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
         return success
     }
 
+    fun getService(uuid: UUID): BluetoothGattService? = _gatt?.getService(uuid)
+
+    /**
+     * 设置数据写入服务特征值
+     *
+     * 只有写入此值, 才能使用数据发送服务
+     */
+    fun setDataWriter(writer: BluetoothGattCharacteristic) {
+        log("set DataWriter")
+        this.writer = writer
+    }
+
     /**
      * 调用[BluetoothGatt.requestMtu]并同步返回结果
      *
@@ -210,6 +235,7 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
         curr.wait("onMtuChanged", timeout)
         val currMtu: Int? = curr.any?.to()
         log("onMtuChanged: ${currMtu == mtu}")
+        this.currMtu = currMtu ?: 24
         return currMtu
     }
 
@@ -229,6 +255,23 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
         val curr: BluetoothGattCharacteristic? = curr.any?.to()
         log("readCharacteristic: ${curr?.str()}")
         return curr
+    }
+
+    /**
+     * 调用[BluetoothGatt.writeCharacteristic]并同步返回结果
+     *
+     * @return 同步返回onCharacteristicWrite的characteristic对象, 如果超时则返回null
+     */
+    @WorkerThread
+    fun writeCharacteristic(
+        c: BluetoothGattCharacteristic,
+        timeout: Long = 3 * 1000
+    ): Boolean {
+        _gatt?.writeCharacteristic(c)
+        curr.wait("onCharacteristicWrite", timeout)
+        val curr: Boolean? = curr.any?.to()
+        log("writeCharacteristic: $curr")
+        return curr ?: false
     }
 
     override fun log(content: String) {
