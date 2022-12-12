@@ -45,6 +45,17 @@ interface IBluetoothState {
     val pairedDevs: Set<BluetoothDevice>?
 
     /**
+     * 系统蓝牙已连接设备
+     */
+    val connectDevs: List<BluetoothDevice>?
+        get() = pairedDevs?.filter { isConnect(it) ?: false }
+
+    /**
+     * 该蓝牙是否已连接
+     */
+    fun isConnect(device: BluetoothDevice): Boolean?
+
+    /**
      * 回调蓝牙通知
      */
     fun addStateChangeListener(l: OnBluetoothStateNotifyListener?)

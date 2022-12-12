@@ -2,7 +2,6 @@
 
 ***
 
-* [libjava](./libjava/build.gradle): 只使用了`Java`的基础lib
 * [libandroid](./libandroid/build.gradle): 供`Android`使用的基础lib
 * [libbluetooth](./libbluetooth/build.gradle): `Android`蓝牙库
 * [libweight](./libweight/build.gradle): `Android View`集中库

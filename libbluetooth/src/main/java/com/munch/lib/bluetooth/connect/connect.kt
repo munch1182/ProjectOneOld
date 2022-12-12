@@ -29,9 +29,21 @@ interface IBluetoothConnectFun {
      * 在[timeout]内的连接结果, 仅限此次连接, 当连接成功后的状态变化与此无关
      *
      * @param timeout 连接超时时间, 该时间只对系统连接时间限制, 当系统连接后, 自定义操作不再限制超时时间, 或者说, 需要自行限定超时时间
+     * @param config 单独对从设备的连接进行设置, 而不使用全局的连接设置
      * @return 此次连接结果
+     *
+     * @see com.munch.lib.bluetooth.BluetoothHelper.configConnect
+     * @see com.munch.lib.bluetooth.dev.BluetoothDev.addConnectListener
+     * @see com.munch.lib.bluetooth.dev.BluetoothDev.removeConnectListener
      */
-    suspend fun connect(timeout: Long = BluetoothHelperConfig.builder.defaultTimeout): BluetoothConnectResult
+    suspend fun connect(
+        timeout: Long = BluetoothHelperConfig.builder.defaultTimeout,
+        config: BluetoothConnector.Builder? = null
+    ): BluetoothConnectResult
+
+    suspend fun connect(config: BluetoothConnector.Builder) = connect(
+        BluetoothHelperConfig.builder.defaultTimeout, config
+    )
 
     /**
      * @param removeBond 是否需要移除系统的绑定
@@ -97,6 +109,7 @@ interface BluetoothConnector {
         }
         //</editor-fold>
 
+        //<editor-fold desc="CLASSIC">
         internal var name: String = "p1"
         internal var uuid = UUID.randomUUID()
 
@@ -109,6 +122,7 @@ interface BluetoothConnector {
             this.uuid = uuid
             return this
         }
+        //</editor-fold>
     }
 }
 
@@ -117,7 +131,7 @@ interface BluetoothConnector {
  * 如果自定义操作返回连接成功, 则本库会视为连接成功并回调连接成功
  * 否则, 会方法此自定义的连接结果并视作连接失败, 并自动断开连接
  */
-interface IBluetoothConnectJudge {
+fun interface IBluetoothConnectJudge {
     suspend fun onJudge(gatt: BluetoothGattHelper): BluetoothConnectResult
 }
 
@@ -235,7 +249,14 @@ sealed class BluetoothConnectFailReason : SealedClassToStringByName(), IBluetoot
         override fun toString() = "SysErr($sysErrCode)"
     }
 
-    fun to() = BluetoothConnectResult.Fail(this)
+    class CustomErr(private val customCode: Int) : BluetoothConnectFailReason() {
+        override val code: Int
+            get() = customCode
+
+        override fun toString() = "CustomErr($customCode)"
+    }
+
+    fun toReason() = BluetoothConnectResult.Fail(this)
 
     override val code: Int
         get() = 999 // 自定义的code都是999, 否则则应该是系统返回的code

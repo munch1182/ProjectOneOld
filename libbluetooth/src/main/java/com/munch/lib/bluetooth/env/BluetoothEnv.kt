@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import com.munch.lib.android.AppHelper
+import com.munch.lib.android.extend.catch
 import com.munch.lib.android.extend.lazy
 import com.munch.lib.android.extend.toOrNull
 import com.munch.lib.android.helper.ReceiverHelper
@@ -32,6 +33,17 @@ internal object BluetoothEnv : IBluetoothManager, IBluetoothState {
     override val pairedDevs: Set<DEV>?
         get() = adapter?.bondedDevices
     private val receiver = BluetoothReceiver()
+
+    override fun isConnect(device: android.bluetooth.BluetoothDevice): Boolean {
+        return catch {
+            val method =
+                android.bluetooth.BluetoothDevice::class.java.getDeclaredMethod("isConnected")
+            method.isAccessible = true
+            val isConnect = method.invoke(device)
+            isConnect is Boolean && isConnect
+        } ?: false
+    }
+
 
     override fun addStateChangeListener(l: OnBluetoothStateNotifyListener?) {
         receiver.add(l)

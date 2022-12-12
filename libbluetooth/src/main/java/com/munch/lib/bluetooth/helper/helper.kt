@@ -209,6 +209,11 @@ interface IBluetoothHelperConfig {
             this.defaultTimeout = timeout
             return this
         }
+
+        // todo 传入service id控制扫码范围
+        fun injectScan():Builder{
+            return this
+        }
     }
 }
 

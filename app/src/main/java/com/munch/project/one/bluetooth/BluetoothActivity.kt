@@ -85,7 +85,7 @@ class BluetoothActivity : BaseActivity(),
                 .okStr()
                 .cancelStr()
                 .onDismiss<ChoseDialog> { d ->
-                    vm.dispatch(INTENT.Connect(dev.mac))
+                    vm.dispatch(INTENT.Connect(dev))
                     if (d.isChoseOk) startActivity<BluetoothConnectActivity>()
                 }
                 .offer(this)

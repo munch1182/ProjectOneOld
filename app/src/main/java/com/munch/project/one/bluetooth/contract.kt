@@ -15,7 +15,7 @@ sealed class BluetoothIntent : SealedClassToStringByName() {
     object ToggleScan : BluetoothIntent()
     class UpdateFilter(val f: BluetoothFilter) : BluetoothIntent()
 
-    class Connect(val mac: String) : BluetoothIntent()
+    class Connect(val dev: BluetoothDev) : BluetoothIntent()
 }
 
 sealed class BluetoothState : SealedClassToStringByName() {

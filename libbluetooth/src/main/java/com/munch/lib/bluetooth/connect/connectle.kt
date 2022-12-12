@@ -142,7 +142,7 @@ internal fun BluetoothGattCharacteristic?.str() =
 /**
  * 这些方法不能并发执行
  */
-class BluetoothGattHelper(private val sysDev: BluetoothDevice) :
+class BluetoothGattHelper(sysDev: BluetoothDevice) :
     IBluetoothHelperEnv by BluetoothHelperEnv {
 
     private val mac = sysDev.address
@@ -178,8 +178,9 @@ class BluetoothGattHelper(private val sysDev: BluetoothDevice) :
         }
     }
 
-    internal fun setConnectStateListener(l: OnConnectStateChangeListener) {
+    internal fun setConnectStateListener(l: OnConnectStateChangeListener): BluetoothGattHelper {
         this.l = l
+        return this
     }
 
     /**
@@ -208,7 +209,7 @@ class BluetoothGattHelper(private val sysDev: BluetoothDevice) :
         log("call requestMtu($mtu)", timeout)
         curr.wait("onMtuChanged", timeout)
         val currMtu: Int? = curr.any?.to()
-        log("discoverServices: ${currMtu == mtu}")
+        log("onMtuChanged: ${currMtu == mtu}")
         return currMtu
     }
 

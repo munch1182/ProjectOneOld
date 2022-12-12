@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.munch.lib.android.extend.ContractVM
 import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.connect.*
 import com.munch.lib.bluetooth.dev.BluetoothType
 import com.munch.lib.bluetooth.helper.stopThenStartScan
 import com.munch.lib.bluetooth.helper.watchDevsScan
@@ -64,6 +65,18 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
                 post(STATE.FilterUpdate(it.f))
             }
             is INTENT.Connect -> {
+                val dev = it.dev
+                dev.connect(BluetoothConnector.Builder().judge(object : IBluetoothConnectJudge {
+                    override suspend fun onJudge(gatt: BluetoothGattHelper): BluetoothConnectResult {
+                        if (!gatt.discoverServices()) {
+                            return BluetoothConnectFailReason.CustomErr(1).toReason()
+                        }
+                        if (gatt.requestMtu(247) != 247) {
+                            return BluetoothConnectFailReason.CustomErr(2).toReason()
+                        }
+                        return BluetoothConnectResult.Success
+                    }
+                }))
             }
         }
     }

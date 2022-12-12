@@ -2,14 +2,17 @@ package com.munch.lib.bluetooth.dev
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanResult
+import com.munch.lib.bluetooth.connect.BluetoothClassicConnectImp
+import com.munch.lib.bluetooth.connect.BluetoothLeConnectImp
+import com.munch.lib.bluetooth.connect.IBluetoothConnector
 
 /**
  * Create by munch1182 on 2022/9/29 15:47.
  */
-open class BluetoothDev internal constructor(
+abstract class BluetoothDev internal constructor(
     override val mac: String,
     val type: BluetoothType = BluetoothType.UNKNOWN
-) : IBluetoothDev {
+) : IBluetoothDev, IBluetoothConnector {
 
     internal constructor(dev: BluetoothDevice) : this(dev.address, BluetoothType.from(dev))
 
@@ -34,13 +37,14 @@ abstract class BluetoothScannedDev(val dev: BluetoothDevice) : BluetoothDev(dev)
     open val rssi: Int?
         get() = null
 
-    val rssiStr:String?
+    val rssiStr: String?
         get() = rssi?.let { "${it}dBm" }
 }
 
 internal class BluetoothLeDevice(
     dev: BluetoothDevice, private val scan: ScanResult?
-) : BluetoothScannedDev(dev), BluetoothLeDev {
+) : BluetoothScannedDev(dev), BluetoothLeDev,
+    IBluetoothConnector by BluetoothLeConnectImp(dev) {
 
     constructor(scan: ScanResult) : this(scan.device, scan)
 
@@ -52,6 +56,5 @@ internal class BluetoothLeDevice(
 
 }
 
-class BluetoothClassicDevice(dev: BluetoothDevice, rssi: Int?) : BluetoothScannedDev(dev)
-class BluetoothDualDevice(dev: BluetoothDevice, scan: ScanResult?, rssi: Int?) :
-    BluetoothScannedDev(dev)
+class BluetoothClassicDevice(dev: BluetoothDevice, rssi: Int?) : BluetoothScannedDev(dev),
+    IBluetoothConnector by BluetoothClassicConnectImp(dev)
