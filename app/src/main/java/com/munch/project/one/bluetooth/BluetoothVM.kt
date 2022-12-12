@@ -79,6 +79,9 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
                         if (writer != null) {
                             gatt.setDataWriter(writer)
                         }
+                        if (main == null || writer == null) {
+                            return BluetoothConnectFailReason.CustomErr(3).toReason()
+                        }
                         if (gatt.requestMtu(247) != 247) {
                             return BluetoothConnectFailReason.CustomErr(2).toReason()
                         }

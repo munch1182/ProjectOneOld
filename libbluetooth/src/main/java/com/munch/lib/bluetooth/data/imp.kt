@@ -19,25 +19,26 @@ internal class BluetoothDataHelper(private val gattHelper: BluetoothGattHelper) 
 
     companion object {
         private const val SEP = ", "
+        private const val TAG = "data"
     }
 
     override suspend fun send(pack: ByteArray): Boolean {
         return sendLock.withLock {
             val writer = gattHelper.writer
             if (writer == null) {
-                log("$mac: want to SEND data but WRITER is null.")
+                if (enableLog) log("want to SEND data but WRITER is null")
                 return false
             }
             val arrays = pack.split(gattHelper.currMtu - 3)
             for (bytes in arrays) {
                 writer.value = bytes
-                log("$mac: SEND: ${simpleData(pack)}.")
+                if (enableLog) log("SEND: ${simpleData(pack)}")
                 if (!gattHelper.writeCharacteristic(writer)) {
-                    log("$mac: SEND: fail.")
+                    if (enableLog) log("SEND: fail")
                     return false
                 }
             }
-            log("$mac: SEND: success.")
+            if (enableLog) log("SEND: success")
             true
         }
     }
@@ -61,5 +62,9 @@ internal class BluetoothDataHelper(private val gattHelper: BluetoothGattHelper) 
 
     override fun setDataReceiver(receiver: BluetoothDataReceiver) {
         TODO("Not yet implemented")
+    }
+
+    private fun log(content: String) {
+        log.log("[$TAG]: [${mac}]: $content")
     }
 }

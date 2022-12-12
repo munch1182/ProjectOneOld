@@ -28,9 +28,7 @@ internal class BluetoothClassicService :
             return
         }
         launch {
-            log("1")
             serviceSocket?.accept()
-            log("2")
         }
     }
 }

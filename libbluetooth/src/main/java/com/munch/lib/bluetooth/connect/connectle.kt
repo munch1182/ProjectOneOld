@@ -19,25 +19,35 @@ open class BluetoothGattBaseCallback(
     private val mac: String,
 ) : BluetoothGattCallback(), IBluetoothHelperEnv by BluetoothHelperEnv {
 
-    override fun log(content: String) {
-        if (BluetoothHelperConfig.builder.enableLog) {
-            log.log("[$mac]: $content")
-        }
+    companion object {
+        private const val TAG = "syst"
+    }
+
+    private fun log(content: String) {
+        log.log("[$TAG]: [$mac]: $content")
     }
 
     override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
         super.onConnectionStateChange(gatt, status, newState)
-        log("onConnectionStateChange: status: ${status.status()}, newState: ${newState.state()}, gatt: ${gatt.str()}.")
+        if (enableLog) {
+            log(
+                "onConnectionStateChange: status: ${status.status()}, newState: ${newState.state()}, gatt: ${gatt.str()}."
+            )
+        }
     }
 
     override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
         super.onServicesDiscovered(gatt, status)
-        log("onServicesDiscovered: status: ${status.status()}, gatt: ${gatt.str()}.")
+        if (enableLog) {
+            log("onServicesDiscovered: status: ${status.status()}, gatt: ${gatt.str()}")
+        }
     }
 
     override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
         super.onMtuChanged(gatt, mtu, status)
-        log("onMtuChanged: mtu: ${mtu}, status: ${status.status()}, gatt: ${gatt.str()}.")
+        if (enableLog) {
+            log("onMtuChanged: mtu: ${mtu}, status: ${status.status()}, gatt: ${gatt.str()}")
+        }
     }
 
     override fun onDescriptorRead(
@@ -46,7 +56,11 @@ open class BluetoothGattBaseCallback(
         status: Int
     ) {
         super.onDescriptorRead(gatt, descriptor, status)
-        log("onDescriptorRead: status: ${status.status()}, descriptor: ${descriptor.str()}.")
+        if (enableLog) {
+            log(
+                "onDescriptorRead: status: ${status.status()}, descriptor: ${descriptor.str()}."
+            )
+        }
     }
 
     override fun onDescriptorWrite(
@@ -55,7 +69,11 @@ open class BluetoothGattBaseCallback(
         status: Int
     ) {
         super.onDescriptorWrite(gatt, descriptor, status)
-        log("onDescriptorWrite: status: ${status.status()}, descriptor: ${descriptor.str()}.")
+        if (enableLog) {
+            log(
+                "onDescriptorWrite: status: ${status.status()}, descriptor: ${descriptor.str()}."
+            )
+        }
     }
 
     override fun onCharacteristicRead(
@@ -64,7 +82,11 @@ open class BluetoothGattBaseCallback(
         status: Int
     ) {
         super.onCharacteristicRead(gatt, characteristic, status)
-        log("onCharacteristicRead: status: ${status.status()}, characteristic: ${characteristic.str()}.")
+        if (enableLog) {
+            log(
+                "onCharacteristicRead: status: ${status.status()}, characteristic: ${characteristic.str()}."
+            )
+        }
     }
 
     override fun onCharacteristicWrite(
@@ -73,7 +95,11 @@ open class BluetoothGattBaseCallback(
         status: Int
     ) {
         super.onCharacteristicWrite(gatt, characteristic, status)
-        log("onCharacteristicWrite: status: ${status.status()}, characteristic: ${characteristic.str()}.")
+        if (enableLog) {
+            log(
+                "onCharacteristicWrite: status: ${status.status()}, characteristic: ${characteristic.str()}."
+            )
+        }
     }
 
     override fun onCharacteristicChanged(
@@ -81,27 +107,43 @@ open class BluetoothGattBaseCallback(
         characteristic: BluetoothGattCharacteristic?
     ) {
         super.onCharacteristicChanged(gatt, characteristic)
-        log("onCharacteristicChanged: characteristic: ${characteristic.str()}.")
+        if (enableLog) {
+            log("onCharacteristicChanged: characteristic: ${characteristic.str()}")
+        }
     }
 
     override fun onPhyRead(gatt: BluetoothGatt?, txPhy: Int, rxPhy: Int, status: Int) {
         super.onPhyRead(gatt, txPhy, rxPhy, status)
-        log("onPhyRead: rxPhy: $txPhy, $rxPhy: $rxPhy, status: ${status.status()}, gatt: ${gatt.str()}.")
+        if (enableLog) {
+            log(
+                "onPhyRead: rxPhy: $txPhy, $rxPhy: $rxPhy, status: ${status.status()}, gatt: ${gatt.str()}."
+            )
+        }
     }
 
     override fun onPhyUpdate(gatt: BluetoothGatt?, txPhy: Int, rxPhy: Int, status: Int) {
         super.onPhyUpdate(gatt, txPhy, rxPhy, status)
-        log("onPhyUpdate: rxPhy: $txPhy, $rxPhy: $rxPhy, status: ${status.status()}, gatt: ${gatt.str()}.")
+        if (enableLog) {
+            log(
+                "onPhyUpdate: rxPhy: $txPhy, $rxPhy: $rxPhy, status: ${status.status()}, gatt: ${gatt.str()}."
+            )
+        }
     }
 
     override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
         super.onReadRemoteRssi(gatt, rssi, status)
-        log("onReadRemoteRssi: rssi: $rssi, status: ${status.status()}, gatt: ${gatt.str()}.")
+        if (enableLog) {
+            log(
+                "onReadRemoteRssi: rssi: $rssi, status: ${status.status()}, gatt: ${gatt.str()}."
+            )
+        }
     }
 
     override fun onServiceChanged(gatt: BluetoothGatt) {
         super.onServiceChanged(gatt)
-        log("onServiceChanged: gatt: ${gatt.str()}")
+        if (enableLog) {
+            log("onServiceChanged: gatt: ${gatt.str()}")
+        }
     }
 
     private fun Int.status() = when (this) {
@@ -154,6 +196,10 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
     var currMtu: Int = 24
         private set
 
+    companion object {
+        private const val TAG = "gatt"
+    }
+
     internal val callback by lazy {
         object : BluetoothGattBaseCallback(mac) {
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
@@ -204,10 +250,10 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
     @WorkerThread
     fun discoverServices(timeout: Long = BluetoothHelperConfig.builder.defaultTimeout): Boolean {
         _gatt?.discoverServices()?.takeIf { it } ?: return false
-        log("call discoverServices()", timeout)
+        if (enableLog) log("call discoverServices()", timeout)
         curr.wait("onServicesDiscovered", timeout)
         val success = curr.isGattSuccess
-        log("discoverServices: $success")
+        if (enableLog) log("discoverServices: $success")
         return success
     }
 
@@ -219,7 +265,7 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
      * 只有写入此值, 才能使用数据发送服务
      */
     fun setDataWriter(writer: BluetoothGattCharacteristic) {
-        log("set DataWriter")
+        if (enableLog) log("set DataWriter")
         this.writer = writer
     }
 
@@ -231,10 +277,10 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
     @WorkerThread
     fun requestMtu(mtu: Int, timeout: Long = BluetoothHelperConfig.builder.defaultTimeout): Int? {
         _gatt?.requestMtu(mtu)?.takeIf { it } ?: return null
-        log("call requestMtu($mtu)", timeout)
+        if (enableLog) log("call requestMtu($mtu)", timeout)
         curr.wait("onMtuChanged", timeout)
         val currMtu: Int? = curr.any?.to()
-        log("onMtuChanged: ${currMtu == mtu}")
+        if (enableLog) log("onMtuChanged: ${currMtu == mtu}")
         this.currMtu = currMtu ?: 24
         return currMtu
     }
@@ -250,10 +296,10 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
         timeout: Long = BluetoothHelperConfig.builder.defaultTimeout
     ): BluetoothGattCharacteristic? {
         _gatt?.readCharacteristic(characteristic)?.takeIf { it } ?: return null
-        log("call readCharacteristic(${characteristic.str()})", timeout)
+        if (enableLog) log("call readCharacteristic(${characteristic.str()})", timeout)
         curr.wait("onCharacteristicChanged", timeout)
         val curr: BluetoothGattCharacteristic? = curr.any?.to()
-        log("readCharacteristic: ${curr?.str()}")
+        if (enableLog) log("readCharacteristic: ${curr?.str()}")
         return curr
     }
 
@@ -274,14 +320,12 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
         return curr ?: false
     }
 
-    override fun log(content: String) {
-        if (BluetoothHelperConfig.builder.enableLog) {
-            log.log("[$mac]: $content.")
-        }
-    }
-
     private fun log(content: String, timeout: Long) {
         log("$content with timeout $timeout ms")
+    }
+
+    private fun log(content: String) {
+        log.log("[$TAG]: [$mac]: $content")
     }
 
     private class WaitResult {

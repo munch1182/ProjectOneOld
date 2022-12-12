@@ -73,6 +73,10 @@ internal class BluetoothLeConnectImp(
 ) : BluetoothConnectImp(dev),
     BluetoothGattHelper.OnConnectStateChangeListener {
 
+    companion object {
+        private const val TAG = "conn"
+    }
+
     init {
         gattHelper.setConnectStateListener(this)
     }
@@ -90,12 +94,12 @@ internal class BluetoothLeConnectImp(
                 when (newState) {
                     BluetoothProfile.STATE_CONNECTED -> {
                         _onConnect = null
-                        log.log("$dev: connect gatt: Success.")
+                        if (enableLog) log("connect gatt: Success")
                         if (it.isActive) it.resume(BluetoothConnectResult.Success)
                     }
                     BluetoothProfile.STATE_DISCONNECTED -> {
                         _onConnect = null
-                        log.log("$dev: connect gatt: fail.")
+                        if (enableLog) log("connect gatt: fail")
                         val reason = BluetoothConnectFailReason.SysErr(status).toReason()
                         if (it.isActive) it.resume(reason)
                     }
@@ -104,18 +108,18 @@ internal class BluetoothLeConnectImp(
                     }
                 }
             }
-            log.log("$dev: start CONNECT gatt.")
+            if (enableLog) log("start CONNECT gatt")
             _gatt = dev.connectGatt(
                 null, false,
                 gattHelper.callback, b.transport, b.phy
             )
         } ?: timeoutDisconnect()
-        log.log("$dev: connect result: $result.")
+        if (enableLog) log("connect result: $result")
         val judge = b.judge
         if (result.isSuccess && judge != null) {
-            log.log("$dev: start custom JUDGE.")
+            if (enableLog) log("start custom JUDGE")
             result = judge.onJudge(gattHelper)
-            log.log("$dev: onJudge: $result.")
+            if (enableLog) log("$dev: onJudge: $result")
         }
         return result
     }
@@ -127,7 +131,7 @@ internal class BluetoothLeConnectImp(
 
     override suspend fun disconnect(removeBond: Boolean): Boolean {
         if (_gatt != null) {
-            log.log("$dev: start DISCONNECT gatt.")
+            log.log("start DISCONNECT gatt")
             _gatt?.disconnect()
             var index = 5
             while (index > 0) {
@@ -144,6 +148,12 @@ internal class BluetoothLeConnectImp(
     override fun onConnectStateChange(status: Int, newState: Int) {
         _onConnect?.onConnectStateChange(status, newState)
         _connectState = BluetoothConnectState.from(newState)
+    }
+
+    private fun log(content: String) {
+        if (enableLog) {
+            log.log("[$TAG]: [$dev]: $content")
+        }
     }
 }
 

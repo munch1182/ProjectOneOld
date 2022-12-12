@@ -29,14 +29,8 @@ internal interface IBluetoothHelperEnv : CoroutineScope {
      */
     val log: Logger
 
-    /**
-     * 可以自行实现以添加统一前缀或者后缀
-     */
-    fun log(content: String) {
-        if (BluetoothHelperConfig.builder.enableLog) {
-            log.log(content)
-        }
-    }
+    val enableLog: Boolean
+        get() = BluetoothHelperConfig.builder.enableLog
 
     /**
      * 提供一个[BluetoothHelper]及其相关类的统一上下文
@@ -211,7 +205,7 @@ interface IBluetoothHelperConfig {
         }
 
         // todo 传入service id控制扫码范围
-        fun injectScan():Builder{
+        fun injectScan(): Builder {
             return this
         }
     }

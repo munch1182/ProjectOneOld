@@ -40,7 +40,7 @@ internal abstract class BluetoothStateScanner :
     private val btOnOff: BluetoothOnOff by lazy {
         {
             if (!it && scanning) { // DEV SCANNER因为顺序原因, 回调此时已经被关闭扫描
-                log("stop scan as OFF.")
+                log("stop scan as OFF")
                 stopScan()
             }
         }
@@ -71,11 +71,11 @@ internal abstract class BluetoothStateScanner :
         }
 
     protected open fun logState(last: Boolean, curr: Boolean) {
-        log("Scan state: $last -> $curr.")
+        log("Scan state: $last -> $curr")
     }
 
-    override fun log(content: String) {
-        if (BluetoothHelperConfig.builder.enableLogDevScan) {
+    protected open fun log(content: String) {
+        if (enableLog) {
             log.log("DEV SCANNER: $content")
         }
     }
@@ -108,7 +108,7 @@ internal abstract class BluetoothDevScanner :
 
         // 更改状态
         this.scanning = true
-        log("start $type scan.")
+        log("start $type scan")
         startDecScan()
     }
 
@@ -117,11 +117,11 @@ internal abstract class BluetoothDevScanner :
 
         val count = startCount.decrementAndGet() // 减少一次扫描计数
         if (count > 0) { // 只有为0时即没有活动的扫描器, 则可以关闭
-            log("call stop LE scan, left count: $count.")
+            log("call stop LE scan, left count: $count")
             return
         }
 
-        log("stop $type scan.")
+        log("stop $type scan")
         stopDecScan()
 
         this.scanning = false
@@ -136,7 +136,7 @@ internal abstract class BluetoothDevScanner :
     }
 
     override fun log(content: String) {
-        if (BluetoothHelperConfig.builder.enableLog) {
+        if (enableLog) {
             log.log("DEV SCANNER: $content")
         }
     }
@@ -166,7 +166,7 @@ internal object BluetoothLeDevScanner : BluetoothDevScanner() {
 
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
-            log("DEV SCANNER: onScanFailed: ${errorCode.fmt()}.")
+            log("DEV SCANNER: onScanFailed: ${errorCode.fmt()}")
             stopScan()
         }
 

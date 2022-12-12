@@ -82,7 +82,7 @@ internal class BluetoothImpScanner(
         }
         scanner.addScanListener(finListener)
 
-        log("start ${config.type} scan with timeout: $timeout ms.")
+        log("start ${config.type} scan with timeout: $timeout ms")
 
         // 内部实现不能进行超时设置
         scanner.startScan(3 * 60 * 1000L) // 暂定时间, 如果设置错误, 该时间后也会自动关闭
