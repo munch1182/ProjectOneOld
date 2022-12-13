@@ -32,7 +32,7 @@ pub struct RegHelper {
 
 /// 注册表数据值
 ///
-/// 支持[String], [Vec<String>], [u32], [u64]与[RegValue]相互转换
+/// 支持[String], [`Vec<String>`], [u32], [u64]与[RegValue]相互转换
 #[derive(Debug)]
 pub struct RegValue {
     /// 获取到的原始数据

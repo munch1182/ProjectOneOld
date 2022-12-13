@@ -1,7 +1,8 @@
 //!
 //! proc-macro
 //!
-#![deny(missing_docs)]
+#![deny(missing_docs, unused_imports)]
+
 mod fun;
 
 use fun::map_fields;

@@ -1,7 +1,7 @@
 //!
 //! 字符串相关
 //!
-#![deny(missing_docs)]
+#![deny(missing_docs, unused_imports)]
 
 ///
 /// 将首字母大写, 不会更改其它字符
@@ -39,7 +39,7 @@ pub fn to_u16<P: AsRef<std::ffi::OsStr>>(p: P) -> Vec<u16> {
 /// ```rust
 ///
 /// assert_eq!(liblib::str::u16_to_u8(&vec![97, 0]), vec![97, 0, 0, 0]);
-/// assert_eq!(liblib::str::u16_to_u8(&liblib::str::to_u16("a")), vec![97, 0, 0, 0]);
+/// assert_eq!(liblib::str::u16_to_u8(&vec![97, 0]), vec![97, 0, 0, 0]);
 ///
 /// ```
 ///

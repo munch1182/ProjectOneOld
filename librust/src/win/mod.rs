@@ -1,7 +1,7 @@
 //!
 //! 与系统相关的基础功能库
 //!
-#![deny(missing_docs)]
+#![deny(missing_docs, unused_imports)]
 
 /// 错误为win返回的错误码
 pub type WinResult<T> = crate::Result<T, std::io::Error>;

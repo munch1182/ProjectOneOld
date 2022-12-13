@@ -153,6 +153,7 @@ macro_rules! enum_from_any {
 ///     Ok::<(),Error>(())
 /// });
 /// ```
+#[cfg_attr(docsrs, doc(cfg(feature = "net")))]
 #[macro_export]
 macro_rules! async_run {
     ($f:expr) => {

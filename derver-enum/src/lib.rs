@@ -1,7 +1,7 @@
 //!
 //! EnumNumber
 //!
-#![deny(missing_docs)]
+#![deny(missing_docs, unused_imports)]
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, Data, DataEnum, DeriveInput};

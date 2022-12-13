@@ -3,7 +3,6 @@
 /// 对log的实现
 pub(crate) struct AppLog;
 
-
 // todo 对log的过滤; 一些功能范围可以指定log的tag, 并通过命令行更改是否输出
 // pub(crate) struct AppLog {
 //     pub(crate) filter: Option<Vec<String>>, // 输出过滤
@@ -37,14 +36,14 @@ pub fn log_set(log: LogType) {
 }
 
 impl log::Log for AppLog {
-    fn enabled(&self, _metadata: &log::Metadata) -> bool {
+    fn enabled(&self, _metadata: &log::Metadata<'_>) -> bool {
         // if let Some(v) = &self.filter {
         //     return v.contains(&metadata.target().to_string());
         // }
         true
     }
 
-    fn log(&self, record: &log::Record) {
+    fn log(&self, record: &log::Record<'_>) {
         if !self.enabled(record.metadata()) {
             return;
         }

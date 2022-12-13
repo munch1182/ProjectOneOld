@@ -42,6 +42,7 @@ macro_rules! re_exports_enum_windir {
         ///
         #[allow(non_camel_case_types)]
         #[derive(Debug)]
+        #[cfg_attr(docsrs, doc(cfg(feature = "win")))]
         pub enum WindowDir{
             $(
                 /// from windows_sys::Win32::UI::Shell::*
@@ -80,6 +81,7 @@ re_exports_enum_windir!([
 ]);
 
 impl WindowDir {
+
     /// 获取该文件夹的绝对路径
     pub fn get(self) -> super::WinResult<std::path::PathBuf> {
         _dir(&self.into())

@@ -5,29 +5,36 @@ version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+# 默认启用
+default = ["dep:log"]
+
+# 全选
+full = ["net", "win", "d_builder", "d_enum"]
+# 可选
+d_builder = ["dep:derver_builder"]
+d_enum = ["dep:derver_enum"]
+net = ["dep:axum", "dep:reqwest", "dep:tokio"]
+win = ["dep:windows-sys"]
+
 [dependencies]
 # lazy_static = {version = "1.4", optional = true}
-log = {version = "0.4", optional = true}
+log = { version = "0.4", optional = true }
 
-windows-sys = {version = "0.42", features = [
+windows-sys = { version = "0.42", features = [
   "Win32_UI_Shell",
   "Win32_Foundation",
   "Win32_Globalization",
   "Win32_System_Registry",
   "Win32_Security",
-], optional = true}
+], optional = true }
 
-axum = {version = "0.6", optional = true}
-derver_builder = {path = "../derver-builder", optional = true}
-derver_enum = {path = "../derver-enum", optional = true}
-reqwest = {version = "0.11", optional = true}
-tokio = {version = "1", features = ['full'], optional = true}
+axum = { version = "0.6", optional = true }
+derver_builder = { path = "../derver-builder", optional = true }
+derver_enum = { path = "../derver-enum", optional = true }
+reqwest = { version = "0.11", optional = true }
+tokio = { version = "1", features = ['full'], optional = true }
 
-[features]
-# 默认启用
-default = ["log"]
-# 可选
-d_builder = ["derver_builder"]
-d_enum = ["derver_enum"]
-net = ["axum", "reqwest", "tokio"]
-win = ["windows-sys"]
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
