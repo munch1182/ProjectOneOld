@@ -34,6 +34,10 @@ internal abstract class BluetoothConnectImp(protected val dev: BluetoothDevice) 
     ARSHelper<OnBluetoothConnectStateListener>(),
     IBluetoothHelperEnv by BluetoothHelperEnv {
 
+    companion object {
+        private const val TAG = "conn"
+    }
+
     private val lock = Mutex()
     protected open var _connectState: BluetoothConnectState = getInitConnectState()
         get() = runBlocking { lock.withLock { field } }
@@ -42,15 +46,20 @@ internal abstract class BluetoothConnectImp(protected val dev: BluetoothDevice) 
                 val last = field
                 if (field != value) {
                     field = value
-                    update { it.onConnectState(last, value) }
+                    log("Connect STATE update: $last -> $value")
+                    update { it.onConnectState(value, last) }
                 }
             }
         }
 
     private fun getInitConnectState(): BluetoothConnectState {
-        if (BluetoothHelper.connectDevs?.contains(dev) == true) {
-            return BluetoothConnectState.Connected
-        }
+        // 初始状态不能是已连接, 否则无法触发connect进而无法通信
+        /*if (BluetoothHelper.connectDevs?.contains(dev) == true) {
+            val connected = BluetoothConnectState.Connected
+            log("init connect STATE: $connected")
+            update { it.onConnectState(connected, connected) }
+            return connected
+        }*/
         return BluetoothConnectState.Disconnected
     }
 
@@ -65,6 +74,12 @@ internal abstract class BluetoothConnectImp(protected val dev: BluetoothDevice) 
         remove(l)
     }
 
+    protected fun log(content: String) {
+        if (enableLog) {
+            log.log("[$TAG]: [$dev]: $content")
+        }
+    }
+
 }
 
 internal class BluetoothLeConnectImp(
@@ -73,14 +88,6 @@ internal class BluetoothLeConnectImp(
 ) : BluetoothConnectImp(dev),
     BluetoothGattHelper.OnConnectStateChangeListener {
 
-    companion object {
-        private const val TAG = "conn"
-    }
-
-    init {
-        gattHelper.setConnectStateListener(this)
-    }
-
     private var _gatt: BluetoothGatt? = null
     private var _onConnect: BluetoothGattHelper.OnConnectStateChangeListener? = null
 
@@ -88,6 +95,14 @@ internal class BluetoothLeConnectImp(
         timeout: Long,
         config: BluetoothConnector.Builder?
     ): BluetoothConnectResult {
+        if (_connectState.isConnected) {
+            return BluetoothConnectResult.Success
+        }
+        if (_connectState.isConnecting) {
+            return BluetoothConnectFailReason.ConnectedButConnect.toReason()
+        }
+        _connectState = BluetoothConnectState.Connecting
+        gattHelper.setConnectStateListener(this)
         val b = config ?: BluetoothConnectorConfig.builder
         var result = com.munch.lib.android.extend.suspendCancellableCoroutine(timeout) {
             _onConnect = BluetoothGattHelper.OnConnectStateChangeListener { status, newState ->
@@ -119,7 +134,12 @@ internal class BluetoothLeConnectImp(
         if (result.isSuccess && judge != null) {
             if (enableLog) log("start custom JUDGE")
             result = judge.onJudge(gattHelper)
-            if (enableLog) log("$dev: onJudge: $result")
+            if (enableLog) log("onJudge: $result")
+        }
+        if (result.isSuccess) {
+            _connectState = BluetoothConnectState.Connected
+        } else {
+            disconnect(false)
         }
         return result
     }
@@ -130,8 +150,11 @@ internal class BluetoothLeConnectImp(
     }
 
     override suspend fun disconnect(removeBond: Boolean): Boolean {
+        if (!_connectState.isDisconnected) {
+            _connectState = BluetoothConnectState.Disconnecting
+        }
         if (_gatt != null) {
-            log.log("start DISCONNECT gatt")
+            log("start DISCONNECT gatt")
             _gatt?.disconnect()
             var index = 5
             while (index > 0) {
@@ -142,18 +165,14 @@ internal class BluetoothLeConnectImp(
                 index--
             }
         }
+        if (!_connectState.isDisconnected) {
+            _connectState = BluetoothConnectState.Disconnected
+        }
         return true
     }
 
     override fun onConnectStateChange(status: Int, newState: Int) {
         _onConnect?.onConnectStateChange(status, newState)
-        _connectState = BluetoothConnectState.from(newState)
-    }
-
-    private fun log(content: String) {
-        if (enableLog) {
-            log.log("[$TAG]: [$dev]: $content")
-        }
     }
 }
 

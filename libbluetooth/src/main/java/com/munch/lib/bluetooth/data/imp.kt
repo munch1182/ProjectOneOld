@@ -1,8 +1,9 @@
 package com.munch.lib.bluetooth.data
 
 import com.munch.lib.android.extend.split
-import com.munch.lib.android.extend.toHexStr
 import com.munch.lib.bluetooth.connect.BluetoothGattHelper
+import com.munch.lib.bluetooth.data.BluetoothDataPrintHelper.toSimpleLog
+import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 import com.munch.lib.bluetooth.helper.BluetoothHelperEnv
 import com.munch.lib.bluetooth.helper.IBluetoothHelperEnv
 import kotlinx.coroutines.channels.Channel
@@ -23,59 +24,45 @@ internal class BluetoothDataHelper(private val gattHelper: BluetoothGattHelper) 
     private var dataHandler: BluetoothDataReceiver? = null
 
     companion object {
-        private const val SEP = ", "
         private const val TAG = "data"
     }
+
+    override val enableLog: Boolean
+        get() = BluetoothHelperConfig.builder.enableLogData
 
     override val receive: ReceiveChannel<ByteArray>
         get() = channel
 
     internal fun registerDataReceive() {
-
         gattHelper.setDataReceiver(this)
     }
 
     internal fun close() {
-
+        channel.close()
     }
 
     override suspend fun send(pack: ByteArray): Boolean {
+        val enableLog = enableLog
         return sendLock.withLock {
             val writer = gattHelper.writer
             if (writer == null) {
                 if (enableLog) log("want to SEND data but WRITER is null")
                 return false
             }
+            if (enableLog) log("SEND >>> [${pack.toSimpleLog()}]")
             val arrays = pack.split(gattHelper.currMtu - 3)
             for (bytes in arrays) {
                 writer.value = bytes
-                if (enableLog) log("SEND: ${simpleData(pack)}")
                 if (!gattHelper.writeCharacteristic(writer)) {
-                    if (enableLog) log("SEND: fail")
+                    if (enableLog) log("SEND >>> fail")
                     return false
                 }
             }
-            if (enableLog) log("SEND: success")
+            if (enableLog) log("SEND >>> success")
             true
         }
     }
 
-    private fun ByteArray.toHexStr(): String {
-        return joinToString(SEP, "[", "]", transform = { it.toHexStr() })
-    }
-
-    private fun simpleData(arrays: ByteArray): String {
-        if (arrays.size < 500) {
-            return arrays.toHexStr()
-        }
-        val sb = StringBuilder("[")
-        repeat(20) { sb.append(arrays[it].toHexStr()).append(SEP) }
-        sb.append("...")
-        val len = arrays.size
-        repeat(5) { sb.append(arrays[len - 5 + it - 1].toHexStr()).append(SEP) }
-        sb.append("(").append(len).append(")]")
-        return sb.toString()
-    }
 
     override fun setDataReceiver(receiver: BluetoothDataReceiver) {
         this.dataHandler = receiver
@@ -85,7 +72,11 @@ internal class BluetoothDataHelper(private val gattHelper: BluetoothGattHelper) 
         log.log("[$TAG]: [${mac}]: $content")
     }
 
+    private fun getDataHandler(): BluetoothDataReceiver? {
+        return this.dataHandler ?: BluetoothHelperConfig.builder.receiver
+    }
+
     override suspend fun onDataReceive(data: ByteArray) {
-        channel.send(this.dataHandler?.onDataReceived(data) ?: data)
+        channel.send(getDataHandler()?.onDataReceived(data) ?: data)
     }
 }

@@ -1,5 +1,6 @@
 package com.munch.project.one.bluetooth
 
+import android.bluetooth.BluetoothGattDescriptor
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.munch.lib.android.extend.ContractVM
@@ -30,7 +31,10 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
 
     init {
         BluetoothHelper.watchScan(this) { post(STATE.IsScan(it)) }
-        BluetoothHelper.watchDevsScan(this) { post(STATE.ScannedDevs(it)) }
+        BluetoothHelper.watchDevsScan(this) {
+            if (!BluetoothHelper.isScanning) return@watchDevsScan
+            post(STATE.ScannedDevs(it))
+        }
         viewModelScope.launch(Dispatchers.IO) {
             val filter = BluetoothFilterHelper.get()
             currFilter = filter
@@ -69,9 +73,11 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
             is INTENT.Connect -> {
                 val dev = it.dev
                 val judge = BluetoothConnector.Builder().judge(YFWatch)
-                if (!dev.connect(judge).isSuccess) {
+                val result = dev.connect(judge)
+                if (!result.isSuccess) {
                     return
                 }
+                BluetoothHelper.config { enableLogOriginData(true) }
                 dev.setDataReceiver(YFWatch)
                 dev.send(testPack())
             }
@@ -135,8 +141,19 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
             if (writer != null) {
                 gatt.setDataWriter(writer)
             }
-            if (main == null || writer == null) {
+            val notify =
+                main?.getCharacteristic(UUID.fromString("461c0018-449c-449b-9fe5-6259dc3fcbed"))
+            val notifyDesc =
+                notify?.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+            if (main == null || writer == null || notify == null || notifyDesc == null) {
                 return BluetoothConnectFailReason.CustomErr(3).toReason()
+            }
+            if (gatt.setCharacteristicNotification(notify, true) != true) {
+                return BluetoothConnectFailReason.CustomErr(4).toReason()
+            }
+            notifyDesc.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+            if (!gatt.writeDescriptor(notifyDesc)) {
+                return BluetoothConnectFailReason.CustomErr(5).toReason()
             }
             if (gatt.requestMtu(247) != 247) {
                 return BluetoothConnectFailReason.CustomErr(2).toReason()

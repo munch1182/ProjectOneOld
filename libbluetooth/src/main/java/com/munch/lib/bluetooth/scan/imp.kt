@@ -71,7 +71,7 @@ internal abstract class BluetoothStateScanner :
         }
 
     protected open fun logState(last: Boolean, curr: Boolean) {
-        log("Scan state: $last -> $curr")
+        log("Scan STATE: $last -> $curr")
     }
 
     protected open fun log(content: String) {
@@ -151,6 +151,9 @@ internal abstract class BluetoothDevScanner :
 internal object BluetoothLeDevScanner : BluetoothDevScanner() {
 
     override val type: BluetoothType = BluetoothType.LE
+    private var logScan = false
+    override val enableLog: Boolean
+        get() = logScan
 
     //<editor-fold desc="callback">
     private val callback = object : ScanCallback() {
@@ -161,7 +164,10 @@ internal object BluetoothLeDevScanner : BluetoothDevScanner() {
         }
 
         private fun sendDev(result: ScanResult) {
-            launch { update { it.onBluetoothDevScanned(BluetoothLeDevice(result)) } }
+            launch {
+                if (enableLog) log("scanned dev: ${result.device.address}")
+                update { it.onBluetoothDevScanned(BluetoothLeDevice(result)) }
+            }
         }
 
         override fun onScanFailed(errorCode: Int) {
@@ -202,6 +208,7 @@ internal object BluetoothLeDevScanner : BluetoothDevScanner() {
     }
 
     override fun startDecScan() {
+        logScan = BluetoothHelperConfig.builder.enableLogDevScan
         launch {
             connectDevs?.map { BluetoothLeDevice(it, null) }
                 ?.filter { it.type == type }

@@ -4,6 +4,7 @@ import android.bluetooth.*
 import androidx.annotation.WorkerThread
 import com.munch.lib.android.extend.lazy
 import com.munch.lib.android.extend.to
+import com.munch.lib.bluetooth.data.BluetoothDataPrintHelper.toSimpleLog
 import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 import com.munch.lib.bluetooth.helper.BluetoothHelperEnv
 import com.munch.lib.bluetooth.helper.IBluetoothHelperEnv
@@ -34,7 +35,7 @@ open class BluetoothGattBaseCallback(
         super.onConnectionStateChange(gatt, status, newState)
         if (enableLog) {
             log(
-                "onConnectionStateChange: status: ${status.status()}, newState: ${newState.state()}, gatt: ${gatt.str()}."
+                "onConnectionStateChange: status: ${status.status()}, newState: ${newState.state()}, gatt: ${gatt.str()}"
             )
         }
     }
@@ -61,7 +62,7 @@ open class BluetoothGattBaseCallback(
         super.onDescriptorRead(gatt, descriptor, status)
         if (enableLog) {
             log(
-                "onDescriptorRead: status: ${status.status()}, descriptor: ${descriptor.str()}."
+                "onDescriptorRead: status: ${status.status()}, descriptor: ${descriptor.str()}"
             )
         }
     }
@@ -74,7 +75,7 @@ open class BluetoothGattBaseCallback(
         super.onDescriptorWrite(gatt, descriptor, status)
         if (enableLog) {
             log(
-                "onDescriptorWrite: status: ${status.status()}, descriptor: ${descriptor.str()}."
+                "onDescriptorWrite: status: ${status.status()}, descriptor: ${descriptor.str()}"
             )
         }
     }
@@ -87,7 +88,7 @@ open class BluetoothGattBaseCallback(
         super.onCharacteristicRead(gatt, characteristic, status)
         if (enableLog) {
             log(
-                "onCharacteristicRead: status: ${status.status()}, characteristic: ${characteristic.str()}."
+                "onCharacteristicRead: status: ${status.status()}, characteristic: ${characteristic.str()}"
             )
         }
     }
@@ -100,7 +101,7 @@ open class BluetoothGattBaseCallback(
         super.onCharacteristicWrite(gatt, characteristic, status)
         if (enableLog) {
             log(
-                "onCharacteristicWrite: status: ${status.status()}, characteristic: ${characteristic.str()}."
+                "onCharacteristicWrite: status: ${status.status()}, characteristic: ${characteristic.str()}"
             )
         }
     }
@@ -119,7 +120,7 @@ open class BluetoothGattBaseCallback(
         super.onPhyRead(gatt, txPhy, rxPhy, status)
         if (enableLog) {
             log(
-                "onPhyRead: rxPhy: $txPhy, $rxPhy: $rxPhy, status: ${status.status()}, gatt: ${gatt.str()}."
+                "onPhyRead: rxPhy: $txPhy, $rxPhy: $rxPhy, status: ${status.status()}, gatt: ${gatt.str()}"
             )
         }
     }
@@ -128,7 +129,7 @@ open class BluetoothGattBaseCallback(
         super.onPhyUpdate(gatt, txPhy, rxPhy, status)
         if (enableLog) {
             log(
-                "onPhyUpdate: rxPhy: $txPhy, $rxPhy: $rxPhy, status: ${status.status()}, gatt: ${gatt.str()}."
+                "onPhyUpdate: rxPhy: $txPhy, $rxPhy: $rxPhy, status: ${status.status()}, gatt: ${gatt.str()}"
             )
         }
     }
@@ -137,7 +138,7 @@ open class BluetoothGattBaseCallback(
         super.onReadRemoteRssi(gatt, rssi, status)
         if (enableLog) {
             log(
-                "onReadRemoteRssi: rssi: $rssi, status: ${status.status()}, gatt: ${gatt.str()}."
+                "onReadRemoteRssi: rssi: $rssi, status: ${status.status()}, gatt: ${gatt.str()}"
             )
         }
     }
@@ -163,7 +164,7 @@ open class BluetoothGattBaseCallback(
     }
 
     private fun Int.state() = when (this) {
-        BluetoothProfile.STATE_CONNECTED -> "CONNECT"
+        BluetoothProfile.STATE_CONNECTED -> "CONNECTED"
         BluetoothProfile.STATE_DISCONNECTED -> "DISCONNECTED"
         BluetoothProfile.STATE_CONNECTING -> "CONNECTING"
         BluetoothProfile.STATE_DISCONNECTING -> "DISCONNECTING"
@@ -205,10 +206,8 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
         private const val TAG = "gatt"
     }
 
-    internal fun setDataReceiver(receiver: OnBluetoothDataReceiver): BluetoothGattHelper {
-        this.receiver = receiver
-        return this
-    }
+    val gatt: BluetoothGatt?
+        get() = _gatt
 
     internal val callback by lazy {
         object : BluetoothGattBaseCallback(mac) {
@@ -234,9 +233,12 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
             ) {
                 super.onCharacteristicChanged(gatt, characteristic)
                 curr.notify("onCharacteristicChanged", null, characteristic)
-                receiver ?: return
                 // 回调过后放入channel中, 避免先后顺序不一致
                 launch {
+                    if (BluetoothHelperConfig.builder.enableLogReceiveOriginData) {
+                        log("RECE <<<<< [${characteristic?.value?.toSimpleLog()}]")
+                    }
+                    receiver ?: return@launch
                     receiveLock.withLock {
                         receiver?.onDataReceive(characteristic?.value ?: byteArrayOf())
                     }
@@ -249,9 +251,29 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
                 status: Int
             ) {
                 super.onCharacteristicWrite(gatt, characteristic, status)
-                curr.notify("onCharacteristicWrite", null, status == BluetoothGatt.GATT_SUCCESS)
+                curr.notify("onCharacteristicWrite", status, null)
+            }
+
+            override fun onDescriptorWrite(
+                gatt: BluetoothGatt?,
+                descriptor: BluetoothGattDescriptor?,
+                status: Int
+            ) {
+                super.onDescriptorWrite(gatt, descriptor, status)
+                curr.notify("onDescriptorWrite", status, null)
             }
         }
+    }
+
+    // 连接不是这里发起的, 也不是这里关闭的
+    internal fun close() {
+        writer = null
+        _gatt = null
+    }
+
+    internal fun setDataReceiver(receiver: OnBluetoothDataReceiver): BluetoothGattHelper {
+        this.receiver = receiver
+        return this
     }
 
     internal fun setConnectStateListener(l: OnConnectStateChangeListener): BluetoothGattHelper {
@@ -275,6 +297,29 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
     }
 
     fun getService(uuid: UUID): BluetoothGattService? = _gatt?.getService(uuid)
+    fun setCharacteristicNotification(
+        characteristic: BluetoothGattCharacteristic?,
+        enable: Boolean
+    ): Boolean? {
+        return _gatt?.setCharacteristicNotification(characteristic ?: return false, enable)
+    }
+
+    /**
+     * 调用[android.bluetooth.BluetoothGatt.writeDescriptor]并等待
+     * [android.bluetooth.BluetoothGattCallback.onDescriptorWrite]返回后返回其status是否成功
+     * 如果超时则返回false
+     */
+    fun writeDescriptor(
+        descriptor: BluetoothGattDescriptor,
+        timeout: Long = BluetoothHelperConfig.builder.defaultTimeout
+    ): Boolean {
+        _gatt?.writeDescriptor(descriptor)?.takeIf { it } ?: return false
+        if (enableLog) log("call writeDescriptor()", timeout)
+        curr.wait("onDescriptorWrite", timeout)
+        val isSuccess = curr.isGattSuccess
+        if (enableLog) log("writeDescriptor: $isSuccess")
+        return isSuccess
+    }
 
     /**
      * 设置数据写入服务特征值
@@ -282,14 +327,15 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
      * 只有写入此值, 才能使用数据发送服务
      */
     fun setDataWriter(writer: BluetoothGattCharacteristic) {
-        if (enableLog) log("set DataWriter")
+        if (enableLog) log("setup DataWriter")
         this.writer = writer
     }
 
     /**
-     * 调用[BluetoothGatt.requestMtu]并同步返回结果
+     * 调用[BluetoothGatt.requestMtu]并等待
+     * [android.bluetooth.BluetoothGattCallback.onMtuChanged]返回结果后返回当前mtu值是否和[mtu]一致
      *
-     * @return 当前回调的mtu
+     * @return 当前回调的mtu, 如果超时则返回false
      */
     @WorkerThread
     fun requestMtu(mtu: Int, timeout: Long = BluetoothHelperConfig.builder.defaultTimeout): Int? {
@@ -297,13 +343,14 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
         if (enableLog) log("call requestMtu($mtu)", timeout)
         curr.wait("onMtuChanged", timeout)
         val currMtu: Int? = curr.any?.to()
-        if (enableLog) log("onMtuChanged: ${currMtu == mtu}")
+        if (enableLog) log("requestMtu: ${currMtu == mtu}")
         this.currMtu = currMtu ?: 24
         return currMtu
     }
 
     /**
-     * 调用[BluetoothGatt.readCharacteristic]并同步返回结果
+     * 调用[BluetoothGatt.readCharacteristic]并等待
+     * [android.bluetooth.BluetoothGattCallback.onCharacteristicRead]返回结果后返回的[BluetoothGattCharacteristic]对象
      *
      * @return 回调返回的BluetoothGattCharacteristic对象
      */
@@ -321,20 +368,21 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
     }
 
     /**
-     * 调用[BluetoothGatt.writeCharacteristic]并同步返回结果
+     * 调用[BluetoothGatt.writeCharacteristic]并等待
+     * [android.bluetooth.BluetoothGattCallback.onCharacteristicWrite]返回结果后返回其status是否成功
      *
-     * @return 同步返回onCharacteristicWrite的characteristic对象, 如果超时则返回null
+     * @return 同步返回onCharacteristicWrite的characteristic对象, 如果超时则返回false
      */
     @WorkerThread
     fun writeCharacteristic(
         c: BluetoothGattCharacteristic,
         timeout: Long = 3 * 1000
     ): Boolean {
-        _gatt?.writeCharacteristic(c)
+        _gatt?.writeCharacteristic(c) ?: return false
         curr.wait("onCharacteristicWrite", timeout)
-        val curr: Boolean? = curr.any?.to()
+        val curr = curr.isGattSuccess
         log("writeCharacteristic: $curr")
-        return curr ?: false
+        return curr
     }
 
     private fun log(content: String, timeout: Long) {
@@ -399,11 +447,11 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
         }
     }
 
-    fun interface OnConnectStateChangeListener {
+    internal fun interface OnConnectStateChangeListener {
         fun onConnectStateChange(status: Int, newState: Int)
     }
 
-    fun interface OnBluetoothDataReceiver {
+    internal fun interface OnBluetoothDataReceiver {
         suspend fun onDataReceive(data: ByteArray)
     }
 }

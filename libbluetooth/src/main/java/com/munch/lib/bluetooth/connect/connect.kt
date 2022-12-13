@@ -224,7 +224,7 @@ sealed class BluetoothConnectState : SealedClassToStringByName() {
  * 连接状态回调
  */
 fun interface OnBluetoothConnectStateListener {
-    fun onConnectState(last: BluetoothConnectState, state: BluetoothConnectState)
+    fun onConnectState(state: BluetoothConnectState, last: BluetoothConnectState)
 }
 
 /**
@@ -260,4 +260,9 @@ sealed class BluetoothConnectFailReason : SealedClassToStringByName(), IBluetoot
 
     override val code: Int
         get() = 999 // 自定义的code都是999, 否则则应该是系统返回的code
+}
+
+internal class BluetoothStateNotify {
+
+
 }

@@ -48,33 +48,50 @@ abstract class BluetoothScannedDev(val dev: BluetoothDevice) : BluetoothDev(dev)
 internal class BluetoothLeDevice(
     dev: BluetoothDevice,
     private val scan: ScanResult?,
-    private val gattHelper: BluetoothGattHelper = BluetoothGattHelper(dev)
+    private val gattHelper: BluetoothGattHelper = BluetoothGattHelper(dev),
 ) : BluetoothScannedDev(dev), BluetoothLeDev,
     IBluetoothConnector by BluetoothLeConnectImp(dev, gattHelper),
     IBluetoothDataHandler {
 
-    private var dataHelper: BluetoothDataHelper? = null
-    private var receiver: BluetoothDataReceiver? = null
-
     constructor(scan: ScanResult) : this(scan.device, scan)
 
-    // todo 需要在连接开始时才设置BluetoothData相关, 避免浪费, 所以需要回调连接状态更改
+    private var dataHandler: BluetoothDataHelper? = null
+
+    init {
+        addConnectListener { state, _ ->
+            when (state) {
+                BluetoothConnectState.Connected,
+                BluetoothConnectState.Connecting -> {
+                    if (dataHandler == null) {
+                        dataHandler = BluetoothDataHelper(gattHelper)
+                        dataHandler?.registerDataReceive()
+                    }
+                }
+                BluetoothConnectState.Disconnected,
+                BluetoothConnectState.Disconnecting -> {
+                    gattHelper.close()
+                    dataHandler?.close()
+                    dataHandler = null
+                }
+            }
+        }
+    }
 
     override val rssi: Int?
         get() = scan?.rssi
 
     override val rawRecord: ByteArray?
         get() = scan?.scanRecord?.bytes
-
     override val receive: ReceiveChannel<ByteArray>
-        get() = TODO("Not yet implemented")
+        get() = dataHandler?.receive ?: throw IllegalArgumentException()
 
-    override suspend fun send(pack: ByteArray) = dataHelper?.send(pack) ?: false
-
-    override fun setDataReceiver(receiver: BluetoothDataReceiver) {
-        this.receiver = receiver
+    override suspend fun send(pack: ByteArray): Boolean {
+        return dataHandler?.send(pack) ?: false
     }
 
+    override fun setDataReceiver(receiver: BluetoothDataReceiver) {
+        dataHandler?.setDataReceiver(receiver)
+    }
 }
 
 class BluetoothClassicDevice(dev: BluetoothDevice, rssi: Int?) : BluetoothScannedDev(dev),

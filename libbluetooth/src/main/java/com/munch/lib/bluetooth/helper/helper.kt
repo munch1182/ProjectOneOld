@@ -2,6 +2,7 @@ package com.munch.lib.bluetooth.helper
 
 import com.munch.lib.android.log.Logger
 import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.data.BluetoothDataReceiver
 import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.dev.BluetoothType
 import com.munch.lib.bluetooth.scan.IBluetoothDevScanner
@@ -186,19 +187,52 @@ interface IBluetoothHelperConfig {
         internal var enableLogDevScan = false
             get() = if (!enableLog) false else field
 
+        // 是否输出发出和接收到的数据包
+        internal var enableLogData = true
+            get() = if (!enableLog) false else field
+
+        // 是否输出接收到的原始数据包
+        internal var enableLogReceiveOriginData = false
+            get() = if (!enableLog) false else field
+
         // 默认的方法超时时间
         internal var defaultTimeout = 30 * 1000L
+
+        // 全局数据接收回调
+        internal var receiver: BluetoothDataReceiver? = null
 
         fun enableLog(enable: Boolean): Builder {
             this.enableLog = enable
             return this
         }
 
+        /**
+         * 控制是否输出设备扫描的日志
+         */
         fun enableLogDevScan(enable: Boolean): Builder {
             this.enableLogDevScan = enable
             return this
         }
 
+        /**
+         * 控制是否输出设备发出和接收的数据
+         */
+        fun enableLogData(enable: Boolean): Builder {
+            this.enableLogData = enable
+            return this
+        }
+
+        /**
+         * 控制是否输出设备接收的原始数据
+         */
+        fun enableLogOriginData(enable: Boolean): Builder {
+            enableLogReceiveOriginData = enable
+            return this
+        }
+
+        /**
+         * 全局设置默认超时时间
+         */
         fun defaultTimeout(timeout: Long): Builder {
             this.defaultTimeout = timeout
             return this
@@ -206,6 +240,14 @@ interface IBluetoothHelperConfig {
 
         // todo 传入service id控制扫码范围
         fun injectScan(): Builder {
+            return this
+        }
+
+        /**
+         * 全局设置数据接收回调
+         */
+        fun setDataReceiver(receiver: BluetoothDataReceiver): Builder {
+            this.receiver = receiver
             return this
         }
     }
