@@ -25,6 +25,7 @@ pub fn upper_first(s: &str) -> String {
 /// ```rust
 /// assert_eq!(liblib::str::to_u16("a"), vec![97, 0]);
 /// ```
+#[cfg(target_os = "windows")]
 pub fn to_u16<P: AsRef<std::ffi::OsStr>>(p: P) -> Vec<u16> {
     use std::os::windows::prelude::OsStrExt;
     p.as_ref()
@@ -55,6 +56,7 @@ pub fn u16_to_u8(u: &[u16]) -> Vec<u8> {
 ///
 /// [to_u16]
 /// [u16_to_u8]
+#[cfg(target_os = "windows")]
 pub fn to_u8_code<P: AsRef<std::ffi::OsStr>>(p: P) -> Vec<u8> {
     u16_to_u8(&to_u16(p))
 }

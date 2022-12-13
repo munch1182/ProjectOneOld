@@ -7,6 +7,7 @@ pub enum E1 {
     C,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Builder)]
 pub struct Config {
     path: String,

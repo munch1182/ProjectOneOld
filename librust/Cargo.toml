@@ -7,25 +7,25 @@ version = "0.1.0"
 
 [dependencies]
 # lazy_static = {version = "1.4", optional = true}
-log = { version = "0.4", optional = true }
+log = {version = "0.4", optional = true}
 
-windows-sys = { version = "0.42", features = [
-    "Win32_UI_Shell",
-    "Win32_Foundation",
-    "Win32_Globalization",
-    "Win32_System_Registry",
-    "Win32_Security",
-], optional = true }
+windows-sys = {version = "0.42", features = [
+  "Win32_UI_Shell",
+  "Win32_Foundation",
+  "Win32_Globalization",
+  "Win32_System_Registry",
+  "Win32_Security",
+], optional = true}
 
-axum = { version = "0.6", optional = true }
-derver_builder = { path = "../derver-builder", optional = true }
-derver_enum = { path = "../derver-enum", optional = true }
-reqwest = { version = "0.11", optional = true }
-tokio = { version = "1", features = ['full'], optional = true }
+axum = {version = "0.6", optional = true}
+derver_builder = {path = "../derver-builder", optional = true}
+derver_enum = {path = "../derver-enum", optional = true}
+reqwest = {version = "0.11", optional = true}
+tokio = {version = "1", features = ['full'], optional = true}
 
 [features]
 # 默认启用
-default = ["log", "windows-sys"]
+default = ["log"]
 # 可选
 d_builder = ["derver_builder"]
 d_enum = ["derver_enum"]
