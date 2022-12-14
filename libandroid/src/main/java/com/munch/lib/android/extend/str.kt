@@ -3,7 +3,6 @@
 package com.munch.lib.android.extend
 
 import android.app.Activity
-import android.content.pm.PackageManager
 import android.text.SpannableString
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
@@ -11,7 +10,7 @@ import android.text.style.RelativeSizeSpan
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import com.munch.lib.android.AppHelper
 import java.util.regex.Pattern
 
@@ -27,9 +26,11 @@ open class SealedClassToStringByName : SealedClassToString {
 
 /**
  * 判断权限是否被授予
+ *
+ * 注意: 使用PermissionChecker和ContextCompat返回的结果可能不一致, 以PermissionChecker为准
  */
 fun String.isGranted() =
-    ContextCompat.checkSelfPermission(AppHelper, this) == PackageManager.PERMISSION_GRANTED
+    PermissionChecker.checkSelfPermission(AppHelper, this) == PermissionChecker.PERMISSION_GRANTED
 
 /**
  * 判断被拒绝的权限是否是被永久拒绝

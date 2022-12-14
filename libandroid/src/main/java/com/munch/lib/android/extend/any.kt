@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import com.munch.lib.android.AppHelper
+import com.munch.lib.android.log.log
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
@@ -45,6 +46,7 @@ inline fun <T> catch(block: () -> T): T? {
         block.invoke()
     } catch (e: Exception) {
         e.printStackTrace()
+        log(e)
         null
     }
 }

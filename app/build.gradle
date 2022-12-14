@@ -10,6 +10,14 @@ plugins {
 apply from: '../buildCom/commonbuildktx.gradle'
 
 android {
+    /*defaultConfig {
+        targetSdk 29 // 测试编译版本
+    }*/
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
+
     applicationVariants.all { variant -> setupModuleApk(variant) }
 }
 

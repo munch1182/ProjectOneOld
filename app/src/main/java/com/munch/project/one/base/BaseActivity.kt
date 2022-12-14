@@ -1,10 +1,14 @@
 package com.munch.project.one.base
 
+import android.content.Context
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.core.view.MenuProvider
 import com.munch.lib.android.define.Receive
+import com.munch.lib.android.extend.dp2Px2Int
+import com.munch.lib.android.extend.padding
 import com.munch.lib.fast.view.dispatch.*
 
 open class BaseActivity : DispatcherActivity() {
@@ -32,5 +36,18 @@ open class BaseActivity : DispatcherActivity() {
 
 fun dispatchDef(dialog: IConfigDialog = SupportConfigDialog()): ActivityDispatch {
     return SupportActionBar() + dialog
+}
+
+fun dispatchDef(message: String) = dispatchDef(MessageDialog(message))
+
+class MessageDialog(private val message: String) : SupportBindConfigDialog() {
+
+    override fun onCreate(context: Context) {
+        setContent(TextView(context).apply {
+            padding(t = 16.dp2Px2Int(), b = 16.dp2Px2Int())
+            text = message
+        })
+    }
+
 }
 

@@ -91,6 +91,10 @@ abstract class SupportBindConfigDialog : IConfigDialog {
         onCreate(activity)
     }
 
+    fun setContent(view: View) {
+        contentView = view
+    }
+
     override fun newMoreContent(activity: AppCompatActivity): View? =
         contentView?.removeFromParent() // 因为Activity的ActivityDispatch一直持有VB对象会导致View不会重建
 

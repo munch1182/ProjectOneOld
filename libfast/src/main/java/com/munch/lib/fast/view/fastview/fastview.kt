@@ -122,6 +122,8 @@ open class FastSvTv(override val context: Context) : FastView {
     private val view by lazy { ScrollView(context).apply { addView(text) } }
     override val contentView: View
         get() = view
+    val textView: View
+        get() = text
 
     override fun onCreate() {
     }

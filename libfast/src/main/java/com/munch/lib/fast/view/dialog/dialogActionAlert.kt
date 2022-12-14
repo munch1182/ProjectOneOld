@@ -23,9 +23,9 @@ import com.munch.lib.fast.view.base.ActivityHelper
 /**
  * 使用的是[AlertDialog], 且必定会调用[okStr]
  */
-class MessageDialog : TextActionDialog(), DialogUnique {
-
-    override val context: Context = ActivityHelper.curr!! // 必须在Activity显示后未关闭前创建和显示dialog
+class MessageDialog(override val context: Context = ActivityHelper.curr!!) : // 必须在Activity显示后未关闭前创建和显示dialog
+    TextActionDialog(),
+    DialogUnique {
 
     override fun crateDialog(): IDialog {
         if (DialogActionKey.Ok !in helper) {

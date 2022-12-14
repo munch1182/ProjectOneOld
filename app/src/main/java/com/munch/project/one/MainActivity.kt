@@ -32,6 +32,7 @@ class MainActivity : BaseActivity(), ActivityDispatch by SupportActionBar(false)
         FileActivity::class,
         PhoneInfoActivity::class,
         RecyclerViewActivity::class,
+        OtherActivity::class
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

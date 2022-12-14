@@ -16,6 +16,7 @@ import com.munch.lib.android.dialog.IDialogManager
 import com.munch.lib.android.dialog.showThenReturnChose
 import com.munch.lib.android.extend.*
 import com.munch.lib.android.log.Logger
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -175,7 +176,14 @@ class PermissionResult(
 
                 log.log("request permission: ${fmt(request)}.")
 
-                val isGrantAllFroAll = requester.permission(request.toTypedArray()) // 第一次请求权限
+                requester.permission(request.toTypedArray()) // 第一次请求权限, 但这个返回的结果并不可信任
+                delay(150L) // 等待dialog动画完成返回页面
+
+                // 需要自行判断是否权限都请求成功
+                permission.forEach { result[it] = it.isGranted() }
+                request.addAll(result.filter { !it.value }.keys.toTypedArray())
+                
+                val isGrantAllFroAll = request.isEmpty()
 
                 if (!isGrantAllFroAll) { // 如果有未被授予的权限
                     val newAll = request.new

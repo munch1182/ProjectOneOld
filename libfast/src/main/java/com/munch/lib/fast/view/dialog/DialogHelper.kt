@@ -1,5 +1,6 @@
 package com.munch.lib.fast.view.dialog
 
+import android.content.Context
 import android.widget.LinearLayout
 import com.munch.lib.android.extend.dp2Px
 import com.munch.lib.android.extend.newCornerDrawable
@@ -10,12 +11,12 @@ import com.munch.lib.fast.view.base.ActivityHelper
  */
 object DialogHelper {
 
-    fun message() = MessageDialog()
+    fun message(context: Context = ActivityHelper.curr!!) = MessageDialog(context)
 
     /**
      * 仅提示消息的dialog
      */
-    fun message(s: String) = message().message(s)
+    fun message(s: String, context: Context = ActivityHelper.curr!!) = message(context).message(s)
 
     /**
      * 从底部弹出dialog
