@@ -52,8 +52,14 @@ open class ARSHelper<T> : IARSHelper<T> {
         list.clear()
     }
 
-    protected fun update(update: Update<T>) {
+    protected open fun update(update: Update<T>) {
         list.forEach { update.invoke(it) }
+    }
+}
+
+class ARSParameterHelper<T> : ARSHelper<T>() {
+    fun update2(update: Update<T>) {
+        update(update)
     }
 }
 

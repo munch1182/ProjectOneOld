@@ -146,7 +146,7 @@ internal class BluetoothImpScanner(
     }
 
     override fun log(content: String) {
-        if (BluetoothHelperConfig.builder.enableLog) {
+        if (BluetoothHelperConfig.config.enableLog) {
             log.log("SCANNER #$id: $content")
         }
     }

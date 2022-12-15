@@ -4,9 +4,12 @@ import android.bluetooth.BluetoothGattDescriptor
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.munch.lib.android.extend.ContractVM
+import com.munch.lib.android.extend.toHexStr
+import com.munch.lib.android.log.log
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.connect.*
 import com.munch.lib.bluetooth.data.BluetoothDataReceiver
+import com.munch.lib.bluetooth.data.pack.configConvert
 import com.munch.lib.bluetooth.dev.BluetoothType
 import com.munch.lib.bluetooth.helper.stopThenStartScan
 import com.munch.lib.bluetooth.helper.watchDevsScan
@@ -34,6 +37,11 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
         BluetoothHelper.watchDevsScan(this) {
             if (!BluetoothHelper.isScanning) return@watchDevsScan
             post(STATE.ScannedDevs(it))
+        }
+        BluetoothHelper.config {
+            enableLog(true, originData = true)
+            setDataReceiver(YFWatch)
+            configConnect(YFWatch)
         }
         viewModelScope.launch(Dispatchers.IO) {
             val filter = BluetoothFilterHelper.get()
@@ -72,13 +80,11 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
             }
             is INTENT.Connect -> {
                 val dev = it.dev
-                val judge = BluetoothConnector.Builder().judge(YFWatch)
+                val judge = BluetoothConnector.Config().judge(YFWatch)
                 val result = dev.connect(judge)
                 if (!result.isSuccess) {
                     return
                 }
-                BluetoothHelper.config { enableLogOriginData(true) }
-                dev.setDataReceiver(YFWatch)
                 dev.send(testPack())
             }
         }
@@ -129,8 +135,8 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
         0x3A
     )
 
-    private object YFWatch : IBluetoothConnectJudge, BluetoothDataReceiver {
-        override suspend fun onJudge(gatt: BluetoothGattHelper): BluetoothConnectResult {
+    private object YFWatch : IBluetoothLeConnectJudge, BluetoothDataReceiver {
+        override suspend fun onLeJudge(gatt: BluetoothGattHelper): BluetoothConnectResult {
             if (!gatt.discoverServices()) {
                 return BluetoothConnectFailReason.CustomErr(1).toReason()
             }
@@ -160,5 +166,9 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
             }
             return BluetoothConnectResult.Success
         }
+
+        override suspend fun onReceived(data: ByteArray) {
+        }
+
     }
 }

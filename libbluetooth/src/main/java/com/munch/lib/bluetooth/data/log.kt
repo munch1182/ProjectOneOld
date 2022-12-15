@@ -5,7 +5,7 @@ import com.munch.lib.android.extend.toHexStr
 /**
  * Create by munch1182 on 2022/12/13 15:49.
  */
-object BluetoothDataPrintHelper {
+object BluetoothDataLogHelper {
 
     private const val SEP = ", "
     private const val LIMIT = 500

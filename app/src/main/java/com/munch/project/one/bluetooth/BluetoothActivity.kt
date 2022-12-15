@@ -81,7 +81,8 @@ class BluetoothActivity : BaseActivity(),
             vm.dispatch(INTENT.StopScan)
             val dev = bluetoothAdapter.get(it.pos)
             if (dev !is BluetoothScannedDev) return@setOnItemClick
-            DialogHelper.message("将要连接\n${dev.name}(${dev.mac})")
+            DialogHelper.message()
+                .message("将要连接\n${dev.name}(${dev.mac})")
                 .okStr()
                 .cancelStr()
                 .onDismiss<ChoseDialog> { d ->

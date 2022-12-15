@@ -32,17 +32,20 @@ interface IBluetoothConnectFun {
      * @param config 单独对从设备的连接进行设置, 而不使用全局的连接设置
      * @return 此次连接结果
      *
-     * @see com.munch.lib.bluetooth.BluetoothHelper.configConnect
-     * @see com.munch.lib.bluetooth.dev.BluetoothDev.addConnectListener
-     * @see com.munch.lib.bluetooth.dev.BluetoothDev.removeConnectListener
+     * @see com.munch.lib.bluetooth.BluetoothHelper.config
+     * @see com.munch.lib.bluetooth.dev.BluetoothScannedDev.addConnectListener
+     * @see com.munch.lib.bluetooth.dev.BluetoothScannedDev.removeConnectListener
      */
     suspend fun connect(
-        timeout: Long = BluetoothHelperConfig.builder.defaultTimeout,
-        config: BluetoothConnector.Builder? = null
+        timeout: Long = BluetoothHelperConfig.config.defaultTimeout,
+        config: BluetoothConnector.Config? = null
     ): BluetoothConnectResult
 
-    suspend fun connect(config: BluetoothConnector.Builder) = connect(
-        BluetoothHelperConfig.builder.defaultTimeout, config
+    /**
+     * @see com.munch.lib.bluetooth.connect.IBluetoothConnectFun.connect(long, com.munch.lib.bluetooth.connect.BluetoothConnector.Config, kotlin.coroutines.Continuation<? super com.munch.lib.bluetooth.connect.BluetoothConnectResult>)
+     */
+    suspend fun connect(config: BluetoothConnector.Config) = connect(
+        BluetoothHelperConfig.config.defaultTimeout, config
     )
 
     /**
@@ -50,27 +53,18 @@ interface IBluetoothConnectFun {
      *
      * @return 当[removeBond]为true时, 该结果返回是否解除成功, 否则固定返回true
      */
-    suspend fun disconnect(removeBond: Boolean): Boolean
+    suspend fun disconnect(removeBond: Boolean = false): Boolean
 }
 
 interface IBluetoothConnector : IBluetoothConnectState, IBluetoothConnectFun
 
-/**
- * 提供连接相关的操作
- */
-interface IBluetoothHelperConnector {
-
-    /**
-     * 设置通用的连接设置
-     */
-    fun configConnect(build: BluetoothConnector.Builder.() -> Unit)
-}
 
 /**
  * 提供名字
  */
 interface BluetoothConnector {
-    class Builder {
+
+    class Config {
         //<editor-fold desc="LE">
         internal var transport: Int = BluetoothDevice.TRANSPORT_AUTO
         internal var phy: Int = BluetoothDevice.PHY_LE_1M_MASK
@@ -79,7 +73,7 @@ interface BluetoothConnector {
         /**
          * 连接时的参数
          */
-        fun transport(transport: Int): Builder {
+        fun transport(transport: Int): Config {
             this.transport = transport
             return this
         }
@@ -87,17 +81,19 @@ interface BluetoothConnector {
         /**
          * 连接时的参数
          */
-        fun phy(phy: Int): Builder {
+        fun phy(phy: Int): Config {
             this.phy = phy
             return this
         }
 
         /**
-         * 连接流程的处理
+         * 连接流程的处理, 用于在系统连接成功后, 如果需要, 可传入此参数来进行自定义的处理, 如查找服务或者身份验证
+         * 如果未设置此参数, 系统连接成功后连接即回调成功
+         * 如果有设置此参数, 系统连接成功后, 会回调此参数, 此参数返回成功后, 才会返回连接成功, 否则会返回连接失败并自动断开系统连接
          *
          * @see IBluetoothConnectJudge
          */
-        fun judge(vararg judge: IBluetoothConnectJudge): Builder {
+        fun judge(vararg judge: IBluetoothConnectJudge): Config {
             if (judge.isEmpty()) {
                 this.judge = null
             } else if (judge.size == 1) {
@@ -113,12 +109,12 @@ interface BluetoothConnector {
         internal var name: String = "p1"
         internal var uuid = UUID.randomUUID()
 
-        fun name(name: String): Builder {
+        fun name(name: String): Config {
             this.name = name
             return this
         }
 
-        fun uuid(uuid: UUID): Builder {
+        fun uuid(uuid: UUID): Config {
             this.uuid = uuid
             return this
         }
@@ -127,12 +123,28 @@ interface BluetoothConnector {
 }
 
 /**
+ * 此库可暴露给外部使用, 实际操作系统蓝牙方法的帮助类
+ */
+interface IBluetoothConnectOperate
+
+/**
  * 当本库执行完系统连接并连接成功后, 会回调此接口用以执行传入的自定义操作
  * 如果自定义操作返回连接成功, 则本库会视为连接成功并回调连接成功
  * 否则, 会方法此自定义的连接结果并视作连接失败, 并自动断开连接
  */
 fun interface IBluetoothConnectJudge {
-    suspend fun onJudge(gatt: BluetoothGattHelper): BluetoothConnectResult
+    suspend fun onJudge(operate: IBluetoothConnectOperate): BluetoothConnectResult
+}
+
+interface IBluetoothLeConnectJudge : IBluetoothConnectJudge {
+    suspend fun onLeJudge(gatt: BluetoothGattHelper): BluetoothConnectResult
+
+    override suspend fun onJudge(operate: IBluetoothConnectOperate): BluetoothConnectResult {
+        if (operate is BluetoothGattHelper) {
+            return onLeJudge(operate)
+        }
+        return BluetoothConnectFailReason.WrongType.toReason()
+    }
 }
 
 class BluetoothConnectJudgeContainer(vararg judges: IBluetoothConnectJudge) :
@@ -149,9 +161,9 @@ class BluetoothConnectJudgeContainer(vararg judges: IBluetoothConnectJudge) :
         return this
     }
 
-    override suspend fun onJudge(gatt: BluetoothGattHelper): BluetoothConnectResult {
+    override suspend fun onJudge(operate: IBluetoothConnectOperate): BluetoothConnectResult {
         list.forEach {
-            val judge = it.onJudge(gatt)
+            val judge = it.onJudge(operate)
             if (!judge.isSuccess) return judge
         }
         return BluetoothConnectResult.Success
@@ -171,6 +183,9 @@ sealed class BluetoothConnectResult : SealedClassToStringByName() {
         override fun toString() = "ConnectFail($reason)"
     }
 
+    /**
+     * 此连接结果是否是成功
+     */
     val isSuccess: Boolean
         get() = this is Success
 }
@@ -242,6 +257,8 @@ sealed class BluetoothConnectFailReason : SealedClassToStringByName(), IBluetoot
     object NotFindDev : BluetoothConnectFailReason() // 连接前未扫描到该设备
     object ConnectTimeout : BluetoothConnectFailReason() // 连接超时
     object ConnectedButConnect : BluetoothConnectFailReason() // 已连接仍调用连接
+    object DisConnectingButDisConnect : BluetoothConnectFailReason() // 正在断开仍调用断开
+    object WrongType : BluetoothConnectFailReason() // 调用类型错误
     class SysErr(private val sysErrCode: Int) : BluetoothConnectFailReason() { // 系统回调错误
         override val code: Int
             get() = sysErrCode

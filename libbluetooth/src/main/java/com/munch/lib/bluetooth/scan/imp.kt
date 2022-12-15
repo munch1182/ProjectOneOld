@@ -11,8 +11,9 @@ import com.munch.lib.android.helper.ARSHelper
 import com.munch.lib.android.helper.ILifecycle
 import com.munch.lib.android.helper.MutableLifecycle
 import com.munch.lib.android.helper.ReceiverHelper
-import com.munch.lib.bluetooth.dev.*
+import com.munch.lib.bluetooth.dev.BluetoothClassicDevice
 import com.munch.lib.bluetooth.dev.BluetoothLeDevice
+import com.munch.lib.bluetooth.dev.BluetoothType
 import com.munch.lib.bluetooth.env.BluetoothEnv
 import com.munch.lib.bluetooth.env.IBluetoothManager
 import com.munch.lib.bluetooth.env.IBluetoothState
@@ -208,7 +209,7 @@ internal object BluetoothLeDevScanner : BluetoothDevScanner() {
     }
 
     override fun startDecScan() {
-        logScan = BluetoothHelperConfig.builder.enableLogDevScan
+        logScan = BluetoothHelperConfig.config.enableLogDevScan
         launch {
             connectDevs?.map { BluetoothLeDevice(it, null) }
                 ?.filter { it.type == type }

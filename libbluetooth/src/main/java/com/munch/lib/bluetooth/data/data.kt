@@ -1,42 +1,61 @@
 package com.munch.lib.bluetooth.data
 
-import kotlinx.coroutines.channels.ReceiveChannel
-
 /**
  * Create by munch1182 on 2022/12/12 14:07.
  */
 
-
 interface IBluetoothDataHandler {
 
-    val receive: ReceiveChannel<ByteArray>
-
     /**
-     * 发送一包完整的数据
+     * 发送一包完整的数据, 数据实际发出的顺序是按照调用的顺序的, 所以最好在单线程内调用, 避免顺序混乱
      *
      * 超出mtu大小的数据会被自动分包
+     *
+     * @return 发送是否成功, 如果当前未连接必定返回失败
      */
     suspend fun send(pack: ByteArray): Boolean
 
     /**
-     * 单独为此设备设置数据接收的回调
+     * 设置一个数据接收回调
      *
-     * @see com.munch.lib.bluetooth.helper.IBluetoothHelperConfig.Builder.setDataReceiver
+     * @param receiver 与[com.munch.lib.bluetooth.data.IBluetoothDataDispatcher.addReceiver]不同, 此回调是设备唯一的
      */
-    fun setDataReceiver(receiver: BluetoothDataReceiver)
+    fun setReceiver(receiver: BluetoothDataReceiver?)
+
+    /**
+     * 取消当前的数据发送
+     *
+     * 取消当前发送队列中的数据发送, 此方法会取消所有未发送的数据
+     */
+    fun cancelSend()
 }
 
-interface BluetoothDataReceiver {
+interface IBluetoothDataHandlerManager {
+    fun active()
+    fun inactive()
+}
+
+interface IBluetoothDataManger : IBluetoothDataHandler,
+    IBluetoothDataHandlerManager,
+    IBluetoothDataDispatcher
+
+fun interface BluetoothDataReceiver {
     /**
      * 收到一包原始数据的回调
-     *
-     * 这一次的数据可能并非一包完整的数据
-     *
-     * @return 将原始数据包进行判断、拼装或者解密等操作, 返回逻辑上的一包完整数据, 这些数据会返回到[IBluetoothDataHandler.receive]中
-     * 如果此包不是一个完整的包, 或者是一个无效包, 则可以返回null, [IBluetoothDataHandler.receive]只会发送此方法返回的不为null的部分
-     *
-     * 如果不需要这样处理, 也可以从此处自行回调数据
-     * 默认什么都不处理原样返回
      */
-    suspend fun onDataReceived(data: ByteArray): ByteArray? = data
+    suspend fun onReceived(data: ByteArray)
+}
+
+
+/**
+ * 用于转换
+ */
+interface IBluetoothDataPack {
+
+    fun toBytes(): ByteArray
+}
+
+interface IBluetoothDataDispatcher {
+    fun addReceiver(receiver: BluetoothDataReceiver)
+    fun removeReceiver(receiver: BluetoothDataReceiver)
 }

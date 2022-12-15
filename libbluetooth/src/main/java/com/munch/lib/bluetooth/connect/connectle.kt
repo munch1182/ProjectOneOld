@@ -4,14 +4,17 @@ import android.bluetooth.*
 import androidx.annotation.WorkerThread
 import com.munch.lib.android.extend.lazy
 import com.munch.lib.android.extend.to
-import com.munch.lib.bluetooth.data.BluetoothDataPrintHelper.toSimpleLog
+import com.munch.lib.android.helper.ARSHelper
+import com.munch.lib.android.helper.IARSHelper
+import com.munch.lib.bluetooth.data.BluetoothDataLogHelper.toSimpleLog
+import com.munch.lib.bluetooth.data.BluetoothDataReceiver
 import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 import com.munch.lib.bluetooth.helper.BluetoothHelperEnv
 import com.munch.lib.bluetooth.helper.IBluetoothHelperEnv
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -190,15 +193,19 @@ internal fun BluetoothGattCharacteristic?.str() =
  * 这些方法不能并发执行
  */
 class BluetoothGattHelper(sysDev: BluetoothDevice) :
+    IBluetoothConnectOperate,
+    ARSHelper<BluetoothGattHelper.OnConnectStateChangeListener>(),
     IBluetoothHelperEnv by BluetoothHelperEnv {
 
     internal val mac = sysDev.address
+
+    // 与ARSHelper不同, 此回调与dev绑定
     private var l: OnConnectStateChangeListener? = null
     private var _gatt: BluetoothGatt? = null
     private var curr = WaitResult()
     internal var writer: BluetoothGattCharacteristic? = null
     private val receiveLock = Mutex()
-    private var receiver: OnBluetoothDataReceiver? = null
+    private var receiver: BluetoothDataReceiver? = null
     var currMtu: Int = 24
         private set
 
@@ -215,6 +222,7 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
                 super.onConnectionStateChange(gatt, status, newState)
                 if (_gatt == null) _gatt = gatt
                 l?.onConnectStateChange(status, newState)
+                update { it.onConnectStateChange(status, newState) }
             }
 
             override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
@@ -233,15 +241,13 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
             ) {
                 super.onCharacteristicChanged(gatt, characteristic)
                 curr.notify("onCharacteristicChanged", null, characteristic)
-                // 回调过后放入channel中, 避免先后顺序不一致
                 launch {
-                    if (BluetoothHelperConfig.builder.enableLogReceiveOriginData) {
+                    if (BluetoothHelperConfig.config.enableLogReceiveOriginData) {
                         log("RECE <<<<< [${characteristic?.value?.toSimpleLog()}]")
                     }
                     receiver ?: return@launch
-                    receiveLock.withLock {
-                        receiver?.onDataReceive(characteristic?.value ?: byteArrayOf())
-                    }
+                    // 直接回调
+                    receiveLock.withLock { characteristic?.value?.let { receiver?.onReceived(it) } }
                 }
             }
 
@@ -271,7 +277,7 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
         _gatt = null
     }
 
-    internal fun setDataReceiver(receiver: OnBluetoothDataReceiver): BluetoothGattHelper {
+    internal fun setDataReceiver(receiver: BluetoothDataReceiver?): BluetoothGattHelper {
         this.receiver = receiver
         return this
     }
@@ -287,7 +293,7 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
      * @return 返回是否发现成功
      */
     @WorkerThread
-    fun discoverServices(timeout: Long = BluetoothHelperConfig.builder.defaultTimeout): Boolean {
+    fun discoverServices(timeout: Long = BluetoothHelperConfig.config.defaultTimeout): Boolean {
         _gatt?.discoverServices()?.takeIf { it } ?: return false
         if (enableLog) log("call discoverServices()", timeout)
         curr.wait("onServicesDiscovered", timeout)
@@ -311,7 +317,7 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
      */
     fun writeDescriptor(
         descriptor: BluetoothGattDescriptor,
-        timeout: Long = BluetoothHelperConfig.builder.defaultTimeout
+        timeout: Long = BluetoothHelperConfig.config.defaultTimeout
     ): Boolean {
         _gatt?.writeDescriptor(descriptor)?.takeIf { it } ?: return false
         if (enableLog) log("call writeDescriptor()", timeout)
@@ -327,7 +333,7 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
      * 只有写入此值, 才能使用数据发送服务
      */
     fun setDataWriter(writer: BluetoothGattCharacteristic) {
-        if (enableLog) log("setup DataWriter")
+        if (enableLog) log("SETUP DataWriter")
         this.writer = writer
     }
 
@@ -338,7 +344,7 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
      * @return 当前回调的mtu, 如果超时则返回false
      */
     @WorkerThread
-    fun requestMtu(mtu: Int, timeout: Long = BluetoothHelperConfig.builder.defaultTimeout): Int? {
+    fun requestMtu(mtu: Int, timeout: Long = BluetoothHelperConfig.config.defaultTimeout): Int? {
         _gatt?.requestMtu(mtu)?.takeIf { it } ?: return null
         if (enableLog) log("call requestMtu($mtu)", timeout)
         curr.wait("onMtuChanged", timeout)
@@ -357,7 +363,7 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
     @WorkerThread
     fun readCharacteristic(
         characteristic: BluetoothGattCharacteristic,
-        timeout: Long = BluetoothHelperConfig.builder.defaultTimeout
+        timeout: Long = BluetoothHelperConfig.config.defaultTimeout
     ): BluetoothGattCharacteristic? {
         _gatt?.readCharacteristic(characteristic)?.takeIf { it } ?: return null
         if (enableLog) log("call readCharacteristic(${characteristic.str()})", timeout)
@@ -447,11 +453,16 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
         }
     }
 
-    internal fun interface OnConnectStateChangeListener {
+    fun interface OnConnectStateChangeListener {
         fun onConnectStateChange(status: Int, newState: Int)
     }
+}
 
-    internal fun interface OnBluetoothDataReceiver {
-        suspend fun onDataReceive(data: ByteArray)
-    }
+/**
+ * 用于统一处理状态变更
+ */
+internal interface IBluetoothGattNotify :
+    IARSHelper<BluetoothGattHelper.OnConnectStateChangeListener> {
+
+    val gattHelper: BluetoothGattHelper
 }

@@ -74,10 +74,14 @@ suspend inline fun <T> suspendCancellableCoroutine(
 class UpdateJob {
 
     private val lock = Mutex()
+    private val cancelJob = SupervisorJob().apply { cancel() }
 
     var curr: Job? = null
         private set(value) = runBlocking { lock.withLock { field = value } }
         get() = runBlocking { lock.withLock { field } }
+
+    val currOrCanceled: Job
+        get() = curr ?: cancelJob
 
     fun new(): Job {
         curr = SupervisorJob()

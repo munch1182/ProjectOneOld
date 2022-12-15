@@ -2,6 +2,8 @@ package com.munch.lib.bluetooth.helper
 
 import com.munch.lib.android.log.Logger
 import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.connect.BluetoothConnector
+import com.munch.lib.bluetooth.connect.IBluetoothConnectJudge
 import com.munch.lib.bluetooth.data.BluetoothDataReceiver
 import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.dev.BluetoothType
@@ -31,7 +33,7 @@ internal interface IBluetoothHelperEnv : CoroutineScope {
     val log: Logger
 
     val enableLog: Boolean
-        get() = BluetoothHelperConfig.builder.enableLog
+        get() = BluetoothHelperConfig.config.enableLog
 
     /**
      * 提供一个[BluetoothHelper]及其相关类的统一上下文
@@ -201,32 +203,26 @@ interface IBluetoothHelperConfig {
         // 全局数据接收回调
         internal var receiver: BluetoothDataReceiver? = null
 
-        fun enableLog(enable: Boolean): Builder {
+        internal val connectConfig = BluetoothConnector.Config()
+
+        /**
+         * 设置日志输出
+         *
+         * @param enable 是否允许输出日志
+         * @param devScan 是否允许输出设备扫描到的所有设备的日志
+         * @param data 是否允许输出发出和接收到的数据的日志
+         * @param originData 是否允许输出接收到的原始数据的日志
+         */
+        fun enableLog(
+            enable: Boolean,
+            devScan: Boolean = false,
+            data: Boolean = enable,
+            originData: Boolean = false
+        ): Builder {
             this.enableLog = enable
-            return this
-        }
-
-        /**
-         * 控制是否输出设备扫描的日志
-         */
-        fun enableLogDevScan(enable: Boolean): Builder {
-            this.enableLogDevScan = enable
-            return this
-        }
-
-        /**
-         * 控制是否输出设备发出和接收的数据
-         */
-        fun enableLogData(enable: Boolean): Builder {
-            this.enableLogData = enable
-            return this
-        }
-
-        /**
-         * 控制是否输出设备接收的原始数据
-         */
-        fun enableLogOriginData(enable: Boolean): Builder {
-            enableLogReceiveOriginData = enable
+            this.enableLogDevScan = devScan
+            this.enableLogData = data
+            this.enableLogReceiveOriginData = originData
             return this
         }
 
@@ -235,6 +231,19 @@ interface IBluetoothHelperConfig {
          */
         fun defaultTimeout(timeout: Long): Builder {
             this.defaultTimeout = timeout
+            return this
+        }
+
+        /**
+         * 设置通用的连接设置
+         */
+        fun configConnect(build: BluetoothConnector.Config.() -> Unit): Builder {
+            build.invoke(this.connectConfig)
+            return this
+        }
+
+        fun configConnect(vararg judge: IBluetoothConnectJudge): Builder {
+            this.connectConfig.judge(*judge)
             return this
         }
 
@@ -255,9 +264,9 @@ interface IBluetoothHelperConfig {
 
 internal object BluetoothHelperConfig : IBluetoothHelperConfig {
 
-    internal val builder = IBluetoothHelperConfig.Builder()
+    internal val config = IBluetoothHelperConfig.Builder()
 
     override fun config(config: IBluetoothHelperConfig.Builder.() -> Unit) {
-        config.invoke(builder)
+        config.invoke(this.config)
     }
 }

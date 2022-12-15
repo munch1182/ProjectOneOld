@@ -70,7 +70,7 @@ fun IBluetoothHelperScanner.newScanBuilder() = BluetoothHelperScanner.Builder()
  */
 suspend fun IBluetoothHelperScanner.find(
     mac: String,
-    timeout: Long = BluetoothHelperConfig.builder.defaultTimeout
+    timeout: Long = BluetoothHelperConfig.config.defaultTimeout
 ): BluetoothDevice? = suspendCancellableCoroutine {
     val device = BluetoothHelper.pairedDevs?.find { dev -> dev.address == mac }
     if (device != null) {

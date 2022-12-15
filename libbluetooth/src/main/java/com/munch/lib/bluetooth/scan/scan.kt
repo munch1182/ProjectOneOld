@@ -12,7 +12,7 @@ interface IBluetoothScanner {
      * 表示当前扫描器的扫描状态
      */
     val isScanning: Boolean
-    fun startScan(timeout: Long = BluetoothHelperConfig.builder.defaultTimeout)
+    fun startScan(timeout: Long = BluetoothHelperConfig.config.defaultTimeout)
     fun stopScan()
 }
 
