@@ -3,6 +3,7 @@ package com.munch.lib.bluetooth.connect
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import com.munch.lib.android.extend.SealedClassToStringByName
+import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 import java.util.*
 
@@ -22,6 +23,15 @@ interface IBluetoothConnectState {
      */
     fun addConnectListener(l: OnBluetoothConnectStateListener)
     fun removeConnectListener(l: OnBluetoothConnectStateListener)
+
+    val isConnected: Boolean
+        get() = connectState.isConnected
+    val isConnecting: Boolean
+        get() = connectState.isConnecting
+    val isDisconnected: Boolean
+        get() = connectState.isDisconnected
+    val isDisconnecting: Boolean
+        get() = connectState.isDisconnecting
 }
 
 interface IBluetoothConnectFun {
@@ -137,6 +147,7 @@ fun interface IBluetoothConnectJudge {
 }
 
 interface IBluetoothLeConnectJudge : IBluetoothConnectJudge {
+    
     suspend fun onLeJudge(gatt: BluetoothGattHelper): BluetoothConnectResult
 
     override suspend fun onJudge(operate: IBluetoothConnectOperate): BluetoothConnectResult {
@@ -239,7 +250,7 @@ sealed class BluetoothConnectState : SealedClassToStringByName() {
  * 连接状态回调
  */
 fun interface OnBluetoothConnectStateListener {
-    fun onConnectState(state: BluetoothConnectState, last: BluetoothConnectState)
+    fun onConnectState(state: BluetoothConnectState, last: BluetoothConnectState, dev: BluetoothDev)
 }
 
 /**
@@ -277,9 +288,4 @@ sealed class BluetoothConnectFailReason : SealedClassToStringByName(), IBluetoot
 
     override val code: Int
         get() = 999 // 自定义的code都是999, 否则则应该是系统返回的code
-}
-
-internal class BluetoothStateNotify {
-
-
 }

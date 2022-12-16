@@ -2,6 +2,7 @@ package com.munch.lib.bluetooth.connect
 
 import android.bluetooth.*
 import androidx.annotation.WorkerThread
+import com.munch.lib.android.define.Notify
 import com.munch.lib.android.extend.lazy
 import com.munch.lib.android.extend.to
 import com.munch.lib.android.helper.ARSHelper
@@ -206,6 +207,7 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
     internal var writer: BluetoothGattCharacteristic? = null
     private val receiveLock = Mutex()
     private var receiver: BluetoothDataReceiver? = null
+    private var setDataWriterCallback: Notify? = null
     var currMtu: Int = 24
         private set
 
@@ -287,6 +289,11 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
         return this
     }
 
+    internal fun setDataWriterCallback(callback: Notify?): BluetoothGattHelper {
+        setDataWriterCallback = callback
+        return this
+    }
+
     /**
      * 调用[BluetoothGatt.discoverServices]并同步返回结果
      *
@@ -335,6 +342,7 @@ class BluetoothGattHelper(sysDev: BluetoothDevice) :
     fun setDataWriter(writer: BluetoothGattCharacteristic) {
         if (enableLog) log("SETUP DataWriter")
         this.writer = writer
+        setDataWriterCallback?.invoke()
     }
 
     /**

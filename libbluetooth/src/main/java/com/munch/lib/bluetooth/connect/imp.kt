@@ -3,11 +3,9 @@ package com.munch.lib.bluetooth.connect
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothProfile
-import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 import com.munch.lib.bluetooth.helper.BluetoothHelperEnv
 import com.munch.lib.bluetooth.helper.IBluetoothHelperEnv
-import kotlinx.coroutines.delay
 import kotlin.coroutines.resume
 
 /**
@@ -77,14 +75,8 @@ internal class BluetoothLeConnectFun(
         if (_gatt != null) {
             log("start DISCONNECT gatt")
             _gatt?.disconnect()
-            var index = 5
-            while (index > 0) {
-                delay(200L)
-                if (BluetoothHelper.isConnect(dev) == false) {
-                    break
-                }
-                index--
-            }
+            _gatt?.close()
+            _gatt = null
         }
         return true
     }

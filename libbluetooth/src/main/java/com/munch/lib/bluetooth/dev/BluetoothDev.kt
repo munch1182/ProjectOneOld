@@ -6,7 +6,6 @@ import com.munch.lib.android.helper.ARSParameterHelper
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.connect.*
 import com.munch.lib.bluetooth.data.*
-import com.munch.lib.bluetooth.data.BluetoothLeDataHelper
 import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -35,6 +34,8 @@ abstract class BluetoothDev internal constructor(
     override fun hashCode(): Int {
         return mac.hashCode()
     }
+
+    fun toScanned(): BluetoothScannedDev? = if (this is BluetoothScannedDev) this else null
 }
 
 abstract class BluetoothScannedDev(val dev: BluetoothDevice) : BluetoothDev(dev) {
@@ -59,8 +60,8 @@ abstract class BluetoothScannedDev(val dev: BluetoothDevice) : BluetoothDev(dev)
                     if (field != value) {
                         val last = field
                         field = value
-                        ars.update2 { it.onConnectState(value, last) }
-                        if (value.isDisconnecting) {
+                        ars.update2 { it.onConnectState(value, last, this@BluetoothScannedDev) }
+                        if (value.isDisconnecting || value.isDisconnected) { // 避免跳过了Disconnecting的情形
                             close()
                         }
                         log("Connect STATE update: $last -> $value")
@@ -115,7 +116,7 @@ abstract class BluetoothScannedDev(val dev: BluetoothDevice) : BluetoothDev(dev)
         }
         log("start DISCONNECT")
         val result = disconnectImp(removeBond)
-        log("start DISCONNECT")
+        log("DISCONNECT: $result")
         _connectState = BluetoothConnectState.Disconnected
         return result
     }
@@ -143,8 +144,8 @@ abstract class BluetoothScannedDev(val dev: BluetoothDevice) : BluetoothDev(dev)
         dataHandler.removeReceiver(receiver)
     }
 
+    abstract val operate: IBluetoothConnectOperate
     protected abstract val dataHandler: IBluetoothDataManger
-    protected abstract val operate: IBluetoothConnectOperate
     protected abstract suspend fun connectImp(
         timeout: Long,
         config: BluetoothConnector.Config?

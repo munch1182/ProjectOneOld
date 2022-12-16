@@ -8,9 +8,11 @@ import com.munch.lib.bluetooth.data.BluetoothDataLogHelper.toSimpleLog
 import com.munch.lib.bluetooth.helper.BluetoothHelperConfig
 import com.munch.lib.bluetooth.helper.BluetoothHelperEnv
 import com.munch.lib.bluetooth.helper.IBluetoothHelperEnv
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 /**
  * Create by munch1182 on 2022/12/12 14:18.
@@ -34,6 +36,10 @@ internal class BluetoothLeDataHelper(private val gattHelper: BluetoothGattHelper
 
     // todo 发送序列
     override suspend fun send(pack: ByteArray): Boolean {
+        if (job.isCancel()) {
+            if (enableLog) log("want to SEND data but WRITER is null")
+            return false
+        }
         return withContext(job.currOrCanceled) {
             val enableLog = enableLog
             sendLock.withLock {
@@ -63,9 +69,12 @@ internal class BluetoothLeDataHelper(private val gattHelper: BluetoothGattHelper
     }
 
     override fun active() {
-        active = true
-        job.new()
-        log("ACTIVE DataHandler")
+        if (gattHelper.writer != null) {
+            active = true
+            job.new()
+            log("ACTIVE DataHandler")
+        }
+        gattHelper.setDataWriterCallback { active() }
         gattHelper.setDataReceiver {
             getDataHandler()?.onReceived(it)
             launch { update { h -> runBlocking { h.onReceived(it) } } }
@@ -73,9 +82,11 @@ internal class BluetoothLeDataHelper(private val gattHelper: BluetoothGattHelper
     }
 
     override fun inactive() {
+        if (!active) return
         active = false
         job.cancel()
         log("INACTIVE DataHandler")
+        gattHelper.setDataWriterCallback(null)
         gattHelper.setDataReceiver(null)
     }
 

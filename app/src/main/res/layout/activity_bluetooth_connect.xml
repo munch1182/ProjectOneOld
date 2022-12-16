@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".bluetooth.BluetoothConnectActivity"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/bluetoothIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="@dimen/dimenDef"
+        android:layout_marginTop="@dimen/dimenDef"
+        android:src="@drawable/ic_bluetooth"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/bluetoothState"
+        app:layout_constraintTop_toTopOf="@id/bluetoothIcon"
+        app:layout_constraintBottom_toBottomOf="@id/bluetoothIcon"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="@dimen/dimenDef"
+        tools:text="连接中..."
+        style="@style/App.Fast.Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:text="N/A"
+        android:id="@+id/bluetoothName"
+        app:layout_constraintStart_toEndOf="@id/bluetoothIcon"
+        app:layout_constraintTop_toTopOf="@id/bluetoothIcon"
+        app:layout_constraintBottom_toTopOf="@id/bluetoothMac"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="WATHC MAME1231231231123312111231231231231233"
+        app:layout_constraintEnd_toStartOf="@id/bluetoothState"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:maxLines="2"
+        android:ellipsize="end"
+        style="@style/App.Fast.Text"
+        android:textSize="16sp"
+        android:layout_marginEnd="@dimen/dimenDef"
+        android:layout_marginStart="@dimen/dimenDef"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/bluetoothMac"
+        app:layout_constraintTop_toBottomOf="@id/bluetoothName"
+        style="@style/App.Fast.Text"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@id/bluetoothIcon"
+        app:layout_constraintStart_toStartOf="@id/bluetoothName"
+        tools:text="12:12:12:12:12:12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/bluetoothBtn"
+        android:text="连接"
+        app:layout_constraintTop_toBottomOf="@id/bluetoothIcon"
+        android:layout_width="match_parent"
+        style="@style/App.Fast.Text.Button.Outline"
+        android:layout_marginTop="@dimen/dimenDef"
+        android:layout_marginStart="@dimen/dimenDef"
+        android:layout_marginEnd="@dimen/dimenDef"
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@id/bluetoothBtn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:padding="@dimen/dimenDef"
+            tools:text="123123"
+            android:id="@+id/bluetoothDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

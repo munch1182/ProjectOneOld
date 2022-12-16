@@ -2,9 +2,12 @@ package com.munch.lib.bluetooth.helper
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanSettings
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.munch.lib.android.extend.UpdateJob
 import com.munch.lib.android.helper.ILifecycle
 import com.munch.lib.bluetooth.BluetoothHelper
+import com.munch.lib.bluetooth.connect.OnBluetoothConnectStateListener
 import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.dev.BluetoothScannedDev
 import com.munch.lib.bluetooth.env.BluetoothNotify
@@ -222,3 +225,33 @@ fun IBluetoothState.watchBond(life: ILifecycle, mac: String, bondResult: Bluetoo
     life.onInactive { removeStateChangeListener(l) }
 }
 //</editor-fold>
+
+fun BluetoothDev.setConnectListener(
+    owner: LifecycleOwner,
+    listener: OnBluetoothConnectStateListener
+) {
+    owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+        override fun onResume(owner: LifecycleOwner) {
+            super.onResume(owner)
+            addConnectListener(listener)
+        }
+
+        override fun onPause(owner: LifecycleOwner) {
+            super.onPause(owner)
+            removeConnectListener(listener)
+        }
+
+        override fun onDestroy(owner: LifecycleOwner) {
+            super.onDestroy(owner)
+            owner.lifecycle.removeObserver(this)
+        }
+    })
+}
+
+fun BluetoothDev.setConnectListener(
+    owner: ILifecycle,
+    listener: OnBluetoothConnectStateListener
+) {
+    owner.onActive { addConnectListener(listener) }
+    owner.onInactive { removeConnectListener(listener) }
+}

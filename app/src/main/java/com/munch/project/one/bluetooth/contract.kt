@@ -1,6 +1,7 @@
 package com.munch.project.one.bluetooth
 
 import com.munch.lib.android.extend.SealedClassToStringByName
+import com.munch.lib.bluetooth.connect.BluetoothConnectState
 import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.helper.*
 
@@ -16,12 +17,18 @@ sealed class BluetoothIntent : SealedClassToStringByName() {
     class UpdateFilter(val f: BluetoothFilter) : BluetoothIntent()
 
     class Connect(val dev: BluetoothDev) : BluetoothIntent()
+
+    object ToggleConnect : BluetoothIntent()
 }
 
 sealed class BluetoothState : SealedClassToStringByName() {
     class ScannedDevs(val data: List<BluetoothDev>) : BluetoothState()
     class IsScan(val isScan: Boolean) : BluetoothState()
     class FilterUpdate(val f: BluetoothFilter) : BluetoothState()
+
+    class ConnectDev(val dev: BluetoothDev, val state: BluetoothConnectState) : BluetoothState()
+
+    class ShowContent(val any: Any) : BluetoothState()
 }
 
 data class BluetoothFilter(

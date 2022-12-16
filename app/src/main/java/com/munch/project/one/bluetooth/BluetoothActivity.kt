@@ -61,6 +61,7 @@ class BluetoothActivity : BaseActivity(),
                     this.view.set(filter)
                     bind.bluetoothFilter.text = filter.toString()
                 }
+                else -> {}
             }
         }
         bind.bluetoothFilter.setOnClickListener {

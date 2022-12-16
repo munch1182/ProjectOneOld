@@ -4,13 +4,12 @@ import android.bluetooth.BluetoothGattDescriptor
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.munch.lib.android.extend.ContractVM
-import com.munch.lib.android.extend.toHexStr
-import com.munch.lib.android.log.log
 import com.munch.lib.bluetooth.BluetoothHelper
 import com.munch.lib.bluetooth.connect.*
 import com.munch.lib.bluetooth.data.BluetoothDataReceiver
-import com.munch.lib.bluetooth.data.pack.configConvert
+import com.munch.lib.bluetooth.dev.BluetoothDev
 import com.munch.lib.bluetooth.dev.BluetoothType
+import com.munch.lib.bluetooth.helper.setConnectListener
 import com.munch.lib.bluetooth.helper.stopThenStartScan
 import com.munch.lib.bluetooth.helper.watchDevsScan
 import com.munch.lib.bluetooth.helper.watchScan
@@ -31,6 +30,7 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
     }
 
     private lateinit var currFilter: BluetoothFilter
+    private var targetDev: BluetoothDev? = null
 
     init {
         BluetoothHelper.watchScan(this) { post(STATE.IsScan(it)) }
@@ -40,8 +40,6 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
         }
         BluetoothHelper.config {
             enableLog(true, originData = true)
-            setDataReceiver(YFWatch)
-            configConnect(YFWatch)
         }
         viewModelScope.launch(Dispatchers.IO) {
             val filter = BluetoothFilterHelper.get()
@@ -80,13 +78,54 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
             }
             is INTENT.Connect -> {
                 val dev = it.dev
-                val judge = BluetoothConnector.Config().judge(YFWatch)
-                val result = dev.connect(judge)
-                if (!result.isSuccess) {
-                    return
+                targetDev = dev
+                dev.setConnectListener(this, listener)
+                if (dev.isDisconnected) {
+                    dev.connect()
                 }
-                dev.send(testPack())
             }
+            INTENT.ToggleConnect -> {
+                val dev = targetDev ?: return
+                if (dev.isConnected) {
+                    dev.disconnect()
+                } else if (dev.isDisconnected) {
+                    onCollect(INTENT.Connect(dev))
+                }
+            }
+        }
+    }
+
+    private val listener = object : OnBluetoothConnectStateListener {
+        override fun onConnectState(
+            state: BluetoothConnectState,
+            last: BluetoothConnectState,
+            dev: BluetoothDev
+        ) {
+            post(STATE.ConnectDev(dev, state))
+            if (state.isDisconnected) {
+                dev.removeConnectListener(this)
+                post(STATE.ShowContent(""))
+            } else if (state.isConnected) {
+                discoverContent(dev)
+            }
+        }
+    }
+
+    private fun discoverContent(dev: BluetoothDev) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val helper = dev.toScanned()?.operate as? BluetoothGattHelper ?: return@launch
+            if (!helper.discoverServices()) return@launch
+            val gatt = helper.gatt ?: return@launch
+            val sb = StringBuilder()
+            gatt.services.forEach {
+                sb.append(it.uuid.toString())
+                sb.append("\n")
+                it.characteristics.forEach { c ->
+                    sb.append("⤷").append(c.uuid.toString())
+                    sb.append("\n")
+                }
+            }
+            post(STATE.ShowContent(sb.toString()))
         }
     }
 
@@ -114,43 +153,23 @@ class BluetoothVM : ContractVM<INTENT, STATE>() {
                 ?: BluetoothFilter()
     }
 
-    private fun testPack() = byteArrayOf(
-        0x89.toByte(),
-        0x56,
-        0x12,
-        0x00,
-        0x01,
-        0x00,
-        0x00,
-        0x00,
-        0x23,
-        0x3B,
-        0x01,
-        0x00,
-        0x00,
-        0x00,
-        0x4B,
-        0xB7.toByte(),
-        0xB5.toByte(),
-        0x3A
-    )
 
-    private object YFWatch : IBluetoothLeConnectJudge, BluetoothDataReceiver {
+    private object Watch : IBluetoothLeConnectJudge, BluetoothDataReceiver {
         override suspend fun onLeJudge(gatt: BluetoothGattHelper): BluetoothConnectResult {
             if (!gatt.discoverServices()) {
                 return BluetoothConnectFailReason.CustomErr(1).toReason()
             }
             val main =
-                gatt.getService(UUID.fromString("461c5198-449c-449b-9fe5-6259dc3fcbed"))
+                gatt.getService(UUID.fromString(""))
             val writer =
-                main?.getCharacteristic(UUID.fromString("461c0028-449c-449b-9fe5-6259dc3fcbed"))
+                main?.getCharacteristic(UUID.fromString(""))
             if (writer != null) {
                 gatt.setDataWriter(writer)
             }
             val notify =
-                main?.getCharacteristic(UUID.fromString("461c0018-449c-449b-9fe5-6259dc3fcbed"))
+                main?.getCharacteristic(UUID.fromString(""))
             val notifyDesc =
-                notify?.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+                notify?.getDescriptor(UUID.fromString(""))
             if (main == null || writer == null || notify == null || notifyDesc == null) {
                 return BluetoothConnectFailReason.CustomErr(3).toReason()
             }
