@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --color-title-bar-default: #ebf6f9;
+    --color-title-bar-small: #f0f3f9;
+    --color-text-base: #000;
+    --color-page-background: #fff;
+
+    --size-title-bar-height: 56px;
+  }
+  .theme-dark {
+    --color-title-bar-default: #3c3c3c;
+    --color-title-bar-small: #3c3c3c;
+    --color-text-base: #fff;
+    --color-page-background: #000;
+  }
+}
