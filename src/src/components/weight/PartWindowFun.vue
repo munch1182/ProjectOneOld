@@ -19,13 +19,13 @@ async function exit() {
 </script>
 
 <template>
-  <div class="flex">
+  <div class="flex h-[30px]">
     <!-- https://learn.microsoft.com/zh-cn/windows/apps/design/style/segoe-ui-symbol-font -->
     <div class="fun" alt="minimize" @click="hide">
       <span>&#xE949;</span>
     </div>
     <div class="fun" alt="maximize" @click="minMax">
-      <span class="text-[12px]">&#xE739;</span>
+      <span class="max">&#xE739;</span>
     </div>
     <div class="fun close" alt="close" @click="exit">
       <span>&#xE711;</span>
@@ -36,10 +36,12 @@ async function exit() {
 <style scoped>
 span {
   color: black;
-  display: flex;
   margin: auto auto;
-  font-size: 12px;
+  font-size: 16px;
   font-family: Segoe MDL2 Assets;
+}
+.max {
+  font-size: 4px;
 }
 .fun {
   position: relative;

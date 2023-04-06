@@ -2,6 +2,7 @@
 </script>
 
 <template>
+    set
 </template>
 
 <style scoped>

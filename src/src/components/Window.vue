@@ -6,20 +6,39 @@ import PartWindowFun from "./weight/PartWindowFun.vue";
 </script>
 
 <template>
-  <WindowSkinContainer>
-    <!-- todo: 高度不应该占满 -->
-    <div
+  <WindowSkinContainer class="flex flex-col">
+    <header
       data-tauri-drag-region
-      class="flex bg-skin-titlebarsmall sm:bg-skin-titlebardef"
+      class="bg-header sm:bg-skin-titlebardef flex"
     >
-      <PartTitleBar class="h-[var(--size-title-bar-height)] w-full">
-        首页
+      <PartTitleBar
+        class="h-[var(--size-title-bar-height)] w-full min-w-[6rem]"
+      >
+        <span class="p-6">Home</span>
       </PartTitleBar>
       <PartWindowFun />
-    </div>
-    <div>
-      <PartNav />
-      <RouterView />
-    </div>
+    </header>
+    <main class="flex flex-auto bg-skin-page">
+      <nav class="flex h-full flex-col">
+        <PartNav />
+      </nav>
+      <div class="h-content w-[1px] bg-[var(--color-default-grey)]"></div>
+      <article class="h-content flex flex-auto">
+        <RouterView />
+      </article>
+    </main>
   </WindowSkinContainer>
 </template>
+
+<style scoped>
+.h-content {
+  height: calc(100vh - var(--size-title-bar-height));
+}
+.bg-header {
+  background-image: linear-gradient(
+    to right bottom,
+    var(--color-title-bar-start-skin),
+    var(--color-title-bar-end-skin)
+  );
+}
+</style>

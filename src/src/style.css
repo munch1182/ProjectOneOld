@@ -4,17 +4,28 @@
 
 @layer base {
   :root {
-    --color-title-bar-default: #ebf6f9;
-    --color-title-bar-small: #f0f3f9;
-    --color-text-base: #000;
-    --color-page-background: #fff;
-
+    /* 默认顶部标题栏高度 */
     --size-title-bar-height: 56px;
+    /* 默认的灰色，比如分割线 */
+    --color-default-grey: #e7e7e7;
+    /* 默认的间距 */
+    --size-padding-default: 16px;
+
+    --color-title-bar-start-skin: #f2f2f2;
+    --color-title-bar-end-skin: #f0f3f9;
+
+    /* 默认页面颜色 */
+    --color-page-background-skin: #fff;
+    /* 默认文字显示颜色 */
+    --color-text-base-skin: #000;
+    /* 默认文字选中颜色 */
+    --color-text-select-skin: #fff;
+    /* 选中颜色 */
+    --color-select-skin: #e7e7e7;
+    /* 鼠标悬浮颜色 */
+    --color-hover-skin: #eeeeee;
   }
   .theme-dark {
-    --color-title-bar-default: #3c3c3c;
-    --color-title-bar-small: #3c3c3c;
-    --color-text-base: #fff;
-    --color-page-background: #000;
+    --color-page-background-skin: #000;
   }
 }
