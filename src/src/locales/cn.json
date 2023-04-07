@@ -1,0 +1,12 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "set": "Set"
+  },
+  "str": {
+    "language": "语言",
+    "language_": "English",
+    "theme": "theme"
+  }
+}

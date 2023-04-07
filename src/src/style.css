@@ -15,7 +15,7 @@
     --color-title-bar-end-skin: #f0f3f9;
 
     /* 默认页面颜色 */
-    --color-page-background-skin: #fff;
+    --color-page-background-skin: #ffffff;
     /* 默认文字显示颜色 */
     --color-text-base-skin: #000;
     /* 默认文字选中颜色 */
@@ -24,8 +24,14 @@
     --color-select-skin: #e7e7e7;
     /* 鼠标悬浮颜色 */
     --color-hover-skin: #eeeeee;
+
+    --size-text-page: 0.5rem;
   }
   .theme-dark {
-    --color-page-background-skin: #000;
+    --color-page-background-skin: #1e1e1e;
+  }
+  .theme-sky {
+    --color-title-bar-start-skin: #0284c7;
+    --color-title-bar-end-skin: #bae6fd;
   }
 }

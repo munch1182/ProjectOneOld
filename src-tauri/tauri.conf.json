@@ -27,6 +27,9 @@
         "unmaximize": true,
         "unminimize": true,
         "startDragging": true
+      },
+      "fs": {
+        "all": true
       }
     },
     "bundle": {

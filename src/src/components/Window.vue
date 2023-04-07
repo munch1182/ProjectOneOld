@@ -18,13 +18,15 @@ import PartWindowFun from "./weight/PartWindowFun.vue";
       </PartTitleBar>
       <PartWindowFun />
     </header>
-    <main class="flex flex-auto bg-skin-page">
+    <main class="flex flex-auto">
       <nav class="flex h-full flex-col">
         <PartNav />
       </nav>
       <div class="h-content w-[1px] bg-[var(--color-default-grey)]"></div>
-      <article class="h-content flex flex-auto">
-        <RouterView />
+      <article class="h-content flex flex-auto p-[var(--size-padding-default)]">
+        <div>
+          <RouterView />
+        </div>
       </article>
     </main>
   </WindowSkinContainer>

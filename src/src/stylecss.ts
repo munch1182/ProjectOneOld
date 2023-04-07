@@ -13,3 +13,7 @@ export const backgroundColor = {
     hover: "var(--color-hover-skin)",
   },
 };
+
+export const fontSize = {
+  page: "var(--size-text-page)",
+};

@@ -5,7 +5,7 @@ const skinStore = useSkinStore();
 </script>
 
 <template>
-  <div :class="skinStore.skin.valueOf()">
+  <div class="bg-skin-page" :class="skinStore.skinClass()">
     <slot></slot>
   </div>
 </template>
